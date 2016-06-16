@@ -1,0 +1,252 @@
+{
+    "Home" : {
+        "title": "TOP",
+        "description": "",
+        "keywords": ""
+    },
+    "Login" : {
+        "title": "ログイン・新規登録",
+        "description": "",
+        "keywords": ""
+    },
+    "Film" : {
+        "title": "",
+        "description": "",
+        "keywords": ""
+    },
+    "Purchase.Login" : {
+        "title": "",
+        "description": "",
+        "keywords": ""
+    },
+    "Purchase.SelectPayment" : {
+        "title": "支払方法 | オンライン券購入",
+        "description": "",
+        "keywords": ""
+    },
+    "Purchase.DisplayPaymentInfo" : {
+        "title": "クレジットカード情報 | オンライン券購入",
+        "description": "",
+        "keywords": ""
+    },
+    "Purchase.EnterCreditCard" : {
+        "title": "クレジットカード情報 | オンライン券購入",
+        "description": "",
+        "keywords": ""
+    },
+    "Purchase.WhatIsSecurityCode" : {
+        "title": "",
+        "description": "",
+        "keywords": ""
+    },
+    "Purchase.EnterMvtkgiftInfo" : {
+        "title": "オンラインGIFT情報 | オンライン券購入",
+        "description": "",
+        "keywords": ""
+    },
+    "Purchase.ConfirmDisplayPaymentInfo" : {
+        "title": "購入内容の確認 | オンライン券購入",
+        "description": "",
+        "keywords": ""
+    },
+    "Purchase.TicketNumberIssued" : {
+        "title": "ムビチケ購入番号の発行 | オンライン券購入",
+        "description": "",
+        "keywords": ""
+    },
+    "Account.ForgotPassword" : {
+        "title": "パスワードのお問い合わせ",
+        "description": "",
+        "keywords": ""
+    },
+    "Account.ForgotPasswordSent" : {
+        "title": "パスワードのお問い合わせ",
+        "description": "",
+        "keywords": ""
+    },
+    "Account.RegistNewPassword" : {
+        "title": "パスワードのお問い合わせ",
+        "description": "",
+        "keywords": ""
+    },
+    "Account.Regist" : {
+        "title": "会員情報の入力 | ムビチケ会員",
+        "description": "",
+        "keywords": ""
+    },
+    "Account.Confirm" : {
+        "title": "会員情報の確認 | ムビチケ会員",
+        "description": "",
+        "keywords": ""
+    },
+    "Account.PreRegistComplete" : {
+        "title": "仮登録 | ムビチケ会員",
+        "description": "",
+        "keywords": ""
+    },
+    "Account.RegistComplete" : {
+        "title": "本登録 | ムビチケ会員",
+        "description": "",
+        "keywords": ""
+    },
+    "DigitalIncentive.DownloadIncentive" : {
+        "title": "特典 | オンライン券購入",
+        "description": "",
+        "keywords": ""
+    },
+    "Campaign.Show" : {
+        "title": "キャンペーン",
+        "description": "",
+        "keywords": ""
+    },
+    "Mvtkgift.BalanceInquiry" : {
+        "title": "ムビチケGIFT情報の確認",
+        "description": "",
+        "keywords": ""
+    },
+    "Mvtkgift.BalanceResult" : {
+        "title": "ムビチケGIFT情報の確認",
+        "description": "",
+        "keywords": ""
+    },
+    "MyPage" : {
+        "title": "マイページ",
+        "description": "",
+        "keywords": ""
+    },
+    "MyPage.UnusedTickets" : {
+        "title": "",
+        "description": "",
+        "keywords": ""
+    },
+    "MyPage.PurchasedTickets" : {
+        "title": "購入履歴 | マイページ",
+        "description": "",
+        "keywords": ""
+    },
+    "MyPage.TicketDetail" : {
+        "title": "オンライン券情報 | マイページ",
+        "description": "",
+        "keywords": ""
+    },
+    "MyPage.EditProfile" : {
+        "title": "プロフィール | マイページ",
+        "description": "",
+        "keywords": ""
+    },
+    "MyPage.ConfirmProfile" : {
+        "title": "プロフィール | マイページ",
+        "description": "",
+        "keywords": ""
+    },
+    "MyPage.CompleteProfile" : {
+        "title": "プロフィール | マイページ",
+        "description": "",
+        "keywords": ""
+    },
+    "Account.ChangePassword" : {
+        "title": "パスワード | マイページ",
+        "description": "",
+        "keywords": ""
+    },
+    "Guide" : {
+        "title": "ご利用ガイド",
+        "description": "",
+        "keywords": ""
+    },
+    "Guide.Online" : {
+        "title": "ムビチケオンライン券について",
+        "description": "",
+        "keywords": ""
+    },
+    "Guide.Mvtkgift" : {
+        "title": "ムビチケGIFTについて",
+        "description": "",
+        "keywords": ""
+    },
+    "Guide.Reservation" : {
+        "title": "座席指定について",
+        "description": "",
+        "keywords": ""
+    },
+    "Guide.Account" : {
+        "title": "ムビチケ会員について",
+        "description": "",
+        "keywords": ""
+    },
+    "Guide.Others" : {
+        "title": "その他",
+        "description": "",
+        "keywords": ""
+    },
+    "FAQ" : {
+        "title": "よくあるご質問",
+        "description": "",
+        "keywords": ""
+    },
+    "SupportedTheaters" : {
+        "title": "対応劇場",
+        "description": "",
+        "keywords": ""
+    },
+    "TermsAndConditions" : {
+        "title": "利用規約",
+        "description": "",
+        "keywords": ""
+    },
+    "MvtkGiftPolicy" : {
+        "title": "ムビチケGIFT利用約款",
+        "description": "",
+        "keywords": ""
+    },
+    "BusinessDeal" : {
+        "title": "特定商取引法に基づく表示",
+        "description": "",
+        "keywords": ""
+    },
+    "PrivacyPolicy" : {
+        "title": "プライバシーポリシー",
+        "description": "",
+        "keywords": ""
+    },
+    "AccountTerms" : {
+        "title": "会員規約",
+        "description": "",
+        "keywords": ""
+    },
+    "SpecificPersonalInformationPolicy" : {
+        "title": "特定個人情報の適正な取扱い に関する基本方針",
+        "description": "",
+        "keywords": ""
+    },
+    "AboutUs" : {
+        "title": "会社概要",
+        "description": "",
+        "keywords": ""
+    },
+    "SiteMap" : {
+        "title": "サイトマップ",
+        "description": "",
+        "keywords": ""
+    },
+    "Information" : {
+        "title": "ムビチケからのお知らせ",
+        "description": "",
+        "keywords": ""
+    },
+    "ContactUs" : {
+        "title": "お問合わせ",
+        "description": "",
+        "keywords": ""
+    },
+    "ConfirmContactUs" : {
+        "title": "お問合わせ",
+        "description": "",
+        "keywords": ""
+    },
+    "CompleteContactUs" : {
+        "title": "お問合わせ",
+        "description": "",
+        "keywords": ""
+    }
+}

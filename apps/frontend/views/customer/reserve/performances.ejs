@@ -1,0 +1,18 @@
+<h1>スケジュール選択</h1>
+
+<% performances.forEach(function(performance, index) { %>
+<%- util.inspect(performance) %>
+<a>
+<%- performance.day %><br>
+<%- performance.theater_id %><br>
+<%- performance.screen_id %><br>
+<%- performance.start_time %><br>
+<%- performance.end_time %><br>
+</a>
+<% }) %>
+
+<form method="post">
+<%- form.toHTML() %>
+<a href="<%- url('customer.reserve.terms', {token: req.params.token}) %>">戻る</a>
+<input type="submit">
+</form>

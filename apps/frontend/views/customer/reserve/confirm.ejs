@@ -1,0 +1,7 @@
+<h1>確認</h1>
+
+<form method="post">
+<%- form.toHTML() %>
+<a href="<%- url('customer.reserve.howtopay', {token: req.params.token}) %>">戻る</a>
+<input type="submit">
+</form>

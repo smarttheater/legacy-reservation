@@ -1,0 +1,34 @@
+{
+  "name": "mwsr_src",
+  "version": "0.0.0",
+  "dependencies": {
+    "azure-storage": "registry:npm/azure-storage#0.10.0+20160521065027",
+    "redis": "registry:npm/redis#0.12.1+20160502170935"
+  },
+  "globalDependencies": {
+    "body-parser": "registry:dt/body-parser#0.0.0+20160317120654",
+    "commander": "registry:dt/commander#2.3.0+20160317120654",
+    "config": "registry:dt/config#0.0.0+20160317120654",
+    "cookie-parser": "registry:dt/cookie-parser#1.3.4+20160316155526",
+    "debug": "registry:dt/debug#0.0.0+20160317120654",
+    "documentdb": "registry:dt/documentdb#0.0.0+20160316155526",
+    "ejs": "registry:dt/ejs#0.0.0+20160317120654",
+    "es6-promise": "registry:dt/es6-promise#0.0.0+20160423074304",
+    "express": "registry:dt/express#4.0.0+20160317120654",
+    "express-partials": "registry:dt/express-partials#0.0.0+20160316155526",
+    "express-serve-static-core": "registry:dt/express-serve-static-core#0.0.0+20160322035842",
+    "express-session": "registry:dt/express-session#0.0.0+20160331200931",
+    "express-useragent": "registry:dt/express-useragent#0.2.4+20160412141759",
+    "fs-extra": "registry:dt/fs-extra#0.0.0+20160319124112",
+    "jquery": "registry:dt/jquery#1.10.0+20160417213236",
+    "log4js": "registry:dt/log4js#0.0.0+20160316155526",
+    "mime": "registry:dt/mime#0.0.0+20160316155526",
+    "mongodb": "registry:dt/mongodb#2.1.0+20160512045721",
+    "multer": "registry:dt/multer#0.0.0+20160317120654",
+    "node": "registry:dt/node#6.0.0+20160514165920",
+    "serve-favicon": "registry:dt/serve-favicon#0.0.0+20160316155526",
+    "serve-static": "registry:dt/serve-static#0.0.0+20160501131543",
+    "soap": "registry:dt/soap#0.0.0+20160512045819",
+    "sprintf": "registry:dt/sprintf#0.0.0+20160316155526"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "name": "tiff_src_prototype",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./index.js"
+  },
+  "dependencies": {
+    "azure-storage": "^0.10.0",
+    "body-parser": "^1.15.0",
+    "commander": "^2.9.0",
+    "config": "^1.20.1",
+    "connect-redis": "^3.0.2",
+    "cookie-parser": "^1.4.1",
+    "debug": "^2.2.0",
+    "documentdb": "^1.7.0",
+    "ejs": "^2.4.1",
+    "express": "^4.13.4",
+    "express-partials": "^0.3.0",
+    "express-session": "^1.13.0",
+    "express-useragent": "^0.2.4",
+    "forms": "^1.1.4",
+    "fs-extra": "^0.28.0",
+    "jquery": "^2.2.4",
+    "log4js": "^0.6.35",
+    "moment": "^2.13.0",
+    "mongodb": "^2.1.19",
+    "mongoose": "^4.4.19",
+    "multer": "^1.1.0",
+    "named-routes": "^2.0.5",
+    "redis": "^2.6.1",
+    "serve-favicon": "^2.3.0",
+    "soap": "^0.13.0",
+    "soap-cookie": "^0.10.1",
+    "sprintf": "^0.1.5",
+    "uniqid": "^3.0.0"
+  },
+  "main": "index.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://m-p.backlog.jp/git/TIFF/src_prototype.git"
+  },
+  "author": "motionpicture",
+  "license": "ISC",
+  "description": "This is a repogitory for TIFF online website."
+}
