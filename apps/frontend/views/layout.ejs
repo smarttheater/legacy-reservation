@@ -9,9 +9,9 @@ if (req.hasOwnProperty('route')) {
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title><%- (metas === null) ? 'ムビチケ' : `${metas.title} | ムビチケ` %></title>
-<meta name="description" content="<%- (metas === null) ? '' : metas.description %>">
-<meta name="keywords" content="<%- (metas === null) ? '' : metas.keywords %>">
+<title></title>
+<meta name="description" content="">
+<meta name="keywords" content="">
 <meta name="viewport" content="width=device-width,user-scalable=no,maximum-scale=1" />
 
 </head>
@@ -19,11 +19,11 @@ if (req.hasOwnProperty('route')) {
 <body>
 <div class="wrapper">
 
-<%- include('./layouts/_header') -%>
+<%- include('./layouts/_header') %>
 
 <%- body %>
 
-<%- include('./layouts/_footer') -%>
+<%- include('./layouts/_footer') %>
 
 </div>
 </body>

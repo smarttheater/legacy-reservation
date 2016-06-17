@@ -8,8 +8,7 @@ import CustomerReserveHowtopayForm from '../../../forms/Customer/Reserve/Custome
 import CustomerReserveConfirmForm from '../../../forms/Customer/Reserve/CustomerReserveConfirmForm';
 
 import conf = require('config');
-import PerformanceSchema from '../../../../common/schemas/PerformanceSchema';
-import * as Models from '../../../../common/models/Models';
+import Models from '../../../../common/models/Models';
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 let mongoose = require('mongoose');
@@ -71,7 +70,6 @@ export default class CustomerReserveController extends BaseController {
         } else {
             // パフォーマンスを取得
             mongoose.connect(MONGOLAB_URI);
-            // let Performance = mongoose.model('performance', PerformanceSchema);
             Models.Performance.find()
                 .populate('film_id')
                 .exec((err, performances) => {

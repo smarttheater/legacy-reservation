@@ -60,20 +60,5 @@ export default class BaseController
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;
         this.res.locals.util = util;
-
-
-        // メタタグ情報を設定ファイルから読み込んで、テンプレート変数へ渡す
-        this.res.locals.metas = null;
-
-        let fs = require('fs-extra');
-        let metaInfosFile = `${__dirname}/../routes/metas.json`;
-        let metaInfosJson = fs.readFileSync(metaInfosFile);
-        try {
-            let metaInfos = JSON.parse(metaInfosJson);
-            if (metaInfos.hasOwnProperty(this.req.route.name)) {
-                this.res.locals.metas = metaInfos[this.req.route.name];
-            }
-        } catch (error) {
-        }
     }
 }
