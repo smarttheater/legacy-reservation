@@ -1,3 +1,6 @@
+import redis = require('redis');
+import conf = require('config');
+
 /**
  * ムビチケ共通のユーティリティ
  */
@@ -21,5 +24,17 @@ export default class Util {
 
         let token = md5hash.digest('hex');
         return token;
+    }
+
+    public static getRedisClient(): redis.RedisClient {
+        let client = redis.createClient(
+            conf.get<number>('redis_port'),
+            conf.get<string>('redis_host'),
+            {
+                password: conf.get<string>('redis_key')
+            }
+        );
+
+        return client;
     }
 }

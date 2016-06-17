@@ -24,6 +24,7 @@
     "log4js": "registry:dt/log4js#0.0.0+20160316155526",
     "mime": "registry:dt/mime#0.0.0+20160316155526",
     "mongodb": "registry:dt/mongodb#2.1.0+20160512045721",
+    "mongoose": "registry:dt/mongoose#3.8.5+20160614090725",
     "multer": "registry:dt/multer#0.0.0+20160317120654",
     "node": "registry:dt/node#6.0.0+20160514165920",
     "serve-favicon": "registry:dt/serve-favicon#0.0.0+20160316155526",

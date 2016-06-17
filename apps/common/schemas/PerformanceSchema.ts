@@ -1,13 +1,15 @@
-let mongoose = require('mongoose');
+import mongoose = require('mongoose');
 
 let PerformanceSchema = new mongoose.Schema({
-    'theater_id': { 
-        type: String,
+    'theater': { 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Theater'
     },
-    'screen_id': { 
-        type: String,
+    'screen': { 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Screen'
     },
-    'film_id': { 
+    'film': { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Film'
     },
@@ -20,7 +22,7 @@ let PerformanceSchema = new mongoose.Schema({
     'end_time': { 
         type: String, 
     },
-    'ticket': [
+    'tickets': [
         {
             "type": {
                 type: String
@@ -36,6 +38,12 @@ let PerformanceSchema = new mongoose.Schema({
             },
         }
     ],
+    'created_user': { 
+        type: String,
+    },
+    'updated_user': { 
+        type: String,
+    },
 },{
     collection: 'performance',
     timestamps: { 

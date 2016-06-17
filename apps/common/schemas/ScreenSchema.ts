@@ -1,18 +1,19 @@
 import mongoose = require('mongoose');
 
-let FilmSchema = new mongoose.Schema({
+let ScreenSchema = new mongoose.Schema({
+    'theater': { 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Theater'
+    },
     'name': { 
         type: String,
     },
     'name_en': { 
         type: String,
     },
-    'film_min': { 
-        type: Number,
-    },
-    'genre': [
+    'sections': [
          {
-            "type": { 
+            "code": { 
                 type: String,
             },
             "name": { 
@@ -21,6 +22,16 @@ let FilmSchema = new mongoose.Schema({
             "name_en": { 
                 type: String,
             },
+            "seats": [
+                {
+                    "code": { 
+                        type: String,
+                    },
+                    "enabled": { 
+                        type: Boolean,
+                    },
+                },
+            ]
         },
     ],
     'created_user': { 
@@ -30,11 +41,11 @@ let FilmSchema = new mongoose.Schema({
         type: String,
     },
 },{
-    collection: 'film',
+    collection: 'screen',
     timestamps: { 
         createdAt: 'created_dt',
         updatedAt: 'updated_dt',
     }
 });
 
-export default FilmSchema;
+export default ScreenSchema;

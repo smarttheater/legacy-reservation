@@ -10,10 +10,10 @@ export default class CustomerReservePerformanceForm extends BaseForm {
 
         this.form = this.forms.create(
             {
-                token: fields.string({
-                    label: 'トークン',
+                performance_id: fields.string({
+                    label: 'パフォーマンス',
                     widget: widgets.hidden(),
-                    required: false,
+                    required: true,
                     validators: [
                     ]
                 })

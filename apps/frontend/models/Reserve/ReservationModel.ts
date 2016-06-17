@@ -1,25 +1,26 @@
 import PurchaseResultModel from './PurchaseResultModel';
-import redis = require('redis');
-import conf = require('config');
-let client = redis.createClient(
-    conf.get<number>('redis_port'),
-    conf.get<string>('redis_host'),
-    {
-        password: conf.get<string>('redis_key')
-    }
-);
+import Util from '../../../common/Util/Util';
+
+import Models from '../../../common/mongooseModels/Models';
+
+import mongoose = require('mongoose');
 
 /**
- * 購入情報モデル
+ * 予約情報モデル
  * 
- * 購入プロセス中の情報を全て管理するためのモデルです
- * この情報をセッションで引き継くことで、購入プロセスを管理しています
+ * 予約プロセス中の情報を全て管理するためのモデルです
+ * この情報をセッションで引き継くことで、予約プロセスを管理しています
  */
-export default class PurchaseInfoModel {
+export default class ReservationModel {
     /**
-     * 決済トークン
+     * 予約トークン
      */
     public token: string;
+
+    /**
+     * パフォーマンス
+     */
+    public performance: mongoose.Document;
 
     /**
      * プロセス中の購入情報をセッションに保存する
@@ -27,8 +28,10 @@ export default class PurchaseInfoModel {
      * 有効期間: 3600秒
      */
     public save(cb: (err: Error) => any) {
-        let key = PurchaseInfoModel.getRedisKey(this.token);
+        let client = Util.getRedisClient();
+        let key = ReservationModel.getRedisKey(this.token);
         client.setex(key, 3600, JSON.stringify(this), (err, reply) => {
+            client.quit();
             cb(err);
         });
     }
@@ -37,8 +40,10 @@ export default class PurchaseInfoModel {
      * プロセス中の購入情報をセッションに保存する
      */
     public remove(cb: (err: Error) => any) {
-        let key = PurchaseInfoModel.getRedisKey(this.token);
+        let client = Util.getRedisClient();
+        let key = ReservationModel.getRedisKey(this.token);
         client.del(key, (err, reply) => {
+            client.quit();
             cb(err);
         });
     }
@@ -46,9 +51,12 @@ export default class PurchaseInfoModel {
     /**
      * プロセス中の購入情報をセッションから取得する
      */
-    public static find(token: string, cb: (err: Error, purchaseInfo: PurchaseInfoModel) => any): void {
-        let key = PurchaseInfoModel.getRedisKey(token);
+    public static find(token: string, cb: (err: Error, reservationModel: ReservationModel) => any): void {
+        let client = Util.getRedisClient();
+        let key = ReservationModel.getRedisKey(token);
         client.get(key, (err, reply) => {
+            client.quit();
+
             if (err) {
                 cb(err, null);
             } else {
@@ -56,13 +64,13 @@ export default class PurchaseInfoModel {
                     cb(err, null);
 
                 } else {
-                    let purchaseInfo = new PurchaseInfoModel();
-                    let purchaseInfoInRedis = JSON.parse(reply);
-                    for (let propertyName in purchaseInfoInRedis) {
-                        purchaseInfo[propertyName] = purchaseInfoInRedis[propertyName];
+                    let reservationModel = new ReservationModel();
+                    let reservationModelInRedis = JSON.parse(reply);
+                    for (let propertyName in reservationModelInRedis) {
+                        reservationModel[propertyName] = reservationModelInRedis[propertyName];
                     }
 
-                    cb(err, purchaseInfo);
+                    cb(err, reservationModel);
                 }
             }
         });
@@ -75,7 +83,7 @@ export default class PurchaseInfoModel {
      * @return {string}
      */
     private static getRedisKey(token): string {
-        return `PurchaseInfo_${token}`;
+        return `TIFFReservation_${token}`;
     }
 
     /**
