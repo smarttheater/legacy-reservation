@@ -1,5 +1,8 @@
 import mongoose = require('mongoose');
 
+/**
+ * パフォーマンススキーマ
+ */
 let PerformanceSchema = new mongoose.Schema({
     'theater': { 
         type: mongoose.Schema.Types.ObjectId,
@@ -22,22 +25,6 @@ let PerformanceSchema = new mongoose.Schema({
     'end_time': { 
         type: String, 
     },
-    'tickets': [
-        {
-            "type": {
-                type: String
-            },
-            "name": {
-                type: String
-            },
-            "name_en": {
-                type: String
-            },
-            "sales_price": {
-                type: Number
-            },
-        }
-    ],
     'created_user': { 
         type: String,
     },

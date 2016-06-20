@@ -1,7 +1,68 @@
 <h1>座席選択</h1>
 
+<div class="row">
+    <div class="col-md-6">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+
+                <tbody>
+                    <tr>
+                    <% performance.screen.sections[0].seats.forEach(function(seat, index) { %>
+                        <% if (index % 12 === 0) { %>
+                        </tr>
+                        <tr>
+                        <% } %>
+                        <th scope="row"><a href="javascript:void(0);" onclick="selectSeat('<%- seat.code %>')"><%- seat.code %></a></th>
+                    <% }) %>
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6 tickets hidden">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>type</th>
+                        <th>name</th>
+                        <th>name_en</th>
+                        <th>sales_price</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <% performance.tickets.forEach(function(ticket, index) { %>
+                    <tr>
+                        <th scope="row"><a href="javascript:void(0);" onclick=""><%- ticket.type %></a></th>
+                        <td><%- ticket.name %></td>
+                        <td><%- ticket.name_en %></td>
+                        <td><%- ticket.sales_price %></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+function selectSeat(seatCode) {
+    console.log(seatCode);
+    $('input[name="seat_code"]').val(seatCode);
+
+    // $('form').submit();
+    $('.tickets').removeClass('hidden');
+    return false;
+}
+</script>
+
 <form method="post">
 <%- form.toHTML() %>
-<a href="<%- url('customer.reserve.performances', {token: req.params.token}) %>">戻る</a>
-<input type="submit">
 </form>
+
+<a class="btn btn-default btn-lg btn-block" href="<%- url('customer.reserve.performances', {token: req.params.token}) %>">戻る</a>

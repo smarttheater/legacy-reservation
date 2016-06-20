@@ -1,5 +1,8 @@
 import mongoose = require('mongoose');
 
+/**
+ * 作品スキーマ
+ */
 let FilmSchema = new mongoose.Schema({
     'name': { 
         type: String,

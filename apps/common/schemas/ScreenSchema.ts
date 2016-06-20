@@ -1,5 +1,8 @@
 import mongoose = require('mongoose');
 
+/**
+ * スクリーンスキーマ
+ */
 let ScreenSchema = new mongoose.Schema({
     'theater': { 
         type: mongoose.Schema.Types.ObjectId,

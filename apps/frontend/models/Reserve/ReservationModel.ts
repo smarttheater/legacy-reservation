@@ -20,7 +20,27 @@ export default class ReservationModel {
     /**
      * パフォーマンス
      */
-    public performance: mongoose.Document;
+    public performance: Object;
+
+    /**
+     * 予約座席リスト
+     */
+    public reservationSeats: Array<Object>;
+
+    /**
+     * 券種選択リスト
+     */
+    public ticketChoices: Array<Object>;
+
+    /**
+     * プロフィール
+     */
+    public profile: Object;
+
+    /**
+     * 決済方法
+     */
+    public paymentMethod: String;
 
     /**
      * プロセス中の購入情報をセッションに保存する

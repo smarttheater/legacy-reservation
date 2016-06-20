@@ -1,5 +1,8 @@
 import mongoose = require('mongoose');
 
+/**
+ * 劇場スキーマ
+ */
 let TheaterSchema = new mongoose.Schema({
     'name': { 
         type: String,

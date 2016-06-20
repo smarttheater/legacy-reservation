@@ -1,19 +1,15 @@
-import redis = require('redis');
-import conf = require('config');
-let client = redis.createClient(
-    conf.get<number>('redis_port'),
-    conf.get<string>('redis_host'),
-    {
-        password: conf.get<string>('redis_key')
-    }
-);
+import Util from '../../../common/Util/Util';
+
+import Models from '../../../common/mongooseModels/Models';
+
+import mongoose = require('mongoose');
 
 /**
- * 購入結果モデル
+ * 予約結果モデル
  */
-export default class PurchaseResultModel {
+export default class ReservationResultModel {
     /**
-     * 購入トークン
+     * トークン
      */
     public token: string;
 
@@ -23,8 +19,10 @@ export default class PurchaseResultModel {
      * 有効期間: 3600秒
      */
     public save(cb: (err: Error) => any) {
-        let key = PurchaseResultModel.getRedisKey(this.token);
+        let client = Util.getRedisClient();
+        let key = ReservationResultModel.getRedisKey(this.token);
         client.setex(key, 3600, JSON.stringify(this), (err, reply) => {
+            client.quit();
             cb(err);
         });
     }
@@ -33,8 +31,10 @@ export default class PurchaseResultModel {
      * プロセス中の購入情報をセッションに保存する
      */
     public remove(cb: (err: Error) => any) {
-        let key = PurchaseResultModel.getRedisKey(this.token);
+        let client = Util.getRedisClient();
+        let key = ReservationResultModel.getRedisKey(this.token);
         client.del(key, (err, reply) => {
+            client.quit();
             cb(err);
         });
     }
@@ -42,9 +42,12 @@ export default class PurchaseResultModel {
     /**
      * プロセス中の購入情報をセッションから取得する
      */
-    public static find(token: string, cb: (err: Error, purchaseResult: PurchaseResultModel) => any): void {
-        let key = PurchaseResultModel.getRedisKey(token);
+    public static find(token: string, cb: (err: Error, purchaseResult: ReservationResultModel) => any): void {
+        let client = Util.getRedisClient();
+        let key = ReservationResultModel.getRedisKey(token);
         client.get(key, (err, reply) => {
+            client.quit();
+
             if (err) {
                 cb(err, null);
             } else {
@@ -52,7 +55,7 @@ export default class PurchaseResultModel {
                     cb(err, null);
 
                 } else {
-                    let purchaseResult = new PurchaseResultModel();
+                    let purchaseResult = new ReservationResultModel();
                     let purchaseInfoInRedis = JSON.parse(reply);
                     for (let propertyName in purchaseInfoInRedis) {
                         purchaseResult[propertyName] = purchaseInfoInRedis[propertyName];
@@ -71,7 +74,7 @@ export default class PurchaseResultModel {
      * @return {string}
      */
     private static getRedisKey(token): string {
-        return `PurchaseResult_${token}`;
+        return `TIFFReservationResult_${token}`;
     }
 
     /**

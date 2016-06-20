@@ -1,6 +1,6 @@
 import BaseForm from '../../BaseForm';
 
-export default class CustomerReserveHowtopayForm extends BaseForm {
+export default class CustomerReservePayForm extends BaseForm {
     public constructor() {
         super();
 
@@ -10,10 +10,10 @@ export default class CustomerReserveHowtopayForm extends BaseForm {
 
         this.form = this.forms.create(
             {
-                token: fields.string({
-                    label: 'トークン',
+                method: fields.string({
+                    label: '決済方法',
                     widget: widgets.hidden(),
-                    required: false,
+                    required: true,
                     validators: [
                     ]
                 })

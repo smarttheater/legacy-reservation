@@ -4,7 +4,7 @@ import CustomerReserveTermsForm from '../../../forms/Customer/Reserve/CustomerRe
 import CustomerReservePerformanceForm from '../../../forms/Customer/Reserve/CustomerReservePerformanceForm';
 import CustomerReserveSeatForm from '../../../forms/Customer/Reserve/CustomerReserveSeatForm';
 import CustomerReserveProfileForm from '../../../forms/Customer/Reserve/CustomerReserveProfileForm';
-import CustomerReserveHowtopayForm from '../../../forms/Customer/Reserve/CustomerReserveHowtopayForm';
+import CustomerReserveHowtopayForm from '../../../forms/Customer/Reserve/CustomerReservePayForm';
 import CustomerReserveConfirmForm from '../../../forms/Customer/Reserve/CustomerReserveConfirmForm';
 
 import conf = require('config');
@@ -77,8 +77,9 @@ export default class CustomerReserveController extends BaseController {
                             }
 
                             this.logger.debug('selected performance is ', performance);
+
                             // パフォーマンス情報を保存して座席選択へ
-                            reservationModel.performance = performance;
+                            reservationModel.performance = performance.toObject();
                             reservationModel.save((err) => {
                                 this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
                             });
@@ -94,11 +95,17 @@ export default class CustomerReserveController extends BaseController {
             } else {
                 // パフォーマンスを取得
                 mongoose.connect(MONGOLAB_URI);
+
+                // PerformanceModel.find({}, null, {sort : {day: -1}, limit: 100})
                 Models.Performance.find({}, null, {sort : {day: -1}, limit: 100})
                     .populate('film screen theater') // スペースつなぎで、複数populateできる
                     .exec((err, performances) => {
-
                     mongoose.disconnect();
+
+                    let performance = new Models.Performance(performances[0]);
+                    console.log(performance.get('theater'));
+                    console.log(performance.isModified('theater'));
+
 
                     if (err) {
                         this.next(new Error('スケジュールを取得できませんでした'));
@@ -143,8 +150,24 @@ export default class CustomerReserveController extends BaseController {
                     }
                 });
             } else {
-                this.res.render('customer/reserve/seats', {
-                    form: customerReserveSeatForm.form
+                // パフォーマンスを取得
+                mongoose.connect(MONGOLAB_URI);
+                let performanceModel = new Models.Performance(reservationModel.performance);
+                Models.Performance.findOne({_id: performanceModel.get(('id'))}, null)
+                    .populate('film screen theater')
+                    .exec((err, performance) => {
+                    // TODO 予約座席リストを取得
+
+                    mongoose.disconnect();
+
+                    if (err) {
+                        this.next(new Error('スケジュールを取得できませんでした'));
+                    } else {
+                        this.res.render('customer/reserve/seats', {
+                            form: customerReserveSeatForm.form,
+                            performance: performance
+                        });
+                    }
                 });
             }
         });
