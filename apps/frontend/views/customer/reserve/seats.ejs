@@ -7,12 +7,12 @@
 
                 <tbody>
                     <tr>
-                    <% performance.screen.sections[0].seats.forEach(function(seat, index) { %>
+                    <% seats.forEach(function(seat, index) { %>
                         <% if (index % 12 === 0) { %>
                         </tr>
                         <tr>
                         <% } %>
-                        <th scope="row"><a href="javascript:void(0);" onclick="selectSeat('<%- seat.code %>')"><%- seat.code %></a></th>
+                        <th scope="row"><a href="javascript:void(0);" onclick="selectSeat('<%- seat.code %>', '<%- JSON.stringify(seat.tickets).replace(/"/g, '&quot;') %>')"><%- seat.code %></a></th>
                     <% }) %>
                     </tr>
                 </tbody>
@@ -35,14 +35,6 @@
 
                 <tbody>
 
-                    <% performance.tickets.forEach(function(ticket, index) { %>
-                    <tr>
-                        <th scope="row"><a href="javascript:void(0);" onclick=""><%- ticket.type %></a></th>
-                        <td><%- ticket.name %></td>
-                        <td><%- ticket.name_en %></td>
-                        <td><%- ticket.sales_price %></td>
-                    </tr>
-                    <% }) %>
                 </tbody>
             </table>
         </div>
@@ -51,11 +43,27 @@
 
 
 <script>
-function selectSeat(seatCode) {
+function selectSeat(seatCode, tickets) {
     console.log(seatCode);
+    console.log(JSON.parse(tickets));
     $('input[name="seat_code"]').val(seatCode);
 
     // $('form').submit();
+
+    var ticketsHtml = '';
+    JSON.parse(tickets).forEach(function(ticket, index) {
+        ticketsHtml += `
+<tr>
+    <th scope="row"><a href="javascript:void(0);" onclick="">${ticket.type}</a></th>
+    <td class="name">${ticket.name}</td>
+    <td class="name_en">${ticket.name_en}</td>
+    <td class="sales_price">${ticket.sales_price}</td>
+</tr>
+    `;
+
+    });
+
+    $('.tickets tbody').html(ticketsHtml);
     $('.tickets').removeClass('hidden');
     return false;
 }

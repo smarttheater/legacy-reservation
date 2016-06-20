@@ -37,7 +37,7 @@ let PerformanceSeatSchema = new mongoose.Schema({
         type: String,
     },
 },{
-    collection: 'theater',
+    collection: 'performance_seats',
     timestamps: { 
         createdAt: 'created_dt',
         updatedAt: 'updated_dt',

@@ -44,7 +44,7 @@ let ScreenSchema = new mongoose.Schema({
         type: String,
     },
 },{
-    collection: 'screen',
+    collection: 'screens',
     timestamps: { 
         createdAt: 'created_dt',
         updatedAt: 'updated_dt',

@@ -152,22 +152,30 @@ export default class CustomerReserveController extends BaseController {
             } else {
                 // パフォーマンスを取得
                 mongoose.connect(MONGOLAB_URI);
-                let performanceModel = new Models.Performance(reservationModel.performance);
-                Models.Performance.findOne({_id: performanceModel.get(('id'))}, null)
+                let performance = new Models.Performance(reservationModel.performance);
+
+                Models.Performance.findOne({_id: performance.get(('id'))}, null)
                     .populate('film screen theater')
                     .exec((err, performance) => {
-                    // TODO 予約座席リストを取得
-
-                    mongoose.disconnect();
 
                     if (err) {
-                        this.next(new Error('スケジュールを取得できませんでした'));
-                    } else {
-                        this.res.render('customer/reserve/seats', {
-                            form: customerReserveSeatForm.form,
-                            performance: performance
-                        });
+                        return this.next(new Error('スケジュールを取得できませんでした'));
                     }
+
+                    // TODO パフォーマンス座席リストを取得
+                    Models.PerformanceSeat.find({performance: performance.get(('id'))}, null, null, (err, docs) => {
+                        mongoose.disconnect();
+
+                        if (err) {
+                            this.next(new Error('スケジュールを取得できませんでした'));
+                        } else {
+                            this.res.render('customer/reserve/seats', {
+                                form: customerReserveSeatForm.form,
+                                performance: performance,
+                                seats: docs
+                            });
+                        }
+                    })
                 });
             }
         });

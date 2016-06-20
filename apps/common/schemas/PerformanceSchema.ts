@@ -32,7 +32,7 @@ let PerformanceSchema = new mongoose.Schema({
         type: String,
     },
 },{
-    collection: 'performance',
+    collection: 'performances',
     timestamps: { 
         createdAt: 'created_dt',
         updatedAt: 'updated_dt',

@@ -15,7 +15,7 @@ let ReservationSchema = new mongoose.Schema({
         type: String,
     },
 },{
-    collection: 'reservation',
+    collection: 'reservations',
     timestamps: { 
         createdAt: 'created_dt',
         updatedAt: 'updated_dt',

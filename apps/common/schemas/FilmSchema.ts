@@ -33,7 +33,7 @@ let FilmSchema = new mongoose.Schema({
         type: String,
     },
 },{
-    collection: 'film',
+    collection: 'films',
     timestamps: { 
         createdAt: 'created_dt',
         updatedAt: 'updated_dt',
