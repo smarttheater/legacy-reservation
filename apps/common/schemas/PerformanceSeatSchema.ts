@@ -25,7 +25,7 @@ let PerformanceSeatSchema = new mongoose.Schema({
             "name_en": {
                 type: String
             },
-            "sales_price": {
+            "price": {
                 type: Number
             },
         }

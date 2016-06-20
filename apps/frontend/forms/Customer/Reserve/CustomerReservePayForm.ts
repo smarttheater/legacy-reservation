@@ -12,10 +12,13 @@ export default class CustomerReservePayForm extends BaseForm {
             {
                 method: fields.string({
                     label: '決済方法',
-                    widget: widgets.hidden(),
+                    widget: widgets.multipleRadio(),
                     required: true,
                     validators: [
-                    ]
+                    ],
+                    choices: {
+                        '01': 'クレジットカード決済'
+                    }
                 })
             },
             this.options

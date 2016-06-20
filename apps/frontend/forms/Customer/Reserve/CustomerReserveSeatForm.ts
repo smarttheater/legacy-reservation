@@ -10,10 +10,10 @@ export default class CustomerReserveSeatForm extends BaseForm {
 
         this.form = this.forms.create(
             {
-                method: fields.string({
+                choices: fields.string({
                     label: '決済方法',
                     widget: widgets.hidden(),
-                    required: false,
+                    required: true,
                     validators: [
                     ]
                 })

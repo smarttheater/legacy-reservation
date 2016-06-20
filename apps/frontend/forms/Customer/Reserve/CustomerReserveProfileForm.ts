@@ -8,12 +8,14 @@ export default class CustomerReserveProfileForm extends BaseForm {
         let validators = this.forms.validators;
         let widgets = this.forms.widgets;
 
-        validators.matchEmail = (form, field, callback) => {
-            if (form.fields.email.data !== `${form.fields.emailConfirm.data}@${form.fields.emailConfirmDomain.data}`) {
-                callback('メールアドレスが一致しません');
-            } else {
-                callback();
-            }
+        validators.matchEmail = () => {
+            return (form, field, callback) => {
+                if (form.fields.email.data !== `${form.fields.emailConfirm.data}@${form.fields.emailConfirmDomain.data}`) {
+                    callback('メールアドレスが一致しません');
+                } else {
+                    callback();
+                }
+            };
         };
 
         this.form = this.forms.create(

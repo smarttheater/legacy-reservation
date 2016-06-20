@@ -4,7 +4,7 @@ import CustomerReserveTermsForm from '../../../forms/Customer/Reserve/CustomerRe
 import CustomerReservePerformanceForm from '../../../forms/Customer/Reserve/CustomerReservePerformanceForm';
 import CustomerReserveSeatForm from '../../../forms/Customer/Reserve/CustomerReserveSeatForm';
 import CustomerReserveProfileForm from '../../../forms/Customer/Reserve/CustomerReserveProfileForm';
-import CustomerReserveHowtopayForm from '../../../forms/Customer/Reserve/CustomerReservePayForm';
+import CustomerReservePayForm from '../../../forms/Customer/Reserve/CustomerReservePayForm';
 import CustomerReserveConfirmForm from '../../../forms/Customer/Reserve/CustomerReserveConfirmForm';
 
 import conf = require('config');
@@ -69,17 +69,40 @@ export default class CustomerReserveController extends BaseController {
                         // パフォーマンス取得
                         this.logger.debug('searching performance... id:', form.data.performance_id);
                         mongoose.connect(MONGOLAB_URI);
-                        Models.Performance.findOne({_id: form.data.performance_id}, {}, (err, performance) => {
+                        Models.Performance.findOne({_id: form.data.performance_id}, {})
+                            .populate('film screen theater') // スペースつなぎで、複数populateできる
+                            .exec((err, performance) => {
+
                             mongoose.disconnect();
 
                             if (err) {
                                 return this.next(err);
                             }
 
-                            this.logger.debug('selected performance is ', performance);
-
                             // パフォーマンス情報を保存して座席選択へ
-                            reservationModel.performance = performance.toObject();
+                            reservationModel.performance = {
+                                _id: performance._id,
+                                day: performance.get('day'),
+                                start_time: performance.get('start_time'),
+                                end_time: performance.get('end_time'),
+                                theater: {
+                                    _id: performance.get('theater').get('_id'),
+                                    name: performance.get('theater').get('name'),
+                                    name_en: performance.get('theater').get('name_en'),
+                                },
+                                screen: {
+                                    _id: performance.get('screen').get('_id'),
+                                    name: performance.get('screen').get('name'),
+                                    name_en: performance.get('screen').get('name_en'),
+                                },
+                                film: {
+                                    _id: performance.get('film').get('_id'),
+                                    name: performance.get('film').get('name'),
+                                    name_en: performance.get('film').get('name_en'),
+                                }
+                            };
+
+                            this.logger.debug('saving reservationModel... ', reservationModel);
                             reservationModel.save((err) => {
                                 this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
                             });
@@ -136,17 +159,36 @@ export default class CustomerReserveController extends BaseController {
                     success: (form) => {
                         customerReserveSeatForm.form = form;
 
-                        this.res.redirect(this.router.build('customer.reserve.profile', {token: token}));
+                        // 座席選択情報を保存して座席選択へ
+                        reservationModel.seatChoices = [];
+                        var choices = JSON.parse(form.data.choices);
+
+                        if (Array.isArray(choices)) {
+                            choices.forEach((choice) => {
+                                reservationModel.seatChoices.push({
+                                    code: choice.code,
+                                    ticket: {
+                                        type: choice.ticket.type,
+                                        name: choice.ticket.name,
+                                        name_en: choice.ticket.name_en,
+                                        price: parseInt(choice.ticket.price),
+                                    }
+                                });
+                            });
+                        } else {
+                            return this.next(new Error('不適切なアクセスです'));
+                        }
+
+                        this.logger.debug('saving reservationModel... ', reservationModel);
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('customer.reserve.profile', {token: token}));
+                        });
                     },
                     error: (form) => {
-                        return this.res.render('customer/reserve/seats', {
-                            form: form,
-                        });
+                        this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
                     },
                     empty: (form) => {
-                        return this.res.render('customer/reserve/seats', {
-                            form: form,
-                        });
+                        this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
                     }
                 });
             } else {
@@ -195,7 +237,18 @@ export default class CustomerReserveController extends BaseController {
                     success: (form) => {
                         customerReserveProfileForm.form = form;
 
-                        this.res.redirect(this.router.build('customer.reserve.howtopay', {token: token}));
+                        // 購入者情報を保存して座席選択へ
+                        reservationModel.profile = {
+                            last_name: form.data.last_name,
+                            first_name: form.data.first_name,
+                            email: form.data.email,
+                            tel: form.data.tel,
+                        };
+
+                        this.logger.debug('saving reservationModel... ', reservationModel);
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('customer.reserve.pay', {token: token}));
+                        });
                     },
                     error: (form) => {
                         return this.res.render('customer/reserve/profile', {
@@ -216,36 +269,43 @@ export default class CustomerReserveController extends BaseController {
         });
     }
 
-    public howtopay(): void {
+    public pay(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
+            console.log(reservationModel);
             if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            let customerReserveHowtopayForm = new CustomerReserveHowtopayForm();
+            let customerReservePayForm = new CustomerReservePayForm();
             if (this.req.method === 'POST') {
 
-                customerReserveHowtopayForm.form.handle(this.req, {
+                customerReservePayForm.form.handle(this.req, {
                     success: (form) => {
-                        customerReserveHowtopayForm.form = form;
+                        customerReservePayForm.form = form;
 
-                        this.res.redirect(this.router.build('customer.reserve.confirm', {token: token}));
+                        // 決済方法情報を保存して座席選択へ
+                        reservationModel.paymentMethod = form.data.method;
+
+                        this.logger.debug('saving reservationModel... ', reservationModel);
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('customer.reserve.confirm', {token: token}));
+                        });
                     },
                     error: (form) => {
-                        return this.res.render('customer/reserve/howtopay', {
+                        return this.res.render('customer/reserve/pay', {
                             form: form,
                         });
                     },
                     empty: (form) => {
-                        return this.res.render('customer/reserve/howtopay', {
+                        return this.res.render('customer/reserve/pay', {
                             form: form,
                         });
                     }
                 });
             } else {
-                this.res.render('customer/reserve/howtopay', {
-                    form: customerReserveHowtopayForm.form
+                this.res.render('customer/reserve/pay', {
+                    form: customerReservePayForm.form
                 });
             }
         });
@@ -265,22 +325,34 @@ export default class CustomerReserveController extends BaseController {
                     success: (form) => {
                         customerReserveConfirmForm.form = form;
 
-                        this.res.redirect(this.router.build('customer.reserve.complete', {token: token}));
+                        this.logger.debug('removing reservationModel... ', reservationModel);
+                        reservationModel.remove(() => {
+                            if (err) {
+
+                            } else {
+                                // TODO 購入処理
+
+                                this.res.redirect(this.router.build('customer.reserve.complete', {token: token}));
+                            }
+                        });
                     },
                     error: (form) => {
                         return this.res.render('customer/reserve/confirm', {
                             form: form,
+                            reservationModel: reservationModel
                         });
                     },
                     empty: (form) => {
                         return this.res.render('customer/reserve/confirm', {
                             form: form,
+                            reservationModel: reservationModel
                         });
                     }
                 });
             } else {
                 this.res.render('customer/reserve/confirm', {
-                    form: customerReserveConfirmForm.form
+                    form: customerReserveConfirmForm.form,
+                    reservationModel: reservationModel
                 });
             }
         });

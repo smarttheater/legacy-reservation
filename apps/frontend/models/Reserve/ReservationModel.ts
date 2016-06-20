@@ -1,10 +1,6 @@
 import PurchaseResultModel from './PurchaseResultModel';
 import Util from '../../../common/Util/Util';
 
-import Models from '../../../common/mongooseModels/Models';
-
-import mongoose = require('mongoose');
-
 /**
  * 予約情報モデル
  * 
@@ -20,27 +16,64 @@ export default class ReservationModel {
     /**
      * パフォーマンス
      */
-    public performance: Object;
+    public performance: {
+        _id: string,
+        day: string,
+        start_time: string,
+        end_time: string,
+        /**
+         * 劇場
+         */
+        theater: {
+            _id: string,
+            name: string,
+            name_en: string,
+        },
+        /**
+         * スクリーン
+         */
+        screen: {
+            _id: string,
+            name: string,
+            name_en: string,
+        },
+        /**
+         * 作品
+         */
+        film: {
+            _id: string,
+            name: string,
+            name_en: string,
+        },
+    };
 
     /**
-     * 予約座席リスト
+     * 座席選択リスト
      */
-    public reservationSeats: Array<Object>;
-
-    /**
-     * 券種選択リスト
-     */
-    public ticketChoices: Array<Object>;
+    public seatChoices: Array<{
+        code: string,
+        ticket: {
+            type: string,
+            name: string,
+            name_en: string,
+            price: number
+        }
+    }>;
 
     /**
      * プロフィール
      */
-    public profile: Object;
+    public profile: {
+        last_name: string,
+        first_name: string,
+        email: string,
+        tel: string,
+    };
 
     /**
      * 決済方法
      */
-    public paymentMethod: String;
+    public paymentMethod: string;
 
     /**
      * プロセス中の購入情報をセッションに保存する
@@ -57,7 +90,7 @@ export default class ReservationModel {
     }
 
     /**
-     * プロセス中の購入情報をセッションに保存する
+     * プロセス中の購入情報をセッションから削除する
      */
     public remove(cb: (err: Error) => any) {
         let client = Util.getRedisClient();
