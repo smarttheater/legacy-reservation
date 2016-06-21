@@ -140,6 +140,48 @@ export default class ReservationModel {
     }
 
     /**
+     * 予約ドキュメントへ変換
+     */
+    public toReservationDocuments(): Array<Object> {
+        let documents: Array<Object> = [];
+
+        for (let choice of this.seatChoices) {
+            // TODO 予約番号を発行
+
+            let document = {
+                'performance': this.performance._id,
+                'performance_day': this.performance.day,
+                'performance_start_time': this.performance.start_time,
+                'performance_end_time': this.performance.end_time,
+
+                'theater': this.performance.theater._id,
+                'theater_name': this.performance.theater.name,
+                'screen': this.performance.screen._id,
+                'screen_name': this.performance.screen.name,
+                'film': this.performance.film._id,
+                'film_name': this.performance.film.name,
+
+                'purchaser_last_name': this.profile.last_name,
+                'purchaser_first_name': this.profile.first_name,
+                'purchaser_email': this.profile.email,
+                'purchaser_tel': this.profile.tel,
+
+                'seat_code': choice.code,
+                'ticket_type': choice.ticket.type,
+                'ticket_name': choice.ticket.name,
+
+                'created_user': typeof this,
+                'updated_user': typeof this,
+            };
+
+            documents.push(document);
+        }
+
+
+        return documents;
+    }
+
+    /**
      * 購入結果モデルへ変換
      */
     public toPurchaseResult(): PurchaseResultModel {
@@ -149,7 +191,6 @@ export default class ReservationModel {
 
         return purchaseResult;
     }
-
 
     /**
      * 購入ログ用の形式にする

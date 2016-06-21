@@ -11,7 +11,7 @@ import conf = require('config');
 import Models from '../../../../common/mongooseModels/Models';
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
-let mongoose = require('mongoose');
+import mongoose = require('mongoose');
 
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 
@@ -119,7 +119,6 @@ export default class CustomerReserveController extends BaseController {
                 // パフォーマンスを取得
                 mongoose.connect(MONGOLAB_URI);
 
-                // PerformanceModel.find({}, null, {sort : {day: -1}, limit: 100})
                 Models.Performance.find({}, null, {sort : {day: -1}, limit: 100})
                     .populate('film screen theater') // スペースつなぎで、複数populateできる
                     .exec((err, performances) => {
@@ -151,6 +150,8 @@ export default class CustomerReserveController extends BaseController {
             if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
+
+            this.logger.debug('reservationModel is ', reservationModel);
 
             let customerReserveSeatForm = new CustomerReserveSeatForm();
             if (this.req.method === 'POST') {
@@ -230,6 +231,8 @@ export default class CustomerReserveController extends BaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
+            this.logger.debug('reservationModel is ', reservationModel);
+
             let customerReserveProfileForm = new CustomerReserveProfileForm();
             if (this.req.method === 'POST') {
 
@@ -272,10 +275,11 @@ export default class CustomerReserveController extends BaseController {
     public pay(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            console.log(reservationModel);
             if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
+
+            this.logger.debug('reservationModel is ', reservationModel);
 
             let customerReservePayForm = new CustomerReservePayForm();
             if (this.req.method === 'POST') {
@@ -318,6 +322,8 @@ export default class CustomerReserveController extends BaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
+            this.logger.debug('reservationModel is ', reservationModel);
+
             let customerReserveConfirmForm = new CustomerReserveConfirmForm();
             if (this.req.method === 'POST') {
 
@@ -331,8 +337,22 @@ export default class CustomerReserveController extends BaseController {
 
                             } else {
                                 // TODO 購入処理
+                                let reservations = reservationModel.toReservationDocuments();
 
-                                this.res.redirect(this.router.build('customer.reserve.complete', {token: token}));
+                                // DB保存
+                                mongoose.connect(MONGOLAB_URI, {}, (err) => {
+                                    Models.Reservation.create(reservations, (err, reservations) => {
+                                        mongoose.disconnect(() => {
+                                            console.log(reservations);
+                                            if (err) {
+                                                return this.next(err);
+                                            }
+
+                                            this.res.redirect(this.router.build('customer.reserve.complete', {token: token}));
+                                        });
+                                    });
+
+                                });
                             }
                         });
                     },
