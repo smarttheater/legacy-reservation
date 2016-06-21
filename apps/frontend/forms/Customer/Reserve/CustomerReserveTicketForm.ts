@@ -1,6 +1,6 @@
 import BaseForm from '../../BaseForm';
 
-export default class CustomerReserveSeatForm extends BaseForm {
+export default class CustomerReserveTicketForm extends BaseForm {
     public constructor() {
         super();
 
@@ -10,8 +10,8 @@ export default class CustomerReserveSeatForm extends BaseForm {
 
         this.form = this.forms.create(
             {
-                stockIds: fields.string({
-                    label: '在庫IDリスト',
+                choices: fields.string({
+                    label: '券種選択リスト',
                     widget: widgets.hidden(),
                     required: true,
                     validators: [

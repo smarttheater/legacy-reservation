@@ -1,0 +1,65 @@
+<h1>座席選択</h1>
+
+<div class="row">
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>座席No</th>
+                    <th>券種</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <% for (let performanceSeat of performance.seats) { %>
+                <% if (stocksBySeatCode.hasOwnProperty(performanceSeat.code)) { %>
+                <tr data-code="<%- performanceSeat.code %>">
+                    <td><%- performanceSeat.code %></td>
+                    <td>
+                        <select class="form-control">
+                        <% performanceSeat.tickets.forEach(function(ticket, index) { %>
+                        <option value="<%- ticket.type %>" data-name="<%- ticket.name %>" data-name-en="<%- ticket.name_en %>" data-price="<%- ticket.price %>"><%- ticket.name %> <%- ticket.price %>円</option>
+                        <% }) %>
+                        </select>
+                    </td>
+                </tr>
+                <% } %>
+                <% } %>
+
+            </tbody>
+        </table>
+    </div>
+
+    <a class="btn btn-default btn-lg btn-block" href="javascript:void(0);">戻る</a>
+    <a class="btn btn-default btn-lg btn-block select-tickets" href="javascript:void(0);">次へ</a>
+</div>
+
+
+<script>
+$(function(){
+    $('.select-tickets').on('click', function(){
+        // 座席コードリストを取得
+        var choices = [];
+        $('.tickets tbody tr').each(function(index){
+            choices.push({
+                code: $(this).attr('data-code'),
+                ticket: {
+                    type: $('select', this).val(),
+                    name: $('option:selected', this).attr('data-name'),
+                    name_en: $('option:selected', this).attr('data-name-en'),
+                    price: $('option:selected', this).attr('data-price'),
+                }
+            });
+        });
+
+        $('form input[name="choices"]').val(JSON.stringify(choices));
+        $('form').submit();
+    });
+
+});
+</script>
+
+<form method="post">
+<%- form.toHTML() %>
+</form>
+

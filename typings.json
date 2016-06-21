@@ -21,6 +21,7 @@
     "express-useragent": "registry:dt/express-useragent#0.2.4+20160412141759",
     "fs-extra": "registry:dt/fs-extra#0.0.0+20160319124112",
     "jquery": "registry:dt/jquery#1.10.0+20160417213236",
+    "lockfile": "registry:dt/lockfile#0.4.2+20160316155526",
     "log4js": "registry:dt/log4js#0.0.0+20160316155526",
     "mime": "registry:dt/mime#0.0.0+20160316155526",
     "mongodb": "registry:dt/mongodb#2.1.0+20160512045721",

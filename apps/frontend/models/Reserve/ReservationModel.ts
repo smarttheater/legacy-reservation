@@ -48,6 +48,16 @@ export default class ReservationModel {
     };
 
     /**
+     * 選択在庫リスト
+     */
+    public stocks: Array<{
+        _id: string,
+        seat_code: string,
+        status: string,
+        performance: string,
+    }>;
+
+    /**
      * 座席選択リスト
      */
     public seatChoices: Array<{

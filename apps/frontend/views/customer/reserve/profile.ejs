@@ -1,7 +1,39 @@
 <h1>購入者情報</h1>
 
 <form method="post">
-<%- form.toHTML() %>
-<a href="<%- url('customer.reserve.seats', {token: req.params.token}) %>">戻る</a>
-<input type="submit">
+    <div class="form-group">
+        <label for="id_last_name">せい</label>
+        <input type="text" name="last_name" id="id_last_name" class="form-control">
+    </div>
+
+    <div class="form-group">
+        <label for="id_first_name">めい</label>
+        <input type="text" name="first_name" id="id_first_name" class="form-control">
+    </div>
+
+
+    <div class="form-group">
+        <label for="id_tel">電話番号</label>
+        <input type="text" name="tel" id="id_tel" class="form-control">
+    </div>
+
+    <div class="form-group">
+        <label for="id_email">メールアドレス</label>
+        <input type="text" name="email" id="id_email" class="form-control">
+    </div>
+
+
+    <div class="form-group">
+        <label for="id_emailConfirm">メールアドレス(確認)</label>
+        <input type="text" name="emailConfirm" id="id_emailConfirm" class="form-control">
+    </div>
+
+
+    <div class="form-group">
+        <label for="id_emailConfirmDomain">メールアドレスドメイン(確認)</label>
+        <input type="text" name="emailConfirmDomain" id="id_emailConfirmDomain" class="form-control">
+    </div>
+
+    <a class="btn btn-default btn-lg btn-block" href="<%- url('customer.reserve.seats', {token: req.params.token}) %>">戻る</a>
+    <input class="btn btn-primary btn-lg btn-block confirm-reservation" type="submit" value="送信">
 </form>

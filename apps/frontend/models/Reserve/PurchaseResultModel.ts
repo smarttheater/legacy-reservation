@@ -1,6 +1,6 @@
 import Util from '../../../common/Util/Util';
 
-import Models from '../../../common/mongooseModels/Models';
+import Models from '../../../common/models/Models';
 
 import mongoose = require('mongoose');
 
