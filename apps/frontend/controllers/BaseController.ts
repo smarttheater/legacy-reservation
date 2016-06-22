@@ -6,6 +6,10 @@ import User from '../models/User';
 import Router from '../routes/router';
 import NamedRoutes = require('named-routes');
 
+import conf = require('config');
+let MONGOLAB_URI = conf.get<string>('mongolab_uri');
+import mongoose = require('mongoose');
+
 /**
  * ベースコントローラー
  * 
@@ -60,5 +64,19 @@ export default class BaseController
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;
         this.res.locals.util = util;
+    }
+
+    /**
+     * mongooseを使用する
+     * デフォルトコネクションを開く
+     */
+    protected useMongoose(cb: () => void): void {
+        mongoose.connect(MONGOLAB_URI, {}, (err) => {
+            if (err) {
+                throw err;
+            } else {
+                cb();
+            }
+        });
     }
 }

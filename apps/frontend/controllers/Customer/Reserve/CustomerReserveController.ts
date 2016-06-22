@@ -8,11 +8,9 @@ import CustomerReserveProfileForm from '../../../forms/Customer/Reserve/Customer
 import CustomerReservePayForm from '../../../forms/Customer/Reserve/CustomerReservePayForm';
 import CustomerReserveConfirmForm from '../../../forms/Customer/Reserve/CustomerReserveConfirmForm';
 
-import conf = require('config');
 import Models from '../../../../common/models/Models';
 import StockUtil from '../../../../common/models/Stock/StockUtil';
 
-let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 import mongoose = require('mongoose');
 
 import ReservationModel from '../../../models/Reserve/ReservationModel';
@@ -70,43 +68,45 @@ export default class CustomerReserveController extends BaseController {
 
                         // パフォーマンス取得
                         this.logger.debug('searching performance... id:', form.data.performance_id);
-                        mongoose.connect(MONGOLAB_URI);
-                        Models.Performance.findOne({_id: form.data.performance_id}, {})
-                            .populate('film screen theater') // スペースつなぎで、複数populateできる
-                            .exec((err, performance) => {
+                        this.useMongoose(() => {
+                            Models.Performance.findOne({_id: form.data.performance_id}, {})
+                                .populate('film screen theater') // スペースつなぎで、複数populateできる
+                                .exec((err, performance) => {
 
-                            mongoose.disconnect();
+                                mongoose.disconnect(() => {
 
-                            if (err) {
-                                return this.next(err);
-                            }
+                                    if (err) {
+                                        return this.next(err);
+                                    }
 
-                            // パフォーマンス情報を保存して座席選択へ
-                            reservationModel.performance = {
-                                _id: performance._id,
-                                day: performance.get('day'),
-                                start_time: performance.get('start_time'),
-                                end_time: performance.get('end_time'),
-                                theater: {
-                                    _id: performance.get('theater').get('_id'),
-                                    name: performance.get('theater').get('name'),
-                                    name_en: performance.get('theater').get('name_en'),
-                                },
-                                screen: {
-                                    _id: performance.get('screen').get('_id'),
-                                    name: performance.get('screen').get('name'),
-                                    name_en: performance.get('screen').get('name_en'),
-                                },
-                                film: {
-                                    _id: performance.get('film').get('_id'),
-                                    name: performance.get('film').get('name'),
-                                    name_en: performance.get('film').get('name_en'),
-                                }
-                            };
+                                    // パフォーマンス情報を保存して座席選択へ
+                                    reservationModel.performance = {
+                                        _id: performance._id,
+                                        day: performance.get('day'),
+                                        start_time: performance.get('start_time'),
+                                        end_time: performance.get('end_time'),
+                                        theater: {
+                                            _id: performance.get('theater').get('_id'),
+                                            name: performance.get('theater').get('name'),
+                                            name_en: performance.get('theater').get('name_en'),
+                                        },
+                                        screen: {
+                                            _id: performance.get('screen').get('_id'),
+                                            name: performance.get('screen').get('name'),
+                                            name_en: performance.get('screen').get('name_en'),
+                                        },
+                                        film: {
+                                            _id: performance.get('film').get('_id'),
+                                            name: performance.get('film').get('name'),
+                                            name_en: performance.get('film').get('name_en'),
+                                        }
+                                    };
 
-                            this.logger.debug('saving reservationModel... ', reservationModel);
-                            reservationModel.save((err) => {
-                                this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
+                                    this.logger.debug('saving reservationModel... ', reservationModel);
+                                    reservationModel.save((err) => {
+                                        this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
+                                    });
+                                });
                             });
                         });
                     },
@@ -119,23 +119,24 @@ export default class CustomerReserveController extends BaseController {
                 });
             } else {
                 // パフォーマンスを取得
-                mongoose.connect(MONGOLAB_URI);
+                this.useMongoose(() => {
+                    Models.Performance.find({}, null, {sort : {film: 1, day: 1, start_time: 1}, limit: 100})
+                        .populate('film screen theater') // スペースつなぎで、複数populateできる
+                        .exec((err, performances) => {
 
-                Models.Performance.find({}, null, {sort : {film: 1, day: 1, start_time: 1}, limit: 100})
-                    .populate('film screen theater') // スペースつなぎで、複数populateできる
-                    .exec((err, performances) => {
-                    mongoose.disconnect();
+                        mongoose.disconnect();
 
-                    if (err) {
-                        this.next(new Error('スケジュールを取得できませんでした'));
-                    } else {
-                        // TODO ここで画面表示に合わせて整形処理を入れる
+                        if (err) {
+                            this.next(new Error('スケジュールを取得できませんでした'));
+                        } else {
+                            // TODO ここで画面表示に合わせて整形処理を入れる
 
-                        this.res.render('customer/reserve/performances', {
-                            form: customerReservePerformanceForm.form,
-                            performances: performances
-                        });
-                    }
+                            this.res.render('customer/reserve/performances', {
+                                form: customerReservePerformanceForm.form,
+                                performances: performances
+                            });
+                        }
+                    });
                 });
             }
         });
@@ -158,59 +159,61 @@ export default class CustomerReserveController extends BaseController {
                         customerReserveSeatForm.form = form;
 
                         // 仮押さえ
-                        mongoose.connect(MONGOLAB_URI);
+                        this.useMongoose(() => {
 
-                        let stockIds: Array<string> = JSON.parse(form.data.stockIds);
-                        let promises = [];
-                        for (let stockId of stockIds) {
-                            promises.push(new Promise((resolve, reject) => {
+                            let stockIds: Array<string> = JSON.parse(form.data.stockIds);
+                            let promises = [];
 
-                                this.logger.debug('findOneAndUpdate processing...');
-                                Models.Stock.findOneAndUpdate(
-                                    { _id: stockId, status: StockUtil.STATUS_AVAILABLE},
-                                    {status: StockUtil.STATUS_TEMPORARY},
-                                    {new: true},
-                                    (err, stock) => {
+                            // 在庫IDごとにfindOneAndUpdate処理をつくる(並列処理で実行するため)
+                            for (let stockId of stockIds) {
+                                promises.push(new Promise((resolve, reject) => {
 
-                                    if (err) {
-                                        resolve();
+                                    this.logger.debug('findOneAndUpdate processing...');
+                                    Models.Stock.findOneAndUpdate(
+                                        { _id: stockId, status: StockUtil.STATUS_AVAILABLE},
+                                        {status: StockUtil.STATUS_TEMPORARY},
+                                        {new: true},
+                                        (err, stock) => {
+
+                                        if (err) {
+                                            resolve();
+                                        } else {
+
+                                            // ステータス更新に成功したらセッションに保管
+                                            reservationModel.stocks.push({
+                                                _id: stock.get('id'),
+                                                seat_code: stock.get('seat_code'),
+                                                status: stock.get('status'),
+                                                performance: stock.get('performance'),
+                                            });
+
+                                            resolve();
+                                        }
+                                    });
+
+                                }));
+                            }
+
+                            reservationModel.stocks = [];
+
+                            Promise.all(promises).then(() => {
+                                mongoose.disconnect();
+
+                                this.logger.debug('saving reservationModel... ', reservationModel);
+                                reservationModel.save((err) => {
+                                    // 仮押さえできていない在庫があった場合
+                                    if (stockIds.length > reservationModel.stocks.length) {
+                                        this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
                                     } else {
-
-                                        // ステータス更新に成功したらセッションに保管
-                                        reservationModel.stocks.push({
-                                            _id: stock.get('id'),
-                                            seat_code: stock.get('seat_code'),
-                                            status: stock.get('status'),
-                                            performance: stock.get('performance'),
-                                        });
-
-                                        resolve();
+                                        this.res.redirect(this.router.build('customer.reserve.tickets', {token: token}));
                                     }
                                 });
 
-                            }));
-                        }
-
-                        reservationModel.stocks = [];
-
-                        Promise.all(promises).then(() => {
-                            mongoose.disconnect();
-
-                            this.logger.debug('saving reservationModel... ', reservationModel);
-                            reservationModel.save((err) => {
-                                // 仮押さえできていない在庫があった場合
-                                if (stockIds.length > reservationModel.stocks.length) {
-                                    this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
-                                } else {
-                                    this.res.redirect(this.router.build('customer.reserve.tickets', {token: token}));
-                                }
+                            }, (err) => {
+                                return this.next(err);
                             });
 
-                        }, (err) => {
-                            return this.next(err);
                         });
-
-
                     },
                     error: (form) => {
                         this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
@@ -221,36 +224,39 @@ export default class CustomerReserveController extends BaseController {
                 });
             } else {
                 // パフォーマンスを取得
-                mongoose.connect(MONGOLAB_URI);
 
-                Models.Performance.findOne({_id: reservationModel.performance._id}, null)
-                    .populate('film screen theater')
-                    .exec((err, performance) => {
+                this.useMongoose(() => {
 
-                    if (err) {
-                        return this.next(new Error('スケジュールを取得できませんでした'));
-                    }
-
-                    // 在庫リストを取得
-                    Models.Stock.find({performance: performance.get(('id'))}, null, null, (err, stocks) => {
-                        mongoose.disconnect();
-
-                        // 座席コードごとのオブジェクトに整形
-                        let stocksBySeatCode = {};
-                        for (let stock of stocks) {
-                            stocksBySeatCode[stock.get('seat_code')] = stock;
-                        }
+                    Models.Performance.findOne({_id: reservationModel.performance._id}, null)
+                        .populate('film screen theater')
+                        .exec((err, performance) => {
 
                         if (err) {
-                            this.next(new Error('スケジュールを取得できませんでした'));
-                        } else {
-                            this.res.render('customer/reserve/seats', {
-                                form: customerReserveSeatForm.form,
-                                performance: performance,
-                                stocksBySeatCode: stocksBySeatCode
-                            });
+                            return this.next(new Error('スケジュールを取得できませんでした'));
                         }
-                    })
+
+                        // 在庫リストを取得
+                        Models.Stock.find({performance: performance.get(('id'))}, null, null, (err, stocks) => {
+
+                            mongoose.disconnect();
+
+                            // 座席コードごとのオブジェクトに整形
+                            let stocksBySeatCode = {};
+                            for (let stock of stocks) {
+                                stocksBySeatCode[stock.get('seat_code')] = stock;
+                            }
+
+                            if (err) {
+                                this.next(new Error('スケジュールを取得できませんでした'));
+                            } else {
+                                this.res.render('customer/reserve/seats', {
+                                    form: customerReserveSeatForm.form,
+                                    performance: performance,
+                                    stocksBySeatCode: stocksBySeatCode
+                                });
+                            }
+                        })
+                    });
                 });
             }
         });
@@ -308,28 +314,29 @@ export default class CustomerReserveController extends BaseController {
                 });
             } else {
                 // パフォーマンスを取得
-                mongoose.connect(MONGOLAB_URI);
+                this.useMongoose(() => {
 
-                Models.Performance.findOne({_id: reservationModel.performance._id}, null)
-                    .populate('film screen theater')
-                    .exec((err, performance) => {
+                    Models.Performance.findOne({_id: reservationModel.performance._id}, null)
+                        .populate('film screen theater')
+                        .exec((err, performance) => {
 
-                    mongoose.disconnect();
+                        mongoose.disconnect();
 
-                    if (err) {
-                        return this.next(new Error('スケジュールを取得できませんでした'));
-                    }
+                        if (err) {
+                            return this.next(new Error('スケジュールを取得できませんでした'));
+                        }
 
-                    let stocksBySeatCode = {};
-                    for (let stock of reservationModel.stocks) {
-                        stocksBySeatCode[stock.seat_code] = stock;
-                    }
+                        let stocksBySeatCode = {};
+                        for (let stock of reservationModel.stocks) {
+                            stocksBySeatCode[stock.seat_code] = stock;
+                        }
 
-                    this.res.render('customer/reserve/tickets', {
-                        form: customerReserveTicketForm.form,
-                        performance: performance,
-                        reservationModel: reservationModel,
-                        stocksBySeatCode: stocksBySeatCode,
+                        this.res.render('customer/reserve/tickets', {
+                            form: customerReserveTicketForm.form,
+                            performance: performance,
+                            reservationModel: reservationModel,
+                            stocksBySeatCode: stocksBySeatCode,
+                        });
                     });
                 });
             }
@@ -452,10 +459,11 @@ export default class CustomerReserveController extends BaseController {
                                 let reservations = reservationModel.toReservationDocuments();
 
                                 // DB保存
-                                mongoose.connect(MONGOLAB_URI, {}, (err) => {
+                                this.useMongoose(() => {
+
                                     Models.Reservation.create(reservations, (err, reservations) => {
+
                                         mongoose.disconnect(() => {
-                                            console.log(reservations);
                                             if (err) {
                                                 return this.next(err);
                                             }
@@ -463,8 +471,8 @@ export default class CustomerReserveController extends BaseController {
                                             this.res.redirect(this.router.build('customer.reserve.complete', {token: token}));
                                         });
                                     });
-
                                 });
+
                             }
                         });
                     },
