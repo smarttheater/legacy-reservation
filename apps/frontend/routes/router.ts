@@ -4,6 +4,7 @@ import express = require('express');
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
 import ErrorController from '../controllers/Error/ErrorController';
 import IndexController from '../controllers/Index/IndexController';
+import TaskController from '../controllers/Task/TaskController';
 import User from '../models/User';
 
 /**
@@ -48,7 +49,12 @@ export default class Router {
         app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', (req, res, next) => {(new CustomerReserveController(req, res, next)).profile()});
         app.all('/customer/reserve/:token/pay', 'customer.reserve.pay', (req, res, next) => {(new CustomerReserveController(req, res, next)).pay()});
         app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', (req, res, next) => {(new CustomerReserveController(req, res, next)).confirm()});
+        app.get('/customer/reserve/:token/process', 'customer.reserve.process', (req, res, next) => {(new CustomerReserveController(req, res, next)).process()});
+        app.post('/customer/reserve/fromGMO', 'customer.reserve.fromGMO', (req, res, next) => {(new CustomerReserveController(req, res, next)).fromGMO()});
         app.get('/customer/reserve/:token/complete', 'customer.reserve.complete', (req, res, next) => {(new CustomerReserveController(req, res, next)).complete()});
+
+        // タスク
+        app.get('/task/removeTemporaryReservation', 'task.removeTemporaryReservation', (req, res, next) => {(new TaskController(req, res, next)).removeTemporaryReservation()});
 
         let authentication = (req: express.Request, res: express.Response, next: express.NextFunction) => {
             let user = User.getInstance();

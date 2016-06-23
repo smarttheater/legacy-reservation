@@ -1,5 +1,8 @@
-import PurchaseResultModel from './PurchaseResultModel';
+import ReservationResultModel from './ReservationResultModel';
 import Util from '../../../common/Util/Util';
+import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
+
+import mongoose = require('mongoose');
 
 /**
  * 予約情報モデル
@@ -12,6 +15,11 @@ export default class ReservationModel {
      * 予約トークン
      */
     public token: string;
+
+    /**
+     * 購入管理番号
+     */
+    public paymentNo: string;
 
     /**
      * パフォーマンス
@@ -48,20 +56,25 @@ export default class ReservationModel {
     };
 
     /**
-     * 選択在庫リスト
+     * 選択座席コードリスト
      */
-    public stocks: Array<{
-        _id: string,
-        seat_code: string,
-        status: string,
-        performance: string,
-    }>;
+    public seatCodes: Array<string>;
 
     /**
-     * 座席選択リスト
+     * 選択座席リスト
      */
-    public seatChoices: Array<{
-        code: string,
+    // public seats: Array<{
+    //     _id: string,
+    //     seat_code: string,
+    //     status: string,
+    //     performance: string,
+    // }>;
+
+    /**
+     * 券種選択リスト
+     */
+    public ticketChoices: Array<{
+        seat_code: string,
         ticket: {
             type: string,
             name: string,
@@ -155,38 +168,38 @@ export default class ReservationModel {
     public toReservationDocuments(): Array<Object> {
         let documents: Array<Object> = [];
 
-        for (let choice of this.seatChoices) {
-            // TODO 予約番号を発行
-
+        for (let choice of this.ticketChoices) {
             let document = {
-                'performance': this.performance._id,
-                'performance_day': this.performance.day,
-                'performance_start_time': this.performance.start_time,
-                'performance_end_time': this.performance.end_time,
+                payment_no: this.paymentNo,
+                status: ReservationUtil.STATUS_RESERVED,
 
-                'theater': this.performance.theater._id,
-                'theater_name': this.performance.theater.name,
-                'screen': this.performance.screen._id,
-                'screen_name': this.performance.screen.name,
-                'film': this.performance.film._id,
-                'film_name': this.performance.film.name,
+                performance: this.performance._id,
+                performance_day: this.performance.day,
+                performance_start_time: this.performance.start_time,
+                performance_end_time: this.performance.end_time,
 
-                'purchaser_last_name': this.profile.last_name,
-                'purchaser_first_name': this.profile.first_name,
-                'purchaser_email': this.profile.email,
-                'purchaser_tel': this.profile.tel,
+                theater: this.performance.theater._id,
+                theater_name: this.performance.theater.name,
+                screen: this.performance.screen._id,
+                screen_name: this.performance.screen.name,
+                film: this.performance.film._id,
+                film_name: this.performance.film.name,
 
-                'seat_code': choice.code,
-                'ticket_type': choice.ticket.type,
-                'ticket_name': choice.ticket.name,
+                purchaser_last_name: this.profile.last_name,
+                purchaser_first_name: this.profile.first_name,
+                purchaser_email: this.profile.email,
+                purchaser_tel: this.profile.tel,
 
-                'created_user': typeof this,
-                'updated_user': typeof this,
+                seat_code: choice.seat_code,
+                ticket_type: choice.ticket.type,
+                ticket_name: choice.ticket.name,
+
+                created_user: this.constructor.toString(),
+                updated_user: this.constructor.toString(),
             };
 
             documents.push(document);
         }
-
 
         return documents;
     }
@@ -194,12 +207,12 @@ export default class ReservationModel {
     /**
      * 購入結果モデルへ変換
      */
-    public toPurchaseResult(): PurchaseResultModel {
-        let purchaseResult = new PurchaseResultModel();
+    public toReservationResult(): ReservationResultModel {
+        let reservationResultModel = new ReservationResultModel();
 
-        purchaseResult.token = this.token;
+        reservationResultModel.token = this.token;
 
-        return purchaseResult;
+        return reservationResultModel;
     }
 
     /**

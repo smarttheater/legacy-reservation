@@ -11,26 +11,33 @@
             </thead>
 
             <tbody>
-                <% for (let performanceSeat of performance.seats) { %>
-                <% if (stocksBySeatCode.hasOwnProperty(performanceSeat.code)) { %>
-                <tr data-code="<%- performanceSeat.code %>">
-                    <td><%- performanceSeat.code %></td>
+                <% for (let seatDocument of seatDocuments) { %>
+                <tr data-seat-code="<%- seatDocument.get('code') %>">
+                    <td><%- seatDocument.get('code') %></td>
                     <td>
                         <select class="form-control">
-                        <% performanceSeat.tickets.forEach(function(ticket, index) { %>
-                        <option value="<%- ticket.type %>" data-name="<%- ticket.name %>" data-name-en="<%- ticket.name_en %>" data-price="<%- ticket.price %>"><%- ticket.name %> <%- ticket.price %>円</option>
+                        <% seatDocument.get('tickets').forEach(function(ticket, index) { %>
+                        <option
+                            <% if (ticketChoicesBySeatCode.hasOwnProperty(seatDocument.get('code'))) { %>
+                            <% if (ticketChoicesBySeatCode[seatDocument.get('code')].ticket.type == ticket.get('type')) { %> selected="selected"<% } %>
+                            <% } %>
+
+                            value="<%- ticket.get('type') %>"
+                            data-name="<%- ticket.get('name') %>"
+                            data-name-en="<%- ticket.get('name_en') %>"
+                            data-price="<%- ticket.get('price') %>"><%- ticket.get('name') %> <%- ticket.get('price') %>円
+                        </option>
                         <% }) %>
                         </select>
                     </td>
                 </tr>
-                <% } %>
                 <% } %>
 
             </tbody>
         </table>
     </div>
 
-    <a class="btn btn-default btn-lg btn-block" href="javascript:void(0);">戻る</a>
+    <a class="btn btn-default btn-lg btn-block" href="<%- url('customer.reserve.seats', {token: req.params.token}) %>">戻る</a>
     <a class="btn btn-default btn-lg btn-block select-tickets" href="javascript:void(0);">次へ</a>
 </div>
 
@@ -40,9 +47,9 @@ $(function(){
     $('.select-tickets').on('click', function(){
         // 座席コードリストを取得
         var choices = [];
-        $('.tickets tbody tr').each(function(index){
+        $('tbody tr').each(function(index){
             choices.push({
-                code: $(this).attr('data-code'),
+                seat_code: $(this).attr('data-seat-code'),
                 ticket: {
                     type: $('select', this).val(),
                     name: $('option:selected', this).attr('data-name'),

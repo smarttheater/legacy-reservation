@@ -2,7 +2,7 @@ import redis = require('redis');
 import conf = require('config');
 
 /**
- * ムビチケ共通のユーティリティ
+ * 共通のユーティリティ
  */
 export default class Util {
     /**
@@ -14,16 +14,28 @@ export default class Util {
         let crypto = require('crypto');
         let uniqid = require('uniqid'); // Generates unique id's on multiple processes and machines even if called at the same time.
 
-        var md5hash = crypto.createHash('md5');
+        let md5hash = crypto.createHash('md5');
 
         // console.log(uniqid()); // Generate 18 byte unique id's based on the time, process id and mac address. Works on multiple processes and machines.
         // console.log(uniqid.process()); // Generate 12 byte unique id's based on the time and the process id. Works on multiple processes within a single machine but not on multiple machines.
         // console.log(uniqid.time()); // Generate 8 byte unique id's based on the current time only. Recommended only on a single process on a single machine.
-        // md5hash.update(Math.floor( Math.random() * 10000 ) + 1000 + uniqid(), 'binary');
-        md5hash.update(uniqid.process(), 'binary');
+
+        md5hash.update(Math.floor(Math.random() * 10000) + 1000 + uniqid.time(), 'binary');
+        // md5hash.update(uniqid.process(), 'binary');
 
         let token = md5hash.digest('hex');
         return token;
+    }
+
+    /**
+     * 購入管理番号生成
+     *
+     * @return {string}
+     */
+    public static createPaymentNo(): string {
+        let no = `${Math.floor(Math.random() * 10000) + 1000}${Math.floor(Math.random() * 10000) + 1000}`;
+
+        return no;
     }
 
     public static getRedisClient(): redis.RedisClient {

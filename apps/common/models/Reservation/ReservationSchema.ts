@@ -8,6 +8,9 @@ let ReservationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Performance'
     },
+    'status': { 
+        type: String,
+    },
     'performance_day': { 
         type: String,
     },

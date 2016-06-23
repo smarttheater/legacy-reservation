@@ -1,6 +1,6 @@
 <h1>確認</h1>
 
-<div class="col-md-6">
+<div class="row">
     <div class="table-responsive">
         <table class="table table-bordered">
             <tbody>
@@ -17,8 +17,8 @@
                 <tr>
                     <th scope="row">座席/券種</th>
                     <td>
-                    <% reservationModel.seatChoices.forEach(function(choice){%>
-                    <%- choice.code %> <%- choice.ticket.name %> <%- choice.ticket.price %>円<br>
+                    <% reservationModel.ticketChoices.forEach(function(choice){%>
+                    <%- choice.seat_code %> <%- choice.ticket.name %> <%- choice.ticket.price %>円<br>
                     <% }) %>
                     </td>
                 </tr>

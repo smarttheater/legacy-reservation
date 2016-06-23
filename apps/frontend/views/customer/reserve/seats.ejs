@@ -12,25 +12,33 @@
                     <tr>
                     <% } %>
 
-                    <% if (stocksBySeatCode.hasOwnProperty(seat.code)) { %>
-                        <% let stock = stocksBySeatCode[seat.code] %>
+                    <% if (performanceSeatDocumentsBySeatCode.hasOwnProperty(seat.get('code'))) { %>
 
-                        <% if (stock.status === 'AVAILABLE') { %>
-                        <!-- 予約可能 -->
-                        <th scope="row" class="select-seat" data-code="<%- seat.code %>" data-id="<%- stock._id %>">
-                            <%- seat.code %>
-                        </th>
+                        <% if (reservationDocumentsBySeatCode.hasOwnProperty(seat.get('code'))) { %>
+
+                            <% if (reservationModel.seatCodes && reservationModel.seatCodes.indexOf(seat.get('code')) >= 0) { %>
+                                <!-- 仮押さえ中 -->
+                                <th scope="row" class="select-seat bg-primary" data-seat-code="<%- seat.get('code') %>">
+                                    <%- seat.get('code') %>
+                                </th>
+                            <% } else { %>
+                                <!-- 予約不可 -->
+                                <th scope="row" class="bg-danger">
+                                    <%- seat.get('code') %>
+                                </th>
+                            <% } %>
+
                         <% } else { %>
-                        <!-- 予約不可 -->
-                        <th scope="row" class="bg-danger">
-                            <%- seat.code %>
-                        </th>
+                            <!-- 予約可能 -->
+                            <th scope="row" class="select-seat" data-seat-code="<%- seat.get('code') %>">
+                                <%- seat.get('code') %>
+                            </th>
                         <% } %>
 
                     <% } else { %>
                         <!-- 未販売 -->
                         <th scope="row" class="bg-warning text-muted">
-                            <%- seat.code %>
+                            <%- seat.get('code') %>
                         </th>
 
                     <% } %>
@@ -54,33 +62,16 @@ $(function(){
     });
 
     $('.select-seats').on('click', function(){
-        var stockIds = [];
+        var codes = [];
 
         // 座席コードリストを取得
         $('.select-seat.bg-primary').each(function(index){
-            var stockId = $(this).attr('data-id');
-            stockIds.push(stockId);
+            codes.push($(this).attr('data-seat-code'));
         });
 
-        $('form input[name="stockIds"]').val(JSON.stringify(stockIds));
+        $('form input[name="codes"]').val(JSON.stringify(codes));
         $('form').submit();
     });
-
-    // $('.select-tickets').on('click', function(){
-    //     // 座席コードリストを取得
-    //     var choices = [];
-    //     $('.tickets tbody tr').not('.hidden').each(function(index){
-    //         choices.push({
-    //             code: $(this).attr('data-code'),
-    //             ticket: {
-    //                 type: $('select', this).val(),
-    //                 name: $('option:selected', this).attr('data-name'),
-    //                 name_en: $('option:selected', this).attr('data-name-en'),
-    //                 price: $('option:selected', this).attr('data-price'),
-    //             }
-    //         });
-    //     });
-    // });
 });
 </script>
 

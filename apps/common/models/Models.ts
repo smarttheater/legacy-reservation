@@ -5,7 +5,6 @@ import mongoose = require('mongoose');
 
 import FilmSchema from '../models/Film/FilmSchema';
 import PerformanceSchema from '../models/Performance/PerformanceSchema';
-import StockSchema from '../models/Stock/StockSchema';
 import ReservationSchema from '../models/Reservation/ReservationSchema';
 import ScreenSchema from '../models/Screen/ScreenSchema';
 import TheaterSchema from '../models/Theater/TheaterSchema';
@@ -14,7 +13,6 @@ let Film = mongoose.model('Film', FilmSchema);
 let Performance = mongoose.model('Performance', PerformanceSchema);
 let Reservation = mongoose.model('Reservation', ReservationSchema);
 let Screen = mongoose.model('Screen', ScreenSchema);
-let Stock = mongoose.model('Stock', StockSchema);
 let Theater = mongoose.model('Theater', TheaterSchema);
 
 export default {
@@ -22,6 +20,5 @@ export default {
     Performance,
     Reservation,
     Screen,
-    Stock,
     Theater,
 };
