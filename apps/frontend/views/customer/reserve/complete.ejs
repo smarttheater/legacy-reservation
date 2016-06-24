@@ -3,20 +3,39 @@
 <%- include('./_step') %>
 
 <div class="row">
-    <h3>予約管理番号:<%- reservationResultModel.paymentNo %></h3>
 
-    <div class="row">
-        <div class="col-sm-4">
-        <% for (let seatCode of reservationResultModel.seatCodes) { %>
-        <a class="show-seat" href="javascript:void(0);" data-seat-code="<%- seatCode %>"><%- seatCode %></a><br>
-        <% } %>
-        </div>
+        <dl class="dl-horizontal">
+            <dt>予約管理番号</dt>
+            <dd><%- reservationResultModel.paymentNo %></dd>
 
-        <div class="col-sm-6">
-            <div class="selected-seats">
-            </div>
-        </div>
-    </div>
+            <dt>作品名</dt>
+            <dd><%- reservationResultModel.performance.film.name %></dd>
+
+            <dt>上映時間/場所</dt>
+            <dd><%- reservationResultModel.performance.day %> <%- reservationResultModel.performance.start_time %> ～ <%- reservationResultModel.performance.screen.name %></dd>
+
+            <dt>座席番号</dt>
+
+            <dd>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <% for (let seatCode of reservationResultModel.seatCodes) { %>
+                            <tr>
+                                <td><a class="show-seat" href="javascript:void(0);" data-seat-code="<%- seatCode %>"><%- seatCode %></a></td>
+                                <td><a class="btn  btn-default" href="javascript:void(0)">印刷(未実装)</a></td>
+                                <td><a class="btn  btn-default" href="javascript:void(0)">メール送信(未実装)</a></td>
+                                <td>QR</td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </dd>
+
+        </dl>
+
+
     <a class="btn btn-default btn-lg btn-block"  href="/">TOP</a>
 </div>
 
