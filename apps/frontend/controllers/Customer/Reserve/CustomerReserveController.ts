@@ -138,7 +138,7 @@ export default class CustomerReserveController extends BaseController {
                 this.useMongoose(() => {
                     Models.Performance.find({}, null, {sort : {film: 1, day: 1, start_time: 1}, limit: 100})
                         .populate('film screen theater') // スペースつなぎで、複数populateできる
-                        .exec((err, performances) => {
+                        .exec((err, performanceDocuments) => {
 
                         mongoose.disconnect();
 
@@ -147,9 +147,21 @@ export default class CustomerReserveController extends BaseController {
                         } else {
                             // TODO ここで画面表示に合わせて整形処理を入れる
 
+                            // 作品ごとに
+                            let performanceDocumentsByFilm = {};
+                            for (let performanceDocument of performanceDocuments) {
+                                let filmId = performanceDocument.get('film').get('id');
+                                if (!performanceDocumentsByFilm.hasOwnProperty(filmId)) {
+                                    performanceDocumentsByFilm[filmId] = [];
+                                }
+
+                                performanceDocumentsByFilm[filmId].push(performanceDocument);
+                            }
+
                             this.res.render('customer/reserve/performances', {
                                 form: customerReservePerformanceForm.form,
-                                performances: performances
+                                performances: performanceDocuments,
+                                performanceDocumentsByFilm: performanceDocumentsByFilm,
                             });
                         }
                     });

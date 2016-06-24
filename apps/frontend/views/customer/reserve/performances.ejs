@@ -3,37 +3,31 @@
 <%- include('./_step') %>
 
 <div class="row">
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>作品</th>
-                    <th>日</th>
-                    <th>劇場</th>
-                    <th>スクリーン</th>
-                    <th>開始</th>
-                    <th>終了</th>
-                    <th>残席ステータス</th>
-                </tr>
-            </thead>
+    <% for (let filmId in performanceDocumentsByFilm) { %>
+        <% let performanceDocuments = performanceDocumentsByFilm[filmId] %>
 
-            <tbody>
+        <h3><%- performanceDocuments[0].get('film').get('name') %></h3>
 
-                <% performances.forEach(function(performance, index) { %>
-                <tr>
-                    <th scope="row"><a href="javascript:void(0);" onclick="selectPerformance('<%- performance._id %>');"><%- performance.film.name %></a></th>
-                    <td><%- performance.day %></td>
-                    <td><%- performance.theater.name %></td>
-                    <td><%- performance.screen.name %></td>
-                    <td><%- performance.start_time %></td>
-                    <td><%- performance.end_time %></td>
-                    <td>???</td>
-                </tr>
-                <% }) %>
-            </tbody>
-        </table>
-    </div>
+        <div class="row">
+        <% performanceDocuments.forEach(function(performance, index) { %>
+        <% if (index % 12 === 0) { %>
+        <div class="row">
+        </div>
+        <% } %>
+
+            <div class="col-sm-4">
+                <a href="javascript:void(0);" onclick="selectPerformance('<%- performance._id %>');">
+                <%- performance.day %><br>
+                <%- performance.theater.name %> <%- performance.screen.name %><br>
+                <%- performance.start_time %>-<%- performance.end_time %><br>
+                ???
+                </a>
+            </div>
+        <% }) %>
+        </div>
+    <% } %>
 </div>
+
 
 <script>
 function selectPerformance(performaceId) {
