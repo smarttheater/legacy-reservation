@@ -206,6 +206,7 @@ export default class ReservationModel {
         reservationResultModel.paymentNo = this.paymentNo;
         reservationResultModel.performance = this.performance;
         reservationResultModel.seatCodes = this.seatCodes;
+        reservationResultModel.screenSeatCodes = this.screenSeatCodes;
         reservationResultModel.ticketChoices = this.ticketChoices;
         reservationResultModel.profile = this.profile;
         reservationResultModel.paymentMethod = this.paymentMethod;

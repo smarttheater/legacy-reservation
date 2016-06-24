@@ -1,7 +1,104 @@
-<h1>完了</h1>
+<h1>購入完了</h1>
 
 <%- include('./_step') %>
 
 <div class="row">
+    <h3>予約管理番号:<%- reservationResultModel.paymentNo %></h3>
+
+    <div class="row">
+        <div class="col-sm-4">
+        <% for (let seatCode of reservationResultModel.seatCodes) { %>
+        <a class="show-seat" href="javascript:void(0);" data-seat-code="<%- seatCode %>"><%- seatCode %></a><br>
+        <% } %>
+        </div>
+
+        <div class="col-sm-6">
+            <div class="selected-seats">
+            </div>
+        </div>
+    </div>
     <a class="btn btn-default btn-lg btn-block"  href="/">TOP</a>
 </div>
+
+
+<!-- Modal -->
+<div class="modal fade selected-seat-map" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <!--
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+      -->
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+$(function(){
+    $('.show-seat').on('click', function(){
+        var html = createSeatMap(<%- JSON.stringify(reservationResultModel.screenSeatCodes) %>, [$(this).attr('data-seat-code')]);
+
+        $('.selected-seat-map .modal-body').html(html);
+        $('.selected-seat-map').modal();
+    });
+
+    let html = createSeatMap(<%- JSON.stringify(reservationResultModel.screenSeatCodes) %>, <%- JSON.stringify(reservationResultModel.seatCodes) %>);
+    $('.selected-seats').html(html);
+})
+
+function createSeatMap(seatCodes, selecteSeatCodes) {
+    var html = `
+
+    <div class="table-responsive">
+        <table class="table table-bordered">
+
+            <tbody>
+                <tr>
+`;
+
+    seatCodes.forEach(function(seatCode, index) {
+        if (index % 12 === 0) {
+            html += `
+                </tr>
+                <tr>
+`;
+        }
+
+
+            if (selecteSeatCodes.indexOf(seatCode) >= 0) {
+
+                html += `
+                    <th scope="row" class="bg-primary">
+                        ${seatCode}
+                    </th>
+`;
+
+            } else {
+                html += `
+                    <th scope="row" class="select-seat">
+                        ${seatCode}
+                    </th>
+`;
+            }
+    });
+
+    html += `
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+`;
+
+    return html;
+}
+</script>

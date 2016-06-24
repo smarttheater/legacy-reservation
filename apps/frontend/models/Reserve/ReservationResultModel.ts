@@ -55,15 +55,7 @@ export default class ReservationResultModel {
      */
     public seatCodes: Array<string>;
 
-    /**
-     * 選択座席リスト
-     */
-    // public seats: Array<{
-    //     _id: string,
-    //     seat_code: string,
-    //     status: string,
-    //     performance: string,
-    // }>;
+    public screenSeatCodes: Array<string>;
 
     /**
      * 券種選択リスト
