@@ -154,6 +154,18 @@ export default class ReservationModel {
         return `TIFFReservation_${token}`;
     }
 
+    public getTotalPrice() {
+        let total = 0;
+
+        if (Array.isArray(this.ticketChoices) && this.ticketChoices.length > 0) {
+            for (let choice of this.ticketChoices) {
+                total += choice.ticket.price;
+            }
+        }
+
+        return total;
+    }
+
     /**
      * 予約ドキュメントへ変換
      */

@@ -1,5 +1,12 @@
 <h1>座席選択</h1>
 
+<% if (req.query.message) { %>
+<div class="alert alert-danger" role="alert">
+    <a href="javascript:void(0)" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    <%- req.query.message %>
+</div>
+<% } %>
+
 <%- include('./_reservationModel') %>
 
 <%- include('./_step') %>
@@ -73,8 +80,12 @@ $(function(){
             codes.push($(this).attr('data-seat-code'));
         });
 
-        $('form input[name="codes"]').val(JSON.stringify(codes));
-        $('form').submit();
+        if (codes.length < 1) {
+            alert('座席を選択してください');
+        } else {
+            $('form input[name="codes"]').val(JSON.stringify(codes));
+            $('form').submit();
+        }
     });
 });
 </script>

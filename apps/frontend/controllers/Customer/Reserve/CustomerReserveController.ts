@@ -189,16 +189,22 @@ export default class CustomerReserveController extends BaseController {
                     success: (form) => {
                         customerReserveSeatForm.form = form;
 
+                        let seatCodes: Array<string> = JSON.parse(form.data.codes);
+                        let seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
+
+                        if (seatCodes.length < 1) {
+                            return this.next(new Error('不適切なアクセスです'));
+                        }
+
                         // 仮押さえ
                         // まず仮押さえしてから、仮押さえキャンセル
                         this.useMongoose(() => {
 
-                            let seatCodes: Array<string> = JSON.parse(form.data.codes);
-                            let seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
                             let promises: Array<Promise<Function>> = [];
 
                             // セッション中の在庫リストを初期化
                             reservationModel.seatCodes = [];
+                            reservationModel.ticketChoices = [];
 
                             for (let seatCodeInSession of seatCodesInSession) {
                                 if (seatCodes.indexOf(seatCodeInSession) >= 0) {
@@ -273,34 +279,6 @@ export default class CustomerReserveController extends BaseController {
                             }
 
 
-
-
-                            // update multiで一度に更新したいが、更新できなかった在庫IDがあった場合に、それがどのIDかをすぐに追えない(更新数のみ取得できる)
-                            // であれば、ひとつずつ更新した方が、それぞれの状態を追えて、ユーザーに状態の詳細を知らせることができる
-                            /*
-                            this.logger.debug('update processing...stockIds:', stockIds);
-                            Models.Stock.update(
-                                {
-                                    _id: {$in: stockIds},
-                                    status: StockUtil.STATUS_AVAILABLE,
-                                    $isolated : true,
-                                },
-                                {
-                                    status: StockUtil.STATUS_TEMPORARY,
-                                },
-                                {
-                                    multi: true,
-                                },
-                                (err, raw) => {
-                                this.logger.debug('update processed.', err, raw);
-
-
-                            });
-                            */
-
-
-
-
                             Promise.all(promises).then(() => {
                                 mongoose.disconnect();
 
@@ -309,7 +287,8 @@ export default class CustomerReserveController extends BaseController {
                                     // 仮押さえできていない在庫があった場合
                                     if (seatCodes.length > reservationModel.seatCodes.length) {
                                         // TODO メッセージ？
-                                        this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
+                                        let message = '座席を確保できませんでした。再度指定してください。';
+                                        this.res.redirect(this.router.build('customer.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
                                     } else {
                                         this.res.redirect(this.router.build('customer.reserve.tickets', {token: token}));
                                     }
@@ -722,6 +701,8 @@ export default class CustomerReserveController extends BaseController {
                             }
 
                             Promise.all(promises).then(() => {
+                                mongoose.disconnect();
+
                                 let reservationResultModel = reservationModel.toReservationResult();
 
                                 // TODO 予約できていない在庫があった場合
@@ -737,6 +718,7 @@ export default class CustomerReserveController extends BaseController {
 
                             }, (err) => {
                                 // TODO 万が一の対応どうするか
+                                mongoose.disconnect();
                                 return this.next(err);
                             });
 

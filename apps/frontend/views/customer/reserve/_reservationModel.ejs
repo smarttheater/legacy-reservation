@@ -13,18 +13,45 @@
             <dt>座席/券種</dt>
             <dd>
                 <% if (reservationModel.ticketChoices.length > 0) { %>
-                    <% for (let ticketChoice of reservationModel.ticketChoices) { %>
-                    <a class="show-seat" href="javascript:void(0);" data-seat-code="<%- ticketChoice.seat_code %>"><%- ticketChoice.seat_code %></a><br>
-                    <%- ticketChoice.ticket.name %><br>
-                    <%- ticketChoice.ticket.price %><br>
-                    <% } %>
+
+                    <div class="row">
+                    <% reservationModel.ticketChoices.forEach((ticketChoice, index) => { %>
+                        <% if (index > 0 && index % 4 === 0) { %>
+                        </div>
+                        <div class="row">
+                        <% } %>
+
+                            <div class="col-xs-3">
+                                <a class="show-seat" href="javascript:void(0);" data-seat-code="<%- ticketChoice.seat_code %>"><%- ticketChoice.seat_code %></a><br>
+                                <%- ticketChoice.ticket.name %><br>
+                                <%- ticketChoice.ticket.price %><br>
+                            </div>
+                    <% }) %>
+                    </div>
+
 
                 <% } else if (reservationModel.seatCodes.length > 0) { %>
-                    <% for (let seatCode of reservationModel.seatCodes) { %>
-                    <a class="show-seat" href="javascript:void(0);" data-seat-code="<%- seatCode %>"><%- seatCode %></a><br>
-                    <% } %>
+
+                    <div class="row">
+                    <% reservationModel.seatCodes.forEach((seatCode, index) => { %>
+                        <% if (index > 0 && index % 4 === 0) { %>
+                        </div>
+                        <div class="row">
+                        <% } %>
+
+                            <div class="col-xs-3">
+                                <a class="show-seat" href="javascript:void(0);" data-seat-code="<%- seatCode %>"><%- seatCode %></a><br>
+                            </div>
+                    <% }) %>
+                    </div>
 
                 <% } %>
+
+            </dd>
+
+            <dt>合計金額</dt>
+            <dd>
+                <%- reservationModel.getTotalPrice() %>
             </dd>
         </dl>
     </div>
