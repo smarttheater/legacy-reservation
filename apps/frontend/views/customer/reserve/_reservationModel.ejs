@@ -1,0 +1,39 @@
+<div class="row">
+    <div class="col-md-2">
+    </div>
+
+    <div class="col-md-10">
+        <dl class="dl-horizontal">
+            <dt>作品名</dt>
+            <dd><%- reservationModel.performance.film.name %></dd>
+
+            <dt>上映時間/場所</dt>
+            <dd><%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ <%- reservationModel.performance.screen.name %></dd>
+
+            <dt>座席/券種</dt>
+            <dd>
+                <% if (reservationModel.ticketChoices.length > 0) { %>
+                    <% reservationModel.ticketChoices.forEach((ticketChoice) => { %>
+                    <a class="show-seat" href="javascript:void(0);"><%- ticketChoice.seat_code %></a><br>
+                    <%- ticketChoice.ticket.name %><br>
+                    <%- ticketChoice.ticket.price %><br>
+                    <% }) %>
+
+                <% } else if (reservationModel.seatCodes.length > 0) { %>
+                    <% reservationModel.seatCodes.forEach((seatCode) => { %>
+                    <a class="show-seat" href="javascript:void(0);"><%- seatCode %></a><br>
+                    <% }) %>
+
+                <% } %>
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<script>
+$(function(){
+    $('.show-seat').on('click', function(){
+        return;
+    });
+})
+</script>

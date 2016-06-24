@@ -1,34 +1,38 @@
 <h1>スケジュール選択</h1>
 
-<div class="table-responsive">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>作品</th>
-                <th>日</th>
-                <th>劇場</th>
-                <th>スクリーン</th>
-                <th>開始</th>
-                <th>終了</th>
-                <th>残席ステータス</th>
-            </tr>
-        </thead>
+<%- include('./_step') %>
 
-        <tbody>
+<div class="row">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>作品</th>
+                    <th>日</th>
+                    <th>劇場</th>
+                    <th>スクリーン</th>
+                    <th>開始</th>
+                    <th>終了</th>
+                    <th>残席ステータス</th>
+                </tr>
+            </thead>
 
-            <% performances.forEach(function(performance, index) { %>
-            <tr>
-                <th scope="row"><a href="javascript:void(0);" onclick="selectPerformance('<%- performance._id %>');"><%- performance.film.name %></a></th>
-                <td><%- performance.day %></td>
-                <td><%- performance.theater.name %></td>
-                <td><%- performance.screen.name %></td>
-                <td><%- performance.start_time %></td>
-                <td><%- performance.end_time %></td>
-                <td>???</td>
-            </tr>
-            <% }) %>
-        </tbody>
-    </table>
+            <tbody>
+
+                <% performances.forEach(function(performance, index) { %>
+                <tr>
+                    <th scope="row"><a href="javascript:void(0);" onclick="selectPerformance('<%- performance._id %>');"><%- performance.film.name %></a></th>
+                    <td><%- performance.day %></td>
+                    <td><%- performance.theater.name %></td>
+                    <td><%- performance.screen.name %></td>
+                    <td><%- performance.start_time %></td>
+                    <td><%- performance.end_time %></td>
+                    <td>???</td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>

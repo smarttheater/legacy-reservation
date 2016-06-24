@@ -1,7 +1,11 @@
 <h1>座席選択</h1>
 
+<%- include('./_reservationModel') %>
+
+<%- include('./_step') %>
+
 <div class="row">
-    <div class="table-responsive">
+    <div class="table-responsive tickets">
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -47,7 +51,7 @@ $(function(){
     $('.select-tickets').on('click', function(){
         // 座席コードリストを取得
         var choices = [];
-        $('tbody tr').each(function(index){
+        $('.tickets tbody tr').each(function(index){
             choices.push({
                 seat_code: $(this).attr('data-seat-code'),
                 ticket: {

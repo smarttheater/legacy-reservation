@@ -104,6 +104,9 @@ export default class CustomerReserveController extends BaseController {
                                         }
                                     };
 
+                                    reservationModel.seatCodes = [];
+                                    reservationModel.ticketChoices = [];
+
                                     this.logger.debug('saving reservationModel... ', reservationModel);
                                     reservationModel.save((err) => {
                                         this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
@@ -486,7 +489,8 @@ export default class CustomerReserveController extends BaseController {
                 // TODO 初期値設定
 
                 this.res.render('customer/reserve/profile', {
-                    form: customerReserveProfileForm.form
+                    form: customerReserveProfileForm.form,
+                    reservationModel: reservationModel,
                 });
             }
         });
@@ -529,7 +533,8 @@ export default class CustomerReserveController extends BaseController {
                 });
             } else {
                 this.res.render('customer/reserve/pay', {
-                    form: customerReservePayForm.form
+                    form: customerReservePayForm.form,
+                    reservationModel: reservationModel,
                 });
             }
         });
@@ -716,12 +721,14 @@ export default class CustomerReserveController extends BaseController {
         let token = this.req.params.token;
         // ReservationResultModel.find(token, (err, reservationResultModel) => {
         //     if (err || reservationResultModel === null) {
-        ReservationModel.find(token, (err, reservationResultModel) => {
-            if (err || ReservationModel === null) {
+        ReservationModel.find(token, (err, reservationModel) => {
+            console.log(reservationModel);
+            if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
             this.res.render('customer/reserve/complete', {
+                reservationModel: reservationModel,
             });
         });
     }
