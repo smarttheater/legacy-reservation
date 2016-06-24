@@ -1,5 +1,4 @@
 import forms = require('forms');
-import MwsrUtil from '../../common/Util/Util';
 
 /**
  * フォームベースクラス

@@ -2,13 +2,12 @@ import express = require('express');
 import log4js = require('log4js');
 import moment = require('moment');
 import util = require('util');
+import conf = require('config');
+import mongoose = require('mongoose');
+
 import User from '../models/User';
 import Router from '../routes/router';
 import NamedRoutes = require('named-routes');
-
-import conf = require('config');
-let MONGOLAB_URI = conf.get<string>('mongolab_uri');
-import mongoose = require('mongoose');
 
 /**
  * ベースコントローラー
@@ -71,8 +70,10 @@ export default class BaseController
      * デフォルトコネクションを開く
      */
     protected useMongoose(cb: () => void): void {
+        let MONGOLAB_URI = conf.get<string>('mongolab_uri');
         mongoose.connect(MONGOLAB_URI, {}, (err) => {
             if (err) {
+                // TODO どう対処する？
                 throw err;
             } else {
                 cb();

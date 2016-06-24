@@ -55,20 +55,12 @@ export default class ReservationModel {
         },
     };
 
+    public screenSeatCodes: Array<string>;
+
     /**
      * 選択座席コードリスト
      */
     public seatCodes: Array<string>;
-
-    /**
-     * 選択座席リスト
-     */
-    // public seats: Array<{
-    //     _id: string,
-    //     seat_code: string,
-    //     status: string,
-    //     performance: string,
-    // }>;
 
     /**
      * 券種選択リスト
@@ -211,6 +203,12 @@ export default class ReservationModel {
         let reservationResultModel = new ReservationResultModel();
 
         reservationResultModel.token = this.token;
+        reservationResultModel.paymentNo = this.paymentNo;
+        reservationResultModel.performance = this.performance;
+        reservationResultModel.seatCodes = this.seatCodes;
+        reservationResultModel.ticketChoices = this.ticketChoices;
+        reservationResultModel.profile = this.profile;
+        reservationResultModel.paymentMethod = this.paymentMethod;
 
         return reservationResultModel;
     }

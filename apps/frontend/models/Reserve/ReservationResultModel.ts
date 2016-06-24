@@ -12,6 +12,11 @@ export default class ReservationResultModel {
     public token: string;
 
     /**
+     * 購入管理番号
+     */
+    public paymentNo: string;
+
+    /**
      * パフォーマンス
      */
     public performance: {
@@ -46,19 +51,19 @@ export default class ReservationResultModel {
     };
 
     /**
-     * 選択在庫IDリスト
+     * 選択座席コードリスト
      */
-    public stockIds: Array<string>;
+    public seatCodes: Array<string>;
 
     /**
-     * 選択在庫リスト
+     * 選択座席リスト
      */
-    public stocks: Array<{
-        _id: string,
-        seat_code: string,
-        status: string,
-        performance: string,
-    }>;
+    // public seats: Array<{
+    //     _id: string,
+    //     seat_code: string,
+    //     status: string,
+    //     performance: string,
+    // }>;
 
     /**
      * 券種選択リスト

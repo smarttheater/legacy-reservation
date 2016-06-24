@@ -17,7 +17,9 @@ export default class CustomerReservePayForm extends BaseForm {
                     validators: [
                     ],
                     choices: {
-                        '01': 'クレジットカード決済'
+                        '01': 'クレジットカード決済',
+                        '02': '???',
+                        '03': '???',
                     }
                 })
             },

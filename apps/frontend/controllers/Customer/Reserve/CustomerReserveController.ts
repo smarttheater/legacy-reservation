@@ -6,7 +6,6 @@ import CustomerReserveSeatForm from '../../../forms/Customer/Reserve/CustomerRes
 import CustomerReserveTicketForm from '../../../forms/Customer/Reserve/CustomerReserveTicketForm';
 import CustomerReserveProfileForm from '../../../forms/Customer/Reserve/CustomerReserveProfileForm';
 import CustomerReservePayForm from '../../../forms/Customer/Reserve/CustomerReservePayForm';
-import CustomerReserveConfirmForm from '../../../forms/Customer/Reserve/CustomerReserveConfirmForm';
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
@@ -17,6 +16,9 @@ import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
 
 export default class CustomerReserveController extends BaseController {
+    /**
+     * 規約
+     */
     public terms(): void {
         let customerReserveTermsForm = new CustomerReserveTermsForm();
         if (this.req.method === 'POST') {
@@ -52,6 +54,9 @@ export default class CustomerReserveController extends BaseController {
         }
     }
 
+    /**
+     * スケジュール選択
+     */
     public performances(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
@@ -104,6 +109,12 @@ export default class CustomerReserveController extends BaseController {
                                         }
                                     };
 
+                                    // スクリーンの全座席コード
+                                    reservationModel.screenSeatCodes = [];
+                                    for (let seatDocument of performance.get('screen').get('sections')[0].get('seats')) {
+                                        reservationModel.screenSeatCodes.push(seatDocument.get('code'));
+                                    }
+
                                     reservationModel.seatCodes = [];
                                     reservationModel.ticketChoices = [];
 
@@ -147,6 +158,9 @@ export default class CustomerReserveController extends BaseController {
         });
     }
 
+    /**
+     * 座席選択
+     */
     public seats(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
@@ -350,6 +364,9 @@ export default class CustomerReserveController extends BaseController {
         });
     }
 
+    /**
+     * 券種選択
+     */
     public tickets(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
@@ -445,6 +462,9 @@ export default class CustomerReserveController extends BaseController {
         });
     }
 
+    /**
+     * 購入者情報
+     */
     public profile(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
@@ -477,16 +497,27 @@ export default class CustomerReserveController extends BaseController {
                     error: (form) => {
                         return this.res.render('customer/reserve/profile', {
                             form: form,
+                            reservationModel: reservationModel,
                         });
                     },
                     empty: (form) => {
                         return this.res.render('customer/reserve/profile', {
                             form: form,
+                            reservationModel: reservationModel,
                         });
                     }
                 });
             } else {
-                // TODO 初期値設定
+                // セッションに情報があれば、フォーム初期値設定
+                if (reservationModel.profile) {
+                    let email = reservationModel.profile.email;
+                    customerReserveProfileForm.form.fields.last_name.value = reservationModel.profile.last_name;
+                    customerReserveProfileForm.form.fields.first_name.value = reservationModel.profile.first_name;
+                    customerReserveProfileForm.form.fields.tel.value = reservationModel.profile.tel;
+                    customerReserveProfileForm.form.fields.email.value = email;
+                    customerReserveProfileForm.form.fields.emailConfirm.value = email.substr(0, email.indexOf('@'));
+                    customerReserveProfileForm.form.fields.emailConfirmDomain.value = email.substr(email.indexOf('@') + 1);
+                }
 
                 this.res.render('customer/reserve/profile', {
                     form: customerReserveProfileForm.form,
@@ -496,6 +527,9 @@ export default class CustomerReserveController extends BaseController {
         });
     }
 
+    /**
+     * 決済方法選択
+     */
     public pay(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
@@ -532,6 +566,11 @@ export default class CustomerReserveController extends BaseController {
                     }
                 });
             } else {
+                // セッションに情報があれば、フォーム初期値設定
+                if (reservationModel.paymentMethod) {
+                    customerReservePayForm.form.fields.method.value = reservationModel.paymentMethod;
+                }
+
                 this.res.render('customer/reserve/pay', {
                     form: customerReservePayForm.form,
                     reservationModel: reservationModel,
@@ -552,31 +591,10 @@ export default class CustomerReserveController extends BaseController {
 
             this.logger.debug('reservationModel is ', reservationModel);
 
-            let customerReserveConfirmForm = new CustomerReserveConfirmForm();
             if (this.req.method === 'POST') {
-
-                customerReserveConfirmForm.form.handle(this.req, {
-                    success: (form) => {
-                        customerReserveConfirmForm.form = form;
-
-                        this.res.redirect(this.router.build('customer.reserve.process', {token: token}));
-                    },
-                    error: (form) => {
-                        return this.res.render('customer/reserve/confirm', {
-                            form: form,
-                            reservationModel: reservationModel
-                        });
-                    },
-                    empty: (form) => {
-                        return this.res.render('customer/reserve/confirm', {
-                            form: form,
-                            reservationModel: reservationModel
-                        });
-                    }
-                });
+                this.res.redirect(this.router.build('customer.reserve.process', {token: token}));
             } else {
                 this.res.render('customer/reserve/confirm', {
-                    form: customerReserveConfirmForm.form,
                     reservationModel: reservationModel
                 });
             }
@@ -639,7 +657,6 @@ export default class CustomerReserveController extends BaseController {
                         this.useMongoose(() => {
                             // 予約ステータス更新
                             let reservedDocuments: Array<mongoose.Document> = [];
-                            // let reservations = reservationModel.toReservationDocuments();
 
                             let promises = [];
                             for (let choice of reservationModel.ticketChoices) {
@@ -693,17 +710,21 @@ export default class CustomerReserveController extends BaseController {
                             }
 
                             Promise.all(promises).then(() => {
+                                let reservationResultModel = reservationModel.toReservationResult();
 
-                                // 予約できていない在庫があった場合
+                                // TODO 予約できていない在庫があった場合
                                 if (reservationModel.seatCodes.length > reservedDocuments.length) {
                                     this.res.redirect(this.router.build('customer.reserve.confirm', {token: token}));
                                 } else {
-                                    // TODO 購入処理
-                                    this.res.redirect(this.router.build('customer.reserve.complete', {token: token}));
-
+                                    // 予約結果セッションを保存して、完了画面へ
+                                    this.logger.debug('saving reservationResult...', reservationResultModel);
+                                    reservationResultModel.save((err) => {
+                                        this.res.redirect(this.router.build('customer.reserve.complete', {token: token}));
+                                    });
                                 }
 
                             }, (err) => {
+                                // TODO 万が一の対応どうするか
                                 return this.next(err);
                             });
 
@@ -719,16 +740,13 @@ export default class CustomerReserveController extends BaseController {
 
     public complete(): void {
         let token = this.req.params.token;
-        // ReservationResultModel.find(token, (err, reservationResultModel) => {
-        //     if (err || reservationResultModel === null) {
-        ReservationModel.find(token, (err, reservationModel) => {
-            console.log(reservationModel);
-            if (err || reservationModel === null) {
+        ReservationResultModel.find(token, (err, reservationResultModel) => {
+            if (err || reservationResultModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
             this.res.render('customer/reserve/complete', {
-                reservationModel: reservationModel,
+                reservationResultModel: reservationResultModel,
             });
         });
     }
