@@ -76,6 +76,20 @@ export default class ReservationModel {
     }>;
 
     /**
+     * 座席指定リスト(内部関係者)
+     */
+    public seatChoicesByStaff: Array<{
+        seat_code: string,
+        watcher_name: string,
+        ticket: {
+            type: string,
+            name: string,
+            name_en: string,
+            price: number
+        }
+    }>;
+
+    /**
      * 座席指定リスト(外部関係者)
      */
     public seatChoicesBySponsor: Array<{

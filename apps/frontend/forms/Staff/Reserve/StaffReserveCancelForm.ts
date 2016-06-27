@@ -1,6 +1,6 @@
 import BaseForm from '../../BaseForm';
 
-export default class SponsorReserveCancelForm extends BaseForm {
+export default class StaffReserveCancelForm extends BaseForm {
     public constructor() {
         super();
 

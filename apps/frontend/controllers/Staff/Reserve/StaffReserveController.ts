@@ -1,11 +1,10 @@
 import BaseController from '../../BaseController';
-import SponsorUser from '../../../models/User/SponsorUser';
+import StaffUser from '../../../models/User/StaffUser';
 import Util from '../../../../common/Util/Util';
-import SponsorReserveLoginForm from '../../../forms/Sponsor/Reserve/SponsorReserveLoginForm';
-import SponsorReservePerformanceForm from '../../../forms/Sponsor/Reserve/SponsorReservePerformanceForm';
-import SponsorReserveSeatForm from '../../../forms/Sponsor/Reserve/SponsorReserveSeatForm';
-import SponsorReserveTicketForm from '../../../forms/Sponsor/Reserve/SponsorReserveTicketForm';
-import SponsorReserveProfileForm from '../../../forms/Sponsor/Reserve/SponsorReserveProfileForm';
+import StaffReserveLoginForm from '../../../forms/Staff/Reserve/StaffReserveLoginForm';
+import StaffReservePerformanceForm from '../../../forms/Staff/Reserve/StaffReservePerformanceForm';
+import StaffReserveSeatForm from '../../../forms/Staff/Reserve/StaffReserveSeatForm';
+import StaffReserveTicketForm from '../../../forms/Staff/Reserve/StaffReserveTicketForm';
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
@@ -13,63 +12,63 @@ import mongoose = require('mongoose');
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
 
-export default class SponsorReserveController extends BaseController {
+export default class StaffReserveController extends BaseController {
     /**
      * 規約
      */
     public terms(): void {
-        if (this.sponsorUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
+        if (this.staffUser.isAuthenticated()) {
+            return this.res.redirect(this.router.build('staff.reserve.performances', {}));
         }
 
-        let sponsorReserveLoginForm = new SponsorReserveLoginForm();
+        let staffReserveLoginForm = new StaffReserveLoginForm();
         if (this.req.method === 'POST') {
 
-            sponsorReserveLoginForm.form.handle(this.req, {
+            staffReserveLoginForm.form.handle(this.req, {
                 success: (form) => {
-                    sponsorReserveLoginForm.form = form;
+                    staffReserveLoginForm.form = form;
 
                     // ユーザー認証
                     this.useMongoose(() => {
-                        this.logger.debug('finding sponsor... user_id:', form.data.user_id);
-                        Models.Sponsor.findOne(
+                        this.logger.debug('finding staff... user_id:', form.data.user_id);
+                        Models.Staff.findOne(
                         {
                             user_id: form.data.user_id,
                             password: form.data.password,
                         },
-                        (err, sponsorDocument) => {
+                        (err, staffDocument) => {
 
-                            if (err || sponsorDocument === null) {
-                                this.res.render('sponsor/reserve/terms', {
+                            if (err || staffDocument === null) {
+                                this.res.render('staff/reserve/terms', {
                                     form: form,
                                 });
                             } else {
                                 mongoose.disconnect(() => {
                                     // ログイン
-                                    this.req.session[SponsorUser.AUTH_SESSION_NAME] = sponsorDocument;
+                                    this.req.session[StaffUser.AUTH_SESSION_NAME] = staffDocument;
 
-                                    this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
+                                    this.res.redirect(this.router.build('staff.reserve.performances', {}));
                                 });
                             }
                         });
                     });
                 },
                 error: (form) => {
-                    this.res.render('sponsor/reserve/terms', {
-                        sponsorReserveLoginForm: form,
+                    this.res.render('staff/reserve/terms', {
+                        staffReserveLoginForm: form,
                     });
                 },
                 empty: (form) => {
-                    this.res.render('sponsor/reserve/terms', {
-                        sponsorReserveLoginForm: form,
+                    this.res.render('staff/reserve/terms', {
+                        staffReserveLoginForm: form,
                     });
                 }
             });
 
 
         } else {
-            this.res.render('sponsor/reserve/terms', {
-                form: sponsorReserveLoginForm.form,
+            this.res.render('staff/reserve/terms', {
+                form: staffReserveLoginForm.form,
             });
         }
     }
@@ -78,12 +77,12 @@ export default class SponsorReserveController extends BaseController {
      * スケジュール選択
      */
     public performances(): void {
-        let sponsorReservePerformanceForm = new SponsorReservePerformanceForm();
+        let staffReservePerformanceForm = new StaffReservePerformanceForm();
         if (this.req.method === 'POST') {
 
-            sponsorReservePerformanceForm.form.handle(this.req, {
+            staffReservePerformanceForm.form.handle(this.req, {
                 success: (form) => {
-                    sponsorReservePerformanceForm.form = form;
+                    staffReservePerformanceForm.form = form;
 
                     // パフォーマンス取得
                     this.logger.debug('searching performance... id:', form.data.performance_id);
@@ -134,11 +133,11 @@ export default class SponsorReserveController extends BaseController {
                                     }
 
                                     reservationModel.seatCodes = [];
-                                    reservationModel.seatChoicesBySponsor = [];
+                                    reservationModel.seatChoicesByStaff = [];
 
                                     this.logger.debug('saving reservationModel... ', reservationModel);
                                     reservationModel.save((err) => {
-                                        this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
+                                        this.res.redirect(this.router.build('staff.reserve.seats', {token: token}));
                                     });
                                 }
 
@@ -178,8 +177,8 @@ export default class SponsorReserveController extends BaseController {
                                 performanceDocumentsByFilm[filmId].push(performanceDocument);
                             }
 
-                            this.res.render('sponsor/reserve/performances', {
-                                form: sponsorReservePerformanceForm.form,
+                            this.res.render('staff/reserve/performances', {
+                                form: staffReservePerformanceForm.form,
                                 performances: performanceDocuments,
                                 performanceDocumentsByFilm: performanceDocumentsByFilm,
                             });
@@ -207,16 +206,16 @@ export default class SponsorReserveController extends BaseController {
                 // 外部関係者による予約数を取得
                 Models.Reservation.count(
                 {
-                    sponsor: this.sponsorUser.get('_id')
+                    staff: this.staffUser.get('_id')
                 },
                 (err, reservationsCount) => {
 
-                    let sponsorReserveSeatForm = new SponsorReserveSeatForm();
+                    let staffReserveSeatForm = new StaffReserveSeatForm();
                     if (this.req.method === 'POST') {
 
-                        sponsorReserveSeatForm.form.handle(this.req, {
+                        staffReserveSeatForm.form.handle(this.req, {
                             success: (form) => {
-                                sponsorReserveSeatForm.form = form;
+                                staffReserveSeatForm.form = form;
 
                                 let seatCodes: Array<string> = JSON.parse(form.data.codes);
                                 let seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
@@ -226,10 +225,10 @@ export default class SponsorReserveController extends BaseController {
                                         this.next(new Error('不適切なアクセスです'));
                                     });
                                 // 座席指定可能数チェック
-                                } else if (seatCodes.length > parseInt(this.sponsorUser.get('max_reservation_count')) - reservationsCount) {
+                                } else if (seatCodes.length > parseInt(this.staffUser.get('max_reservation_count')) - reservationsCount) {
                                     mongoose.disconnect(() => {
                                         let message = '座席指定可能枚数を超えました。';
-                                        this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
+                                        this.res.redirect(this.router.build('staff.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
                                     });
                                 } else {
 
@@ -239,7 +238,7 @@ export default class SponsorReserveController extends BaseController {
 
                                     // セッション中の在庫リストを初期化
                                     reservationModel.seatCodes = [];
-                                    reservationModel.seatChoicesBySponsor = [];
+                                    reservationModel.seatChoicesByStaff = [];
 
                                     for (let seatCodeInSession of seatCodesInSession) {
                                         if (seatCodes.indexOf(seatCodeInSession) >= 0) {
@@ -291,7 +290,7 @@ export default class SponsorReserveController extends BaseController {
                                                 {
                                                     performance: reservationModel.performance._id,
                                                     status: ReservationUtil.STATUS_TEMPORARY,
-                                                    sponsor: this.sponsorUser.get('_id'),
+                                                    staff: this.staffUser.get('_id'),
                                                 },
                                                 {
                                                     new: true,
@@ -323,9 +322,9 @@ export default class SponsorReserveController extends BaseController {
                                                 if (seatCodes.length > reservationModel.seatCodes.length) {
                                                     // TODO メッセージ？
                                                     let message = '座席を確保できませんでした。再度指定してください。';
-                                                    this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
+                                                    this.res.redirect(this.router.build('staff.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
                                                 } else {
-                                                    this.res.redirect(this.router.build('sponsor.reserve.tickets', {token: token}));
+                                                    this.res.redirect(this.router.build('staff.reserve.tickets', {token: token}));
                                                 }
                                             });
                                         });
@@ -339,10 +338,10 @@ export default class SponsorReserveController extends BaseController {
 
                             },
                             error: (form) => {
-                                this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
+                                this.res.redirect(this.router.build('staff.reserve.seats', {token: token}));
                             },
                             empty: (form) => {
-                                this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
+                                this.res.redirect(this.router.build('staff.reserve.seats', {token: token}));
                             }
                         });
                     } else {
@@ -377,8 +376,8 @@ export default class SponsorReserveController extends BaseController {
                                         if (err) {
                                             this.next(new Error('スケジュールを取得できませんでした'));
                                         } else {
-                                            this.res.render('sponsor/reserve/seats', {
-                                                form: sponsorReserveSeatForm.form,
+                                            this.res.render('staff/reserve/seats', {
+                                                form: staffReserveSeatForm.form,
                                                 performance: performance,
                                                 reservationDocumentsBySeatCode: reservationDocumentsBySeatCode,
                                                 reservationModel: reservationModel,
@@ -410,21 +409,21 @@ export default class SponsorReserveController extends BaseController {
 
             this.logger.debug('reservationModel is ', reservationModel);
 
-            let sponsorReserveTicketForm = new SponsorReserveTicketForm();
+            let staffReserveTicketForm = new StaffReserveTicketForm();
             if (this.req.method === 'POST') {
 
-                sponsorReserveTicketForm.form.handle(this.req, {
+                staffReserveTicketForm.form.handle(this.req, {
                     success: (form) => {
-                        sponsorReserveTicketForm.form = form;
+                        staffReserveTicketForm.form = form;
 
                         // 座席選択情報を保存して座席選択へ
-                        reservationModel.seatChoicesBySponsor = [];
+                        reservationModel.seatChoicesByStaff = [];
                         let choices = JSON.parse(form.data.choices);
 
                         if (Array.isArray(choices)) {
                             choices.forEach((choice) => {
                                 // TODO 券種はいったん固定にしてあるので、仕様によって調整
-                                reservationModel.seatChoicesBySponsor.push({
+                                reservationModel.seatChoicesByStaff.push({
                                     seat_code: choice.seat_code,
                                     watcher_name: choice.watcher_name,
                                     ticket: {
@@ -438,7 +437,7 @@ export default class SponsorReserveController extends BaseController {
 
                             this.logger.debug('saving reservationModel... ', reservationModel);
                             reservationModel.save((err) => {
-                                this.res.redirect(this.router.build('sponsor.reserve.profile', {token: token}));
+                                this.res.redirect(this.router.build('staff.reserve.confirm', {token: token}));
                             });
 
                         } else {
@@ -447,10 +446,10 @@ export default class SponsorReserveController extends BaseController {
 
                     },
                     error: (form) => {
-                        this.res.redirect(this.router.build('sponsor.reserve.tickets', {token: token}));
+                        this.res.redirect(this.router.build('staff.reserve.tickets', {token: token}));
                     },
                     empty: (form) => {
-                        this.res.redirect(this.router.build('sponsor.reserve.tickets', {token: token}));
+                        this.res.redirect(this.router.build('staff.reserve.tickets', {token: token}));
                     }
                 });
             } else {
@@ -481,14 +480,14 @@ export default class SponsorReserveController extends BaseController {
                                 }
 
                                 // 座席コードごとの券種選択リスト
-                                let ticketChoices = (reservationModel.seatChoicesBySponsor) ? reservationModel.seatChoicesBySponsor : [];
+                                let ticketChoices = (reservationModel.seatChoicesByStaff) ? reservationModel.seatChoicesByStaff : [];
                                 let ticketChoicesBySeatCode = {};
                                 for (let ticketChoice of ticketChoices) {
                                     ticketChoicesBySeatCode[ticketChoice.seat_code] = ticketChoice;
                                 }
 
-                                this.res.render('sponsor/reserve/tickets', {
-                                    form: sponsorReserveTicketForm.form,
+                                this.res.render('staff/reserve/tickets', {
+                                    form: staffReserveTicketForm.form,
                                     reservationModel: reservationModel,
                                     seatDocuments: seatDocuments,
                                     ticketChoicesBySeatCode: ticketChoicesBySeatCode,
@@ -498,71 +497,6 @@ export default class SponsorReserveController extends BaseController {
                         });
 
                     });
-                });
-            }
-        });
-    }
-
-    /**
-     * 購入者情報
-     */
-    public profile(): void {
-        let token = this.req.params.token;
-        ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
-
-            this.logger.debug('reservationModel is ', reservationModel);
-
-            let sponsorReserveProfileForm = new SponsorReserveProfileForm();
-            if (this.req.method === 'POST') {
-
-                sponsorReserveProfileForm.form.handle(this.req, {
-                    success: (form) => {
-                        sponsorReserveProfileForm.form = form;
-
-                        // 購入者情報を保存して座席選択へ
-                        reservationModel.profile = {
-                            last_name: form.data.last_name,
-                            first_name: form.data.first_name,
-                            email: form.data.email,
-                            tel: form.data.tel,
-                        };
-
-                        this.logger.debug('saving reservationModel... ', reservationModel);
-                        reservationModel.save((err) => {
-                            this.res.redirect(this.router.build('sponsor.reserve.confirm', {token: token}));
-                        });
-                    },
-                    error: (form) => {
-                        this.res.render('sponsor/reserve/profile', {
-                            form: form,
-                            reservationModel: reservationModel,
-                        });
-                    },
-                    empty: (form) => {
-                        this.res.render('sponsor/reserve/profile', {
-                            form: form,
-                            reservationModel: reservationModel,
-                        });
-                    }
-                });
-            } else {
-                // セッションに情報があれば、フォーム初期値設定
-                if (reservationModel.profile) {
-                    let email = reservationModel.profile.email;
-                    sponsorReserveProfileForm.form.fields.last_name.value = reservationModel.profile.last_name;
-                    sponsorReserveProfileForm.form.fields.first_name.value = reservationModel.profile.first_name;
-                    sponsorReserveProfileForm.form.fields.tel.value = reservationModel.profile.tel;
-                    sponsorReserveProfileForm.form.fields.email.value = email;
-                    sponsorReserveProfileForm.form.fields.emailConfirm.value = email.substr(0, email.indexOf('@'));
-                    sponsorReserveProfileForm.form.fields.emailConfirmDomain.value = email.substr(email.indexOf('@') + 1);
-                }
-
-                this.res.render('sponsor/reserve/profile', {
-                    form: sponsorReserveProfileForm.form,
-                    reservationModel: reservationModel,
                 });
             }
         });
@@ -581,9 +515,9 @@ export default class SponsorReserveController extends BaseController {
             this.logger.debug('reservationModel is ', reservationModel);
 
             if (this.req.method === 'POST') {
-                this.res.redirect(this.router.build('sponsor.reserve.process', {token: token}));
+                this.res.redirect(this.router.build('staff.reserve.process', {token: token}));
             } else {
-                this.res.render('sponsor/reserve/confirm', {
+                this.res.render('staff/reserve/confirm', {
                     reservationModel: reservationModel
                 });
             }
@@ -616,7 +550,7 @@ export default class SponsorReserveController extends BaseController {
                             let reservedDocuments: Array<mongoose.Document> = [];
 
                             let promises = [];
-                            for (let choice of reservationModel.seatChoicesBySponsor) {
+                            for (let choice of reservationModel.seatChoicesByStaff) {
                                 promises.push(new Promise((resolve, reject) => {
 
                                     this.logger.debug('STATUS_TEMPORARY to STATUS_RESERVED processing...seat_code:', choice.seat_code);
@@ -639,16 +573,12 @@ export default class SponsorReserveController extends BaseController {
                                             screen_name: reservationModel.performance.screen.name,
                                             film: reservationModel.performance.film._id,
                                             film_name: reservationModel.performance.film.name,
-                                            purchaser_last_name: reservationModel.profile.last_name,
-                                            purchaser_first_name: reservationModel.profile.first_name,
-                                            purchaser_email: reservationModel.profile.email,
-                                            purchaser_tel: reservationModel.profile.tel,
                                             ticket_type: choice.ticket.type,
                                             ticket_name: choice.ticket.name,
                                             ticket_price: choice.ticket.price,
                                             watcher_name: choice.watcher_name,
-                                            sponsor: this.sponsorUser.get('_id'),
-                                            sponsor_user_id: this.sponsorUser.get('user_id'),
+                                            staff: this.staffUser.get('_id'),
+                                            staff_user_id: this.staffUser.get('user_id'),
                                             created_user: this.constructor.toString(),
                                             updated_user: this.constructor.toString(),
                                         },
@@ -677,12 +607,12 @@ export default class SponsorReserveController extends BaseController {
 
                                     // TODO 予約できていない在庫があった場合
                                     if (reservationModel.seatCodes.length > reservedDocuments.length) {
-                                        this.res.redirect(this.router.build('sponsor.reserve.confirm', {token: token}));
+                                        this.res.redirect(this.router.build('staff.reserve.confirm', {token: token}));
                                     } else {
                                         // 予約結果セッションを保存して、完了画面へ
                                         this.logger.debug('saving reservationResult...', reservationResultModel);
                                         reservationResultModel.save((err) => {
-                                            this.res.redirect(this.router.build('sponsor.reserve.complete', {token: token}));
+                                            this.res.redirect(this.router.build('staff.reserve.complete', {token: token}));
                                         });
                                     }
                                 });
@@ -709,7 +639,7 @@ export default class SponsorReserveController extends BaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.res.render('sponsor/reserve/complete', {
+            this.res.render('staff/reserve/complete', {
                 reservationResultModel: reservationResultModel,
             });
         });

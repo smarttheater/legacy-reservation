@@ -2,11 +2,13 @@ import NamedRoutes = require('named-routes');
 import express = require('express');
 
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
+import StaffReserveController from '../controllers/Staff/Reserve/StaffReserveController';
 import SponsorReserveController from '../controllers/Sponsor/Reserve/SponsorReserveController';
 import SponsorCancelController from '../controllers/Sponsor/Cancel/SponsorCancelController';
 import ErrorController from '../controllers/Error/ErrorController';
 import IndexController from '../controllers/Index/IndexController';
 import TaskController from '../controllers/Task/TaskController';
+import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
 
 /**
@@ -58,6 +60,7 @@ export default class Router {
 
 
         // キャンセル
+        app.all('/sponsor/cancel', 'sponsor.cancel', (req, res, next) => {(new SponsorCancelController(req, res, next)).index()});
         app.get('/sponsor/cancel/:token/reservations', 'sponsor.cancel.reservations', (req, res, next) => {(new SponsorCancelController(req, res, next)).reservations()});
         app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', (req, res, next) => {(new SponsorCancelController(req, res, next)).execute()});
 
@@ -66,6 +69,21 @@ export default class Router {
 
         // タスク
         app.get('/task/removeTemporaryReservation', 'task.removeTemporaryReservation', (req, res, next) => {(new TaskController(req, res, next)).removeTemporaryReservation()});
+
+        let authenticationStaff = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+            let staffUser = StaffUser.getInstance();
+            if (!staffUser.isAuthenticated()) {
+                if (req.xhr) {
+                    res.json({
+                        message: 'login required.'
+                    });
+                } else {
+                    res.redirect('/staff/reserve/terms');
+                }
+            } else {
+                next();
+            }
+        }
 
         let authenticationSponsor = (req: express.Request, res: express.Response, next: express.NextFunction) => {
             let sponsorUser = SponsorUser.getInstance();
@@ -81,6 +99,15 @@ export default class Router {
                 next();
             }
         }
+
+        // 内部関係者
+        app.all('/staff/reserve/terms', 'sponsor.reserve.terms', (req, res, next) => {(new SponsorReserveController(req, res, next)).terms()});
+        app.all('/staff/reserve/performances', 'sponsor.reserve.performances', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).performances()});
+        app.all('/staff/reserve/:token/seats', 'sponsor.reserve.seats', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).seats()});
+        app.all('/staff/reserve/:token/tickets', 'sponsor.reserve.tickets', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).tickets()});
+        app.all('/staff/reserve/:token/confirm', 'sponsor.reserve.confirm', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).confirm()});
+        app.get('/staff/reserve/:token/process', 'sponsor.reserve.process', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).process()});
+        app.get('/staff/reserve/:token/complete', 'sponsor.reserve.complete', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).complete()});
 
         // 外部関係者
         app.all('/sponsor/reserve/terms', 'sponsor.reserve.terms', (req, res, next) => {(new SponsorReserveController(req, res, next)).terms()});

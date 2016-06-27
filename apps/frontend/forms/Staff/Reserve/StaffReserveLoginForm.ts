@@ -1,6 +1,6 @@
 import BaseForm from '../../BaseForm';
 
-export default class SponsorReserveCancelForm extends BaseForm {
+export default class StaffReserveLoginForm extends BaseForm {
     public constructor() {
         super();
 
@@ -15,18 +15,17 @@ export default class SponsorReserveCancelForm extends BaseForm {
 
         this.form = this.forms.create(
             {
-                payment_no: fields.string({
-                    label: '予約番号',
-                    required: validators.required('予約番号が未入力です'),
+                user_id: fields.string({
+                    label: 'ログイン番号',
+                    required: validators.required('ログイン番号が未入力です'),
                     validators: [
                     ],
                 }),
-                tel: fields.string({
-                    label: '電話番号下4ケタ',
+                password: fields.string({
+                    label: 'パスワード',
                     widget: widgetPassword,
-                    required: validators.required('電話番号下4ケタが未入力です'),
+                    required: validators.required('パスワードが未入力です'),
                     validators: [
-                        validators.regexp(/^[0-9]{4}$/, '電話番号下4ケタは数字4桁までで入力してください'),
                     ],
                 })
             },

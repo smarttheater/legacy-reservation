@@ -10,6 +10,7 @@ import multer = require('multer');
 import logger from './middlewares/logger';
 import benchmarks from './middlewares/benchmarks';
 import session from './middlewares/session';
+import StaffUser from './models/User/StaffUser';
 import SponsorUser from './models/User/SponsorUser';
 import config = require('config');
 import Router from './routes/router';
@@ -41,11 +42,17 @@ app.use(express.static(path.join(__dirname, '/../../public')));
 // ユーザー認証
 app.use((req, res, next) => {
     // リクエスト毎にユーザーインスタンスを再生成する
-    SponsorUser.deleteInstance();
-    let sponsorUser = SponsorUser.getInstance();
-    sponsorUser.initialize(req.session, () => {
-        next();
+    StaffUser.deleteInstance();
+    let staffUser = StaffUser.getInstance();
+    staffUser.initialize(req.session, () => {
+
+        SponsorUser.deleteInstance();
+        let sponsorUser = SponsorUser.getInstance();
+        sponsorUser.initialize(req.session, () => {
+            next();
+        });
     });
+
 });
 
 // ルーティング

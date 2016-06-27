@@ -5,6 +5,7 @@ import util = require('util');
 import conf = require('config');
 import mongoose = require('mongoose');
 
+import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
 import Router from '../routes/router';
 import NamedRoutes = require('named-routes');
@@ -41,6 +42,7 @@ export default class BaseController
     /**
      * ユーザーインスタンス
      */
+    public staffUser: StaffUser;
     public sponsorUser: SponsorUser;
 
     /**
@@ -58,6 +60,7 @@ export default class BaseController
         this.router = Router.getInstance().getRouter();
 
         // ユーザーインスタンスをテンプレート変数へ渡す
+        this.res.locals.staffUser = this.staffUser;
         this.res.locals.sponsorUser = this.sponsorUser;
 
         this.res.locals.req = this.req;
