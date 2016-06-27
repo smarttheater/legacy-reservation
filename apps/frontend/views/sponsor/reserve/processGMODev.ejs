@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="title" content="TIFF" />
+<title>TIFF</title>
+</head>
+<body>
+    <p>GMO決済開発用ページ</p>
+    token：<%- reservationModel.token %><br />
+    <form action="<%- url('customer.reserve.fromGMO', {}) %>" method="post">
+        <input type="hidden" name="token" value="<%- reservationModel.token %>">
+        <input type="submit" value="送信"/>
+    </form>
+</body>
+</html>

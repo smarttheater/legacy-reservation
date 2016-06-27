@@ -1,0 +1,43 @@
+<h1>購入者情報</h1>
+
+<%- include('./_reservationModel') %>
+
+<%- include('./_step') %>
+
+<form method="post">
+    <div class="form-group">
+        <label for="id_last_name">せい</label>
+        <input type="text" name="last_name" id="id_last_name" class="form-control" value="<%- form.fields.last_name.value %>">
+    </div>
+
+    <div class="form-group">
+        <label for="id_first_name">めい</label>
+        <input type="text" name="first_name" id="id_first_name" class="form-control" value="<%- form.fields.first_name.value %>">
+    </div>
+
+
+    <div class="form-group">
+        <label for="id_tel">電話番号</label>
+        <input type="text" name="tel" id="id_tel" class="form-control" value="<%- form.fields.tel.value %>">
+    </div>
+
+    <div class="form-group">
+        <label for="id_email">メールアドレス</label>
+        <input type="text" name="email" id="id_email" class="form-control" value="<%- form.fields.email.value %>">
+    </div>
+
+
+    <div class="form-group">
+        <label for="id_emailConfirm">メールアドレス(確認)</label>
+        <input type="text" name="emailConfirm" id="id_emailConfirm" class="form-control" value="<%- form.fields.emailConfirm.value %>">
+    </div>
+
+
+    <div class="form-group">
+        <label for="id_emailConfirmDomain">メールアドレスドメイン(確認)</label>
+        <input type="text" name="emailConfirmDomain" id="id_emailConfirmDomain" class="form-control" value="<%- form.fields.emailConfirmDomain.value %>">
+    </div>
+
+    <a class="btn btn-default btn-lg btn-block" href="<%- url('sponsor.reserve.tickets', {token: req.params.token}) %>">戻る</a>
+    <input class="btn btn-primary btn-lg btn-block confirm-reservation" type="submit" value="送信">
+</form>

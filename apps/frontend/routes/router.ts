@@ -2,6 +2,7 @@ import NamedRoutes = require('named-routes');
 import express = require('express');
 
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
+import SponsorReserveController from '../controllers/Sponsor/Reserve/SponsorReserveController';
 import ErrorController from '../controllers/Error/ErrorController';
 import IndexController from '../controllers/Index/IndexController';
 import TaskController from '../controllers/Task/TaskController';
@@ -52,6 +53,17 @@ export default class Router {
         app.get('/customer/reserve/:token/process', 'customer.reserve.process', (req, res, next) => {(new CustomerReserveController(req, res, next)).process()});
         app.post('/customer/reserve/fromGMO', 'customer.reserve.fromGMO', (req, res, next) => {(new CustomerReserveController(req, res, next)).fromGMO()});
         app.get('/customer/reserve/:token/complete', 'customer.reserve.complete', (req, res, next) => {(new CustomerReserveController(req, res, next)).complete()});
+
+        // 外部関係者
+        app.all('/sponsor/reserve/terms', 'sponsor.reserve.terms', (req, res, next) => {(new SponsorReserveController(req, res, next)).terms()});
+        app.all('/sponsor/reserve/:token/performances', 'sponsor.reserve.performances', (req, res, next) => {(new SponsorReserveController(req, res, next)).performances()});
+        app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', (req, res, next) => {(new SponsorReserveController(req, res, next)).seats()});
+        app.all('/sponsor/reserve/:token/tickets', 'sponsor.reserve.tickets', (req, res, next) => {(new SponsorReserveController(req, res, next)).tickets()});
+        app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', (req, res, next) => {(new SponsorReserveController(req, res, next)).profile()});
+        app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', (req, res, next) => {(new SponsorReserveController(req, res, next)).confirm()});
+        app.get('/sponsor/reserve/:token/process', 'sponsor.reserve.process', (req, res, next) => {(new SponsorReserveController(req, res, next)).process()});
+        app.post('/sponsor/reserve/fromGMO', 'sponsor.reserve.fromGMO', (req, res, next) => {(new SponsorReserveController(req, res, next)).fromGMO()});
+        app.get('/sponsor/reserve/:token/complete', 'sponsor.reserve.complete', (req, res, next) => {(new SponsorReserveController(req, res, next)).complete()});
 
         // タスク
         app.get('/task/removeTemporaryReservation', 'task.removeTemporaryReservation', (req, res, next) => {(new TaskController(req, res, next)).removeTemporaryReservation()});
