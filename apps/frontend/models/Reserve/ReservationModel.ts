@@ -91,6 +91,17 @@ export default class ReservationModel {
     public paymentMethod: string;
 
     /**
+     * 外部関係者
+     */
+    public sponsor: {
+        _id: string,
+        user_id: string,
+        film: string,
+        max_reservation_count: number,
+        reservations_count: number,
+    }
+
+    /**
      * プロセス中の購入情報をセッションに保存する
      * 
      * 有効期間: 3600秒

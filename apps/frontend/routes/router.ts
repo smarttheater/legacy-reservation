@@ -62,7 +62,6 @@ export default class Router {
         app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', (req, res, next) => {(new SponsorReserveController(req, res, next)).profile()});
         app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', (req, res, next) => {(new SponsorReserveController(req, res, next)).confirm()});
         app.get('/sponsor/reserve/:token/process', 'sponsor.reserve.process', (req, res, next) => {(new SponsorReserveController(req, res, next)).process()});
-        app.post('/sponsor/reserve/fromGMO', 'sponsor.reserve.fromGMO', (req, res, next) => {(new SponsorReserveController(req, res, next)).fromGMO()});
         app.get('/sponsor/reserve/:token/complete', 'sponsor.reserve.complete', (req, res, next) => {(new SponsorReserveController(req, res, next)).complete()});
 
         // タスク

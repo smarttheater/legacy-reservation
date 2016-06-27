@@ -7,12 +7,14 @@ import FilmSchema from '../models/Film/FilmSchema';
 import PerformanceSchema from '../models/Performance/PerformanceSchema';
 import ReservationSchema from '../models/Reservation/ReservationSchema';
 import ScreenSchema from '../models/Screen/ScreenSchema';
+import SponsorSchema from '../models/Sponsor/SponsorSchema';
 import TheaterSchema from '../models/Theater/TheaterSchema';
 
 let Film = mongoose.model('Film', FilmSchema);
 let Performance = mongoose.model('Performance', PerformanceSchema);
 let Reservation = mongoose.model('Reservation', ReservationSchema);
 let Screen = mongoose.model('Screen', ScreenSchema);
+let Sponsor = mongoose.model('Sponsor', SponsorSchema);
 let Theater = mongoose.model('Theater', TheaterSchema);
 
 export default {
@@ -20,5 +22,6 @@ export default {
     Performance,
     Reservation,
     Screen,
+    Sponsor,
     Theater,
 };

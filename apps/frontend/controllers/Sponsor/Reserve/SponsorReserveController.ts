@@ -1,6 +1,6 @@
 import BaseController from '../../BaseController';
 import Util from '../../../../common/Util/Util';
-import SponsorReserveTermsForm from '../../../forms/Sponsor/Reserve/SponsorReserveTermsForm';
+import SponsorReserveLoginForm from '../../../forms/Sponsor/Reserve/SponsorReserveLoginForm';
 import SponsorReservePerformanceForm from '../../../forms/Sponsor/Reserve/SponsorReservePerformanceForm';
 import SponsorReserveSeatForm from '../../../forms/Sponsor/Reserve/SponsorReserveSeatForm';
 import SponsorReserveTicketForm from '../../../forms/Sponsor/Reserve/SponsorReserveTicketForm';
@@ -19,20 +19,57 @@ export default class SponsorReserveController extends BaseController {
      * 規約
      */
     public terms(): void {
-        let sponsorReserveTermsForm = new SponsorReserveTermsForm();
+        let sponsorReserveLoginForm = new SponsorReserveLoginForm();
         if (this.req.method === 'POST') {
 
-            sponsorReserveTermsForm.form.handle(this.req, {
+            sponsorReserveLoginForm.form.handle(this.req, {
                 success: (form) => {
-                    sponsorReserveTermsForm.form = form;
+                    sponsorReserveLoginForm.form = form;
 
-                    // 予約トークンを発行してスケジュール選択へ
-                    let token = Util.createToken();
-                    let reservationModel = new ReservationModel();
-                    reservationModel.token = token;
-                    reservationModel.paymentNo = Util.createPaymentNo();
-                    reservationModel.save((err) => {
-                        this.res.redirect(this.router.build('sponsor.reserve.performances', {token: token}));
+                    // ユーザー認証
+                    this.useMongoose(() => {
+                        this.logger.debug('finding sponsor... user_id:', form.data.user_id);
+                        Models.Sponsor.findOne(
+                            {
+                                user_id: form.data.user_id,
+                                password: form.data.password,
+                        }, (err, sponsorDocument) => {
+
+                            if (err || sponsorDocument === null) {
+                                return this.res.render('sponsor/reserve/terms', {
+                                    form: form,
+                                });
+                            } else {
+                                // 外部関係者による予約数を取得
+                                Models.Reservation.count(
+                                    {
+                                        sponsor: sponsorDocument.get('id')
+                                    },
+                                (err, count) => {
+
+                                    mongoose.disconnect(() => {
+
+                                        // 予約トークンを発行してスケジュール選択へ
+                                        let token = Util.createToken();
+                                        let reservationModel = new ReservationModel();
+                                        reservationModel.token = token;
+                                        reservationModel.paymentNo = Util.createPaymentNo();
+                                        reservationModel.sponsor = {
+                                            _id: sponsorDocument.get('id'),
+                                            user_id: sponsorDocument.get('user_id'),
+                                            film: sponsorDocument.get('film'),
+                                            max_reservation_count: sponsorDocument.get('max_reservation_count'),
+                                            reservations_count: count,
+                                        };
+                                        reservationModel.save((err) => {
+                                            this.res.redirect(this.router.build('sponsor.reserve.performances', {token: token}));
+                                        });
+                                    });
+                                });
+
+                            }
+
+                        });
                     });
                 },
                 error: (form) => {
@@ -48,7 +85,7 @@ export default class SponsorReserveController extends BaseController {
             });
         } else {
             this.res.render('sponsor/reserve/terms', {
-                form: sponsorReserveTermsForm.form
+                form: sponsorReserveLoginForm.form
             });
         }
     }
@@ -590,6 +627,8 @@ export default class SponsorReserveController extends BaseController {
                                             'purchaser_tel': reservationModel.profile.tel,
                                             'ticket_type': choice.ticket.type,
                                             'ticket_name': choice.ticket.name,
+                                            'sponsor': reservationModel.sponsor._id,
+                                            'sponsor_user_id': reservationModel.sponsor.user_id,
                                             'created_user': this.constructor.toString(),
                                             'updated_user': this.constructor.toString(),
                                         },
