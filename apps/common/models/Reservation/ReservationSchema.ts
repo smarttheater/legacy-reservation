@@ -4,6 +4,13 @@ import mongoose = require('mongoose');
  * 予約スキーマ
  */
 let ReservationSchema = new mongoose.Schema({
+    'token': { 
+        type: String,
+    },
+    'payment_no': { 
+        type: String,
+    },
+
     'performance': { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Performance'
@@ -63,6 +70,12 @@ let ReservationSchema = new mongoose.Schema({
         type: String,
     },
     'ticket_name': { 
+        type: String,
+    },
+    'ticket_price': { 
+        type: Number,
+    },
+    'watcher_name': { 
         type: String,
     },
 

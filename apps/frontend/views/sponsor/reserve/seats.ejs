@@ -13,7 +13,7 @@
 
 <div class="row">
     <div class="row">
-    <h3>取得可能枚数残り : <%- reservationModel.sponsor.max_reservation_count - reservationModel.sponsor.reservations_count %>枚</h3>
+    <h3>取得可能枚数残り : <span class="reservable-count"><%- parseInt(sponsorUser.get('max_reservation_count')) - reservationsCount %></span>枚</h3>
     </div>
 
     <div class="row">
@@ -41,7 +41,6 @@
                     <% if (performanceSeatDocumentsBySeatCode.hasOwnProperty(seat.get('code'))) { %>
 
                         <% if (reservationDocumentsBySeatCode.hasOwnProperty(seat.get('code'))) { %>
-
                             <% if (reservationModel.seatCodes && reservationModel.seatCodes.indexOf(seat.get('code')) >= 0) { %>
                                 <!-- 仮押さえ中 -->
                                 <th scope="row" class="select-seat bg-primary" data-seat-code="<%- seat.get('code') %>">
@@ -84,6 +83,14 @@
 <script>
 $(function(){
     $('.select-seat').on('click', function(){
+        var count = parseInt($('.reservable-count').text());
+
+        if ($(this).hasClass('bg-primary')) {
+            $('.reservable-count').text(count + 1);
+        } else {
+            $('.reservable-count').text(count - 1);
+        }
+
         $(this).toggleClass('bg-primary');
     });
 

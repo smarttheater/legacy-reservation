@@ -3,10 +3,11 @@ import express = require('express');
 
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
 import SponsorReserveController from '../controllers/Sponsor/Reserve/SponsorReserveController';
+import SponsorCancelController from '../controllers/Sponsor/Cancel/SponsorCancelController';
 import ErrorController from '../controllers/Error/ErrorController';
 import IndexController from '../controllers/Index/IndexController';
 import TaskController from '../controllers/Task/TaskController';
-import User from '../models/User';
+import SponsorUser from '../models/User/SponsorUser';
 
 /**
  * URLルーティングを行うクラス
@@ -54,38 +55,36 @@ export default class Router {
         app.post('/customer/reserve/fromGMO', 'customer.reserve.fromGMO', (req, res, next) => {(new CustomerReserveController(req, res, next)).fromGMO()});
         app.get('/customer/reserve/:token/complete', 'customer.reserve.complete', (req, res, next) => {(new CustomerReserveController(req, res, next)).complete()});
 
-        // 外部関係者
-        app.all('/sponsor/reserve/terms', 'sponsor.reserve.terms', (req, res, next) => {(new SponsorReserveController(req, res, next)).terms()});
-        app.all('/sponsor/reserve/:token/performances', 'sponsor.reserve.performances', (req, res, next) => {(new SponsorReserveController(req, res, next)).performances()});
-        app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', (req, res, next) => {(new SponsorReserveController(req, res, next)).seats()});
-        app.all('/sponsor/reserve/:token/tickets', 'sponsor.reserve.tickets', (req, res, next) => {(new SponsorReserveController(req, res, next)).tickets()});
-        app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', (req, res, next) => {(new SponsorReserveController(req, res, next)).profile()});
-        app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', (req, res, next) => {(new SponsorReserveController(req, res, next)).confirm()});
-        app.get('/sponsor/reserve/:token/process', 'sponsor.reserve.process', (req, res, next) => {(new SponsorReserveController(req, res, next)).process()});
-        app.get('/sponsor/reserve/:token/complete', 'sponsor.reserve.complete', (req, res, next) => {(new SponsorReserveController(req, res, next)).complete()});
-
         // タスク
         app.get('/task/removeTemporaryReservation', 'task.removeTemporaryReservation', (req, res, next) => {(new TaskController(req, res, next)).removeTemporaryReservation()});
 
-        let authentication = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-            let user = User.getInstance();
-            if (!user.isAuthenticated()) {
+        let authenticationSponsor = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+            let sponsorUser = SponsorUser.getInstance();
+            if (!sponsorUser.isAuthenticated()) {
                 if (req.xhr) {
                     res.json({
                         message: 'login required.'
                     });
                 } else {
-                    res.redirect('/Account/LogIn');
+                    res.redirect('/sponsor/reserve/terms');
                 }
             } else {
                 next();
             }
         }
 
+        // 外部関係者
+        app.all('/sponsor/reserve/terms', 'sponsor.reserve.terms', (req, res, next) => {(new SponsorReserveController(req, res, next)).terms()});
+        app.all('/sponsor/reserve/performances', 'sponsor.reserve.performances', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).performances()});
+        app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).seats()});
+        app.all('/sponsor/reserve/:token/tickets', 'sponsor.reserve.tickets', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).tickets()});
+        app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).profile()});
+        app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).confirm()});
+        app.get('/sponsor/reserve/:token/process', 'sponsor.reserve.process', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).process()});
+        app.get('/sponsor/reserve/:token/complete', 'sponsor.reserve.complete', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).complete()});
 
-        // ログイン必須ルーティングリスト
-        // app.all('/Account/LogOut', 'Logout', authentication, (req, res, next) => {(new AuthController(req, res, next)).logoutAction()});
-
+        app.get('/sponsor/cancel/:paymentNo/reservations', 'sponsor.cancel.reservations', authenticationSponsor, (req, res, next) => {(new SponsorCancelController(req, res, next)).reservations()});
+        app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', authenticationSponsor, (req, res, next) => {(new SponsorCancelController(req, res, next)).execute()});
 
 
 

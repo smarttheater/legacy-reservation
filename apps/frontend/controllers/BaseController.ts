@@ -5,7 +5,7 @@ import util = require('util');
 import conf = require('config');
 import mongoose = require('mongoose');
 
-import User from '../models/User';
+import SponsorUser from '../models/User/SponsorUser';
 import Router from '../routes/router';
 import NamedRoutes = require('named-routes');
 
@@ -41,7 +41,7 @@ export default class BaseController
     /**
      * ユーザーインスタンス
      */
-    public user: User;
+    public sponsorUser: SponsorUser;
 
     /**
      * ルーティングクラスインスタンス
@@ -54,11 +54,11 @@ export default class BaseController
         this.next = next;
 
         this.logger = log4js.getLogger('system');
-        this.user = User.getInstance();
+        this.sponsorUser = SponsorUser.getInstance();
         this.router = Router.getInstance().getRouter();
 
         // ユーザーインスタンスをテンプレート変数へ渡す
-        this.res.locals.user = this.user;
+        this.res.locals.sponsorUser = this.sponsorUser;
 
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;

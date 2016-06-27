@@ -76,6 +76,20 @@ export default class ReservationModel {
     }>;
 
     /**
+     * 座席指定リスト(外部関係者)
+     */
+    public seatChoicesBySponsor: Array<{
+        seat_code: string,
+        watcher_name: string,
+        ticket: {
+            type: string,
+            name: string,
+            name_en: string,
+            price: number
+        }
+    }>;
+
+    /**
      * プロフィール
      */
     public profile: {
@@ -89,17 +103,6 @@ export default class ReservationModel {
      * 決済方法
      */
     public paymentMethod: string;
-
-    /**
-     * 外部関係者
-     */
-    public sponsor: {
-        _id: string,
-        user_id: string,
-        film: string,
-        max_reservation_count: number,
-        reservations_count: number,
-    }
 
     /**
      * プロセス中の購入情報をセッションに保存する
@@ -172,6 +175,10 @@ export default class ReservationModel {
             for (let choice of this.ticketChoices) {
                 total += choice.ticket.price;
             }
+        } else if (Array.isArray(this.seatChoicesBySponsor) && this.seatChoicesBySponsor.length > 0) {
+            for (let choice of this.seatChoicesBySponsor) {
+                total += choice.ticket.price;
+            }
         }
 
         return total;
@@ -185,6 +192,7 @@ export default class ReservationModel {
 
         for (let choice of this.ticketChoices) {
             let document = {
+                token: this.token,
                 payment_no: this.paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
 

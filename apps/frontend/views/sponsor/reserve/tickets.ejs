@@ -19,20 +19,12 @@
                 <tr data-seat-code="<%- seatDocument.get('code') %>">
                     <td><%- seatDocument.get('code') %></td>
                     <td>
-                        <select class="form-control">
-                        <% seatDocument.get('tickets').forEach(function(ticket, index) { %>
-                        <option
-                            <% if (ticketChoicesBySeatCode.hasOwnProperty(seatDocument.get('code'))) { %>
-                            <% if (ticketChoicesBySeatCode[seatDocument.get('code')].ticket.type == ticket.get('type')) { %> selected="selected"<% } %>
-                            <% } %>
+                        <% if (ticketChoicesBySeatCode.hasOwnProperty(seatDocument.get('code'))) { %>
+                        <input type="text" name="watcherName" class="form-control" placeholder="ご鑑賞者氏名をご記入ください" value="<%- ticketChoicesBySeatCode[seatDocument.get('code')].watcher_name %>">
+                        <% } else { %>
+                        <input type="text" name="watcherName" class="form-control" placeholder="ご鑑賞者氏名をご記入ください" value="">
+                        <% } %>
 
-                            value="<%- ticket.get('type') %>"
-                            data-name="<%- ticket.get('name') %>"
-                            data-name-en="<%- ticket.get('name_en') %>"
-                            data-price="<%- ticket.get('price') %>"><%- ticket.get('name') %> <%- ticket.get('price') %>円
-                        </option>
-                        <% }) %>
-                        </select>
                     </td>
                 </tr>
                 <% } %>
@@ -54,12 +46,7 @@ $(function(){
         $('.tickets tbody tr').each(function(index){
             choices.push({
                 seat_code: $(this).attr('data-seat-code'),
-                ticket: {
-                    type: $('select', this).val(),
-                    name: $('option:selected', this).attr('data-name'),
-                    name_en: $('option:selected', this).attr('data-name-en'),
-                    price: $('option:selected', this).attr('data-price'),
-                }
+                watcher_name: $('input', this).val()
             });
         });
 

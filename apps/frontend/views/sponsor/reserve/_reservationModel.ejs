@@ -12,10 +12,10 @@
 
             <dt>座席/券種</dt>
             <dd>
-                <% if (reservationModel.ticketChoices.length > 0) { %>
+                <% if (reservationModel.seatChoicesBySponsor.length > 0) { %>
 
                     <div class="row">
-                    <% reservationModel.ticketChoices.forEach((ticketChoice, index) => { %>
+                    <% reservationModel.seatChoicesBySponsor.forEach((ticketChoice, index) => { %>
                         <% if (index > 0 && index % 4 === 0) { %>
                         </div>
                         <div class="row">
@@ -24,7 +24,6 @@
                             <div class="col-xs-3">
                                 <a class="show-seat" href="javascript:void(0);" data-seat-code="<%- ticketChoice.seat_code %>"><%- ticketChoice.seat_code %></a><br>
                                 <%- ticketChoice.ticket.name %><br>
-                                <%- ticketChoice.ticket.price %><br>
                             </div>
                     <% }) %>
                     </div>
@@ -47,11 +46,6 @@
 
                 <% } %>
 
-            </dd>
-
-            <dt>合計金額</dt>
-            <dd>
-                <%- reservationModel.getTotalPrice() %>
             </dd>
         </dl>
     </div>

@@ -1,4 +1,5 @@
 import BaseController from '../../BaseController';
+import SponsorUser from '../../../models/User/SponsorUser';
 import Util from '../../../../common/Util/Util';
 import SponsorReserveLoginForm from '../../../forms/Sponsor/Reserve/SponsorReserveLoginForm';
 import SponsorReservePerformanceForm from '../../../forms/Sponsor/Reserve/SponsorReservePerformanceForm';
@@ -19,6 +20,10 @@ export default class SponsorReserveController extends BaseController {
      * 規約
      */
     public terms(): void {
+        if (this.sponsorUser.isAuthenticated()) {
+            return this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
+        }
+
         let sponsorReserveLoginForm = new SponsorReserveLoginForm();
         if (this.req.method === 'POST') {
 
@@ -30,55 +35,34 @@ export default class SponsorReserveController extends BaseController {
                     this.useMongoose(() => {
                         this.logger.debug('finding sponsor... user_id:', form.data.user_id);
                         Models.Sponsor.findOne(
-                            {
-                                user_id: form.data.user_id,
-                                password: form.data.password,
-                        }, (err, sponsorDocument) => {
+                        {
+                            user_id: form.data.user_id,
+                            password: form.data.password,
+                        },
+                        (err, sponsorDocument) => {
 
                             if (err || sponsorDocument === null) {
                                 return this.res.render('sponsor/reserve/terms', {
                                     form: form,
                                 });
                             } else {
-                                // 外部関係者による予約数を取得
-                                Models.Reservation.count(
-                                    {
-                                        sponsor: sponsorDocument.get('id')
-                                    },
-                                (err, count) => {
+                                mongoose.disconnect(() => {
+                                    // ログイン
+                                    this.req.session[SponsorUser.AUTH_SESSION_NAME] = sponsorDocument;
 
-                                    mongoose.disconnect(() => {
-
-                                        // 予約トークンを発行してスケジュール選択へ
-                                        let token = Util.createToken();
-                                        let reservationModel = new ReservationModel();
-                                        reservationModel.token = token;
-                                        reservationModel.paymentNo = Util.createPaymentNo();
-                                        reservationModel.sponsor = {
-                                            _id: sponsorDocument.get('id'),
-                                            user_id: sponsorDocument.get('user_id'),
-                                            film: sponsorDocument.get('film'),
-                                            max_reservation_count: sponsorDocument.get('max_reservation_count'),
-                                            reservations_count: count,
-                                        };
-                                        reservationModel.save((err) => {
-                                            this.res.redirect(this.router.build('sponsor.reserve.performances', {token: token}));
-                                        });
-                                    });
+                                    this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
                                 });
-
                             }
-
                         });
                     });
                 },
                 error: (form) => {
-                    return this.res.render('sponsor/reserve/terms', {
+                    this.res.render('sponsor/reserve/terms', {
                         form: form,
                     });
                 },
                 empty: (form) => {
-                    return this.res.render('sponsor/reserve/terms', {
+                    this.res.render('sponsor/reserve/terms', {
                         form: form,
                     });
                 }
@@ -94,93 +78,90 @@ export default class SponsorReserveController extends BaseController {
      * スケジュール選択
      */
     public performances(): void {
-        let token = this.req.params.token;
-        ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+        let sponsorReservePerformanceForm = new SponsorReservePerformanceForm();
+        if (this.req.method === 'POST') {
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            sponsorReservePerformanceForm.form.handle(this.req, {
+                success: (form) => {
+                    sponsorReservePerformanceForm.form = form;
 
-            let sponsorReservePerformanceForm = new SponsorReservePerformanceForm();
-            if (this.req.method === 'POST') {
+                    // パフォーマンス取得
+                    this.logger.debug('searching performance... id:', form.data.performance_id);
+                    this.useMongoose(() => {
+                        Models.Performance.findOne({_id: form.data.performance_id}, {})
+                            .populate('film screen theater') // スペースつなぎで、複数populateできる
+                            .exec((err, performance) => {
 
-                sponsorReservePerformanceForm.form.handle(this.req, {
-                    success: (form) => {
-                        sponsorReservePerformanceForm.form = form;
+                            mongoose.disconnect(() => {
 
-                        // パフォーマンス取得
-                        this.logger.debug('searching performance... id:', form.data.performance_id);
-                        this.useMongoose(() => {
-                            Models.Performance.findOne({_id: form.data.performance_id}, {})
-                                .populate('film screen theater') // スペースつなぎで、複数populateできる
-                                .exec((err, performance) => {
+                                if (err) {
+                                    return this.next(err);
+                                }
 
-                                mongoose.disconnect(() => {
+                                // 予約トークンを発行
+                                let token = Util.createToken();
+                                let reservationModel = new ReservationModel();
+                                reservationModel.token = token;
 
-                                    if (err) {
-                                        return this.next(err);
+                                // パフォーマンス情報を保存して座席選択へ
+                                reservationModel.performance = {
+                                    _id: performance._id,
+                                    day: performance.get('day'),
+                                    start_time: performance.get('start_time'),
+                                    end_time: performance.get('end_time'),
+                                    theater: {
+                                        _id: performance.get('theater').get('_id'),
+                                        name: performance.get('theater').get('name'),
+                                        name_en: performance.get('theater').get('name_en'),
+                                    },
+                                    screen: {
+                                        _id: performance.get('screen').get('_id'),
+                                        name: performance.get('screen').get('name'),
+                                        name_en: performance.get('screen').get('name_en'),
+                                    },
+                                    film: {
+                                        _id: performance.get('film').get('_id'),
+                                        name: performance.get('film').get('name'),
+                                        name_en: performance.get('film').get('name_en'),
                                     }
+                                };
 
-                                    // パフォーマンス情報を保存して座席選択へ
-                                    reservationModel.performance = {
-                                        _id: performance._id,
-                                        day: performance.get('day'),
-                                        start_time: performance.get('start_time'),
-                                        end_time: performance.get('end_time'),
-                                        theater: {
-                                            _id: performance.get('theater').get('_id'),
-                                            name: performance.get('theater').get('name'),
-                                            name_en: performance.get('theater').get('name_en'),
-                                        },
-                                        screen: {
-                                            _id: performance.get('screen').get('_id'),
-                                            name: performance.get('screen').get('name'),
-                                            name_en: performance.get('screen').get('name_en'),
-                                        },
-                                        film: {
-                                            _id: performance.get('film').get('_id'),
-                                            name: performance.get('film').get('name'),
-                                            name_en: performance.get('film').get('name_en'),
-                                        }
-                                    };
+                                // スクリーンの全座席コード
+                                reservationModel.screenSeatCodes = [];
+                                for (let seatDocument of performance.get('screen').get('sections')[0].get('seats')) {
+                                    reservationModel.screenSeatCodes.push(seatDocument.get('code'));
+                                }
 
-                                    // スクリーンの全座席コード
-                                    reservationModel.screenSeatCodes = [];
-                                    for (let seatDocument of performance.get('screen').get('sections')[0].get('seats')) {
-                                        reservationModel.screenSeatCodes.push(seatDocument.get('code'));
-                                    }
+                                reservationModel.seatCodes = [];
+                                reservationModel.seatChoicesBySponsor = [];
 
-                                    reservationModel.seatCodes = [];
-                                    reservationModel.ticketChoices = [];
-
-                                    this.logger.debug('saving reservationModel... ', reservationModel);
-                                    reservationModel.save((err) => {
-                                        this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
-                                    });
+                                this.logger.debug('saving reservationModel... ', reservationModel);
+                                reservationModel.save((err) => {
+                                    this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
                                 });
                             });
                         });
-                    },
-                    error: (form) => {
-                        this.next(new Error('不適切なアクセスです'));
-                    },
-                    empty: (form) => {
-                        this.next(new Error('不適切なアクセスです'));
-                    }
-                });
-            } else {
-                // パフォーマンスを取得
-                this.useMongoose(() => {
-                    Models.Performance.find({}, null, {sort : {film: 1, day: 1, start_time: 1}, limit: 100})
-                        .populate('film screen theater') // スペースつなぎで、複数populateできる
-                        .exec((err, performanceDocuments) => {
-
-                        mongoose.disconnect();
+                    });
+                },
+                error: (form) => {
+                    this.next(new Error('不適切なアクセスです'));
+                },
+                empty: (form) => {
+                    this.next(new Error('不適切なアクセスです'));
+                }
+            });
+        } else {
+            // パフォーマンスを取得
+            this.useMongoose(() => {
+                Models.Performance.find({}, null, {sort : {film: 1, day: 1, start_time: 1}, limit: 100})
+                .populate('film screen theater') // スペースつなぎで、複数populateできる
+                .exec((err, performanceDocuments) => {
+                    mongoose.disconnect(() => {
 
                         if (err) {
                             this.next(new Error('スケジュールを取得できませんでした'));
                         } else {
+
                             // TODO ここで画面表示に合わせて整形処理を入れる
 
                             // 作品ごとに
@@ -202,8 +183,8 @@ export default class SponsorReserveController extends BaseController {
                         }
                     });
                 });
-            }
-        });
+            });
+        }
     }
 
     /**
@@ -218,176 +199,197 @@ export default class SponsorReserveController extends BaseController {
 
             this.logger.debug('reservationModel is ', reservationModel);
 
-            let sponsorReserveSeatForm = new SponsorReserveSeatForm();
-            if (this.req.method === 'POST') {
 
-                sponsorReserveSeatForm.form.handle(this.req, {
-                    success: (form) => {
-                        sponsorReserveSeatForm.form = form;
+            this.useMongoose(() => {
+                // 外部関係者による予約数を取得
+                Models.Reservation.count(
+                {
+                    sponsor: this.sponsorUser.get('_id')
+                },
+                (err, reservationsCount) => {
 
-                        let seatCodes: Array<string> = JSON.parse(form.data.codes);
-                        let seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
+                    let sponsorReserveSeatForm = new SponsorReserveSeatForm();
+                    if (this.req.method === 'POST') {
 
-                        if (seatCodes.length < 1) {
-                            return this.next(new Error('不適切なアクセスです'));
-                        }
+                        sponsorReserveSeatForm.form.handle(this.req, {
+                            success: (form) => {
+                                sponsorReserveSeatForm.form = form;
 
-                        // 仮押さえ
-                        // まず仮押さえしてから、仮押さえキャンセル
-                        this.useMongoose(() => {
+                                let seatCodes: Array<string> = JSON.parse(form.data.codes);
+                                let seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
 
-                            let promises: Array<Promise<Function>> = [];
-
-                            // セッション中の在庫リストを初期化
-                            reservationModel.seatCodes = [];
-                            reservationModel.ticketChoices = [];
-
-                            for (let seatCodeInSession of seatCodesInSession) {
-                                if (seatCodes.indexOf(seatCodeInSession) >= 0) {
-
-                                // 座席選択肢になければ、空席ステータスに戻す(削除しちゃう)
-                                } else {
-                                    promises.push(new Promise((resolve, reject) => {
-
-                                        this.logger.debug('STATUS_TEMPORARY to STATUS_AVAILABLE processing...seatCodeInSession:', seatCodeInSession);
-                                        Models.Reservation.remove(
-                                            {
-                                                payment_no: reservationModel.paymentNo,
-                                                seat_code: seatCodeInSession,
-                                                status: ReservationUtil.STATUS_TEMPORARY,
-                                            },
-                                        (err) => {
-
-                                            // 失敗したとしても時間経過で消えるので放置
-                                            if (err) {
-                                            } else {
-                                            }
-
-                                            resolve();
-                                        });
-
-                                    }));
-                                }
-                            }
-
-                            for (let seatCode of seatCodes) {
-                                // すでに仮押さえ済みであれば、セッションに加えるだけ
-                                if (seatCodesInSession.indexOf(seatCode) >= 0) {
-                                    promises.push(new Promise((resolve, reject) => {
-                                        reservationModel.seatCodes.push(seatCode);
-
-                                        resolve();
-                                    }));
-                                // 新規仮押さえであれば、検索して仮押さえトライ
-                                } else {
-                                    promises.push(new Promise((resolve, reject) => {
-
-                                        this.logger.debug('findOneAndUpdate processing...');
-                                        Models.Reservation.findOneAndUpdate(
-                                            {
-                                                payment_no: reservationModel.paymentNo,
-                                                performance: reservationModel.performance._id,
-                                                seat_code: seatCode,
-                                                status: ReservationUtil.STATUS_AVAILABLE
-                                            },
-                                            {
-                                                status: ReservationUtil.STATUS_TEMPORARY
-                                            },
-                                            {
-                                                new: true,
-                                                upsert: true,
-                                            },
-                                        (err, reservationDocument) => {
-
-                                            if (err) {
-                                            } else {
-                                                if (reservationDocument) {
-                                                    // ステータス更新に成功したらセッションに保管
-                                                    reservationModel.seatCodes.push(reservationDocument.get('seat_code'));
-                                                }
-                                            }
-
-                                            resolve();
-                                        });
-
-                                    }));
-                                }
-                            }
-
-
-                            Promise.all(promises).then(() => {
-                                mongoose.disconnect();
-
-                                this.logger.debug('saving reservationModel... ', reservationModel);
-                                reservationModel.save((err) => {
-                                    // 仮押さえできていない在庫があった場合
-                                    if (seatCodes.length > reservationModel.seatCodes.length) {
-                                        // TODO メッセージ？
-                                        let message = '座席を確保できませんでした。再度指定してください。';
+                                if (seatCodes.length < 1) {
+                                    mongoose.disconnect(() => {
+                                        this.next(new Error('不適切なアクセスです'));
+                                    });
+                                // 座席指定可能数チェック
+                                } else if (seatCodes.length > parseInt(this.sponsorUser.get('max_reservation_count')) - reservationsCount) {
+                                    mongoose.disconnect(() => {
+                                        let message = '座席指定可能枚数を超えました。';
                                         this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
-                                    } else {
-                                        this.res.redirect(this.router.build('sponsor.reserve.tickets', {token: token}));
+                                    });
+                                } else {
+
+                                    // 仮押さえ
+                                    // まず仮押さえしてから、仮押さえキャンセル
+                                    let promises: Array<Promise<Function>> = [];
+
+                                    // セッション中の在庫リストを初期化
+                                    reservationModel.seatCodes = [];
+                                    reservationModel.seatChoicesBySponsor = [];
+
+                                    for (let seatCodeInSession of seatCodesInSession) {
+                                        if (seatCodes.indexOf(seatCodeInSession) >= 0) {
+
+                                        // 座席選択肢になければ、空席ステータスに戻す(削除しちゃう)
+                                        } else {
+                                            promises.push(new Promise((resolve, reject) => {
+
+                                                this.logger.debug('STATUS_TEMPORARY to STATUS_AVAILABLE processing...seatCodeInSession:', seatCodeInSession);
+                                                Models.Reservation.remove(
+                                                    {
+                                                        token: reservationModel.token,
+                                                        seat_code: seatCodeInSession,
+                                                        status: ReservationUtil.STATUS_TEMPORARY,
+                                                    },
+                                                (err) => {
+
+                                                    // 失敗したとしても時間経過で消えるので放置
+                                                    if (err) {
+                                                    } else {
+                                                    }
+
+                                                    resolve();
+                                                });
+
+                                            }));
+                                        }
                                     }
-                                });
 
-                            }, (err) => {
-                                return this.next(err);
-                            });
+                                    for (let seatCode of seatCodes) {
+                                        // すでに仮押さえ済みであれば、セッションに加えるだけ
+                                        if (seatCodesInSession.indexOf(seatCode) >= 0) {
+                                            promises.push(new Promise((resolve, reject) => {
+                                                reservationModel.seatCodes.push(seatCode);
 
+                                                resolve();
+                                            }));
+                                        // 新規仮押さえであれば、検索して仮押さえトライ
+                                        } else {
+                                            promises.push(new Promise((resolve, reject) => {
+
+                                                this.logger.debug('findOneAndUpdate processing...');
+                                                Models.Reservation.findOneAndUpdate(
+                                                {
+                                                    token: reservationModel.token,
+                                                    seat_code: seatCode,
+                                                    status: ReservationUtil.STATUS_AVAILABLE
+                                                },
+                                                {
+                                                    performance: reservationModel.performance._id,
+                                                    status: ReservationUtil.STATUS_TEMPORARY,
+                                                    sponsor: this.sponsorUser.get('_id'),
+                                                },
+                                                {
+                                                    new: true,
+                                                    upsert: true,
+                                                },
+                                                (err, reservationDocument) => {
+
+                                                    if (err) {
+                                                    } else {
+                                                        if (reservationDocument) {
+                                                            // ステータス更新に成功したらセッションに保管
+                                                            reservationModel.seatCodes.push(reservationDocument.get('seat_code'));
+                                                        }
+                                                    }
+
+                                                    resolve();
+                                                });
+
+                                            }));
+                                        }
+                                    }
+
+
+                                    Promise.all(promises).then(() => {
+                                        mongoose.disconnect(() => {
+                                            this.logger.debug('saving reservationModel... ', reservationModel);
+                                            reservationModel.save((err) => {
+                                                // 仮押さえできていない在庫があった場合
+                                                if (seatCodes.length > reservationModel.seatCodes.length) {
+                                                    // TODO メッセージ？
+                                                    let message = '座席を確保できませんでした。再度指定してください。';
+                                                    this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
+                                                } else {
+                                                    this.res.redirect(this.router.build('sponsor.reserve.tickets', {token: token}));
+                                                }
+                                            });
+                                        });
+
+                                    }, (err) => {
+                                        mongoose.disconnect(() => {
+                                            this.next(err);
+                                        });
+                                    });
+                                }
+
+                            },
+                            error: (form) => {
+                                this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
+                            },
+                            empty: (form) => {
+                                this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
+                            }
                         });
-                    },
-                    error: (form) => {
-                        this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
-                    },
-                    empty: (form) => {
-                        this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
-                    }
-                });
-            } else {
-                // パフォーマンスを取得
-
-                this.useMongoose(() => {
-
-                    Models.Performance.findOne({_id: reservationModel.performance._id}, null)
+                    } else {
+                        // パフォーマンスを取得
+                        Models.Performance.findOne({_id: reservationModel.performance._id}, null)
                         .populate('film screen theater')
                         .exec((err, performance) => {
 
-                        if (err) {
-                            return this.next(new Error('スケジュールを取得できませんでした'));
-                        }
-
-                        // 予約リストを取得
-                        Models.Reservation.find({performance: performance.get(('id'))}, null, null, (err, reservationDocuments) => {
-
-                            mongoose.disconnect();
-
-                            // 座席コードごとのオブジェクトに整形
-                            let reservationDocumentsBySeatCode = {};
-                            for (let reservationDocument of reservationDocuments) {
-                                reservationDocumentsBySeatCode[reservationDocument.get('seat_code')] = reservationDocument;
-                            }
-
-                            // 販売座席リストを座席コードごとのオブジェクトに整形
-                            let performanceSeatDocumentsBySeatCode = {};
-                            for (let seatDocument of performance.get('seats')) {
-                                performanceSeatDocumentsBySeatCode[seatDocument.get('code')] = seatDocument;
-                            }
-
                             if (err) {
-                                this.next(new Error('スケジュールを取得できませんでした'));
-                            } else {
-                                this.res.render('sponsor/reserve/seats', {
-                                    form: sponsorReserveSeatForm.form,
-                                    performance: performance,
-                                    reservationDocumentsBySeatCode: reservationDocumentsBySeatCode,
-                                    reservationModel: reservationModel,
-                                    performanceSeatDocumentsBySeatCode: performanceSeatDocumentsBySeatCode,
-                                });
+                                return this.next(new Error('スケジュールを取得できませんでした'));
                             }
-                        })
-                    });
+
+                            // 予約リストを取得
+                            Models.Reservation.find({performance: performance.get(('id'))}, null, null,
+                            (err, reservationDocuments) => {
+
+                                mongoose.disconnect(() => {
+
+                                    // 座席コードごとのオブジェクトに整形
+                                    let reservationDocumentsBySeatCode = {};
+                                    for (let reservationDocument of reservationDocuments) {
+                                        reservationDocumentsBySeatCode[reservationDocument.get('seat_code')] = reservationDocument;
+                                    }
+
+                                    // 販売座席リストを座席コードごとのオブジェクトに整形
+                                    let performanceSeatDocumentsBySeatCode = {};
+                                    for (let seatDocument of performance.get('seats')) {
+                                        performanceSeatDocumentsBySeatCode[seatDocument.get('code')] = seatDocument;
+                                    }
+
+                                    if (err) {
+                                        this.next(new Error('スケジュールを取得できませんでした'));
+                                    } else {
+                                        this.res.render('sponsor/reserve/seats', {
+                                            form: sponsorReserveSeatForm.form,
+                                            performance: performance,
+                                            reservationDocumentsBySeatCode: reservationDocumentsBySeatCode,
+                                            reservationModel: reservationModel,
+                                            performanceSeatDocumentsBySeatCode: performanceSeatDocumentsBySeatCode,
+                                            reservationsCount: reservationsCount,
+                                        });
+                                    }
+                                });
+                            })
+                        });
+                    }
+
                 });
-            }
+            });
+
         });
     }
 
@@ -411,18 +413,20 @@ export default class SponsorReserveController extends BaseController {
                         sponsorReserveTicketForm.form = form;
 
                         // 座席選択情報を保存して座席選択へ
-                        reservationModel.ticketChoices = [];
+                        reservationModel.seatChoicesBySponsor = [];
                         let choices = JSON.parse(form.data.choices);
 
                         if (Array.isArray(choices)) {
                             choices.forEach((choice) => {
-                                reservationModel.ticketChoices.push({
+                                // TODO 券種はいったん固定にしてあるので、仕様によって調整
+                                reservationModel.seatChoicesBySponsor.push({
                                     seat_code: choice.seat_code,
+                                    watcher_name: choice.watcher_name,
                                     ticket: {
-                                        type: choice.ticket.type,
-                                        name: choice.ticket.name,
-                                        name_en: choice.ticket.name_en,
-                                        price: parseInt(choice.ticket.price),
+                                        type: '01',
+                                        name: '一般',
+                                        name_en: 'Adult',
+                                        price: 1500,
                                     }
                                 });
                             });
@@ -449,8 +453,8 @@ export default class SponsorReserveController extends BaseController {
                 this.useMongoose(() => {
 
                     Models.Performance.findOne({_id: reservationModel.performance._id}, {})
-                        .populate('film screen theater')
-                        .exec((err, performanceDocument) => {
+                    .populate('film screen theater')
+                    .exec((err, performanceDocument) => {
 
                         mongoose.disconnect();
 
@@ -471,7 +475,7 @@ export default class SponsorReserveController extends BaseController {
                         }
 
                         // 座席コードごとの券種選択リスト
-                        let ticketChoices = (reservationModel.ticketChoices) ? reservationModel.ticketChoices : [];
+                        let ticketChoices = (reservationModel.seatChoicesBySponsor) ? reservationModel.seatChoicesBySponsor : [];
                         let ticketChoicesBySeatCode = {};
                         for (let ticketChoice of ticketChoices) {
                             ticketChoicesBySeatCode[ticketChoice.seat_code] = ticketChoice;
@@ -587,6 +591,9 @@ export default class SponsorReserveController extends BaseController {
 
             if (this.req.method === 'POST') {
             } else {
+                // 予約番号発行
+                reservationModel.paymentNo = Util.createPaymentNo();
+
                 // 予約情報セッション削除
                 this.logger.debug('removing reservationModel... ', reservationModel);
                 reservationModel.remove(() => {
@@ -599,38 +606,41 @@ export default class SponsorReserveController extends BaseController {
                             let reservedDocuments: Array<mongoose.Document> = [];
 
                             let promises = [];
-                            for (let choice of reservationModel.ticketChoices) {
+                            for (let choice of reservationModel.seatChoicesBySponsor) {
                                 promises.push(new Promise((resolve, reject) => {
 
                                     this.logger.debug('STATUS_TEMPORARY to STATUS_RESERVED processing...seat_code:', choice.seat_code);
                                     Models.Reservation.findOneAndUpdate(
                                         {
-                                            payment_no: reservationModel.paymentNo,
+                                            token: reservationModel.token,
                                             seat_code: choice.seat_code,
                                             status: ReservationUtil.STATUS_TEMPORARY
                                         },
                                         {
-                                            'status': ReservationUtil.STATUS_RESERVED,
-                                            'performance': reservationModel.performance._id,
-                                            'performance_day': reservationModel.performance.day,
-                                            'performance_start_time': reservationModel.performance.start_time,
-                                            'performance_end_time': reservationModel.performance.end_time,
-                                            'theater': reservationModel.performance.theater._id,
-                                            'theater_name': reservationModel.performance.theater.name,
-                                            'screen': reservationModel.performance.screen._id,
-                                            'screen_name': reservationModel.performance.screen.name,
-                                            'film': reservationModel.performance.film._id,
-                                            'film_name': reservationModel.performance.film.name,
-                                            'purchaser_last_name': reservationModel.profile.last_name,
-                                            'purchaser_first_name': reservationModel.profile.first_name,
-                                            'purchaser_email': reservationModel.profile.email,
-                                            'purchaser_tel': reservationModel.profile.tel,
-                                            'ticket_type': choice.ticket.type,
-                                            'ticket_name': choice.ticket.name,
-                                            'sponsor': reservationModel.sponsor._id,
-                                            'sponsor_user_id': reservationModel.sponsor.user_id,
-                                            'created_user': this.constructor.toString(),
-                                            'updated_user': this.constructor.toString(),
+                                            payment_no: reservationModel.paymentNo,
+                                            status: ReservationUtil.STATUS_RESERVED,
+                                            performance: reservationModel.performance._id,
+                                            performance_day: reservationModel.performance.day,
+                                            performance_start_time: reservationModel.performance.start_time,
+                                            performance_end_time: reservationModel.performance.end_time,
+                                            theater: reservationModel.performance.theater._id,
+                                            theater_name: reservationModel.performance.theater.name,
+                                            screen: reservationModel.performance.screen._id,
+                                            screen_name: reservationModel.performance.screen.name,
+                                            film: reservationModel.performance.film._id,
+                                            film_name: reservationModel.performance.film.name,
+                                            purchaser_last_name: reservationModel.profile.last_name,
+                                            purchaser_first_name: reservationModel.profile.first_name,
+                                            purchaser_email: reservationModel.profile.email,
+                                            purchaser_tel: reservationModel.profile.tel,
+                                            ticket_type: choice.ticket.type,
+                                            ticket_name: choice.ticket.name,
+                                            ticket_price: choice.ticket.price,
+                                            watcher_name: choice.watcher_name,
+                                            sponsor: this.sponsorUser.get('_id'),
+                                            sponsor_user_id: this.sponsorUser.get('user_id'),
+                                            created_user: this.constructor.toString(),
+                                            updated_user: this.constructor.toString(),
                                         },
                                         {
                                             new: true
@@ -652,25 +662,26 @@ export default class SponsorReserveController extends BaseController {
                             }
 
                             Promise.all(promises).then(() => {
-                                mongoose.disconnect();
+                                mongoose.disconnect(() => {
+                                    let reservationResultModel = reservationModel.toReservationResult();
 
-                                let reservationResultModel = reservationModel.toReservationResult();
-
-                                // TODO 予約できていない在庫があった場合
-                                if (reservationModel.seatCodes.length > reservedDocuments.length) {
-                                    this.res.redirect(this.router.build('sponsor.reserve.confirm', {token: token}));
-                                } else {
-                                    // 予約結果セッションを保存して、完了画面へ
-                                    this.logger.debug('saving reservationResult...', reservationResultModel);
-                                    reservationResultModel.save((err) => {
-                                        this.res.redirect(this.router.build('sponsor.reserve.complete', {token: token}));
-                                    });
-                                }
+                                    // TODO 予約できていない在庫があった場合
+                                    if (reservationModel.seatCodes.length > reservedDocuments.length) {
+                                        this.res.redirect(this.router.build('sponsor.reserve.confirm', {token: token}));
+                                    } else {
+                                        // 予約結果セッションを保存して、完了画面へ
+                                        this.logger.debug('saving reservationResult...', reservationResultModel);
+                                        reservationResultModel.save((err) => {
+                                            this.res.redirect(this.router.build('sponsor.reserve.complete', {token: token}));
+                                        });
+                                    }
+                                });
 
                             }, (err) => {
                                 // TODO 万が一の対応どうするか
-                                mongoose.disconnect();
-                                return this.next(err);
+                                mongoose.disconnect(() => {
+                                    this.next(err);
+                                });
                             });
 
                         });

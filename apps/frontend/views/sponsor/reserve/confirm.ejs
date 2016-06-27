@@ -19,10 +19,9 @@
         <dt>座席/券種</dt>
 
         <dd>
-            <% reservationModel.ticketChoices.forEach(function(choice){%>
-            <a class="show-seat" href="javascript:void(0);" data-seat-code="<%- choice.seat_code %>"><%- choice.seat_code %></a> <%- choice.ticket.name %> <%- choice.ticket.price %>円、
+            <% reservationModel.seatChoicesBySponsor.forEach(function(choice){%>
+            <a class="show-seat" href="javascript:void(0);" data-seat-code="<%- choice.seat_code %>"><%- choice.seat_code %></a> <%- choice.ticket.name %>、
             <% }) %><br>
-            <strong>合計金額:<%- reservationModel.getTotalPrice() %>円</strong>
         </dd>
 
     </dl>
