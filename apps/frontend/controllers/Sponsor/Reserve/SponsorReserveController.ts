@@ -2,6 +2,7 @@ import BaseController from '../../BaseController';
 import SponsorUser from '../../../models/User/SponsorUser';
 import Util from '../../../../common/Util/Util';
 import SponsorReserveLoginForm from '../../../forms/Sponsor/Reserve/SponsorReserveLoginForm';
+import SponsorReserveCancelForm from '../../../forms/Sponsor/Reserve/SponsorReserveCancelForm';
 import SponsorReservePerformanceForm from '../../../forms/Sponsor/Reserve/SponsorReservePerformanceForm';
 import SponsorReserveSeatForm from '../../../forms/Sponsor/Reserve/SponsorReserveSeatForm';
 import SponsorReserveTicketForm from '../../../forms/Sponsor/Reserve/SponsorReserveTicketForm';
@@ -14,6 +15,7 @@ import mongoose = require('mongoose');
 
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
+import ReservationCancelModel from '../../../models/Reserve/ReservationCancelModel';
 
 export default class SponsorReserveController extends BaseController {
     /**
@@ -25,51 +27,111 @@ export default class SponsorReserveController extends BaseController {
         }
 
         let sponsorReserveLoginForm = new SponsorReserveLoginForm();
+        let sponsorReserveCancelForm = new SponsorReserveCancelForm();
         if (this.req.method === 'POST') {
 
-            sponsorReserveLoginForm.form.handle(this.req, {
-                success: (form) => {
-                    sponsorReserveLoginForm.form = form;
+            if (this.req.query.hasOwnProperty('login')) {
 
-                    // ユーザー認証
-                    this.useMongoose(() => {
-                        this.logger.debug('finding sponsor... user_id:', form.data.user_id);
-                        Models.Sponsor.findOne(
-                        {
-                            user_id: form.data.user_id,
-                            password: form.data.password,
-                        },
-                        (err, sponsorDocument) => {
+                sponsorReserveLoginForm.form.handle(this.req, {
+                    success: (form) => {
+                        sponsorReserveLoginForm.form = form;
 
-                            if (err || sponsorDocument === null) {
-                                return this.res.render('sponsor/reserve/terms', {
-                                    form: form,
-                                });
-                            } else {
-                                mongoose.disconnect(() => {
-                                    // ログイン
-                                    this.req.session[SponsorUser.AUTH_SESSION_NAME] = sponsorDocument;
+                        // ユーザー認証
+                        this.useMongoose(() => {
+                            this.logger.debug('finding sponsor... user_id:', form.data.user_id);
+                            Models.Sponsor.findOne(
+                            {
+                                user_id: form.data.user_id,
+                                password: form.data.password,
+                            },
+                            (err, sponsorDocument) => {
 
-                                    this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
-                                });
-                            }
+                                if (err || sponsorDocument === null) {
+                                    return this.res.render('sponsor/reserve/terms', {
+                                        form: form,
+                                    });
+                                } else {
+                                    mongoose.disconnect(() => {
+                                        // ログイン
+                                        this.req.session[SponsorUser.AUTH_SESSION_NAME] = sponsorDocument;
+
+                                        this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
+                                    });
+                                }
+                            });
                         });
-                    });
-                },
-                error: (form) => {
-                    this.res.render('sponsor/reserve/terms', {
-                        form: form,
-                    });
-                },
-                empty: (form) => {
-                    this.res.render('sponsor/reserve/terms', {
-                        form: form,
-                    });
-                }
-            });
+                    },
+                    error: (form) => {
+                        this.res.render('sponsor/reserve/terms', {
+                            sponsorReserveLoginForm: form,
+                            sponsorReserveCancelForm: sponsorReserveCancelForm.form
+                        });
+                    },
+                    empty: (form) => {
+                        this.res.render('sponsor/reserve/terms', {
+                            sponsorReserveLoginForm: form,
+                            sponsorReserveCancelForm: sponsorReserveCancelForm.form
+                        });
+                    }
+                });
+            } else if (this.req.query.hasOwnProperty('cancel')) {
+
+                sponsorReserveCancelForm.form.handle(this.req, {
+                    success: (form) => {
+                        sponsorReserveCancelForm.form = form;
+
+                        // 予約検索
+                        this.useMongoose(() => {
+                            this.logger.debug('finding reservation... payment_no:', form.data.payment_no, form.data.tel);
+                            Models.Reservation.findOne(
+                            {
+                                payment_no: form.data.payment_no,
+                                purchaser_tel: {$regex: `${form.data.tel}$`},
+                            },
+                            (err, reservationDocument) => {
+                                mongoose.disconnect(() => {
+console.log(reservationDocument);
+                                    if (err || reservationDocument === null) {
+                                        return this.res.render('sponsor/reserve/terms', {
+                                            sponsorReserveLoginForm: sponsorReserveLoginForm.form,
+                                            sponsorReserveCancelForm: form
+                                        });
+                                    } else {
+                                        // トークンを発行してキャンセルページへ
+                                        let reservationCancelModel = new ReservationCancelModel();
+                                        reservationCancelModel.token = Util.createToken();
+                                        reservationCancelModel.paymentNo = reservationDocument.get('payment_no');
+
+                                        reservationCancelModel.save((err) => {
+                                            this.res.redirect(this.router.build('sponsor.cancel.reservations', {token: reservationCancelModel.token}));
+                                        });
+                                    }
+                                });
+                            });
+                        });
+                    },
+                    error: (form) => {
+                        this.res.render('sponsor/reserve/terms', {
+                            sponsorReserveLoginForm: sponsorReserveLoginForm.form,
+                            sponsorReserveCancelForm: form
+                        });
+                    },
+                    empty: (form) => {
+                        this.res.render('sponsor/reserve/terms', {
+                            sponsorReserveLoginForm: sponsorReserveLoginForm.form,
+                            sponsorReserveCancelForm: form
+                        });
+                    }
+                });
+            } else {
+                this.next(new Error('不適切なアクセスです'));
+            }
+
+
         } else {
             this.res.render('sponsor/reserve/terms', {
-                form: sponsorReserveLoginForm.form
+                sponsorReserveLoginForm: sponsorReserveLoginForm.form,
+                sponsorReserveCancelForm: sponsorReserveCancelForm.form
             });
         }
     }

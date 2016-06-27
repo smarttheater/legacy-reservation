@@ -55,6 +55,15 @@ export default class Router {
         app.post('/customer/reserve/fromGMO', 'customer.reserve.fromGMO', (req, res, next) => {(new CustomerReserveController(req, res, next)).fromGMO()});
         app.get('/customer/reserve/:token/complete', 'customer.reserve.complete', (req, res, next) => {(new CustomerReserveController(req, res, next)).complete()});
 
+
+
+        // キャンセル
+        app.get('/sponsor/cancel/:token/reservations', 'sponsor.cancel.reservations', (req, res, next) => {(new SponsorCancelController(req, res, next)).reservations()});
+        app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', (req, res, next) => {(new SponsorCancelController(req, res, next)).execute()});
+
+
+
+
         // タスク
         app.get('/task/removeTemporaryReservation', 'task.removeTemporaryReservation', (req, res, next) => {(new TaskController(req, res, next)).removeTemporaryReservation()});
 
@@ -82,9 +91,6 @@ export default class Router {
         app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).confirm()});
         app.get('/sponsor/reserve/:token/process', 'sponsor.reserve.process', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).process()});
         app.get('/sponsor/reserve/:token/complete', 'sponsor.reserve.complete', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).complete()});
-
-        app.get('/sponsor/cancel/:paymentNo/reservations', 'sponsor.cancel.reservations', authenticationSponsor, (req, res, next) => {(new SponsorCancelController(req, res, next)).reservations()});
-        app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', authenticationSponsor, (req, res, next) => {(new SponsorCancelController(req, res, next)).execute()});
 
 
 

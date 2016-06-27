@@ -93,7 +93,8 @@ $(function(){
             url: '<%- url('sponsor.cancel.execute', {}) %>',
             type: 'POST',
             data: {
-                reservation_id: reservationId
+                reservation_id: reservationId,
+                token: '<%- reservationCancelModel.token %>',
             },
             beforeSend: function() {
                 $('.cancel-reservation-confirm').modal('hide');

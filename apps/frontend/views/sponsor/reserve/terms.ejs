@@ -1,15 +1,35 @@
 <h1>規約</h1>
 
-<form method="post">
-    <div class="form-group">
-        <label for="id_user_id">ログイン番号</label>
-        <input type="text" name="user_id" id="id_user_id" class="form-control" value="<%- form.fields.user_id.value %>">
+<div class="row">
+    <div class="col-xs-6">
+        <form method="post" action="?login">
+            <div class="form-group">
+                <label for="id_user_id">ログイン番号</label>
+                <input type="text" name="user_id" id="id_user_id" class="form-control" value="<%- sponsorReserveLoginForm.fields.user_id.value %>">
+            </div>
+
+            <div class="form-group">
+                <label for="id_password">パスワード</label>
+                <input type="password" name="password" id="id_password" class="form-control" value="<%- sponsorReserveLoginForm.fields.password.value %>">
+            </div>
+
+            <input type="submit" class="btn btn-primary btn-lg btn-block">
+        </form>
     </div>
 
-    <div class="form-group">
-        <label for="id_password">パスワード</label>
-        <input type="password" name="password" id="id_password" class="form-control" value="<%- form.fields.password.value %>">
-    </div>
+    <div class="col-xs-6">
+        <form method="post" action="?cancel">
+            <div class="form-group">
+                <label for="id_payment_no">予約番号</label>
+                <input type="text" name="payment_no" id="id_payment_no" class="form-control" value="<%- sponsorReserveCancelForm.fields.payment_no.value %>">
+            </div>
 
-    <input type="submit" class="btn btn-primary btn-lg btn-block">
-</form>
+            <div class="form-group">
+                <label for="id_tel">電話番号下4ケタ</label>
+                <input type="text" name="tel" id="id_tel" class="form-control" value="<%- sponsorReserveCancelForm.fields.tel.value %>">
+            </div>
+
+            <input type="submit" class="btn btn-primary btn-lg btn-block">
+        </form>
+    </div>
+</div>
