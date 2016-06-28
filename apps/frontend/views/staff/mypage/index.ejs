@@ -1,16 +1,47 @@
 <h1>内部関係者向け座席予約ページ</h1>
-<a class="btn btn-lg btn-block btn-primary" href="<%- url('staff.reserve.performances', {}) %>">新規関係者チケット手配</a>
 
 <div class="row">
+    <a class="btn btn-lg btn-block btn-primary" href="<%- url('staff.reserve.performances', {}) %>">新規関係者チケット手配</a>
+</div>
 
+<div class="row">
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="exampleInputName2">上映日</label>
+            <select class="form-control">
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="exampleInputName2">上映開始時間</label>
+            <select class="form-control">
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="exampleInputName2">作品名</label>
+            <select class="form-control">
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="exampleInputName2">フリーワード</label>
+            <input type="text" class="form-control">
+        </div>
+
+        <a class="btn btn-primary search" href="javascript:void(0)">検索</a>
+    </form>
+</div>
+
+<div class="row">
     <div class="table-responsive">
-        <table class="table table-bordered table-striped">
+        <table class="table table-bordered table-striped reservations">
             <thead>
                 <tr>
                     <th>
-                        <div class="checkbox">
+                        <div class="checkbox check-all">
                             <label>
-                                <input type="checkbox">
+                                <input type="checkbox" value="">
                             </label>
                         </div>
                     </th>
@@ -26,60 +57,295 @@
             </thead>
 
             <tbody>
-                <% for (let paymentNo of Object.keys(reservationDocumentsByPaymentNo)) { %>
-                    <%
-                    let reservationDocuments = reservationDocumentsByPaymentNo[paymentNo];
-                    let documentsCount = reservationDocuments.length;
-                    %>
-                    <% reservationDocuments.forEach((reservationDocument, index) => { %>
-                    <tr>
-                        <% if (index < 1) { %>
-                        <td rowspan="<%- documentsCount %>">
-                            <div class="checkbox">
-                                <label>
-                                    <input type="checkbox">
-                                </label>
-                            </div>
-                        </td>
-                        <td rowspan="<%- documentsCount %>"><%- paymentNo %></td>
-                        <td rowspan="<%- documentsCount %>"><%- reservationDocument.get('film_name') %></td>
-                        <td rowspan="<%- documentsCount %>"><%- reservationDocument.get('performance_day') %> <%- reservationDocument.get('performance_start_time') %>～ <%- reservationDocument.get('theater_name') %> <%- reservationDocument.get('screen_name') %></td>
-                        <% } else { %>
-                        <% } %>
-
-                        <td>
-                            <a class="show-seat" href="javascript:void(0);"
-                               data-payment-no="<%- paymentNo %>"
-                               data-seat-code="<%- reservationDocument.get('seat_code') %>"><%- reservationDocument.get('seat_code') %></a></td>
-                        <td><%- reservationDocument.get('staff_signature') %></td>
-                        <td>
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" value="<%- reservationDocument.get('watcher_name') %>">
-                            </div>
-                            <div class="col-md-6">
-                                <a class="btn btn-primary" href="javascript:void(0)">更新(未実装)</a>
-                            </div>
-                        </td>
-                        <td><a class="btn btn-primary" href="javascript:void(0)">印刷(未実装)</a></td>
-                        <td><a class="btn btn-primary" href="javascript:void(0)">キャンセル</a></td>
-                    </tr>
-
-                    <% }) %>
-                <% } %>
             </tbody>
         </table>
     </div>
 
+    <form class="form-inline">
+        <div class="form-group">
+            <select class="form-control">
+                <option value="">一括操作</option>
+                <option value="cancel">キャンセル</option>
+                <option value="print">印刷</option>
+            </select>
+        </div>
+
+        <a class="btn btn-primary action-to-reservations">適用</a>
+    </form>
+
+    <nav>
+        <ul class="pager">
+            <li>
+                <a href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li><a href="#">1</a></li>
+            <li><a href="#">2</a></li>
+            <li><a href="#">3</a></li>
+            <li><a href="#">4</a></li>
+            <li><a href="#">5</a></li>
+            <li>
+                <a href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+
+
+<div class="modal fade cancel-reservation-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+
+            <div class="modal-body">
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">いいえ</button>
+                <button type="button" class="btn btn-primary execute-cancel">はい</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade cancel-reservation-complete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+
+            <div class="modal-body">
+                予約のキャンセルが完了しました
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 
 
 <script>
+// 予約番号ごとにまとめた予約ドキュメントリスト
+var reservationDocumentsByPaymentNo = <%- JSON.stringify(reservationDocumentsByPaymentNo) %>;
+var screenSeatCodesByPaymentNo = <%- JSON.stringify(screenSeatCodesByPaymentNo) %>;
+
+function showReservations() {
+    var html = '';
+
+    for (var paymentNo of Object.keys(reservationDocumentsByPaymentNo)) {
+        var reservationDocuments = reservationDocumentsByPaymentNo[paymentNo];
+        var reservationIds = Object.keys(reservationDocuments);
+        var documentsCount = reservationIds.length;
+
+        reservationIds.forEach((reservationId, index) => {
+            var reservationDocument = reservationDocuments[reservationId];
+
+            html += `
+            <tr>
+`;
+
+            if (index < 1) {
+                html += `
+            <td rowspan="${documentsCount}">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" value="${paymentNo}">
+                    </label>
+                </div>
+            </td>
+            <td rowspan="${documentsCount}">${paymentNo}</td>
+            <td rowspan="${documentsCount}">${reservationDocument.film_name}</td>
+            <td rowspan="${documentsCount}">
+                ${reservationDocument.performance_day} ${reservationDocument.performance_start_time}～
+                ${reservationDocument.theater_name} ${reservationDocument.screen_name}
+            </td>
+`;
+            } else {
+            }
+
+            html += `
+            <td>
+                <a class="show-seat" href="javascript:void(0);"
+                    data-payment-no="${paymentNo}"
+                    data-seat-code="${reservationDocument.seat_code}">${reservationDocument.seat_code}</a></td>
+            <td>${reservationDocument.staff_signature}</td>
+            <td>
+                <div class="col-md-6">
+                    <input type="text" class="form-control" value="${reservationDocument.watcher_name}">
+                </div>
+                <div class="col-md-6">
+                    <a class="btn btn-primary update-watcher-name" href="javascript:void(0)"
+                        data-payment-no="${paymentNo}"
+                        data-reservation-id="${reservationDocument._id}">更新</a>
+                </div>
+            </td>
+            <td><a class="btn btn-primary" href="javascript:void(0)">印刷(未実装)</a></td>
+            <td>
+                <a class="btn btn-primary confirm-cancel" href="javascript:void(0)"
+                    data-payment-no="${paymentNo}"
+                    data-seat-code="${reservationDocument.seat_code}"
+                    data-reservation-id="${reservationDocument._id}">キャンセル</a>
+            </td>
+        </tr>
+`;
+        });
+    }
+
+    $('table.reservations tbody').html(html);
+}
+
 $(function(){
-    var screenSeatCodesByPaymentNo = <%- JSON.stringify(screenSeatCodesByPaymentNo) %>;
-    $('.show-seat').on('click', function(){
+    // 予約リスト表示
+    showReservations();
+
+    $(document).on('click', '.show-seat', function(){
         let paymentNo = $(this).attr('data-payment-no');
         showSeatMap(screenSeatCodesByPaymentNo[paymentNo], [$(this).attr('data-seat-code')]);
+    });
+
+    // キャンセルしようとしている予約リスト
+    var reservations4cancel = [];
+    $(document).on('click', '.confirm-cancel', function(){
+        reservations4cancel = [];
+        reservations4cancel.push({
+            id: $(this).attr('data-reservation-id'),
+            paymentNo: $(this).attr('data-payment-no'),
+        });
+
+        $('.cancel-reservation-confirm .modal-body').html(`席「${$(this).attr('data-seat-code')}」の予約をキャンセルします`);
+        $('.cancel-reservation-confirm').modal();
+    });
+
+    $(document).on('click', '.execute-cancel', function(){
+        var self = this;
+        var reservationIds = [];
+        reservations4cancel.forEach(function(reservation){
+            reservationIds.push(reservation.id);
+        });
+
+        $.ajax({
+            dataType: 'json',
+            url: '<%- url('staff.cancel.execute', {}) %>',
+            type: 'POST',
+            data: {
+                reservationIds: JSON.stringify(reservationIds)
+            },
+            beforeSend: function() {
+                $('.cancel-reservation-confirm').modal('hide');
+            },
+            complete: function() {
+            },
+            success: function(data) {
+                reservations4cancel.forEach(function(reservation, index){
+                    // キャンセル済み予約IDにあれば、リストから削除
+                    if (data.reservationIds.indexOf(reservation.id) >= 0) {
+                        delete reservationDocumentsByPaymentNo[reservation.paymentNo][reservation.id];
+                    }
+                });
+
+                showReservations();
+
+                if (data.isSuccess) {
+                    $('.cancel-reservation-complete').modal();
+                } else {
+                    alert('キャンセルできませんでした');
+                }
+            },
+            error: function(jqxhr, textStatus, error) {
+            }
+        });
+    });
+
+    $(document).on('click', '.update-watcher-name', function(){
+        var paymentNo = $(this).attr('data-payment-no');
+        var reservationId = $(this).attr('data-reservation-id');
+        var watcherName = $('input', $(this).parent().parent()).val();
+
+        $.ajax({
+            dataType: 'json',
+            url: '<%- url('staff.mypage.updateWatcherName', {}) %>',
+            type: 'POST',
+            data: {
+                reservationId: reservationId,
+                watcherName: watcherName,
+            },
+            beforeSend: function() {
+            },
+            complete: function() {
+            },
+            success: function(data) {
+
+                if (data.isSuccess) {
+                    reservationDocumentsByPaymentNo[paymentNo][reservationId]['watcher_name'] = data.reservation.watcher_name;
+                    reservationDocumentsByPaymentNo[paymentNo][reservationId]['staff_signature'] = data.reservation.staff_signature;
+
+                    showReservations();
+
+                } else {
+                    alert('更新できませんでした');
+                }
+            },
+            error: function(jqxhr, textStatus, error) {
+            }
+        });
+    });
+
+
+    $(document).on('click', '.action-to-reservations', function(){
+        var action = $('select', $(this).parent()).val();
+
+        if (action === 'cancel') {
+            var reservations = [];
+            var seatCodes = [];
+
+            // チェック予約リストを取得
+            $('td input[type="checkbox"]:checked').map(function(){
+                var paymentNo = $(this).val();
+
+                if (paymentNo) {
+                    Object.keys(reservationDocumentsByPaymentNo[paymentNo]).forEach(function(reservationId, index){
+                        var reservation = reservationDocumentsByPaymentNo[paymentNo][reservationId];
+
+                        reservations.push({
+                            id: reservation._id,
+                            paymentNo: paymentNo,
+                        });
+
+                        seatCodes.push(reservation.seat_code);
+                    });
+                }
+            });
+
+            if (reservations.length < 1) {
+                alert('予約をチェックしてください');
+            } else {
+                // 確認モーダル表示
+                reservations4cancel = reservations;
+                $('.cancel-reservation-confirm .modal-body').html(`席「${seatCodes.join('、')}」の予約をキャンセルします`);
+                $('.cancel-reservation-confirm').modal();
+            }
+
+        } else if (action === 'print') {
+
+            alert('未実装です');
+        } else {
+            alert('操作を選択してください');
+        }
+    });
+
+
+    $(document).on('click', '.check-all input[type="checkbox"]', function(){
+        $('td input[type="checkbox"]').prop('checked', $(this).is(':checked'));
     });
 })
 </script>

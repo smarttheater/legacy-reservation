@@ -30,7 +30,7 @@ export default class StaffMyPageController extends BaseController {
                         for (let reservationDocument of reservationDocuments) {
                             let paymentNo = reservationDocument.get('payment_no');
                             if (!reservationDocumentsByPaymentNo.hasOwnProperty(paymentNo)) {
-                                reservationDocumentsByPaymentNo[paymentNo] = [];
+                                reservationDocumentsByPaymentNo[paymentNo] = {};
 
                                 let seats = reservationDocument.get('screen').get('sections')[0].get('seats');
                                 screenSeatCodesByPaymentNo[paymentNo] = [];
@@ -39,7 +39,7 @@ export default class StaffMyPageController extends BaseController {
                                 }
                             }
 
-                            reservationDocumentsByPaymentNo[paymentNo].push(reservationDocument);
+                            reservationDocumentsByPaymentNo[paymentNo][reservationDocument.get('id')] = reservationDocument;
                         }
 
                         this.res.render('staff/mypage/index', {
@@ -50,6 +50,48 @@ export default class StaffMyPageController extends BaseController {
                     }
                 });
             });
+        });
+    }
+
+    public updateWatcherName(): void {
+        let reservationId = this.req.body.reservationId;
+        let watcherName = this.req.body.watcherName;
+
+        this.useMongoose(() => {
+            this.logger.debug('updating watcher_name... id:', reservationId);
+            Models.Reservation.findOneAndUpdate(
+                {
+                    staff: this.staffUser.get('_id'),
+                    status: ReservationUtil.STATUS_RESERVED,
+                    _id: reservationId,
+                },
+                {
+                    watcher_name: watcherName,
+                    staff_signature: this.staffUser.get('signature'),
+                },
+                {
+                    new: true
+                },
+                (err, reservationDocument) => {
+                    this.logger.debug('updated watcher_name. reservationDocument:', reservationDocument);
+                    mongoose.disconnect(() => {
+
+                        if (err || reservationDocument === null) {
+
+                            this.res.json({
+                                isSuccess: false,
+                                reservationId: null
+                            });
+                        } else {
+
+                            this.res.json({
+                                isSuccess: true,
+                                reservation: reservationDocument.toObject()
+                            });
+                        }
+                    });
+                }
+            );
         });
     }
 }

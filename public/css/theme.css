@@ -16,3 +16,7 @@ body {
 .theme-showcase .navbar .container {
   width: auto;
 }
+
+.row {
+  margin: 0 0 20px 0;
+}
