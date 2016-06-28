@@ -649,6 +649,8 @@ export default class SponsorReserveController extends BaseController {
                                             watcher_name: choice.watcher_name,
                                             sponsor: this.sponsorUser.get('_id'),
                                             sponsor_user_id: this.sponsorUser.get('user_id'),
+                                            sponsor_name: this.sponsorUser.get('name'),
+                                            sponsor_email: this.sponsorUser.get('email'),
                                             created_user: this.constructor.toString(),
                                             updated_user: this.constructor.toString(),
                                         },

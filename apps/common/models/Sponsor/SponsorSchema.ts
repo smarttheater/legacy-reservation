@@ -10,6 +10,12 @@ let SponsorSchema = new mongoose.Schema({
     'password': { 
         type: String,
     },
+    'name': { 
+        type: String,
+    },
+    'email': { 
+        type: String,
+    },
     "film": { 
         type: mongoose.Schema.Types.ObjectId,
         ref: "Film"

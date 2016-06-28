@@ -23,6 +23,7 @@
         </dl>
     </div>
 
+
     <div class="table-responsive">
         <table class="table table-bordered">
 
@@ -38,14 +39,22 @@
 
                         <% if (reservationDocumentsBySeatCode.hasOwnProperty(seat.get('code'))) { %>
                             <% if (reservationModel.seatCodes && reservationModel.seatCodes.indexOf(seat.get('code')) >= 0) { %>
-                                <!-- 仮押さえ中 -->
+                                <!-- 自分自身が仮押さえ中 -->
                                 <th scope="row" class="select-seat bg-primary" data-seat-code="<%- seat.get('code') %>">
-                                    <%- seat.get('code') %>
+                                    <a tabindex="0" class="popover-reservation"
+                                         data-seat-code="<%- seat.get('code') %>"
+                                        data-toggle="popover"
+                                        data-trigger="focus"><%- seat.get('code') %></a>
                                 </th>
+
                             <% } else { %>
-                                <!-- 予約不可 -->
+                                <!-- 他プロセスによって予約不可 -->
+                                <% let reservationDocument = reservationDocumentsBySeatCode[seat.get('code')] %>
                                 <th scope="row" class="bg-danger">
-                                    <%- seat.get('code') %>
+                                    <a tabindex="0" class="popover-reservation"
+                                        data-seat-code="<%- seat.get('code') %>"
+                                        data-toggle="popover"
+                                        data-trigger="focus"><%- seat.get('code') %></a>
                                 </th>
                             <% } %>
 
@@ -77,6 +86,7 @@
 
 
 <script>
+var reservationDocumentsBySeatCode = <%- JSON.stringify(reservationDocumentsBySeatCode) %>
 $(function(){
     $('.select-seat').on('click', function(){
         $(this).toggleClass('bg-primary');
@@ -95,6 +105,33 @@ $(function(){
         } else {
             $('form input[name="codes"]').val(JSON.stringify(codes));
             $('form').submit();
+        }
+    });
+
+    // 予約の吹き出し
+    $('.popover-reservation').popover({
+        placement: 'top',
+        html: true,
+        content: function(){
+            var seatCode = $(this).attr('data-seat-code');
+            var reservation = reservationDocumentsBySeatCode[seatCode];
+
+            if (reservation.staff) {
+                return `
+${reservation.staff_department_name}<br>
+${reservation.staff_name}
+                `;
+            } else if (reservation.sponsor) {
+                return `
+外部関係者<br>
+${reservation.sponsor_name}
+                `;
+            } else {
+                return `
+一般<br>
+${reservation.profile_email}
+                `;
+            }
         }
     });
 });

@@ -86,6 +86,12 @@ let ReservationSchema = new mongoose.Schema({
     'sponsor_user_id': { 
         type: String,
     },
+    'sponsor_name': { 
+        type: String,
+    },
+    'sponsor_email': { 
+        type: String,
+    },
 
     'staff': { 
         type: mongoose.Schema.Types.ObjectId,
