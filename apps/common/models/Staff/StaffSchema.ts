@@ -10,12 +10,14 @@ let StaffSchema = new mongoose.Schema({
     'password': { 
         type: String,
     },
-    "film": { 
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Film"
+    'name': { 
+        type: String,
     },
-    'max_reservation_count': { 
-        type: Number,
+    'email': { 
+        type: String,
+    },
+    'department_name': { 
+        type: String,
     },
     'created_user': { 
         type: String,
@@ -24,7 +26,7 @@ let StaffSchema = new mongoose.Schema({
         type: String,
     },
 },{
-    collection: 'sponsors',
+    collection: 'staffs',
     timestamps: { 
         createdAt: 'created_dt',
         updatedAt: 'updated_dt',

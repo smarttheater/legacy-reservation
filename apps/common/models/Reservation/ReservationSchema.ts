@@ -87,6 +87,29 @@ let ReservationSchema = new mongoose.Schema({
         type: String,
     },
 
+    'staff': { 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Staff'
+    },
+    'staff_user_id': { 
+        type: String,
+    },
+    'staff_name': { 
+        type: String,
+    },
+    'staff_email': { 
+        type: String,
+    },
+    'staff_department_name': { 
+        type: String,
+    },
+    'staff_tel': { 
+        type: String,
+    },
+    'staff_signature': { 
+        type: String,
+    },
+
     'created_user': { 
         type: String,
     },

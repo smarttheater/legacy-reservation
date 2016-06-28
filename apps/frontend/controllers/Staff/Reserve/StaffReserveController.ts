@@ -1,7 +1,6 @@
 import BaseController from '../../BaseController';
 import StaffUser from '../../../models/User/StaffUser';
 import Util from '../../../../common/Util/Util';
-import StaffReserveLoginForm from '../../../forms/Staff/Reserve/StaffReserveLoginForm';
 import StaffReservePerformanceForm from '../../../forms/Staff/Reserve/StaffReservePerformanceForm';
 import StaffReserveSeatForm from '../../../forms/Staff/Reserve/StaffReserveSeatForm';
 import StaffReserveTicketForm from '../../../forms/Staff/Reserve/StaffReserveTicketForm';
@@ -13,66 +12,6 @@ import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
 
 export default class StaffReserveController extends BaseController {
-    /**
-     * 規約
-     */
-    public terms(): void {
-        if (this.staffUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('staff.reserve.performances', {}));
-        }
-
-        let staffReserveLoginForm = new StaffReserveLoginForm();
-        if (this.req.method === 'POST') {
-
-            staffReserveLoginForm.form.handle(this.req, {
-                success: (form) => {
-                    staffReserveLoginForm.form = form;
-
-                    // ユーザー認証
-                    this.useMongoose(() => {
-                        this.logger.debug('finding staff... user_id:', form.data.user_id);
-                        Models.Staff.findOne(
-                        {
-                            user_id: form.data.user_id,
-                            password: form.data.password,
-                        },
-                        (err, staffDocument) => {
-
-                            if (err || staffDocument === null) {
-                                this.res.render('staff/reserve/terms', {
-                                    form: form,
-                                });
-                            } else {
-                                mongoose.disconnect(() => {
-                                    // ログイン
-                                    this.req.session[StaffUser.AUTH_SESSION_NAME] = staffDocument;
-
-                                    this.res.redirect(this.router.build('staff.reserve.performances', {}));
-                                });
-                            }
-                        });
-                    });
-                },
-                error: (form) => {
-                    this.res.render('staff/reserve/terms', {
-                        staffReserveLoginForm: form,
-                    });
-                },
-                empty: (form) => {
-                    this.res.render('staff/reserve/terms', {
-                        staffReserveLoginForm: form,
-                    });
-                }
-            });
-
-
-        } else {
-            this.res.render('staff/reserve/terms', {
-                form: staffReserveLoginForm.form,
-            });
-        }
-    }
-
     /**
      * スケジュール選択
      */
@@ -102,6 +41,7 @@ export default class StaffReserveController extends BaseController {
                                     let token = Util.createToken();
                                     let reservationModel = new ReservationModel();
                                     reservationModel.token = token;
+                                    reservationModel.staff_signature = this.staffUser.get('signature');
 
                                     // パフォーマンス情報を保存して座席選択へ
                                     reservationModel.performance = {
@@ -178,6 +118,7 @@ export default class StaffReserveController extends BaseController {
                             }
 
                             this.res.render('staff/reserve/performances', {
+                                layout: 'layouts/staff/layout',
                                 form: staffReservePerformanceForm.form,
                                 performances: performanceDocuments,
                                 performanceDocumentsByFilm: performanceDocumentsByFilm,
@@ -377,6 +318,7 @@ export default class StaffReserveController extends BaseController {
                                             this.next(new Error('スケジュールを取得できませんでした'));
                                         } else {
                                             this.res.render('staff/reserve/seats', {
+                                                layout: 'layouts/staff/layout',
                                                 form: staffReserveSeatForm.form,
                                                 performance: performance,
                                                 reservationDocumentsBySeatCode: reservationDocumentsBySeatCode,
@@ -427,10 +369,10 @@ export default class StaffReserveController extends BaseController {
                                     seat_code: choice.seat_code,
                                     watcher_name: choice.watcher_name,
                                     ticket: {
-                                        type: '01',
-                                        name: '一般',
-                                        name_en: 'Adult',
-                                        price: 1500,
+                                        type: choice.ticket.type,
+                                        name: choice.ticket.name,
+                                        name_en: choice.ticket.name_en,
+                                        price: parseInt(choice.ticket.price),
                                     }
                                 });
                             });
@@ -487,6 +429,7 @@ export default class StaffReserveController extends BaseController {
                                 }
 
                                 this.res.render('staff/reserve/tickets', {
+                                    layout: 'layouts/staff/layout',
                                     form: staffReserveTicketForm.form,
                                     reservationModel: reservationModel,
                                     seatDocuments: seatDocuments,
@@ -518,6 +461,7 @@ export default class StaffReserveController extends BaseController {
                 this.res.redirect(this.router.build('staff.reserve.process', {token: token}));
             } else {
                 this.res.render('staff/reserve/confirm', {
+                    layout: 'layouts/staff/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -579,6 +523,11 @@ export default class StaffReserveController extends BaseController {
                                             watcher_name: choice.watcher_name,
                                             staff: this.staffUser.get('_id'),
                                             staff_user_id: this.staffUser.get('user_id'),
+                                            staff_name: this.staffUser.get('name'),
+                                            staff_email: this.staffUser.get('email'),
+                                            staff_department_name: this.staffUser.get('department_name'),
+                                            staff_tel: this.staffUser.get('tel'),
+                                            staff_signature: this.staffUser.get('signature'),
                                             created_user: this.constructor.toString(),
                                             updated_user: this.constructor.toString(),
                                         },
@@ -640,6 +589,7 @@ export default class StaffReserveController extends BaseController {
             }
 
             this.res.render('staff/reserve/complete', {
+                layout: 'layouts/staff/layout',
                 reservationResultModel: reservationResultModel,
             });
         });

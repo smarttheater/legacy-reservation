@@ -1,6 +1,6 @@
-import BaseForm from '../../BaseForm';
+import BaseForm from '../BaseForm';
 
-export default class StaffReserveLoginForm extends BaseForm {
+export default class StaffLoginForm extends BaseForm {
     public constructor() {
         super();
 
@@ -25,6 +25,12 @@ export default class StaffReserveLoginForm extends BaseForm {
                     label: 'パスワード',
                     widget: widgetPassword,
                     required: validators.required('パスワードが未入力です'),
+                    validators: [
+                    ],
+                }),
+                signature: fields.string({
+                    label: '署名',
+                    required: validators.required('署名が未入力です'),
                     validators: [
                     ],
                 })

@@ -12,10 +12,10 @@
 
             <dt>座席/券種</dt>
             <dd>
-                <% if (reservationModel.seatChoicesBySponsor.length > 0) { %>
+                <% if (reservationModel.seatChoicesByStaff.length > 0) { %>
 
                     <div class="row">
-                    <% reservationModel.seatChoicesBySponsor.forEach((ticketChoice, index) => { %>
+                    <% reservationModel.seatChoicesByStaff.forEach((ticketChoice, index) => { %>
                         <% if (index > 0 && index % 4 === 0) { %>
                         </div>
                         <div class="row">

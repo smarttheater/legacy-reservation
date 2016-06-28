@@ -2,12 +2,15 @@ import NamedRoutes = require('named-routes');
 import express = require('express');
 
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
+import StaffAuthController from '../controllers/Staff/Auth/StaffAuthController';
+import StaffMyPageController from '../controllers/Staff/MyPage/StaffMyPageController';
 import StaffReserveController from '../controllers/Staff/Reserve/StaffReserveController';
 import SponsorReserveController from '../controllers/Sponsor/Reserve/SponsorReserveController';
 import SponsorCancelController from '../controllers/Sponsor/Cancel/SponsorCancelController';
 import ErrorController from '../controllers/Error/ErrorController';
 import IndexController from '../controllers/Index/IndexController';
 import TaskController from '../controllers/Task/TaskController';
+
 import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
 
@@ -78,7 +81,7 @@ export default class Router {
                         message: 'login required.'
                     });
                 } else {
-                    res.redirect('/staff/reserve/terms');
+                    res.redirect('/staff/login');
                 }
             } else {
                 next();
@@ -101,13 +104,17 @@ export default class Router {
         }
 
         // 内部関係者
-        app.all('/staff/reserve/terms', 'sponsor.reserve.terms', (req, res, next) => {(new SponsorReserveController(req, res, next)).terms()});
-        app.all('/staff/reserve/performances', 'sponsor.reserve.performances', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).performances()});
-        app.all('/staff/reserve/:token/seats', 'sponsor.reserve.seats', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).seats()});
-        app.all('/staff/reserve/:token/tickets', 'sponsor.reserve.tickets', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).tickets()});
-        app.all('/staff/reserve/:token/confirm', 'sponsor.reserve.confirm', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).confirm()});
-        app.get('/staff/reserve/:token/process', 'sponsor.reserve.process', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).process()});
-        app.get('/staff/reserve/:token/complete', 'sponsor.reserve.complete', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).complete()});
+        app.all('/staff/login', 'staff.login', (req, res, next) => {(new StaffAuthController(req, res, next)).login()});
+        app.all('/staff/logout', 'staff.logout', (req, res, next) => {(new StaffAuthController(req, res, next)).logout()});
+
+        app.all('/staff/mypage', 'staff.mypage', authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).index()});
+
+        app.all('/staff/reserve/performances', 'staff.reserve.performances', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).performances()});
+        app.all('/staff/reserve/:token/seats', 'staff.reserve.seats', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).seats()});
+        app.all('/staff/reserve/:token/tickets', 'staff.reserve.tickets', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).tickets()});
+        app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).confirm()});
+        app.get('/staff/reserve/:token/process', 'staff.reserve.process', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).process()});
+        app.get('/staff/reserve/:token/complete', 'staff.reserve.complete', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).complete()});
 
         // 外部関係者
         app.all('/sponsor/reserve/terms', 'sponsor.reserve.terms', (req, res, next) => {(new SponsorReserveController(req, res, next)).terms()});

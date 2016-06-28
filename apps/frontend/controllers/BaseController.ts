@@ -56,8 +56,9 @@ export default class BaseController
         this.next = next;
 
         this.logger = log4js.getLogger('system');
-        this.sponsorUser = SponsorUser.getInstance();
         this.router = Router.getInstance().getRouter();
+        this.staffUser = StaffUser.getInstance();
+        this.sponsorUser = SponsorUser.getInstance();
 
         // ユーザーインスタンスをテンプレート変数へ渡す
         this.res.locals.staffUser = this.staffUser;

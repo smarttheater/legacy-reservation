@@ -14,9 +14,16 @@
             <ul class="nav navbar-nav">
             </ul>
 
+            <a class="btn btn-default navbar-btn navbar-right" href="<%- url('staff.logout', {}) %>">ログアウト</a>
+
             <ul class="nav navbar-nav navbar-right">
+            <!--
                 <li class="<%- (req.originalUrl === url('Home')) ? 'active' : '' %>"><a href="<%- url('Home') %>">TOP</a></li>
+            -->
             </ul>
+
+            <p class="navbar-text navbar-right"><a href="<%- url('staff.mypage') %>" class="navbar-link"><%- staffUser.get('signature') %></a>様</p>
+
         </div><!--/.nav-collapse -->
     </div>
 </nav>

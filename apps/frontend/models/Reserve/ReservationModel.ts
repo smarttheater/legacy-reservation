@@ -119,6 +119,11 @@ export default class ReservationModel {
     public paymentMethod: string;
 
     /**
+     * 内部関係者署名
+     */
+    public staff_signature: string;
+
+    /**
      * プロセス中の購入情報をセッションに保存する
      * 
      * 有効期間: 3600秒
