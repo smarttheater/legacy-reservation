@@ -2,4 +2,85 @@
 <a class="btn btn-lg btn-block btn-primary" href="<%- url('staff.reserve.performances', {}) %>">新規関係者チケット手配</a>
 
 <div class="row">
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox">
+                            </label>
+                        </div>
+                    </th>
+                    <th>予約管理番号</th>
+                    <th>作品名</th>
+                    <th>上映時間/場所</th>
+                    <th>座席</th>
+                    <th>最終更新者</th>
+                    <th>配布先</th>
+                    <th>鑑賞キャンセル</th>
+                    <th>印刷</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <% for (let paymentNo of Object.keys(reservationDocumentsByPaymentNo)) { %>
+                    <%
+                    let reservationDocuments = reservationDocumentsByPaymentNo[paymentNo];
+                    let documentsCount = reservationDocuments.length;
+                    %>
+                    <% reservationDocuments.forEach((reservationDocument, index) => { %>
+                    <tr>
+                        <% if (index < 1) { %>
+                        <td rowspan="<%- documentsCount %>">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox">
+                                </label>
+                            </div>
+                        </td>
+                        <td rowspan="<%- documentsCount %>"><%- paymentNo %></td>
+                        <td rowspan="<%- documentsCount %>"><%- reservationDocument.get('film_name') %></td>
+                        <td rowspan="<%- documentsCount %>"><%- reservationDocument.get('performance_day') %> <%- reservationDocument.get('performance_start_time') %>～ <%- reservationDocument.get('theater_name') %> <%- reservationDocument.get('screen_name') %></td>
+                        <% } else { %>
+                        <% } %>
+
+                        <td>
+                            <a class="show-seat" href="javascript:void(0);"
+                               data-payment-no="<%- paymentNo %>"
+                               data-seat-code="<%- reservationDocument.get('seat_code') %>"><%- reservationDocument.get('seat_code') %></a></td>
+                        <td><%- reservationDocument.get('staff_signature') %></td>
+                        <td>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" value="<%- reservationDocument.get('watcher_name') %>">
+                            </div>
+                            <div class="col-md-6">
+                                <a class="btn btn-primary" href="javascript:void(0)">更新(未実装)</a>
+                            </div>
+                        </td>
+                        <td><a class="btn btn-primary" href="javascript:void(0)">印刷(未実装)</a></td>
+                        <td><a class="btn btn-primary" href="javascript:void(0)">キャンセル</a></td>
+                    </tr>
+
+                    <% }) %>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
 </div>
+
+
+
+<script>
+$(function(){
+    var screenSeatCodesByPaymentNo = <%- JSON.stringify(screenSeatCodesByPaymentNo) %>;
+    $('.show-seat').on('click', function(){
+        let paymentNo = $(this).attr('data-payment-no');
+        showSeatMap(screenSeatCodesByPaymentNo[paymentNo], [$(this).attr('data-seat-code')]);
+    });
+})
+</script>
+
