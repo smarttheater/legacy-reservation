@@ -29,52 +29,53 @@
 
             <tbody>
                 <tr>
-                <% performance.screen.sections[0].seats.forEach(function(seat, index) { %>
+                <% reservationModel.performance.screen.sections[0].seats.forEach((seat, index) => { %>
+                    <% let seatCode = seat.code %>
                     <% if (index % 12 === 0) { %>
                     </tr>
                     <tr>
                     <% } %>
 
-                    <% if (performanceSeatDocumentsBySeatCode.hasOwnProperty(seat.get('code'))) { %>
+                    <% if (reservationModel.ticketChoicesBySeatCode.hasOwnProperty(seatCode)) { %>
+                        <!-- 販売中 -->
 
-                        <% if (reservationDocumentsBySeatCode.hasOwnProperty(seat.get('code'))) { %>
-                            <% if (reservationModel.seatCodes && reservationModel.seatCodes.indexOf(seat.get('code')) >= 0) { %>
-                                <!-- 自分自身が仮押さえ中 -->
-                                <th scope="row" class="select-seat bg-primary" data-seat-code="<%- seat.get('code') %>">
-                                    <a tabindex="0" class="popover-reservation"
-                                         data-seat-code="<%- seat.get('code') %>"
-                                        data-toggle="popover"
-                                        data-trigger="focus"><%- seat.get('code') %></a>
-                                </th>
-
-                            <% } else { %>
-                                <!-- 他プロセスによって予約不可 -->
-                                <% let reservationDocument = reservationDocumentsBySeatCode[seat.get('code')] %>
-                                <th scope="row" class="bg-danger">
-                                    <a tabindex="0" class="popover-reservation"
-                                        data-seat-code="<%- seat.get('code') %>"
-                                        data-toggle="popover"
-                                        data-trigger="focus"><%- seat.get('code') %></a>
-                                </th>
-                            <% } %>
+                        <% let reservationDocument = reservationDocumentsBySeatCode[seatCode] %>
+                        <% if (reservationDocument.get('status') === 'AVAILABLE') { %>
+                            <!-- 予約可能 -->
+                            <th scope="row" class="select-seat" data-seat-code="<%- seatCode %>" data-reservation-id="<%- reservationDocument.get('_id') %>">
+                                <%- seatCode %>
+                            </th>
 
                         <% } else { %>
-                            <!-- 予約可能 -->
-                            <th scope="row" class="select-seat" data-seat-code="<%- seat.get('code') %>">
-                                <%- seat.get('code') %>
-                            </th>
+                            <% if (reservationModel.getSeatCodes().indexOf(seatCode) >= 0) { %>
+                                <!-- 仮押さえ中 -->
+                                <th scope="row" class="select-seat bg-primary" data-seat-code="<%- seatCode %>" data-reservation-id="<%- reservationDocument.get('_id') %>">
+                                    <%- seatCode %>
+                                </th>
+                            <% } else { %>
+                                <!-- 予約不可 -->
+                                <th scope="row" class="bg-danger" data-reservation-id="<%- reservationDocument.get('_id') %>">
+                                    <a tabindex="0" class="popover-reservation"
+                                       data-seat-code="<%- seatCode %>"
+                                       data-toggle="popover"
+                                       data-trigger="focus"><%- seatCode %></a>
+                                </th>
+
+                            <% } %>
+
                         <% } %>
 
                     <% } else { %>
                         <!-- 未販売 -->
                         <th scope="row" class="bg-warning text-muted">
-                            <%- seat.get('code') %>
+                            <%- seatCode %>
                         </th>
 
                     <% } %>
 
                 <% }) %>
                 </tr>
+
             </tbody>
 
         </table>
@@ -93,17 +94,17 @@ $(function(){
     });
 
     $('.select-seats').on('click', function(){
-        var codes = [];
+        var reservationIds = [];
 
         // 座席コードリストを取得
         $('.select-seat.bg-primary').each(function(index){
-            codes.push($(this).attr('data-seat-code'));
+            reservationIds.push($(this).attr('data-reservation-id'));
         });
 
-        if (codes.length < 1) {
+        if (reservationIds.length < 1) {
             alert('座席を選択してください');
         } else {
-            $('form input[name="codes"]').val(JSON.stringify(codes));
+            $('form input[name="reservationIds"]').val(JSON.stringify(reservationIds));
             $('form').submit();
         }
     });
@@ -116,21 +117,27 @@ $(function(){
             var seatCode = $(this).attr('data-seat-code');
             var reservation = reservationDocumentsBySeatCode[seatCode];
 
-            if (reservation.staff) {
-                return `
-${reservation.staff_department_name}<br>
-${reservation.staff_name}
-                `;
-            } else if (reservation.sponsor) {
-                return `
-外部関係者<br>
-${reservation.sponsor_name}
-                `;
-            } else {
-                return `
-一般<br>
-${reservation.profile_email}
-                `;
+            if (reservation.status == 'RESERVED') {
+                if (reservation.staff) {
+                    return `
+    ${reservation.staff_department_name}<br>
+    ${reservation.staff_name}
+                    `;
+                } else if (reservation.sponsor) {
+                    return `
+    外部関係者
+                    `;
+                } else if (reservation.member) {
+                    return `
+    メルマガ当選者
+                    `;
+                } else {
+                    return `
+    一般
+                    `;
+                }
+            } else if (reservation.status == 'TEMPORARY') {
+                return '仮予約中';
             }
         }
     });

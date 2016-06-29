@@ -24,25 +24,21 @@ export default class ReservationResultModel {
         day: string,
         start_time: string,
         end_time: string,
-        /**
-         * 劇場
-         */
         theater: {
             _id: string,
             name: string,
             name_en: string,
         },
-        /**
-         * スクリーン
-         */
         screen: {
             _id: string,
             name: string,
             name_en: string,
+            sections: Array<{
+                seats: Array<{
+                    code: string
+                }>
+            }>
         },
-        /**
-         * 作品
-         */
         film: {
             _id: string,
             name: string,
@@ -51,24 +47,19 @@ export default class ReservationResultModel {
     };
 
     /**
-     * 選択座席コードリスト
+     * 座席コードごとの券種選択肢リスト
      */
-    public seatCodes: Array<string>;
+    public ticketChoicesBySeatCode: Object;
 
+    /**
+     * スクリーンの座席コードリスト
+     */
     public screenSeatCodes: Array<string>;
 
     /**
-     * 券種選択リスト
+     * 予約IDリスト
      */
-    public ticketChoices: Array<{
-        seat_code: string,
-        ticket: {
-            type: string,
-            name: string,
-            name_en: string,
-            price: number
-        }
-    }>;
+    public reservations: Array<Object>;
 
     /**
      * プロフィール

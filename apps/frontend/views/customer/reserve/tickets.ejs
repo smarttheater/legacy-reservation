@@ -15,21 +15,21 @@
             </thead>
 
             <tbody>
-                <% for (let seatDocument of seatDocuments) { %>
-                <tr data-seat-code="<%- seatDocument.get('code') %>">
-                    <td><%- seatDocument.get('code') %></td>
+                <% for (let reservationId of reservationModel.reservationIds) { %>
+                <% let reservation = reservationModel.getReservation(reservationId) %>
+                <tr data-seat-code="<%- reservation.seat_code %>" data-reservation-id="<%- reservationId %>">
+                    <td><%- reservation.seat_code %></td>
                     <td>
                         <select class="form-control">
-                        <% seatDocument.get('tickets').forEach(function(ticket, index) { %>
+                        <% reservationModel.ticketChoicesBySeatCode[reservation.seat_code].forEach(function(ticket, index) { %>
                         <option
-                            <% if (ticketChoicesBySeatCode.hasOwnProperty(seatDocument.get('code'))) { %>
-                            <% if (ticketChoicesBySeatCode[seatDocument.get('code')].ticket.type == ticket.get('type')) { %> selected="selected"<% } %>
+                            <% if (reservation.hasOwnProperty('ticket_type')) { %>
+                            <% if (reservation.ticket_type == ticket.type) { %> selected="selected"<% } %>
                             <% } %>
-
-                            value="<%- ticket.get('type') %>"
-                            data-name="<%- ticket.get('name') %>"
-                            data-name-en="<%- ticket.get('name_en') %>"
-                            data-price="<%- ticket.get('price') %>"><%- ticket.get('name') %> <%- ticket.get('price') %>円
+                            value="<%- ticket.type %>"
+                            data-name="<%- ticket.name %>"
+                            data-name-en="<%- ticket.name_en %>"
+                            data-price="<%- ticket.price %>"><%- ticket.name %> <%- ticket.price %>円
                         </option>
                         <% }) %>
                         </select>
@@ -53,13 +53,11 @@ $(function(){
         var choices = [];
         $('.tickets tbody tr').each(function(index){
             choices.push({
-                seat_code: $(this).attr('data-seat-code'),
-                ticket: {
-                    type: $('select', this).val(),
-                    name: $('option:selected', this).attr('data-name'),
-                    name_en: $('option:selected', this).attr('data-name-en'),
-                    price: $('option:selected', this).attr('data-price'),
-                }
+                reservation_id: $(this).attr('data-reservation-id'),
+                ticket_type: $('option:selected', this).val(),
+                ticket_name: $('option:selected', this).attr('data-name'),
+                ticket_name_en: $('option:selected', this).attr('data-name-en'),
+                ticket_price: $('option:selected', this).attr('data-price'),
             });
         });
 

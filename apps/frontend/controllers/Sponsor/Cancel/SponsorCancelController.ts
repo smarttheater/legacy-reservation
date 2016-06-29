@@ -117,7 +117,7 @@ export default class SponsorCancelController extends BaseController {
             Models.Reservation.findOneAndUpdate(
             {
                 _id: reservationId,
-                payment_no: reservationCancelModel.paymentNo,
+                sponsor: this.sponsorUser.get('_id'),
             },
             {
                 status: ReservationUtil.STATUS_KEPT_BY_TIFF

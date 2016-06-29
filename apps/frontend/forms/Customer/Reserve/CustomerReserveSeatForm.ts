@@ -10,8 +10,8 @@ export default class CustomerReserveSeatForm extends BaseForm {
 
         this.form = this.forms.create(
             {
-                codes: fields.string({
-                    label: '座席コードリスト',
+                reservationIds: fields.string({
+                    label: '予約IDリスト',
                     widget: widgets.hidden(),
                     required: true,
                     validators: [

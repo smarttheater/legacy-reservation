@@ -12,35 +12,20 @@
 
             <dt>座席/券種</dt>
             <dd>
-                <% if (reservationModel.seatChoicesBySponsor.length > 0) { %>
+                <% if (reservationModel.reservationIds.length > 0) { %>
 
                     <div class="row">
-                    <% reservationModel.seatChoicesBySponsor.forEach((ticketChoice, index) => { %>
+                    <% reservationModel.reservationIds.forEach((reservationId, index) => { %>
+                        <% let reservation = reservationModel.getReservation(reservationId) %>
                         <% if (index > 0 && index % 4 === 0) { %>
                         </div>
                         <div class="row">
                         <% } %>
 
-                            <div class="col-xs-3">
-                                <a class="show-seat" href="javascript:void(0);" data-seat-code="<%- ticketChoice.seat_code %>"><%- ticketChoice.seat_code %></a><br>
-                                <%- ticketChoice.ticket.name %><br>
-                            </div>
-                    <% }) %>
-                    </div>
-
-
-                <% } else if (reservationModel.seatCodes.length > 0) { %>
-
-                    <div class="row">
-                    <% reservationModel.seatCodes.forEach((seatCode, index) => { %>
-                        <% if (index > 0 && index % 4 === 0) { %>
+                        <div class="col-xs-3">
+                            <a class="show-seat" href="javascript:void(0);" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a><br>
+                            <%- reservation.ticket_name %><br>
                         </div>
-                        <div class="row">
-                        <% } %>
-
-                            <div class="col-xs-3">
-                                <a class="show-seat" href="javascript:void(0);" data-seat-code="<%- seatCode %>"><%- seatCode %></a><br>
-                            </div>
                     <% }) %>
                     </div>
 

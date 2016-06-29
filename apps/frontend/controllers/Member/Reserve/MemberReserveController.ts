@@ -105,11 +105,6 @@ export default class MemberReserveController extends BaseController {
                             let reservationModel = new ReservationModel();
                             reservationModel.token = token;
 
-
-                            reservationModel.seatCodes = [this.memberUser.get('seat_code')];
-                            reservationModel.ticketChoices = [];
-
-
                             reservationModel.reservationIds = [];
                             for (let reservationDocument of reservationDocuments) {
                                 reservationModel.reservationIds.push(reservationDocument.get('_id'));
@@ -146,6 +141,7 @@ export default class MemberReserveController extends BaseController {
                                     _id: performanceDocument.get('screen').get('_id'),
                                     name: performanceDocument.get('screen').get('name'),
                                     name_en: performanceDocument.get('screen').get('name_en'),
+                                    sections: performanceDocument.get('screen').get('sections'),
                                 },
                                 film: {
                                     _id: performanceDocument.get('film').get('_id'),
@@ -195,7 +191,6 @@ export default class MemberReserveController extends BaseController {
                         memberReserveTicketForm.form = form;
 
                         // 座席選択情報を保存して座席選択へ
-                        reservationModel.ticketChoices = [];
                         let choices = JSON.parse(form.data.choices);
 
                         if (Array.isArray(choices)) {
@@ -268,13 +263,13 @@ export default class MemberReserveController extends BaseController {
                         });
                     },
                     error: (form) => {
-                        return this.res.render('member/reserve/profile', {
+                        this.res.render('member/reserve/profile', {
                             form: form,
                             reservationModel: reservationModel,
                         });
                     },
                     empty: (form) => {
-                        return this.res.render('member/reserve/profile', {
+                        this.res.render('member/reserve/profile', {
                             form: form,
                             reservationModel: reservationModel,
                         });
@@ -419,6 +414,9 @@ export default class MemberReserveController extends BaseController {
             this.logger.debug('reservationModel is ', reservationModel);
 
             if (this.req.method === 'POST') {
+                // 予約番号発行
+                reservationModel.paymentNo = Util.createPaymentNo();
+
                 // 予約情報セッション削除
                 // これ以降、予約情報はローカルに引き回す
                 this.logger.debug('removing reservationModel... ', reservationModel);
@@ -426,48 +424,52 @@ export default class MemberReserveController extends BaseController {
                     if (err) {
 
                     } else {
-                        // DB保存
                         // 予約ステータス更新
                         let reservedDocuments: Array<mongoose.Document> = [];
 
                         let promises = [];
-                        for (let choice of reservationModel.ticketChoices) {
+                        reservationModel.reservationIds.forEach((reservationId, index) => {
+                            let reservation = reservationModel.getReservation(reservationId);
+
                             promises.push(new Promise((resolve, reject) => {
 
-                                this.logger.debug('STATUS_TEMPORARY to STATUS_RESERVED processing...seat_code:', choice.seat_code);
+                                this.logger.debug('updating reservation status to STATUS_RESERVED..._id:', reservationId);
                                 Models.Reservation.findOneAndUpdate(
                                     {
-                                        payment_no: reservationModel.paymentNo,
-                                        seat_code: choice.seat_code,
-                                        status: ReservationUtil.STATUS_TEMPORARY
+                                        _id: reservationId,
                                     },
                                     {
-                                        'status': ReservationUtil.STATUS_RESERVED,
-                                        'performance': reservationModel.performance._id,
-                                        'performance_day': reservationModel.performance.day,
-                                        'performance_start_time': reservationModel.performance.start_time,
-                                        'performance_end_time': reservationModel.performance.end_time,
-                                        'theater': reservationModel.performance.theater._id,
-                                        'theater_name': reservationModel.performance.theater.name,
-                                        'screen': reservationModel.performance.screen._id,
-                                        'screen_name': reservationModel.performance.screen.name,
-                                        'film': reservationModel.performance.film._id,
-                                        'film_name': reservationModel.performance.film.name,
-                                        'purchaser_last_name': reservationModel.profile.last_name,
-                                        'purchaser_first_name': reservationModel.profile.first_name,
-                                        'purchaser_email': reservationModel.profile.email,
-                                        'purchaser_tel': reservationModel.profile.tel,
-                                        'ticket_type': choice.ticket.type,
-                                        'ticket_name': choice.ticket.name,
-                                        'created_user': this.constructor.toString(),
-                                        'updated_user': this.constructor.toString(),
+                                        payment_no: reservationModel.paymentNo,
+                                        status: ReservationUtil.STATUS_RESERVED,
+                                        performance: reservationModel.performance._id,
+                                        performance_day: reservationModel.performance.day,
+                                        performance_start_time: reservationModel.performance.start_time,
+                                        performance_end_time: reservationModel.performance.end_time,
+                                        theater: reservationModel.performance.theater._id,
+                                        theater_name: reservationModel.performance.theater.name,
+                                        screen: reservationModel.performance.screen._id,
+                                        screen_name: reservationModel.performance.screen.name,
+                                        film: reservationModel.performance.film._id,
+                                        film_name: reservationModel.performance.film.name,
+                                        purchaser_last_name: reservationModel.profile.last_name,
+                                        purchaser_first_name: reservationModel.profile.first_name,
+                                        purchaser_email: reservationModel.profile.email,
+                                        purchaser_tel: reservationModel.profile.tel,
+                                        ticket_type: reservation.ticket_type,
+                                        ticket_name: reservation.ticket_name,
+                                        ticket_name_en: reservation.ticket_name_en,
+                                        ticket_price: reservation.ticket_price,
+                                        member: this.memberUser.get('_id'),
+                                        member_user_id: this.memberUser.get('user_id'),
+                                        created_user: this.constructor.toString(),
+                                        updated_user: this.constructor.toString(),
                                     },
                                     {
                                         new: true
                                     },
                                 (err, reservationDocument) => {
 
-                                    this.logger.info('STATUS_TEMPORARY to STATUS_RESERVED processed.', err, reservationDocument, reservationModel);
+                                    this.logger.info('reservation status to STATUS_RESERVED updated.', err, reservationDocument, reservationModel);
 
                                     if (err) {
                                     } else {
@@ -479,17 +481,17 @@ export default class MemberReserveController extends BaseController {
                                 });
 
                             }));
-                        }
+                        });
 
                         Promise.all(promises).then(() => {
 
-                            let reservationResultModel = reservationModel.toReservationResult();
-
                             // TODO 予約できていない在庫があった場合
-                            if (reservationModel.seatCodes.length > reservedDocuments.length) {
+                            if (reservationModel.reservationIds.length > reservedDocuments.length) {
                                 this.res.redirect(this.router.build('member.reserve.confirm', {token: token}));
                             } else {
                                 // 予約結果セッションを保存して、完了画面へ
+                                let reservationResultModel = reservationModel.toReservationResult();
+
                                 this.logger.debug('saving reservationResult...', reservationResultModel);
                                 reservationResultModel.save((err) => {
                                     this.res.redirect(this.router.build('member.reserve.complete', {token: token}));

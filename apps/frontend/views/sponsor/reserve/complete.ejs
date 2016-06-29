@@ -20,14 +20,15 @@
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <tbody>
-                            <% for (let seatCode of reservationResultModel.seatCodes) { %>
+                            <% reservationResultModel.reservations.forEach((reservation, index) => { %>
                             <tr>
-                                <td><a class="show-seat" href="javascript:void(0);" data-seat-code="<%- seatCode %>"><%- seatCode %></a></td>
-                                <td><a class="btn  btn-default" href="javascript:void(0)">印刷(未実装)</a></td>
-                                <td><a class="btn  btn-default" href="javascript:void(0)">メール送信(未実装)</a></td>
+                                <td><a class="show-seat" href="javascript:void(0);" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a></td>
+                                <td><a class="btn btn-default" href="javascript:void(0)">印刷(未実装)</a></td>
+                                <td><a class="btn btn-default" href="javascript:void(0)">メール送信(未実装)</a></td>
                                 <td>QR</td>
                             </tr>
-                            <% } %>
+                            <% }) %>
+
                         </tbody>
                     </table>
                 </div>

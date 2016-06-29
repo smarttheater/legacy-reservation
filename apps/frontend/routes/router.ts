@@ -75,6 +75,7 @@ export default class Router {
 
         // タスク
         app.get('/task/removeTemporaryReservation', 'task.removeTemporaryReservation', (req, res, next) => {(new TaskController(req, res, next)).removeTemporaryReservation()});
+        app.get('/task/resetReservations', 'task.resetReservations', (req, res, next) => {(new TaskController(req, res, next)).resetReservations()});
 
         let authenticationMember = (req: express.Request, res: express.Response, next: express.NextFunction) => {
             let memberUser = MemberUser.getInstance();
@@ -129,6 +130,7 @@ export default class Router {
         app.all('/member/reserve/:token/pay', 'member.reserve.pay', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).pay()});
         app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).confirm()});
         app.get('/member/reserve/:token/process', 'member.reserve.process', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).process()});
+        app.post('/member/reserve/fromGMO', 'member.reserve.fromGMO', (req, res, next) => {(new MemberReserveController(req, res, next)).fromGMO()});
         app.get('/member/reserve/:token/complete', 'member.reserve.complete', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).complete()});
 
 

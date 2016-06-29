@@ -38,6 +38,11 @@ export default class ReservationModel {
             _id: string,
             name: string,
             name_en: string,
+            sections: Array<{
+                seats: Array<{
+                    code: string
+                }>
+            }>
         },
         film: {
             _id: string,
@@ -60,29 +65,6 @@ export default class ReservationModel {
      * 予約IDリスト
      */
     public reservationIds: Array<string>;
-
-    /**
-     * 予約リスト
-     */
-    public reservations: Array<Reservation>;
-
-    /**
-     * 選択座席コードリスト
-     */
-    public seatCodes: Array<string>;
-
-    /**
-     * 券種選択リスト
-     */
-    public ticketChoices: Array<{
-        seat_code: string,
-        ticket: {
-            type: string,
-            name: string,
-            name_en: string,
-            price: number
-        }
-    }>;
 
     /**
      * 座席指定リスト(内部関係者)
@@ -221,6 +203,22 @@ export default class ReservationModel {
         return total;
     }
 
+    /**
+     * 仮予約中の座席コードリストを取得する
+     */
+    public getSeatCodes(): Array<string> {
+        let seatcodes = [];
+
+        if (Array.isArray(this.reservationIds) && this.reservationIds.length > 0) {
+            this.reservationIds.forEach((reservationId, index) => {
+                let reservation = this.getReservation(reservationId);
+                seatcodes.push(reservation.seat_code);
+            });
+        }
+
+        return seatcodes;
+    }
+
     public getReservation(id: string): Reservation {
         return (this[`reservation_${id}`]) ? this[`reservation_${id}`] : null;
     }
@@ -235,39 +233,39 @@ export default class ReservationModel {
     public toReservationDocuments(): Array<Object> {
         let documents: Array<Object> = [];
 
-        for (let choice of this.ticketChoices) {
-            let document = {
-                token: this.token,
-                payment_no: this.paymentNo,
-                status: ReservationUtil.STATUS_RESERVED,
+        // for (let choice of this.ticketChoices) {
+        //     let document = {
+        //         token: this.token,
+        //         payment_no: this.paymentNo,
+        //         status: ReservationUtil.STATUS_RESERVED,
 
-                performance: this.performance._id,
-                performance_day: this.performance.day,
-                performance_start_time: this.performance.start_time,
-                performance_end_time: this.performance.end_time,
+        //         performance: this.performance._id,
+        //         performance_day: this.performance.day,
+        //         performance_start_time: this.performance.start_time,
+        //         performance_end_time: this.performance.end_time,
 
-                theater: this.performance.theater._id,
-                theater_name: this.performance.theater.name,
-                screen: this.performance.screen._id,
-                screen_name: this.performance.screen.name,
-                film: this.performance.film._id,
-                film_name: this.performance.film.name,
+        //         theater: this.performance.theater._id,
+        //         theater_name: this.performance.theater.name,
+        //         screen: this.performance.screen._id,
+        //         screen_name: this.performance.screen.name,
+        //         film: this.performance.film._id,
+        //         film_name: this.performance.film.name,
 
-                purchaser_last_name: this.profile.last_name,
-                purchaser_first_name: this.profile.first_name,
-                purchaser_email: this.profile.email,
-                purchaser_tel: this.profile.tel,
+        //         purchaser_last_name: this.profile.last_name,
+        //         purchaser_first_name: this.profile.first_name,
+        //         purchaser_email: this.profile.email,
+        //         purchaser_tel: this.profile.tel,
 
-                seat_code: choice.seat_code,
-                ticket_type: choice.ticket.type,
-                ticket_name: choice.ticket.name,
+        //         seat_code: choice.seat_code,
+        //         ticket_type: choice.ticket.type,
+        //         ticket_name: choice.ticket.name,
 
-                created_user: this.constructor.toString(),
-                updated_user: this.constructor.toString(),
-            };
+        //         created_user: this.constructor.toString(),
+        //         updated_user: this.constructor.toString(),
+        //     };
 
-            documents.push(document);
-        }
+        //     documents.push(document);
+        // }
 
         return documents;
     }
@@ -281,11 +279,15 @@ export default class ReservationModel {
         reservationResultModel.token = this.token;
         reservationResultModel.paymentNo = this.paymentNo;
         reservationResultModel.performance = this.performance;
-        reservationResultModel.seatCodes = this.seatCodes;
+        reservationResultModel.ticketChoicesBySeatCode = this.ticketChoicesBySeatCode;
         reservationResultModel.screenSeatCodes = this.screenSeatCodes;
-        reservationResultModel.ticketChoices = this.ticketChoices;
+        reservationResultModel.reservations = [];
         reservationResultModel.profile = this.profile;
         reservationResultModel.paymentMethod = this.paymentMethod;
+
+        this.reservationIds.forEach((reservationId, index) => {
+            reservationResultModel.reservations.push(this.getReservation(reservationId));
+        });
 
         return reservationResultModel;
     }
@@ -304,7 +306,7 @@ export default class ReservationModel {
 
 interface Reservation {
     _id: string;
-    token: string;
+    token?: string;
     status: string;
     seat_code: string,
 

@@ -7,9 +7,6 @@
     <a class="btn btn-default" href="<%- url('staff.reserve.seats', {token: reservationModel.token}) %>">変更</a>
 
     <dl class="dl-horizontal">
-        <dt>予約管理番号</dt>
-        <dd><%- reservationModel.paymentNo %></dd>
-
         <dt>作品名</dt>
         <dd><%- reservationModel.performance.film.name %></dd>
 
@@ -19,8 +16,9 @@
         <dt>座席/券種</dt>
 
         <dd>
-            <% reservationModel.seatChoicesByStaff.forEach(function(choice){%>
-            <a class="show-seat" href="javascript:void(0);" data-seat-code="<%- choice.seat_code %>"><%- choice.seat_code %></a> <%- choice.ticket.name %>、
+            <% reservationModel.reservationIds.forEach((reservationId, index) => { %>
+            <% let reservation = reservationModel.getReservation(reservationId) %>
+            <a class="show-seat" href="javascript:void(0);" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a> <%- reservation.ticket_name %>、
             <% }) %><br>
         </dd>
 
