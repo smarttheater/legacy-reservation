@@ -19,29 +19,25 @@ export default class StaffAuthController extends BaseController {
                     staffLoginForm.form = form;
 
                     // ユーザー認証
-                    this.useMongoose(() => {
-                        this.logger.debug('finding staff... user_id:', form.data.user_id);
-                        Models.Staff.findOne(
-                        {
-                            user_id: form.data.user_id,
-                            password: form.data.password,
-                        },
-                        (err, staffDocument) => {
+                    this.logger.debug('finding staff... user_id:', form.data.user_id);
+                    Models.Staff.findOne(
+                    {
+                        user_id: form.data.user_id,
+                        password: form.data.password,
+                    },
+                    (err, staffDocument) => {
 
-                            if (err || staffDocument === null) {
-                                this.res.render('staff/auth/login', {
-                                    form: form,
-                                });
-                            } else {
-                                mongoose.disconnect(() => {
-                                    // ログイン
-                                    this.req.session[StaffUser.AUTH_SESSION_NAME] = staffDocument.toObject();
-                                    this.req.session[StaffUser.AUTH_SESSION_NAME]['signature'] = form.data.signature;
+                        if (err || staffDocument === null) {
+                            this.res.render('staff/auth/login', {
+                                form: form,
+                            });
+                        } else {
+                            // ログイン
+                            this.req.session[StaffUser.AUTH_SESSION_NAME] = staffDocument.toObject();
+                            this.req.session[StaffUser.AUTH_SESSION_NAME]['signature'] = form.data.signature;
 
-                                    this.res.redirect(this.router.build('staff.mypage', {}));
-                                });
-                            }
-                        });
+                            this.res.redirect(this.router.build('staff.mypage', {}));
+                        }
                     });
                 },
                 error: (form) => {

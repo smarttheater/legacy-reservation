@@ -2,6 +2,7 @@ import NamedRoutes = require('named-routes');
 import express = require('express');
 
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
+import MemberReserveController from '../controllers/Member/Reserve/MemberReserveController';
 import StaffAuthController from '../controllers/Staff/Auth/StaffAuthController';
 import StaffCancelController from '../controllers/Staff/Cancel/StaffCancelController';
 import StaffMyPageController from '../controllers/Staff/MyPage/StaffMyPageController';
@@ -12,6 +13,7 @@ import ErrorController from '../controllers/Error/ErrorController';
 import IndexController from '../controllers/Index/IndexController';
 import TaskController from '../controllers/Task/TaskController';
 
+import MemberUser from '../models/User/MemberUser';
 import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
 
@@ -74,6 +76,21 @@ export default class Router {
         // タスク
         app.get('/task/removeTemporaryReservation', 'task.removeTemporaryReservation', (req, res, next) => {(new TaskController(req, res, next)).removeTemporaryReservation()});
 
+        let authenticationMember = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+            let memberUser = MemberUser.getInstance();
+            if (!memberUser.isAuthenticated()) {
+                if (req.xhr) {
+                    res.json({
+                        message: 'login required.'
+                    });
+                } else {
+                    res.redirect('/member/reserve/terms');
+                }
+            } else {
+                next();
+            }
+        }
+
         let authenticationStaff = (req: express.Request, res: express.Response, next: express.NextFunction) => {
             let staffUser = StaffUser.getInstance();
             if (!staffUser.isAuthenticated()) {
@@ -103,6 +120,17 @@ export default class Router {
                 next();
             }
         }
+
+        // メルマガ先行
+        app.all('/member/reserve/terms', 'member.reserve.terms', (req, res, next) => {(new MemberReserveController(req, res, next)).terms()});
+        app.get('/member/reserve/start', 'member.reserve.start', (req, res, next) => {(new MemberReserveController(req, res, next)).start()});
+        app.all('/member/reserve/:token/tickets', 'member.reserve.tickets', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).tickets()});
+        app.all('/member/reserve/:token/profile', 'member.reserve.profile', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).profile()});
+        app.all('/member/reserve/:token/pay', 'member.reserve.pay', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).pay()});
+        app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).confirm()});
+        app.get('/member/reserve/:token/process', 'member.reserve.process', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).process()});
+        app.get('/member/reserve/:token/complete', 'member.reserve.complete', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).complete()});
+
 
         // 内部関係者
         app.all('/staff/login', 'staff.login', (req, res, next) => {(new StaffAuthController(req, res, next)).login()});

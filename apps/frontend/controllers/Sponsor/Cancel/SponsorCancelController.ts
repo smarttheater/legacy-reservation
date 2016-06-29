@@ -16,33 +16,29 @@ export default class SponsorCancelController extends BaseController {
                     sponsorReserveCancelForm.form = form;
 
                     // 予約検索
-                    this.useMongoose(() => {
-                        this.logger.debug('finding reservation... payment_no:', form.data.payment_no, form.data.tel);
-                        Models.Reservation.findOne(
-                        {
-                            payment_no: form.data.payment_no,
-                            purchaser_tel: {$regex: `${form.data.tel}$`},
-                            status: ReservationUtil.STATUS_RESERVED
-                        },
-                        (err, reservationDocument) => {
-                            mongoose.disconnect(() => {
+                    this.logger.debug('finding reservation... payment_no:', form.data.payment_no, form.data.tel);
+                    Models.Reservation.findOne(
+                    {
+                        payment_no: form.data.payment_no,
+                        purchaser_tel: {$regex: `${form.data.tel}$`},
+                        status: ReservationUtil.STATUS_RESERVED
+                    },
+                    (err, reservationDocument) => {
 
-                                if (err || reservationDocument === null) {
-                                    return this.res.render('sponsor/cancel/index', {
-                                        form: form
-                                    });
-                                } else {
-                                    // トークンを発行してキャンセルページへ
-                                    let reservationCancelModel = new ReservationCancelModel();
-                                    reservationCancelModel.token = Util.createToken();
-                                    reservationCancelModel.paymentNo = reservationDocument.get('payment_no');
-
-                                    reservationCancelModel.save((err) => {
-                                        this.res.redirect(this.router.build('sponsor.cancel.reservations', {token: reservationCancelModel.token}));
-                                    });
-                                }
+                        if (err || reservationDocument === null) {
+                            return this.res.render('sponsor/cancel/index', {
+                                form: form
                             });
-                        });
+                        } else {
+                            // トークンを発行してキャンセルページへ
+                            let reservationCancelModel = new ReservationCancelModel();
+                            reservationCancelModel.token = Util.createToken();
+                            reservationCancelModel.paymentNo = reservationDocument.get('payment_no');
+
+                            reservationCancelModel.save((err) => {
+                                this.res.redirect(this.router.build('sponsor.cancel.reservations', {token: reservationCancelModel.token}));
+                            });
+                        }
                     });
                 },
                 error: (form) => {
@@ -74,39 +70,34 @@ export default class SponsorCancelController extends BaseController {
 
 
             // 予約リストを取得
-            this.useMongoose(() => {
-                Models.Reservation.find(
-                {
-                    payment_no: reservationCancelModel.paymentNo,
-                    status: ReservationUtil.STATUS_RESERVED
-                },
-                {},
-                {sort : {seat_code: 1}}
-                )
-                .populate('performance film theater screen') // スペースつなぎで、複数populateできる
-                .exec((err, reservationDocuments) => {
-                    mongoose.disconnect(() => {
+            Models.Reservation.find(
+            {
+                payment_no: reservationCancelModel.paymentNo,
+                status: ReservationUtil.STATUS_RESERVED
+            },
+            {},
+            {sort : {seat_code: 1}}
+            )
+            .populate('performance film theater screen') // スペースつなぎで、複数populateできる
+            .exec((err, reservationDocuments) => {
 
-                        if (err || reservationDocuments.length < 1) {
-                            this.next(new Error('予約を取得できませんでした'));
-                        } else {
+                if (err || reservationDocuments.length < 1) {
+                    this.next(new Error('予約を取得できませんでした'));
+                } else {
 
-                            // スクリーンの全座席コード
-                            let screenSeatCodes = [];
-                            for (let seatDocument of reservationDocuments[0].get('screen').get('sections')[0].get('seats')) {
-                                screenSeatCodes.push(seatDocument.get('code'));
-                            }
+                    // スクリーンの全座席コード
+                    let screenSeatCodes = [];
+                    for (let seatDocument of reservationDocuments[0].get('screen').get('sections')[0].get('seats')) {
+                        screenSeatCodes.push(seatDocument.get('code'));
+                    }
 
-                            this.res.render('sponsor/cancel/reservations', {
-                                reservationDocuments: reservationDocuments,
-                                screenSeatCodes: screenSeatCodes,
-                                reservationCancelModel: reservationCancelModel
-                            });
-                        }
+                    this.res.render('sponsor/cancel/reservations', {
+                        reservationDocuments: reservationDocuments,
+                        screenSeatCodes: screenSeatCodes,
+                        reservationCancelModel: reservationCancelModel
                     });
-                });
+                }
             });
-
 
         });
     }
@@ -121,35 +112,31 @@ export default class SponsorCancelController extends BaseController {
 
             let reservationId = this.req.body.reservation_id;
 
-            this.useMongoose(() => {
-                // TIFF確保にステータス更新
-                this.logger.debug('canceling reservation...id:', reservationId);
-                Models.Reservation.findOneAndUpdate(
-                {
-                    _id: reservationId,
-                    payment_no: reservationCancelModel.paymentNo,
-                },
-                {
-                    status: ReservationUtil.STATUS_KEPT_BY_TIFF
-                },
-                {
-                    new: true
-                },
-                (err, reservationDocument) => {
-                    mongoose.disconnect(() => {
-                        if (err || reservationDocument === null) {
-                            this.res.json({
-                                isSuccess: false,
-                                reservationId: reservationId
-                            });
-                        } else {
-                            this.res.json({
-                                isSuccess: true,
-                                reservationId: reservationId
-                            });
-                        }
+            // TIFF確保にステータス更新
+            this.logger.debug('canceling reservation...id:', reservationId);
+            Models.Reservation.findOneAndUpdate(
+            {
+                _id: reservationId,
+                payment_no: reservationCancelModel.paymentNo,
+            },
+            {
+                status: ReservationUtil.STATUS_KEPT_BY_TIFF
+            },
+            {
+                new: true
+            },
+            (err, reservationDocument) => {
+                if (err || reservationDocument === null) {
+                    this.res.json({
+                        isSuccess: false,
+                        reservationId: reservationId
                     });
-                });
+                } else {
+                    this.res.json({
+                        isSuccess: true,
+                        reservationId: reservationId
+                    });
+                }
             });
         });
 

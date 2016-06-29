@@ -116,6 +116,14 @@ let ReservationSchema = new mongoose.Schema({
         type: String,
     },
 
+    'member': { 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Member'
+    },
+    'member_user_id': { 
+        type: String,
+    },
+
     'created_user': { 
         type: String,
     },

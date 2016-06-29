@@ -2,9 +2,8 @@ import express = require('express');
 import log4js = require('log4js');
 import moment = require('moment');
 import util = require('util');
-import conf = require('config');
-import mongoose = require('mongoose');
 
+import MemberUser from '../models/User/MemberUser';
 import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
 import Router from '../routes/router';
@@ -42,6 +41,7 @@ export default class BaseController
     /**
      * ユーザーインスタンス
      */
+    public memberUser: MemberUser;
     public staffUser: StaffUser;
     public sponsorUser: SponsorUser;
 
@@ -57,31 +57,18 @@ export default class BaseController
 
         this.logger = log4js.getLogger('system');
         this.router = Router.getInstance().getRouter();
+
+        this.memberUser = MemberUser.getInstance();
         this.staffUser = StaffUser.getInstance();
         this.sponsorUser = SponsorUser.getInstance();
 
         // ユーザーインスタンスをテンプレート変数へ渡す
+        this.res.locals.memberUser = this.memberUser;
         this.res.locals.staffUser = this.staffUser;
         this.res.locals.sponsorUser = this.sponsorUser;
 
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;
         this.res.locals.util = util;
-    }
-
-    /**
-     * mongooseを使用する
-     * デフォルトコネクションを開く
-     */
-    protected useMongoose(cb: () => void): void {
-        let MONGOLAB_URI = conf.get<string>('mongolab_uri');
-        mongoose.connect(MONGOLAB_URI, {}, (err) => {
-            if (err) {
-                // TODO どう対処する？
-                throw err;
-            } else {
-                cb();
-            }
-        });
     }
 }

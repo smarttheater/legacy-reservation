@@ -2,27 +2,27 @@ import session = require('express-session');
 import BaseUser from './BaseUser';
 
 /**
- * 内部関係者ユーザークラス
+ * メルマガ会員ユーザークラス
  */
-export default class StaffUser extends BaseUser {
+export default class MemberUser extends BaseUser {
     private static instance;
 
-    public static getInstance(): StaffUser {
-        if (StaffUser.instance === undefined) {
-            StaffUser.instance = new StaffUser();
+    public static getInstance(): MemberUser {
+        if (MemberUser.instance === undefined) {
+            MemberUser.instance = new MemberUser();
         }
 
-        return StaffUser.instance;
+        return MemberUser.instance;
     }
 
     public static deleteInstance(): void {
-        delete StaffUser.instance;
+        delete MemberUser.instance;
     }
 
-    public static AUTH_SESSION_NAME = 'TIFFFrontendStaffAuth';
+    public static AUTH_SESSION_NAME = 'TIFFFrontendMemberAuth';
 
     public initialize(session: Express.Session): void {
-        let sessionName = StaffUser.AUTH_SESSION_NAME;
+        let sessionName = MemberUser.AUTH_SESSION_NAME;
 
         // セッション値からオブジェクトにセット
         if (session.hasOwnProperty(sessionName)) {

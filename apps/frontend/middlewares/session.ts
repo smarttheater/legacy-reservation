@@ -4,7 +4,7 @@ import conf = require('config');
 let RedisStore = require('connect-redis')(session);
 
 export default session({
-    secret: 'MwsrFrontendSecret', 
+    secret: 'TIFFFrontendSecret', 
     resave: false,
     rolling: true,
     saveUninitialized: false,

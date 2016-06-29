@@ -13,68 +13,58 @@ export default class StaffCancelController extends BaseController {
         let reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
 
-            this.useMongoose(() => {
+            let promises: Array<Promise<Function>> = [];
+            let updatedReservationIds = [];
 
-                let promises: Array<Promise<Function>> = [];
-                let updatedReservationIds = [];
+            for (let reservationId of reservationIds) {
+                promises.push(new Promise((resolve, reject) => {
 
-                for (let reservationId of reservationIds) {
-                    promises.push(new Promise((resolve, reject) => {
+                    // TIFF確保にステータス更新
+                    this.logger.debug('canceling reservation...id:', reservationId);
+                    Models.Reservation.findOneAndUpdate(
+                    {
+                        _id: reservationId,
+                        staff: this.staffUser.get('_id'),
+                    },
+                    {
+                        status: ReservationUtil.STATUS_KEPT_BY_TIFF
+                    },
+                    {
+                        new: true
+                    },
+                    (err, reservationDocument) => {
+                        if (err || reservationDocument === null) {
+                        } else {
+                            updatedReservationIds.push(reservationDocument.get('id'));
+                        }
 
-                        // TIFF確保にステータス更新
-                        this.logger.debug('canceling reservation...id:', reservationId);
-                        // Models.Reservation.findOneAndUpdate(
-                        // {
-                        //     _id: reservationId,
-                        //     staff: this.staffUser.get('_id'),
-                        // },
-                        // {
-                        //     status: ReservationUtil.STATUS_KEPT_BY_TIFF
-                        // },
-                        // {
-                        //     new: true
-                        // },
-                        // (err, reservationDocument) => {
-                        //     if (err || reservationDocument === null) {
-                        //     } else {
-                        //         updatedReservationIds.push(reservationDocument.get('id'));
-                        //     }
-
-                        //     resolve();
-                        // });
-
-
-                        updatedReservationIds.push(reservationId);
                         resolve();
-                    }));
+                    });
+
+                }));
+            }
+
+
+            Promise.all(promises).then(() => {
+                // 変更できていない予約があった場合
+                if (reservationIds.length > updatedReservationIds.length) {
+
+                    this.res.json({
+                        isSuccess: false,
+                        reservationIds: updatedReservationIds
+                    });
+                } else {
+
+                    this.res.json({
+                        isSuccess: true,
+                        reservationIds: updatedReservationIds
+                    });
                 }
 
-
-                Promise.all(promises).then(() => {
-                    mongoose.disconnect(() => {
-                        // 変更できていない予約があった場合
-                        if (reservationIds.length > updatedReservationIds.length) {
-
-                            this.res.json({
-                                isSuccess: false,
-                                reservationIds: updatedReservationIds
-                            });
-                        } else {
-
-                            this.res.json({
-                                isSuccess: true,
-                                reservationIds: updatedReservationIds
-                            });
-                        }
-                    });
-
-                }, (err) => {
-                    mongoose.disconnect(() => {
-                        this.res.json({
-                            isSuccess: false,
-                            reservationId: []
-                        });
-                    });
+            }, (err) => {
+                this.res.json({
+                    isSuccess: false,
+                    reservationId: []
                 });
             });
 

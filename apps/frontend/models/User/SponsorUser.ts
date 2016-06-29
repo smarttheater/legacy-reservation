@@ -1,9 +1,10 @@
 import session = require('express-session');
+import BaseUser from './BaseUser';
 
 /**
  * 外部関係者ユーザークラス
  */
-export default class SponsorUser {
+export default class SponsorUser extends BaseUser {
     private static instance;
 
     public static getInstance(): SponsorUser {
@@ -20,7 +21,7 @@ export default class SponsorUser {
 
     public static AUTH_SESSION_NAME = 'TIFFFrontendSponsorAuth';
 
-    public initialize(session: Express.Session, cb: () => any): void {
+    public initialize(session: Express.Session): void {
         let sessionName = SponsorUser.AUTH_SESSION_NAME;
 
         // セッション値からオブジェクトにセット
@@ -29,18 +30,5 @@ export default class SponsorUser {
                 this[propertyName] = session[sessionName][propertyName];
             }
         }
-
-        cb();
-    }
-
-    /**
-     * サインイン中かどうか
-     */
-    public isAuthenticated(): boolean {
-        return (this.get('_id') !== null);
-    }
-
-    public get(key: string): any {
-        return (this[key]) ? this[key] : null;
     }
 }
