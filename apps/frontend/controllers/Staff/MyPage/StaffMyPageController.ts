@@ -7,46 +7,59 @@ import mongoose = require('mongoose');
 
 export default class StaffMyPageController extends BaseController {
     public index(): void {
-        Models.Reservation.find(
-            {
-                staff: this.staffUser.get('_id'),
-                status: ReservationUtil.STATUS_RESERVED
-            },
-            {},
-            {
-                sort : {staff: 1, seat_code: 1},
-                limit: 10
-            }
-        ).populate('staff screen').exec((err, reservationDocuments) => {
+        this.res.render('staff/mypage/index', {
+            layout: 'layouts/staff/layout',
+        });
+    }
 
-            if (err) {
+    /**
+     * マイページ予約検索API
+     */
+    public search(): void {
+        let limit = 2;
+        let page = (this.req.query.page) ? this.req.query.page : 1;
+        let film = (this.req.query.film) ? this.req.query.film : null;
 
-            } else {
-                // 予約番号ごとに整形
-                let reservationDocumentsByPaymentNo = {};
-                let screenSeatCodesByPaymentNo = {};
-                for (let reservationDocument of reservationDocuments) {
-                    let paymentNo = reservationDocument.get('payment_no');
-                    if (!reservationDocumentsByPaymentNo.hasOwnProperty(paymentNo)) {
-                        reservationDocumentsByPaymentNo[paymentNo] = {};
+        // 検索条件を作成
+        let conditions = {
+            staff: this.staffUser.get('_id'),
+            status: ReservationUtil.STATUS_RESERVED
+        };
 
-                        let seats = reservationDocument.get('screen').get('sections')[0].get('seats');
-                        screenSeatCodesByPaymentNo[paymentNo] = [];
-                        for (let seat of seats) {
-                            screenSeatCodesByPaymentNo[paymentNo].push(seat.get('code'));
-                        }
+        if (film) {
+            conditions['film'] = film;
+        }
+        Models.Reservation.count(
+            conditions,
+            (err, count) => {
+
+                Models.Reservation.find(
+                    conditions,
+                    {},
+                    {
+                        sort : {staff: 1, seat_code: 1}
                     }
+                )
+                .skip(limit * (page - 1))
+                .limit(limit)
+                .populate('staff screen')
+                .exec((err, reservationDocuments) => {
 
-                    reservationDocumentsByPaymentNo[paymentNo][reservationDocument.get('id')] = reservationDocument;
-                }
+                    if (err) {
 
-                this.res.render('staff/mypage/index', {
-                    layout: 'layouts/staff/layout',
-                    reservationDocumentsByPaymentNo: reservationDocumentsByPaymentNo,
-                    screenSeatCodesByPaymentNo: screenSeatCodesByPaymentNo,
+                    } else {
+                        conditions['page'] = page;
+
+                        this.res.json({
+                            isSuccess: true,
+                            conditions: conditions,
+                            results: reservationDocuments,
+                            count: count
+                        });
+                    }
                 });
             }
-        });
+        );
     }
 
     public updateWatcherName(): void {

@@ -139,6 +139,7 @@ export default class Router {
         app.all('/staff/logout', 'staff.logout', (req, res, next) => {(new StaffAuthController(req, res, next)).logout()});
 
         app.all('/staff/mypage', 'staff.mypage', authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).index()});
+        app.get('/staff/mypage/search', 'staff.mypage.search', authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).search()});
         app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).updateWatcherName()});
 
         app.all('/staff/reserve/performances', 'staff.reserve.performances', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).performances()});
