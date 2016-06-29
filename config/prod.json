@@ -1,10 +1,10 @@
 {
     "storage_account_name": "testtiffstorage",
-    "storage_account_key": "Iabf3E9ovMAKcY/ESH/dzJ4PnvC1C3aXkxTcQHytnHimZ0Hi56W8ii5QB2U3iNTZsY85ShzoqknXvvRHtqL7eg==",
+    "storage_account_key": "6vrZXLtQ9AZ5KEc+YmkmqJ8MHohOWEGMo8cqHcbWHhyu0L/wHc8MXacgsNq/LkdSmBucjOIRyiO/0gty19kONg==",
 
-    "redis_host": "testtiffredis.redis.cache.windows.net",
+    "redis_host": "testmwsrredis.redis.cache.windows.net",
     "redis_port": "6379",
-    "redis_key": "nHyi8LxZpFWJW2AV+12VnynaRhMpefVPWeUABT5G65U=",
+    "redis_key": "LhO/UMZc7qgDoe8+xm1ZMlU2F7ZLODukJJaQMxVMnqw=",
 
     "mongolab_uri": "mongodb://testmwsrmlabmongodbuser:54XnFwYkTbJWgac-4eB7uE-wksu9fkKjsPC7pGwE7k_G@ds038379.mlab.com:38379/testtiffmlabmongodb",
 
