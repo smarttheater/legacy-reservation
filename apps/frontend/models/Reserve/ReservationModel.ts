@@ -29,25 +29,16 @@ export default class ReservationModel {
         day: string,
         start_time: string,
         end_time: string,
-        /**
-         * 劇場
-         */
         theater: {
             _id: string,
             name: string,
             name_en: string,
         },
-        /**
-         * スクリーン
-         */
         screen: {
             _id: string,
             name: string,
             name_en: string,
         },
-        /**
-         * 作品
-         */
         film: {
             _id: string,
             name: string,
@@ -55,7 +46,25 @@ export default class ReservationModel {
         },
     };
 
+    /**
+     * 座席コードごとの券種選択肢リスト
+     */
+    public ticketChoicesBySeatCode: Object;
+
+    /**
+     * スクリーンの座席コードリスト
+     */
     public screenSeatCodes: Array<string>;
+
+    /**
+     * 予約IDリスト
+     */
+    public reservationIds: Array<string>;
+
+    /**
+     * 予約リスト
+     */
+    public reservations: Array<Reservation>;
 
     /**
      * 選択座席コードリスト
@@ -123,6 +132,9 @@ export default class ReservationModel {
      */
     public staff_signature: string;
 
+
+
+
     /**
      * プロセス中の購入情報をセッションに保存する
      * 
@@ -187,13 +199,19 @@ export default class ReservationModel {
         return `TIFFReservation_${token}`;
     }
 
-    public getTotalPrice() {
+    /**
+     * 合計金額を算出する
+     */
+    public getTotalPrice(): number {
         let total = 0;
 
-        if (Array.isArray(this.ticketChoices) && this.ticketChoices.length > 0) {
-            for (let choice of this.ticketChoices) {
-                total += choice.ticket.price;
-            }
+        if (Array.isArray(this.reservationIds) && this.reservationIds.length > 0) {
+            this.reservationIds.forEach((reservationId, index) => {
+                let reservation = this.getReservation(reservationId);
+                if (reservation.ticket_price) {
+                    total += parseInt(reservation.ticket_price);
+                }
+            });
         } else if (Array.isArray(this.seatChoicesBySponsor) && this.seatChoicesBySponsor.length > 0) {
             for (let choice of this.seatChoicesBySponsor) {
                 total += choice.ticket.price;
@@ -201,6 +219,14 @@ export default class ReservationModel {
         }
 
         return total;
+    }
+
+    public getReservation(id: string): Reservation {
+        return (this[`reservation_${id}`]) ? this[`reservation_${id}`] : null;
+    }
+
+    public setReservation(id: string, reservation: Reservation): void {
+        this[`reservation_${id}`] = reservation;
     }
 
     /**
@@ -274,4 +300,48 @@ export default class ReservationModel {
 
         return log;
     }
+}
+
+interface Reservation {
+    _id: string;
+    token: string;
+    status: string;
+    seat_code: string,
+
+    ticket_type?: string;
+    ticket_name?: string;
+    ticket_name_en?: string;
+    ticket_price?: string;
+    watcher_name?: string,
+
+    payment_no?: string,
+
+    performance: string,
+    performance_day?: string,
+    performance_start_time?: string,
+    performance_end_time?: string,
+    theater?: string,
+    theater_name?: string,
+    screen?: string,
+    screen_name?: string,
+    film?: string,
+    film_name?: string,
+    purchaser_last_name?: string,
+    purchaser_first_name?: string,
+    purchaser_email?: string,
+    purchaser_tel?: string,
+
+    sponsor?: string,
+    sponsor_user_id?: string,
+    sponsor_name?: string,
+    sponsor_email?: string,
+    staff?: string,
+    staff_user_id?: string,
+    staff_name?: string,
+    staff_email?: string,
+    staff_department_name?: string,
+    staff_tel?: string,
+    staff_signature?: string,
+    member?: string,
+    member_user_id?: string,
 }

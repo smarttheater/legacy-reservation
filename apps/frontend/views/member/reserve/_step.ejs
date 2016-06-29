@@ -10,23 +10,20 @@ if (req.hasOwnProperty('route')) {
     <div class="table-responsive">
         <table class="table table-bordered">
         <tr>
-            <td class="col-xs-2 col-md-2<% if (routeName === 'customer.reserve.performances') { %> bg-primary<% } else { %> bg-info text-muted<% } %>">
+            <td class="col-xs-2 col-md-2<% if (routeName === 'member.reserve.tickets') { %> bg-primary<% } else { %> bg-info text-muted<% } %>">
                 STEP1
             </td>
-            <td class="col-xs-2 col-md-2<% if (routeName === 'customer.reserve.seats' || routeName === 'customer.reserve.tickets') { %> bg-primary<% } else { %> bg-info text-muted<% } %>">
+            <td class="col-xs-2 col-md-2<% if (routeName === 'member.reserve.profile') { %> bg-primary<% } else { %> bg-info text-muted<% } %>">
                 STEP2
             </td>
-            <td class="col-xs-2 col-md-2<% if (routeName === 'customer.reserve.profile') { %> bg-primary<% } else { %> bg-info text-muted<% } %>">
+            <td class="col-xs-2 col-md-2<% if (routeName === 'member.reserve.pay') { %> bg-primary<% } else { %> bg-info text-muted<% } %>">
                 STEP3
             </td>
-            <td class="col-xs-2 col-md-2<% if (routeName === 'customer.reserve.pay') { %> bg-primary<% } else { %> bg-info text-muted<% } %>">
+            <td class="col-xs-2 col-md-2<% if (routeName === 'member.reserve.confirm') { %> bg-primary<% } else { %> bg-info text-muted<% } %>">
                 STEP4
             </td>
-            <td class="col-xs-2 col-md-2<% if (routeName === 'customer.reserve.confirm') { %> bg-primary<% } else { %> bg-info text-muted<% } %>">
+            <td class="col-xs-2 col-md-2<% if (routeName === 'member.reserve.complete') { %> bg-primary<% } else { %> bg-info text-muted<% } %>">
                 STEP5
-            </td>
-            <td class="col-xs-2 col-md-2<% if (routeName === 'customer.reserve.complete') { %> bg-primary<% } else { %> bg-info text-muted<% } %>">
-                STEP6
             </td>
         </tr>
         </table>

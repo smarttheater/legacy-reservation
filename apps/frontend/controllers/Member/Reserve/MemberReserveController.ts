@@ -86,48 +86,89 @@ export default class MemberReserveController extends BaseController {
                 this.next(err);
             } else {
 
-                // 予約トークンを発行
-                let token = Util.createToken();
-                let reservationModel = new ReservationModel();
-                reservationModel.token = token;
+                // 予約状況を確認
+                this.logger.debug('checking reservation status... member:', this.memberUser.get('_id'));
+                Models.Reservation.find(
+                    {
+                        member: this.memberUser.get('_id'),
+                        status: ReservationUtil.STATUS_KEPT_BY_MEMBER
+                    },
+                    {},
+                    {},
+                    (err, reservationDocuments) => {
+                        if (err || reservationDocuments.length < 1) {
+                            this.next(new Error('すでに予約済みです'));
+                        } else {
 
-                // パフォーマンス情報を保存して座席選択へ
-                reservationModel.performance = {
-                    _id: performanceDocument.get('_id'),
-                    day: performanceDocument.get('day'),
-                    start_time: performanceDocument.get('start_time'),
-                    end_time: performanceDocument.get('end_time'),
-                    theater: {
-                        _id: performanceDocument.get('theater').get('_id'),
-                        name: performanceDocument.get('theater').get('name'),
-                        name_en: performanceDocument.get('theater').get('name_en'),
-                    },
-                    screen: {
-                        _id: performanceDocument.get('screen').get('_id'),
-                        name: performanceDocument.get('screen').get('name'),
-                        name_en: performanceDocument.get('screen').get('name_en'),
-                    },
-                    film: {
-                        _id: performanceDocument.get('film').get('_id'),
-                        name: performanceDocument.get('film').get('name'),
-                        name_en: performanceDocument.get('film').get('name_en'),
+                            // 予約トークンを発行
+                            let token = Util.createToken();
+                            let reservationModel = new ReservationModel();
+                            reservationModel.token = token;
+
+
+                            reservationModel.seatCodes = [this.memberUser.get('seat_code')];
+                            reservationModel.ticketChoices = [];
+
+
+                            reservationModel.reservationIds = [];
+                            for (let reservationDocument of reservationDocuments) {
+                                reservationModel.reservationIds.push(reservationDocument.get('_id'));
+                                reservationModel.setReservation(reservationDocument.get('_id'), {
+                                    _id: reservationDocument.get('_id'),
+                                    status: reservationDocument.get('status'),
+                                    seat_code: reservationDocument.get('seat_code'),
+                                    token: token,
+                                    performance: performanceDocument.get('_id'),
+                                });
+                            }
+
+
+                            // 座席コードごとの券種選択肢リスト
+                            let ticketChoicesBySeatCode = {};
+                            for (let seatDocument of performanceDocument.get('seats')) {
+                                ticketChoicesBySeatCode[seatDocument.get('code')] = seatDocument.get('tickets');
+                            }
+                            reservationModel.ticketChoicesBySeatCode = ticketChoicesBySeatCode;
+
+
+                            // パフォーマンス情報を保存して座席選択へ
+                            reservationModel.performance = {
+                                _id: performanceDocument.get('_id'),
+                                day: performanceDocument.get('day'),
+                                start_time: performanceDocument.get('start_time'),
+                                end_time: performanceDocument.get('end_time'),
+                                theater: {
+                                    _id: performanceDocument.get('theater').get('_id'),
+                                    name: performanceDocument.get('theater').get('name'),
+                                    name_en: performanceDocument.get('theater').get('name_en'),
+                                },
+                                screen: {
+                                    _id: performanceDocument.get('screen').get('_id'),
+                                    name: performanceDocument.get('screen').get('name'),
+                                    name_en: performanceDocument.get('screen').get('name_en'),
+                                },
+                                film: {
+                                    _id: performanceDocument.get('film').get('_id'),
+                                    name: performanceDocument.get('film').get('name'),
+                                    name_en: performanceDocument.get('film').get('name_en'),
+                                }
+                            };
+
+                            // スクリーンの全座席コード
+                            reservationModel.screenSeatCodes = [];
+                            for (let seatDocument of performanceDocument.get('screen').get('sections')[0].get('seats')) {
+                                reservationModel.screenSeatCodes.push(seatDocument.get('code'));
+                            }
+
+                            // パフォーマンスと座席指定した状態で券種選択へ
+                            this.logger.debug('saving reservationModel... ', reservationModel);
+                            reservationModel.save((err) => {
+                                this.res.redirect(this.router.build('member.reserve.tickets', {token: token}));
+                            });
+                        }
+
                     }
-                };
-
-                // スクリーンの全座席コード
-                reservationModel.screenSeatCodes = [];
-                for (let seatDocument of performanceDocument.get('screen').get('sections')[0].get('seats')) {
-                    reservationModel.screenSeatCodes.push(seatDocument.get('code'));
-                }
-
-                reservationModel.seatCodes = [this.memberUser.get('seat_code')];
-                reservationModel.ticketChoices = [];
-
-                // パフォーマンスと座席指定した状態で券種選択へ
-                this.logger.debug('saving reservationModel... ', reservationModel);
-                reservationModel.save((err) => {
-                    this.res.redirect(this.router.build('member.reserve.tickets', {token: token}));
-                });
+                );
 
             }
 
@@ -158,26 +199,24 @@ export default class MemberReserveController extends BaseController {
                         let choices = JSON.parse(form.data.choices);
 
                         if (Array.isArray(choices)) {
-                            choices.forEach((choice) => {
-                                reservationModel.ticketChoices.push({
-                                    seat_code: choice.seat_code,
-                                    ticket: {
-                                        type: choice.ticket.type,
-                                        name: choice.ticket.name,
-                                        name_en: choice.ticket.name_en,
-                                        price: parseInt(choice.ticket.price),
-                                    }
-                                });
+                            choices.forEach((choice, index) => {
+                                let reservation = reservationModel.getReservation(choice.reservation_id);
+                                reservation.ticket_type = choice.ticket_type;
+                                reservation.ticket_name = choice.ticket_name;
+                                reservation.ticket_name_en = choice.ticket_name_en;
+                                reservation.ticket_price = choice.ticket_price;
+
+                                reservationModel.setReservation(reservation._id, reservation);
                             });
+
+                            this.logger.debug('saving reservationModel... ', reservationModel);
+                            reservationModel.save((err) => {
+                                this.res.redirect(this.router.build('member.reserve.profile', {token: token}));
+                            });
+
                         } else {
-                            return this.next(new Error('不適切なアクセスです'));
+                            this.next(new Error('不適切なアクセスです'));
                         }
-
-                        this.logger.debug('saving reservationModel... ', reservationModel);
-                        reservationModel.save((err) => {
-                            this.res.redirect(this.router.build('member.reserve.profile', {token: token}));
-                        });
-
 
                     },
                     error: (form) => {
@@ -188,40 +227,9 @@ export default class MemberReserveController extends BaseController {
                     }
                 });
             } else {
-                // パフォーマンスを取得
-                Models.Performance.findOne({_id: reservationModel.performance._id}, {})
-                    .populate('film screen theater')
-                    .exec((err, performanceDocument) => {
-
-                    if (err) {
-                        return this.next(new Error('スケジュールを取得できませんでした'));
-                    }
-
-                    // 仮押さえ中の座席情報を取得
-                    let seatDocuments = [];
-                    for (let seatDocument of performanceDocument.get('seats')) {
-                        if (reservationModel.seatCodes.indexOf(seatDocument.get('code')) >= 0) {
-                            seatDocuments.push(seatDocument);
-                        }
-
-                        if (seatDocuments.length === reservationModel.seatCodes.length) {
-                            break;
-                        }
-                    }
-
-                    // 座席コードごとの券種選択リスト
-                    let ticketChoices = (reservationModel.ticketChoices) ? reservationModel.ticketChoices : [];
-                    let ticketChoicesBySeatCode = {};
-                    for (let ticketChoice of ticketChoices) {
-                        ticketChoicesBySeatCode[ticketChoice.seat_code] = ticketChoice;
-                    }
-
-                    this.res.render('member/reserve/tickets', {
-                        form: memberReserveTicketForm.form,
-                        reservationModel: reservationModel,
-                        seatDocuments: seatDocuments,
-                        ticketChoicesBySeatCode: ticketChoicesBySeatCode,
-                    });
+                this.res.render('member/reserve/tickets', {
+                    form: memberReserveTicketForm.form,
+                    reservationModel: reservationModel,
                 });
             }
         });
