@@ -7,7 +7,6 @@ import StaffReserveTicketForm from '../../../forms/Staff/Reserve/StaffReserveTic
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
-import mongoose = require('mongoose');
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
 

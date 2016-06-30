@@ -1,7 +1,7 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import SponsorUser from '../../../models/User/SponsorUser';
 import Util from '../../../../common/Util/Util';
-import SponsorReserveLoginForm from '../../../forms/Sponsor/Reserve/SponsorReserveLoginForm';
+import SponsorReserveTermsForm from '../../../forms/Sponsor/Reserve/SponsorReserveTermsForm';
 import SponsorReservePerformanceForm from '../../../forms/Sponsor/Reserve/SponsorReservePerformanceForm';
 import SponsorReserveSeatForm from '../../../forms/Sponsor/Reserve/SponsorReserveSeatForm';
 import SponsorReserveTicketForm from '../../../forms/Sponsor/Reserve/SponsorReserveTicketForm';
@@ -9,7 +9,6 @@ import SponsorReserveProfileForm from '../../../forms/Sponsor/Reserve/SponsorRes
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
-import mongoose = require('mongoose');
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
 
@@ -22,41 +21,24 @@ export default class SponsorReserveController extends ReserveBaseController {
             return this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
         }
 
-        let sponsorReserveLoginForm = new SponsorReserveLoginForm();
+        let sponsorReserveTermsForm = new SponsorReserveTermsForm();
         if (this.req.method === 'POST') {
 
-            sponsorReserveLoginForm.form.handle(this.req, {
+            sponsorReserveTermsForm.form.handle(this.req, {
                 success: (form) => {
-                    sponsorReserveLoginForm.form = form;
+                    sponsorReserveTermsForm.form = form;
 
-                    // ユーザー認証
-                    this.logger.debug('finding sponsor... user_id:', form.data.user_id);
-                    Models.Sponsor.findOne(
-                    {
-                        user_id: form.data.user_id,
-                        password: form.data.password,
-                    },
-                    (err, sponsorDocument) => {
-
-                        if (err || sponsorDocument === null) {
-                            this.res.render('sponsor/reserve/terms', {
-                                form: form,
-                            });
-                        } else {
-                            // ログイン
-                            this.req.session[SponsorUser.AUTH_SESSION_NAME] = sponsorDocument;
-
-                            this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
-                        }
-                    });
+                    this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
                 },
                 error: (form) => {
                     this.res.render('sponsor/reserve/terms', {
+                        layout: 'layouts/sponsor/layout',
                         sponsorReserveLoginForm: form,
                     });
                 },
                 empty: (form) => {
                     this.res.render('sponsor/reserve/terms', {
+                        layout: 'layouts/sponsor/layout',
                         sponsorReserveLoginForm: form,
                     });
                 }
@@ -65,7 +47,8 @@ export default class SponsorReserveController extends ReserveBaseController {
 
         } else {
             this.res.render('sponsor/reserve/terms', {
-                form: sponsorReserveLoginForm.form,
+                layout: 'layouts/sponsor/layout',
+                form: sponsorReserveTermsForm.form,
             });
         }
     }
@@ -139,6 +122,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                     }
 
                     this.res.render('sponsor/reserve/performances', {
+                        layout: 'layouts/sponsor/layout',
                         form: sponsorReservePerformanceForm.form,
                         performances: performanceDocuments,
                         performanceDocumentsByFilm: performanceDocumentsByFilm,
@@ -235,6 +219,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                             this.next(new Error('スケジュールを取得できませんでした'));
                         } else {
                             this.res.render('sponsor/reserve/seats', {
+                                layout: 'layouts/sponsor/layout',
                                 form: sponsorReserveSeatForm.form,
                                 reservationDocumentsBySeatCode: reservationDocumentsBySeatCode,
                                 reservationModel: reservationModel,
@@ -300,6 +285,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                 });
             } else {
                 this.res.render('sponsor/reserve/tickets', {
+                    layout: 'layouts/sponsor/layout',
                     form: sponsorReserveTicketForm.form,
                     reservationModel: reservationModel,
                 });
@@ -341,12 +327,14 @@ export default class SponsorReserveController extends ReserveBaseController {
                     },
                     error: (form) => {
                         this.res.render('sponsor/reserve/profile', {
+                            layout: 'layouts/sponsor/layout',
                             form: form,
                             reservationModel: reservationModel,
                         });
                     },
                     empty: (form) => {
                         this.res.render('sponsor/reserve/profile', {
+                            layout: 'layouts/sponsor/layout',
                             form: form,
                             reservationModel: reservationModel,
                         });
@@ -365,6 +353,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                 }
 
                 this.res.render('sponsor/reserve/profile', {
+                    layout: 'layouts/sponsor/layout',
                     form: sponsorReserveProfileForm.form,
                     reservationModel: reservationModel,
                 });
@@ -388,6 +377,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                 this.res.redirect(this.router.build('sponsor.reserve.process', {token: token}));
             } else {
                 this.res.render('sponsor/reserve/confirm', {
+                    layout: 'layouts/sponsor/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -447,6 +437,7 @@ export default class SponsorReserveController extends ReserveBaseController {
             }
 
             this.res.render('sponsor/reserve/complete', {
+                layout: 'layouts/sponsor/layout',
                 reservationResultModel: reservationResultModel,
             });
         });

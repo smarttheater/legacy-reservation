@@ -3,7 +3,6 @@ import Util from '../../../../common/Util/Util';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import SponsorReserveCancelForm from '../../../forms/Sponsor/Reserve/SponsorReserveCancelForm';
-import mongoose = require('mongoose');
 import ReservationCancelModel from '../../../models/Reserve/ReservationCancelModel';
 
 export default class SponsorCancelController extends BaseController {

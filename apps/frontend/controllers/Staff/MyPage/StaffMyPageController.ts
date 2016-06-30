@@ -3,7 +3,6 @@ import StaffUser from '../../../models/User/StaffUser';
 import Util from '../../../../common/Util/Util';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import Models from '../../../../common/models/Models';
-import mongoose = require('mongoose');
 
 export default class StaffMyPageController extends BaseController {
     public index(): void {

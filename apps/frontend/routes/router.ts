@@ -3,14 +3,20 @@ import express = require('express');
 
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
 import MemberReserveController from '../controllers/Member/Reserve/MemberReserveController';
+
 import StaffAuthController from '../controllers/Staff/Auth/StaffAuthController';
 import StaffCancelController from '../controllers/Staff/Cancel/StaffCancelController';
 import StaffMyPageController from '../controllers/Staff/MyPage/StaffMyPageController';
 import StaffReserveController from '../controllers/Staff/Reserve/StaffReserveController';
+
+import SponsorAuthController from '../controllers/Sponsor/Auth/SponsorAuthController';
+import SponsorMyPageController from '../controllers/Sponsor/MyPage/SponsorMyPageController';
 import SponsorReserveController from '../controllers/Sponsor/Reserve/SponsorReserveController';
 import SponsorCancelController from '../controllers/Sponsor/Cancel/SponsorCancelController';
+
 import ErrorController from '../controllers/Error/ErrorController';
 import IndexController from '../controllers/Index/IndexController';
+
 import TaskController from '../controllers/Task/TaskController';
 
 import MemberUser from '../models/User/MemberUser';
@@ -115,7 +121,7 @@ export default class Router {
                         message: 'login required.'
                     });
                 } else {
-                    res.redirect('/sponsor/reserve/terms');
+                    res.redirect('/sponsor/login');
                 }
             } else {
                 next();
@@ -151,6 +157,11 @@ export default class Router {
         app.post('/staff/cancel/execute', 'staff.cancel.execute', authenticationStaff, (req, res, next) => {(new StaffCancelController(req, res, next)).execute()});
 
         // 外部関係者
+        app.all('/sponsor/login', 'sponsor.login', (req, res, next) => {(new SponsorAuthController(req, res, next)).login()});
+        app.all('/sponsor/logout', 'sponsor.logout', (req, res, next) => {(new SponsorAuthController(req, res, next)).logout()});
+
+        app.all('/sponsor/mypage', 'sponsor.mypage', authenticationSponsor, (req, res, next) => {(new SponsorMyPageController(req, res, next)).index()});
+
         app.all('/sponsor/reserve/terms', 'sponsor.reserve.terms', (req, res, next) => {(new SponsorReserveController(req, res, next)).terms()});
         app.all('/sponsor/reserve/performances', 'sponsor.reserve.performances', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).performances()});
         app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).seats()});

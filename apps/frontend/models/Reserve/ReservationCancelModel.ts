@@ -2,8 +2,6 @@ import ReservationResultModel from './ReservationResultModel';
 import Util from '../../../common/Util/Util';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 
-import mongoose = require('mongoose');
-
 /**
  * 予約キャンセルモデル
  */

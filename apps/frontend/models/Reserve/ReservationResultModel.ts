@@ -1,7 +1,5 @@
 import Util from '../../../common/Util/Util';
 
-import mongoose = require('mongoose');
-
 /**
  * 予約結果情報モデル
  */

@@ -3,7 +3,6 @@ import StaffUser from '../../../models/User/StaffUser';
 import StaffLoginForm from '../../../forms/Staff/StaffLoginForm';
 import Util from '../../../../common/Util/Util';
 import Models from '../../../../common/models/Models';
-import mongoose = require('mongoose');
 
 export default class StaffAuthController extends BaseController {
     public login(): void {
