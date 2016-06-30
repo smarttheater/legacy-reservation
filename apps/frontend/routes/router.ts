@@ -1,6 +1,7 @@
 import NamedRoutes = require('named-routes');
 import express = require('express');
 
+import PerformanceController from '../controllers/Performance/PerformanceController';
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
 import MemberReserveController from '../controllers/Member/Reserve/MemberReserveController';
 
@@ -56,6 +57,9 @@ export default class Router {
         this.router.registerAppHelpers(app);
 
         app.get('/', 'Home', (req, res, next) => {(new IndexController(req, res, next)).index()});
+
+        // パフォーマンス検索
+        app.get('/performance/search', 'performance.search', (req, res, next) => {(new PerformanceController(req, res, next)).search()});
 
         // 一般
         app.all('/customer/reserve/terms', 'customer.reserve.terms', (req, res, next) => {(new CustomerReserveController(req, res, next)).terms()});

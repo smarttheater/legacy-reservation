@@ -29,6 +29,7 @@ export default class Util {
 
     /**
      * 購入管理番号生成
+     * TODO 生成方法考える
      *
      * @return {string}
      */
@@ -38,6 +39,9 @@ export default class Util {
         return no;
     }
 
+    /**
+     * RedisCacheクライアントを取得する
+     */
     public static getRedisClient(): redis.RedisClient {
         let client = redis.createClient(
             conf.get<number>('redis_port'),

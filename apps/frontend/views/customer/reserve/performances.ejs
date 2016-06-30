@@ -3,42 +3,190 @@
 <%- include('./_step') %>
 
 <div class="row">
-    <% for (let filmId in performanceDocumentsByFilm) { %>
-        <% let performanceDocuments = performanceDocumentsByFilm[filmId] %>
-
-        <h3><%- performanceDocuments[0].get('film').get('name') %></h3>
-
-        <div class="row">
-        <% performanceDocuments.forEach(function(performance, index) { %>
-        <% if (index % 12 === 0) { %>
-        <div class="row">
+    <form class="form-inline">
+        <div class="form-group">
+            <label for=""></label>
+            <select class="form-control" name="category">
+                <option value="">すべての部門・特集</option>
+            </select>
         </div>
-        <% } %>
 
-            <div class="col-sm-4">
-                <a href="javascript:void(0);" onclick="selectPerformance('<%- performance._id %>');">
-                <%- performance.day %><br>
-                <%- performance.theater.name %> <%- performance.screen.name %><br>
-                <%- performance.start_time %>-<%- performance.end_time %><br>
-                ???
-                </a>
-            </div>
-        <% }) %>
+        <div class="form-group">
+            <label for=""></label>
+            <select class="form-control" name="genre">
+                <option value="">すべてのジャンル</option>
+                <option value="01">ヒューマンドラマ</option>
+                <option value="02">コメディ</option>
+            </select>
         </div>
-    <% } %>
+
+        <div class="form-group">
+            <label for=""></label>
+            <select class="form-control" name="day">
+                <option value="">すべての上映日</option>
+                <option value="20160801">08/01</option>
+                <option value="20160802">08/02</option>
+                <option value="20160803">08/03</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for=""></label>
+            <input type="text" class="form-control" name="words">
+        </div>
+
+        <a class="btn btn-primary search" href="javascript:void(0)">検索</a>
+    </form>
 </div>
 
-
-<script>
-function selectPerformance(performaceId) {
-    $('input[name="performance_id"]').val(performaceId);
-    $('form').submit();
-    return false;
-}
-</script>
+<div class="row performances">
+</div>
 
 <form method="post">
 <%- form.toHTML() %>
 </form>
 
 <a class="btn btn-default btn-lg btn-block" href="<%- url('customer.reserve.terms', {token: req.params.token}) %>">戻る</a>
+
+
+
+<div class="modal fade loading" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="text-center">searching...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+var performances = [];
+var conditions = {
+    page: '1'
+};
+
+
+function showPerformances() {
+    // 作品ごとに整形
+    var performancesByFilm = {};
+    performances.forEach(function(performanceDocument){
+        var filmId = performanceDocument.film._id;
+        if (!performancesByFilm.hasOwnProperty(filmId)) {
+            performancesByFilm[filmId] = [];
+        }
+
+        performancesByFilm[filmId].push(performanceDocument);
+    });
+
+
+
+
+    var html = '';
+
+    for (var filmId in performancesByFilm) {
+        var performancesOnFilm = performancesByFilm[filmId];
+
+        html += `
+        <h3>${performancesOnFilm[0].film.name}</h3>
+        <div class="row">
+`;
+
+        performancesOnFilm.forEach(function(performance, index) {
+            if (index % 12 === 0) {
+                html += `
+            <div class="row">
+            </div>
+`;
+            }
+
+            html += `
+            <div class="col-sm-4">
+                <a href="javascript:void(0);" onclick="selectPerformance('${performance._id}');">
+                ${performance.day}<br>
+                ${performance.theater.name} ${performance.screen.name}<br>
+                ${performance.start_time}-${performance.end_time}<br>
+                ???
+                </a>
+            </div>
+`;
+
+        });
+
+            html += `
+        </div>
+`;
+    }
+
+
+    $('.performances').html(html);
+}
+
+
+
+
+function showConditions() {
+    var formDatas = $('form').serializeArray();
+    formDatas.forEach(function(formData, index){
+        var name = formData.name;
+        if (conditions.hasOwnProperty(name)) {
+            $(`input[name="${name}"], select[name="${name}"]`, $('form')).val(conditions[name]);
+        } else {
+            $(`input[name="${name}"], select[name="${name}"]`, $('form')).val('');
+        }
+    });
+}
+
+function search() {
+    $.ajax({
+        dataType: 'json',
+        url: '<%- url('performance.search', {}) %>',
+        type: 'GET',
+        data: conditions,
+        beforeSend: function() {
+            $('.loading').modal();
+        },
+        complete: function() {
+            $('.loading').modal('hide');
+        },
+        success: function(data) {
+            if (data.isSuccess) {
+                performances = data.results;
+
+                showPerformances();
+                showConditions();
+
+            } else {
+            }
+        },
+        error: function(jqxhr, textStatus, error) {
+        }
+    });
+}
+
+function selectPerformance(performaceId) {
+    $('input[name="performance_id"]').val(performaceId);
+    $('form').submit();
+    return false;
+}
+
+$(function(){
+    // パフォーマンスリスト表示
+    search();
+
+    // 検索
+    $(document).on('click', '.search', function(){
+        conditions.page = '1';
+
+        // 検索フォームの値を全て条件に追加
+        var formDatas = $('form').serializeArray();
+        formDatas.forEach(function(formData, index){
+            conditions[formData.name] = formData.value;
+        });
+
+        search();
+    });
+})
+</script>
+
