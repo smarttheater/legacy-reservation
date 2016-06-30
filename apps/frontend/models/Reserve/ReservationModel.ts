@@ -67,34 +67,6 @@ export default class ReservationModel {
     public reservationIds: Array<string>;
 
     /**
-     * 座席指定リスト(内部関係者)
-     */
-    public seatChoicesByStaff: Array<{
-        seat_code: string,
-        watcher_name: string,
-        ticket: {
-            type: string,
-            name: string,
-            name_en: string,
-            price: number
-        }
-    }>;
-
-    /**
-     * 座席指定リスト(外部関係者)
-     */
-    public seatChoicesBySponsor: Array<{
-        seat_code: string,
-        watcher_name: string,
-        ticket: {
-            type: string,
-            name: string,
-            name_en: string,
-            price: number
-        }
-    }>;
-
-    /**
      * プロフィール
      */
     public profile: {
@@ -114,8 +86,38 @@ export default class ReservationModel {
      */
     public staff_signature: string;
 
+    /**
+     * メルマガ当選者
+     */
+    public member: {
+        _id: string;
+        user_id: string;
+    };
 
+    /**
+     * 内部関係者
+     */
+    public staff: {
+        _id: string;
+        user_id: string;
+        name: string;
+        email: string;
+        department_name: string;
+        tel: string;
+        signature: string;
+    };
 
+    /**
+     * 外部関係者
+     */
+    public sponsor: {
+        _id: string;
+        user_id: string;
+        name: string;
+        email: string;
+    };
+
+    public reservedDocuments: Array<Object>;
 
     /**
      * プロセス中の購入情報をセッションに保存する
@@ -233,39 +235,55 @@ export default class ReservationModel {
     public toReservationDocuments(): Array<Object> {
         let documents: Array<Object> = [];
 
-        // for (let choice of this.ticketChoices) {
-        //     let document = {
-        //         token: this.token,
-        //         payment_no: this.paymentNo,
-        //         status: ReservationUtil.STATUS_RESERVED,
+        this.reservationIds.forEach((reservationId, index) => {
+            let reservation = this.getReservation(reservationId);
 
-        //         performance: this.performance._id,
-        //         performance_day: this.performance.day,
-        //         performance_start_time: this.performance.start_time,
-        //         performance_end_time: this.performance.end_time,
+            documents.push(
+                {
+                    payment_no: this.paymentNo,
+                    status: ReservationUtil.STATUS_RESERVED,
+                    performance: this.performance._id,
+                    performance_day: this.performance.day,
+                    performance_start_time: this.performance.start_time,
+                    performance_end_time: this.performance.end_time,
+                    theater: this.performance.theater._id,
+                    theater_name: this.performance.theater.name,
+                    screen: this.performance.screen._id,
+                    screen_name: this.performance.screen.name,
+                    film: this.performance.film._id,
+                    film_name: this.performance.film.name,
+                    purchaser_last_name: this.profile.last_name,
+                    purchaser_first_name: this.profile.first_name,
+                    purchaser_email: this.profile.email,
+                    purchaser_tel: this.profile.tel,
+                    ticket_type: reservation.ticket_type,
+                    ticket_name: reservation.ticket_name,
+                    ticket_name_en: reservation.ticket_name_en,
+                    ticket_price: reservation.ticket_price,
 
-        //         theater: this.performance.theater._id,
-        //         theater_name: this.performance.theater.name,
-        //         screen: this.performance.screen._id,
-        //         screen_name: this.performance.screen.name,
-        //         film: this.performance.film._id,
-        //         film_name: this.performance.film.name,
+                    watcher_name: reservation.watcher_name,
 
-        //         purchaser_last_name: this.profile.last_name,
-        //         purchaser_first_name: this.profile.first_name,
-        //         purchaser_email: this.profile.email,
-        //         purchaser_tel: this.profile.tel,
+                    member: (this.member) ? this.member._id : null,
+                    member_user_id: (this.member) ? this.member.user_id : null,
 
-        //         seat_code: choice.seat_code,
-        //         ticket_type: choice.ticket.type,
-        //         ticket_name: choice.ticket.name,
+                    sponsor: (this.sponsor) ? this.sponsor._id : null,
+                    sponsor_user_id: (this.sponsor) ? this.sponsor.user_id : null,
+                    sponsor_name: (this.sponsor) ? this.sponsor.name : null,
+                    sponsor_email: (this.sponsor) ? this.sponsor.email : null,
 
-        //         created_user: this.constructor.toString(),
-        //         updated_user: this.constructor.toString(),
-        //     };
+                    staff: (this.staff) ? this.staff._id : null,
+                    staff_user_id: (this.staff) ? this.staff.user_id : null,
+                    staff_name: (this.staff) ? this.staff.name : null,
+                    staff_email: (this.staff) ? this.staff.email : null,
+                    staff_department_name: (this.staff) ? this.staff.department_name : null,
+                    staff_tel: (this.staff) ? this.staff.tel : null,
+                    staff_signature: (this.staff) ? this.staff.signature : null,
 
-        //     documents.push(document);
-        // }
+                    created_user: this.constructor.toString(),
+                    updated_user: this.constructor.toString(),
+                }
+            );
+        });
 
         return documents;
     }
@@ -284,6 +302,10 @@ export default class ReservationModel {
         reservationResultModel.reservations = [];
         reservationResultModel.profile = this.profile;
         reservationResultModel.paymentMethod = this.paymentMethod;
+        reservationResultModel.member = this.member;
+        reservationResultModel.staff = this.staff;
+        reservationResultModel.sponsor = this.sponsor;
+        reservationResultModel.reservedDocuments = this.reservedDocuments;
 
         this.reservationIds.forEach((reservationId, index) => {
             reservationResultModel.reservations.push(this.getReservation(reservationId));

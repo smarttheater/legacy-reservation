@@ -77,6 +77,44 @@ export default class ReservationResultModel {
     public paymentMethod: string;
 
     /**
+     * 内部関係者署名
+     */
+    public staff_signature: string;
+
+    /**
+     * メルマガ当選者
+     */
+    public member: {
+        _id: string;
+        user_id: string;
+    };
+
+    /**
+     * 内部関係者
+     */
+    public staff: {
+        _id: string;
+        user_id: string;
+        name: string;
+        email: string;
+        department_name: string;
+        tel: string;
+        signature: string;
+    };
+
+    /**
+     * 外部関係者
+     */
+    public sponsor: {
+        _id: string;
+        user_id: string;
+        name: string;
+        email: string;
+    };
+
+    public reservedDocuments: Array<Object>;
+
+    /**
      * プロセス中の購入情報をセッションに保存する
      * 
      * 有効期間: 3600秒

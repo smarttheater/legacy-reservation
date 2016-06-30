@@ -1,4 +1,4 @@
-import BaseController from '../../BaseController';
+import ReserveBaseController from '../../ReserveBaseController';
 import Util from '../../../../common/Util/Util';
 import CustomerReserveTermsForm from '../../../forms/Customer/Reserve/CustomerReserveTermsForm';
 import CustomerReservePerformanceForm from '../../../forms/Customer/Reserve/CustomerReservePerformanceForm';
@@ -15,7 +15,7 @@ import mongoose = require('mongoose');
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
 
-export default class CustomerReserveController extends BaseController {
+export default class CustomerReserveController extends ReserveBaseController {
     /**
      * 規約
      */
@@ -36,12 +36,12 @@ export default class CustomerReserveController extends BaseController {
                     });
                 },
                 error: (form) => {
-                    return this.res.render('customer/reserve/terms', {
+                    this.res.render('customer/reserve/terms', {
                         form: form,
                     });
                 },
                 empty: (form) => {
-                    return this.res.render('customer/reserve/terms', {
+                    this.res.render('customer/reserve/terms', {
                         form: form,
                     });
                 }
@@ -72,67 +72,18 @@ export default class CustomerReserveController extends BaseController {
                     success: (form) => {
                         customerReservePerformanceForm.form = form;
 
-                        // パフォーマンス取得
-                        this.logger.debug('searching performance... id:', form.data.performance_id);
-                        Models.Performance.findOne(
-                            {
-                                _id: form.data.performance_id
-                            },
-                            {}
-                        ).populate('film screen theater').exec((err, performanceDocument) => {
-
+                        // パフォーマンスFIX
+                        this.processFixPerformance(reservationModel, form.data.performance_id, (err, reservationModel) => {
                             if (err) {
                                 this.next(err);
                             } else {
-
-                                reservationModel.reservationIds = [];
-
-                                // 座席コードごとの券種選択肢リスト
-                                let ticketChoicesBySeatCode = {};
-                                for (let seatDocument of performanceDocument.get('seats')) {
-                                    ticketChoicesBySeatCode[seatDocument.get('code')] = seatDocument.get('tickets');
-                                }
-                                reservationModel.ticketChoicesBySeatCode = ticketChoicesBySeatCode;
-
-
-                                // パフォーマンス情報を保存して座席選択へ
-                                reservationModel.performance = {
-                                    _id: performanceDocument.get('_id'),
-                                    day: performanceDocument.get('day'),
-                                    start_time: performanceDocument.get('start_time'),
-                                    end_time: performanceDocument.get('end_time'),
-                                    theater: {
-                                        _id: performanceDocument.get('theater').get('_id'),
-                                        name: performanceDocument.get('theater').get('name'),
-                                        name_en: performanceDocument.get('theater').get('name_en'),
-                                    },
-                                    screen: {
-                                        _id: performanceDocument.get('screen').get('_id'),
-                                        name: performanceDocument.get('screen').get('name'),
-                                        name_en: performanceDocument.get('screen').get('name_en'),
-                                        sections: performanceDocument.get('screen').get('sections'),
-                                    },
-                                    film: {
-                                        _id: performanceDocument.get('film').get('_id'),
-                                        name: performanceDocument.get('film').get('name'),
-                                        name_en: performanceDocument.get('film').get('name_en'),
-                                    }
-                                };
-
-                                // スクリーンの全座席コード
-                                reservationModel.screenSeatCodes = [];
-                                for (let seatDocument of performanceDocument.get('screen').get('sections')[0].get('seats')) {
-                                    reservationModel.screenSeatCodes.push(seatDocument.get('code'));
-                                }
-
                                 this.logger.debug('saving reservationModel... ', reservationModel);
                                 reservationModel.save((err) => {
                                     this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
                                 });
-
                             }
-
                         });
+
                     },
                     error: (form) => {
                         this.next(new Error('不適切なアクセスです'));
@@ -194,118 +145,29 @@ export default class CustomerReserveController extends BaseController {
                         customerReserveSeatForm.form = form;
 
                         let reservationIds: Array<string> = JSON.parse(form.data.reservationIds);
-                        let reservationIdsInSession = reservationModel.reservationIds;
 
-                        if (reservationIds.length < 1) {
-                            return this.next(new Error('不適切なアクセスです'));
-                        }
-
-                        // 仮押さえ
-                        // まず仮押さえしてから、仮押さえキャンセル
-                        let promises: Array<Promise<Function>> = [];
-
-                        // セッション中の予約リストを初期化
-                        reservationModel.reservationIds = [];
-
-                        reservationIdsInSession.forEach((reservationIdInSession, index) => {
-                            let reservation = reservationModel.getReservation(reservationIdInSession);
-
-                            if (reservationIds.indexOf(reservationIdInSession) >= 0) {
+                        // 座席FIX
+                        this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
+                            if (err) {
+                                this.next(err);
 
                             } else {
-                                // 座席選択肢になければ、空席ステータスに戻す
-                                promises.push(new Promise((resolve, reject) => {
+                                this.logger.debug('saving reservationModel... ', reservationModel);
+                                reservationModel.save((err) => {
+                                    // 仮予約に失敗した座席コードがあった場合
+                                    if (reservationIds.length > reservationModel.reservationIds.length) {
+                                        // TODO メッセージ？
+                                        let message = '座席を確保できませんでした。再度指定してください。';
+                                        this.res.redirect(this.router.build('customer.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
 
-                                    this.logger.debug('updating reservation status to avalilable..._id:', reservationIdInSession);
-                                    Models.Reservation.findOneAndUpdate(
-                                        {
-                                            _id: reservationIdInSession,
-                                        },
-                                        {
-                                            status: ReservationUtil.STATUS_AVAILABLE,
-                                        },
-                                    (err) => {
+                                    } else {
+                                        this.res.redirect(this.router.build('customer.reserve.tickets', {token: token}));
 
-                                        // 失敗したとしても時間経過で消えるので放置
-                                        if (err) {
-                                        } else {
-                                        }
+                                    }
 
-                                        resolve();
-                                    });
+                                });
 
-                                }));
                             }
-                        });
-
-                        reservationIds.forEach((reservationId, index) => {
-
-                            if (reservationIdsInSession.indexOf(reservationId) >= 0) {
-                                // すでに仮押さえ済みであれば、セッションに加えるだけ
-                                promises.push(new Promise((resolve, reject) => {
-                                    reservationModel.reservationIds.push(reservationId);
-
-                                    resolve();
-                                }));
-
-                            } else {
-
-                                // 新規仮予約
-                                promises.push(new Promise((resolve, reject) => {
-
-                                    this.logger.debug('updating reservation status to temporary...reservationId:', reservationId);
-                                    Models.Reservation.findOneAndUpdate(
-                                        {
-                                            _id: reservationId,
-                                            status: ReservationUtil.STATUS_AVAILABLE // 空席ステータスのみ、新規仮登録できる(ここはポイントなので要注意！！！)
-                                        },
-                                        {
-                                            status: ReservationUtil.STATUS_TEMPORARY
-                                        },
-                                        {
-                                            new: true,
-                                        },
-                                    (err, reservationDocument) => {
-
-                                        if (err) {
-                                        } else {
-                                            if (reservationDocument) {
-                                                // ステータス更新に成功したらセッションに保管
-                                                reservationModel.reservationIds.push(reservationDocument.get('_id'));
-                                                reservationModel.setReservation(reservationDocument.get('_id'), {
-                                                    _id: reservationDocument.get('_id'),
-                                                    status: reservationDocument.get('status'),
-                                                    seat_code: reservationDocument.get('seat_code'),
-                                                    performance: reservationDocument.get('performance'),
-                                                });
-                                            }
-                                        }
-
-                                        resolve();
-                                    });
-
-                                }));
-                            }
-
-                        });
-
-
-                        Promise.all(promises).then(() => {
-
-                            this.logger.debug('saving reservationModel... ', reservationModel);
-                            reservationModel.save((err) => {
-                                // 仮押さえできていない在庫があった場合
-                                if (reservationIds.length > reservationModel.reservationIds.length) {
-                                    // TODO メッセージ？
-                                    let message = '座席を確保できませんでした。再度指定してください。';
-                                    this.res.redirect(this.router.build('customer.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
-                                } else {
-                                    this.res.redirect(this.router.build('customer.reserve.tickets', {token: token}));
-                                }
-                            });
-
-                        }, (err) => {
-                            this.next(err);
                         });
 
                     },
@@ -557,8 +419,6 @@ export default class CustomerReserveController extends BaseController {
 
             if (this.req.method === 'POST') {
             } else {
-                // 予約番号発行
-                reservationModel.paymentNo = Util.createPaymentNo();
 
                 // 予約情報セッション削除
                 this.logger.debug('removing reservationModel... ', reservationModel);
@@ -594,9 +454,6 @@ export default class CustomerReserveController extends BaseController {
             this.logger.debug('reservationModel is ', reservationModel);
 
             if (this.req.method === 'POST') {
-                // 予約番号発行
-                reservationModel.paymentNo = Util.createPaymentNo();
-
                 // 予約情報セッション削除
                 // これ以降、予約情報はローカルに引き回す
                 this.logger.debug('removing reservationModel... ', reservationModel);
@@ -604,83 +461,28 @@ export default class CustomerReserveController extends BaseController {
                     if (err) {
 
                     } else {
-                        // 予約ステータス更新
-                        let reservedDocuments: Array<mongoose.Document> = [];
+                        this.processFixAll(reservationModel, (err, reservationModel) => {
+                            if (err) {
+                                // TODO 万が一の対応どうするか
+                                this.next(err);
 
-                        let promises = [];
-                        reservationModel.reservationIds.forEach((reservationId, index) => {
-                            let reservation = reservationModel.getReservation(reservationId);
-
-                            promises.push(new Promise((resolve, reject) => {
-
-                                this.logger.debug('updating reservation status to STATUS_RESERVED..._id:', reservationId);
-                                Models.Reservation.findOneAndUpdate(
-                                    {
-                                        _id: reservationId,
-                                    },
-                                    {
-                                        payment_no: reservationModel.paymentNo,
-                                        status: ReservationUtil.STATUS_RESERVED,
-                                        performance: reservationModel.performance._id,
-                                        performance_day: reservationModel.performance.day,
-                                        performance_start_time: reservationModel.performance.start_time,
-                                        performance_end_time: reservationModel.performance.end_time,
-                                        theater: reservationModel.performance.theater._id,
-                                        theater_name: reservationModel.performance.theater.name,
-                                        screen: reservationModel.performance.screen._id,
-                                        screen_name: reservationModel.performance.screen.name,
-                                        film: reservationModel.performance.film._id,
-                                        film_name: reservationModel.performance.film.name,
-                                        purchaser_last_name: reservationModel.profile.last_name,
-                                        purchaser_first_name: reservationModel.profile.first_name,
-                                        purchaser_email: reservationModel.profile.email,
-                                        purchaser_tel: reservationModel.profile.tel,
-                                        ticket_type: reservation.ticket_type,
-                                        ticket_name: reservation.ticket_name,
-                                        ticket_name_en: reservation.ticket_name_en,
-                                        ticket_price: reservation.ticket_price,
-                                        created_user: this.constructor.toString(),
-                                        updated_user: this.constructor.toString(),
-                                    },
-                                    {
-                                        new: true
-                                    },
-                                (err, reservationDocument) => {
-
-                                    this.logger.info('reservation status to STATUS_RESERVED updated.', err, reservationDocument, reservationModel);
-
-                                    if (err) {
-                                    } else {
-                                        // ステータス更新に成功したらリストに追加
-                                        reservedDocuments.push(reservationDocument);
-                                    }
-
-                                    resolve();
-                                });
-
-                            }));
-                        });
-
-                        Promise.all(promises).then(() => {
-
-                            // TODO 予約できていない在庫があった場合
-                            if (reservationModel.reservationIds.length > reservedDocuments.length) {
-                                this.res.redirect(this.router.build('customer.reserve.confirm', {token: token}));
                             } else {
-                                // 予約結果セッションを保存して、完了画面へ
-                                let reservationResultModel = reservationModel.toReservationResult();
+                                // TODO 予約できていない在庫があった場合
+                                if (reservationModel.reservationIds.length > reservationModel.reservedDocuments.length) {
+                                    this.res.redirect(this.router.build('customer.reserve.confirm', {token: token}));
 
-                                this.logger.debug('saving reservationResult...', reservationResultModel);
-                                reservationResultModel.save((err) => {
-                                    this.res.redirect(this.router.build('customer.reserve.complete', {token: token}));
-                                });
+                                } else {
+                                    // 予約結果セッションを保存して、完了画面へ
+                                    let reservationResultModel = reservationModel.toReservationResult();
+
+                                    this.logger.debug('saving reservationResult...', reservationResultModel);
+                                    reservationResultModel.save((err) => {
+                                        this.res.redirect(this.router.build('customer.reserve.complete', {token: token}));
+                                    });
+
+                                }
                             }
-
-                        }, (err) => {
-                            // TODO 万が一の対応どうするか
-                            this.next(err);
                         });
-
                     }
                 });
             } else {
