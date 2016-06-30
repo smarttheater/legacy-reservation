@@ -196,10 +196,6 @@ export default class ReservationModel {
                     total += parseInt(reservation.ticket_price);
                 }
             });
-        } else if (Array.isArray(this.seatChoicesBySponsor) && this.seatChoicesBySponsor.length > 0) {
-            for (let choice of this.seatChoicesBySponsor) {
-                total += choice.ticket.price;
-            }
         }
 
         return total;
