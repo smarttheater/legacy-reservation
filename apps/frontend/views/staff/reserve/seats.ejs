@@ -36,7 +36,11 @@
                     <tr>
                     <% } %>
 
-                    <% if (reservationModel.ticketChoicesBySeatCode.hasOwnProperty(seatCode)) { %>
+                    <%
+                    // パフォーマンスが券種リストを持ち、かつ、予約が存在した場合のみ販売可能
+                    if (reservationModel.ticketChoicesBySeatCode.hasOwnProperty(seatCode)
+                        && reservationDocumentsBySeatCode.hasOwnProperty(seatCode)) {
+                    %>
                         <!-- 販売中 -->
 
                         <% let reservationDocument = reservationDocumentsBySeatCode[seatCode] %>

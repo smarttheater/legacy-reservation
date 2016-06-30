@@ -8,13 +8,28 @@
     <form class="form-inline">
         <div class="form-group">
             <label for="">上映日</label>
-            <select class="form-control">
+            <select class="form-control" name="day">
+                <option value="">---</option>
+                <option value="20160801">08/01</option>
+                <option value="20160802">08/02</option>
+                <option value="20160803">08/03</option>
             </select>
         </div>
 
         <div class="form-group">
             <label for="">上映開始時間</label>
-            <select class="form-control">
+            <select class="form-control" name="start_time">
+                <option value="">---</option>
+                <option value="1000">10:00-</option>
+                <option value="1200">12:00-</option>
+                <option value="1300">13:00-</option>
+                <option value="1400">14:00-</option>
+                <option value="1500">15:00-</option>
+                <option value="1600">16:00-</option>
+                <option value="1700">17:00-</option>
+                <option value="1800">18:00-</option>
+                <option value="1900">19:00-</option>
+                <option value="2000">20:00-</option>
             </select>
         </div>
 
@@ -30,7 +45,7 @@
 
         <div class="form-group">
             <label for="">フリーワード</label>
-            <input type="text" class="form-control">
+            <input type="text" class="form-control" name="words">
         </div>
 
         <a class="btn btn-primary search" href="javascript:void(0)">検索</a>
@@ -240,11 +255,15 @@ function showPager(count) {
 }
 
 function showConditions() {
-    if (conditions.film) {
-        $('form select[name="film"]').val(conditions.film);
-    } else {
-        $('form select[name="film"] option').attr('selected', false); 
-    }
+    var formDatas = $('form').serializeArray();
+    formDatas.forEach(function(formData, index){
+        var name = formData.name;
+        if (conditions.hasOwnProperty(name)) {
+            $(`input[name="${name}"], select[name="${name}"]`, $('form')).val(conditions[name]);
+        } else {
+            $(`input[name="${name}"], select[name="${name}"]`, $('form')).val('');
+        }
+    });
 }
 
 function search() {
@@ -281,7 +300,13 @@ $(function(){
 
     $(document).on('click', '.search', function(){
         conditions.page = '1';
-        conditions.film = $('form select[name="film"]').val();
+
+        // 検索フォームの値を全て条件に追加
+        var formDatas = $('form').serializeArray();
+        formDatas.forEach(function(formData, index){
+            conditions[formData.name] = formData.value;
+        });
+
         search();
     });
 
