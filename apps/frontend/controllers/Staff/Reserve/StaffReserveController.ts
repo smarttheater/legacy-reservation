@@ -140,7 +140,7 @@ export default class StaffReserveController extends ReserveBaseController {
                             for (let reservationDocument of reservationDocuments) {
                                 reservationDocumentsBySeatCode[reservationDocument.get('seat_code')] = reservationDocument;
                             }
-console.log(reservationDocumentsBySeatCode);
+
                             if (err) {
                                 this.next(new Error('スケジュールを取得できませんでした'));
                             } else {

@@ -9,7 +9,7 @@ export default class PerformanceController extends BaseController {
      * パフォーマンス検索API
      */
     public search(): void {
-        let limit = (this.req.query.limit) ? this.req.query.limit : 100;
+        let limit = (this.req.query.limit) ? this.req.query.limit : 300;
         let page = (this.req.query.page) ? this.req.query.page : 1;
 
         let day = (this.req.query.day) ? this.req.query.day : null; // 上映日

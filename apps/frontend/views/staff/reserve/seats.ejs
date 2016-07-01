@@ -29,7 +29,8 @@
 
             <tbody>
                 <tr>
-                <% reservationModel.performance.screen.sections[0].seats.forEach((seat, index) => { %>
+                <% let seats = reservationModel.performance.screen.sections[0].seats %>
+                <% seats.forEach((seat, index) => { %>
                     <% let seatCode = seat.code %>
                     <% if (index % 12 === 0) { %>
                     </tr>
@@ -37,9 +38,8 @@
                     <% } %>
 
                     <%
-                    // パフォーマンスが券種リストを持ち、かつ、予約が存在した場合のみ販売可能
-                    if (reservationModel.ticketChoicesBySeatCode.hasOwnProperty(seatCode)
-                        && reservationDocumentsBySeatCode.hasOwnProperty(seatCode)) {
+                    // 予約が存在した場合のみ販売可能
+                    if (reservationDocumentsBySeatCode.hasOwnProperty(seatCode)) {
                     %>
                         <!-- 販売中 -->
 
@@ -64,7 +64,6 @@
                                        data-toggle="popover"
                                        data-trigger="focus"><%- seatCode %></a>
                                 </th>
-
                             <% } %>
 
                         <% } %>
@@ -79,7 +78,6 @@
 
                 <% }) %>
                 </tr>
-
             </tbody>
 
         </table>

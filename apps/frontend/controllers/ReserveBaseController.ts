@@ -40,10 +40,11 @@ export default class ReserveBaseController extends BaseController {
                 // TODO ここが、予約する主体によって異なってくる
                 // それをどう実装するか
                 let ticketChoicesBySeatCode = {};
+                let seatDocuments = performanceDocument.get('screen').get('sections')[0].get('seats');
 
                 // 内部関係者の場合
                 if (reservationModel.staff) {
-                    for (let seatDocument of performanceDocument.get('seats')) {
+                    for (let seatDocument of seatDocuments) {
                         // TODO 内部関係者の場合、ひとまず券種リストを固定にしておく
                         // ticketChoicesBySeatCode[seatDocument.get('code')] = seatDocument.get('tickets');
                         ticketChoicesBySeatCode[seatDocument.get('code')] = [
@@ -65,7 +66,7 @@ export default class ReserveBaseController extends BaseController {
 
                 // 外部関係者の場合
                 } else if (reservationModel.sponsor) {
-                    for (let seatDocument of performanceDocument.get('seats')) {
+                    for (let seatDocument of seatDocuments) {
                         // TODO 外部関係者の場合、ひとまず券種リストを固定にしておく
                         // ticketChoicesBySeatCode[seatDocument.get('code')] = seatDocument.get('tickets');
                         ticketChoicesBySeatCode[seatDocument.get('code')] = [
@@ -81,8 +82,23 @@ export default class ReserveBaseController extends BaseController {
 
                 // 一般、メルマガ当選者、の場合
                 } else {
-                    for (let seatDocument of performanceDocument.get('seats')) {
-                        ticketChoicesBySeatCode[seatDocument.get('code')] = seatDocument.get('tickets');
+                    for (let seatDocument of seatDocuments) {
+                        // TODO いったん固定
+                        // ticketChoicesBySeatCode[seatDocument.get('code')] = seatDocument.get('tickets');
+                        ticketChoicesBySeatCode[seatDocument.get('code')] = [
+                            {
+                                type: '01',
+                                name: '一般',
+                                name_en: 'adult',
+                                price: 1500,
+                            },
+                            {
+                                type: '02',
+                                name: '小人',
+                                name_en: 'child',
+                                price: 900,
+                            }
+                        ];
                     }
                     reservationModel.ticketChoicesBySeatCode = ticketChoicesBySeatCode;
 
