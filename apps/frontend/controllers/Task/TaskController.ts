@@ -323,10 +323,14 @@ export default class TaskController extends BaseController {
         // );
 
 
-
+        let limit = 100;
 
         let promises = [];
-        Models.Reservation.find({status: ReservationUtil.STATUS_AVAILABLE}, {}, {limit: 100}, (err, reservationDocuments) => {
+        Models.Reservation.find({status: ReservationUtil.STATUS_AVAILABLE}, {}, {limit: limit}, (err, reservationDocuments) => {
+
+                let startMemory = process.memoryUsage();
+                let startTime = process.hrtime();
+
 
 
                 reservationDocuments.forEach((reservationDocument, index) => {
@@ -360,7 +364,11 @@ export default class TaskController extends BaseController {
 
 
                 Promise.all(promises).then(() => {
-                    this.res.send('success');
+                    let endMemory = process.memoryUsage();
+                    let memoryUsage = endMemory.rss - startMemory.rss;
+                    let diff = process.hrtime(startTime);
+
+                    this.res.send(`success!! ${limit} reservations update. benchmark took ${diff[0]} seconds and ${diff[1]} nanoseconds.`);
 
                 }, (err) => {
                     this.res.send('false');
