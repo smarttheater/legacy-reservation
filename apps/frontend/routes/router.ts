@@ -88,10 +88,11 @@ export default class Router {
 
         // タスク
         app.get('/task/removeTemporaryReservation', 'task.removeTemporaryReservation', (req, res, next) => {(new TaskController(req, res, next)).removeTemporaryReservation()});
-        app.get('/task/resetReservations', 'task.resetReservations', (req, res, next) => {(new TaskController(req, res, next)).resetReservations()});
         app.get('/task/createFilms', 'task.createFilms', (req, res, next) => {(new TaskController(req, res, next)).createFilms()});
         app.get('/task/createScreens', 'task.createScreens', (req, res, next) => {(new TaskController(req, res, next)).createScreens()});
         app.get('/task/createPerformances', 'task.createPerformances', (req, res, next) => {(new TaskController(req, res, next)).createPerformances()});
+        app.get('/task/resetReservations', 'task.resetReservations', (req, res, next) => {(new TaskController(req, res, next)).resetReservations()});
+        app.get('/task/updateReservations', 'task.updateReservations', (req, res, next) => {(new TaskController(req, res, next)).updateReservations()});
 
 
 

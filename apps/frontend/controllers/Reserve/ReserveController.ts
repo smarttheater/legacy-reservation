@@ -6,6 +6,9 @@ import ReservationModel from '../../models/Reserve/ReservationModel';
 import moment = require('moment');
 
 export default class ReserveController extends BaseController {
+    /**
+     * 空席状況マップを生成する
+     */
     public showSeatsMap() {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {

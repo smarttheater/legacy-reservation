@@ -110,8 +110,8 @@ export default class TaskController extends BaseController {
                 film_min: min,
                 sections: _sections.slice(0, Math.floor(Math.random() * 5)),
                 genres: _genres.slice(0, Math.floor(Math.random() * 5)),
-                created_user: "system",
-                updated_user: "system",
+                created_user: 'system',
+                updated_user: 'system',
             });
         }
 
@@ -184,14 +184,14 @@ export default class TaskController extends BaseController {
                     name_en: `SCREEN${no}`,
                     sections: [
                         {
-                            code: "SEC00",
-                            name: "セクション00",
-                            name_en: "Section00",
+                            code: 'SEC00',
+                            name: 'セクション00',
+                            name_en: 'Section00',
                             seats: this.getSeats()
                         }
                     ],
-                    "created_user": "system",
-                    "updated_user": "system",
+                    created_user: 'system',
+                    updated_user: 'system',
                 });
             }
         });
@@ -244,7 +244,6 @@ export default class TaskController extends BaseController {
                     Models.Performance.create(
                         performances,
                         (err, performanceDocuments) => {
-                            console.log('performances created.', err);
                             if (err) {
                             } else {
                             }
@@ -262,53 +261,25 @@ export default class TaskController extends BaseController {
             this.logger.info('remove processed.', err);
 
             if (err) {
+
             } else {
-                let promises = [];
                 let performances = [];
 
                 // パフォーマンスごとに空席予約を入れる
-           	    // Models.Performance.find({day: {$in: ['20161028']}})
            	    Models.Performance.find({})
                     .populate('film screen theater')
                     .exec((err, performanceDocuments) => {
                         performanceDocuments.forEach((performanceDocument) => {
                             let seats = performanceDocument.get('screen').get('sections')[0].get('seats');
+                            let performanceId = performanceDocument.get('_id');
 
                             seats.forEach((seatDocument) => {
                                 performances.push({
-                                    performance: performanceDocument.get('_id'),
-                                    // performance_day: performanceDocument.get('day'),
-                                    // performance_start_time: performanceDocument.get('start_time'),
-                                    // performance_end_time: performanceDocument.get('end_time'),
+                                    performance: performanceId,
                                     seat_code: seatDocument.get('code'),
-                                    status: ReservationUtil.STATUS_AVAILABLE
+                                    status: ReservationUtil.STATUS_AVAILABLE,
                                 });
-
-
-                                // promises.push(new Promise((resolve, reject) => {
-                                //     let reservationDocument = {
-                                //         performance: performanceDocument.get('_id'),
-                                //         performance_day: performanceDocument.get('_id'),
-                                //         performance_start_time: performanceDocument.get('_id'),
-                                //         performance_end_time: performanceDocument.get('_id'),
-                                //         seat_code: seatDocument.get('code'),
-                                //         status: ReservationUtil.STATUS_AVAILABLE
-                                //     };
-
-                                //     let reservation = new Models.Reservation(reservationDocument);
-
-                                //     this.logger.debug('saving reservation...');
-                                //     reservation.save((err) => {
-                                //         if (err) {
-                                //             reject(err);
-                                //         } else {
-                                //             resolve();
-                                //         }
-                                //     });
-
-                                // }));
                             });
-
                         });
 
 
@@ -318,32 +289,86 @@ export default class TaskController extends BaseController {
                         MongoClient.connect(url, (err, db) => {
                             db.collection('reservations').insertMany(performances, (err, result) => {
                                 this.logger.debug('reservations created.', err, result);
+
                                 db.close();
                                 this.res.send('success');
                             });
                         });
-
-                        // Models.Performance.create(
-                        //     performances,
-                        //     (err, performanceDocuments) => {
-                        //         console.log('performances created.', err);
-                        //         if (err) {
-                        //         } else {
-                        //         }
-
-                        //         this.res.send('success');
-                        //     }
-                        // );
-
-                        // Promise.all(promises).then(() => {
-                        //     this.res.send('success');
-                        // }, (err) => {
-                        //     this.res.send('false');
-                        // });
-
                     }
                 );
             }
+        });
+    }
+
+    public updateReservations(): void {
+        // パフォーマンスごとに空席予約を入れる
+        this.logger.debug('updating reservations...');
+
+
+        // Models.Reservation.update(
+        //     {
+        //         status: ReservationUtil.STATUS_AVAILABLE
+        //     },
+        //     {
+        //         status: ReservationUtil.STATUS_TEMPORARY,
+        //     },
+        //     {
+        //         multi: true
+        //     },
+        //     (err, affectedRows) => {
+        //         this.logger.debug('reservations updated.', err, affectedRows);
+
+        //         this.res.send('success');
+        //     }
+        // );
+
+
+
+
+        let promises = [];
+        Models.Reservation.find({status: ReservationUtil.STATUS_AVAILABLE}, {}, {limit: 100}, (err, reservationDocuments) => {
+
+
+                reservationDocuments.forEach((reservationDocument, index) => {
+                    promises.push(new Promise((resolve, reject) => {
+                        let id = reservationDocument.get('_id');
+                        this.logger.debug('updating reservation..._id:', id, index);
+
+                        Models.Reservation.update(
+                            {
+                                _id: id,
+                                status: ReservationUtil.STATUS_AVAILABLE
+                            },
+                            {
+                                status: ReservationUtil.STATUS_TEMPORARY,
+                            },
+                            (err, affectedRows, raw) => {
+                                this.logger.debug('reservation updated. _id:', id, index, err, affectedRows);
+                                if (err) {
+                                    reject();
+                                } else {
+                                    resolve();
+                                }
+                            }
+                        );
+                    }));
+
+                });
+
+
+
+
+
+                Promise.all(promises).then(() => {
+                    this.res.send('success');
+
+                }, (err) => {
+                    this.res.send('false');
+
+                });
+
+
+
         });
     }
 }
