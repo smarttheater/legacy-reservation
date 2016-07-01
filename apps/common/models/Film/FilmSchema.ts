@@ -13,7 +13,7 @@ let FilmSchema = new mongoose.Schema({
     'film_min': { 
         type: Number,
     },
-    'genre': [
+    'sections': [
          {
             "type": { 
                 type: String,
@@ -26,6 +26,31 @@ let FilmSchema = new mongoose.Schema({
             },
         },
     ],
+    'genres': [
+         {
+            "type": { 
+                type: String,
+            },
+            "name": { 
+                type: String,
+            },
+            "name_en": { 
+                type: String,
+            },
+        },
+    ],
+    'director': { 
+        type: String,
+    },
+    'director_en': { 
+        type: String,
+    },
+    'actor': { 
+        type: String,
+    },
+    'actor_en': { 
+        type: String,
+    },
     'created_user': { 
         type: String,
     },
