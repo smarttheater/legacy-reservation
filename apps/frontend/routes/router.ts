@@ -4,6 +4,7 @@ import express = require('express');
 import PerformanceController from '../controllers/Performance/PerformanceController';
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
 import MemberReserveController from '../controllers/Member/Reserve/MemberReserveController';
+import ReserveController from '../controllers/Reserve/ReserveController';
 
 import StaffAuthController from '../controllers/Staff/Auth/StaffAuthController';
 import StaffCancelController from '../controllers/Staff/Cancel/StaffCancelController';
@@ -60,6 +61,8 @@ export default class Router {
 
         // パフォーマンス検索
         app.get('/performance/search', 'performance.search', (req, res, next) => {(new PerformanceController(req, res, next)).search()});
+
+        app.get('/reserve/:token/showSeatsMap', 'reserve.showSeatsMap', (req, res, next) => {(new ReserveController(req, res, next)).showSeatsMap()});
 
         // 一般
         app.all('/customer/reserve/terms', 'customer.reserve.terms', (req, res, next) => {(new CustomerReserveController(req, res, next)).terms()});

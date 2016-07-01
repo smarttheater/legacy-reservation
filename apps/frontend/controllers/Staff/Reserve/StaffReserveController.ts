@@ -125,34 +125,11 @@ export default class StaffReserveController extends ReserveBaseController {
                         }
                     });
                 } else {
-
-                    // 予約リストを取得
-                    Models.Reservation.find(
-                        {
-                            performance: reservationModel.performance._id
-                        },
-                        {},
-                        {},
-                        (err, reservationDocuments) => {
-
-                            // 座席コードごとのオブジェクトに整形
-                            let reservationDocumentsBySeatCode = {};
-                            for (let reservationDocument of reservationDocuments) {
-                                reservationDocumentsBySeatCode[reservationDocument.get('seat_code')] = reservationDocument;
-                            }
-
-                            if (err) {
-                                this.next(new Error('スケジュールを取得できませんでした'));
-                            } else {
-                                this.res.render('staff/reserve/seats', {
-                                    layout: 'layouts/staff/layout',
-                                    form: staffReserveSeatForm.form,
-                                    reservationDocumentsBySeatCode: reservationDocumentsBySeatCode,
-                                    reservationModel: reservationModel,
-                                });
-                            }
-                        }
-                    )
+                    this.res.render('staff/reserve/seats', {
+                        layout: 'layouts/staff/layout',
+                        form: staffReserveSeatForm.form,
+                        reservationModel: reservationModel,
+                    });
                 }
             });
         });

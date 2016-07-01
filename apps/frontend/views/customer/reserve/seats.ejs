@@ -23,60 +23,7 @@
         </dl>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-bordered">
-
-            <tbody>
-                <tr>
-                <% let seats = reservationModel.performance.screen.sections[0].seats %>
-                <% seats.forEach((seat, index) => { %>
-                    <% let seatCode = seat.code %>
-                    <% if (index % 12 === 0) { %>
-                    </tr>
-                    <tr>
-                    <% } %>
-
-                    <%
-                    // 予約が存在した場合のみ販売可能
-                    if (reservationDocumentsBySeatCode.hasOwnProperty(seatCode)) {
-                    %>
-                        <!-- 販売中 -->
-
-                        <% let reservationDocument = reservationDocumentsBySeatCode[seatCode] %>
-                        <% if (reservationDocument.get('status') === 'AVAILABLE') { %>
-                            <!-- 予約可能 -->
-                            <th scope="row" class="select-seat" data-seat-code="<%- seatCode %>" data-reservation-id="<%- reservationDocument.get('_id') %>">
-                                <%- seatCode %>
-                            </th>
-
-                        <% } else { %>
-                            <% if (reservationModel.getSeatCodes().indexOf(seatCode) >= 0) { %>
-                                <!-- 仮押さえ中 -->
-                                <th scope="row" class="select-seat bg-primary" data-seat-code="<%- seatCode %>" data-reservation-id="<%- reservationDocument.get('_id') %>">
-                                    <%- seatCode %>
-                                </th>
-                            <% } else { %>
-                                <!-- 予約不可 -->
-                                <th scope="row" class="bg-danger" data-reservation-id="<%- reservationDocument.get('_id') %>">
-                                    <%- seatCode %>
-                                </th>
-                            <% } %>
-
-                        <% } %>
-
-                    <% } else { %>
-                        <!-- 未販売 -->
-                        <th scope="row" class="bg-warning text-muted">
-                            <%- seatCode %>
-                        </th>
-
-                    <% } %>
-
-                <% }) %>
-                </tr>
-            </tbody>
-
-        </table>
+    <div class="seatsMap">
     </div>
 
     <a class="btn btn-default btn-lg btn-block" href="<%- url('customer.reserve.performances', {token: req.params.token}) %>">戻る</a>
@@ -85,12 +32,38 @@
 
 
 <script>
+
+function showSeatsMap() {
+    $.ajax({
+        dataType: 'text',
+        url: '<%- url('reserve.showSeatsMap', {token: reservationModel.token}) %>',
+        type: 'GET',
+        data: {},
+        beforeSend: function() {
+        },
+        complete: function() {
+            // 10秒おきに状況とりにいく
+            setTimeout(function(){
+                showSeatsMap()
+            }, 10000);
+        },
+        success: function(data) {
+            $('.seatsMap').html(data);
+        },
+        error: function(jqxhr, textStatus, error) {
+        }
+    });
+}
+
 $(function(){
-    $('.select-seat').on('click', function(){
+    // 座席マップを表示
+    showSeatsMap();
+
+    $(document).on('click', '.select-seat', function(){
         $(this).toggleClass('bg-primary');
     });
 
-    $('.select-seats').on('click', function(){
+    $(document).on('click', '.select-seats', function(){
         var reservationIds = [];
 
         // 座席コードリストを取得

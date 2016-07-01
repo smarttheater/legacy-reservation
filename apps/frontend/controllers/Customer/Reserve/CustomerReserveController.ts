@@ -152,33 +152,10 @@ export default class CustomerReserveController extends ReserveBaseController {
                     }
                 });
             } else {
-
-                // 予約リストを取得
-                Models.Reservation.find(
-                    {
-                        performance: reservationModel.performance._id
-                    },
-                    {},
-                    {},
-                    (err, reservationDocuments) => {
-
-                        // 座席コードごとのオブジェクトに整形
-                        let reservationDocumentsBySeatCode = {};
-                        for (let reservationDocument of reservationDocuments) {
-                            reservationDocumentsBySeatCode[reservationDocument.get('seat_code')] = reservationDocument;
-                        }
-
-                        if (err) {
-                            this.next(new Error('スケジュールを取得できませんでした'));
-                        } else {
-                            this.res.render('customer/reserve/seats', {
-                                form: customerReserveSeatForm.form,
-                                reservationDocumentsBySeatCode: reservationDocumentsBySeatCode,
-                                reservationModel: reservationModel,
-                            });
-                        }
-                    }
-                );
+                this.res.render('customer/reserve/seats', {
+                    form: customerReserveSeatForm.form,
+                    reservationModel: reservationModel,
+                });
             }
         });
     }
