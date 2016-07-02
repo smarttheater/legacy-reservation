@@ -1,4 +1,5 @@
 Web.config
+iisnode.yml
 logs/*
 node_modules/*
 typings/*
