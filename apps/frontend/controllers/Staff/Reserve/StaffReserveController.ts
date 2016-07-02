@@ -11,61 +11,82 @@ import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
 
 export default class StaffReserveController extends ReserveBaseController {
+    public start(): void {
+        // 予約トークンを発行
+        let token = Util.createToken();
+        let reservationModel = new ReservationModel();
+        reservationModel.token = token;
+        reservationModel.staff_signature = this.staffUser.get('signature');
+        reservationModel.staff = {
+            _id: this.staffUser.get('_id'),
+            user_id: this.staffUser.get('user_id'),
+            name: this.staffUser.get('name'),
+            email: this.staffUser.get('email'),
+            department_name: this.staffUser.get('department_name'),
+            tel: this.staffUser.get('tel'),
+            signature: this.staffUser.get('signature'),
+        };
+
+        // スケジュール選択へ
+        this.logger.debug('saving reservationModel... ', reservationModel);
+        reservationModel.save((err) => {
+            this.res.redirect(this.router.build('staff.reserve.performances', {token: token}));
+        });
+
+    }
+
     /**
      * スケジュール選択
      */
     public performances(): void {
-        let staffReservePerformanceForm = new StaffReservePerformanceForm();
-        if (this.req.method === 'POST') {
+        let token = this.req.params.token;
+        ReservationModel.find(token, (err, reservationModel) => {
+            if (err || reservationModel === null) {
+                return this.next(new Error('予約プロセスが中断されました'));
+            }
 
-            staffReservePerformanceForm.form.handle(this.req, {
-                success: (form) => {
-                    staffReservePerformanceForm.form = form;
+            let staffReservePerformanceForm = new StaffReservePerformanceForm();
+            if (this.req.method === 'POST') {
 
-                    // 予約トークンを発行
-                    let token = Util.createToken();
-                    let reservationModel = new ReservationModel();
-                    reservationModel.token = token;
-                    reservationModel.staff_signature = this.staffUser.get('signature');
-                    reservationModel.staff = {
-                        _id: this.staffUser.get('_id'),
-                        user_id: this.staffUser.get('user_id'),
-                        name: this.staffUser.get('name'),
-                        email: this.staffUser.get('email'),
-                        department_name: this.staffUser.get('department_name'),
-                        tel: this.staffUser.get('tel'),
-                        signature: this.staffUser.get('signature'),
-                    };
+                staffReservePerformanceForm.form.handle(this.req, {
+                    success: (form) => {
+                        staffReservePerformanceForm.form = form;
 
+                        // パフォーマンスFIX
+                        this.processFixPerformance(reservationModel, form.data.performance_id, (err, reservationModel) => {
+                            if (err) {
+                                this.next(err);
+                            } else {
 
-                    // パフォーマンスFIX
-                    this.processFixPerformance(reservationModel, form.data.performance_id, (err, reservationModel) => {
-                        if (err) {
-                            this.next(err);
-                        } else {
+                                this.logger.debug('saving reservationModel... ', reservationModel);
+                                reservationModel.save((err) => {
+                                    this.res.redirect(this.router.build('staff.reserve.seats', {token: token}));
+                                });
 
-                            this.logger.debug('saving reservationModel... ', reservationModel);
-                            reservationModel.save((err) => {
-                                this.res.redirect(this.router.build('staff.reserve.seats', {token: token}));
-                            });
+                            }
+                        });
 
-                        }
+                    },
+                    error: (form) => {
+                        this.next(new Error('不適切なアクセスです'));
+                    },
+                    empty: (form) => {
+                        this.next(new Error('不適切なアクセスです'));
+                    }
+                });
+            } else {
+                // 仮予約あればキャンセルする
+                this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                    this.logger.debug('saving reservationModel... ', reservationModel);
+                    reservationModel.save((err) => {
+                        this.res.render('staff/reserve/performances', {
+                            layout: 'layouts/staff/layout',
+                            form: staffReservePerformanceForm.form
+                        });
                     });
-
-                },
-                error: (form) => {
-                    this.next(new Error('不適切なアクセスです'));
-                },
-                empty: (form) => {
-                    this.next(new Error('不適切なアクセスです'));
-                }
-            });
-        } else {
-            this.res.render('staff/reserve/performances', {
-                layout: 'layouts/staff/layout',
-                form: staffReservePerformanceForm.form
-            });
-        }
+                });
+            }
+        });
     }
 
     /**

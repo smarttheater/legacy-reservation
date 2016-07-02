@@ -25,13 +25,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                 success: (form) => {
                     customerReserveTermsForm.form = form;
 
-                    // 予約トークンを発行してスケジュール選択へ
-                    let token = Util.createToken();
-                    let reservationModel = new ReservationModel();
-                    reservationModel.token = token;
-                    reservationModel.save((err) => {
-                        this.res.redirect(this.router.build('customer.reserve.performances', {token: token}));
-                    });
+                    this.res.redirect(this.router.build('customer.reserve.start', {}));
                 },
                 error: (form) => {
                     this.res.render('customer/reserve/terms', {
@@ -49,6 +43,20 @@ export default class CustomerReserveController extends ReserveBaseController {
                 form: customerReserveTermsForm.form
             });
         }
+    }
+
+    public start(): void {
+        // 予約トークンを発行
+        let token = Util.createToken();
+        let reservationModel = new ReservationModel();
+        reservationModel.token = token;
+
+        // スケジュール選択へ
+        this.logger.debug('saving reservationModel... ', reservationModel);
+        reservationModel.save((err) => {
+            this.res.redirect(this.router.build('customer.reserve.performances', {token: token}));
+        });
+
     }
 
     /**
@@ -91,8 +99,14 @@ export default class CustomerReserveController extends ReserveBaseController {
                     }
                 });
             } else {
-                this.res.render('customer/reserve/performances', {
-                    form: customerReservePerformanceForm.form
+                // 仮予約あればキャンセルする
+                this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                    this.logger.debug('saving reservationModel... ', reservationModel);
+                    reservationModel.save((err) => {
+                        this.res.render('customer/reserve/performances', {
+                            form: customerReservePerformanceForm.form
+                        });
+                    });
                 });
             }
         });

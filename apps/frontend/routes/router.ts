@@ -66,6 +66,7 @@ export default class Router {
 
         // 一般
         app.all('/customer/reserve/terms', 'customer.reserve.terms', (req, res, next) => {(new CustomerReserveController(req, res, next)).terms()});
+        app.get('/customer/reserve/start', 'customer.reserve.start', (req, res, next) => {(new CustomerReserveController(req, res, next)).start()});
         app.all('/customer/reserve/:token/performances', 'customer.reserve.performances', (req, res, next) => {(new CustomerReserveController(req, res, next)).performances()});
         app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', (req, res, next) => {(new CustomerReserveController(req, res, next)).seats()});
         app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', (req, res, next) => {(new CustomerReserveController(req, res, next)).tickets()});
@@ -163,7 +164,8 @@ export default class Router {
         app.get('/staff/mypage/search', 'staff.mypage.search', authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).search()});
         app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).updateWatcherName()});
 
-        app.all('/staff/reserve/performances', 'staff.reserve.performances', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).performances()});
+        app.get('/staff/reserve/start', 'staff.reserve.start', authenticationSponsor, (req, res, next) => {(new StaffReserveController(req, res, next)).start()});
+        app.all('/staff/reserve/:token/performances', 'staff.reserve.performances', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).performances()});
         app.all('/staff/reserve/:token/seats', 'staff.reserve.seats', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).seats()});
         app.all('/staff/reserve/:token/tickets', 'staff.reserve.tickets', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).tickets()});
         app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).confirm()});
@@ -178,7 +180,8 @@ export default class Router {
         app.all('/sponsor/mypage', 'sponsor.mypage', authenticationSponsor, (req, res, next) => {(new SponsorMyPageController(req, res, next)).index()});
 
         app.all('/sponsor/reserve/terms', 'sponsor.reserve.terms', (req, res, next) => {(new SponsorReserveController(req, res, next)).terms()});
-        app.all('/sponsor/reserve/performances', 'sponsor.reserve.performances', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).performances()});
+        app.get('/sponsor/reserve/start', 'sponsor.reserve.start', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).start()});
+        app.all('/sponsor/reserve/:token/performances', 'sponsor.reserve.performances', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).performances()});
         app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).seats()});
         app.all('/sponsor/reserve/:token/tickets', 'sponsor.reserve.tickets', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).tickets()});
         app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).profile()});

@@ -13,7 +13,7 @@ export default class TaskController extends BaseController {
             {
                 status: ReservationUtil.STATUS_TEMPORARY,
                 updated_dt: {
-                    $lt: moment().add('minutes', -10).toISOString(),
+                    $lt: moment().add(-10, 'minutes').toISOString(),
                 },
             },
             {
@@ -323,7 +323,7 @@ export default class TaskController extends BaseController {
         // );
 
 
-        let limit = 100;
+        let limit = 1000;
 
         let promises = [];
         Models.Reservation.find({status: ReservationUtil.STATUS_AVAILABLE}, {}, {limit: limit}, (err, reservationDocuments) => {

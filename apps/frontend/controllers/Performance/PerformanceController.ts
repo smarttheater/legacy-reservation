@@ -23,7 +23,7 @@ export default class PerformanceController extends BaseController {
         // デフォルトで、現在日以降のもの
         andConditions.push({
             'day': {
-                $gte: moment().add('minutes', -5).toISOString(),
+                $gte: moment().add(-5, 'minutes').toISOString(),
             }
         });
         if (day) {

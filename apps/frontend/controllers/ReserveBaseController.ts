@@ -11,6 +11,52 @@ import ReservationResultModel from '../models/Reserve/ReservationResultModel';
  * 予約フローベースコントローラー
  */
 export default class ReserveBaseController extends BaseController {
+    protected processCancelSeats(reservationModel: ReservationModel, cb: (err: Error, reservationModel: ReservationModel) => void) {
+
+        let reservationIdsInSession = (reservationModel.reservationIds) ? reservationModel.reservationIds : [];
+
+        let promises: Array<Promise<Function>> = [];
+
+        // セッション中の予約リストを初期化
+        reservationModel.reservationIds = [];
+
+        // 仮予約を空席ステータスに戻す
+        reservationIdsInSession.forEach((reservationIdInSession, index) => {
+
+            promises.push(new Promise((resolve, reject) => {
+
+                this.logger.debug('updating reservation status to avalilable..._id:', reservationIdInSession);
+                Models.Reservation.findOneAndUpdate(
+                    {
+                        _id: reservationIdInSession,
+                    },
+                    {
+                        status: ReservationUtil.STATUS_AVAILABLE,
+                    },
+                    (err) => {
+
+                        // 失敗したとしても時間経過で消えるので放置
+                        if (err) {
+                        } else {
+                        }
+
+                        resolve();
+                    }
+                );
+
+            }));
+        });
+
+        Promise.all(promises).then(() => {
+            cb(null, reservationModel);
+
+        }, (err) => {
+            cb(err, reservationModel);
+
+        });
+
+    }
+
     /**
      * パフォーマンスをFIXするプロセス
      * パフォーマンスIDから、パフォーマンスを検索し、その後プロセスに必要な情報をreservationModelに追加する

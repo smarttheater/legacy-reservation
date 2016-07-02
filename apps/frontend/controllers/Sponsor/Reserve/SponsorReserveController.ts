@@ -18,7 +18,7 @@ export default class SponsorReserveController extends ReserveBaseController {
      */
     public terms(): void {
         if (this.sponsorUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
+            return this.res.redirect(this.router.build('sponsor.reserve.start', {}));
         }
 
         let sponsorReserveTermsForm = new SponsorReserveTermsForm();
@@ -53,57 +53,79 @@ export default class SponsorReserveController extends ReserveBaseController {
         }
     }
 
+    public start(): void {
+        // 予約トークンを発行
+        let token = Util.createToken();
+        let reservationModel = new ReservationModel();
+        reservationModel.token = token;
+        reservationModel.sponsor = {
+            _id: this.sponsorUser.get('_id'),
+            user_id: this.sponsorUser.get('user_id'),
+            name: this.sponsorUser.get('name'),
+            email: this.sponsorUser.get('email'),
+        };
+
+
+        // スケジュール選択へ
+        this.logger.debug('saving reservationModel... ', reservationModel);
+        reservationModel.save((err) => {
+            this.res.redirect(this.router.build('sponsor.reserve.performances', {token: token}));
+        });
+
+    }
+
     /**
      * スケジュール選択
      */
     public performances(): void {
-        let sponsorReservePerformanceForm = new SponsorReservePerformanceForm();
-        if (this.req.method === 'POST') {
+        let token = this.req.params.token;
+        ReservationModel.find(token, (err, reservationModel) => {
+            if (err || reservationModel === null) {
+                return this.next(new Error('予約プロセスが中断されました'));
+            }
 
-            sponsorReservePerformanceForm.form.handle(this.req, {
-                success: (form) => {
-                    sponsorReservePerformanceForm.form = form;
+            let sponsorReservePerformanceForm = new SponsorReservePerformanceForm();
+            if (this.req.method === 'POST') {
 
-                    // 予約トークンを発行
-                    let token = Util.createToken();
-                    let reservationModel = new ReservationModel();
-                    reservationModel.token = token;
-                    reservationModel.sponsor = {
-                        _id: this.sponsorUser.get('_id'),
-                        user_id: this.sponsorUser.get('user_id'),
-                        name: this.sponsorUser.get('name'),
-                        email: this.sponsorUser.get('email'),
-                    };
+                sponsorReservePerformanceForm.form.handle(this.req, {
+                    success: (form) => {
+                        sponsorReservePerformanceForm.form = form;
 
+                        // パフォーマンスFIX
+                        this.processFixPerformance(reservationModel, form.data.performance_id, (err, reservationModel) => {
+                            if (err) {
+                                this.next(err);
+                            } else {
 
-                    // パフォーマンスFIX
-                    this.processFixPerformance(reservationModel, form.data.performance_id, (err, reservationModel) => {
-                        if (err) {
-                            this.next(err);
-                        } else {
+                                this.logger.debug('saving reservationModel... ', reservationModel);
+                                reservationModel.save((err) => {
+                                    this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
+                                });
 
-                            this.logger.debug('saving reservationModel... ', reservationModel);
-                            reservationModel.save((err) => {
-                                this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
-                            });
+                            }
+                        });
 
-                        }
+                    },
+                    error: (form) => {
+                        this.next(new Error('不適切なアクセスです'));
+                    },
+                    empty: (form) => {
+                        this.next(new Error('不適切なアクセスです'));
+                    }
+                });
+            } else {
+                // 仮予約あればキャンセルする
+                this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                    this.logger.debug('saving reservationModel... ', reservationModel);
+                    reservationModel.save((err) => {
+                        this.res.render('sponsor/reserve/performances', {
+                            layout: 'layouts/sponsor/layout',
+                            form: sponsorReservePerformanceForm.form
+                        });
                     });
-
-                },
-                error: (form) => {
-                    this.next(new Error('不適切なアクセスです'));
-                },
-                empty: (form) => {
-                    this.next(new Error('不適切なアクセスです'));
-                }
-            });
-        } else {
-            this.res.render('sponsor/reserve/performances', {
-                layout: 'layouts/sponsor/layout',
-                form: sponsorReservePerformanceForm.form
-            });
-        }
+                });
+            }
+        });
     }
 
     /**
