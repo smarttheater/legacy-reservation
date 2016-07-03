@@ -4,45 +4,29 @@ import mongoose = require('mongoose');
  * スクリーンスキーマ
  */
 let ScreenSchema = new mongoose.Schema({
-    'theater': { 
+    theater: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Theater'
     },
-    'name': { 
-        type: String,
-    },
-    'name_en': { 
-        type: String,
-    },
-    'sections': [
+    name: String,
+    name_en: String,
+    sections: [
          {
-            "code": { 
-                type: String,
-            },
-            "name": { 
-                type: String,
-            },
-            "name_en": { 
-                type: String,
-            },
-            "seats": [
-                {
-                    "code": { 
-                        type: String,
-                    },
-                    "enabled": { 
-                        type: Boolean,
-                    },
-                },
-            ]
+             _id: false,
+             code: String,
+             name: String,
+             name_en: String,
+             seats: [
+                 {
+                     _id: false,
+                     code: String,
+                     enabled: Boolean,
+                 },
+             ]
         },
     ],
-    'created_user': { 
-        type: String,
-    },
-    'updated_user': { 
-        type: String,
-    },
+    created_user: String,
+    updated_user: String,
 },{
     collection: 'screens',
     timestamps: { 

@@ -4,59 +4,31 @@ import mongoose = require('mongoose');
  * 作品スキーマ
  */
 let FilmSchema = new mongoose.Schema({
-    'name': { 
-        type: String,
-    },
-    'name_en': { 
-        type: String,
-    },
-    'film_min': { 
-        type: Number,
-    },
-    'sections': [
+    name: String,
+    name_en: String,
+    film_min: String,
+    sections: [
          {
-            "type": { 
-                type: String,
-            },
-            "name": { 
-                type: String,
-            },
-            "name_en": { 
-                type: String,
-            },
+             _id: false,
+            code: String,
+            name: String,
+            name_en: String,
         },
     ],
-    'genres': [
+    genres: [
          {
-            "type": { 
-                type: String,
-            },
-            "name": { 
-                type: String,
-            },
-            "name_en": { 
-                type: String,
-            },
+             _id: false,
+            code: String,
+            name: String,
+            name_en: String,
         },
     ],
-    'director': { 
-        type: String,
-    },
-    'director_en': { 
-        type: String,
-    },
-    'actor': { 
-        type: String,
-    },
-    'actor_en': { 
-        type: String,
-    },
-    'created_user': { 
-        type: String,
-    },
-    'updated_user': { 
-        type: String,
-    },
+    director: String,
+    director_en: String,
+    actor: String,
+    actor_en: String,
+    created_user: String,
+    updated_user: String,
 },{
     collection: 'films',
     timestamps: { 

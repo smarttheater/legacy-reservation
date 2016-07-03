@@ -16,7 +16,6 @@ export default class StaffReserveController extends ReserveBaseController {
         let token = Util.createToken();
         let reservationModel = new ReservationModel();
         reservationModel.token = token;
-        reservationModel.staff_signature = this.staffUser.get('signature');
         reservationModel.staff = {
             _id: this.staffUser.get('_id'),
             user_id: this.staffUser.get('user_id'),

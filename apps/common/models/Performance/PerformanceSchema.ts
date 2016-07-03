@@ -4,61 +4,28 @@ import mongoose = require('mongoose');
  * パフォーマンススキーマ
  */
 let PerformanceSchema = new mongoose.Schema({
-    "theater": { 
+    theater: { 
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Theater"
+        ref: 'Theater'
     },
-    "screen": { 
+    screen: { 
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Screen"
+        ref: 'Screen'
     },
-    "film": { 
+    film: { 
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Film"
+        ref: 'Film'
     },
-    "day": {
-        type: String
-    },
-    "start_time": {
-        type: String
-    },
-    "end_time": {
-        type: String
-    },
-    "seats": [
-        {
-            "code": {
-                type: String
-            },
-            "tickets": [
-                {
-                    "type": {
-                        type: String
-                    },
-                    "name": {
-                        type: String
-                    },
-                    "name_en": {
-                        type: String
-                    },
-                    "price": {
-                        type: String
-                    },
-                }
-            ],
-        }
-    ],
-    "created_user": {
-        type: String
-    },
-    "updated_user": {
-        type: String
-    },
+    day: String,
+    start_time: String,
+    end_time: String,
+    created_user:String,
+    updated_user: String,
 },{
-    collection: "performances",
+    collection: 'performances',
     timestamps: { 
-        createdAt: "created_dt",
-        updatedAt: "updated_dt",
+        createdAt: 'created_dt',
+        updatedAt: 'updated_dt',
     }
 });
 

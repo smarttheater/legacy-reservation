@@ -47,7 +47,8 @@ export default class Util {
             conf.get<number>('redis_port'),
             conf.get<string>('redis_host'),
             {
-                password: conf.get<string>('redis_key')
+                password: conf.get<string>('redis_key'),
+                return_buffers: true
             }
         );
 

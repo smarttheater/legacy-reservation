@@ -75,11 +75,6 @@ export default class ReservationResultModel {
     public paymentMethod: string;
 
     /**
-     * 内部関係者署名
-     */
-    public staff_signature: string;
-
-    /**
      * メルマガ当選者
      */
     public member: {

@@ -4,132 +4,72 @@ import mongoose = require('mongoose');
  * 予約スキーマ
  */
 let ReservationSchema = new mongoose.Schema({
-    'token': { 
-        type: String,
-    },
-    'payment_no': { 
-        type: String,
-    },
+    token: String,
+    payment_no: String,
 
-    'performance': { 
+    performance: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Performance'
     },
-    'status': { 
-        type: String,
-    },
-    'performance_day': { 
-        type: String,
-    },
-    'performance_start_time': { 
-        type: String,
-    },
-    'performance_end_time': { 
-        type: String,
-    },
+    status: String,
+    performance_day: String,
+    performance_start_time: String,
+    performance_end_time: String,
 
-    'theater': { 
+    theater: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Theater'
     },
-    'theater_name': { 
-        type: String,
-    },
-    'screen': { 
+    theater_name: String,
+    screen: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Screen'
     },
-    'screen_name': { 
-        type: String,
-    },
-    'film': { 
+    screen_name: String,
+    film: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Film'
     },
-    'film_name': { 
-        type: String,
-    },
+    film_name:String,
 
-    'purchaser_last_name': { 
-        type: String,
-    },
-    'purchaser_first_name': { 
-        type: String,
-    },
-    'purchaser_email': { 
-        type: String,
-    },
-    'purchaser_tel': { 
-        type: String,
-    },
+    purchaser_last_name: String,
+    purchaser_first_name: String,
+    purchaser_email: String,
+    purchaser_tel: String,
 
-    'seat_code': { 
-        type: String,
-    },
-    'ticket_type': { 
-        type: String,
-    },
-    'ticket_name': { 
-        type: String,
-    },
-    'ticket_price': { 
-        type: Number,
-    },
-    'watcher_name': { 
-        type: String,
-    },
+    seat_code: String,
+    ticket_type: String,
+    ticket_name: String,
+    ticket_price: String,
+    watcher_name: String,
 
-    'sponsor': { 
+    sponsor: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Sponsor'
     },
-    'sponsor_user_id': { 
-        type: String,
-    },
-    'sponsor_name': { 
-        type: String,
-    },
-    'sponsor_email': { 
-        type: String,
-    },
+    sponsor_user_id: String,
+    sponsor_name: String,
+    sponsor_email: String,
 
-    'staff': { 
+    staff: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Staff'
     },
-    'staff_user_id': { 
-        type: String,
-    },
-    'staff_name': { 
-        type: String,
-    },
-    'staff_email': { 
-        type: String,
-    },
-    'staff_department_name': { 
-        type: String,
-    },
-    'staff_tel': { 
-        type: String,
-    },
-    'staff_signature': { 
-        type: String,
-    },
+    staff_user_id: String,
+    staff_name: String,
+    staff_email: String,
+    staff_department_name: String,
+    staff_tel: String,
+    staff_signature: String,
 
-    'member': { 
+    member: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Member'
     },
-    'member_user_id': { 
-        type: String,
-    },
+    member_user_id: String,
 
-    'created_user': { 
-        type: String,
-    },
-    'updated_user': { 
-        type: String,
-    },
+    created_user: String,
+    updated_user: String,
 },{
     collection: 'reservations',
     timestamps: { 

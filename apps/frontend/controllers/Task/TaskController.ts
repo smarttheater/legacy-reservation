@@ -36,64 +36,64 @@ export default class TaskController extends BaseController {
 
         let genres = [
             {
-                "type": "01",
-                "name": "ヒューマンドラマ",
-                "name_en": "Human Drama"
+                code: "01",
+                name: "ヒューマンドラマ",
+                name_en: "Human Drama"
             },
             {
-                "type": "02",
-                "name": "コメディ",
-                "name_en": "Comedy"
+                code: "02",
+                name: "コメディ",
+                name_en: "Comedy"
             },
             {
-                "type": "03",
-                "name": "ラブストーリー",
-                "name_en": "Love Story"
+                code: "03",
+                name: "ラブストーリー",
+                name_en: "Love Story"
             },
             {
-                "type": "04",
-                "name": "エロス",
-                "name_en": "Eros"
+                code: "04",
+                name: "エロス",
+                name_en: "Eros"
             },
             {
-                "type": "05",
-                "name": "青春",
-                "name_en": "Youth Drama"
+                code: "05",
+                name: "青春",
+                name_en: "Youth Drama"
             },
         ];
 
         let sections = [
             {
-                "type": "01",
-                "name": "コンペティション",
-                "name_en": "Competition"
+                code: "01",
+                name: "コンペティション",
+                name_en: "Competition"
             },
             {
-                "type": "02",
-                "name": "アジアの未来",
-                "name_en": "Asian Future"
+                code: "02",
+                name: "アジアの未来",
+                name_en: "Asian Future"
             },
             {
-                "type": "03",
-                "name": "日本映画スプラッシュ",
-                "name_en": "Japanese Cinema Splash"
+                code: "03",
+                name: "日本映画スプラッシュ",
+                name_en: "Japanese Cinema Splash"
             },
             {
-                "type": "04",
-                "name": "特別招待作品",
-                "name_en": "Special Screenings"
+                code: "04",
+                name: "特別招待作品",
+                name_en: "Special Screenings"
             },
             {
-                "type": "05",
-                "name": "パノラマ",
-                "name_en": "Panorama"
+                code: "05",
+                name: "パノラマ",
+                name_en: "Panorama"
             },
         ];
 
         let films = [
         ];
 
-        for (let i = 0; i < 120; i++) {
+        for (let i = 0; i < 300; i++) {
             let no = i + 1;
             let _sections = this.shuffle(sections);
             let _genres = this.shuffle(genres);
@@ -115,11 +115,13 @@ export default class TaskController extends BaseController {
             });
         }
 
+        this.logger.debug('removing all films...');
         Models.Film.remove({}, (err) => {
+            this.logger.debug('creating films...');
             Models.Film.create(
                 films,
                 (err, filmDocuments) => {
-                    console.log(filmDocuments);
+                    this.logger.debug('films created.', filmDocuments);
                     if (err) {
                     } else {
                         this.res.send('success');
@@ -197,23 +199,27 @@ export default class TaskController extends BaseController {
         });
 
 
-
-        Models.Screen.create(
-            screens,
-            (err, screenDocuments) => {
-                console.log(screenDocuments);
-                if (err) {
-                } else {
-                    this.res.send('success');
+        this.logger.debug('removing all screens...');
+        Models.Screen.remove({}, (err) => {
+            this.logger.debug('creating screens...');
+            Models.Screen.create(
+                screens,
+                (err, screenDocuments) => {
+                    this.logger.debug('screens created.', screenDocuments);
+                    if (err) {
+                    } else {
+                        this.res.send('success');
+                    }
                 }
-            }
-        );
+            );
+        });
     }
 
     public createPerformances() {
-        // 全削除
-        Models.Performance.remove({}, (err) => {
             let performances = [];
+
+            // 作品ごとのパフォーマンス数(最大3つになるように制御)
+            let performancesByFilm = {};
 
             Models.Film.find({}, (err, filmDocuments) => {
                 Models.Screen.find({}, (err, screenDocuments) => {
@@ -223,14 +229,40 @@ export default class TaskController extends BaseController {
 
                     // スクリーンごとに4時間帯のスケジュールを登録する
                     screenDocuments.forEach((screen) => {
+                        this.logger.debug('performances length:', performances.length);
                         days.forEach((day) => {
                             starts.forEach((start, index) => {
-                                let _filmDocuments = this.shuffle(filmDocuments);
 
+
+
+                                // 作品を選考する
+                                this.logger.debug('selecting film...');
+                                let _filmId;
+                                while (_filmId === undefined) {
+                                    let _filmDocuments = this.shuffle(filmDocuments);
+                                    let _film = _filmDocuments[0];
+
+                                    if (performancesByFilm.hasOwnProperty(_film.get('_id'))) {
+                                        if (performancesByFilm[_film.get('_id')].length > 2) {
+                                            continue;
+                                        } else {
+                                            performancesByFilm[_film.get('_id')].push('performance');
+                                            _filmId = _film.get('_id');
+                                        }
+                                    } else {
+                                        performancesByFilm[_film.get('_id')] = [];
+                                        performancesByFilm[_film.get('_id')].push('performance');
+                                        _filmId = _film.get('_id');
+                                    }
+                                }
+
+
+
+                                this.logger.debug('pushing performance...');
                                 performances.push({
                                     theater: screen.get('theater'),
                                     screen: screen.get('_id'),
-                                    film: _filmDocuments[0].get('_id'),
+                                    film: _filmId,
                                     day: day,
                                     start_time: start,
                                     end_time: ends[index],
@@ -241,19 +273,28 @@ export default class TaskController extends BaseController {
                         });
                     });
 
-                    Models.Performance.create(
-                        performances,
-                        (err, performanceDocuments) => {
-                            if (err) {
-                            } else {
-                            }
 
-                            this.res.send('success');
-                        }
-                    );
+
+
+                    // 全削除
+                    this.logger.debug('removing all performances...');
+                    Models.Performance.remove({}, (err) => {
+                        this.logger.debug('creating performances...');
+                        Models.Performance.create(
+                            performances,
+                            (err, performanceDocuments) => {
+                                this.logger.debug('performances created.', performanceDocuments);
+                                if (err) {
+                                } else {
+                                }
+
+                                this.res.send('success');
+                            }
+                        );
+                    });
+
                 });
             });
-        });
     }
 
     public resetReservations(): void {

@@ -80,11 +80,6 @@ export default class ReservationModel {
     public paymentMethod: string;
 
     /**
-     * 内部関係者署名
-     */
-    public staff_signature: string;
-
-    /**
      * メルマガ当選者
      */
     public member: {
@@ -149,9 +144,8 @@ export default class ReservationModel {
     public static find(token: string, cb: (err: Error, reservationModel: ReservationModel) => any): void {
         let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(token);
-        client.get(key, (err, reply) => {
+        client.get(key, (err, reply: Buffer) => {
             client.quit();
-
             if (err) {
                 cb(err, null);
             } else {
@@ -160,7 +154,7 @@ export default class ReservationModel {
 
                 } else {
                     let reservationModel = new ReservationModel();
-                    let reservationModelInRedis = JSON.parse(reply);
+                    let reservationModelInRedis = JSON.parse(reply.toString('utf-8'));
                     for (let propertyName in reservationModelInRedis) {
                         reservationModel[propertyName] = reservationModelInRedis[propertyName];
                     }
