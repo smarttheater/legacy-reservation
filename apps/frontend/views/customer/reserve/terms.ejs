@@ -1,9 +1,18 @@
 <h1>規約</h1>
 
+<% if (req.form) { %>
+<div class="alert alert-danger" role="alert">
+    <a href="javascript:void(0)" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    <% Object.keys(req.form.getErrors()).forEach(function (key) { %>
+    <%- req.form.getErrors(key)[0] %><br>
+    <% }) %>
+</div>
+<% } %>
+
 <form method="post">
     <div class="checkbox">
-        <label for="id_agree">
-            <input type="checkbox" name="agree" id="id_agree" value="on"> 同意する
+        <label for="id_isAgree">
+            <input type="checkbox" name="isAgree" id="id_isAgree" value="on"> 同意する
         </label>
     </div>
     <input type="submit" class="btn btn-primary btn-lg btn-block">

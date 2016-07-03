@@ -30,6 +30,9 @@
     <a class="btn btn-primary btn-lg btn-block select-seats" href="javascript:void(0);">券種選択</a>
 </div>
 
+<form method="post">
+    <input type="hidden" name="reservationIds">
+</form>
 
 <script>
 
@@ -80,8 +83,3 @@ $(function(){
     });
 });
 </script>
-
-<form method="post">
-<%- form.toHTML() %>
-</form>
-
