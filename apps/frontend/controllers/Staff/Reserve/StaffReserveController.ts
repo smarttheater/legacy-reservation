@@ -1,9 +1,9 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import StaffUser from '../../../models/User/StaffUser';
 import Util from '../../../../common/Util/Util';
-import StaffReservePerformanceForm from '../../../forms/Staff/Reserve/StaffReservePerformanceForm';
-import StaffReserveSeatForm from '../../../forms/Staff/Reserve/StaffReserveSeatForm';
-import StaffReserveTicketForm from '../../../forms/Staff/Reserve/StaffReserveTicketForm';
+import staffReservePerformanceForm from '../../../forms/Staff/Reserve/staffReservePerformanceForm';
+import staffReserveSeatForm from '../../../forms/Staff/Reserve/staffReserveSeatForm';
+import staffReserveTicketForm from '../../../forms/Staff/Reserve/staffReserveTicketForm';
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
@@ -44,15 +44,11 @@ export default class StaffReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            let staffReservePerformanceForm = new StaffReservePerformanceForm();
             if (this.req.method === 'POST') {
-
-                staffReservePerformanceForm.form.handle(this.req, {
-                    success: (form) => {
-                        staffReservePerformanceForm.form = form;
-
+                staffReservePerformanceForm(this.req, this.res, (err) => {
+                    if (this.req.form.isValid) {
                         // パフォーマンスFIX
-                        this.processFixPerformance(reservationModel, form.data.performance_id, (err, reservationModel) => {
+                        this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
                             if (err) {
                                 this.next(err);
                             } else {
@@ -65,13 +61,11 @@ export default class StaffReserveController extends ReserveBaseController {
                             }
                         });
 
-                    },
-                    error: (form) => {
+                    } else {
                         this.next(new Error('不適切なアクセスです'));
-                    },
-                    empty: (form) => {
-                        this.next(new Error('不適切なアクセスです'));
+
                     }
+
                 });
             } else {
                 // 仮予約あればキャンセルする
@@ -80,11 +74,12 @@ export default class StaffReserveController extends ReserveBaseController {
                     reservationModel.save((err) => {
                         this.res.render('staff/reserve/performances', {
                             layout: 'layouts/staff/layout',
-                            form: staffReservePerformanceForm.form
                         });
                     });
                 });
+
             }
+
         });
     }
 
@@ -107,14 +102,11 @@ export default class StaffReserveController extends ReserveBaseController {
             },
             (err, reservationsCount) => {
 
-                let staffReserveSeatForm = new StaffReserveSeatForm();
                 if (this.req.method === 'POST') {
+                    staffReserveSeatForm(this.req, this.res, (err) => {
+                        if (this.req.form.isValid) {
 
-                    staffReserveSeatForm.form.handle(this.req, {
-                        success: (form) => {
-                            staffReserveSeatForm.form = form;
-
-                            let reservationIds: Array<string> = JSON.parse(form.data.reservationIds);
+                            let reservationIds: Array<string> = JSON.parse(this.req.form['reservationIds']);
 
                             // 座席FIX
                             this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
@@ -136,21 +128,21 @@ export default class StaffReserveController extends ReserveBaseController {
 
                                 }
                             });
-                        },
-                        error: (form) => {
+
+                        } else {
                             this.res.redirect(this.router.build('staff.reserve.seats', {token: token}));
-                        },
-                        empty: (form) => {
-                            this.res.redirect(this.router.build('staff.reserve.seats', {token: token}));
+
                         }
+
                     });
                 } else {
                     this.res.render('staff/reserve/seats', {
                         layout: 'layouts/staff/layout',
-                        form: staffReserveSeatForm.form,
                         reservationModel: reservationModel,
                     });
+
                 }
+
             });
         });
     }
@@ -167,15 +159,12 @@ export default class StaffReserveController extends ReserveBaseController {
 
             this.logger.debug('reservationModel is ', reservationModel);
 
-            let staffReserveTicketForm = new StaffReserveTicketForm();
             if (this.req.method === 'POST') {
-
-                staffReserveTicketForm.form.handle(this.req, {
-                    success: (form) => {
-                        staffReserveTicketForm.form = form;
+                staffReserveTicketForm(this.req, this.res, (err) => {
+                    if (this.req.form.isValid) {
 
                         // 座席選択情報を保存して座席選択へ
-                        let choices = JSON.parse(form.data.choices);
+                        let choices = JSON.parse(this.req.form['choices']);
 
                         if (Array.isArray(choices)) {
                             choices.forEach((choice) => {
@@ -198,21 +187,20 @@ export default class StaffReserveController extends ReserveBaseController {
                             this.next(new Error('不適切なアクセスです'));
                         }
 
-                    },
-                    error: (form) => {
+                    } else {
                         this.res.redirect(this.router.build('staff.reserve.tickets', {token: token}));
-                    },
-                    empty: (form) => {
-                        this.res.redirect(this.router.build('staff.reserve.tickets', {token: token}));
+
                     }
+
                 });
             } else {
                 this.res.render('staff/reserve/tickets', {
                     layout: 'layouts/staff/layout',
-                    form: staffReserveTicketForm.form,
                     reservationModel: reservationModel,
                 });
+
             }
+
         });
     }
 

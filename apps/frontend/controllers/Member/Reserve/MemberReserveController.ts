@@ -1,12 +1,10 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import MemberUser from '../../../models/User/MemberUser';
 import Util from '../../../../common/Util/Util';
-import MemberReserveLoginForm from '../../../forms/Member/Reserve/MemberReserveLoginForm';
-import MemberReservePerformanceForm from '../../../forms/Member/Reserve/MemberReservePerformanceForm';
-import MemberReserveSeatForm from '../../../forms/Member/Reserve/MemberReserveSeatForm';
-import MemberReserveTicketForm from '../../../forms/Member/Reserve/MemberReserveTicketForm';
-import MemberReserveProfileForm from '../../../forms/Member/Reserve/MemberReserveProfileForm';
-import MemberReservePayForm from '../../../forms/Member/Reserve/MemberReservePayForm';
+import memberReserveLoginForm from '../../../forms/Member/Reserve/memberReserveLoginForm';
+import memberReserveTicketForm from '../../../forms/Member/Reserve/memberReserveTicketForm';
+import memberReserveProfileForm from '../../../forms/Member/Reserve/memberReserveProfileForm';
+import memberReservePayForm from '../../../forms/Member/Reserve/memberReservePayForm';
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
@@ -24,24 +22,19 @@ export default class MemberReserveController extends ReserveBaseController {
             return this.res.redirect(this.router.build('member.reserve.start', {}));
         }
 
-        let memberReserveLoginForm = new MemberReserveLoginForm();
         if (this.req.method === 'POST') {
-
-            memberReserveLoginForm.form.handle(this.req, {
-                success: (form) => {
-                    memberReserveLoginForm.form = form;
-
+            memberReserveLoginForm(this.req, this.res, (err) => {
+                if (this.req.form.isValid) {
                     // ユーザー認証
-                    this.logger.debug('finding member... user_id:', form.data.user_id);
+                    this.logger.debug('finding member... user_id:', this.req.form['user_id']);
                     Models.Member.findOne(
                         {
-                            user_id: form.data.user_id,
-                            password: form.data.password,
+                            user_id: this.req.form['user_id'],
+                            password: this.req.form['password'],
                         },
                         (err, memberDocument) => {
                             if (err || memberDocument === null) {
                                 this.res.render('member/reserve/terms', {
-                                    form: form,
                                 });
                             } else {
                                 // ログイン
@@ -52,23 +45,23 @@ export default class MemberReserveController extends ReserveBaseController {
                             }
                         }
                     );
-                },
-                error: (form) => {
-                    return this.res.render('member/reserve/terms', {
-                        form: form,
+
+                } else {
+                    this.res.render('member/reserve/terms', {
                     });
-                },
-                empty: (form) => {
-                    return this.res.render('member/reserve/terms', {
-                        form: form,
-                    });
+
                 }
+
             });
         } else {
+            this.res.locals.userId = '';
+            this.res.locals.password = '';
+
             this.res.render('member/reserve/terms', {
-                form: memberReserveLoginForm.form
             });
+
         }
+
     }
 
     public start(): void {
@@ -145,15 +138,11 @@ export default class MemberReserveController extends ReserveBaseController {
 
             this.logger.debug('reservationModel is ', reservationModel);
 
-            let memberReserveTicketForm = new MemberReserveTicketForm();
             if (this.req.method === 'POST') {
-
-                memberReserveTicketForm.form.handle(this.req, {
-                    success: (form) => {
-                        memberReserveTicketForm.form = form;
-
+                memberReserveTicketForm(this.req, this.res, (err) => {
+                    if (this.req.form.isValid) {
                         // 座席選択情報を保存して座席選択へ
-                        let choices = JSON.parse(form.data.choices);
+                        let choices = JSON.parse(this.req.form['choices']);
 
                         if (Array.isArray(choices)) {
                             choices.forEach((choice, index) => {
@@ -175,20 +164,19 @@ export default class MemberReserveController extends ReserveBaseController {
                             this.next(new Error('不適切なアクセスです'));
                         }
 
-                    },
-                    error: (form) => {
+                    } else {
                         this.res.redirect(this.router.build('member.reserve.tickets', {token: token}));
-                    },
-                    empty: (form) => {
-                        this.res.redirect(this.router.build('member.reserve.tickets', {token: token}));
+
                     }
+
                 });
             } else {
                 this.res.render('member/reserve/tickets', {
-                    form: memberReserveTicketForm.form,
                     reservationModel: reservationModel,
                 });
+
             }
+
         });
     }
 
@@ -204,56 +192,56 @@ export default class MemberReserveController extends ReserveBaseController {
 
             this.logger.debug('reservationModel is ', reservationModel);
 
-            let memberReserveProfileForm = new MemberReserveProfileForm();
             if (this.req.method === 'POST') {
-
-                memberReserveProfileForm.form.handle(this.req, {
-                    success: (form) => {
-                        memberReserveProfileForm.form = form;
-
+                memberReserveProfileForm(this.req, this.res, (err) => {
+                    if (this.req.form.isValid) {
                         // 購入者情報を保存して座席選択へ
                         reservationModel.profile = {
-                            last_name: form.data.last_name,
-                            first_name: form.data.first_name,
-                            email: form.data.email,
-                            tel: form.data.tel,
+                            last_name: this.req.form['lastName'],
+                            first_name: this.req.form['firstName'],
+                            email: this.req.form['email'],
+                            tel: this.req.form['tel']
                         };
 
                         this.logger.debug('saving reservationModel... ', reservationModel);
                         reservationModel.save((err) => {
                             this.res.redirect(this.router.build('member.reserve.pay', {token: token}));
                         });
-                    },
-                    error: (form) => {
-                        this.res.render('member/reserve/profile', {
-                            form: form,
+
+                    } else {
+                        this.res.render('customer/reserve/profile', {
                             reservationModel: reservationModel,
                         });
-                    },
-                    empty: (form) => {
-                        this.res.render('member/reserve/profile', {
-                            form: form,
-                            reservationModel: reservationModel,
-                        });
+
                     }
+
                 });
+
             } else {
+                this.res.locals.lastName = '';
+                this.res.locals.firstName = '';
+                this.res.locals.tel = '';
+                this.res.locals.email = '';
+                this.res.locals.emailConfirm = '';
+                this.res.locals.emailConfirmDomain = '';
+
                 // セッションに情報があれば、フォーム初期値設定
                 if (reservationModel.profile) {
                     let email = reservationModel.profile.email;
-                    memberReserveProfileForm.form.fields.last_name.value = reservationModel.profile.last_name;
-                    memberReserveProfileForm.form.fields.first_name.value = reservationModel.profile.first_name;
-                    memberReserveProfileForm.form.fields.tel.value = reservationModel.profile.tel;
-                    memberReserveProfileForm.form.fields.email.value = email;
-                    memberReserveProfileForm.form.fields.emailConfirm.value = email.substr(0, email.indexOf('@'));
-                    memberReserveProfileForm.form.fields.emailConfirmDomain.value = email.substr(email.indexOf('@') + 1);
+                    this.res.locals.lastName = reservationModel.profile.last_name;
+                    this.res.locals.firstName = reservationModel.profile.first_name;
+                    this.res.locals.tel = reservationModel.profile.tel;
+                    this.res.locals.email = email;
+                    this.res.locals.emailConfirm = email.substr(0, email.indexOf('@'));
+                    this.res.locals.emailConfirmDomain = email.substr(email.indexOf('@') + 1);
                 }
 
                 this.res.render('member/reserve/profile', {
-                    form: memberReserveProfileForm.form,
                     reservationModel: reservationModel,
                 });
+
             }
+
         });
     }
 
@@ -269,43 +257,39 @@ export default class MemberReserveController extends ReserveBaseController {
 
             this.logger.debug('reservationModel is ', reservationModel);
 
-            let memberReservePayForm = new MemberReservePayForm();
             if (this.req.method === 'POST') {
-
-                memberReservePayForm.form.handle(this.req, {
-                    success: (form) => {
-                        memberReservePayForm.form = form;
-
+                memberReservePayForm(this.req, this.res, (err) => {
+                    if (this.req.form.isValid) {
                         // 決済方法情報を保存して座席選択へ
-                        reservationModel.paymentMethod = form.data.method;
+                        reservationModel.paymentMethod = this.req.form['method'];
 
                         this.logger.debug('saving reservationModel... ', reservationModel);
                         reservationModel.save((err) => {
                             this.res.redirect(this.router.build('member.reserve.confirm', {token: token}));
                         });
-                    },
-                    error: (form) => {
+
+                    } else {
                         this.res.render('member/reserve/pay', {
-                            form: form,
                         });
-                    },
-                    empty: (form) => {
-                        this.res.render('member/reserve/pay', {
-                            form: form,
-                        });
+
                     }
+
                 });
+
             } else {
+                this.res.locals.method = '01';
+
                 // セッションに情報があれば、フォーム初期値設定
                 if (reservationModel.paymentMethod) {
-                    memberReservePayForm.form.fields.method.value = reservationModel.paymentMethod;
+                    this.res.locals.method = reservationModel.paymentMethod;
                 }
 
                 this.res.render('member/reserve/pay', {
-                    form: memberReservePayForm.form,
                     reservationModel: reservationModel,
                 });
+
             }
+
         });
     }
 

@@ -44,6 +44,9 @@
     <a class="btn btn-primary btn-lg btn-block select-tickets" href="javascript:void(0);">次へ</a>
 </div>
 
+<form method="post">
+    <input type="hidden" name="choices">
+</form>
 
 <script>
 $(function(){
@@ -66,8 +69,3 @@ $(function(){
 
 });
 </script>
-
-<form method="post">
-<%- form.toHTML() %>
-</form>
-

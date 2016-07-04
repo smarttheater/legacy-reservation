@@ -1,11 +1,10 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import SponsorUser from '../../../models/User/SponsorUser';
 import Util from '../../../../common/Util/Util';
-import SponsorReserveTermsForm from '../../../forms/Sponsor/Reserve/SponsorReserveTermsForm';
-import SponsorReservePerformanceForm from '../../../forms/Sponsor/Reserve/SponsorReservePerformanceForm';
-import SponsorReserveSeatForm from '../../../forms/Sponsor/Reserve/SponsorReserveSeatForm';
-import SponsorReserveTicketForm from '../../../forms/Sponsor/Reserve/SponsorReserveTicketForm';
-import SponsorReserveProfileForm from '../../../forms/Sponsor/Reserve/SponsorReserveProfileForm';
+import sponsorReservePerformanceForm from '../../../forms/Sponsor/Reserve/sponsorReservePerformanceForm';
+import sponsorReserveSeatForm from '../../../forms/Sponsor/Reserve/sponsorReserveSeatForm';
+import sponsorReserveTicketForm from '../../../forms/Sponsor/Reserve/sponsorReserveTicketForm';
+import sponsorReserveProfileForm from '../../../forms/Sponsor/Reserve/sponsorReserveProfileForm';
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
@@ -13,46 +12,6 @@ import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
 
 export default class SponsorReserveController extends ReserveBaseController {
-    /**
-     * 規約
-     */
-    public terms(): void {
-        if (this.sponsorUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('sponsor.reserve.start', {}));
-        }
-
-        let sponsorReserveTermsForm = new SponsorReserveTermsForm();
-        if (this.req.method === 'POST') {
-
-            sponsorReserveTermsForm.form.handle(this.req, {
-                success: (form) => {
-                    sponsorReserveTermsForm.form = form;
-
-                    this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
-                },
-                error: (form) => {
-                    this.res.render('sponsor/reserve/terms', {
-                        layout: 'layouts/sponsor/layout',
-                        sponsorReserveLoginForm: form,
-                    });
-                },
-                empty: (form) => {
-                    this.res.render('sponsor/reserve/terms', {
-                        layout: 'layouts/sponsor/layout',
-                        sponsorReserveLoginForm: form,
-                    });
-                }
-            });
-
-
-        } else {
-            this.res.render('sponsor/reserve/terms', {
-                layout: 'layouts/sponsor/layout',
-                form: sponsorReserveTermsForm.form,
-            });
-        }
-    }
-
     public start(): void {
         // 予約トークンを発行
         let token = Util.createToken();
@@ -84,15 +43,11 @@ export default class SponsorReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            let sponsorReservePerformanceForm = new SponsorReservePerformanceForm();
             if (this.req.method === 'POST') {
-
-                sponsorReservePerformanceForm.form.handle(this.req, {
-                    success: (form) => {
-                        sponsorReservePerformanceForm.form = form;
-
+                sponsorReservePerformanceForm(this.req, this.res, (err) => {
+                    if (this.req.form.isValid) {
                         // パフォーマンスFIX
-                        this.processFixPerformance(reservationModel, form.data.performance_id, (err, reservationModel) => {
+                        this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
                             if (err) {
                                 this.next(err);
                             } else {
@@ -105,13 +60,11 @@ export default class SponsorReserveController extends ReserveBaseController {
                             }
                         });
 
-                    },
-                    error: (form) => {
+                    } else {
                         this.next(new Error('不適切なアクセスです'));
-                    },
-                    empty: (form) => {
-                        this.next(new Error('不適切なアクセスです'));
+
                     }
+
                 });
             } else {
                 // 仮予約あればキャンセルする
@@ -120,11 +73,12 @@ export default class SponsorReserveController extends ReserveBaseController {
                     reservationModel.save((err) => {
                         this.res.render('sponsor/reserve/performances', {
                             layout: 'layouts/sponsor/layout',
-                            form: sponsorReservePerformanceForm.form
                         });
                     });
                 });
+
             }
+
         });
     }
 
@@ -148,14 +102,11 @@ export default class SponsorReserveController extends ReserveBaseController {
             },
             (err, reservationsCount) => {
 
-                let sponsorReserveSeatForm = new SponsorReserveSeatForm();
                 if (this.req.method === 'POST') {
+                    sponsorReserveSeatForm(this.req, this.res, (err) => {
+                        if (this.req.form.isValid) {
 
-                    sponsorReserveSeatForm.form.handle(this.req, {
-                        success: (form) => {
-                            sponsorReserveSeatForm.form = form;
-
-                            let reservationIds: Array<string> = JSON.parse(form.data.reservationIds);
+                            let reservationIds: Array<string> = JSON.parse(this.req.form['reservationIds']);
 
                             // 座席指定可能数チェック
                             if (reservationIds.length > parseInt(this.sponsorUser.get('max_reservation_count')) - reservationsCount) {
@@ -186,22 +137,21 @@ export default class SponsorReserveController extends ReserveBaseController {
                                 }
                             });
 
-                        },
-                        error: (form) => {
+                        } else {
                             this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
-                        },
-                        empty: (form) => {
-                            this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
+
                         }
+
                     });
                 } else {
                     this.res.render('sponsor/reserve/seats', {
                         layout: 'layouts/sponsor/layout',
-                        form: sponsorReserveSeatForm.form,
                         reservationModel: reservationModel,
                         reservationsCount: reservationsCount,
                     });
+
                 }
+
             });
         });
     }
@@ -218,15 +168,12 @@ export default class SponsorReserveController extends ReserveBaseController {
 
             this.logger.debug('reservationModel is ', reservationModel);
 
-            let sponsorReserveTicketForm = new SponsorReserveTicketForm();
             if (this.req.method === 'POST') {
-
-                sponsorReserveTicketForm.form.handle(this.req, {
-                    success: (form) => {
-                        sponsorReserveTicketForm.form = form;
+                sponsorReserveTicketForm(this.req, this.res, (err) => {
+                    if (this.req.form.isValid) {
 
                         // 座席選択情報を保存して座席選択へ
-                        let choices = JSON.parse(form.data.choices);
+                        let choices = JSON.parse(this.req.form['choices']);
 
                         if (Array.isArray(choices)) {
                             choices.forEach((choice) => {
@@ -249,21 +196,20 @@ export default class SponsorReserveController extends ReserveBaseController {
                             this.next(new Error('不適切なアクセスです'));
                         }
 
-                    },
-                    error: (form) => {
+                    } else {
                         this.res.redirect(this.router.build('sponsor.reserve.tickets', {token: token}));
-                    },
-                    empty: (form) => {
-                        this.res.redirect(this.router.build('sponsor.reserve.tickets', {token: token}));
+
                     }
+
                 });
             } else {
                 this.res.render('sponsor/reserve/tickets', {
                     layout: 'layouts/sponsor/layout',
-                    form: sponsorReserveTicketForm.form,
                     reservationModel: reservationModel,
                 });
+
             }
+
         });
     }
 
@@ -279,59 +225,59 @@ export default class SponsorReserveController extends ReserveBaseController {
 
             this.logger.debug('reservationModel is ', reservationModel);
 
-            let sponsorReserveProfileForm = new SponsorReserveProfileForm();
             if (this.req.method === 'POST') {
-
-                sponsorReserveProfileForm.form.handle(this.req, {
-                    success: (form) => {
-                        sponsorReserveProfileForm.form = form;
+                sponsorReserveProfileForm(this.req, this.res, (err) => {
+                    if (this.req.form.isValid) {
 
                         // 購入者情報を保存して座席選択へ
                         reservationModel.profile = {
-                            last_name: form.data.last_name,
-                            first_name: form.data.first_name,
-                            email: form.data.email,
-                            tel: form.data.tel,
+                            last_name: this.req.form['lastName'],
+                            first_name: this.req.form['firstName'],
+                            email: this.req.form['email'],
+                            tel: this.req.form['tel'],
                         };
 
                         this.logger.debug('saving reservationModel... ', reservationModel);
                         reservationModel.save((err) => {
                             this.res.redirect(this.router.build('sponsor.reserve.confirm', {token: token}));
                         });
-                    },
-                    error: (form) => {
+
+                    } else {
                         this.res.render('sponsor/reserve/profile', {
                             layout: 'layouts/sponsor/layout',
-                            form: form,
                             reservationModel: reservationModel,
                         });
-                    },
-                    empty: (form) => {
-                        this.res.render('sponsor/reserve/profile', {
-                            layout: 'layouts/sponsor/layout',
-                            form: form,
-                            reservationModel: reservationModel,
-                        });
+
                     }
+
                 });
+
             } else {
+                this.res.locals.lastName = '';
+                this.res.locals.firstName = '';
+                this.res.locals.tel = '';
+                this.res.locals.email = '';
+                this.res.locals.emailConfirm = '';
+                this.res.locals.emailConfirmDomain = '';
+
                 // セッションに情報があれば、フォーム初期値設定
                 if (reservationModel.profile) {
                     let email = reservationModel.profile.email;
-                    sponsorReserveProfileForm.form.fields.last_name.value = reservationModel.profile.last_name;
-                    sponsorReserveProfileForm.form.fields.first_name.value = reservationModel.profile.first_name;
-                    sponsorReserveProfileForm.form.fields.tel.value = reservationModel.profile.tel;
-                    sponsorReserveProfileForm.form.fields.email.value = email;
-                    sponsorReserveProfileForm.form.fields.emailConfirm.value = email.substr(0, email.indexOf('@'));
-                    sponsorReserveProfileForm.form.fields.emailConfirmDomain.value = email.substr(email.indexOf('@') + 1);
+                    this.res.locals.lastName = reservationModel.profile.last_name;
+                    this.res.locals.firstName = reservationModel.profile.first_name;
+                    this.res.locals.tel = reservationModel.profile.tel;
+                    this.res.locals.email = email;
+                    this.res.locals.emailConfirm = email.substr(0, email.indexOf('@'));
+                    this.res.locals.emailConfirmDomain = email.substr(email.indexOf('@') + 1);
                 }
 
                 this.res.render('sponsor/reserve/profile', {
                     layout: 'layouts/sponsor/layout',
-                    form: sponsorReserveProfileForm.form,
                     reservationModel: reservationModel,
                 });
+
             }
+
         });
     }
 

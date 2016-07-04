@@ -1,15 +1,24 @@
 <h1>規約</h1>
 
+<% if (req.form) { %>
+<div class="alert alert-danger" role="alert">
+    <a href="javascript:void(0)" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    <% Object.keys(req.form.getErrors()).forEach(function (key) { %>
+    <%- req.form.getErrors(key)[0] %><br>
+    <% }) %>
+</div>
+<% } %>
+
 <div class="row">
     <form method="post">
         <div class="form-group">
-            <label for="id_user_id">ログイン番号</label>
-            <input type="text" name="user_id" id="id_user_id" class="form-control" value="<%- form.fields.user_id.value %>">
+            <label for="id_userId">ログイン番号</label>
+            <input type="text" name="userId" id="id_userId" class="form-control" value="<%- userId %>">
         </div>
 
         <div class="form-group">
             <label for="id_password">パスワード</label>
-            <input type="password" name="password" id="id_password" class="form-control" value="<%- form.fields.password.value %>">
+            <input type="password" name="password" id="id_password" class="form-control" value="<%- password %>">
         </div>
 
         <input type="submit" class="btn btn-primary btn-lg btn-block">

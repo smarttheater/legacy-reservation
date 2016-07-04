@@ -79,12 +79,6 @@ export default class Router {
 
 
 
-        // キャンセル
-        app.all('/sponsor/cancel', 'sponsor.cancel', (req, res, next) => {(new SponsorCancelController(req, res, next)).index()});
-        app.get('/sponsor/cancel/:token/reservations', 'sponsor.cancel.reservations', (req, res, next) => {(new SponsorCancelController(req, res, next)).reservations()});
-        app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', (req, res, next) => {(new SponsorCancelController(req, res, next)).execute()});
-
-
 
 
         // タスク
@@ -159,11 +153,9 @@ export default class Router {
         // 内部関係者
         app.all('/staff/login', 'staff.login', (req, res, next) => {(new StaffAuthController(req, res, next)).login()});
         app.all('/staff/logout', 'staff.logout', (req, res, next) => {(new StaffAuthController(req, res, next)).logout()});
-
         app.all('/staff/mypage', 'staff.mypage', authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).index()});
         app.get('/staff/mypage/search', 'staff.mypage.search', authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).search()});
         app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).updateWatcherName()});
-
         app.get('/staff/reserve/start', 'staff.reserve.start', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).start()});
         app.all('/staff/reserve/:token/performances', 'staff.reserve.performances', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).performances()});
         app.all('/staff/reserve/:token/seats', 'staff.reserve.seats', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).seats()});
@@ -173,13 +165,11 @@ export default class Router {
         app.get('/staff/reserve/:token/complete', 'staff.reserve.complete', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).complete()});
         app.post('/staff/cancel/execute', 'staff.cancel.execute', authenticationStaff, (req, res, next) => {(new StaffCancelController(req, res, next)).execute()});
 
+
         // 外部関係者
         app.all('/sponsor/login', 'sponsor.login', (req, res, next) => {(new SponsorAuthController(req, res, next)).login()});
         app.all('/sponsor/logout', 'sponsor.logout', (req, res, next) => {(new SponsorAuthController(req, res, next)).logout()});
-
         app.all('/sponsor/mypage', 'sponsor.mypage', authenticationSponsor, (req, res, next) => {(new SponsorMyPageController(req, res, next)).index()});
-
-        app.all('/sponsor/reserve/terms', 'sponsor.reserve.terms', (req, res, next) => {(new SponsorReserveController(req, res, next)).terms()});
         app.get('/sponsor/reserve/start', 'sponsor.reserve.start', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).start()});
         app.all('/sponsor/reserve/:token/performances', 'sponsor.reserve.performances', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).performances()});
         app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).seats()});
@@ -188,6 +178,7 @@ export default class Router {
         app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).confirm()});
         app.get('/sponsor/reserve/:token/process', 'sponsor.reserve.process', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).process()});
         app.get('/sponsor/reserve/:token/complete', 'sponsor.reserve.complete', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).complete()});
+        app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', authenticationSponsor, (req, res, next) => {(new SponsorCancelController(req, res, next)).execute()});
 
 
 

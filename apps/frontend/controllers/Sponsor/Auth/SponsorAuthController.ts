@@ -1,6 +1,6 @@
 import BaseController from '../../BaseController';
 import SponsorUser from '../../../models/User/SponsorUser';
-import SponsorLoginForm from '../../../forms/Sponsor/SponsorLoginForm';
+import sponsorLoginForm from '../../../forms/Sponsor/sponsorLoginForm';
 import Util from '../../../../common/Util/Util';
 import Models from '../../../../common/models/Models';
 
@@ -10,25 +10,21 @@ export default class SponsorAuthController extends BaseController {
             return this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
         }
 
-        let sponsorLoginForm = new SponsorLoginForm();
         if (this.req.method === 'POST') {
-
-            sponsorLoginForm.form.handle(this.req, {
-                success: (form) => {
-                    sponsorLoginForm.form = form;
+            sponsorLoginForm(this.req, this.res, (err) => {
+                if (this.req.form.isValid) {
 
                     // ユーザー認証
-                    this.logger.debug('finding sponsor... user_id:', form.data.user_id);
+                    this.logger.debug('finding sponsor... user_id:', this.req.form['userId']);
                     Models.Sponsor.findOne(
                     {
-                        user_id: form.data.user_id,
-                        password: form.data.password,
+                        user_id: this.req.form['userId'],
+                        password: this.req.form['password'],
                     },
                     (err, sponsorDocument) => {
 
                         if (err || sponsorDocument === null) {
                             this.res.render('sponsor/auth/login', {
-                                form: form,
                             });
                         } else {
                             // ログイン
@@ -37,25 +33,23 @@ export default class SponsorAuthController extends BaseController {
                             this.res.redirect(this.router.build('sponsor.mypage', {}));
                         }
                     });
-                },
-                error: (form) => {
+
+                } else {
                     this.res.render('sponsor/auth/login', {
-                        form: form,
                     });
-                },
-                empty: (form) => {
-                    this.res.render('sponsor/auth/login', {
-                        form: form,
-                    });
+
                 }
+
             });
-
-
         } else {
+            this.res.locals.userId = '';
+            this.res.locals.password = '';
+
             this.res.render('sponsor/auth/login', {
-                form: sponsorLoginForm.form,
             });
+
         }
+
     }
 
     public logout(): void {
