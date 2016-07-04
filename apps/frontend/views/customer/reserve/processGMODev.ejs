@@ -5,11 +5,27 @@
 <title>TIFF</title>
 </head>
 <body>
-    <p>GMO決済開発用ページ</p>
+    <h1>GMO決済開発用ページ</h1>
     token：<%- reservationModel.token %><br />
+    <form name="AuStartCall" action="https://pt01.mul-pay.jp/link/tshop00024015/Multi/Entry" method="post">
+        ShopID：<input type="text" name="ShopID" value="<%- shopId %>"><br>
+        OrderID：<input type="text" name="OrderID" value="<%- orderID %>"><br>
+        Amount:<input type="text" name="Amount" value="<%- amount %>"><br>
+        DateTime<input type="text" name="DateTime" value="<%- dateTime %>"><br>
+        ShopPassString：<input type="text" name="ShopPassString" value="<%- shopPassString %>"><br>
+        RetURL<input type="text" name="RetURL" value="<%- req.protocol + '://' + req.headers.host + url('customer.reserve.fromGMO', {}) %>"><br>
+
+        UseCredit:<input type="text" name="UseCredit" value="1"><br>
+
+        JobCd:<input type="text" name="JobCd" value="CAPTURE"><br>
+        SiteID:<input type="text" name="SiteID" value="tsite00022126"><br>
+        <input type="submit" value="送信"/>
+    </form>
+<!--
     <form action="<%- url('customer.reserve.fromGMO', {}) %>" method="post">
         <input type="hidden" name="token" value="<%- reservationModel.token %>">
         <input type="submit" value="送信"/>
     </form>
+-->
 </body>
 </html>

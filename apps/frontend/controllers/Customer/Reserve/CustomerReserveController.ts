@@ -14,6 +14,8 @@ import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
 
 import form = require('express-form');
+import moment = require('moment');
+import crypto = require('crypto');
 
 export default class CustomerReserveController extends ReserveBaseController {
     /**
@@ -370,9 +372,28 @@ export default class CustomerReserveController extends ReserveBaseController {
                         reservationModel.token = Util.createToken();
                         reservationModel.save((err) => {
                             // GMOへ遷移画面
+                            let shopId = 'tshop00024015';
+                            let orderID = reservationModel.token; // 27桁まで
+                            let amount = reservationModel.getTotalPrice();
+                            let shopPassword = 'hf3wsuyy';
+                            let dateTime = moment().format('YYYYMMDDHHmmss');
+
+                            // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
+                            let md5hash = crypto.createHash('md5');
+                            md5hash.update(`${shopId}${orderID}${amount}${shopPassword}${dateTime}`, 'utf8');
+                            let shopPassString = md5hash.digest('hex');
+
+
+
                             this.res.render('customer/reserve/processGMODev', {
                                 layout: false,
-                                reservationModel: reservationModel
+                                reservationModel: reservationModel,
+                                shopId,
+                                orderID,
+                                amount,
+                                shopPassword,
+                                dateTime,
+                                shopPassString
                             });
                         });
                     }
@@ -385,7 +406,87 @@ export default class CustomerReserveController extends ReserveBaseController {
      * GMOからの結果受信
      */
     public fromGMO(): void {
-        let token = this.req.body.token;
+// console.log(this.req.body);
+// { ShopID: 'tshop00024015',
+//   JobCd: 'CAPTURE',
+//   Amount: '1500',
+//   Tax: '0',
+//   Currency: '',
+//   AccessID: '06ad45d3cbdf71653e1fad567d261da9',
+//   AccessPass: 'a0dc0c0c462a56af4258df74000a3b48',
+//   OrderID: '155b56af5c5110',
+//   Forwarded: '2a99662',
+//   Method: '1',
+//   PayTimes: '',
+//   Approve: '6956212',
+//   TranID: '1607041919111111111111878951',
+//   TranDate: '20160704191911',
+//   CheckString: '98f01693a5c5c8d8ec446d0c00d4e394',
+//   ErrCode: '',
+//   ErrInfo: '',
+//   NewCardFlag: '0',
+//   PayType: '0',
+//   CvsCode: '',
+//   CvsConfNo: '',
+//   CvsReceiptNo: '',
+//   CvsReceiptUrl: '',
+//   EdyReceiptNo: '',
+//   EdyOrderNo: '',
+//   SuicaReceiptNo: '',
+//   SuicaOrderNo: '',
+//   BkCode: '',
+//   ConfNo: '',
+//   PaymentTerm: '',
+//   CustID: '',
+//   EncryptReceiptNo: '',
+//   AuPayInfoNo: '',
+//   AuPayMethod: '',
+//   AuCancelAmount: '',
+//   AuCancelTax: '',
+//   DocomoSettlementCode: '',
+//   DocomoCancelAmount: '',
+//   DocomoCancelTax: '',
+//   SbTrackingId: '',
+//   SbCancelAmount: '',
+//   SbCancelTax: '',
+//   JibunReceiptNo: '',
+//   PayDescription: '',
+//   CardNo: '************1111',
+//   BeforeBalance: '',
+//   AfterBalance: '',
+//   CardActivateStatus: '',
+//   CardTermStatus: '',
+//   CardInvalidStatus: '',
+//   CardWebInquiryStatus: '',
+//   CardValidLimit: '',
+//   CardTypeCode: '',
+//   CarryInfo: '',
+//   RequestNo: '',
+//   AccountNo: '',
+//   NetCashPayType: '',
+//   RakutenIdItemId: '',
+//   RakutenIdItemSubId: '',
+//   RakutenIdItemName: '',
+//   LinepayTranId: '',
+//   LinepayPayMethod: [ '', '' ],
+//   RecruitItemName: '',
+//   RcOrderId: '',
+//   RcOrderTime: '',
+//   RcUsePoint: '',
+//   RcUseCoupon: '',
+//   RcUseShopCoupon: '',
+//   VaBankCode: '',
+//   VaBankName: '',
+//   VaBranchCode: '',
+//   VaBranchName: '',
+//   VaAccountType: '',
+//   VaAccountNumber: '',
+//   VaAvailableDate: '',
+//   VaTradeCode: '',
+//   ClientField1: '',
+//   ClientField2: '',
+//   ClientField3: '' }
+        let token = this.req.body.OrderID;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
