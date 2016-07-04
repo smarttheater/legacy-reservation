@@ -200,6 +200,18 @@ $(function(){
 
         search();
     });
-})
+
+    // セレクト変更イベント
+    $(document).on('change', 'form select', function(){
+        conditions.page = '1';
+
+        // 検索フォームの値を全て条件に追加
+        var formDatas = $('form').serializeArray();
+        formDatas.forEach(function(formData, index){
+            conditions[formData.name] = formData.value;
+        });
+
+        search();
+    });})
 </script>
 

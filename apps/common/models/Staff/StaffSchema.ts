@@ -4,27 +4,13 @@ import mongoose = require('mongoose');
  * 内部関係者スキーマ
  */
 let StaffSchema = new mongoose.Schema({
-    'user_id': { 
-        type: String,
-    },
-    'password': { 
-        type: String,
-    },
-    'name': { 
-        type: String,
-    },
-    'email': { 
-        type: String,
-    },
-    'department_name': { 
-        type: String,
-    },
-    'created_user': { 
-        type: String,
-    },
-    'updated_user': { 
-        type: String,
-    },
+    user_id: String,
+    password: String,
+    name: String,
+    email: String,
+    department_name: String,
+    created_user: String,
+    updated_user: String,
 },{
     collection: 'staffs',
     timestamps: { 
