@@ -46,7 +46,11 @@
 
     <dl class="dl-horizontal">
         <dt>決済方法</dt>
-        <dd>クレジットカード(開発中につきこれで固定)</dd>
+        <% if (reservationModel.paymentMethod === ReservationUtil.PAY_METHOD_CREDIT) { %>
+        <dd>クレジットカード決済</dd>
+        <% } else if (reservationModel.paymentMethod === ReservationUtil.PAY_METHOD_CVS) { %>
+        <dd>コンビニ決済</dd>
+        <% } %>
 
     </dl>
 

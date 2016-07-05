@@ -7,9 +7,15 @@
 <div class="row">
     <form method="post">
         <div class="radio">
-            <label for="id_method_01">
-                <input type="radio" name="method" id="id_method_01" value="01"<% if (method === '01') { %> checked="checked"<% } %>>
+            <label for="id_method_<%- ReservationUtil.PAY_METHOD_CREDIT %>">
+                <input type="radio" name="method" id="id_method_<%- ReservationUtil.PAY_METHOD_CREDIT %>" value="<%- ReservationUtil.PAY_METHOD_CREDIT %>"<% if (method === ReservationUtil.PAY_METHOD_CREDIT) { %> checked="checked"<% } %>>
                 クレジットカード決済
+            </label>
+        </div>
+        <div class="radio">
+            <label for="id_method_<%- ReservationUtil.PAY_METHOD_CVS %>">
+                <input type="radio" name="method" id="id_method_<%- ReservationUtil.PAY_METHOD_CVS %>" value="<%- ReservationUtil.PAY_METHOD_CVS %>"<% if (method === ReservationUtil.PAY_METHOD_CVS) { %> checked="checked"<% } %>>
+                コンビニ決済
             </label>
         </div>
 

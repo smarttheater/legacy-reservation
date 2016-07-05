@@ -6,4 +6,7 @@ export default class ReservationUtil {
     public static STATUS_WAITING_SETTLEMENT_WINDOW = 'WAITING_SETTLEMENT_WINDOW'; // 窓口清算待ち
     public static STATUS_KEPT_BY_TIFF = 'KEPT_BY_TIFF'; // 関係者席保留
     public static STATUS_KEPT_BY_MEMBER = 'KEPT_BY_MEMBER'; // メルマガ会員保留
+
+    public static PAY_METHOD_CREDIT = '01'; // クレジットカード決済
+    public static PAY_METHOD_CVS = '02'; // コンビニ決済
 }

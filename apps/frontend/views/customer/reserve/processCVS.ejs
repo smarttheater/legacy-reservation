@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="title" content="TIFF" />
+<title>TIFF</title>
+</head>
+<body>
+    <h1>コンビニ決済開発用ページ</h1>
+    token：<%- reservationModel.token %><br />
+    <form action="https://pt01.mul-pay.jp/link/tshop00024015/Multi/Entry" method="post">
+        ShopID：<input type="text" name="ShopID" value="<%- shopId %>"><br>
+        OrderID：<input type="text" name="OrderID" value="<%- orderID %>"><br>
+        Amount:<input type="text" name="Amount" value="<%- amount %>"><br>
+        DateTime<input type="text" name="DateTime" value="<%- dateTime %>"><br>
+        ShopPassString：<input type="text" name="ShopPassString" value="<%- shopPassString %>"><br>
+        RetURL<input type="text" name="RetURL" value="<%- req.protocol + '://' + req.headers.host + url('customer.reserve.fromGMO', {}) %>"><br>
+
+        UseCvs:<input type="text" name="UseCvs" value="1"><br>
+
+        ReceiptsDisp11:<input type="text" name="ReceiptsDisp11" value="東京国際映画祭事務局"><br>
+        <!-- お問合せ先電話番号 -->
+        ReceiptsDisp12:<input type="text" name="ReceiptsDisp12" value="03-1234-5678"><br>
+        <!-- お問合せ先受付時間 -->
+        ReceiptsDisp13:<input type="text" name="ReceiptsDisp13" value="09:00-18:00"><br>
+        <input type="submit" value="送信"/>
+    </form>
+</body>
+</html>

@@ -5,9 +5,9 @@
 <title>TIFF</title>
 </head>
 <body>
-    <h1>GMO決済開発用ページ</h1>
+    <h1>クレジット決済開発用ページ</h1>
     token：<%- reservationModel.token %><br />
-    <form name="AuStartCall" action="https://pt01.mul-pay.jp/link/tshop00024015/Multi/Entry" method="post">
+    <form action="https://pt01.mul-pay.jp/link/tshop00024015/Multi/Entry" method="post">
         ShopID：<input type="text" name="ShopID" value="<%- shopId %>"><br>
         OrderID：<input type="text" name="OrderID" value="<%- orderID %>"><br>
         Amount:<input type="text" name="Amount" value="<%- amount %>"><br>
@@ -21,11 +21,5 @@
         SiteID:<input type="text" name="SiteID" value="tsite00022126"><br>
         <input type="submit" value="送信"/>
     </form>
-<!--
-    <form action="<%- url('customer.reserve.fromGMO', {}) %>" method="post">
-        <input type="hidden" name="token" value="<%- reservationModel.token %>">
-        <input type="submit" value="送信"/>
-    </form>
--->
 </body>
 </html>
