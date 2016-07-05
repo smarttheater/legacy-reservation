@@ -4,6 +4,7 @@ import express = require('express');
 import PerformanceController from '../controllers/Performance/PerformanceController';
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
 import MemberReserveController from '../controllers/Member/Reserve/MemberReserveController';
+import GMOReserveController from  '../controllers/GMO/Reserve/GMOReserveController';
 import ReserveController from '../controllers/Reserve/ReserveController';
 
 import StaffAuthController from '../controllers/Staff/Auth/StaffAuthController';
@@ -64,6 +65,12 @@ export default class Router {
 
         app.get('/reserve/:token/showSeatsMap', 'reserve.showSeatsMap', (req, res, next) => {(new ReserveController(req, res, next)).showSeatsMap()});
 
+
+        // GMOプロセス
+        app.get('/GMO/reserve/:token/start', 'gmo.reserve.start', (req, res, next) => {(new GMOReserveController(req, res, next)).start()});
+        app.post('/GMO/reserve/result', 'gmo.reserve.result', (req, res, next) => {(new GMOReserveController(req, res, next)).result()});
+
+
         // 一般
         app.all('/customer/reserve/terms', 'customer.reserve.terms', (req, res, next) => {(new CustomerReserveController(req, res, next)).terms()});
         app.get('/customer/reserve/start', 'customer.reserve.start', (req, res, next) => {(new CustomerReserveController(req, res, next)).start()});
@@ -73,10 +80,8 @@ export default class Router {
         app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', (req, res, next) => {(new CustomerReserveController(req, res, next)).profile()});
         app.all('/customer/reserve/:token/pay', 'customer.reserve.pay', (req, res, next) => {(new CustomerReserveController(req, res, next)).pay()});
         app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', (req, res, next) => {(new CustomerReserveController(req, res, next)).confirm()});
-        app.get('/customer/reserve/:token/process', 'customer.reserve.process', (req, res, next) => {(new CustomerReserveController(req, res, next)).process()});
-        app.post('/customer/reserve/fromGMO', 'customer.reserve.fromGMO', (req, res, next) => {(new CustomerReserveController(req, res, next)).fromGMO()});
+        app.get('/customer/reserve/:token/waitingSettlement', 'customer.reserve.waitingSettlement', (req, res, next) => {(new CustomerReserveController(req, res, next)).waitingSettlement()});
         app.get('/customer/reserve/:token/complete', 'customer.reserve.complete', (req, res, next) => {(new CustomerReserveController(req, res, next)).complete()});
-
 
 
 
@@ -145,8 +150,7 @@ export default class Router {
         app.all('/member/reserve/:token/profile', 'member.reserve.profile', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).profile()});
         app.all('/member/reserve/:token/pay', 'member.reserve.pay', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).pay()});
         app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).confirm()});
-        app.get('/member/reserve/:token/process', 'member.reserve.process', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).process()});
-        app.post('/member/reserve/fromGMO', 'member.reserve.fromGMO', (req, res, next) => {(new MemberReserveController(req, res, next)).fromGMO()});
+        app.get('/member/reserve/:token/waitingSettlement', 'member.reserve.waitingSettlement', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).waitingSettlement()});
         app.get('/member/reserve/:token/complete', 'member.reserve.complete', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).complete()});
 
 

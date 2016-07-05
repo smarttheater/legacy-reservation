@@ -9,5 +9,8 @@
     "mongolab_uri": "mongodb://testmwsrmlabmongodbuser:54XnFwYkTbJWgac-4eB7uE-wksu9fkKjsPC7pGwE7k_G@ds038379.mlab.com:38379/testtiffmlabmongodb",
 
     "sendgrid_username": "",
-    "sendgrid_passwords": ""
+    "sendgrid_passwords": "",
+
+    "gmo_payment_shop_id": "tshop00024015",
+    "gmo_payment_shop_Password": "hf3wsuyy"
 }

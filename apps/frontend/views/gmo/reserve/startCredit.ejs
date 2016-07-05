@@ -7,13 +7,14 @@
 <body>
     <h1>クレジット決済開発用ページ</h1>
     token：<%- reservationModel.token %><br />
-    <form action="https://pt01.mul-pay.jp/link/tshop00024015/Multi/Entry" method="post">
+    <form action="https://pt01.mul-pay.jp/link/<%- shopId %>/Multi/Entry" method="post">
         ShopID：<input type="text" name="ShopID" value="<%- shopId %>"><br>
         OrderID：<input type="text" name="OrderID" value="<%- orderID %>"><br>
         Amount:<input type="text" name="Amount" value="<%- amount %>"><br>
         DateTime<input type="text" name="DateTime" value="<%- dateTime %>"><br>
         ShopPassString：<input type="text" name="ShopPassString" value="<%- shopPassString %>"><br>
-        RetURL<input type="text" name="RetURL" value="<%- req.protocol + '://' + req.headers.host + url('customer.reserve.fromGMO', {}) %>"><br>
+        RetURL<input type="text" name="RetURL" value="<%- req.protocol + '://' + req.headers.host + url('gmo.reserve.result') %>"><br>
+        CancelURL<input type="text" name="CancelURL" value="<%- req.protocol + '://' + req.headers.host + url('gmo.reserve.result') %>"><br>
 
         UseCredit:<input type="text" name="UseCredit" value="1"><br>
 

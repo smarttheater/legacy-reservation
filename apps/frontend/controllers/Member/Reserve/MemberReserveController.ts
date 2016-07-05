@@ -306,7 +306,7 @@ export default class MemberReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel);
 
             if (this.req.method === 'POST') {
-                this.res.redirect(this.router.build('member.reserve.process', {token: token}));
+                this.res.redirect(this.router.build('gmo.reserve.start', {token: token}));
             } else {
                 this.res.render('member/reserve/confirm', {
                     reservationModel: reservationModel
@@ -315,85 +315,17 @@ export default class MemberReserveController extends ReserveBaseController {
         });
     }
 
-    public process(): void {
+    public waitingSettlement(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
-
-            if (this.req.method === 'POST') {
-            } else {
-                // 予約情報セッション削除
-                this.logger.debug('removing reservationModel... ', reservationModel);
-                reservationModel.remove(() => {
-                    if (err) {
-
-                    } else {
-                        // GMOからの結果受信にそなえてセッションを新規に作成する
-                        reservationModel.token = Util.createToken();
-                        reservationModel.save((err) => {
-                            // GMOへ遷移画面
-                            this.res.render('member/reserve/processGMODev', {
-                                layout: false,
-                                reservationModel: reservationModel
-                            });
-                        });
-                    }
-                });
-            }
+            this.res.render('member/reserve/waitingSettlement', {
+                reservationModel: reservationModel,
+            });
         });
-    }
-
-    /**
-     * GMOからの結果受信
-     */
-    public fromGMO(): void {
-        let token = this.req.body.token;
-        ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
-
-            this.logger.debug('reservationModel is ', reservationModel);
-
-            if (this.req.method === 'POST') {
-                // 予約情報セッション削除
-                // これ以降、予約情報はローカルに引き回す
-                this.logger.debug('removing reservationModel... ', reservationModel);
-                reservationModel.remove(() => {
-                    if (err) {
-
-                    } else {
-                        this.processFixAll(reservationModel, (err, reservationModel) => {
-                            if (err) {
-                                // TODO 万が一の対応どうするか
-                                this.next(err);
-
-                            } else {
-                                // TODO 予約できていない在庫があった場合
-                                if (reservationModel.reservationIds.length > reservationModel.reservedDocuments.length) {
-                                    this.res.redirect(this.router.build('member.reserve.confirm', {token: token}));
-                                } else {
-                                    // 予約結果セッションを保存して、完了画面へ
-                                    let reservationResultModel = reservationModel.toReservationResult();
-
-                                    this.logger.debug('saving reservationResult...', reservationResultModel);
-                                    reservationResultModel.save((err) => {
-                                        this.res.redirect(this.router.build('member.reserve.complete', {token: token}));
-                                    });
-                                }
-
-                            }
-                        });
-                    }
-                });
-            } else {
-            }
-        });
-
     }
 
     public complete(): void {

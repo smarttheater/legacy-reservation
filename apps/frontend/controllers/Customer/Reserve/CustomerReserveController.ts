@@ -13,7 +13,6 @@ import ReservationUtil from '../../../../common/models/Reservation/ReservationUt
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
 
-import form = require('express-form');
 import moment = require('moment');
 import crypto = require('crypto');
 
@@ -351,7 +350,7 @@ export default class CustomerReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel);
 
             if (this.req.method === 'POST') {
-                this.res.redirect(this.router.build('customer.reserve.process', {token: token}));
+                this.res.redirect(this.router.build('gmo.reserve.start', {token: token}));
             } else {
                 this.res.render('customer/reserve/confirm', {
                     reservationModel: reservationModel,
@@ -361,306 +360,17 @@ export default class CustomerReserveController extends ReserveBaseController {
         });
     }
 
-    public process(): void {
+    public waitingSettlement(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
-
-            if (this.req.method === 'POST') {
-            } else {
-
-                // 予約情報セッション削除
-                this.logger.debug('removing reservationModel... ', reservationModel);
-                reservationModel.remove(() => {
-                    if (err) {
-
-                    } else {
-
-                        switch (reservationModel.paymentMethod) {
-                            case ReservationUtil.PAY_METHOD_CREDIT:
-                                this.processCredit(reservationModel);
-
-                                break;
-
-
-                            case ReservationUtil.PAY_METHOD_CVS:
-                                this.processCvs(reservationModel);
-
-                                break;
-
-                            default:
-                                this.next(new Error('対応していない決済方法です'))
-
-                                break;
-
-                        }
-
-                    }
-                });
-            }
-        });
-    }
-
-    private processCredit(reservationModel: ReservationModel) {
-        // GMOからの結果受信にそなえてセッションを新規に作成する
-        reservationModel.token = Util.createToken();
-        reservationModel.save((err) => {
-            // GMOへ遷移画面
-            let shopId = 'tshop00024015';
-            let orderID = reservationModel.token; // 27桁まで
-            let amount = reservationModel.getTotalPrice();
-            let shopPassword = 'hf3wsuyy';
-            let dateTime = moment().format('YYYYMMDDHHmmss');
-
-            // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
-            let md5hash = crypto.createHash('md5');
-            md5hash.update(`${shopId}${orderID}${amount}${shopPassword}${dateTime}`, 'utf8');
-            let shopPassString = md5hash.digest('hex');
-
-
-            this.res.render('customer/reserve/processCredit', {
-                layout: false,
+            this.res.render('customer/reserve/waitingSettlement', {
                 reservationModel: reservationModel,
-                shopId,
-                orderID,
-                amount,
-                shopPassword,
-                dateTime,
-                shopPassString
             });
-
         });
-    }
-
-    private processCvs(reservationModel: ReservationModel) {
-        // GMOからの結果受信にそなえてセッションを新規に作成する
-        reservationModel.token = Util.createToken();
-        reservationModel.save((err) => {
-            // GMOへ遷移画面
-            let shopId = 'tshop00024015';
-            let orderID = reservationModel.token; // 27桁まで
-            let amount = reservationModel.getTotalPrice();
-            let shopPassword = 'hf3wsuyy';
-            let dateTime = moment().format('YYYYMMDDHHmmss');
-
-            // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
-            let md5hash = crypto.createHash('md5');
-            md5hash.update(`${shopId}${orderID}${amount}${shopPassword}${dateTime}`, 'utf8');
-            let shopPassString = md5hash.digest('hex');
-
-
-            this.res.render('customer/reserve/processCVS', {
-                layout: false,
-                reservationModel: reservationModel,
-                shopId,
-                orderID,
-                amount,
-                shopPassword,
-                dateTime,
-                shopPassString
-            });
-
-        });
-    }
-
-    /**
-     * GMOからの結果受信
-     */
-    public fromGMO(): void {
-        this.logger.debug('fromGMP post paramerters:', this.req.body);
-// console.log(this.req.body);
-// { ShopID: 'tshop00024015',
-//   JobCd: 'CAPTURE',
-//   Amount: '1500',
-//   Tax: '0',
-//   Currency: '',
-//   AccessID: '06ad45d3cbdf71653e1fad567d261da9',
-//   AccessPass: 'a0dc0c0c462a56af4258df74000a3b48',
-//   OrderID: '155b56af5c5110',
-//   Forwarded: '2a99662',
-//   Method: '1',
-//   PayTimes: '',
-//   Approve: '6956212',
-//   TranID: '1607041919111111111111878951',
-//   TranDate: '20160704191911',
-//   CheckString: '98f01693a5c5c8d8ec446d0c00d4e394',
-//   ErrCode: '',
-//   ErrInfo: '',
-//   NewCardFlag: '0',
-//   PayType: '0',
-//   CvsCode: '',
-//   CvsConfNo: '',
-//   CvsReceiptNo: '',
-//   CvsReceiptUrl: '',
-//   EdyReceiptNo: '',
-//   EdyOrderNo: '',
-//   SuicaReceiptNo: '',
-//   SuicaOrderNo: '',
-//   BkCode: '',
-//   ConfNo: '',
-//   PaymentTerm: '',
-//   CustID: '',
-//   EncryptReceiptNo: '',
-//   AuPayInfoNo: '',
-//   AuPayMethod: '',
-//   AuCancelAmount: '',
-//   AuCancelTax: '',
-//   DocomoSettlementCode: '',
-//   DocomoCancelAmount: '',
-//   DocomoCancelTax: '',
-//   SbTrackingId: '',
-//   SbCancelAmount: '',
-//   SbCancelTax: '',
-//   JibunReceiptNo: '',
-//   PayDescription: '',
-//   CardNo: '************1111',
-//   BeforeBalance: '',
-//   AfterBalance: '',
-//   CardActivateStatus: '',
-//   CardTermStatus: '',
-//   CardInvalidStatus: '',
-//   CardWebInquiryStatus: '',
-//   CardValidLimit: '',
-//   CardTypeCode: '',
-//   CarryInfo: '',
-//   RequestNo: '',
-//   AccountNo: '',
-//   NetCashPayType: '',
-//   RakutenIdItemId: '',
-//   RakutenIdItemSubId: '',
-//   RakutenIdItemName: '',
-//   LinepayTranId: '',
-//   LinepayPayMethod: [ '', '' ],
-//   RecruitItemName: '',
-//   RcOrderId: '',
-//   RcOrderTime: '',
-//   RcUsePoint: '',
-//   RcUseCoupon: '',
-//   RcUseShopCoupon: '',
-//   VaBankCode: '',
-//   VaBankName: '',
-//   VaBranchCode: '',
-//   VaBranchName: '',
-//   VaAccountType: '',
-//   VaAccountNumber: '',
-//   VaAvailableDate: '',
-//   VaTradeCode: '',
-//   ClientField1: '',
-//   ClientField2: '',
-//   ClientField3: '' }
-        let token = this.req.body.OrderID;
-        ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
-
-            this.logger.debug('reservationModel is ', reservationModel);
-
-            if (this.req.method === 'POST') {
-                // 決済方法
-                let payType = this.req.body.PayType;
-                switch (payType) {
-                    // クレジットカード決済
-                    case '0':
-
-                        // 予約情報セッション削除
-                        // これ以降、予約情報はローカルに引き回す
-                        this.logger.debug('removing reservationModel... ', reservationModel);
-                        reservationModel.remove(() => {
-                            if (err) {
-
-                            } else {
-                                // TODO GMOからポストされたパラメータを予約情報に追加する
-
-                                // 予約確定
-                                this.processFixAll(reservationModel, (err, reservationModel) => {
-                                    if (err) {
-                                        // TODO 万が一の対応どうするか
-                                        this.next(err);
-
-                                    } else {
-                                        // TODO 予約できていない在庫があった場合
-                                        if (reservationModel.reservationIds.length > reservationModel.reservedDocuments.length) {
-                                            this.res.redirect(this.router.build('customer.reserve.confirm', {token: token}));
-
-                                        } else {
-                                            // 予約結果セッションを保存して、完了画面へ
-                                            let reservationResultModel = reservationModel.toReservationResult();
-
-                                            this.logger.debug('saving reservationResult...', reservationResultModel);
-                                            reservationResultModel.save((err) => {
-                                                this.res.redirect(this.router.build('customer.reserve.complete', {token: token}));
-                                            });
-
-                                        }
-                                    }
-                                });
-
-                            }
-                        });
-
-                        break;
-
-                    // コンビニ決済
-                    case '3':
-
-                        // 決済待ちステータスへ変更
-                        let promises = [];
-                        reservationModel.reservationIds.forEach((reservationId, index) => {
-                            let reservation = reservationModel.getReservation(reservationId);
-
-                            promises.push(new Promise((resolve, reject) => {
-
-                                this.logger.debug('updating reservation status to STATUS_WAITING_SETTLEMENT..._id:', reservationId);
-                                Models.Reservation.findOneAndUpdate(
-                                    {
-                                        _id: reservationId,
-                                    },
-                                    {
-                                        status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
-                                        updated_user: this.constructor.toString(),
-                                    },
-                                    {
-                                        new: true
-                                    },
-                                (err, reservationDocument) => {
-                                    this.logger.info('STATUS_TEMPORARY to STATUS_WAITING_SETTLEMENT processed.', err, reservationDocument, reservationModel);
-
-                                    if (err) {
-                                        // TODO ログ出力
-                                        reject();
-
-                                    } else {
-                                        resolve();
-                                    }
-
-                                });
-
-                            }));
-                        });
-
-                        Promise.all(promises).then(() => {
-                            this.res.send('決済待ちステータス変更後の画面を表示する');
-
-                        }, (err) => {
-                            // TODO どうする？
-                            this.next(err);
-
-                        });
-                        break;
-
-                    default:
-                        this.next(new Error('対応していない決済方法です'));
-
-                        break;
-                }
-            }
-        });
-
     }
 
     public complete(): void {
