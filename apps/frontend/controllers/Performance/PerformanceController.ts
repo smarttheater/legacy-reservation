@@ -3,6 +3,7 @@ import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import ReservationModel from '../../models/Reserve/ReservationModel';
+import PerformanceStatusesModel from '../../models/PerformanceStatusesModel';
 import moment = require('moment');
 
 export default class PerformanceController extends BaseController {
@@ -62,20 +63,34 @@ export default class PerformanceController extends BaseController {
                     .exec((err, performanceDocuments) => {
                         this.logger.debug('find performances processed.', err);
 
-                        if (err) {
-                            this.res.json({
-                                isSuccess: false,
-                                results: [],
-                                count: 0
+                        let results = [];
+
+                        // 空席情報を追加
+                        PerformanceStatusesModel.find((err, performanceStatusesModel) => {
+                            performanceDocuments.forEach((performanceDocument) => {
+                                let result = performanceDocument.toObject();
+                                result['seat_status'] = performanceStatusesModel.getStatus(performanceDocument.get('_id'));
+                                results.push(result);
                             });
 
-                        } else {
-                            this.res.json({
-                                isSuccess: true,
-                                results: performanceDocuments,
-                                count: count
-                            });
-                        }
+                            if (err) {
+                                this.res.json({
+                                    isSuccess: false,
+                                    results: [],
+                                    count: 0
+                                });
+
+                            } else {
+                                this.res.json({
+                                    isSuccess: true,
+                                    results: results,
+                                    count: count
+                                });
+
+                            }
+
+                        });
+
                     });
                 }
             );

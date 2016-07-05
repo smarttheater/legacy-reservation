@@ -1,9 +1,11 @@
 import BaseController from '../BaseController';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
+import PerformanceUtil from '../../../common/models/Performance/PerformanceUtil';
 import moment = require('moment');
 import conf = require('config');
 import mongodb = require('mongodb');
+import PerformanceStatusesModel from '../../models/PerformanceStatusesModel';
 
 export default class TaskController extends BaseController {
     public removeTemporaryReservation(): void {
@@ -418,6 +420,55 @@ export default class TaskController extends BaseController {
 
 
 
+        });
+    }
+
+    public calculatePerformanceStatuses() {
+        Models.Performance.find({}, '_id day start_time').exec((err, performanceDocuments) => {
+            let promises = [];
+            let now = moment().format('YYYYMMDDHHmm');
+            let performanceStatusesModel = new PerformanceStatusesModel();
+
+            performanceDocuments.forEach((performanceDocument) => {
+                // パフォーマンスごとに空席割合を算出する
+                promises.push(new Promise((resolve, reject) => {
+                    Models.Reservation.count(
+                        {
+                            performance: performanceDocument.get('_id'),
+                            status: ReservationUtil.STATUS_AVAILABLE
+                        }
+                        ,(err, countAvailable) => {
+
+                            Models.Reservation.count(
+                                {
+                                    performance: performanceDocument.get('_id'),
+                                }
+                                ,(err, countAll) => {
+                                    let start = performanceDocument.get('day') + performanceDocument.get('start_time');
+                                    let status = PerformanceUtil.seatNum2status(countAvailable, countAll, start, now);
+                                    performanceStatusesModel.setStatus(performanceDocument.get('_id'), status);
+
+                                    resolve();
+                                }
+                            );
+
+                        }
+                    );
+
+                }));
+
+            });
+
+
+            Promise.all(promises).then(() => {
+                performanceStatusesModel.save((err) => {
+                    this.res.send('success');
+                });
+
+            }, (err) => {
+                this.res.send('false');
+
+            });
         });
     }
 }

@@ -93,6 +93,7 @@ export default class Router {
         app.get('/task/createPerformances', 'task.createPerformances', (req, res, next) => {(new TaskController(req, res, next)).createPerformances()});
         app.get('/task/resetReservations', 'task.resetReservations', (req, res, next) => {(new TaskController(req, res, next)).resetReservations()});
         app.get('/task/updateReservations', 'task.updateReservations', (req, res, next) => {(new TaskController(req, res, next)).updateReservations()});
+        app.get('/task/calculatePerformanceStatuses', 'task.calculatePerformanceStatuses', (req, res, next) => {(new TaskController(req, res, next)).calculatePerformanceStatuses()});
 
 
 
