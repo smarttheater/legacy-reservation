@@ -7,6 +7,8 @@ import ReservationUtil from '../../../../common/models/Reservation/ReservationUt
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
 import GMOResultModel from '../../../models/Reserve/GMOResultModel';
+import GMONotificationModel from '../../../models/Reserve/GMONotificationModel';
+import GMONotificationResponseModel from '../../../models/Reserve/GMONotificationResponseModel';
 
 import moment = require('moment');
 import crypto = require('crypto');
@@ -246,8 +248,121 @@ export default class GMOReserveController extends ReserveBaseController {
 
     }
 
+
+    /**
+     * GMO結果通知受信
+     */
     public notify(): void {
-        this.logger.debug(this.req.body);
-        this.res.send('success');
+        // お客様は、受信したHTTPリクエストに対するHTTPレスポンスが必要となります。
+        // 返却値については、以下のいずれか
+        // 0：受信OK ／ 1：受信失敗
+        // 【詳細：返却パラメータ(加盟店様⇒本サービス)】
+
+        // タイムアウトについて
+        // 結果通知プログラム機能によって、指定URLへデータ送信を行った場合に15秒以内に返信が無いとタイムアウトとして処
+        // 理を行います。
+
+
+        // 加盟店様側からの正常応答が確認出来なかった場合は約60分毎に5回再送いたします。
+
+
+
+
+        // コンビニ決済
+        // 4 入金通知 ○
+        // 5 期限切れ ○
+        // 6 支払い停止 ○
+
+
+
+
+        // 以下のいずれかの状態でエラー通知を送信します。
+        // 再送で正常終了している場合
+        // ■ 通知完了(要求日時と約60分以上の差がある)
+        // 再送待ちの場合
+        // ■ エラー()
+        // 再送も全て通知失敗した場合
+        // ■リトライ回数超過
+
+
+
+
+        // Error reportとは
+        // 一定時間間隔内で、異常応答または無応答、通知失敗時のいずれかとなった場合にエラーを加盟店様に通知し結果通知プ
+        // ログラムの受信状態を確認して頂くためのメールとなります。
+
+
+        let gmoNotificationModel = GMONotificationModel.parse(this.req.body);
+        this.logger.debug('gmoNotificationModel:', gmoNotificationModel);
+
+        let token = gmoNotificationModel.OrderID;
+        ReservationModel.find(token, (err, reservationModel) => {
+            if (err || reservationModel === null) {
+                // TODO ログ
+                this.res.send(GMONotificationResponseModel.RecvRes_NG);
+            }
+
+            this.logger.debug('reservationModel is ', reservationModel);
+
+            switch (gmoNotificationModel.PayType) {
+
+
+                case ReservationUtil.PAY_METHOD_CVS:
+                    if (gmoNotificationModel.Status === 'PAYSUCCESS') {
+                        // 決済待ちの予約を予約完了へ
+                        // 予約情報セッション削除
+                        // これ以降、予約情報はローカルに引き回す
+                        this.logger.debug('removing reservationModel... ', reservationModel);
+                        reservationModel.remove(() => {
+                            if (err) {
+                                // TODO ログ
+                                this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                            } else {
+                                // TODO GMOからポストされたパラメータを予約情報に追加する
+
+                                // 予約確定
+                                this.processFixAll(reservationModel, (err, reservationModel) => {
+                                    if (err) {
+                                        // TODO 万が一の対応どうするか
+                                        this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                                    } else {
+                                        // TODO 予約できていない在庫があった場合
+                                        if (reservationModel.reservationIds.length > reservationModel.reservedDocuments.length) {
+                                            this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                                        } else {
+                                            // 完了
+                                            this.res.send(GMONotificationResponseModel.RecvRes_OK);
+
+                                        }
+                                    }
+                                });
+
+                            }
+                        });
+                    // } else if (gmoNotificationModel.Status === 'REQSUCCESS') {
+                    // } else if (gmoNotificationModel.Status === 'UNPROCESSED') {
+                    // } else if (gmoNotificationModel.Status === 'PAYFAIL') {
+                    // } else if (gmoNotificationModel.Status === 'EXPIRED') {
+                    // } else if (gmoNotificationModel.Status === 'CANCEL') {
+                    } else {
+                        this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                    }
+
+                    break;
+
+
+
+
+                default:
+                    this.res.send(GMONotificationResponseModel.RecvRes_OK);
+
+                    break;
+            }
+        });
+
     }
 }
