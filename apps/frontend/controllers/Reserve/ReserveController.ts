@@ -37,7 +37,8 @@ export default class ReserveController extends BaseController {
                         this.res.render('reserve/seatsMap', {
                             layout: false,
                             reservationDocumentsBySeatCode: reservationDocumentsBySeatCode,
-                            reservationModel: reservationModel
+                            reservationModel: reservationModel,
+                            seatCodesInReservation: reservationModel.getSeatCodes(),
                         });
                     }
                 }

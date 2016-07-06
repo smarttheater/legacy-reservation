@@ -20,3 +20,53 @@ body {
 .row {
   margin: 0 0 20px 0;
 }
+
+
+
+
+
+
+
+
+.screen {
+	position: relative;
+	width: 404px;
+	height: 665px;
+	background-image: url(/images/pc/screen.png);
+}
+
+.screen .seat {
+	position: absolute;
+	width: 13px;
+	height: 19px;
+}
+
+.screen .seat a {
+	display: block;
+	box-sizing: border-box;
+	height: 100%;
+	border: 1px solid #333;
+	border-radius: 2px;
+	background-color: #fff;
+}
+
+.screen .seat a.active {
+	background-color: #d50000;
+}
+
+.screen .left {
+	-webkit-transform: rotate(10deg);
+	transform: rotate(10deg);
+}
+
+.screen .right {
+	-webkit-transform: rotate(-10deg);
+	transform: rotate(-10deg);
+}
+
+.screen .wheelchair a {
+	background-image: url(/images/pc/wheelchair.png);
+	background-repeat: no-repeat;
+	background-position: center;
+}
+

@@ -69,20 +69,20 @@ $(function(){
     $(document).on('click', '.select-seat', function(){
         var count = parseInt($('.reservable-count').text());
 
-        if ($(this).hasClass('bg-primary')) {
+        if ($(this).hasClass('active')) {
             $('.reservable-count').text(count + 1);
         } else {
             $('.reservable-count').text(count - 1);
         }
 
-        $(this).toggleClass('bg-primary');
+        $(this).toggleClass('active');
     });
 
     $(document).on('click', '.select-seats', function(){
         var reservationIds = [];
 
         // 座席コードリストを取得
-        $('.select-seat.bg-primary').each(function(index){
+        $('.select-seat.active').each(function(index){
             reservationIds.push($(this).attr('data-reservation-id'));
         });
 

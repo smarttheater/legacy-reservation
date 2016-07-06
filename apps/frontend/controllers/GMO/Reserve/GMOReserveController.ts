@@ -6,6 +6,7 @@ import ReservationUtil from '../../../../common/models/Reservation/ReservationUt
 
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
+import GMOResultModel from '../../../models/Reserve/GMOResultModel';
 
 import moment = require('moment');
 import crypto = require('crypto');
@@ -113,88 +114,10 @@ export default class GMOReserveController extends ReserveBaseController {
      * GMOからの結果受信
      */
     public result(): void {
-        this.logger.debug('fromGMP post paramerters:', this.req.body);
-// console.log(this.req.body);
-// { ShopID: 'tshop00024015',
-//   JobCd: 'CAPTURE',
-//   Amount: '1500',
-//   Tax: '0',
-//   Currency: '',
-//   AccessID: '06ad45d3cbdf71653e1fad567d261da9',
-//   AccessPass: 'a0dc0c0c462a56af4258df74000a3b48',
-//   OrderID: '155b56af5c5110',
-//   Forwarded: '2a99662',
-//   Method: '1',
-//   PayTimes: '',
-//   Approve: '6956212',
-//   TranID: '1607041919111111111111878951',
-//   TranDate: '20160704191911',
-//   CheckString: '98f01693a5c5c8d8ec446d0c00d4e394',
-//   ErrCode: '',
-//   ErrInfo: '',
-//   NewCardFlag: '0',
-//   PayType: '0',
-//   CvsCode: '',
-//   CvsConfNo: '',
-//   CvsReceiptNo: '',
-//   CvsReceiptUrl: '',
-//   EdyReceiptNo: '',
-//   EdyOrderNo: '',
-//   SuicaReceiptNo: '',
-//   SuicaOrderNo: '',
-//   BkCode: '',
-//   ConfNo: '',
-//   PaymentTerm: '',
-//   CustID: '',
-//   EncryptReceiptNo: '',
-//   AuPayInfoNo: '',
-//   AuPayMethod: '',
-//   AuCancelAmount: '',
-//   AuCancelTax: '',
-//   DocomoSettlementCode: '',
-//   DocomoCancelAmount: '',
-//   DocomoCancelTax: '',
-//   SbTrackingId: '',
-//   SbCancelAmount: '',
-//   SbCancelTax: '',
-//   JibunReceiptNo: '',
-//   PayDescription: '',
-//   CardNo: '************1111',
-//   BeforeBalance: '',
-//   AfterBalance: '',
-//   CardActivateStatus: '',
-//   CardTermStatus: '',
-//   CardInvalidStatus: '',
-//   CardWebInquiryStatus: '',
-//   CardValidLimit: '',
-//   CardTypeCode: '',
-//   CarryInfo: '',
-//   RequestNo: '',
-//   AccountNo: '',
-//   NetCashPayType: '',
-//   RakutenIdItemId: '',
-//   RakutenIdItemSubId: '',
-//   RakutenIdItemName: '',
-//   LinepayTranId: '',
-//   LinepayPayMethod: [ '', '' ],
-//   RecruitItemName: '',
-//   RcOrderId: '',
-//   RcOrderTime: '',
-//   RcUsePoint: '',
-//   RcUseCoupon: '',
-//   RcUseShopCoupon: '',
-//   VaBankCode: '',
-//   VaBankName: '',
-//   VaBranchCode: '',
-//   VaBranchName: '',
-//   VaAccountType: '',
-//   VaAccountNumber: '',
-//   VaAvailableDate: '',
-//   VaTradeCode: '',
-//   ClientField1: '',
-//   ClientField2: '',
-//   ClientField3: '' }
-        let token = this.req.body.OrderID;
+        let gmoResultModel = GMOResultModel.parse(this.req.body);
+        this.logger.debug('gmoResultModel:', gmoResultModel);
+
+        let token = gmoResultModel.OrderID;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
@@ -204,15 +127,14 @@ export default class GMOReserveController extends ReserveBaseController {
 
             if (this.req.method === 'POST') {
                 // エラー結果の場合
-                if (this.req.body.ErrCode) {
-                    return this.res.send(`エラー結果を受信しました。 ErrCode:${this.req.body.ErrCode} ErrInfo:${this.req.body.ErrInfo}`);
+                if (gmoResultModel.ErrCode) {
+                    return this.res.send(`エラー結果を受信しました。 ErrCode:${gmoResultModel.ErrCode} ErrInfo:${gmoResultModel.ErrInfo}`);
                 }
-    
+
                 // 決済方法
-                let payType = this.req.body.PayType;
-                switch (payType) {
+                switch (gmoResultModel.PayType) {
                     // クレジットカード決済
-                    case '0':
+                    case GMOResultModel.PAY_TYPE_CREDIT:
 
                         // 予約情報セッション削除
                         // これ以降、予約情報はローカルに引き回す
@@ -260,7 +182,7 @@ export default class GMOReserveController extends ReserveBaseController {
                         break;
 
                     // コンビニ決済
-                    case '3':
+                    case GMOResultModel.PAY_TYPE_CVS:
 
                         // 決済待ちステータスへ変更
                         let promises = [];

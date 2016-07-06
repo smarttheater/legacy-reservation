@@ -64,14 +64,14 @@ $(function(){
     showSeatsMap();
 
     $(document).on('click', '.select-seat', function(){
-        $(this).toggleClass('bg-primary');
+        $(this).toggleClass('active');
     });
 
     $(document).on('click', '.select-seats', function(){
         var reservationIds = [];
 
         // 座席コードリストを取得
-        $('.select-seat.bg-primary').each(function(index){
+        $('.select-seat.active').each(function(index){
             reservationIds.push($(this).attr('data-reservation-id'));
         });
 
