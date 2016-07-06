@@ -245,4 +245,9 @@ export default class GMOReserveController extends ReserveBaseController {
         });
 
     }
+
+    public notify(): void {
+        this.logger.debug(this.req.body);
+        this.res.send('success');
+    }
 }
