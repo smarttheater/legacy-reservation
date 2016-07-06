@@ -1,4 +1,5 @@
 <div class="screen">
+    <div class="screen-inner">
     
     <div class="seat front left" style="top:80px; left:26px"><a href="javascript:void(0)" data-seat-code="A-2"></a></div>
     
@@ -896,10 +897,16 @@
     
     <div class="seat back right" style="top:626px; left:377px"><a href="javascript:void(0)" data-seat-code="T-25"></a></div>
     
-    
+    </div>
+    <div class="zoom-btn"><a href="javascript:void(0)">解除</a></div>
 </div>
 
+<div class="sp-not-view device-type-pc">PC</div>
+<div class="pc-not-view device-type-sp">SP</div>
+
+
 <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
 <script>
 var reservationDocumentsBySeatCode = <%- JSON.stringify(reservationDocumentsBySeatCode) %>;
 var seatCodesInReservation = <%- JSON.stringify(seatCodesInReservation) %>;
@@ -919,7 +926,6 @@ $('.seat a').each(function(index){
         if (reservationDocument.status === 'AVAILABLE') {
             // 予約可能
             $(this).addClass('select-seat');
-            // aNode.css('background-color', '#FFFFFF');
 
         } else {
             if (seatCodesInReservation.indexOf(seatCode) >= 0) {
@@ -930,22 +936,40 @@ $('.seat a').each(function(index){
             } else {
 
                 // 予約不可
-                $(this).css('background-color', '#333333');
+                $(this).addClass('disabled');
 
-                // if (reservationModel.staff) {
-                // <th scope="row" class="bg-danger" data-reservation-id="reservationDocument.get('_id')">
-                //     <a tabindex="0" class="popover-reservation"
-                //         data-seat-code="seatCode "
-                //         data-toggle="popover"
-                //         data-trigger="focus">seatCode </a>
-                // </th>
+                // 内部関係者の場合、予約情報ポップアップ
+                if (reservationModel.staff) {
+                    $(this).addClass('popover-reservation');
+                    $(this).attr('tabindex', '0');
+                    $(this).attr('data-toggle', 'popover');
+                    $(this).attr('data-trigger', 'focus');
 
-                // } else {
-                // <th scope="row" class="bg-danger" data-reservation-id="reservationDocument.get('_id')">
-                //     seatCode 
-                // </th>
+                    var contents = '';
+                    if (reservationDocument.status == 'RESERVED') {
+                        if (reservationDocument.staff) {
+                            contents =  '内部';
+                        } else if (reservationDocument.sponsor) {
+                            contents =  '外部';
+                        } else if (reservationDocument.member) {
+                            contents =  '当選者';
+                        } else {
+                            contents =  '一般';
+                        }
 
-                // }
+                    } else if (reservationDocument.status == 'TEMPORARY') {
+                        contents =  '仮予約';
+
+                    } else if (reservationDocument.status == 'WAITING_SETTLEMENT') {
+                        contents =  '待ち';
+
+                    }
+
+                    $(this).attr('data-contents', contents);
+
+                } else {
+
+                }
 
 
             }
@@ -954,9 +978,10 @@ $('.seat a').each(function(index){
 
     } else {
         // 未販売
-        $(this).css('background-color', '#333333');
+        $(this).addClass('disabled');
 
     }
 
 });
+
 </script>

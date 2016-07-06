@@ -1,3 +1,5 @@
+<script src="/js/seatsMap.js"></script>
+
 <h1>座席選択</h1>
 
 <% if (req.query.message) { %>
@@ -23,7 +25,7 @@
         </dl>
     </div>
 
-    <div class="seatsMap">
+    <div class="seatsMap" data-token="<%- reservationModel.token %>">
     </div>
 
     <a class="btn btn-default btn-lg btn-block" href="<%- url('customer.reserve.performances', {token: req.params.token}) %>">戻る</a>
@@ -34,53 +36,3 @@
 <form method="post">
     <input type="hidden" name="reservationIds">
 </form>
-
-<script>
-
-function showSeatsMap() {
-    $.ajax({
-        dataType: 'text',
-        url: '<%- url('reserve.showSeatsMap', {token: reservationModel.token}) %>',
-        type: 'GET',
-        data: {},
-        beforeSend: function() {
-        },
-        complete: function() {
-            // 10秒おきに状況とりにいく
-            setTimeout(function(){
-                showSeatsMap()
-            }, 10000);
-        },
-        success: function(data) {
-            $('.seatsMap').html(data);
-        },
-        error: function(jqxhr, textStatus, error) {
-        }
-    });
-}
-
-$(function(){
-    // 座席マップを表示
-    showSeatsMap();
-
-    $(document).on('click', '.select-seat', function(){
-        $(this).toggleClass('active');
-    });
-
-    $(document).on('click', '.select-seats', function(){
-        var reservationIds = [];
-
-        // 座席コードリストを取得
-        $('.select-seat.active').each(function(index){
-            reservationIds.push($(this).attr('data-reservation-id'));
-        });
-
-        if (reservationIds.length < 1) {
-            alert('座席を選択してください');
-        } else {
-            $('form input[name="reservationIds"]').val(JSON.stringify(reservationIds));
-            $('form').submit();
-        }
-    });
-});
-</script>

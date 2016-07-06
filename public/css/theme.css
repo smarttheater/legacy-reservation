@@ -28,8 +28,26 @@ body {
 
 
 
+
+
+.pc-not-view {
+	display: none;
+}
+
 .screen {
 	position: relative;
+	overflow: hidden;
+}
+
+.screen .transition {
+	-webkit-transition: all .3s;
+	transition: all .3s;
+}
+
+.screen .screen-inner {
+	position: absolute;
+	top: 0;
+	left: 0;
 	width: 404px;
 	height: 665px;
 	background-image: url(/images/pc/screen.png);
@@ -54,6 +72,10 @@ body {
 	background-color: #d50000;
 }
 
+.screen .seat a.disabled {
+	background-color: #666;
+}
+
 .screen .left {
 	-webkit-transform: rotate(10deg);
 	transform: rotate(10deg);
@@ -68,5 +90,40 @@ body {
 	background-image: url(/images/pc/wheelchair.png);
 	background-repeat: no-repeat;
 	background-position: center;
+}
+
+.screen .zoom-btn {
+	position: fixed;
+	z-index: 2;
+	bottom: 10px;
+	left: 10px;
+	display: none;
+}
+
+.screen .zoom-btn.active {
+	display: block;
+}
+
+.screen .zoom-btn a {
+	line-height: 40px;
+	display: block;
+	width: 40px;
+	height: 40px;
+	text-align: center;
+	text-decoration: none;
+	color: #333;
+	background-color: #fff;
+}
+
+@media screen and (max-width: 767px) {
+
+.pc-not-view {
+	display: block;
+}
+
+.sp-not-view {
+	display: none;
+}
+
 }
 
