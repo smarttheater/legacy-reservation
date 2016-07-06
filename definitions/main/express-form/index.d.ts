@@ -19,8 +19,8 @@ declare module "express-form" {
     function form(...args: any[]): express.RequestHandler;
 
     namespace form {
-      export function field(property?, label?): any
-      export function configure(options): any
+        export function field(property?, label?): any
+        export function configure(options): any
     }
 
     export = form;

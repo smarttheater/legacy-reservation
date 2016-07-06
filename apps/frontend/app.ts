@@ -14,7 +14,7 @@ import MemberUser from './models/User/MemberUser';
 import StaffUser from './models/User/StaffUser';
 import SponsorUser from './models/User/SponsorUser';
 import config = require('config');
-import Router from './routes/router';
+import router from './routes/router';
 import conf = require('config');
 import mongoose = require('mongoose');
 
@@ -61,8 +61,7 @@ app.use((req, res, next) => {
 });
 
 // ルーティング
-let router = Router.getInstance();
-router.initialize(app);
+router(app);
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 

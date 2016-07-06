@@ -6,7 +6,6 @@ import util = require('util');
 import MemberUser from '../models/User/MemberUser';
 import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
-import Router from '../routes/router';
 import NamedRoutes = require('named-routes');
 
 /**
@@ -46,9 +45,9 @@ export default class BaseController
     public sponsorUser: SponsorUser;
 
     /**
-     * ルーティングクラスインスタンス
+     * ルーティング
      */
-    public router: NamedRoutes.INamedRoutes;
+    public router: Express.NamedRoutes;
 
     constructor(req: express.Request, res: express.Response, next: express.NextFunction) {
         this.req = req;
@@ -56,7 +55,8 @@ export default class BaseController
         this.next = next;
 
         this.logger = log4js.getLogger('system');
-        this.router = Router.getInstance().getRouter();
+        this.router = this.req.app.namedRoutes;
+
 
         this.memberUser = MemberUser.getInstance();
         this.staffUser = StaffUser.getInstance();
