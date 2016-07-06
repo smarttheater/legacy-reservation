@@ -299,7 +299,7 @@ export default class GMOReserveController extends ReserveBaseController {
         ReservationModel.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
                 // TODO ログ
-                this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                return this.res.send(GMONotificationResponseModel.RecvRes_NG);
             }
 
             this.logger.debug('reservationModel is ', reservationModel);
