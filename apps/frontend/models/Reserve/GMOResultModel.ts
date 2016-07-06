@@ -2,9 +2,6 @@
  * GMO決済結果モデル
  */
 export default class GMOResultModel {
-    public static PAY_TYPE_CREDIT = '0';
-    public static PAY_TYPE_CVS   = '3';
-
     public ShopID: string;
     public JobCd: string;
     public Amount: string;

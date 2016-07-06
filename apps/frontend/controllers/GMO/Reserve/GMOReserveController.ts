@@ -1,5 +1,6 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import Util from '../../../../common/Util/Util';
+import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
@@ -136,7 +137,7 @@ export default class GMOReserveController extends ReserveBaseController {
                 // 決済方法
                 switch (gmoResultModel.PayType) {
                     // クレジットカード決済
-                    case GMOResultModel.PAY_TYPE_CREDIT:
+                    case GMOUtil.PAY_TYPE_CREDIT:
 
                         // 予約情報セッション削除
                         // これ以降、予約情報はローカルに引き回す
@@ -184,7 +185,7 @@ export default class GMOReserveController extends ReserveBaseController {
                         break;
 
                     // コンビニ決済
-                    case GMOResultModel.PAY_TYPE_CVS:
+                    case GMOUtil.PAY_TYPE_CVS:
 
                         // 決済待ちステータスへ変更
                         let promises = [];
@@ -197,6 +198,7 @@ export default class GMOReserveController extends ReserveBaseController {
                                 Models.Reservation.findOneAndUpdate(
                                     {
                                         _id: reservationId,
+                                        status: ReservationUtil.STATUS_TEMPORARY
                                     },
                                     {
                                         status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
@@ -307,7 +309,7 @@ export default class GMOReserveController extends ReserveBaseController {
             switch (gmoNotificationModel.PayType) {
 
 
-                case ReservationUtil.PAY_METHOD_CVS:
+                case GMOUtil.PAY_TYPE_CVS:
                     if (gmoNotificationModel.Status === 'PAYSUCCESS') {
                         // 決済待ちの予約を予約完了へ
                         // 予約情報セッション削除
@@ -342,7 +344,57 @@ export default class GMOReserveController extends ReserveBaseController {
 
                             }
                         });
-                    // } else if (gmoNotificationModel.Status === 'REQSUCCESS') {
+
+
+
+                    } else if (gmoNotificationModel.Status === 'REQSUCCESS') {
+
+                        // 決済待ちステータスへ変更
+                        let promises = [];
+                        reservationModel.reservationIds.forEach((reservationId, index) => {
+                            let reservation = reservationModel.getReservation(reservationId);
+
+                            promises.push(new Promise((resolve, reject) => {
+
+                                this.logger.debug('updating reservation status to STATUS_WAITING_SETTLEMENT..._id:', reservationId);
+                                Models.Reservation.findOneAndUpdate(
+                                    {
+                                        _id: reservationId,
+                                        status: ReservationUtil.STATUS_TEMPORARY
+                                    },
+                                    {
+                                        status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
+                                        updated_user: this.constructor.toString(),
+                                    },
+                                    {
+                                        new: true
+                                    },
+                                (err, reservationDocument) => {
+                                    this.logger.info('STATUS_TEMPORARY to STATUS_WAITING_SETTLEMENT processed.', err, reservationDocument, reservationModel);
+
+                                    if (err) {
+                                        // TODO ログ出力
+                                        reject();
+
+                                    } else {
+                                        resolve();
+                                    }
+
+                                });
+
+                            }));
+                        });
+
+                        Promise.all(promises).then(() => {
+                            this.res.send(GMONotificationResponseModel.RecvRes_OK);
+
+                        }, (err) => {
+                            // TODO どうする？
+                            this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                        });
+
+
                     // } else if (gmoNotificationModel.Status === 'UNPROCESSED') {
                     // } else if (gmoNotificationModel.Status === 'PAYFAIL') {
                     // } else if (gmoNotificationModel.Status === 'EXPIRED') {
