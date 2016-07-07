@@ -20,6 +20,7 @@ export default class TaskController extends BaseController {
             },
             {
                 status: ReservationUtil.STATUS_AVAILABLE,
+                updated_user: this.constructor.toString()
             },
             {
                 multi: true,

@@ -72,52 +72,52 @@ export default class GMOReserveCreditController extends ReserveBaseController {
     public notify(reservationModel: ReservationModel, gmoNotificationModel: GMONotificationModel): void {
 
         switch (gmoNotificationModel.Status) {
-            case 'CAPTURE':
+            case GMOUtil.STATUS_CREDIT_CAPTURE:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                 break;
 
-            case 'UNPROCESSED':
+            case GMOUtil.STATUS_CREDIT_UNPROCESSED:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                 break;
 
-            case 'AUTHENTICATED':
+            case GMOUtil.STATUS_CREDIT_AUTHENTICATED:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                 break;
 
-            case 'CHECK':
+            case GMOUtil.STATUS_CREDIT_CHECK:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                 break;
 
-            case 'AUTH':
+            case GMOUtil.STATUS_CREDIT_AUTH:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                 break;
 
-            case 'SALES':
+            case GMOUtil.STATUS_CREDIT_SALES:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                 break;
 
-            case 'VOID':
+            case GMOUtil.STATUS_CREDIT_VOID:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                 break;
 
-            case 'RETURN':
+            case GMOUtil.STATUS_CREDIT_RETURN:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                 break;
 
-            case 'RETURNX':
+            case GMOUtil.STATUS_CREDIT_RETURNX:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                 break;
 
-            case 'SAUTH':
+            case GMOUtil.STATUS_CREDIT_SAUTH:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                 break;

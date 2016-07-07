@@ -84,8 +84,9 @@ export default class GMOReserveCvsController extends ReserveBaseController {
         // 5 期限切れ ○
         // 6 支払い停止 ○
 
+        let promises: Array<Promise<Function>> = [];
         switch (gmoNotificationModel.Status) {
-            case 'PAYSUCCESS':
+            case GMOUtil.STATUS_CVS_PAYSUCCESS:
                 // 決済待ちの予約を予約完了へ
                 // 予約情報セッション削除
                 // これ以降、予約情報はローカルに引き回す
@@ -121,9 +122,8 @@ export default class GMOReserveCvsController extends ReserveBaseController {
 
                 break;
 
-            case 'REQSUCCESS':
+            case GMOUtil.STATUS_CVS_REQSUCCESS:
                 // 決済待ちステータスへ変更
-                let promises = [];
                 reservationModel.reservationIds.forEach((reservationId, index) => {
                     let reservation = reservationModel.getReservation(reservationId);
 
@@ -169,22 +169,57 @@ export default class GMOReserveCvsController extends ReserveBaseController {
 
                 break;
 
-            case 'UNPROCESSED':
-                this.res.send(GMONotificationResponseModel.RecvRes_NG);
+            case GMOUtil.STATUS_CVS_UNPROCESSED:
+                this.res.send(GMONotificationResponseModel.RecvRes_OK);
 
                 break;
 
-            case 'PAYFAIL':
-                this.res.send(GMONotificationResponseModel.RecvRes_NG);
+            case GMOUtil.STATUS_CVS_PAYFAIL: // 決済失敗
+            case GMOUtil.STATUS_CVS_EXPIRED: // 期限切れ
+            case GMOUtil.STATUS_CVS_CANCEL: // 支払い停止
+                // 空席に戻す
+                reservationModel.reservationIds.forEach((reservationId, index) => {
+                    let reservation = reservationModel.getReservation(reservationId);
 
-                break;
+                    promises.push(new Promise((resolve, reject) => {
 
-            case 'EXPIRED':
-                this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        this.logger.debug('updating reservation status to STATUS_AVAILABLE..._id:', reservationId);
+                        Models.Reservation.findOneAndUpdate(
+                            {
+                                _id: reservationId
+                            },
+                            {
+                                status: ReservationUtil.STATUS_AVAILABLE,
+                                updated_user: this.constructor.toString()
+                            },
+                            {
+                                new: true
+                            },
+                        (err, reservationDocument) => {
+                            this.logger.info('STATUS_WAITING_SETTLEMENT to STATUS_AVAILABLE processed.', err, reservationDocument, reservationModel);
 
-                break;
+                            if (err) {
+                                // TODO ログ出力
+                                reject();
 
-            case 'CANCEL':
+                            } else {
+                                resolve();
+                            }
+
+                        });
+
+                    }));
+                });
+
+                Promise.all(promises).then(() => {
+                    this.res.send(GMONotificationResponseModel.RecvRes_OK);
+
+                }, (err) => {
+                    // TODO どうする？
+                    this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                });
+
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                 break;
