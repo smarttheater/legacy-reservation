@@ -4,7 +4,6 @@ import Util from '../../../../common/Util/Util';
 import memberReserveLoginForm from '../../../forms/Member/Reserve/memberReserveLoginForm';
 import memberReserveTicketForm from '../../../forms/Member/Reserve/memberReserveTicketForm';
 import memberReserveProfileForm from '../../../forms/Member/Reserve/memberReserveProfileForm';
-import memberReservePayForm from '../../../forms/Member/Reserve/memberReservePayForm';
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
@@ -205,7 +204,7 @@ export default class MemberReserveController extends ReserveBaseController {
 
                         this.logger.debug('saving reservationModel... ', reservationModel);
                         reservationModel.save((err) => {
-                            this.res.redirect(this.router.build('member.reserve.pay', {token: token}));
+                            this.res.redirect(this.router.build('member.reserve.confirm', {token: token}));
                         });
 
                     } else {
@@ -237,54 +236,6 @@ export default class MemberReserveController extends ReserveBaseController {
                 }
 
                 this.res.render('member/reserve/profile', {
-                    reservationModel: reservationModel,
-                });
-
-            }
-
-        });
-    }
-
-    /**
-     * 決済方法選択
-     */
-    public pay(): void {
-        let token = this.req.params.token;
-        ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
-
-            this.logger.debug('reservationModel is ', reservationModel);
-
-            if (this.req.method === 'POST') {
-                memberReservePayForm(this.req, this.res, (err) => {
-                    if (this.req.form.isValid) {
-                        // 決済方法情報を保存して座席選択へ
-                        reservationModel.paymentMethod = this.req.form['method'];
-
-                        this.logger.debug('saving reservationModel... ', reservationModel);
-                        reservationModel.save((err) => {
-                            this.res.redirect(this.router.build('member.reserve.confirm', {token: token}));
-                        });
-
-                    } else {
-                        this.res.render('member/reserve/pay', {
-                        });
-
-                    }
-
-                });
-
-            } else {
-                this.res.locals.method = '01';
-
-                // セッションに情報があれば、フォーム初期値設定
-                if (reservationModel.paymentMethod) {
-                    this.res.locals.method = reservationModel.paymentMethod;
-                }
-
-                this.res.render('member/reserve/pay', {
                     reservationModel: reservationModel,
                 });
 

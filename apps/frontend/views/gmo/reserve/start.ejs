@@ -5,7 +5,7 @@
 <title>TIFF</title>
 </head>
 <body>
-    <h1>クレジット決済開発用ページ</h1>
+    <h1>GMO決済開発用ページ</h1>
     token：<%- reservationModel.token %><br />
     <form action="https://pt01.mul-pay.jp/link/<%- shopId %>/Multi/Entry" method="post">
         ShopID：<input type="text" name="ShopID" value="<%- shopId %>"><br>
@@ -17,9 +17,17 @@
         CancelURL<input type="text" name="CancelURL" value="<%- req.protocol + '://' + req.headers.host + url('gmo.reserve.result') %>"><br>
 
         UseCredit:<input type="text" name="UseCredit" value="1"><br>
+        UseCvs:<input type="text" name="UseCvs" value="1"><br>
 
         JobCd:<input type="text" name="JobCd" value="CAPTURE"><br>
         SiteID:<input type="text" name="SiteID" value="tsite00022126"><br>
+
+        ReceiptsDisp11:<input type="text" name="ReceiptsDisp11" value="東京国際映画祭事務局"><br>
+        <!-- お問合せ先電話番号 -->
+        ReceiptsDisp12:<input type="text" name="ReceiptsDisp12" value="03-1234-5678"><br>
+        <!-- お問合せ先受付時間 -->
+        ReceiptsDisp13:<input type="text" name="ReceiptsDisp13" value="09:00-18:00"><br>
+
         <input type="submit" value="送信"/>
     </form>
 </body>

@@ -20,6 +20,9 @@ export default class GMOReserveCreditController extends ReserveBaseController {
      * GMOからの結果受信
      */
     public result(reservationModel: ReservationModel, gmoResultModel: GMOResultModel): void {
+        // TODO バッチ処理側で予約完了処理をするとすると、ここでは完了ページにいきなり遷移してもいいかもしれない
+        // バッチ処理が遅ければ、決済中です...みたいな表記とか
+
         // 予約情報セッション削除
         // これ以降、予約情報はローカルに引き回す
         this.logger.info('removing reservationModel... ');

@@ -44,83 +44,36 @@ export default class GMOReserveController extends ReserveBaseController {
                     this.setProcessLogger(reservationModel.paymentNo, () => {
                         this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
 
+                        // GMOからの結果受信にそなえてセッションを新規に作成する
+                        // コンビニ支払い期限は3日なので、reservationModelは4日有効にする
+                        reservationModel.token = Util.createToken();
+                        this.logger.info('saving reservationModel...new token:', reservationModel.token);
+                        reservationModel.save((err) => {
+                            // GMOへ遷移画面
+                            let shopId = conf.get<string>('gmo_payment_shop_id');
+                            let orderID = reservationModel.token; // 27桁まで
+                            let amount = reservationModel.getTotalPrice();
+                            let shopPassword = conf.get<string>('gmo_payment_shop_password');
+                            let dateTime = moment().format('YYYYMMDDHHmmss');
 
-                        switch (reservationModel.paymentMethod) {
-                            case ReservationUtil.PAY_METHOD_CREDIT:
+                            // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
+                            let md5hash = crypto.createHash('md5');
+                            md5hash.update(`${shopId}${orderID}${amount}${shopPassword}${dateTime}`, 'utf8');
+                            let shopPassString = md5hash.digest('hex');
 
-                                // GMOからの結果受信にそなえてセッションを新規に作成する
-                                reservationModel.token = Util.createToken();
-                                this.logger.info('saving reservationModel...new token:', reservationModel.token);
-                                reservationModel.save((err) => {
-                                    // GMOへ遷移画面
-                                    let shopId = conf.get<string>('gmo_payment_shop_id');
-                                    let orderID = reservationModel.token; // 27桁まで
-                                    let amount = reservationModel.getTotalPrice();
-                                    let shopPassword = conf.get<string>('gmo_payment_shop_password');
-                                    let dateTime = moment().format('YYYYMMDDHHmmss');
+                            this.logger.info('redirecting to GMO payment...orderID:', orderID);
+                            this.res.render('gmo/reserve/start', {
+                                layout: false,
+                                reservationModel: reservationModel,
+                                shopId,
+                                orderID,
+                                amount,
+                                shopPassword,
+                                dateTime,
+                                shopPassString
+                            });
 
-                                    // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
-                                    let md5hash = crypto.createHash('md5');
-                                    md5hash.update(`${shopId}${orderID}${amount}${shopPassword}${dateTime}`, 'utf8');
-                                    let shopPassString = md5hash.digest('hex');
-
-                                    this.logger.info('redirecting to GMO payment...orderID:', orderID);
-                                    this.res.render('gmo/reserve/startCredit', {
-                                        layout: false,
-                                        reservationModel: reservationModel,
-                                        shopId,
-                                        orderID,
-                                        amount,
-                                        shopPassword,
-                                        dateTime,
-                                        shopPassString
-                                    });
-
-                                });
-
-                                break;
-
-
-                            case ReservationUtil.PAY_METHOD_CVS:
-                                // GMOからの結果受信にそなえてセッションを新規に作成する
-                                // コンビニ支払い期限は3日なので、reservationModelは4日有効にする
-                                reservationModel.token = Util.createToken();
-                                this.logger.info('saving reservationModel...new token:', reservationModel.token);
-                                reservationModel.save((err) => {
-                                    // GMOへ遷移画面
-                                    let shopId = conf.get<string>('gmo_payment_shop_id');
-                                    let orderID = reservationModel.token; // 27桁まで
-                                    let amount = reservationModel.getTotalPrice();
-                                    let shopPassword = conf.get<string>('gmo_payment_shop_password');
-                                    let dateTime = moment().format('YYYYMMDDHHmmss');
-
-                                    // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
-                                    let md5hash = crypto.createHash('md5');
-                                    md5hash.update(`${shopId}${orderID}${amount}${shopPassword}${dateTime}`, 'utf8');
-                                    let shopPassString = md5hash.digest('hex');
-
-                                    this.logger.info('redirecting to GMO payment...orderID:', orderID);
-                                    this.res.render('gmo/reserve/startCVS', {
-                                        layout: false,
-                                        reservationModel: reservationModel,
-                                        shopId,
-                                        orderID,
-                                        amount,
-                                        shopPassword,
-                                        dateTime,
-                                        shopPassString
-                                    });
-
-                                }, 345600);
-
-                                break;
-
-                            default:
-                                this.next(new Error('対応していない決済方法です'))
-
-                                break;
-
-                        }
+                        }, 345600);
 
                     });
 
