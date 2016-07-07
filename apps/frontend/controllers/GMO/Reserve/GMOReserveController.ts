@@ -35,80 +35,88 @@ export default class GMOReserveController extends ReserveBaseController {
 
                 } else {
 
-                    switch (reservationModel.paymentMethod) {
-                        case ReservationUtil.PAY_METHOD_CREDIT:
+                    // 予約プロセス固有のログファイルをセット
+                    this.setProcessLogger(reservationModel.token, () => {
 
-                            // GMOからの結果受信にそなえてセッションを新規に作成する
-                            reservationModel.token = Util.createToken();
-                            reservationModel.save((err) => {
-                                // GMOへ遷移画面
-                                let shopId = conf.get<string>('gmo_payment_shop_id');
-                                let orderID = reservationModel.token; // 27桁まで
-                                let amount = reservationModel.getTotalPrice();
-                                let shopPassword = conf.get<string>('gmo_payment_shop_password');
-                                let dateTime = moment().format('YYYYMMDDHHmmss');
+                        this.logger.info('process start. reservationModel:' , reservationModel);
 
-                                // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
-                                let md5hash = crypto.createHash('md5');
-                                md5hash.update(`${shopId}${orderID}${amount}${shopPassword}${dateTime}`, 'utf8');
-                                let shopPassString = md5hash.digest('hex');
+                        switch (reservationModel.paymentMethod) {
+                            case ReservationUtil.PAY_METHOD_CREDIT:
+
+                                // GMOからの結果受信にそなえてセッションを新規に作成する
+                                reservationModel.token = Util.createToken();
+                                reservationModel.save((err) => {
+                                    // GMOへ遷移画面
+                                    let shopId = conf.get<string>('gmo_payment_shop_id');
+                                    let orderID = reservationModel.token; // 27桁まで
+                                    let amount = reservationModel.getTotalPrice();
+                                    let shopPassword = conf.get<string>('gmo_payment_shop_password');
+                                    let dateTime = moment().format('YYYYMMDDHHmmss');
+
+                                    // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
+                                    let md5hash = crypto.createHash('md5');
+                                    md5hash.update(`${shopId}${orderID}${amount}${shopPassword}${dateTime}`, 'utf8');
+                                    let shopPassString = md5hash.digest('hex');
 
 
-                                this.res.render('gmo/reserve/startCredit', {
-                                    layout: false,
-                                    reservationModel: reservationModel,
-                                    shopId,
-                                    orderID,
-                                    amount,
-                                    shopPassword,
-                                    dateTime,
-                                    shopPassString
+                                    this.res.render('gmo/reserve/startCredit', {
+                                        layout: false,
+                                        reservationModel: reservationModel,
+                                        shopId,
+                                        orderID,
+                                        amount,
+                                        shopPassword,
+                                        dateTime,
+                                        shopPassString
+                                    });
+
                                 });
 
-                            });
-
-                            break;
+                                break;
 
 
-                        case ReservationUtil.PAY_METHOD_CVS:
-                            // GMOからの結果受信にそなえてセッションを新規に作成する
-                            // コンビニ支払い期限は3日なので、reservationModelは4日有効にする
-                            reservationModel.token = Util.createToken();
-                            reservationModel.save((err) => {
-                                // GMOへ遷移画面
-                                let shopId = conf.get<string>('gmo_payment_shop_id');
-                                let orderID = reservationModel.token; // 27桁まで
-                                let amount = reservationModel.getTotalPrice();
-                                let shopPassword = conf.get<string>('gmo_payment_shop_password');
-                                let dateTime = moment().format('YYYYMMDDHHmmss');
+                            case ReservationUtil.PAY_METHOD_CVS:
+                                // GMOからの結果受信にそなえてセッションを新規に作成する
+                                // コンビニ支払い期限は3日なので、reservationModelは4日有効にする
+                                reservationModel.token = Util.createToken();
+                                reservationModel.save((err) => {
+                                    // GMOへ遷移画面
+                                    let shopId = conf.get<string>('gmo_payment_shop_id');
+                                    let orderID = reservationModel.token; // 27桁まで
+                                    let amount = reservationModel.getTotalPrice();
+                                    let shopPassword = conf.get<string>('gmo_payment_shop_password');
+                                    let dateTime = moment().format('YYYYMMDDHHmmss');
 
-                                // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
-                                let md5hash = crypto.createHash('md5');
-                                md5hash.update(`${shopId}${orderID}${amount}${shopPassword}${dateTime}`, 'utf8');
-                                let shopPassString = md5hash.digest('hex');
+                                    // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
+                                    let md5hash = crypto.createHash('md5');
+                                    md5hash.update(`${shopId}${orderID}${amount}${shopPassword}${dateTime}`, 'utf8');
+                                    let shopPassString = md5hash.digest('hex');
 
 
-                                this.res.render('gmo/reserve/startCVS', {
-                                    layout: false,
-                                    reservationModel: reservationModel,
-                                    shopId,
-                                    orderID,
-                                    amount,
-                                    shopPassword,
-                                    dateTime,
-                                    shopPassString
-                                });
+                                    this.res.render('gmo/reserve/startCVS', {
+                                        layout: false,
+                                        reservationModel: reservationModel,
+                                        shopId,
+                                        orderID,
+                                        amount,
+                                        shopPassword,
+                                        dateTime,
+                                        shopPassString
+                                    });
 
-                            }, 345600);
+                                }, 345600);
 
-                            break;
+                                break;
 
-                        default:
-                            this.next(new Error('対応していない決済方法です'))
+                            default:
+                                this.next(new Error('対応していない決済方法です'))
 
-                            break;
+                                break;
 
-                    }
+                        }
+
+                    });
+
 
                 }
             });
@@ -131,38 +139,44 @@ export default class GMOReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
 
-            if (this.req.method === 'POST') {
-                // TODO エラー結果の場合
-                if (gmoResultModel.ErrCode) {
-                    this.next(new Error(`エラー結果を受信しました。 ErrCode:${gmoResultModel.ErrCode} ErrInfo:${gmoResultModel.ErrInfo}`));
+            // 予約プロセス固有のログファイルをセット
+            this.setProcessLogger(reservationModel.token, () => {
+                this.logger.debug('reservationModel is ', reservationModel);
 
-                } else {
-                    // 決済方法によって振り分け
-                    let nextController;
-                    switch (gmoResultModel.PayType) {
+                if (this.req.method === 'POST') {
+                    // TODO エラー結果の場合
+                    if (gmoResultModel.ErrCode) {
+                        this.next(new Error(`エラー結果を受信しました。 ErrCode:${gmoResultModel.ErrCode} ErrInfo:${gmoResultModel.ErrInfo}`));
 
-                        case GMOUtil.PAY_TYPE_CREDIT:
-                            let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
-                            creditController.result(reservationModel, gmoResultModel);
+                    } else {
+                        // 決済方法によって振り分け
+                        let nextController;
+                        switch (gmoResultModel.PayType) {
 
-                            break;
+                            case GMOUtil.PAY_TYPE_CREDIT:
+                                let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
+                                creditController.result(reservationModel, gmoResultModel);
 
-                        case GMOUtil.PAY_TYPE_CVS:
-                            let cvsController = new GMOReserveCsvController(this.req, this.res, this.next);
-                            cvsController.result(reservationModel, gmoResultModel);
+                                break;
 
-                            break;
+                            case GMOUtil.PAY_TYPE_CVS:
+                                let cvsController = new GMOReserveCsvController(this.req, this.res, this.next);
+                                cvsController.result(reservationModel, gmoResultModel);
 
-                        default:
-                            this.next(new Error('対応していない決済方法です'));
+                                break;
 
-                            break;
+                            default:
+                                this.next(new Error('対応していない決済方法です'));
+
+                                break;
+                        }
+
                     }
-
                 }
-            }
+
+            })
+
         });
 
     }
@@ -212,28 +226,35 @@ export default class GMOReserveController extends ReserveBaseController {
                 return this.res.send(GMONotificationResponseModel.RecvRes_NG);
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            // 予約プロセス固有のログファイルをセット
+            this.setProcessLogger(reservationModel.token, () => {
+                this.logger.debug('reservationModel is ', reservationModel);
 
-            switch (gmoNotificationModel.PayType) {
+                switch (gmoNotificationModel.PayType) {
 
-                case GMOUtil.PAY_TYPE_CREDIT:
-                    let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
-                    creditController.notify(reservationModel, gmoNotificationModel);
+                    case GMOUtil.PAY_TYPE_CREDIT:
+                        let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
+                        creditController.notify(reservationModel, gmoNotificationModel);
+                        creditController.logger = this.logger;
 
-                    break;
+                        break;
 
-                case GMOUtil.PAY_TYPE_CVS:
-                    let cvsController = new GMOReserveCsvController(this.req, this.res, this.next);
-                    cvsController.notify(reservationModel, gmoNotificationModel);
+                    case GMOUtil.PAY_TYPE_CVS:
+                        let cvsController = new GMOReserveCsvController(this.req, this.res, this.next);
+                        cvsController.notify(reservationModel, gmoNotificationModel);
+                        cvsController.logger = this.logger;
 
-                    break;
+                        break;
 
-                default:
-                    // 他の決済は本案件では非対応
-                    this.res.send(GMONotificationResponseModel.RecvRes_OK);
+                    default:
+                        // 他の決済は本案件では非対応
+                        this.res.send(GMONotificationResponseModel.RecvRes_OK);
 
-                    break;
-            }
+                        break;
+                }
+
+            });
+
         });
 
     }

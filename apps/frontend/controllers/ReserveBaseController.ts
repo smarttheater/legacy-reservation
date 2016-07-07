@@ -428,7 +428,7 @@ export default class ReserveBaseController extends BaseController {
     protected setProcessLogger(token: string, cb: () => any) {
         let env = process.env.NODE_ENV || 'dev';
         let moment = require('moment');
-        let logDir = `${__dirname}/../../logs/${env}/frontend/reserve/${moment().format('YYYYMMDD')}`;
+        let logDir = `${__dirname}/../../../logs/${env}/frontend/reserve/${moment().format('YYYYMMDD')}`;
 
         fs.mkdirs(logDir, (err) => {
             if (err) {
