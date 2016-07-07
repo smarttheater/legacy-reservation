@@ -15,6 +15,9 @@ import moment = require('moment');
 import crypto = require('crypto');
 import conf = require('config');
 
+import GMOReserveCreditController from './Credit/GMOReserveCreditController';
+import GMOReserveCsvController from './Cvs/GMOReserveCvsController';
+
 export default class GMOReserveController extends ReserveBaseController {
     public start(): void {
         let token = this.req.params.token;
@@ -129,121 +132,33 @@ export default class GMOReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel);
 
             if (this.req.method === 'POST') {
-                // エラー結果の場合
+                // TODO エラー結果の場合
                 if (gmoResultModel.ErrCode) {
-                    return this.res.send(`エラー結果を受信しました。 ErrCode:${gmoResultModel.ErrCode} ErrInfo:${gmoResultModel.ErrInfo}`);
-                }
+                    this.next(new Error(`エラー結果を受信しました。 ErrCode:${gmoResultModel.ErrCode} ErrInfo:${gmoResultModel.ErrInfo}`));
 
-                // 決済方法
-                switch (gmoResultModel.PayType) {
-                    // クレジットカード決済
-                    case GMOUtil.PAY_TYPE_CREDIT:
+                } else {
+                    // 決済方法によって振り分け
+                    let nextController;
+                    switch (gmoResultModel.PayType) {
 
-                        // 予約情報セッション削除
-                        // これ以降、予約情報はローカルに引き回す
-                        this.logger.debug('removing reservationModel... ', reservationModel);
-                        reservationModel.remove(() => {
-                            if (err) {
+                        case GMOUtil.PAY_TYPE_CREDIT:
+                            let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
+                            creditController.result(reservationModel, gmoResultModel);
 
-                            } else {
-                                // TODO GMOからポストされたパラメータを予約情報に追加する
+                            break;
 
-                                // 予約確定
-                                this.processFixAll(reservationModel, (err, reservationModel) => {
-                                    if (err) {
-                                        // TODO 万が一の対応どうするか
-                                        this.next(err);
+                        case GMOUtil.PAY_TYPE_CVS:
+                            let cvsController = new GMOReserveCsvController(this.req, this.res, this.next);
+                            cvsController.result(reservationModel, gmoResultModel);
 
-                                    } else {
-                                        // TODO 予約できていない在庫があった場合
-                                        if (reservationModel.reservationIds.length > reservationModel.reservedDocuments.length) {
-                                            this.next(new Error('決済を完了できませんでした'));
+                            break;
 
-                                        } else {
-                                            // 予約結果セッションを保存して、完了画面へ
-                                            let reservationResultModel = reservationModel.toReservationResult();
+                        default:
+                            this.next(new Error('対応していない決済方法です'));
 
-                                            this.logger.debug('saving reservationResult...', reservationResultModel);
-                                            reservationResultModel.save((err) => {
-                                                this.logger.debug('redirecting complete page...token:', reservationResultModel.token);
-                                                if (reservationModel.member) {
-                                                    this.res.redirect(this.router.build('member.reserve.complete', {token: token}));
+                            break;
+                    }
 
-                                                } else {
-                                                    this.res.redirect(this.router.build('customer.reserve.complete', {token: token}));
-                                                }
-
-                                            });
-
-                                        }
-                                    }
-                                });
-
-                            }
-                        });
-
-                        break;
-
-                    // コンビニ決済
-                    case GMOUtil.PAY_TYPE_CVS:
-
-                        // 決済待ちステータスへ変更
-                        let promises = [];
-                        reservationModel.reservationIds.forEach((reservationId, index) => {
-                            let reservation = reservationModel.getReservation(reservationId);
-
-                            promises.push(new Promise((resolve, reject) => {
-
-                                this.logger.debug('updating reservation status to STATUS_WAITING_SETTLEMENT..._id:', reservationId);
-                                Models.Reservation.findOneAndUpdate(
-                                    {
-                                        _id: reservationId,
-                                        status: ReservationUtil.STATUS_TEMPORARY
-                                    },
-                                    {
-                                        status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
-                                        updated_user: this.constructor.toString(),
-                                    },
-                                    {
-                                        new: true
-                                    },
-                                (err, reservationDocument) => {
-                                    this.logger.info('STATUS_TEMPORARY to STATUS_WAITING_SETTLEMENT processed.', err, reservationDocument, reservationModel);
-
-                                    if (err) {
-                                        // TODO ログ出力
-                                        reject();
-
-                                    } else {
-                                        resolve();
-                                    }
-
-                                });
-
-                            }));
-                        });
-
-                        Promise.all(promises).then(() => {
-                            if (reservationModel.member) {
-                                this.res.redirect(this.router.build('member.reserve.waitingSettlement', {token: token}));
-
-                            } else {
-                                this.res.redirect(this.router.build('customer.reserve.waitingSettlement', {token: token}));
-
-                            }
-
-                        }, (err) => {
-                            // TODO どうする？
-                            this.next(err);
-
-                        });
-
-                        break;
-
-                    default:
-                        this.next(new Error('対応していない決済方法です'));
-
-                        break;
                 }
             }
         });
@@ -269,15 +184,6 @@ export default class GMOReserveController extends ReserveBaseController {
 
 
 
-
-        // コンビニ決済
-        // 4 入金通知 ○
-        // 5 期限切れ ○
-        // 6 支払い停止 ○
-
-
-
-
         // 以下のいずれかの状態でエラー通知を送信します。
         // 再送で正常終了している場合
         // ■ 通知完了(要求日時と約60分以上の差がある)
@@ -285,7 +191,6 @@ export default class GMOReserveController extends ReserveBaseController {
         // ■ エラー()
         // 再送も全て通知失敗した場合
         // ■リトライ回数超過
-
 
 
 
@@ -308,108 +213,20 @@ export default class GMOReserveController extends ReserveBaseController {
 
             switch (gmoNotificationModel.PayType) {
 
-
-                case GMOUtil.PAY_TYPE_CVS:
-                    if (gmoNotificationModel.Status === 'PAYSUCCESS') {
-                        // 決済待ちの予約を予約完了へ
-                        // 予約情報セッション削除
-                        // これ以降、予約情報はローカルに引き回す
-                        this.logger.debug('removing reservationModel... ', reservationModel);
-                        reservationModel.remove(() => {
-                            if (err) {
-                                // TODO ログ
-                                this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
-                            } else {
-                                // TODO GMOからポストされたパラメータを予約情報に追加する
-
-                                // 予約確定
-                                this.processFixAll(reservationModel, (err, reservationModel) => {
-                                    if (err) {
-                                        // TODO 万が一の対応どうするか
-                                        this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
-                                    } else {
-                                        // TODO 予約できていない在庫があった場合
-                                        if (reservationModel.reservationIds.length > reservationModel.reservedDocuments.length) {
-                                            this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
-                                        } else {
-                                            // 完了
-                                            this.res.send(GMONotificationResponseModel.RecvRes_OK);
-
-                                        }
-                                    }
-                                });
-
-                            }
-                        });
-
-
-
-                    } else if (gmoNotificationModel.Status === 'REQSUCCESS') {
-
-                        // 決済待ちステータスへ変更
-                        let promises = [];
-                        reservationModel.reservationIds.forEach((reservationId, index) => {
-                            let reservation = reservationModel.getReservation(reservationId);
-
-                            promises.push(new Promise((resolve, reject) => {
-
-                                this.logger.debug('updating reservation status to STATUS_WAITING_SETTLEMENT..._id:', reservationId);
-                                Models.Reservation.findOneAndUpdate(
-                                    {
-                                        _id: reservationId,
-                                        status: ReservationUtil.STATUS_TEMPORARY
-                                    },
-                                    {
-                                        status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
-                                        updated_user: this.constructor.toString(),
-                                    },
-                                    {
-                                        new: true
-                                    },
-                                (err, reservationDocument) => {
-                                    this.logger.info('STATUS_TEMPORARY to STATUS_WAITING_SETTLEMENT processed.', err, reservationDocument, reservationModel);
-
-                                    if (err) {
-                                        // TODO ログ出力
-                                        reject();
-
-                                    } else {
-                                        resolve();
-                                    }
-
-                                });
-
-                            }));
-                        });
-
-                        Promise.all(promises).then(() => {
-                            this.res.send(GMONotificationResponseModel.RecvRes_OK);
-
-                        }, (err) => {
-                            // TODO どうする？
-                            this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
-                        });
-
-
-                    // } else if (gmoNotificationModel.Status === 'UNPROCESSED') {
-                    // } else if (gmoNotificationModel.Status === 'PAYFAIL') {
-                    // } else if (gmoNotificationModel.Status === 'EXPIRED') {
-                    // } else if (gmoNotificationModel.Status === 'CANCEL') {
-                    } else {
-                        this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
-                    }
+                case GMOUtil.PAY_TYPE_CREDIT:
+                    let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
+                    creditController.notify(reservationModel, gmoNotificationModel);
 
                     break;
 
+                case GMOUtil.PAY_TYPE_CVS:
+                    let cvsController = new GMOReserveCsvController(this.req, this.res, this.next);
+                    cvsController.notify(reservationModel, gmoNotificationModel);
 
-
+                    break;
 
                 default:
+                    // 他の決済は本案件では非対応
                     this.res.send(GMONotificationResponseModel.RecvRes_OK);
 
                     break;

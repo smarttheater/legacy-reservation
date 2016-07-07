@@ -25,6 +25,7 @@ export default class GMONotificationModel {
      * オーダーID 27
      */
     public OrderID: string;
+
     /**
      * 現状態 11
      * 
@@ -47,7 +48,12 @@ export default class GMONotificationModel {
         RETURN：返品
         RETURNX：月跨り返品
         SAUTH：簡易オーソリ
-        JobCd 処理区分 7
+     */
+    public Status: string;
+
+    /**
+     * 処理区分 7
+     *          
         CHECK：有効性チェック
         CAPTURE：即時売上
         AUTH：仮売上
@@ -57,7 +63,8 @@ export default class GMONotificationModel {
         RETURNX：月跨り返品
         SAUTH：簡易オーソリ
      */
-    public Status: string;
+    public JobCd: string;
+
     /**
      * 利用金額 10 決済または決済依頼をした金額を返却します。
      */
