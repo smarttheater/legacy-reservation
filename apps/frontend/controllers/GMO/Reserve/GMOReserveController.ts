@@ -45,7 +45,7 @@ export default class GMOReserveController extends ReserveBaseController {
                                 let shopId = conf.get<string>('gmo_payment_shop_id');
                                 let orderID = reservationModel.token; // 27桁まで
                                 let amount = reservationModel.getTotalPrice();
-                                let shopPassword = conf.get<string>('gmo_payment_shop_Password');
+                                let shopPassword = conf.get<string>('gmo_payment_shop_password');
                                 let dateTime = moment().format('YYYYMMDDHHmmss');
 
                                 // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
@@ -72,13 +72,14 @@ export default class GMOReserveController extends ReserveBaseController {
 
                         case ReservationUtil.PAY_METHOD_CVS:
                             // GMOからの結果受信にそなえてセッションを新規に作成する
+                            // コンビニ支払い期限は3日なので、reservationModelは4日有効にする
                             reservationModel.token = Util.createToken();
                             reservationModel.save((err) => {
                                 // GMOへ遷移画面
                                 let shopId = conf.get<string>('gmo_payment_shop_id');
                                 let orderID = reservationModel.token; // 27桁まで
                                 let amount = reservationModel.getTotalPrice();
-                                let shopPassword = conf.get<string>('gmo_payment_shop_Password');
+                                let shopPassword = conf.get<string>('gmo_payment_shop_password');
                                 let dateTime = moment().format('YYYYMMDDHHmmss');
 
                                 // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
@@ -98,7 +99,7 @@ export default class GMOReserveController extends ReserveBaseController {
                                     shopPassString
                                 });
 
-                            });
+                            }, 345600);
 
                             break;
 
@@ -118,6 +119,7 @@ export default class GMOReserveController extends ReserveBaseController {
 
     /**
      * GMOからの結果受信
+     * TODO 決済結果チェック文字列を確認する
      */
     public result(): void {
         let gmoResultModel = GMOResultModel.parse(this.req.body);
@@ -168,6 +170,7 @@ export default class GMOReserveController extends ReserveBaseController {
 
     /**
      * GMO結果通知受信
+     * TODO 何かしら決済情報チェック処理を入れる(金額とか)
      */
     public notify(): void {
         // お客様は、受信したHTTPリクエストに対するHTTPレスポンスが必要となります。

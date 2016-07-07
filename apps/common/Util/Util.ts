@@ -1,6 +1,7 @@
 import redis = require('redis');
 import conf = require('config');
 import crypto = require('crypto');
+import uniqid = require('uniqid');
 
 /**
  * 共通のユーティリティ
@@ -29,9 +30,26 @@ export default class Util {
     //     return token;
     // }
 
+    /**
+     * トークン生成(24桁)
+     *
+     * @return {string}
+     */
     public static createToken(): string {
-        let strong = 1000;
-        return new Date().getTime().toString(16) + Math.floor(strong*Math.random()).toString(16)
+        let uniq = uniqid();
+
+        let size = 24 - uniq.length;
+        let base = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        var baseLength = base.length;
+
+        let buf = [];
+        for (let i = 0; i < size; i++) {
+            buf.push(base[Math.floor(Math.random() * baseLength)]);
+        }
+
+        let token = buf.join('') + uniq;
+
+        return buf.join('') + uniq;
     }
 
     /**

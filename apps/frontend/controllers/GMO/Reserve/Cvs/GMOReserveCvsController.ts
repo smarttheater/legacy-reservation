@@ -177,50 +177,60 @@ export default class GMOReserveCvsController extends ReserveBaseController {
             case GMOUtil.STATUS_CVS_PAYFAIL: // 決済失敗
             case GMOUtil.STATUS_CVS_EXPIRED: // 期限切れ
             case GMOUtil.STATUS_CVS_CANCEL: // 支払い停止
-                // 空席に戻す
-                reservationModel.reservationIds.forEach((reservationId, index) => {
-                    let reservation = reservationModel.getReservation(reservationId);
 
-                    promises.push(new Promise((resolve, reject) => {
+                this.logger.debug('removing reservationModel... ', reservationModel);
+                reservationModel.remove((err) => {
+                    if (err) {
+                        // TODO ログ
 
-                        this.logger.debug('updating reservation status to STATUS_AVAILABLE..._id:', reservationId);
-                        Models.Reservation.findOneAndUpdate(
-                            {
-                                _id: reservationId
-                            },
-                            {
-                                status: ReservationUtil.STATUS_AVAILABLE,
-                                updated_user: this.constructor.toString()
-                            },
-                            {
-                                new: true
-                            },
-                        (err, reservationDocument) => {
-                            this.logger.info('STATUS_WAITING_SETTLEMENT to STATUS_AVAILABLE processed.', err, reservationDocument, reservationModel);
+                    } else {
+                        // 空席に戻す
+                        reservationModel.reservationIds.forEach((reservationId, index) => {
+                            let reservation = reservationModel.getReservation(reservationId);
 
-                            if (err) {
-                                // TODO ログ出力
-                                reject();
+                            promises.push(new Promise((resolve, reject) => {
 
-                            } else {
-                                resolve();
-                            }
+                                this.logger.debug('updating reservation status to STATUS_AVAILABLE..._id:', reservationId);
+                                Models.Reservation.findOneAndUpdate(
+                                    {
+                                        _id: reservationId
+                                    },
+                                    {
+                                        status: ReservationUtil.STATUS_AVAILABLE,
+                                        updated_user: this.constructor.toString()
+                                    },
+                                    {
+                                        new: true
+                                    },
+                                (err, reservationDocument) => {
+                                    this.logger.info('STATUS_WAITING_SETTLEMENT to STATUS_AVAILABLE processed.', err, reservationDocument, reservationModel);
+
+                                    if (err) {
+                                        // TODO ログ出力
+                                        reject();
+
+                                    } else {
+                                        resolve();
+                                    }
+
+                                });
+
+                            }));
+                        });
+
+                        Promise.all(promises).then(() => {
+                            this.res.send(GMONotificationResponseModel.RecvRes_OK);
+
+                        }, (err) => {
+                            // TODO どうする？
+                            this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                         });
 
-                    }));
+                        this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                    }
                 });
-
-                Promise.all(promises).then(() => {
-                    this.res.send(GMONotificationResponseModel.RecvRes_OK);
-
-                }, (err) => {
-                    // TODO どうする？
-                    this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
-                });
-
-                this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                 break;
 

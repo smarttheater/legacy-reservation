@@ -115,12 +115,13 @@ export default class ReservationModel {
     /**
      * プロセス中の購入情報をセッションに保存する
      * 
-     * 有効期間: 3600秒
+     * @param {number} ttl 有効期間(default: 3600)
      */
-    public save(cb: (err: Error) => any) {
+    public save(cb: (err: Error) => any, ttl?: number) {
         let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
-        client.setex(key, 3600, JSON.stringify(this), (err, reply) => {
+        let _ttl = (ttl) ? ttl : 3600;
+        client.setex(key, _ttl, JSON.stringify(this), (err, reply) => {
             client.quit();
             cb(err);
         });

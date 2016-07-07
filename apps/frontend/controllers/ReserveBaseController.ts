@@ -7,6 +7,9 @@ import ReservationUtil from '../../common/models/Reservation/ReservationUtil';
 import ReservationModel from '../models/Reserve/ReservationModel';
 import ReservationResultModel from '../models/Reserve/ReservationResultModel';
 
+import log4js = require('log4js');
+import fs = require('fs-extra');
+
 /**
  * 予約フローベースコントローラー
  */
@@ -414,5 +417,49 @@ export default class ReserveBaseController extends BaseController {
 
         });
 
+    }
+
+    /**
+     * 予約プロセス用のロガーを設定する
+     * 1決済管理番号につき、1ログファイル
+     * 
+     * @param {string} token
+     */
+    protected setProcessLogger(token: string, cb: () => any) {
+        let env = process.env.NODE_ENV || 'dev';
+        let moment = require('moment');
+        let logDir = `${__dirname}/../../logs/${env}/frontend/reserve/${moment().format('YYYYMMDD')}`;
+
+        fs.mkdirs(logDir, (err) => {
+            if (err) {
+                // 失敗したとしても処理は続行
+                // ログファイルがデフォルトになってしまうが仕方ない
+
+            } else {
+                log4js.configure({
+                    appenders: [
+                        {
+                            category: 'reserve',
+                            type: 'dateFile',
+                            filename: `${logDir}/${token}.log`,
+                            pattern: '-yyyy-MM-dd',
+                            backups: 3
+                        },
+                        {
+                            type: 'console'
+                        }
+                    ],
+                    levels: {
+                        reserve: 'ALL'
+                    },
+                    replaceConsole: true
+                });
+
+                this.logger = log4js.getLogger('reserve');
+
+                cb();
+
+            }
+        });
     }
 }
