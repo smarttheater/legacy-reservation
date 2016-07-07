@@ -44,7 +44,7 @@
 <script>
 $(function(){
     $('.show-seat').on('click', function(){
-        showSeatMap(<%- JSON.stringify(reservationResultModel.screenSeatCodes) %>, [$(this).attr('data-seat-code')]);
+        showSeatPositon(<%- JSON.stringify(reservationResultModel.performance.screen._id) %>, [$(this).attr('data-seat-code')]);
     });
 })
 </script>

@@ -61,7 +61,7 @@ $(function(){
 <script>
 $(function(){
     $('.show-seat').on('click', function(){
-        showSeatMap(<%- JSON.stringify(reservationModel.screenSeatCodes) %>, [$(this).attr('data-seat-code')]);
+        showSeatPositon(<%- JSON.stringify(reservationModel.performance.screen._id) %>, [$(this).attr('data-seat-code')]);
     });
 })
 </script>

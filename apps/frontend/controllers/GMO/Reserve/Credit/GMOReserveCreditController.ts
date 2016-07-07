@@ -75,11 +75,12 @@ export default class GMOReserveCreditController extends ReserveBaseController {
             case GMOUtil.STATUS_CREDIT_CAPTURE:
                 // 予約情報セッション削除
                 // これ以降、予約情報はローカルに引き回す
-                this.logger.info('removing reservationModel... ');
-                reservationModel.remove((err) => {
-                    if (err) {
+                // TODO バッチで消してしまうと、ブラウザで完了ページを表示できない(仕様検討)
+                // this.logger.info('removing reservationModel... ');
+                // reservationModel.remove((err) => {
+                //     if (err) {
 
-                    } else {
+                //     } else {
                         // TODO GMOからポストされたパラメータを予約情報に追加する
 
                         // 予約確定
@@ -103,8 +104,8 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                             }
                         });
 
-                    }
-                });
+                //     }
+                // });
 
                 break;
 

@@ -6,6 +6,7 @@ import CustomerReserveController from '../controllers/Customer/Reserve/CustomerR
 import MemberReserveController from '../controllers/Member/Reserve/MemberReserveController';
 import GMOReserveController from  '../controllers/GMO/Reserve/GMOReserveController';
 import ReserveController from '../controllers/Reserve/ReserveController';
+import ScreenController from '../controllers/Screen/ScreenController';
 
 import StaffAuthController from '../controllers/Staff/Auth/StaffAuthController';
 import StaffCancelController from '../controllers/Staff/Cancel/StaffCancelController';
@@ -48,6 +49,8 @@ export default (app: any) => {
     app.get('/performance/search', 'performance.search', (req, res, next) => {(new PerformanceController(req, res, next)).search()});
 
     app.get('/reserve/:token/showSeatsMap', 'reserve.showSeatsMap', (req, res, next) => {(new ReserveController(req, res, next)).showSeatsMap()});
+
+    app.get('/screen/:id/show', 'screen.show', (req, res, next) => {(new ScreenController(req, res, next)).show()});
 
 
     // GMOプロセス
