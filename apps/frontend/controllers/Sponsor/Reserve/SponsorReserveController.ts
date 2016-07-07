@@ -321,28 +321,41 @@ export default class SponsorReserveController extends ReserveBaseController {
                     if (err) {
 
                     } else {
-                        this.processFixAll(reservationModel, (err, reservationModel) => {
-                            if (err) {
-                                // TODO 万が一の対応どうするか
-                                this.next(err);
 
-                            } else {
-                                // TODO 予約できていない在庫があった場合
-                                if (reservationModel.reservationIds.length > reservationModel.reservedDocuments.length) {
-                                    this.res.redirect(this.router.build('sponsor.reserve.confirm', {token: token}));
+                        // ここで予約番号発行
+                        reservationModel.paymentNo = Util.createPaymentNo();
+
+                        // 予約プロセス固有のログファイルをセット
+                        this.setProcessLogger(reservationModel.paymentNo, () => {
+                            this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
+                            this.logger.info('fixing all...');
+                            this.processFixAll(reservationModel, (err, reservationModel) => {
+                                if (err) {
+                                    // TODO 万が一の対応どうするか
+                                    this.next(err);
 
                                 } else {
-                                    // 予約結果セッションを保存して、完了画面へ
-                                    let reservationResultModel = reservationModel.toReservationResult();
+                                    // TODO 予約できていない在庫があった場合
+                                    if (reservationModel.reservationIds.length > reservationModel.reservedDocuments.length) {
+                                        this.res.redirect(this.router.build('sponsor.reserve.confirm', {token: token}));
 
-                                    this.logger.debug('saving reservationResult...', reservationResultModel);
-                                    reservationResultModel.save((err) => {
-                                        this.res.redirect(this.router.build('sponsor.reserve.complete', {token: token}));
-                                    });
+                                    } else {
+                                        // 予約結果セッションを保存して、完了画面へ
+                                        let reservationResultModel = reservationModel.toReservationResult();
+
+                                        this.logger.info('saving reservationResult...', reservationResultModel.toLog());
+                                        reservationResultModel.save((err) => {
+                                            this.logger.info('redirecting to complete...');
+                                            this.res.redirect(this.router.build('sponsor.reserve.complete', {token: token}));
+                                        });
+
+                                    }
 
                                 }
-                            }
+                            });
+
                         });
+
                     }
                 });
             }

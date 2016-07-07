@@ -16,9 +16,12 @@ import crypto = require('crypto');
 import conf = require('config');
 
 import GMOReserveCreditController from './Credit/GMOReserveCreditController';
-import GMOReserveCsvController from './Cvs/GMOReserveCvsController';
+import GMOReserveCvsController from './Cvs/GMOReserveCvsController';
 
 export default class GMOReserveController extends ReserveBaseController {
+    /**
+     * GMO決済を開始する
+     */
     public start(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
@@ -34,17 +37,20 @@ export default class GMOReserveController extends ReserveBaseController {
                 if (err) {
 
                 } else {
+                    // ここで予約番号発行
+                    reservationModel.paymentNo = Util.createPaymentNo();
 
                     // 予約プロセス固有のログファイルをセット
-                    this.setProcessLogger(reservationModel.token, () => {
+                    this.setProcessLogger(reservationModel.paymentNo, () => {
+                        this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
 
-                        this.logger.info('process start. reservationModel:' , reservationModel);
 
                         switch (reservationModel.paymentMethod) {
                             case ReservationUtil.PAY_METHOD_CREDIT:
 
                                 // GMOからの結果受信にそなえてセッションを新規に作成する
                                 reservationModel.token = Util.createToken();
+                                this.logger.info('saving reservationModel...new token:', reservationModel.token);
                                 reservationModel.save((err) => {
                                     // GMOへ遷移画面
                                     let shopId = conf.get<string>('gmo_payment_shop_id');
@@ -58,7 +64,7 @@ export default class GMOReserveController extends ReserveBaseController {
                                     md5hash.update(`${shopId}${orderID}${amount}${shopPassword}${dateTime}`, 'utf8');
                                     let shopPassString = md5hash.digest('hex');
 
-
+                                    this.logger.info('redirecting to GMO payment...orderID:', orderID);
                                     this.res.render('gmo/reserve/startCredit', {
                                         layout: false,
                                         reservationModel: reservationModel,
@@ -79,6 +85,7 @@ export default class GMOReserveController extends ReserveBaseController {
                                 // GMOからの結果受信にそなえてセッションを新規に作成する
                                 // コンビニ支払い期限は3日なので、reservationModelは4日有効にする
                                 reservationModel.token = Util.createToken();
+                                this.logger.info('saving reservationModel...new token:', reservationModel.token);
                                 reservationModel.save((err) => {
                                     // GMOへ遷移画面
                                     let shopId = conf.get<string>('gmo_payment_shop_id');
@@ -92,7 +99,7 @@ export default class GMOReserveController extends ReserveBaseController {
                                     md5hash.update(`${shopId}${orderID}${amount}${shopPassword}${dateTime}`, 'utf8');
                                     let shopPassString = md5hash.digest('hex');
 
-
+                                    this.logger.info('redirecting to GMO payment...orderID:', orderID);
                                     this.res.render('gmo/reserve/startCVS', {
                                         layout: false,
                                         reservationModel: reservationModel,
@@ -131,7 +138,6 @@ export default class GMOReserveController extends ReserveBaseController {
      */
     public result(): void {
         let gmoResultModel = GMOResultModel.parse(this.req.body);
-        this.logger.debug('gmoResultModel:', gmoResultModel);
 
         let token = gmoResultModel.OrderID;
         ReservationModel.find(token, (err, reservationModel) => {
@@ -141,8 +147,9 @@ export default class GMOReserveController extends ReserveBaseController {
 
 
             // 予約プロセス固有のログファイルをセット
-            this.setProcessLogger(reservationModel.token, () => {
-                this.logger.debug('reservationModel is ', reservationModel);
+            this.setProcessLogger(reservationModel.paymentNo, () => {
+                this.logger.info('reservationModel is ', reservationModel.toLog());
+                this.logger.info('gmoResultModel is ', gmoResultModel);
 
                 if (this.req.method === 'POST') {
                     // TODO エラー結果の場合
@@ -155,13 +162,17 @@ export default class GMOReserveController extends ReserveBaseController {
                         switch (gmoResultModel.PayType) {
 
                             case GMOUtil.PAY_TYPE_CREDIT:
+                                this.logger.info('starting GMOReserveCreditController.result...');
                                 let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
+                                creditController.logger = this.logger;
                                 creditController.result(reservationModel, gmoResultModel);
 
                                 break;
 
                             case GMOUtil.PAY_TYPE_CVS:
-                                let cvsController = new GMOReserveCsvController(this.req, this.res, this.next);
+                                this.logger.info('starting GMOReserveCsvController.result...');
+                                let cvsController = new GMOReserveCvsController(this.req, this.res, this.next);
+                                cvsController.logger = this.logger;
                                 cvsController.result(reservationModel, gmoResultModel);
 
                                 break;
@@ -217,7 +228,6 @@ export default class GMOReserveController extends ReserveBaseController {
 
 
         let gmoNotificationModel = GMONotificationModel.parse(this.req.body);
-        this.logger.debug('gmoNotificationModel:', gmoNotificationModel);
 
         let token = gmoNotificationModel.OrderID;
         ReservationModel.find(token, (err, reservationModel) => {
@@ -227,12 +237,14 @@ export default class GMOReserveController extends ReserveBaseController {
             }
 
             // 予約プロセス固有のログファイルをセット
-            this.setProcessLogger(reservationModel.token, () => {
-                this.logger.debug('reservationModel is ', reservationModel);
+            this.setProcessLogger(reservationModel.paymentNo, () => {
+                this.logger.info('reservationModel is ', reservationModel.toLog());
+                this.logger.info('gmoNotificationModel is ', gmoNotificationModel);
 
                 switch (gmoNotificationModel.PayType) {
 
                     case GMOUtil.PAY_TYPE_CREDIT:
+                        this.logger.info('starting GMOReserveCreditController.notify...');
                         let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
                         creditController.notify(reservationModel, gmoNotificationModel);
                         creditController.logger = this.logger;
@@ -240,7 +252,8 @@ export default class GMOReserveController extends ReserveBaseController {
                         break;
 
                     case GMOUtil.PAY_TYPE_CVS:
-                        let cvsController = new GMOReserveCsvController(this.req, this.res, this.next);
+                        this.logger.info('starting GMOReserveCsvController.notify...');
+                        let cvsController = new GMOReserveCvsController(this.req, this.res, this.next);
                         cvsController.notify(reservationModel, gmoNotificationModel);
                         cvsController.logger = this.logger;
 

@@ -326,8 +326,6 @@ export default class ReserveBaseController extends BaseController {
      */
     protected processFixAll(reservationModel: ReservationModel, cb: (err: Error, reservationModel: ReservationModel) => void) {
 
-        // 予約番号発行
-        reservationModel.paymentNo = Util.createPaymentNo();
         reservationModel.reservedDocuments = [];
 
         let promises = [];
@@ -336,7 +334,7 @@ export default class ReserveBaseController extends BaseController {
 
             promises.push(new Promise((resolve, reject) => {
 
-                this.logger.debug('updating reservation status to STATUS_RESERVED..._id:', reservationId);
+                this.logger.info('updating reservation status to STATUS_RESERVED..._id:', reservationId);
                 Models.Reservation.findOneAndUpdate(
                     {
                         _id: reservationId,
@@ -389,7 +387,7 @@ export default class ReserveBaseController extends BaseController {
                         new: true
                     },
                 (err, reservationDocument) => {
-                    this.logger.info('STATUS_TEMPORARY to STATUS_RESERVED processed.', err, reservationDocument, reservationModel);
+                    this.logger.info('STATUS_TEMPORARY to STATUS_RESERVED processed.', err, reservationDocument);
 
                     if (err) {
                         // TODO ログ出力
@@ -410,9 +408,11 @@ export default class ReserveBaseController extends BaseController {
         });
 
         Promise.all(promises).then(() => {
+            this.logger.info('fix all success.');
             cb(null, reservationModel);
 
         }, (err) => {
+            this.logger.error('fix all failure.', err);
             cb(err, reservationModel);
 
         });
@@ -423,9 +423,9 @@ export default class ReserveBaseController extends BaseController {
      * 予約プロセス用のロガーを設定する
      * 1決済管理番号につき、1ログファイル
      * 
-     * @param {string} token
+     * @param {string} paymentNo 予約番号
      */
-    protected setProcessLogger(token: string, cb: () => any) {
+    protected setProcessLogger(paymentNo: string, cb: () => any) {
         let env = process.env.NODE_ENV || 'dev';
         let moment = require('moment');
         let logDir = `${__dirname}/../../../logs/${env}/frontend/reserve/${moment().format('YYYYMMDD')}`;
@@ -441,7 +441,7 @@ export default class ReserveBaseController extends BaseController {
                         {
                             category: 'reserve',
                             type: 'dateFile',
-                            filename: `${logDir}/${token}.log`,
+                            filename: `${logDir}/${paymentNo}.log`,
                             pattern: '-yyyy-MM-dd',
                             backups: 3
                         },

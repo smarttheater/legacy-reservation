@@ -58,6 +58,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
         });
 
         Promise.all(promises).then(() => {
+            this.logger.info('redirecting to waitingSettlement...');
             if (reservationModel.member) {
                 this.res.redirect(this.router.build('member.reserve.waitingSettlement', {token: reservationModel.token}));
 
@@ -79,18 +80,13 @@ export default class GMOReserveCvsController extends ReserveBaseController {
      * GMO結果通知受信
      */
     public notify(reservationModel: ReservationModel, gmoNotificationModel: GMONotificationModel): void {
-        // コンビニ決済
-        // 4 入金通知 ○
-        // 5 期限切れ ○
-        // 6 支払い停止 ○
-
         let promises: Array<Promise<Function>> = [];
         switch (gmoNotificationModel.Status) {
             case GMOUtil.STATUS_CVS_PAYSUCCESS:
                 // 決済待ちの予約を予約完了へ
                 // 予約情報セッション削除
                 // これ以降、予約情報はローカルに引き回す
-                this.logger.debug('removing reservationModel... ', reservationModel);
+                this.logger.info('removing reservationModel... ', reservationModel.toLog());
                 reservationModel.remove((err) => {
                     if (err) {
                         // TODO ログ
@@ -99,6 +95,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                         // TODO GMOからポストされたパラメータを予約情報に追加する
 
                         // 予約確定
+                        this.logger.info('fixing all... ');
                         this.processFixAll(reservationModel, (err, reservationModel) => {
                             if (err) {
                                 // TODO 万が一の対応どうするか
@@ -107,10 +104,12 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                             } else {
                                 // TODO 予約できていない在庫があった場合
                                 if (reservationModel.reservationIds.length > reservationModel.reservedDocuments.length) {
+                                    this.logger.error('sending response RecvRes_NG... ');
                                     this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                                 } else {
                                     // 完了
+                                    this.logger.info('sending response RecvRes_OK... ');
                                     this.res.send(GMONotificationResponseModel.RecvRes_OK);
 
                                 }
@@ -143,7 +142,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                                 new: true
                             },
                         (err, reservationDocument) => {
-                            this.logger.info('STATUS_TEMPORARY to STATUS_WAITING_SETTLEMENT processed.', err, reservationDocument, reservationModel);
+                            this.logger.info('STATUS_TEMPORARY to STATUS_WAITING_SETTLEMENT processed.', err, reservationDocument);
 
                             if (err) {
                                 // TODO ログ出力
@@ -159,10 +158,12 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                 });
 
                 Promise.all(promises).then(() => {
+                    this.logger.info('sending response RecvRes_OK... ');
                     this.res.send(GMONotificationResponseModel.RecvRes_OK);
 
                 }, (err) => {
                     // TODO どうする？
+                    this.logger.info('sending response RecvRes_NG... ');
                     this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                 });
@@ -178,7 +179,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
             case GMOUtil.STATUS_CVS_EXPIRED: // 期限切れ
             case GMOUtil.STATUS_CVS_CANCEL: // 支払い停止
 
-                this.logger.debug('removing reservationModel... ', reservationModel);
+                this.logger.debug('removing reservationModel... ');
                 reservationModel.remove((err) => {
                     if (err) {
                         // TODO ログ
@@ -203,7 +204,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                                         new: true
                                     },
                                 (err, reservationDocument) => {
-                                    this.logger.info('STATUS_WAITING_SETTLEMENT to STATUS_AVAILABLE processed.', err, reservationDocument, reservationModel);
+                                    this.logger.info('STATUS_WAITING_SETTLEMENT to STATUS_AVAILABLE processed.', err, reservationDocument);
 
                                     if (err) {
                                         // TODO ログ出力

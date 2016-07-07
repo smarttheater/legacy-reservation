@@ -22,7 +22,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
     public result(reservationModel: ReservationModel, gmoResultModel: GMOResultModel): void {
         // 予約情報セッション削除
         // これ以降、予約情報はローカルに引き回す
-        this.logger.debug('removing reservationModel... ', reservationModel);
+        this.logger.info('removing reservationModel... ');
         reservationModel.remove((err) => {
             if (err) {
 
@@ -44,9 +44,9 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                             // 予約結果セッションを保存して、完了画面へ
                             let reservationResultModel = reservationModel.toReservationResult();
 
-                            this.logger.debug('saving reservationResult...', reservationResultModel);
+                            this.logger.info('saving reservationResult...', reservationResultModel.toLog());
                             reservationResultModel.save((err) => {
-                                this.logger.debug('redirecting complete page...token:', reservationResultModel.token);
+                                this.logger.info('redirecting to complete...');
                                 if (reservationModel.member) {
                                     this.res.redirect(this.router.build('member.reserve.complete', {token: reservationModel.token}));
 
@@ -73,7 +73,38 @@ export default class GMOReserveCreditController extends ReserveBaseController {
 
         switch (gmoNotificationModel.Status) {
             case GMOUtil.STATUS_CREDIT_CAPTURE:
-                this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                // 予約情報セッション削除
+                // これ以降、予約情報はローカルに引き回す
+                this.logger.info('removing reservationModel... ');
+                reservationModel.remove((err) => {
+                    if (err) {
+
+                    } else {
+                        // TODO GMOからポストされたパラメータを予約情報に追加する
+
+                        // 予約確定
+                        this.processFixAll(reservationModel, (err, reservationModel) => {
+                            if (err) {
+                                // TODO 万が一の対応どうするか
+                                this.logger.info('sending response RecvRes_NG...', err);
+                                this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                            } else {
+                                // TODO 予約できていない在庫があった場合
+                                if (reservationModel.reservationIds.length > reservationModel.reservedDocuments.length) {
+                                    this.logger.info('sending response RecvRes_NG...');
+                                    this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                                } else {
+                                    this.logger.info('sending response RecvRes_OK...');
+                                    this.res.send(GMONotificationResponseModel.RecvRes_OK);
+
+                                }
+                            }
+                        });
+
+                    }
+                });
 
                 break;
 

@@ -167,7 +167,7 @@ export default class ReservationModel {
     }
 
     /**
-     * 購入用ネームスペースを取得
+     * ネームスペースを取得
      *
      * @param {string} token
      * @return {string}
@@ -278,7 +278,7 @@ export default class ReservationModel {
     }
 
     /**
-     * 購入結果モデルへ変換
+     * 予約結果モデルへ変換
      */
     public toReservationResult(): ReservationResultModel {
         let reservationResultModel = new ReservationResultModel();
@@ -304,12 +304,14 @@ export default class ReservationModel {
     }
 
     /**
-     * 購入ログ用の形式にする
+     * ログ用の形式にする
      */
     public toLog(): Object {
-        let log = {
-            token: this.token
-        };
+        let log = this;
+
+        // ログに不要なものを排除
+        delete log. ticketChoicesBySeatCode;
+        delete log. screenSeatCodes;
 
         return log;
     }
