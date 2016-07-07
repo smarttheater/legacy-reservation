@@ -174,7 +174,8 @@ function showReservations() {
                 ${reservationDocument.theater_name} ${reservationDocument.screen_name}
             </td>
             <td>
-                <a class="show-seat" href="javascript:void(0);"
+                <a class="show-seat-position" href="javascript:void(0);"
+                    data-screen-id="${reservationDocument.screen._id}"
                     data-payment-no="${reservationDocument.payment_no}"
                     data-seat-code="${reservationDocument.seat_code}">${reservationDocument.seat_code}</a></td>
             <td>${reservationDocument.staff_signature}</td>
@@ -313,11 +314,6 @@ $(function(){
     $(document).on('click', '.change-page', function(){
         conditions.page = $(this).attr('data-page');
         search();
-    });
-
-    $(document).on('click', '.show-seat', function(){
-        // let paymentNo = $(this).attr('data-payment-no');
-        // showSeatMap(screenSeatCodesByPaymentNo[paymentNo], [$(this).attr('data-seat-code')]);
     });
 
     // キャンセルしようとしている予約リスト

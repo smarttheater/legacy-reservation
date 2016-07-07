@@ -22,7 +22,7 @@
                         <tbody>
                             <% reservationResultModel.reservations.forEach((reservation, index) => { %>
                             <tr>
-                                <td><a class="show-seat" href="javascript:void(0);" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a></td>
+                                <td><a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationResultModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a></td>
                                 <td><a class="btn btn-default" href="javascript:void(0)">印刷(未実装)</a></td>
                                 <td><a class="btn btn-default" href="javascript:void(0)">メール送信(未実装)</a></td>
                                 <td>QR</td>
@@ -39,12 +39,3 @@
 
     <a class="btn btn-default btn-lg btn-block btn-primary"  href="<%- url('sponsor.mypage', {}) %>">マイページに戻る</a>
 </div>
-
-
-<script>
-$(function(){
-    $('.show-seat').on('click', function(){
-        showSeatPositon(<%- JSON.stringify(reservationResultModel.performance.screen._id) %>, [$(this).attr('data-seat-code')]);
-    });
-})
-</script>

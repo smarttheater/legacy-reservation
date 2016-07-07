@@ -50,6 +50,10 @@ function showSeatPositon(screenId, selecteSeatCodes) {
     });
 }
 
+// 座席位置確認マップを表示する
+$(document).on('click', '.show-seat-position', function(){
+    showSeatPositon($(this).attr('data-screen-id'), [$(this).attr('data-seat-code')]);
+});
 
 
 

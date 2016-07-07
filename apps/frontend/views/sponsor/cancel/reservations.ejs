@@ -20,7 +20,7 @@
                         <tbody>
                             <% for (let resevationDocument of reservationDocuments) { %>
                             <tr>
-                                <td><a class="show-seat" href="javascript:void(0);" data-seat-code="<%- resevationDocument.get('seat_code') %>"><%- resevationDocument.get('seat_code') %></a></td>
+                                <td><a class="show-seat-position" href="javascript:void(0);" data-seat-code="<%- resevationDocument.get('seat_code') %>"><%- resevationDocument.get('seat_code') %></a></td>
                                 <td><a class="btn btn-primary confirm-cancel" href="javascript:void(0)" data-seat-code="<%- resevationDocument.get('seat_code') %>" data-reservation-id="<%- resevationDocument.get('id') %>">キャンセル</a></td>
                             </tr>
                             <% } %>
@@ -73,10 +73,6 @@
 
 <script>
 $(function(){
-    $('.show-seat').on('click', function(){
-        showSeatMap(<%- JSON.stringify(screenSeatCodes) %>, [$(this).attr('data-seat-code')]);
-    });
-
     var reservationId;
     $('.confirm-cancel').on('click', function(){
         reservationId = $(this).attr('data-reservation-id');
