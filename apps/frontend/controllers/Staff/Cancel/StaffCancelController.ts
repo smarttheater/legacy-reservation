@@ -18,7 +18,7 @@ export default class StaffCancelController extends BaseController {
 
                     // TIFF確保にステータス更新
                     this.logger.debug('canceling reservation...id:', reservationId);
-                    Models.Reservation.findOneAndUpdate(
+                    Models.Reservation.update(
                     {
                         _id: reservationId,
                         staff: this.staffUser.get('_id'),
@@ -26,13 +26,10 @@ export default class StaffCancelController extends BaseController {
                     {
                         status: ReservationUtil.STATUS_KEPT_BY_TIFF
                     },
-                    {
-                        new: true
-                    },
-                    (err, reservationDocument) => {
-                        if (err || reservationDocument === null) {
+                    (err, affectedRows) => {
+                        if (err || affectedRows === 0) {
                         } else {
-                            updatedReservationIds.push(reservationDocument.get('id'));
+                            updatedReservationIds.push(reservationId);
                         }
 
                         resolve();

@@ -25,7 +25,7 @@ export default class TaskController extends BaseController {
             {
                 multi: true,
             },
-            (err) => {
+            (err, affectedRows) => {
                 // 失敗しても、次のタスクにまかせる(気にしない)
                 if (err) {
                 } else {
@@ -224,8 +224,8 @@ export default class TaskController extends BaseController {
             // 作品ごとのパフォーマンス数(最大3つになるように制御)
             let performancesByFilm = {};
 
-            Models.Film.find({}, (err, filmDocuments) => {
-                Models.Screen.find({}, (err, screenDocuments) => {
+            Models.Film.find({}, '_id', (err, filmDocuments) => {
+                Models.Screen.find({}, '_id theater', (err, screenDocuments) => {
                     let days = ['20161022', '20161023', '20161024', '20161025', '20161026', '20161027', '20161028'];
                     let starts = ['0900', '1200', '1500', '1800'];
                     let ends = ['1100', '1400', '1700', '2000'];
@@ -310,7 +310,7 @@ export default class TaskController extends BaseController {
                 let performances = [];
 
                 // パフォーマンスごとに空席予約を入れる
-           	    Models.Performance.find({})
+           	    Models.Performance.find({}, '_id screen')
                     .populate('film screen theater')
                     .exec((err, performanceDocuments) => {
                         performanceDocuments.forEach((performanceDocument) => {
@@ -370,7 +370,7 @@ export default class TaskController extends BaseController {
         let limit = 1000;
 
         let promises = [];
-        Models.Reservation.find({status: ReservationUtil.STATUS_AVAILABLE}, {}, {limit: limit}, (err, reservationDocuments) => {
+        Models.Reservation.find({status: ReservationUtil.STATUS_AVAILABLE}, '_id', {limit: limit}, (err, reservationDocuments) => {
 
                 let startMemory = process.memoryUsage();
                 let startTime = process.hrtime();

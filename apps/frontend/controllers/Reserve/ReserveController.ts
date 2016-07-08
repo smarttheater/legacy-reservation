@@ -12,7 +12,9 @@ export default class ReserveController extends BaseController {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
-                return this.res.send('false');
+                return this.res.json({
+                    propertiesBySeatCode: {}
+                });
             }
 
             // 予約リストを取得
@@ -20,7 +22,7 @@ export default class ReserveController extends BaseController {
                 {
                     performance: reservationModel.performance._id
                 },
-                {},
+                'seat_code status staff staff_name staff_department_name sponsor member',
                 {},
                 (err, reservationDocuments) => {
                     if (err) {

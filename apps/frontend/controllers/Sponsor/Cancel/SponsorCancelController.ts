@@ -9,7 +9,7 @@ export default class SponsorCancelController extends BaseController {
 
         // TIFF確保にステータス更新
         this.logger.debug('canceling reservation...id:', reservationId);
-        Models.Reservation.findOneAndUpdate(
+        Models.Reservation.update(
         {
             _id: reservationId,
             sponsor: this.sponsorUser.get('_id'),
@@ -17,11 +17,8 @@ export default class SponsorCancelController extends BaseController {
         {
             status: ReservationUtil.STATUS_KEPT_BY_TIFF
         },
-        {
-            new: true
-        },
-        (err, reservationDocument) => {
-            if (err || reservationDocument === null) {
+        (err, affectedRows) => {
+            if (err || affectedRows === 0) {
                 this.res.json({
                     isSuccess: false,
                     reservationId: reservationId

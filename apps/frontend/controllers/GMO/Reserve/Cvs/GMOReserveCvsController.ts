@@ -29,7 +29,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
             promises.push(new Promise((resolve, reject) => {
 
                 this.logger.debug('updating reservation status to STATUS_WAITING_SETTLEMENT..._id:', reservationId);
-                Models.Reservation.findOneAndUpdate(
+                Models.Reservation.update(
                     {
                         _id: reservationId,
                         status: ReservationUtil.STATUS_TEMPORARY
@@ -38,11 +38,8 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                         status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
                         updated_user: this.constructor.toString(),
                     },
-                    {
-                        new: true
-                    },
-                (err, reservationDocument) => {
-                    this.logger.info('STATUS_TEMPORARY to STATUS_WAITING_SETTLEMENT processed.', err, reservationDocument, reservationModel);
+                (err, affectedRows) => {
+                    this.logger.info('STATUS_TEMPORARY to STATUS_WAITING_SETTLEMENT processed.', err, affectedRows);
 
                     if (err) {
                         // TODO ログ出力
@@ -129,7 +126,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                     promises.push(new Promise((resolve, reject) => {
 
                         this.logger.debug('updating reservation status to STATUS_WAITING_SETTLEMENT..._id:', reservationId);
-                        Models.Reservation.findOneAndUpdate(
+                        Models.Reservation.update(
                             {
                                 _id: reservationId,
                                 status: ReservationUtil.STATUS_TEMPORARY
@@ -138,11 +135,8 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                                 status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
                                 updated_user: this.constructor.toString(),
                             },
-                            {
-                                new: true
-                            },
-                        (err, reservationDocument) => {
-                            this.logger.info('STATUS_TEMPORARY to STATUS_WAITING_SETTLEMENT processed.', err, reservationDocument);
+                        (err, affectedRows) => {
+                            this.logger.info('STATUS_TEMPORARY to STATUS_WAITING_SETTLEMENT processed.', err, affectedRows);
 
                             if (err) {
                                 // TODO ログ出力
@@ -192,7 +186,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                             promises.push(new Promise((resolve, reject) => {
 
                                 this.logger.debug('updating reservation status to STATUS_AVAILABLE..._id:', reservationId);
-                                Models.Reservation.findOneAndUpdate(
+                                Models.Reservation.update(
                                     {
                                         _id: reservationId
                                     },
@@ -200,11 +194,8 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                                         status: ReservationUtil.STATUS_AVAILABLE,
                                         updated_user: this.constructor.toString()
                                     },
-                                    {
-                                        new: true
-                                    },
-                                (err, reservationDocument) => {
-                                    this.logger.info('STATUS_WAITING_SETTLEMENT to STATUS_AVAILABLE processed.', err, reservationDocument);
+                                (err, affectedRows) => {
+                                    this.logger.info('STATUS_WAITING_SETTLEMENT to STATUS_AVAILABLE processed.', err, affectedRows);
 
                                     if (err) {
                                         // TODO ログ出力

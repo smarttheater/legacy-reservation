@@ -29,14 +29,14 @@ export default class ReserveBaseController extends BaseController {
             promises.push(new Promise((resolve, reject) => {
 
                 this.logger.debug('updating reservation status to avalilable..._id:', reservationIdInSession);
-                Models.Reservation.findOneAndUpdate(
+                Models.Reservation.update(
                     {
                         _id: reservationIdInSession,
                     },
                     {
                         status: ReservationUtil.STATUS_AVAILABLE,
                     },
-                    (err) => {
+                    (err, affectedRows) => {
 
                         // 失敗したとしても時間経過で消えるので放置
                         if (err) {
@@ -72,9 +72,11 @@ export default class ReserveBaseController extends BaseController {
             {
                 _id: perfomanceId
             },
-            {}
+            'day start_time end_time film screen theater' // 必要な項目だけ指定すること
         )
-        .populate('film screen theater')
+        .populate('film', 'name name_en') // 必要な項目だけ指定すること
+        .populate('screen', 'name name_en sections') // 必要な項目だけ指定すること
+        .populate('theater', 'name name_en') // 必要な項目だけ指定すること
         .exec((err, performanceDocument) => {
 
             if (err) {
@@ -222,14 +224,14 @@ export default class ReserveBaseController extends BaseController {
                     promises.push(new Promise((resolve, reject) => {
 
                         this.logger.debug('updating reservation status to avalilable..._id:', reservationIdInSession);
-                        Models.Reservation.findOneAndUpdate(
+                        Models.Reservation.update(
                             {
                                 _id: reservationIdInSession,
                             },
                             {
                                 status: ReservationUtil.STATUS_AVAILABLE,
                             },
-                        (err) => {
+                        (err, affectedRows) => {
 
                             // 失敗したとしても時間経過で消えるので放置
                             if (err) {
