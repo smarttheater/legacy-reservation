@@ -7,6 +7,7 @@ import MemberReserveController from '../controllers/Member/Reserve/MemberReserve
 import GMOReserveController from  '../controllers/GMO/Reserve/GMOReserveController';
 import ReserveController from '../controllers/Reserve/ReserveController';
 import ScreenController from '../controllers/Screen/ScreenController';
+import LanguageController from '../controllers/Language/LanguageController';
 
 import StaffAuthController from '../controllers/Staff/Auth/StaffAuthController';
 import StaffCancelController from '../controllers/Staff/Cancel/StaffCancelController';
@@ -44,6 +45,9 @@ export default (app: any) => {
     router.registerAppHelpers(app);
 
     app.get('/', 'Home', (req, res, next) => {(new IndexController(req, res, next)).index()});
+
+    // 言語
+    app.get('/language/update/:locale', 'language.update', (req, res, next) => {(new LanguageController(req, res, next)).update()});
 
     // パフォーマンス検索
     app.get('/performance/search', 'performance.search', (req, res, next) => {(new PerformanceController(req, res, next)).search()});

@@ -17,6 +17,7 @@ import config = require('config');
 import router from './routes/router';
 import conf = require('config');
 import mongoose = require('mongoose');
+import i18n = require('i18n');
 
 let app = express();
 
@@ -41,6 +42,31 @@ app.use(multer({ storage: storage }).any());
 
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '/../../public')));
+
+
+
+
+// i18n を利用する設定
+i18n.configure({
+    locales: ['en', 'ja'],
+    defaultLocale: 'en',
+    directory: __dirname + '/../../locales',
+    objectNotation: true
+});
+// i18n の設定を有効化
+app.use(i18n.init);
+
+
+// セッションで言語管理
+app.use((req, res, next) => {
+    if (req.session['locale']) {
+        req.setLocale(req.session['locale']);
+    }
+
+    next();
+});
+
+
 
 // ユーザー認証
 app.use((req, res, next) => {

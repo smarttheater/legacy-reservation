@@ -21,6 +21,7 @@
     "express-session": "registry:dt/express-session#0.0.0+20160331200931",
     "express-useragent": "registry:dt/express-useragent#0.2.4+20160412141759",
     "fs-extra": "registry:dt/fs-extra#0.0.0+20160517121359",
+    "i18n-node": "registry:dt/i18n-node#0.0.0+20160521152545",
     "jquery": "registry:dt/jquery#1.10.0+20160628074423",
     "log4js": "registry:dt/log4js#0.0.0+20160608042355",
     "mime": "registry:dt/mime#0.0.0+20160316155526",

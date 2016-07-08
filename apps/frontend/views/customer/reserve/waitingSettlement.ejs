@@ -1,17 +1,17 @@
-<h1>仮予約完了</h1>
+<h1><%- __('h1.CompleteTemporaryReservation') %></h1>
 
 <%- include('./_step') %>
 
 <div class="row">
 
         <dl class="dl-horizontal">
-            <dt>作品名</dt>
+            <dt><%- __('Label.FilmName') %></dt>
             <dd><%- reservationModel.performance.film.name %></dd>
 
-            <dt>上映時間/場所</dt>
+            <dt><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></dt>
             <dd><%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ <%- reservationModel.performance.theater.name %> <%- reservationModel.performance.screen.name %></dd>
 
-            <dt>座席番号</dt>
+            <dt><%- __('Label.SeatCode') %></dt>
 
             <dd>
                 <div class="table-responsive">

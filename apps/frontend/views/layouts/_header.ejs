@@ -7,7 +7,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">TIFF オンラインチケット予約</a>
+            <a class="navbar-brand" href="/">TIFF <%- __('Online Ticket Reservation') %></a>
         </div>
 
         <div id="navbar" class="collapse navbar-collapse">
@@ -15,7 +15,8 @@
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
-                <li class="<%- (req.originalUrl === url('Home')) ? 'active' : '' %>"><a href="<%- url('Home') %>">TOP</a></li>
+                <li class="<%- (req.getLocale() === 'ja') ? 'active' : '' %>"><a href="<%- url('language.update', {locale: 'ja'}) %>">日本語</a></li>
+                <li class="<%- (req.getLocale() === 'en') ? 'active' : '' %>"><a href="<%- url('language.update', {locale: 'en'}) %>">English</a></li>
             </ul>
         </div><!--/.nav-collapse -->
     </div>

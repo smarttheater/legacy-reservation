@@ -4,13 +4,30 @@
 
     <div class="col-md-10">
         <dl class="dl-horizontal">
-            <dt>作品名</dt>
-            <dd><%- reservationModel.performance.film.name %></dd>
+            <dt><%- __('Label.FilmName') %></dt>
+            <dd>
+                <% if (req.getLocale() === 'ja') { %>
+                <%- reservationModel.performance.film.name %>
+                <% } else { %>
+                <%- reservationModel.performance.film.name_en %>
+                <% } %>
+            </dd>
 
-            <dt>上映時間/場所</dt>
-            <dd><%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ <%- reservationModel.performance.theater.name %> <%- reservationModel.performance.screen.name %></dd>
+            <dt><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></dt>
+            <dd>
+                <%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ 
 
-            <dt>座席/券種</dt>
+                <% if (req.getLocale() === 'ja') { %>
+                <%- reservationModel.performance.theater.name %> 
+                <%- reservationModel.performance.screen.name %>
+                <% } else { %>
+                <%- reservationModel.performance.theater.name_en %> 
+                <%- reservationModel.performance.screen.name_en %>
+                <% } %>
+
+            </dd>
+
+            <dt><%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %></dt>
             <dd>
                 <% if (reservationModel.reservationIds.length > 0) { %>
 
@@ -34,7 +51,7 @@
 
             </dd>
 
-            <dt>合計金額</dt>
+            <dt><%- __('Label.TotalPrice') %></dt>
             <dd>
                 <%- reservationModel.getTotalPrice() %>
             </dd>

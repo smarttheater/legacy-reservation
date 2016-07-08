@@ -1,10 +1,12 @@
 <h1>HOME</h1>
 
+<h2><%- __('Welcome to') %></h2>
+
 <ul>
-    <li><a href="<%- url('customer.reserve.terms', {}) %>">一般客</a></li>
-    <li><a href="<%- url('member.reserve.terms', {}) %>">先行予約</a></li>
-    <li><a href="<%- url('sponsor.mypage', {}) %>">外部関係者</a></li>
-    <li><a href="<%- url('staff.mypage', {}) %>">内部関係者</a></li>
-    <li><a class="disabled" href="#">電話窓口(未実装)</a></li>
-    <li><a class="disabled" href="#">当日窓口(未実装)</a></li>
+    <li><a href="<%- url('customer.reserve.terms', {}) %>"><%- __('General Customers') %></a></li>
+    <li><a href="<%- url('member.reserve.terms', {}) %>"><%- __('Email Magazine Readers') %></a></li>
+    <li><a href="<%- url('sponsor.mypage', {}) %>"><%- __('Sponsors') %></a></li>
+    <li><a href="<%- url('staff.mypage', {}) %>"><%- __('Staffs') %></a></li>
+    <li><a class="disabled" href="#"><%- __('Telephone Support') %></a></li>
+    <li><a class="disabled" href="#"><%- __('On that day') %></a></li>
 </ul>

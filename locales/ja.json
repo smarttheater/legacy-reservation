@@ -1,0 +1,54 @@
+{
+	"Welcome to": "ようこそ",
+	"Online Ticket Reservation": "オンラインチケット予約",
+	"General Customers": "一般客",
+	"Email Magazine Readers": "メルマガ当選者",
+	"Sponsors": "外部関係者",
+	"Staffs": "内部関係者",
+	"Telephone Support": "電話対応",
+	"On that day": "当日",
+	"h1": {
+		"Terms": "規約",
+		"SelectPerformance": "パフォーマンス選択",
+		"SelectSeats": "座席選択",
+		"SelectTickets": "券種選択",
+		"EnterProfile": "購入者情報入力",
+		"ConfirmReservation": "予約情報確認",
+		"CompleteReservation": "予約完了"
+	},
+	"Label": {
+		"Agree": "同意する",
+		"FilmName": "作品名",
+		"PerformanceTime": "時間",
+		"PerformancePlace": "場所",
+		"SeatCode": "座席コード",
+		"TicketType": "券種",
+		"TotalPrice": "合計金額",
+		"LastName": "せい",
+		"FirstName": "めい",
+		"Tel": "電話番号",
+		"Email": "メールアドレス",
+		"EmailConfirm": "メールアドレス(確認)",
+		"EmailConfirmDomain": "メールアドレス(確認)ドメイン",
+		"FullName": "お名前",
+		"PaymentNo": "購入番号"
+	},
+	"Button": {
+		"Send": "送信",
+		"Search": "検索",
+		"Back": "戻る",
+		"SelectTickets": "券種選択",
+		"Next": "次へ",
+		"Change": "変更",
+		"Confirm": "確定",
+		"Print": "印刷",
+		"SendMail": "メール送信"
+	},
+	"Message": {
+		"Searching": "検索しています..."
+	},
+	"h3": {
+		"SeatChoices": "座席情報",
+		"Profile": "購入者情報"
+	}
+}

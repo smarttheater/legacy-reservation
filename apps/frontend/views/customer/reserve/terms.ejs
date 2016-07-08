@@ -1,4 +1,4 @@
-<h1>規約</h1>
+<h1><%- __('h1.Terms') %></h1>
 
 <% if (req.form) { %>
 <div class="alert alert-danger" role="alert">
@@ -12,8 +12,8 @@
 <form method="post">
     <div class="checkbox">
         <label for="id_isAgree">
-            <input type="checkbox" name="isAgree" id="id_isAgree" value="on"> 同意する
+            <input type="checkbox" name="isAgree" id="id_isAgree" value="on"> <%- __('Label.Agree') %>
         </label>
     </div>
-    <input type="submit" class="btn btn-primary btn-lg btn-block">
+    <input type="submit" class="btn btn-primary btn-lg btn-block" value="<%- __('Button.Send') %>">
 </form>

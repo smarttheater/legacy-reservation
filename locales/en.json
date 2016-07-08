@@ -1,0 +1,54 @@
+{
+	"Button": {
+		"Send": "Send",
+		"Back": "Back",
+		"SelectTickets": "Select Tickets",
+		"Next": "Next",
+		"Change": "Change",
+		"Confirm": "Confirm",
+		"Search": "Search",
+		"Print": "Print",
+		"SendMail": "Send Email"
+	},
+	"Online Ticket Reservation": "Online Ticket Reservation",
+	"h1": {
+		"Terms": "Terms",
+		"SelectPerformance": "Select a Performance",
+		"SelectSeats": "Select Seats",
+		"SelectTickets": "Select Tickets",
+		"EnterProfile": "Enter Your Profile",
+		"ConfirmReservation": "Confirm Your Reservation",
+		"CompleteReservation": "h1.CompleteReservation"
+	},
+	"Welcome to": "Welcome to",
+	"General Customers": "General Customers",
+	"Email Magazine Readers": "Email Magazine Readers",
+	"Sponsors": "Sponsors",
+	"Staffs": "Staffs",
+	"Telephone Support": "Telephone Support",
+	"On that day": "On that day",
+	"Label": {
+		"Agree": "Agree",
+		"FilmName": "Film Name",
+		"PerformanceTime": "Time",
+		"PerformancePlace": "Place",
+		"SeatCode": "Seat Code",
+		"TicketType": "Ticket Type",
+		"TotalPrice": "Total Price",
+		"LastName": "Last Name",
+		"FirstName": "First Name",
+		"Tel": "Tel",
+		"Email": "Email",
+		"EmailConfirm": "Email Confirm",
+		"EmailConfirmDomain": "Email Confirm (Domain)",
+		"FullName": "Full Name",
+		"PaymentNo": "Payment No"
+	},
+	"Message": {
+		"Searching": "Searching..."
+	},
+	"h3": {
+		"SeatChoices": "Seat Choices",
+		"Profile": "Profile"
+	}
+}
