@@ -45,16 +45,6 @@ export default class ReservationResultModel {
     };
 
     /**
-     * 座席コードごとの券種選択肢リスト
-     */
-    public ticketChoicesBySeatCode: Object;
-
-    /**
-     * スクリーンの座席コードリスト
-     */
-    public screenSeatCodes: Array<string>;
-
-    /**
      * 予約IDリスト
      */
     public reservations: Array<Object>;
@@ -176,10 +166,6 @@ export default class ReservationResultModel {
      */
     public toLog(): Object {
         let log = this;
-
-        // ログに不要なものを排除
-        delete log. ticketChoicesBySeatCode;
-        delete log. screenSeatCodes;
 
         return log;
     }

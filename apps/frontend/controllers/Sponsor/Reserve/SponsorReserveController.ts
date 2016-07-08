@@ -92,7 +92,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
 
             // 外部関係者による予約数を取得
@@ -166,7 +166,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
                 sponsorReserveTicketForm(this.req, this.res, (err) => {
@@ -223,7 +223,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
                 sponsorReserveProfileForm(this.req, this.res, (err) => {
@@ -291,7 +291,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
                 this.res.redirect(this.router.build('sponsor.reserve.process', {token: token}));
@@ -311,7 +311,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
             } else {

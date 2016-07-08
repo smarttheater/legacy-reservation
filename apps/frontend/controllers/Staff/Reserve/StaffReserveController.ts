@@ -93,7 +93,7 @@ export default class StaffReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             // 外部関係者による予約数を取得
             Models.Reservation.count(
@@ -157,7 +157,7 @@ export default class StaffReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
                 staffReserveTicketForm(this.req, this.res, (err) => {
@@ -214,7 +214,7 @@ export default class StaffReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
                 this.res.redirect(this.router.build('staff.reserve.process', {token: token}));
@@ -234,7 +234,7 @@ export default class StaffReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
             } else {

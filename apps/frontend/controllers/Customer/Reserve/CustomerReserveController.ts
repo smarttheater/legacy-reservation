@@ -64,7 +64,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
                 customerReservePerformanceForm(this.req, this.res, (err) => {
@@ -112,7 +112,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
                 customerReserveSeatForm(this.req, this.res, (err) => {
@@ -169,7 +169,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
                 customerReserveTicketForm(this.req, this.res, (err) => {
@@ -223,7 +223,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
                 customerReserveProfileForm(this.req, this.res, (err) => {
@@ -297,7 +297,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
                 this.res.redirect(this.router.build('gmo.reserve.start', {token: token}));

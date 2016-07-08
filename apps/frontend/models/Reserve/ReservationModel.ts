@@ -50,14 +50,14 @@ export default class ReservationModel {
     };
 
     /**
+     * スクリーンの座席表HTML
+     */
+    public screenHtml: string;
+
+    /**
      * 座席コードごとの券種選択肢リスト
      */
     public ticketChoicesBySeatCode: Object;
-
-    /**
-     * スクリーンの座席コードリスト
-     */
-    public screenSeatCodes: Array<string>;
 
     /**
      * 予約IDリスト
@@ -286,8 +286,6 @@ export default class ReservationModel {
         reservationResultModel.token = this.token;
         reservationResultModel.paymentNo = this.paymentNo;
         reservationResultModel.performance = this.performance;
-        reservationResultModel.ticketChoicesBySeatCode = this.ticketChoicesBySeatCode;
-        reservationResultModel.screenSeatCodes = this.screenSeatCodes;
         reservationResultModel.reservations = [];
         reservationResultModel.profile = this.profile;
         reservationResultModel.paymentMethod = this.paymentMethod;
@@ -307,11 +305,18 @@ export default class ReservationModel {
      * ログ用の形式にする
      */
     public toLog(): Object {
-        let log = this;
-
-        // ログに不要なものを排除
-        delete log. ticketChoicesBySeatCode;
-        delete log. screenSeatCodes;
+        let log = {
+            token: this.token,
+            paymentNo: this.paymentNo,
+            performance: this.performance,
+            reservationIds: this.reservationIds,
+            profile: this.profile,
+            paymentMethod: this.paymentMethod,
+            member: this.member,
+            staff: this.staff,
+            sponsor: this.sponsor,
+            reservedDocuments: this.reservedDocuments,
+        };
 
         return log;
     }

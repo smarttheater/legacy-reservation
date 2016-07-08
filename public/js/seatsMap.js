@@ -1,7 +1,7 @@
 
 function showSeatsMap() {
     $.ajax({
-        dataType: 'text',
+        dataType: 'json',
         url: `/reserve/${$('.seatsMap').attr('data-token')}/showSeatsMap`,
         type: 'GET',
         data: {},
@@ -12,13 +12,13 @@ function showSeatsMap() {
 
 
             // 予約の吹き出し(内部関係者のみの機能)
-            $('.popover-reservation').popover({
-                placement: 'top',
-                html: true,
-                content: function(){
-                    return $(this).attr('data-contents');
-                }
-            });
+            // $('.popover-reservation').popover({
+            //     placement: 'top',
+            //     html: true,
+            //     content: function(){
+            //         return $(this).attr('data-contents');
+            //     }
+            // });
 
 
 
@@ -28,7 +28,33 @@ function showSeatsMap() {
             // }, 20000);
         },
         success: function(data) {
-            $('.seatsMap').html(data);
+            var propertiesBySeatCode = data.propertiesBySeatCode;
+
+            $('.seat a').each(function(index){
+                var seatCode = $(this).attr('data-seat-code');
+                var aNode = $(this);
+
+                // 予約が存在した場合のみ販売可能
+                if (propertiesBySeatCode.hasOwnProperty(seatCode)) {
+                    // プロパティをセット
+                    var properties = propertiesBySeatCode[seatCode];
+
+                    aNode.addClass(properties.classes.join(' '));
+
+                    Object.keys(properties.attrs).forEach(function(key){
+                        aNode.attr(key, properties.attrs[key]);
+                    });
+
+                } else {
+                    // 未販売
+                    aNode.addClass('disabled');
+
+                }
+
+            });
+
+            $('.seatsMap').removeClass('hidden');
+
         },
         error: function(jqxhr, textStatus, error) {
         }

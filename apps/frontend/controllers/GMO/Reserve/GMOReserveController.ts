@@ -29,7 +29,7 @@ export default class GMOReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             // 予約情報セッション削除
             this.logger.debug('removing reservationModel... ', reservationModel);

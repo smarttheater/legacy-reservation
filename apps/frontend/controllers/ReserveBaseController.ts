@@ -179,14 +179,16 @@ export default class ReserveBaseController extends BaseController {
                     }
                 };
 
-                // スクリーンの全座席コードを保管
-                reservationModel.screenSeatCodes = [];
-                for (let seatDocument of performanceDocument.get('screen').get('sections')[0].get('seats')) {
-                    reservationModel.screenSeatCodes.push(seatDocument.get('code'));
-                }
 
+                // スクリーン座席表HTMLを保管
+                // TODO ひとまず固定だが、最終的にはパフォーマンスに応じて適切なスクリーンを入れる
+                fs.readFile(`${__dirname}/../views/screens/map.ejs`, 'utf8', (err, data) => {
+                    reservationModel.screenHtml = data;
 
-                cb(null, reservationModel);
+                    cb(null, reservationModel);
+
+                });
+
             }
         });
     }
