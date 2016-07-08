@@ -9,6 +9,9 @@ import ReservationResultModel from '../models/Reserve/ReservationResultModel';
 
 import log4js = require('log4js');
 import fs = require('fs-extra');
+import sendgrid = require('sendgrid')
+import conf = require('config')
+import util = require('util');
 
 /**
  * 予約フローベースコントローラー
@@ -400,12 +403,10 @@ export default class ReserveBaseController extends BaseController {
                         // ステータス更新に成功したらリストに追加
                         reservationModel.reservedDocuments.push(reservationDocument);
 
-                        // TODO QR作成？
+                        resolve();
 
-                        // TODO メール送信？
                     }
 
-                    resolve();
                 });
 
             }));
@@ -413,7 +414,44 @@ export default class ReserveBaseController extends BaseController {
 
         Promise.all(promises).then(() => {
             this.logger.info('fix all success.');
-            cb(null, reservationModel);
+
+            // TODO QR作成？
+
+            // TODO メール送信？
+            if (reservationModel.profile.email) {
+                let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
+                let html = `
+<html>
+    <body>
+        <h1>[TIFF][${process.env.NODE_ENV}] 予約完了</h1>
+        <p>予約内容は以下の通りです。</p>
+        <p>
+        ${util.inspect(reservationModel.reservedDocuments, { showHidden: true, depth: null })}
+        </p>
+    </body>
+</html>
+`;
+                let email = new _sendgrid.Email({
+                    to: reservationModel.profile.email,
+                    from: 'noreply@devtiffwebapp.azurewebsites.net',
+                    subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
+                    html: html
+                });
+                this.logger.info('sending an email...email:', email);
+                _sendgrid.send(email, (err, json) => {
+                    this.logger.info('an email sent.', err, json);
+                    if (err) {
+                        // TODO log
+                    }
+
+                    cb(null, reservationModel);
+
+                });
+
+            } else {
+                cb(null, reservationModel);
+
+            }
 
         }, (err) => {
             this.logger.error('fix all failure.', err);
