@@ -22,6 +22,7 @@ export default class ScreenController extends BaseController {
                     this.res.send('false');
 
                 } else {
+                    this.res.type('txt');
                     this.res.render('screen/show', {
                         layout: false,
                         screenDocument: screenDocument,

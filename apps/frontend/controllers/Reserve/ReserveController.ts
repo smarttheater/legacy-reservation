@@ -6,9 +6,9 @@ import ReservationModel from '../../models/Reserve/ReservationModel';
 
 export default class ReserveController extends BaseController {
     /**
-     * 空席状況マップを生成する
+     * 座席の状態を取得する
      */
-    public showSeatsMap() {
+    public getSeatProperties() {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
@@ -64,37 +64,44 @@ export default class ReserveController extends BaseController {
 
                                     // 内部関係者の場合、予約情報ポップアップ
                                     if (reservationModel.staff) {
-                                        // $(this).addClass('popover-reservation');
-                                        // $(this).attr('tabindex', '0');
-                                        // $(this).attr('data-toggle', 'popover');
-                                        // $(this).attr('data-trigger', 'focus');
+                                        classes.push('popover-reservation');
 
-                                        // var contents = '';
-                                        // if (reservationDocument.status == 'RESERVED') {
-                                        //     if (reservationDocument.staff) {
-                                        //         contents =  '内部';
-                                        //     } else if (reservationDocument.sponsor) {
-                                        //         contents =  '外部';
-                                        //     } else if (reservationDocument.member) {
-                                        //         contents =  '当選者';
-                                        //     } else {
-                                        //         contents =  '一般';
-                                        //     }
+                                        attrs['data-tabindex-id'] = '0';
+                                        attrs['data-toggle'] = 'popover';
+                                        attrs['data-trigger'] = 'focus';
 
-                                        // } else if (reservationDocument.status == 'TEMPORARY') {
-                                        //     contents =  '仮予約';
+                                        let contents = '';
+                                        switch (reservationDocument.get('status')) {
+                                            case ReservationUtil.STATUS_RESERVED:
+                                                if (reservationDocument.get('staff')) {
+                                                    contents =  '内部';
+                                                } else if (reservationDocument.get('sponsor')) {
+                                                    contents =  '外部';
+                                                } else if (reservationDocument.get('member')) {
+                                                    contents =  '当選者';
+                                                } else {
+                                                    contents =  '一般';
+                                                }
 
-                                        // } else if (reservationDocument.status == 'WAITING_SETTLEMENT') {
-                                        //     contents =  '待ち';
+                                                break;
 
-                                        // }
+                                            case ReservationUtil.STATUS_TEMPORARY:
+                                                contents =  '仮予約';
+                                                break;
 
-                                        // $(this).attr('data-contents', contents);
+                                            case ReservationUtil.STATUS_WAITING_SETTLEMENT:
+                                                contents =  '待ち';
+                                                break;
+
+                                            default:
+                                                break;
+                                        }
+
+                                        attrs['data-contents'] = contents;
 
                                     } else {
 
                                     }
-
 
                                 }
 

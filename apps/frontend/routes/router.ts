@@ -48,7 +48,7 @@ export default (app: any) => {
     // パフォーマンス検索
     app.get('/performance/search', 'performance.search', (req, res, next) => {(new PerformanceController(req, res, next)).search()});
 
-    app.get('/reserve/:token/showSeatsMap', 'reserve.showSeatsMap', (req, res, next) => {(new ReserveController(req, res, next)).showSeatsMap()});
+    app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', (req, res, next) => {(new ReserveController(req, res, next)).getSeatProperties()});
 
     app.get('/screen/:id/show', 'screen.show', (req, res, next) => {(new ScreenController(req, res, next)).show()});
 
