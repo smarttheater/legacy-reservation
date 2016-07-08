@@ -18,7 +18,8 @@
 		"SelectTickets": "Select Tickets",
 		"EnterProfile": "Enter Your Profile",
 		"ConfirmReservation": "Confirm Your Reservation",
-		"CompleteReservation": "h1.CompleteReservation"
+		"CompleteReservation": "Complete Reservation",
+		"CompleteTemporaryReservation": "Complete Temporary Reservation"
 	},
 	"Welcome to": "Welcome to",
 	"General Customers": "General Customers",

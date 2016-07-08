@@ -14,7 +14,8 @@
 		"SelectTickets": "券種選択",
 		"EnterProfile": "購入者情報入力",
 		"ConfirmReservation": "予約情報確認",
-		"CompleteReservation": "予約完了"
+		"CompleteReservation": "予約完了",
+		"CompleteTemporaryReservation": "仮予約完了"
 	},
 	"Label": {
 		"Agree": "同意する",

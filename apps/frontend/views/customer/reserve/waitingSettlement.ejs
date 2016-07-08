@@ -6,10 +6,26 @@
 
         <dl class="dl-horizontal">
             <dt><%- __('Label.FilmName') %></dt>
-            <dd><%- reservationModel.performance.film.name %></dd>
+            <dd>
+                <% if (req.getLocale() === 'ja') { %>
+                <%- reservationModel.performance.film.name %>
+                <% } else { %>
+                <%- reservationModel.performance.film.name_en %>
+                <% } %>
+            </dd>
 
             <dt><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></dt>
-            <dd><%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ <%- reservationModel.performance.theater.name %> <%- reservationModel.performance.screen.name %></dd>
+            <dd>
+                <%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ 
+
+                <% if (req.getLocale() === 'ja') { %>
+                <%- reservationModel.performance.theater.name %> 
+                <%- reservationModel.performance.screen.name %>
+                <% } else { %>
+                <%- reservationModel.performance.theater.name_en %> 
+                <%- reservationModel.performance.screen.name_en %>
+                <% } %>
+            </dd>
 
             <dt><%- __('Label.SeatCode') %></dt>
 
