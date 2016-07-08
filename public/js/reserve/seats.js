@@ -90,7 +90,7 @@ $(function(){
         });
 
         if (reservationIds.length < 1) {
-            alert('座席を選択してください');
+            alert($('input[name="messageRequiredSeat"]').val());
         } else {
             var form = $('<form/>', {'method': 'post'}); // location.hrefにpostする
             form.append($('<input/>', {

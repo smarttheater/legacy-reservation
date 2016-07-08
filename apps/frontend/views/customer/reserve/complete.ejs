@@ -10,24 +10,14 @@
 
             <dt><%- __('Label.FilmName') %></dt>
             <dd>
-                <% if (req.getLocale() === 'ja') { %>
-                <%- reservationResultModel.performance.film.name %>
-                <% } else { %>
-                <%- reservationResultModel.performance.film.name_en %>
-                <% } %>
+                <%- reservationResultModel.performance.film[__('DocumentField.name')] %>
             </dd>
 
             <dt><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></dt>
             <dd>
                 <%- reservationResultModel.performance.day %> <%- reservationResultModel.performance.start_time %> ～ 
-
-                <% if (req.getLocale() === 'ja') { %>
-                <%- reservationResultModel.performance.theater.name %> 
-                <%- reservationResultModel.performance.screen.name %>
-                <% } else { %>
-                <%- reservationResultModel.performance.theater.name_en %> 
-                <%- reservationResultModel.performance.screen.name_en %>
-                <% } %> 
+                <%- reservationResultModel.performance.theater[__('DocumentField.name')] %> 
+                <%- reservationResultModel.performance.screen[__('DocumentField.name')] %>
             </dd>
 
             <dt><%- __('Label.SeatCode') %></dt>

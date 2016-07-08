@@ -32,7 +32,10 @@
 		"EmailConfirm": "メールアドレス(確認)",
 		"EmailConfirmDomain": "メールアドレス(確認)ドメイン",
 		"FullName": "お名前",
-		"PaymentNo": "購入番号"
+		"PaymentNo": "購入番号",
+		"AllSections": "すべての部門・特集",
+		"AllGenres": "すべてのジャンル",
+		"AllDay": "すべての上映日"
 	},
 	"Button": {
 		"Send": "送信",
@@ -46,10 +49,15 @@
 		"SendMail": "メール送信"
 	},
 	"Message": {
-		"Searching": "検索しています..."
+		"Searching": "検索しています...",
+		"PleaseSelectSeat": "座席を選択してください"
 	},
 	"h3": {
 		"SeatChoices": "座席情報",
 		"Profile": "購入者情報"
-	}
+	},
+	"DocumentField": {
+		"name": "name"
+	},
+	"{{price}} yen": "{{price}} 円"
 }

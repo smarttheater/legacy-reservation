@@ -9,24 +9,14 @@
     <dl class="dl-horizontal">
         <dt><%- __('Label.FilmName') %></dt>
         <dd>
-                <% if (req.getLocale() === 'ja') { %>
-                <%- reservationModel.performance.film.name %>
-                <% } else { %>
-                <%- reservationModel.performance.film.name_en %>
-                <% } %>
+            <%- reservationModel.performance.film[__('DocumentField.name')] %>
         </dd>
 
         <dt><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></dt>
         <dd>
             <%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ 
-
-            <% if (req.getLocale() === 'ja') { %>
-            <%- reservationModel.performance.theater.name %> 
-            <%- reservationModel.performance.screen.name %>
-            <% } else { %>
-            <%- reservationModel.performance.theater.name_en %> 
-            <%- reservationModel.performance.screen.name_en %>
-            <% } %>
+            <%- reservationModel.performance.theater[__('DocumentField.name')] %> 
+            <%- reservationModel.performance.screen[__('DocumentField.name')] %>
         </dd>
 
         <dt><%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %></dt>
@@ -34,9 +24,11 @@
         <dd>
             <% reservationModel.reservationIds.forEach((reservationId, index) => { %>
             <% let reservation = reservationModel.getReservation(reservationId) %>
-            <a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a> <%- reservation.ticket_name %> <%- reservation.ticket_price %>円、
+            <a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>">
+                <%- reservation.seat_code %>
+            </a> <%- reservation[`ticket_${__('DocumentField.name')}`] %> <%- __('{{price}} yen', {price: reservation.ticket_price}) %>、
             <% }) %><br>
-            <strong><%- __('Label.TotalPrice') %>:<%- reservationModel.getTotalPrice() %>円</strong>
+            <strong><%- __('Label.TotalPrice') %>:<%- __('{{price}} yen', {price: reservationModel.getTotalPrice()}) %></strong>
         </dd>
 
     </dl>

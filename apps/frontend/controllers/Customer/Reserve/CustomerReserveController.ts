@@ -8,6 +8,7 @@ import customerReserveProfileForm from '../../../forms/Customer/Reserve/customer
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
+import FilmUtil from '../../../../common/models/Film/FilmUtil';
 
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
@@ -94,6 +95,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                     this.logger.debug('saving reservationModel... ', reservationModel);
                     reservationModel.save((err) => {
                         this.res.render('customer/reserve/performances', {
+                            FilmUtil: FilmUtil
                         });
                     });
                 });

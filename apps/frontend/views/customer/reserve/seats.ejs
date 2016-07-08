@@ -16,6 +16,7 @@
 <div class="row">
     <div class="seatStatusesMap hidden" data-token="<%- reservationModel.token %>">
         <%- reservationModel.screenHtml %>
+        <input type="hidden" name="messageRequiredSeat" value="<%- __('Message.PleaseSelectSeat') %>">
     </div>
 
     <a class="btn btn-default btn-lg btn-block" href="<%- url('customer.reserve.performances', {token: req.params.token}) %>"><%- __('Button.Back') %></a>

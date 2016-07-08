@@ -43,13 +43,21 @@
 		"EmailConfirm": "Email Confirm",
 		"EmailConfirmDomain": "Email Confirm (Domain)",
 		"FullName": "Full Name",
-		"PaymentNo": "Payment No"
+		"PaymentNo": "Payment No",
+		"AllSections": "All Sections",
+		"AllGenres": "All Genres",
+		"AllDay": "All Days"
 	},
 	"Message": {
-		"Searching": "Searching..."
+		"Searching": "Searching...",
+		"PleaseSelectSeat": "Please select seats at least one."
 	},
 	"h3": {
 		"SeatChoices": "Seat Choices",
 		"Profile": "Profile"
-	}
+	},
+	"DocumentField": {
+		"name": "name_en"
+	},
+	"{{price}} yen": "{{price}} yen"
 }

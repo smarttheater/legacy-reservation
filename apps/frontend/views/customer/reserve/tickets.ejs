@@ -29,7 +29,8 @@
                             value="<%- ticket.type %>"
                             data-name="<%- ticket.name %>"
                             data-name-en="<%- ticket.name_en %>"
-                            data-price="<%- ticket.price %>"><%- ticket.name %> <%- ticket.price %>円
+                            data-price="<%- ticket.price %>">
+                            <%- ticket[__('DocumentField.name')] %> <%- __('{{price}} yen', {price: ticket.price}) %>
                         </option>
                         <% }) %>
                         </select>

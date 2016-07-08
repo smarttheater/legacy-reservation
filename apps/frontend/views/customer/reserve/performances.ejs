@@ -7,31 +7,27 @@
         <div class="form-group">
             <label for=""></label>
             <select class="form-control" name="sections">
-                <option value="">すべての部門・特集</option>
-                <option value="01">コンペティション</option>
-                <option value="02">アジアの未来</option>
-                <option value="03">日本映画スプラッシュ</option>
-                <option value="04">特別招待作品</option>
-                <option value="05">パノラマ</option>
+                <option value=""><%- __('Label.AllSections') %></option>
+                <% for (let section of FilmUtil.getSections()) { %>
+                <option value="<%- section.code %>"><%- section[__('DocumentField.name')] %></option>
+                <% } %>
             </select>
         </div>
 
         <div class="form-group">
             <label for=""></label>
             <select class="form-control" name="genre">
-                <option value="">すべてのジャンル</option>
-                <option value="01">ヒューマンドラマ</option>
-                <option value="02">コメディ</option>
-                <option value="03">ラブストーリー</option>
-                <option value="04">エロス</option>
-                <option value="05">青春</option>
+                <option value=""><%- __('Label.AllGenres') %></option>
+                <% for (let genre of FilmUtil.getGenres()) { %>
+                <option value="<%- genre.code %>"><%- genre[__('DocumentField.name')] %></option>
+                <% } %>
             </select>
         </div>
 
         <div class="form-group">
             <label for=""></label>
             <select class="form-control" name="day">
-                <option value="">すべての上映日</option>
+                <option value=""><%- __('Label.AllDay') %></option>
                 <option value="20161022">10/22</option>
                 <option value="20161023">10/23</option>
                 <option value="20161024">10/24</option>
@@ -102,7 +98,7 @@ function showPerformances() {
         var performancesOnFilm = performancesByFilm[filmId];
 
         html += `
-        <h3><% if (req.getLocale() === 'ja') { %>${performancesOnFilm[0].film.name}<% } else { %>${performancesOnFilm[0].film.name_en}<% } %></h3>
+        <h3>${performancesOnFilm[0].film['<%- __('DocumentField.name') %>']}</h3>
         <div class="row">
 `;
 
@@ -119,11 +115,7 @@ function showPerformances() {
                 <a href="javascript:void(0);" onclick="selectPerformance('${performance._id}');">
                 ${performance.day}<br>
 
-                <% if (req.getLocale() === 'ja') { %>
-                ${performance.theater.name} ${performance.screen.name}<br>
-                <% } else { %>
-                ${performance.theater.name_en} ${performance.screen.name_en}<br>
-                <% } %>
+                ${performance.theater['<%- __('DocumentField.name') %>']} ${performance.screen['<%- __('DocumentField.name') %>']}<br>
 
                 ${performance.start_time}-${performance.end_time}<br>
                 ${performance.seat_status}
