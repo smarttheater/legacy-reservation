@@ -418,7 +418,18 @@ export default class ReserveBaseController extends BaseController {
             // TODO QR作成？
 
             // TODO メール送信？
-            if (reservationModel.profile.email) {
+            let to: string;
+            if (reservationModel.staff) {
+                to = reservationModel.staff.email;
+            } else if (reservationModel.sponsor) {
+                to = reservationModel.sponsor.email;
+            } else if (reservationModel.profile) {
+                to = reservationModel.profile.email;
+            } else {
+            }
+
+            this.logger.info('to:', to);
+            if (to) {
                 let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
                 let html = `
 <html>
@@ -432,7 +443,7 @@ export default class ReserveBaseController extends BaseController {
 </html>
 `;
                 let email = new _sendgrid.Email({
-                    to: reservationModel.profile.email,
+                    to: to,
                     from: 'noreply@devtiffwebapp.azurewebsites.net',
                     subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
                     html: html
