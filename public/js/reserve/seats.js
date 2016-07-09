@@ -1,3 +1,5 @@
+var screenSeatStatusesMap;
+
 /**
  * 空席状況マップを表示する
  */
@@ -39,17 +41,8 @@ function showSeatStatusesMap() {
 
     }).fail(function(jqxhr, textStatus, error) {
     }).always(function() {
-        loadHandler();
 
-
-        // 予約の吹き出し(内部関係者のみの機能)
-        $('.popover-reservation').popover({
-            placement: 'top',
-            html: true,
-            content: function(){
-                return $(this).attr('data-contents');
-            }
-        });
+        screenSeatStatusesMap = new ScreenSeatStatusesMap($('.screen'));
 
 
         // 20秒おきに状況とりにいく
@@ -63,7 +56,7 @@ $(function(){
     showSeatStatusesMap();
 
     $(document).on('click', '.select-seat', function(){
-        if (isDeviceType('sp') && state === STATE_DEFAULT) {
+        if (screenSeatStatusesMap.isDeviceType('sp') && screenSeatStatusesMap.state === screenSeatStatusesMap.STATE_DEFAULT) {
             return;
         }
 

@@ -36,7 +36,6 @@ body {
 
 .screen {
 	position: relative;
-	overflow: hidden;
 }
 
 .screen .transition {
@@ -107,12 +106,45 @@ body {
 .screen .zoom-btn a {
 	line-height: 40px;
 	display: block;
+	box-sizing: border-box;
 	width: 40px;
 	height: 40px;
 	text-align: center;
 	text-decoration: none;
 	color: #333;
+	border: 2px solid rgba(0, 0, 0, .5);
 	background-color: #fff;
+}
+
+.screen .balloon {
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: none;
+	padding: 15px;
+	color: #fff;
+	background-color: #000;
+	background-color: rgba(51, 51, 51, .9);
+}
+
+.screen .balloon::after {
+	position: absolute;
+	top: -10px;
+	left: 50%;
+	width: 0;
+	height: 0;
+	margin-left: -4px;
+	content: '';
+	border-width: 0 4px 10px 4px;
+	border-style: solid;
+	border-color: transparent transparent #000 transparent;
+	border-color: transparent transparent rgba(51, 51, 51, .9) transparent;
+}
+
+.screen .balloon.active {
+	display: block;
+	-webkit-animation: fadeIn .5s ease 0s 1 normal;
+	animation: fadeIn .5s ease 0s 1 normal;
 }
 
 @media screen and (max-width: 767px) {
@@ -123,6 +155,34 @@ body {
 
 .sp-not-view {
 	display: none;
+}
+
+.screen {
+	overflow: hidden;
+}
+
+}
+
+@-webkit-keyframes fadeIn {
+
+0% {
+	opacity: 0;
+}
+
+100% {
+	opacity: 1;
+}
+
+}
+
+@keyframes fadeIn {
+
+0% {
+	opacity: 0;
+}
+
+100% {
+	opacity: 1;
 }
 
 }

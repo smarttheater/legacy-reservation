@@ -47,6 +47,8 @@ export default class ReserveController extends BaseController {
 
                             attrs['data-reservation-id'] = reservationDocument.get('_id');
 
+                            let baloonContent = reservationDocument.get('seat_code');
+
                             if (reservationDocument.get('status') === ReservationUtil.STATUS_AVAILABLE) {
                                 // 予約可能
                                 classes.push('select-seat');
@@ -64,40 +66,37 @@ export default class ReserveController extends BaseController {
 
                                     // 内部関係者の場合、予約情報ポップアップ
                                     if (reservationModel.staff) {
-                                        classes.push('popover-reservation');
+                                        // classes.push('popover-reservation');
 
-                                        attrs['data-tabindex-id'] = '0';
-                                        attrs['data-toggle'] = 'popover';
-                                        attrs['data-trigger'] = 'focus';
+                                        // attrs['data-tabindex-id'] = '0';
+                                        // attrs['data-toggle'] = 'popover';
+                                        // attrs['data-trigger'] = 'focus';
 
-                                        let contents = '';
                                         switch (reservationDocument.get('status')) {
                                             case ReservationUtil.STATUS_RESERVED:
                                                 if (reservationDocument.get('staff')) {
-                                                    contents =  '内部';
+                                                    baloonContent +=  '<br>内部関係者';
                                                 } else if (reservationDocument.get('sponsor')) {
-                                                    contents =  '外部';
+                                                    baloonContent +=  '<br>外部関係者';
                                                 } else if (reservationDocument.get('member')) {
-                                                    contents =  '当選者';
+                                                    baloonContent +=  '<br>メルマガ当選者';
                                                 } else {
-                                                    contents =  '一般';
+                                                    baloonContent +=  '<br>一般';
                                                 }
 
                                                 break;
 
                                             case ReservationUtil.STATUS_TEMPORARY:
-                                                contents =  '仮予約';
+                                                baloonContent += '<br>仮予約中...';
                                                 break;
 
                                             case ReservationUtil.STATUS_WAITING_SETTLEMENT:
-                                                contents =  '待ち';
+                                                baloonContent += '<br>決済中...';
                                                 break;
 
                                             default:
                                                 break;
                                         }
-
-                                        attrs['data-contents'] = contents;
 
                                     } else {
 
@@ -108,6 +107,8 @@ export default class ReserveController extends BaseController {
                             }
 
 
+
+                            attrs['data-baloon-content'] = baloonContent;
 
                             properties['classes'] = classes;
                             properties['attrs'] = attrs;

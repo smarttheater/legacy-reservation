@@ -34,7 +34,9 @@ function showSeatPositon(screenId, selecteSeatCodes) {
         }
     }).done(function(data) {
         $('.selected-seat-map .modal-body').html(data);
-        loadHandler();
+
+        new ScreenSeatStatusesMap($('.screen'));
+
         selecteSeatCodes.forEach(function(selecteSeatCode){
             $(`.selected-seat-map .modal-body .seat a[data-seat-code="${selecteSeatCode}"]`).addClass('active');
         });
@@ -42,7 +44,6 @@ function showSeatPositon(screenId, selecteSeatCodes) {
         $('.selected-seat-map').modal();
     }).fail(function(jqxhr, textStatus, error) {
     }).always(function() {
-        loadHandler();
     });
 }
 
