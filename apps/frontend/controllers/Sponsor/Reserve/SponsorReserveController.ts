@@ -1,10 +1,10 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import SponsorUser from '../../../models/User/SponsorUser';
 import Util from '../../../../common/Util/Util';
-import sponsorReservePerformanceForm from '../../../forms/Sponsor/Reserve/sponsorReservePerformanceForm';
-import sponsorReserveSeatForm from '../../../forms/Sponsor/Reserve/sponsorReserveSeatForm';
-import sponsorReserveTicketForm from '../../../forms/Sponsor/Reserve/sponsorReserveTicketForm';
-import sponsorReserveProfileForm from '../../../forms/Sponsor/Reserve/sponsorReserveProfileForm';
+import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
+import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
+import reserveTicketForm from '../../../forms/Reserve/reserveTicketForm';
+import reserveProfileForm from '../../../forms/Reserve/reserveProfileForm';
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
@@ -44,7 +44,7 @@ export default class SponsorReserveController extends ReserveBaseController {
             }
 
             if (this.req.method === 'POST') {
-                sponsorReservePerformanceForm(this.req, this.res, (err) => {
+                reservePerformanceForm(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
                         // パフォーマンスFIX
                         this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
@@ -103,7 +103,7 @@ export default class SponsorReserveController extends ReserveBaseController {
             (err, reservationsCount) => {
 
                 if (this.req.method === 'POST') {
-                    sponsorReserveSeatForm(this.req, this.res, (err) => {
+                    reserveSeatForm(this.req, this.res, (err) => {
                         if (this.req.form.isValid) {
 
                             let reservationIds: Array<string> = JSON.parse(this.req.form['reservationIds']);
@@ -169,7 +169,7 @@ export default class SponsorReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
-                sponsorReserveTicketForm(this.req, this.res, (err) => {
+                reserveTicketForm(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
 
                         // 座席選択情報を保存して座席選択へ
@@ -226,7 +226,8 @@ export default class SponsorReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
-                sponsorReserveProfileForm(this.req, this.res, (err) => {
+                let form = reserveProfileForm(this.req);
+                form(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
 
                         // 購入者情報を保存して座席選択へ

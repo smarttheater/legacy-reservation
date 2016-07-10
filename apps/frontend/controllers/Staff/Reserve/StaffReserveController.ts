@@ -1,9 +1,9 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import StaffUser from '../../../models/User/StaffUser';
 import Util from '../../../../common/Util/Util';
-import staffReservePerformanceForm from '../../../forms/Staff/Reserve/staffReservePerformanceForm';
-import staffReserveSeatForm from '../../../forms/Staff/Reserve/staffReserveSeatForm';
-import staffReserveTicketForm from '../../../forms/Staff/Reserve/staffReserveTicketForm';
+import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
+import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
+import reserveTicketForm from '../../../forms/Reserve/reserveTicketForm';
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
@@ -45,7 +45,7 @@ export default class StaffReserveController extends ReserveBaseController {
             }
 
             if (this.req.method === 'POST') {
-                staffReservePerformanceForm(this.req, this.res, (err) => {
+                reservePerformanceForm(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
                         // パフォーマンスFIX
                         this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
@@ -103,7 +103,7 @@ export default class StaffReserveController extends ReserveBaseController {
             (err, reservationsCount) => {
 
                 if (this.req.method === 'POST') {
-                    staffReserveSeatForm(this.req, this.res, (err) => {
+                    reserveSeatForm(this.req, this.res, (err) => {
                         if (this.req.form.isValid) {
 
                             let reservationIds: Array<string> = JSON.parse(this.req.form['reservationIds']);
@@ -160,7 +160,7 @@ export default class StaffReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
-                staffReserveTicketForm(this.req, this.res, (err) => {
+                reserveTicketForm(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
 
                         // 座席選択情報を保存して座席選択へ

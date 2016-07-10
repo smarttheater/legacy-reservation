@@ -1,4 +1,38 @@
 {
+	"Online Ticket Reservation": "Online Ticket Reservation",
+	"Welcome to": "Welcome to",
+	"General Customers": "General Customers",
+	"Email Magazine Readers": "Email Magazine Readers",
+	"Sponsors": "Sponsors",
+	"Staffs": "Staffs",
+	"Telephone Support": "Telephone Support",
+	"On that day": "On that day",
+	"h1": {
+		"Terms": "Terms",
+		"SelectPerformance": "Select a Performance",
+		"SelectSeats": "Select Seats",
+		"SelectTickets": "Select Tickets",
+		"EnterProfile": "Enter Your Profile",
+		"ConfirmReservation": "Confirm Your Reservation",
+		"CompleteReservation": "Complete Reservation",
+		"CompleteTemporaryReservation": "Complete Temporary Reservation"
+	},
+	"Label": {
+		"Agree": "Agree",
+		"FilmName": "Film Name",
+		"PerformanceTime": "Time",
+		"PerformancePlace": "Place",
+		"SeatCode": "Seat Code",
+		"TicketType": "Ticket Type",
+		"TotalPrice": "Total Price",
+		"Email": "Email",
+		"FullName": "Full Name",
+		"PaymentNo": "Payment No",
+		"AllSections": "All Sections",
+		"AllGenres": "All Genres",
+		"AllDay": "All Days",
+		"Tel": "Tel"
+	},
 	"Button": {
 		"Send": "Send",
 		"Back": "Back",
@@ -10,47 +44,25 @@
 		"Print": "Print",
 		"SendMail": "Send Email"
 	},
-	"Online Ticket Reservation": "Online Ticket Reservation",
-	"h1": {
-		"Terms": "Terms",
-		"SelectPerformance": "Select a Performance",
-		"SelectSeats": "Select Seats",
-		"SelectTickets": "Select Tickets",
-		"EnterProfile": "Enter Your Profile",
-		"ConfirmReservation": "Confirm Your Reservation",
-		"CompleteReservation": "Complete Reservation",
-		"CompleteTemporaryReservation": "Complete Temporary Reservation"
-	},
-	"Welcome to": "Welcome to",
-	"General Customers": "General Customers",
-	"Email Magazine Readers": "Email Magazine Readers",
-	"Sponsors": "Sponsors",
-	"Staffs": "Staffs",
-	"Telephone Support": "Telephone Support",
-	"On that day": "On that day",
-	"Label": {
-		"Agree": "Agree",
-		"FilmName": "Film Name",
-		"PerformanceTime": "Time",
-		"PerformancePlace": "Place",
-		"SeatCode": "Seat Code",
-		"TicketType": "Ticket Type",
-		"TotalPrice": "Total Price",
-		"LastName": "Last Name",
-		"FirstName": "First Name",
-		"Tel": "Tel",
-		"Email": "Email",
-		"EmailConfirm": "Email Confirm",
-		"EmailConfirmDomain": "Email Confirm (Domain)",
-		"FullName": "Full Name",
-		"PaymentNo": "Payment No",
-		"AllSections": "All Sections",
-		"AllGenres": "All Genres",
-		"AllDay": "All Days"
+	"Form": {
+		"FieldName": {
+			"lastName": "Last Name",
+			"firstName": "First Name",
+			"tel": "Tel",
+			"email": "Email",
+			"emailConfirm": "Email Confirm",
+			"emailConfirmDomain": "Email Confirm(Domain)"
+		}
 	},
 	"Message": {
+		"required{{fieldName}}": "{{fieldName}} required.",
+		"maxLength{{fieldName}}{{max}}": "{{fieldName}} must be in {{max}} characters.",
+		"regexTelRange{{fieldName}}{{min}}{{max}}": "The number of digists {{fieldName}} must be {{min}} to {{max}}.",
+		"invalid{{fieldName}}": "{{fieldName}} is invalid.",
+		"match{{fieldName}}": "{{fieldName}} not matched.",
+		"RequiredAgree": "Please check 'Agree'.",
 		"Searching": "Searching...",
-		"PleaseSelectSeat": "Please select seats at least one."
+		"PleaseSelectSeat": "Message.PleaseSelectSeat"
 	},
 	"h3": {
 		"SeatChoices": "Seat Choices",

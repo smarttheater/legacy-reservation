@@ -1,6 +1,6 @@
 {
-	"Welcome to": "ようこそ",
 	"Online Ticket Reservation": "オンラインチケット予約",
+	"Welcome to": "ようこそ",
 	"General Customers": "一般客",
 	"Email Magazine Readers": "メルマガ当選者",
 	"Sponsors": "外部関係者",
@@ -25,17 +25,13 @@
 		"SeatCode": "座席コード",
 		"TicketType": "券種",
 		"TotalPrice": "合計金額",
-		"LastName": "せい",
-		"FirstName": "めい",
-		"Tel": "電話番号",
 		"Email": "メールアドレス",
-		"EmailConfirm": "メールアドレス(確認)",
-		"EmailConfirmDomain": "メールアドレス(確認)ドメイン",
 		"FullName": "お名前",
 		"PaymentNo": "購入番号",
 		"AllSections": "すべての部門・特集",
 		"AllGenres": "すべてのジャンル",
-		"AllDay": "すべての上映日"
+		"AllDay": "すべての上映日",
+		"Tel": "電話番号"
 	},
 	"Button": {
 		"Send": "送信",
@@ -48,9 +44,25 @@
 		"Print": "印刷",
 		"SendMail": "メール送信"
 	},
+	"Form": {
+		"FieldName": {
+			"lastName": "せい",
+			"firstName": "めい",
+			"tel": "電話番号",
+			"email": "メールアドレス",
+			"emailConfirm": "メールアドレス(確認)",
+			"emailConfirmDomain": "メールアドレス(確認)ドメイン"
+		}
+	},
 	"Message": {
 		"Searching": "検索しています...",
-		"PleaseSelectSeat": "座席を選択してください"
+		"PleaseSelectSeat": "座席を選択してください",
+		"RequiredAgree": "同意してください",
+		"required{{fieldName}}": "{{fieldName}}が未入力です",
+		"maxLength{{fieldName}}{{max}}": "{{fieldName}}は{{max}}文字以内で入力してください",
+		"invalid{{fieldName}}": "{{fieldName}}が不適切です",
+		"regexTelRange{{fieldName}}{{min}}{{max}}": "{{fieldName}}は{{min}}桁以上{{max}}桁以内で入力してください",
+		"match{{fieldName}}": "{{fieldName}}が一致しません"
 	},
 	"h3": {
 		"SeatChoices": "座席情報",

@@ -1,10 +1,10 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import Util from '../../../../common/Util/Util';
-import customerReserveTermsForm from '../../../forms/Customer/Reserve/customerReserveTermsForm';
-import customerReservePerformanceForm from '../../../forms/Customer/Reserve/customerReservePerformanceForm';
-import customerReserveSeatForm from '../../../forms/Customer/Reserve/customerReserveSeatForm';
-import customerReserveTicketForm from '../../../forms/Customer/Reserve/customerReserveTicketForm';
-import customerReserveProfileForm from '../../../forms/Customer/Reserve/customerReserveProfileForm';
+import reserveTermsForm from '../../../forms/Reserve/reserveTermsForm';
+import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
+import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
+import reserveTicketForm from '../../../forms/Reserve/reserveTicketForm';
+import reserveProfileForm from '../../../forms/Reserve/reserveProfileForm';
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
@@ -22,7 +22,8 @@ export default class CustomerReserveController extends ReserveBaseController {
      */
     public terms(): void {
         if (this.req.method === 'POST') {
-            customerReserveTermsForm(this.req, this.res, (err) => {
+            let form = reserveTermsForm(this.req);
+            form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     this.res.redirect(this.router.build('customer.reserve.start', {}));
 
@@ -68,7 +69,7 @@ export default class CustomerReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
-                customerReservePerformanceForm(this.req, this.res, (err) => {
+                reservePerformanceForm(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
                         // パフォーマンスFIX
                         this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
@@ -117,7 +118,7 @@ export default class CustomerReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
-                customerReserveSeatForm(this.req, this.res, (err) => {
+                reserveSeatForm(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
                         let reservationIds: Array<string> = JSON.parse(this.req.form['reservationIds']);
 
@@ -174,7 +175,7 @@ export default class CustomerReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
-                customerReserveTicketForm(this.req, this.res, (err) => {
+                reserveTicketForm(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
                         // 座席選択情報を保存して座席選択へ
                         let choices = JSON.parse(this.req.form['choices']);
@@ -228,7 +229,8 @@ export default class CustomerReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
-                customerReserveProfileForm(this.req, this.res, (err) => {
+                let form = reserveProfileForm(this.req);
+                form(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
                         // 購入者情報を保存して座席選択へ
                         reservationModel.profile = {

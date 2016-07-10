@@ -2,8 +2,8 @@ import ReserveBaseController from '../../ReserveBaseController';
 import MemberUser from '../../../models/User/MemberUser';
 import Util from '../../../../common/Util/Util';
 import memberReserveLoginForm from '../../../forms/Member/Reserve/memberReserveLoginForm';
-import memberReserveTicketForm from '../../../forms/Member/Reserve/memberReserveTicketForm';
-import memberReserveProfileForm from '../../../forms/Member/Reserve/memberReserveProfileForm';
+import reserveTicketForm from '../../../forms/Reserve/reserveTicketForm';
+import reserveProfileForm from '../../../forms/Reserve/reserveProfileForm';
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
@@ -138,7 +138,7 @@ export default class MemberReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
-                memberReserveTicketForm(this.req, this.res, (err) => {
+                reserveTicketForm(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
                         // 座席選択情報を保存して座席選択へ
                         let choices = JSON.parse(this.req.form['choices']);
@@ -192,7 +192,8 @@ export default class MemberReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
-                memberReserveProfileForm(this.req, this.res, (err) => {
+                let form = reserveProfileForm(this.req);
+                form(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
                         // 購入者情報を保存して座席選択へ
                         reservationModel.profile = {
