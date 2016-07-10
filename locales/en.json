@@ -40,7 +40,8 @@
 		"UpdateUser": "Label.UpdateUser",
 		"WatcherName": "Label.WatcherName",
 		"Cancel": "Label.Cancel",
-		"Print": "Label.Print"
+		"Print": "Label.Print",
+		"CompleteCancelReservations": "Label.CompleteCancelReservations"
 	},
 	"Button": {
 		"Send": "Send",
@@ -56,7 +57,10 @@
 		"TicketReservation": "Button.TicketReservation",
 		"Apply": "Button.Apply",
 		"Update": "Button.Update",
-		"Cancel": "Button.Cancel"
+		"Cancel": "Button.Cancel",
+		"No": "Button.No",
+		"Yes": "Button.Yes",
+		"Close": "Button.Close"
 	},
 	"Form": {
 		"FieldName": {

@@ -353,12 +353,16 @@ export default class ReserveBaseController extends BaseController {
                         performance_day: reservationModel.performance.day,
                         performance_start_time: reservationModel.performance.start_time,
                         performance_end_time: reservationModel.performance.end_time,
+
                         theater: reservationModel.performance.theater._id,
                         theater_name: reservationModel.performance.theater.name,
+                        theater_name_en: reservationModel.performance.theater.name_en,
                         screen: reservationModel.performance.screen._id,
                         screen_name: reservationModel.performance.screen.name,
+                        screen_name_en: reservationModel.performance.screen.name_en,
                         film: reservationModel.performance.film._id,
                         film_name: reservationModel.performance.film.name,
+                        film_name_en: reservationModel.performance.film.name_en,
 
                         purchaser_last_name: (reservationModel.profile) ? reservationModel.profile.last_name : null,
                         purchaser_first_name: (reservationModel.profile) ? reservationModel.profile.first_name : null,

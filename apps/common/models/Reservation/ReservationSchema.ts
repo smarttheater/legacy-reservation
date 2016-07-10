@@ -16,21 +16,26 @@ let ReservationSchema = new mongoose.Schema({
     performance_start_time: String,
     performance_end_time: String,
 
-    theater: { 
+    theater: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Theater'
     },
     theater_name: String,
-    screen: { 
+    theater_name_en: String,
+
+    screen: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Screen'
     },
     screen_name: String,
-    film: { 
+    screen_name_en: String,
+
+    film: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Film'
     },
     film_name:String,
+    film_name_en:String,
 
     purchaser_last_name: String,
     purchaser_first_name: String,
@@ -43,7 +48,7 @@ let ReservationSchema = new mongoose.Schema({
     ticket_price: String,
     watcher_name: String,
 
-    sponsor: { 
+    sponsor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Sponsor'
     },
@@ -51,7 +56,7 @@ let ReservationSchema = new mongoose.Schema({
     sponsor_name: String,
     sponsor_email: String,
 
-    staff: { 
+    staff: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Staff'
     },
@@ -62,7 +67,7 @@ let ReservationSchema = new mongoose.Schema({
     staff_tel: String,
     staff_signature: String,
 
-    member: { 
+    member: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Member'
     },

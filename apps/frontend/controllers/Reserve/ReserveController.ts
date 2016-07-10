@@ -22,7 +22,7 @@ export default class ReserveController extends BaseController {
                 {
                     performance: reservationModel.performance._id
                 },
-                'seat_code status staff staff_name staff_department_name sponsor member',
+                'seat_code status staff staff_name staff_department_name sponsor sponsor_name member member_email',
                 {},
                 (err, reservationDocuments) => {
                     if (err) {
@@ -66,20 +66,15 @@ export default class ReserveController extends BaseController {
 
                                     // 内部関係者の場合、予約情報ポップアップ
                                     if (reservationModel.staff) {
-                                        // classes.push('popover-reservation');
-
-                                        // attrs['data-tabindex-id'] = '0';
-                                        // attrs['data-toggle'] = 'popover';
-                                        // attrs['data-trigger'] = 'focus';
 
                                         switch (reservationDocument.get('status')) {
                                             case ReservationUtil.STATUS_RESERVED:
                                                 if (reservationDocument.get('staff')) {
-                                                    baloonContent +=  '<br>内部関係者';
+                                                    baloonContent +=  `<br>内部関係者${reservationDocument.get('staff_department_name')}<br>${reservationDocument.get('staff_name')}`;
                                                 } else if (reservationDocument.get('sponsor')) {
-                                                    baloonContent +=  '<br>外部関係者';
+                                                    baloonContent +=  `<br>外部関係者${reservationDocument.get('sponsor_name')}`;
                                                 } else if (reservationDocument.get('member')) {
-                                                    baloonContent +=  '<br>メルマガ当選者';
+                                                    baloonContent +=  `<br>メルマガ当選者${reservationDocument.get('member_email')}`;
                                                 } else {
                                                     baloonContent +=  '<br>一般';
                                                 }
@@ -92,6 +87,10 @@ export default class ReserveController extends BaseController {
 
                                             case ReservationUtil.STATUS_WAITING_SETTLEMENT:
                                                 baloonContent += '<br>決済中...';
+                                                break;
+
+                                            case ReservationUtil.STATUS_KEPT_BY_TIFF:
+                                                baloonContent += '<br>TIFF確保中...';
                                                 break;
 
                                             default:
