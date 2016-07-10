@@ -11,7 +11,8 @@ export default class SponsorAuthController extends BaseController {
         }
 
         if (this.req.method === 'POST') {
-            sponsorLoginForm(this.req, this.res, (err) => {
+            let form = sponsorLoginForm(this.req);
+            form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
 
                     // ユーザー認証
@@ -24,7 +25,9 @@ export default class SponsorAuthController extends BaseController {
                     (err, sponsorDocument) => {
 
                         if (err || sponsorDocument === null) {
+                            this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
                             this.res.render('sponsor/auth/login', {
+                                layout: 'layouts/sponsor/layout'
                             });
                         } else {
                             // ログイン
@@ -36,6 +39,7 @@ export default class SponsorAuthController extends BaseController {
 
                 } else {
                     this.res.render('sponsor/auth/login', {
+                        layout: 'layouts/sponsor/layout'
                     });
 
                 }
@@ -46,6 +50,7 @@ export default class SponsorAuthController extends BaseController {
             this.res.locals.password = '';
 
             this.res.render('sponsor/auth/login', {
+                layout: 'layouts/sponsor/layout'
             });
 
         }

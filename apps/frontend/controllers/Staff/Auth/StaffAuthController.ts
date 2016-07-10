@@ -11,7 +11,8 @@ export default class StaffAuthController extends BaseController {
         }
 
         if (this.req.method === 'POST') {
-            staffLoginForm(this.req, this.res, (err) => {
+            let form = staffLoginForm(this.req);
+            form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
 
                     // ユーザー認証
@@ -24,7 +25,9 @@ export default class StaffAuthController extends BaseController {
                     (err, staffDocument) => {
 
                         if (err || staffDocument === null) {
+                            this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
                             this.res.render('staff/auth/login', {
+                                layout: 'layouts/staff/layout'
                             });
                         } else {
                             // ログイン

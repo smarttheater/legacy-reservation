@@ -1,41 +1,47 @@
-<h1>購入完了</h1>
+<h1><%- __('h1.CompleteReservation') %></h1>
 
 <%- include('./_step') %>
 
 <div class="row">
 
-        <dl class="dl-horizontal">
-            <dt>予約管理番号</dt>
-            <dd><%- reservationResultModel.paymentNo %></dd>
+    <dl class="dl-horizontal">
+        <dt><%- __('Label.PaymentNo') %></dt>
+        <dd><%- reservationResultModel.paymentNo %></dd>
 
-            <dt>作品名</dt>
-            <dd><%- reservationResultModel.performance.film.name %></dd>
+        <dt><%- __('Label.FilmName') %></dt>
+        <dd>
+            <%- reservationResultModel.performance.film[__('DocumentField.name')] %>
+        </dd>
 
-            <dt>上映時間/場所</dt>
-            <dd><%- reservationResultModel.performance.day %> <%- reservationResultModel.performance.start_time %> ～ <%- reservationResultModel.performance.theater.name %> <%- reservationResultModel.performance.screen.name %></dd>
+        <dt><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></dt>
+        <dd>
+            <%- reservationResultModel.performance.day %> <%- reservationResultModel.performance.start_time %> ～ 
+            <%- reservationResultModel.performance.theater[__('DocumentField.name')] %> 
+            <%- reservationResultModel.performance.screen[__('DocumentField.name')] %>
+        </dd>
 
-            <dt>座席番号</dt>
+        <dt><%- __('Label.SeatCode') %></dt>
 
-            <dd>
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <tbody>
-                            <% reservationResultModel.reservations.forEach((reservation, index) => { %>
-                            <tr>
-                                <td><a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationResultModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a></td>
-                                <td><a class="btn btn-default" href="javascript:void(0)">印刷(未実装)</a></td>
-                                <td><a class="btn btn-default" href="javascript:void(0)">メール送信(未実装)</a></td>
-                                <td>QR</td>
-                            </tr>
-                            <% }) %>
+        <dd>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tbody>
+                        <% reservationResultModel.reservations.forEach((reservation, index) => { %>
+                        <tr>
+                            <td><a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationResultModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a></td>
+                            <td><a class="btn btn-default" href="javascript:void(0)"><%- __('Button.Print') %></a></td>
+                            <td><a class="btn btn-default" href="javascript:void(0)"><%- __('Button.SendMail') %></a></td>
+                            <td>QR</td>
+                        </tr>
+                        <% }) %>
 
-                        </tbody>
-                    </table>
-                </div>
-            </dd>
+                    </tbody>
+                </table>
+            </div>
+        </dd>
 
-        </dl>
+    </dl>
 
 
-    <a class="btn btn-default btn-lg btn-block btn-primary"  href="<%- url('sponsor.mypage', {}) %>">マイページに戻る</a>
+    <a class="btn btn-default btn-lg btn-block btn-primary"  href="<%- url('sponsor.mypage', {}) %>"><%- __('Button.BackToMyPage') %></a>
 </div>

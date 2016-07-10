@@ -53,13 +53,12 @@
     <a class="btn btn-primary btn-lg btn-block confirm-reservation" href="javascript:void(0);"><%- __('Button.Confirm') %></a>
 </div>
 
-<form method="post">
-</form>
-
 <script>
 $(function(){
     $('.confirm-reservation').on('click', function(){
-        $('form').submit();
+        var form = $('<form/>', {'method': 'post'}); // location.hrefにpostする
+        form.appendTo(document.body);
+        form.submit();
     });
 
 });

@@ -1,4 +1,4 @@
-<h1>スケジュール選択</h1>
+<h1><%- __('h1.SelectPerformance') %></h1>
 
 <%- include('./_step') %>
 
@@ -7,31 +7,27 @@
         <div class="form-group">
             <label for=""></label>
             <select class="form-control" name="sections">
-                <option value="">すべての部門・特集</option>
-                <option value="01">コンペティション</option>
-                <option value="02">アジアの未来</option>
-                <option value="03">日本映画スプラッシュ</option>
-                <option value="04">特別招待作品</option>
-                <option value="05">パノラマ</option>
+                <option value=""><%- __('Label.AllSections') %></option>
+                <% for (let section of FilmUtil.getSections()) { %>
+                <option value="<%- section.code %>"><%- section[__('DocumentField.name')] %></option>
+                <% } %>
             </select>
         </div>
 
         <div class="form-group">
             <label for=""></label>
             <select class="form-control" name="genre">
-                <option value="">すべてのジャンル</option>
-                <option value="01">ヒューマンドラマ</option>
-                <option value="02">コメディ</option>
-                <option value="03">ラブストーリー</option>
-                <option value="04">エロス</option>
-                <option value="05">青春</option>
+                <option value=""><%- __('Label.AllGenres') %></option>
+                <% for (let genre of FilmUtil.getGenres()) { %>
+                <option value="<%- genre.code %>"><%- genre[__('DocumentField.name')] %></option>
+                <% } %>
             </select>
         </div>
 
         <div class="form-group">
             <label for=""></label>
             <select class="form-control" name="day">
-                <option value="">すべての上映日</option>
+                <option value=""><%- __('Label.AllDay') %></option>
                 <option value="20161022">10/22</option>
                 <option value="20161023">10/23</option>
                 <option value="20161024">10/24</option>
@@ -48,7 +44,7 @@
             <input type="text" class="form-control" name="words">
         </div>
 
-        <a class="btn btn-primary search" href="javascript:void(0)">検索</a>
+        <a class="btn btn-primary search" href="javascript:void(0)"><%- __('Button.Search') %></a>
     </form>
 </div>
 
@@ -59,7 +55,7 @@
     <input type="hidden" name="performanceId">
 </form>
 
-<a class="btn btn-default btn-lg btn-block" href="<%- url('sponsor.mypage', {}) %>">戻る</a>
+<a class="btn btn-default btn-lg btn-block" href="<%- url('sponsor.mypage', {}) %>"><%- __('Button.Back') %></a>
 
 
 
@@ -67,7 +63,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <div class="text-center">searching...</div>
+                <div class="text-center"><%- __('Message.Searching') %></div>
             </div>
         </div>
     </div>
@@ -102,7 +98,7 @@ function showPerformances() {
         var performancesOnFilm = performancesByFilm[filmId];
 
         html += `
-        <h3>${performancesOnFilm[0].film.name}</h3>
+        <h3>${performancesOnFilm[0].film['<%- __('DocumentField.name') %>']}</h3>
         <div class="row">
 `;
 
@@ -118,7 +114,7 @@ function showPerformances() {
             <div class="col-sm-4">
                 <a href="javascript:void(0);" onclick="selectPerformance('${performance._id}');">
                 ${performance.day}<br>
-                ${performance.theater.name} ${performance.screen.name}<br>
+                ${performance.theater['<%- __('DocumentField.name') %>']} ${performance.screen['<%- __('DocumentField.name') %>']}<br>
                 ${performance.start_time}-${performance.end_time}<br>
                 ${performance.seat_status}
                 </a>
@@ -214,4 +210,3 @@ $(function(){
         search();
     });})
 </script>
-

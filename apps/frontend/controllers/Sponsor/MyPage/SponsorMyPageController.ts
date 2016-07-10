@@ -7,7 +7,7 @@ import Models from '../../../../common/models/Models';
 export default class SponsorMyPageController extends BaseController {
     public index(): void {
         this.res.render('sponsor/mypage/index', {
-            layout: 'layouts/sponsor/layout',
+            layout: 'layouts/sponsor/layout'
         });
     }
 }

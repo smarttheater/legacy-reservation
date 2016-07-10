@@ -167,19 +167,24 @@ export default (app: any) => {
     app.post('/staff/cancel/execute', 'staff.cancel.execute', staffBase, authenticationStaff, (req, res, next) => {(new StaffCancelController(req, res, next)).execute()});
 
 
+    let sponsorBase = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        req.setLocale('en');
+        next();
+    }
+
     // 外部関係者
-    app.all('/sponsor/login', 'sponsor.login', (req, res, next) => {(new SponsorAuthController(req, res, next)).login()});
-    app.all('/sponsor/logout', 'sponsor.logout', (req, res, next) => {(new SponsorAuthController(req, res, next)).logout()});
-    app.all('/sponsor/mypage', 'sponsor.mypage', authenticationSponsor, (req, res, next) => {(new SponsorMyPageController(req, res, next)).index()});
-    app.get('/sponsor/reserve/start', 'sponsor.reserve.start', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).start()});
-    app.all('/sponsor/reserve/:token/performances', 'sponsor.reserve.performances', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).performances()});
-    app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).seats()});
-    app.all('/sponsor/reserve/:token/tickets', 'sponsor.reserve.tickets', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).tickets()});
-    app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).profile()});
-    app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).confirm()});
-    app.get('/sponsor/reserve/:token/process', 'sponsor.reserve.process', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).process()});
-    app.get('/sponsor/reserve/:token/complete', 'sponsor.reserve.complete', authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).complete()});
-    app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', authenticationSponsor, (req, res, next) => {(new SponsorCancelController(req, res, next)).execute()});
+    app.all('/sponsor/login', 'sponsor.login', sponsorBase, (req, res, next) => {(new SponsorAuthController(req, res, next)).login()});
+    app.all('/sponsor/logout', 'sponsor.logout', sponsorBase, (req, res, next) => {(new SponsorAuthController(req, res, next)).logout()});
+    app.all('/sponsor/mypage', 'sponsor.mypage', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorMyPageController(req, res, next)).index()});
+    app.get('/sponsor/reserve/start', 'sponsor.reserve.start', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).start()});
+    app.all('/sponsor/reserve/:token/performances', 'sponsor.reserve.performances', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).performances()});
+    app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).seats()});
+    app.all('/sponsor/reserve/:token/tickets', 'sponsor.reserve.tickets', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).tickets()});
+    app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).profile()});
+    app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).confirm()});
+    app.get('/sponsor/reserve/:token/process', 'sponsor.reserve.process', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).process()});
+    app.get('/sponsor/reserve/:token/complete', 'sponsor.reserve.complete', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).complete()});
+    app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', authenticationSponsor, sponsorBase, (req, res, next) => {(new SponsorCancelController(req, res, next)).execute()});
 
 
 

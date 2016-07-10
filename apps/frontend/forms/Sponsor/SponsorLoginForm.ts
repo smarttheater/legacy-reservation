@@ -1,6 +1,9 @@
+import express = require('express');
 import form = require('express-form');
 
-export default form(
-    form.field('userId').trim().required('', 'ログイン番号が未入力です'),
-    form.field('password').trim().required('', 'パスワードが未入力です')
-);
+export default (req: express.Request) => {
+    return form(
+        form.field('userId').trim().required('', req.__('Message.required{{fieldName}}', {fieldName: req.__('Form.FieldName.userId')})),
+        form.field('password').trim().required('', req.__('Message.required{{fieldName}}', {fieldName: req.__('Form.FieldName.password')}))
+    );
+}

@@ -8,6 +8,7 @@ import reserveProfileForm from '../../../forms/Reserve/reserveProfileForm';
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
+import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
 
@@ -73,6 +74,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                     reservationModel.save((err) => {
                         this.res.render('sponsor/reserve/performances', {
                             layout: 'layouts/sponsor/layout',
+                            FilmUtil: FilmUtil
                         });
                     });
                 });
