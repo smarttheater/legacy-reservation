@@ -15,7 +15,8 @@
 		"EnterProfile": "Enter Your Profile",
 		"ConfirmReservation": "Confirm Your Reservation",
 		"CompleteReservation": "Complete Reservation",
-		"CompleteTemporaryReservation": "Complete Temporary Reservation"
+		"CompleteTemporaryReservation": "Complete Temporary Reservation",
+		"MyPage": "h1.MyPage"
 	},
 	"Label": {
 		"Agree": "Agree",
@@ -31,7 +32,15 @@
 		"AllSections": "All Sections",
 		"AllGenres": "All Genres",
 		"AllDay": "All Days",
-		"Tel": "Tel"
+		"Tel": "Tel",
+		"PleaseEnterWatcherName": "Label.PleaseEnterWatcherName",
+		"Day": "Label.Day",
+		"StartTime": "Label.StartTime",
+		"Words": "Label.Words",
+		"UpdateUser": "Label.UpdateUser",
+		"WatcherName": "Label.WatcherName",
+		"Cancel": "Label.Cancel",
+		"Print": "Label.Print"
 	},
 	"Button": {
 		"Send": "Send",
@@ -42,7 +51,12 @@
 		"Confirm": "Confirm",
 		"Search": "Search",
 		"Print": "Print",
-		"SendMail": "Send Email"
+		"SendMail": "Send Email",
+		"BackToMyPage": "Button.BackToMyPage",
+		"TicketReservation": "Button.TicketReservation",
+		"Apply": "Button.Apply",
+		"Update": "Button.Update",
+		"Cancel": "Button.Cancel"
 	},
 	"Form": {
 		"FieldName": {
@@ -71,5 +85,10 @@
 	"DocumentField": {
 		"name": "name_en"
 	},
-	"{{price}} yen": "{{price}} yen"
+	"{{price}} yen": "{{price}} yen",
+	"Lable": {
+		"Actions": "Lable.Actions",
+		"Cancel": "Lable.Cancel",
+		"Print": "Lable.Print"
+	}
 }

@@ -4,13 +4,16 @@
 
     <div class="col-md-10">
         <dl class="dl-horizontal">
-            <dt>作品名</dt>
-            <dd><%- reservationModel.performance.film.name %></dd>
+            <dt><%- __('Label.FilmName') %></dt>
+            <dd><%- reservationModel.performance.film[__('DocumentField.name')] %></dd>
 
-            <dt>上映時間/場所</dt>
-            <dd><%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ <%- reservationModel.performance.theater.name %> <%- reservationModel.performance.screen.name %></dd>
+            <dt><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></dt>
+            <dd>
+                <%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ 
+                <%- reservationModel.performance.theater[__('DocumentField.name')] %> 
+                <%- reservationModel.performance.screen[__('DocumentField.name')] %></dd>
 
-            <dt>座席/券種</dt>
+            <dt><%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %></dt>
             <dd>
                 <% if (reservationModel.reservationIds.length > 0) { %>
 
@@ -24,7 +27,7 @@
 
                         <div class="col-xs-3">
                             <a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a><br>
-                            <%- reservation.ticket_name %><br>
+                            <%- reservation[`ticket_${__('DocumentField.name')}`] %><br>
                         </div>
                     <% }) %>
                     </div>

@@ -145,20 +145,26 @@ export default (app: any) => {
     app.get('/member/reserve/:token/complete', 'member.reserve.complete', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).complete()});
 
 
+
+    let staffBase = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        req.setLocale('en');
+        next();
+    }
+
     // 内部関係者
-    app.all('/staff/login', 'staff.login', (req, res, next) => {(new StaffAuthController(req, res, next)).login()});
-    app.all('/staff/logout', 'staff.logout', (req, res, next) => {(new StaffAuthController(req, res, next)).logout()});
-    app.all('/staff/mypage', 'staff.mypage', authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).index()});
-    app.get('/staff/mypage/search', 'staff.mypage.search', authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).search()});
-    app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).updateWatcherName()});
-    app.get('/staff/reserve/start', 'staff.reserve.start', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).start()});
-    app.all('/staff/reserve/:token/performances', 'staff.reserve.performances', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).performances()});
-    app.all('/staff/reserve/:token/seats', 'staff.reserve.seats', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).seats()});
-    app.all('/staff/reserve/:token/tickets', 'staff.reserve.tickets', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).tickets()});
-    app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).confirm()});
-    app.get('/staff/reserve/:token/process', 'staff.reserve.process', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).process()});
-    app.get('/staff/reserve/:token/complete', 'staff.reserve.complete', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).complete()});
-    app.post('/staff/cancel/execute', 'staff.cancel.execute', authenticationStaff, (req, res, next) => {(new StaffCancelController(req, res, next)).execute()});
+    app.all('/staff/login', 'staff.login', staffBase, (req, res, next) => {(new StaffAuthController(req, res, next)).login()});
+    app.all('/staff/logout', 'staff.logout', staffBase, (req, res, next) => {(new StaffAuthController(req, res, next)).logout()});
+    app.all('/staff/mypage', 'staff.mypage', staffBase, authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).index()});
+    app.get('/staff/mypage/search', 'staff.mypage.search', staffBase, authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).search()});
+    app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', staffBase, authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).updateWatcherName()});
+    app.get('/staff/reserve/start', 'staff.reserve.start', staffBase, authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).start()});
+    app.all('/staff/reserve/:token/performances', 'staff.reserve.performances', staffBase, authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).performances()});
+    app.all('/staff/reserve/:token/seats', 'staff.reserve.seats', staffBase, authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).seats()});
+    app.all('/staff/reserve/:token/tickets', 'staff.reserve.tickets', staffBase, authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).tickets()});
+    app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', staffBase, authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).confirm()});
+    app.get('/staff/reserve/:token/process', 'staff.reserve.process', staffBase, authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).process()});
+    app.get('/staff/reserve/:token/complete', 'staff.reserve.complete', staffBase, authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).complete()});
+    app.post('/staff/cancel/execute', 'staff.cancel.execute', staffBase, authenticationStaff, (req, res, next) => {(new StaffCancelController(req, res, next)).execute()});
 
 
     // 外部関係者

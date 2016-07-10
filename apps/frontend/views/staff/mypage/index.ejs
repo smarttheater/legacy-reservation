@@ -1,23 +1,28 @@
-<h1>内部関係者向け座席予約ページ</h1>
+<h1><%- __('h1.MyPage') %></h1>
 
 <div class="row">
-    <a class="btn btn-lg btn-block btn-primary" href="<%- url('staff.reserve.start', {}) %>">新規関係者チケット手配</a>
+    <a class="btn btn-lg btn-block btn-primary" href="<%- url('staff.reserve.start', {}) %>"><%- __('Button.TicketReservation') %></a>
 </div>
 
 <div class="row">
     <form class="form-inline">
         <div class="form-group">
-            <label for="">上映日</label>
+            <label for=""><%- __('Label.Day') %></label>
             <select class="form-control" name="day">
-                <option value="">---</option>
-                <option value="20160801">08/01</option>
-                <option value="20160802">08/02</option>
-                <option value="20160803">08/03</option>
+                <option value=""><%- __('Label.AllDay') %></option>
+                <option value="20161022">10/22</option>
+                <option value="20161023">10/23</option>
+                <option value="20161024">10/24</option>
+                <option value="20161025">10/25</option>
+                <option value="20161026">10/26</option>
+                <option value="20161027">10/27</option>
+                <option value="20161028">10/28</option>
+                <option value="20161029">10/29</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="">上映開始時間</label>
+            <label for=""><%- __('Label.StartTime') %></label>
             <select class="form-control" name="start_time">
                 <option value="">---</option>
                 <option value="1000">10:00-</option>
@@ -34,21 +39,18 @@
         </div>
 
         <div class="form-group">
-            <label for="">作品名</label>
+            <label for=""><%- __('Label.FilmName') %></label>
             <select class="form-control" name="film">
                 <option value="">---</option>
-                <option value="5750f4dc0b08d7700b972ffd">スリー・オブ・アス</option>
-                <option value="5768a6ed904abdb423199cdd">クローバーフィールド・レーン</option>
-                <option value="5768a708904abdb423199cdf">帰ってきたヒトラー</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="">フリーワード</label>
+            <label for=""><%- __('Label.Words') %></label>
             <input type="text" class="form-control" name="words">
         </div>
 
-        <a class="btn btn-primary search" href="javascript:void(0)">検索</a>
+        <a class="btn btn-primary search" href="javascript:void(0)"><%- __('Button.Search') %></a>
     </form>
 </div>
 
@@ -64,14 +66,14 @@
                             </label>
                         </div>
                     </th>
-                    <th>予約管理番号</th>
-                    <th>作品名</th>
-                    <th>上映時間/場所</th>
-                    <th>座席</th>
-                    <th>最終更新者</th>
-                    <th>配布先</th>
-                    <th>鑑賞キャンセル</th>
-                    <th>印刷</th>
+                    <th><%- __('Label.PaymentNo') %></th>
+                    <th><%- __('Label.FilmName') %></th>
+                    <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
+                    <th><%- __('Label.SeatCode') %></th>
+                    <th><%- __('Label.UpdateUser') %></th>
+                    <th><%- __('Label.WatcherName') %></th>
+                    <th><%- __('Label.Cancel') %></th>
+                    <th><%- __('Label.Print') %></th>
                 </tr>
             </thead>
 
@@ -83,13 +85,13 @@
     <form class="form-inline">
         <div class="form-group">
             <select class="form-control">
-                <option value="">一括操作</option>
-                <option value="cancel">キャンセル</option>
-                <option value="print">印刷</option>
+                <option value=""><% __('Lable.Actions') %></option>
+                <option value="cancel"><% __('Lable.Cancel') %></option>
+                <option value="print"><% __('Lable.Print') %></option>
             </select>
         </div>
 
-        <a class="btn btn-primary action-to-reservations">適用</a>
+        <a class="btn btn-primary action-to-reservations"><% __('Button.Apply') %></a>
     </form>
 
     <div class="text-center pager-section">
@@ -168,10 +170,10 @@ function showReservations() {
                 </div>
             </td>
             <td>${reservationDocument.payment_no}</td>
-            <td>${reservationDocument.film_name}</td>
+            <td>${reservationDocument['film_<%- __('DocumentField.name') %>']}</td>
             <td>
                 ${reservationDocument.performance_day} ${reservationDocument.performance_start_time}～
-                ${reservationDocument.theater_name} ${reservationDocument.screen_name}
+                ${reservationDocument['theater_<%- __('DocumentField.name') %>']} ${reservationDocument['screen_<%- __('DocumentField.name') %>']}
             </td>
             <td>
                 <a class="show-seat-position" href="javascript:void(0);"
@@ -186,15 +188,15 @@ function showReservations() {
                 <div class="col-md-6">
                     <a class="btn btn-primary update-watcher-name" href="javascript:void(0)"
                         data-payment-no="${reservationDocument.payment_no}"
-                        data-reservation-id="${reservationDocument._id}">更新</a>
+                        data-reservation-id="${reservationDocument._id}"><%- __('Button.Update') %></a>
                 </div>
             </td>
-            <td><a class="btn btn-primary" href="javascript:void(0)">印刷(未実装)</a></td>
+            <td><a class="btn btn-primary" href="javascript:void(0)"><%- __('Button.Print') %></a></td>
             <td>
                 <a class="btn btn-primary confirm-cancel" href="javascript:void(0)"
                     data-payment-no="${reservationDocument.payment_no}"
                     data-seat-code="${reservationDocument.seat_code}"
-                    data-reservation-id="${reservationDocument._id}">キャンセル</a>
+                    data-reservation-id="${reservationDocument._id}"><%- __('Button.Cancel') %></a>
             </td>
         </tr>
 `;

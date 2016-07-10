@@ -37,6 +37,7 @@ export default class StaffAuthController extends BaseController {
 
                 } else {
                     this.res.render('staff/auth/login', {
+                        layout: 'layouts/staff/layout'
                     });
 
                 }
@@ -48,6 +49,7 @@ export default class StaffAuthController extends BaseController {
             this.res.locals.signature = '';
 
             this.res.render('staff/auth/login', {
+                layout: 'layouts/staff/layout'
             });
 
         }
