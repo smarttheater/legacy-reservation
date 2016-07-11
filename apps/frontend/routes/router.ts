@@ -53,6 +53,7 @@ export default (app: any) => {
     app.get('/performance/search', 'performance.search', (req, res, next) => {(new PerformanceController(req, res, next)).search()});
 
     app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', (req, res, next) => {(new ReserveController(req, res, next)).getSeatProperties()});
+    app.post('/reserve/email', 'reserve.email', (req, res, next) => {(new ReserveController(req, res, next)).email()});
 
     app.get('/screen/:id/show', 'screen.show', (req, res, next) => {(new ScreenController(req, res, next)).show()});
 

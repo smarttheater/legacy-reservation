@@ -1,10 +1,10 @@
-import BaseController from '../BaseController';
+import ReserveBaseController from '../ReserveBaseController';
 import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import ReservationModel from '../../models/Reserve/ReservationModel';
 
-export default class ReserveController extends BaseController {
+export default class ReserveController extends ReserveBaseController {
     /**
      * 座席の状態を取得する
      */
@@ -124,5 +124,61 @@ export default class ReserveController extends BaseController {
                 }
             );
         });
+    }
+
+    /**
+     * 予約情報メールを送信する
+     */
+    public email(): void {
+        let id = this.req.body.id;
+        Models.Reservation.findOne(
+            {
+                _id: id,
+                status: ReservationUtil.STATUS_RESERVED
+            },
+            (err, reservationDocument) => {
+                if (err || reservationDocument === null) {
+                    this.res.json({
+                        isSuccess: false
+                    });
+
+                } else {
+
+                    let to: string;
+                    if (reservationDocument.get('staff_email')) {
+                        to = reservationDocument.get('staff_email');
+                    } else if (reservationDocument.get('sponsor_email')) {
+                        to = reservationDocument.get('sponsor_email');
+                    } else if (reservationDocument.get('purchaser_email')) {
+                        to = reservationDocument.get('purchaser_email');
+                    } else {
+                    }
+
+                    if (to) {
+                        this.sendCompleteEmail(to, [reservationDocument], (err, json) => {
+                            if (err) {
+                                // TODO log
+                                this.res.json({
+                                    isSuccess: false
+                                });
+
+                            } else {
+                                this.res.json({
+                                    isSuccess: true
+                                });
+
+                            }
+
+                        });
+
+                    } else {
+                        this.res.json({
+                            isSuccess: false
+                        });
+
+                    }
+                }
+            }
+        );
     }
 }

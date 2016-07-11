@@ -16,8 +16,8 @@
 		"ConfirmReservation": "Confirm Your Reservation",
 		"CompleteReservation": "Complete Reservation",
 		"CompleteTemporaryReservation": "Complete Temporary Reservation",
-		"MyPage": "h1.MyPage",
-		"Login": "h1.Login"
+		"MyPage": "MyPage",
+		"Login": "Login"
 	},
 	"Label": {
 		"Agree": "Agree",
@@ -34,17 +34,17 @@
 		"AllGenres": "All Genres",
 		"AllDay": "All Days",
 		"Tel": "Tel",
-		"PleaseEnterWatcherName": "Label.PleaseEnterWatcherName",
-		"Day": "Label.Day",
-		"StartTime": "Label.StartTime",
-		"Words": "Label.Words",
-		"UpdateUser": "Label.UpdateUser",
-		"WatcherName": "Label.WatcherName",
-		"Cancel": "Label.Cancel",
-		"Print": "Label.Print",
-		"CompleteCancelReservations": "Label.CompleteCancelReservations",
-		"AvailableTicketsCountLeft": "Label.AvailableTicketsCountLeft",
-		"Actions": "Label.Actions"
+		"PleaseEnterWatcherName": "Please enter a watcher's name.",
+		"Day": "Day",
+		"StartTime": "Start Time",
+		"Words": "Words",
+		"UpdateUser": "Updater",
+		"WatcherName": "Watcher's Name",
+		"Cancel": "Cancel",
+		"Print": "Print",
+		"CompleteCancelReservations": "Canceled reservations.",
+		"AvailableTicketsCountLeft": "Available tickets count left",
+		"Actions": "Actions"
 	},
 	"Button": {
 		"Send": "Send",
@@ -56,15 +56,15 @@
 		"Search": "Search",
 		"Print": "Print",
 		"SendMail": "Send Email",
-		"BackToMyPage": "Button.BackToMyPage",
-		"TicketReservation": "Button.TicketReservation",
-		"Apply": "Button.Apply",
-		"Update": "Button.Update",
-		"Cancel": "Button.Cancel",
-		"No": "Button.No",
-		"Yes": "Button.Yes",
-		"Close": "Button.Close",
-		"Login": "Button.Login"
+		"BackToMyPage": "Back to MyPage",
+		"TicketReservation": "Ticket Reservation",
+		"Apply": "Apply",
+		"Update": "Update",
+		"Cancel": "Cancel",
+		"No": "No",
+		"Yes": "Yes",
+		"Close": "Close",
+		"Login": "Login"
 	},
 	"Form": {
 		"FieldName": {
@@ -87,7 +87,11 @@
 		"match{{fieldName}}": "{{fieldName}} not matched.",
 		"RequiredAgree": "Please check 'Agree'.",
 		"Searching": "Searching...",
-		"PleaseSelectSeat": "Message.PleaseSelectSeat"
+		"PleaseSelectSeat": "Please select seats.",
+		"Sending": "Sending...",
+		"Sent": "Sent.",
+		"FailedSending": "Failed sending.",
+		"Unsent": "Unsent."
 	},
 	"h3": {
 		"SeatChoices": "Seat Choices",

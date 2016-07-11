@@ -432,29 +432,8 @@ export default class ReserveBaseController extends BaseController {
             } else {
             }
 
-            this.logger.info('to:', to);
             if (to) {
-                let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
-                let html = `
-<html>
-    <body>
-        <h1>[TIFF][${process.env.NODE_ENV}] 予約完了</h1>
-        <p>予約内容は以下の通りです。</p>
-        <p>
-        ${util.inspect(reservationModel.reservedDocuments, { showHidden: true, depth: null })}
-        </p>
-    </body>
-</html>
-`;
-                let email = new _sendgrid.Email({
-                    to: to,
-                    from: 'noreply@devtiffwebapp.azurewebsites.net',
-                    subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
-                    html: html
-                });
-                this.logger.info('sending an email...email:', email);
-                _sendgrid.send(email, (err, json) => {
-                    this.logger.info('an email sent.', err, json);
+                this.sendCompleteEmail(to, reservationModel.reservedDocuments, (err, json) => {
                     if (err) {
                         // TODO log
                     }
@@ -518,5 +497,41 @@ export default class ReserveBaseController extends BaseController {
 
             }
         });
+    }
+
+    /**
+     * 予約完了メールを送信する
+     */
+    protected sendCompleteEmail(to: string, reservationDocuments: Array<any>, cb: (err: Error, json: any) => void): void {
+        this.res.render('email/reserveComplete', {
+            layout: false,
+            reservationDocuments: reservationDocuments
+        }, (err, html) => {
+            console.log(err, html);
+            if (err) {
+                cb(err, null);
+
+            } else {
+                let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
+                let email = new _sendgrid.Email({
+                    to: to,
+                    from: 'noreply@devtiffwebapp.azurewebsites.net',
+                    subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
+                    html: html
+                });
+
+                this.logger.info('sending an email...email:', email);
+                _sendgrid.send(email, (err, json) => {
+                    this.logger.info('an email sent.', err, json);
+                    cb(err, json);
+
+                });
+
+            }
+
+        });
+
+
+
     }
 }
