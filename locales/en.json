@@ -74,9 +74,9 @@
 			"email": "Email",
 			"emailConfirm": "Email Confirm",
 			"emailConfirmDomain": "Email Confirm(Domain)",
-			"userId": "Form.FieldName.userId",
-			"password": "Form.FieldName.password",
-			"signature": "Form.FieldName.signature"
+			"userId": "User Id",
+			"password": "Password",
+			"signature": "Signature"
 		}
 	},
 	"Message": {
