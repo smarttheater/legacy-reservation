@@ -12,6 +12,7 @@ import fs = require('fs-extra');
 import sendgrid = require('sendgrid')
 import conf = require('config')
 import util = require('util');
+import mongoose = require('mongoose');
 
 /**
  * 予約フローベースコントローラー
@@ -419,8 +420,6 @@ export default class ReserveBaseController extends BaseController {
         Promise.all(promises).then(() => {
             this.logger.info('fix all success.');
 
-            // TODO QR作成？
-
             // TODO メール送信？
             let to: string;
             if (reservationModel.staff) {
@@ -532,6 +531,31 @@ export default class ReserveBaseController extends BaseController {
         });
 
 
+
+    }
+
+    /**
+     * create barcode from reservation infos.
+     */
+    protected createBarcode(reservationId: string, cb: (err: string|Error, png: Buffer) => void): void {
+        let text = reservationId;
+
+        // creating barcode...
+        var bwipjs = require('bwip-js');
+        bwipjs.toBuffer({
+                bcid:        'code128',     // Barcode type
+                text:        text,          // Text to encode
+                scale:       3,             // 3x scaling factor
+                height:      10,            // Bar height, in millimeters
+                includetext: true,          // Show human-readable text
+                textxalign:  'center',      // Always good to set this
+                textfont:    'Inconsolata', // Use your custom font
+                textsize:    13             // Font size, in points
+            }, (err, png) => {
+                cb(err, png);
+
+            }
+        );
 
     }
 }

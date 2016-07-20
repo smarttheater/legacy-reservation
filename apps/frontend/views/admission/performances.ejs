@@ -1,0 +1,207 @@
+<h1><%- __('h1.SelectPerformance') %></h1>
+
+<div class="row">
+    <form class="form-inline">
+        <div class="form-group">
+            <label for=""></label>
+            <select class="form-control" name="sections">
+                <option value=""><%- __('Label.AllSections') %></option>
+                <% for (let section of FilmUtil.getSections()) { %>
+                <option value="<%- section.code %>"><%- section[__('DocumentField.name')] %></option>
+                <% } %>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for=""></label>
+            <select class="form-control" name="genre">
+                <option value=""><%- __('Label.AllGenres') %></option>
+                <% for (let genre of FilmUtil.getGenres()) { %>
+                <option value="<%- genre.code %>"><%- genre[__('DocumentField.name')] %></option>
+                <% } %>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for=""></label>
+            <select class="form-control" name="day">
+                <option value=""><%- __('Label.AllDay') %></option>
+                <option value="20161022">10/22</option>
+                <option value="20161023">10/23</option>
+                <option value="20161024">10/24</option>
+                <option value="20161025">10/25</option>
+                <option value="20161026">10/26</option>
+                <option value="20161027">10/27</option>
+                <option value="20161028">10/28</option>
+                <option value="20161029">10/29</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for=""></label>
+            <input type="text" class="form-control" name="words">
+        </div>
+
+        <a class="btn btn-primary search" href="javascript:void(0)"><%- __('Button.Search') %></a>
+    </form>
+</div>
+
+<div class="row performances">
+</div>
+
+
+
+<div class="modal fade loading" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="text-center"><%- __('Message.Searching') %></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+var performances = [];
+var conditions = {
+    page: '1'
+};
+
+
+function showPerformances() {
+    // 作品ごとに整形
+    var performancesByFilm = {};
+    performances.forEach(function(performanceDocument){
+        var filmId = performanceDocument.film._id;
+        if (!performancesByFilm.hasOwnProperty(filmId)) {
+            performancesByFilm[filmId] = [];
+        }
+
+        performancesByFilm[filmId].push(performanceDocument);
+    });
+
+
+
+
+    var html = '';
+
+    for (var filmId in performancesByFilm) {
+        var performancesOnFilm = performancesByFilm[filmId];
+
+        html += `
+        <h3>${performancesOnFilm[0].film['<%- __('DocumentField.name') %>']}</h3>
+        <div class="row">
+`;
+
+        performancesOnFilm.forEach(function(performance, index) {
+            if (index % 12 === 0) {
+                html += `
+            <div class="row">
+            </div>
+`;
+            }
+
+            html += `
+            <div class="col-sm-4">
+                <a href="/admission/performance/${performance._id}/confirm">
+                ${performance.day}<br>
+
+                ${performance.theater['<%- __('DocumentField.name') %>']} ${performance.screen['<%- __('DocumentField.name') %>']}<br>
+
+                ${performance.start_time}-${performance.end_time}<br>
+                ${performance.seat_status}
+                </a>
+            </div>
+`;
+
+        });
+
+            html += `
+        </div>
+`;
+    }
+
+
+    $('.performances').html(html);
+}
+
+
+
+
+function showConditions() {
+    var formDatas = $('form').serializeArray();
+    formDatas.forEach(function(formData, index){
+        var name = formData.name;
+        if (conditions.hasOwnProperty(name)) {
+            $(`input[name="${name}"], select[name="${name}"]`, $('form')).val(conditions[name]);
+        } else {
+            $(`input[name="${name}"], select[name="${name}"]`, $('form')).val('');
+        }
+    });
+}
+
+function search() {
+    $.ajax({
+        dataType: 'json',
+        url: '<%- url('performance.search', {}) %>',
+        type: 'GET',
+        data: conditions,
+        beforeSend: function() {
+            $('.loading').modal();
+        },
+        complete: function() {
+            $('.loading').modal('hide');
+        },
+        success: function(data) {
+            if (data.isSuccess) {
+                performances = data.results;
+
+                showPerformances();
+                showConditions();
+
+            } else {
+            }
+        },
+        error: function(jqxhr, textStatus, error) {
+        }
+    });
+}
+
+function selectPerformance(performaceId) {
+    $('input[name="performanceId"]').val(performaceId);
+    $('form').submit();
+    return false;
+}
+
+$(function(){
+    // パフォーマンスリスト表示
+    search();
+
+    // 検索
+    $(document).on('click', '.search', function(){
+        conditions.page = '1';
+
+        // 検索フォームの値を全て条件に追加
+        var formDatas = $('form').serializeArray();
+        formDatas.forEach(function(formData, index){
+            conditions[formData.name] = formData.value;
+        });
+
+        search();
+    });
+
+    // セレクト変更イベント
+    $(document).on('change', 'form select', function(){
+        conditions.page = '1';
+
+        // 検索フォームの値を全て条件に追加
+        var formDatas = $('form').serializeArray();
+        formDatas.forEach(function(formData, index){
+            conditions[formData.name] = formData.value;
+        });
+
+        search();
+    });})
+</script>
+

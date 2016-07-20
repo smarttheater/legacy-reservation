@@ -3,6 +3,7 @@ import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import ReservationModel from '../../models/Reserve/ReservationModel';
+import ReservationResultModel from '../../models/Reserve/ReservationResultModel';
 
 export default class ReserveController extends ReserveBaseController {
     /**
@@ -180,5 +181,47 @@ export default class ReserveController extends ReserveBaseController {
                 }
             }
         );
+    }
+
+    /**
+     * create barcode by reservation token and reservation id.
+     */
+    public barcode() {
+        let token = this.req.params.token;
+        let reservationId = this.req.params.reservationId;
+
+        // getting reservation document from redis by reservationId...
+        ReservationResultModel.find(token, (err, reservationResultModel) => {
+            if (err || reservationResultModel === null) {
+                return this.res.send('false');
+            }
+
+            let reservation;
+            for (let reservedDocument of reservationResultModel.reservedDocuments) {
+                if (reservedDocument._id == reservationId) {
+                    reservation = reservedDocument;
+                    break;
+                }
+            }
+
+            if (!reservation) {
+                return this.res.send('false'); 
+            }
+
+            this.createBarcode(reservation._id, (err, png) => {
+                if (err) {
+                    this.res.send('false');
+
+                } else {
+                    // `png` is a Buffer
+                    this.res.setHeader('Content-Type', 'image/png');
+                    this.res.send(png);
+
+                }
+
+            });
+
+        });
+
     }
 }

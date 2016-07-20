@@ -95,7 +95,7 @@ export default class ReservationResultModel {
         email: string;
     };
 
-    public reservedDocuments: Array<Object>;
+    public reservedDocuments: Array<any>;
 
     /**
      * プロセス中の購入情報をセッションに保存する

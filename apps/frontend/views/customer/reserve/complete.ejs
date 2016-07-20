@@ -30,7 +30,7 @@
                             <td><a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationResultModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a></td>
                             <td><a class="btn btn-default" href="javascript:void(0)"><%- __('Button.Print') %></a></td>
                             <td><a class="btn btn-default send-mail" href="javascript:void(0)" data-reservation-id="<%- reservation._id %>" data-url="<%- url('reserve.email') %>"><%- __('Button.SendMail') %></a></td>
-                            <td>QR</td>
+                            <td><img src="<%- url('reserve.barcode', {token: reservationResultModel.token, reservationId: reservation._id}) %>" width="200"></td>
                         </tr>
                         <% }) %>
 

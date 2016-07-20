@@ -472,4 +472,42 @@ export default class TaskController extends BaseController {
             });
         });
     }
+
+    public createBarcode() {
+        let text = (this.req.query.text) ? this.req.query.text : "please enter a text.\n";
+        var bwipjs = require('bwip-js');
+
+        // Optionally load some custom fonts.  Maximum 8.
+        // OpenType and TrueType are supported.
+        // bwipjs.loadFont('Inconsolata', 108,
+        //             require('fs').readFileSync('fonts/Inconsolata.otf', 'binary'));
+
+        bwipjs.toBuffer({
+                bcid:        'code128',       // Barcode type
+                text:        text,    // Text to encode
+                scale:       3,               // 3x scaling factor
+                height:      10,              // Bar height, in millimeters
+                includetext: true,            // Show human-readable text
+                textxalign:  'center',        // Always good to set this
+                textfont:    'Inconsolata',   // Use your custom font
+                textsize:    13               // Font size, in points
+            }, (err, png) => {
+                if (err) {
+                    throw err;
+                    // Decide how to handle the error
+                    // `err` may be a string or Error object
+                } else {
+                    // `png` is a Buffer
+                    // png.length           : PNG file length
+                    // png.readUInt32BE(16) : PNG image width
+                    // png.readUInt32BE(20) : PNG image height
+
+                    // this.res.setHeader('Content-Type', 'image/png');
+                    // this.res.send(png);
+
+                    this.res.send(`<img src="data:image/png;base64,${png.toString('base64')}">`);
+
+                }
+            });
+    }
 }

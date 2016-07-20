@@ -1,0 +1,175 @@
+<%
+let resevation = reservationsById[Object.keys(reservationsById)[0]];
+console.log(resevation);
+%>
+
+<h1><%- __('h1.AdmissionConfirm') %></h1>
+
+<div class="row">
+    <dl class="dl-horizontal">
+        <dt><%- __('Label.FilmName') %></dt>
+        <dd>
+            <%- resevation[`film_${__('DocumentField.name')}`] %>
+        </dd>
+
+        <dt><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></dt>
+        <dd>
+            <%- resevation.performance_day %> <%- resevation.performance_start_time %> ～ 
+            <%- resevation[`theater_${__('DocumentField.name')}`] %> 
+            <%- resevation[`screen_${__('DocumentField.name')}`] %>
+        </dd>
+    </dl>
+</div>
+
+<div class="row">
+    <form method="post">
+        <div class="form-group">
+            <label for="id_reservationId"></label>
+            <input type="text" name="reservationId" id="id_reservationId" class="form-control" value="">
+        </div>
+
+        <input class="btn btn-primary btn-lg btn-block confirm-reservation-id" type="submit" value="<%- __('Button.Send') %>">
+    </form>
+</div>
+
+<div class="row result">
+</div>
+
+<div class="row results">
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+var reservationsById = <%- JSON.stringify(reservationsById) %>;
+var reservationIds = Object.keys(reservationsById);
+
+var enteredReservationIds = [];
+var confirmingReservationIds = [];
+var confirmedReservationIds = [];
+
+$(function(){
+    $('form').submit(function(e){
+    // $(document).on('click', '.confirm-reservation-id', function(){
+        event.preventDefault();
+        var reservationId = $('input[name="reservationId"]').val();
+
+        var result = '';
+
+        // reservation exist. OK
+        if (reservationIds.indexOf(reservationId) >= 0) {
+            // already confirmed.
+            if (confirmedReservationIds.indexOf(reservationId) >= 0) {
+                result = '入場済み';
+            } else {
+                var _reservation = reservationsById[reservationId];
+                result = `
+    ${_reservation.ticket_name}OK
+        `;
+
+                // add to list for admission.
+                if (confirmingReservationIds.indexOf(reservationId) < 0) {
+                    enteredReservationIds.push(reservationId);
+                    confirmingReservationIds.push(reservationId);
+
+                    updateResults();
+                }
+
+            }
+
+            console.log('confirmingReservationIds:', confirmingReservationIds);
+
+
+        $('.result').html(`
+<div class="alert alert-success" role="alert">
+    <span class="glyphicon glyphicon glyphicon-ok" aria-hidden="true"></span>
+    <span class="sr-only">Error:</span>
+    ${result}
+</div>
+
+`);
+
+        // NG        
+        } else {
+            result = 'NG';
+
+        $('.result').html(`
+<div class="alert alert-danger" role="alert">
+    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+    <span class="sr-only">Error:</span>
+    NG
+</div>
+
+`);
+
+        }
+
+    });
+
+    /**
+    * add admission log.
+    */
+    function addAdmission() {
+        if (confirmingReservationIds.length < 1) {
+            setTimeout(function(){
+                addAdmission();
+            },2000);
+
+        } else {
+            var reservationId = confirmingReservationIds[0];
+            console.log('being admitted...reservationId', reservationId);
+            $.ajax({
+                dataType: 'json',
+                url: '<%- url('admission.add') %>',
+                type: 'POST',
+                data: {
+                    reservationId: reservationId
+                },
+                beforeSend: function() {
+                }
+            }).done(function(data) {
+                if (data.isSuccess) {
+                    console.log('admitted. reservationId', reservationId);
+                    confirmingReservationIds.splice(confirmingReservationIds.indexOf(reservationId), 1);
+                    confirmedReservationIds.push(reservationId);
+
+                }
+
+            }).fail(function(jqxhr, textStatus, error) {
+
+            }).always(function() {
+                updateResults();
+                addAdmission();
+
+            });
+
+        }
+
+    }
+
+    function updateResults() {
+        var html = ''
+
+        for (var i = enteredReservationIds.length - 1; i >= 0; i--) {
+            var _reservation = reservationsById[enteredReservationIds[i]];
+
+            html += `
+<tr>
+    <td>${_reservation._id}</td>
+    <td>${_reservation.ticket_name}</td>
+    <td>${(confirmedReservationIds.indexOf(_reservation._id) >= 0) ? '入場済み' : '入場中...'}</td>
+</tr>
+`;
+        }
+
+        $('.results tbody').html(html);
+    }
+
+    addAdmission();
+});
+</script>

@@ -1,6 +1,7 @@
 import NamedRoutes = require('named-routes');
 import express = require('express');
 
+import AdmissionController from '../controllers/Admission/AdmissionController';
 import PerformanceController from '../controllers/Performance/PerformanceController';
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
 import MemberReserveController from '../controllers/Member/Reserve/MemberReserveController';
@@ -54,6 +55,7 @@ export default (app: any) => {
 
     app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', (req, res, next) => {(new ReserveController(req, res, next)).getSeatProperties()});
     app.post('/reserve/email', 'reserve.email', (req, res, next) => {(new ReserveController(req, res, next)).email()});
+    app.get('/reserve/:token/:reservationId/barcode', 'reserve.barcode', (req, res, next) => {(new ReserveController(req, res, next)).barcode()});
 
     app.get('/screen/:id/show', 'screen.show', (req, res, next) => {(new ScreenController(req, res, next)).show()});
 
@@ -86,8 +88,15 @@ export default (app: any) => {
     app.get('/task/resetReservations', 'task.resetReservations', (req, res, next) => {(new TaskController(req, res, next)).resetReservations()});
     app.get('/task/updateReservations', 'task.updateReservations', (req, res, next) => {(new TaskController(req, res, next)).updateReservations()});
     app.get('/task/calculatePerformanceStatuses', 'task.calculatePerformanceStatuses', (req, res, next) => {(new TaskController(req, res, next)).calculatePerformanceStatuses()});
+    app.get('/task/createBarcode', 'task.createBarcode', (req, res, next) => {(new TaskController(req, res, next)).createBarcode()});
 
 
+
+    // admission
+    app.get('/admission/performances', 'admission.performances', (req, res, next) => {(new AdmissionController(req, res, next)).performances()});
+    app.get('/admission/performance/:id/confirm', 'admission.confirm', (req, res, next) => {(new AdmissionController(req, res, next)).confirm()});
+    app.post('/admission/add', 'admission.add', (req, res, next) => {(new AdmissionController(req, res, next)).add()});
+    
 
 
 
