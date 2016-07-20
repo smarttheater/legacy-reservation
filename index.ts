@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 /// <reference path='./typings/index.d.ts' />
-/// <reference path='./definitions/main.d.ts' />
 
 /**
  * Module dependencies.

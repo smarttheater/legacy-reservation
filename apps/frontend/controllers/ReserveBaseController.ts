@@ -546,10 +546,10 @@ export default class ReserveBaseController extends BaseController {
                 bcid:        'code128',     // Barcode type
                 text:        text,          // Text to encode
                 scale:       3,             // 3x scaling factor
-                height:      10,            // Bar height, in millimeters
+                height:      40,            // Bar height, in millimeters
                 includetext: true,          // Show human-readable text
                 textxalign:  'center',      // Always good to set this
-                textfont:    'Inconsolata', // Use your custom font
+                // textfont:    'Inconsolata', // Use your custom font
                 textsize:    13             // Font size, in points
             }, (err, png) => {
                 cb(err, png);

@@ -1,6 +1,6 @@
 {
   "name": "tiff_src_prototype",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "node ./index.js"
@@ -28,7 +28,7 @@
     "log4js": "^0.6.35",
     "moment": "^2.13.0",
     "mongo-express": "^0.30.59",
-    "mongodb": "^2.1.19",
+    "mongodb": "^2.2.4",
     "mongoose": "^4.5.2",
     "multer": "^1.1.0",
     "named-routes": "^2.0.5",
@@ -43,11 +43,13 @@
   },
   "main": "index.js",
   "devDependencies": {},
-  "repository": {
-    "type": "git",
-    "url": "https://m-p.backlog.jp/git/TIFF/src_prototype.git"
+  "repository": {},
+  "keywords": [],
+  "author": "Tetsu Yamazaki <yamazaki@motionpicture.jp>",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=6.2.2",
+    "npm": ">=3.8.0"
   },
-  "author": "motionpicture",
-  "license": "ISC",
   "description": "This is a repogitory for TIFF online website."
 }
