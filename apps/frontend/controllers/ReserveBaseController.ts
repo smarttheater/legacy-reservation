@@ -530,32 +530,5 @@ export default class ReserveBaseController extends BaseController {
 
         });
 
-
-
-    }
-
-    /**
-     * create barcode from reservation infos.
-     */
-    protected createBarcode(reservationId: string, cb: (err: string|Error, png: Buffer) => void): void {
-        let text = reservationId;
-
-        // creating barcode...
-        var bwipjs = require('bwip-js');
-        bwipjs.toBuffer({
-                bcid:        'code128',     // Barcode type
-                text:        text,          // Text to encode
-                scale:       3,             // 3x scaling factor
-                height:      40,            // Bar height, in millimeters
-                includetext: true,          // Show human-readable text
-                textxalign:  'center',      // Always good to set this
-                // textfont:    'Inconsolata', // Use your custom font
-                textsize:    13             // Font size, in points
-            }, (err, png) => {
-                cb(err, png);
-
-            }
-        );
-
     }
 }

@@ -208,7 +208,7 @@ export default class ReserveController extends ReserveBaseController {
                 return this.res.send('false'); 
             }
 
-            this.createBarcode(reservation._id, (err, png) => {
+            ReservationUtil.createBarcode(reservation._id, (err, png) => {
                 if (err) {
                     this.res.send('false');
 
@@ -220,6 +220,39 @@ export default class ReserveController extends ReserveBaseController {
                 }
 
             });
+
+        });
+
+    }
+
+    /**
+     * create qrcode by reservation token and reservation id.
+     */
+    public qrcode() {
+        let token = this.req.params.token;
+        let reservationId = this.req.params.reservationId;
+
+        // getting reservation document from redis by reservationId...
+        ReservationResultModel.find(token, (err, reservationResultModel) => {
+            if (err || reservationResultModel === null) {
+                return this.res.send('false');
+            }
+
+            let reservation;
+            for (let reservedDocument of reservationResultModel.reservedDocuments) {
+                if (reservedDocument._id == reservationId) {
+                    reservation = reservedDocument;
+                    break;
+                }
+            }
+
+            if (!reservation) {
+                return this.res.send('false'); 
+            }
+
+            let png = ReservationUtil.createQRCode(reservation._id);
+            this.res.setHeader('Content-Type', 'image/png');
+            png.pipe(this.res);
 
         });
 

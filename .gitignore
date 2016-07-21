@@ -1,11 +1,8 @@
+iisnode.yml
 Web.config
 logs/*
 node_modules/*
 typings/*
 
-*.js
-apps/**/*.js
-
-!public/**/*.js
 !.gitignore
 !.gitkeep

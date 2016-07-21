@@ -9,6 +9,7 @@
   },
   "globalDependencies": {
     "body-parser": "registry:dt/body-parser#0.0.0+20160619023215",
+    "bwip-js": "file:./definitions/bwip-js.d.ts",
     "commander": "registry:dt/commander#2.3.0+20160317120654",
     "config": "registry:dt/config#0.0.0+20160317120654",
     "connect-redis": "registry:dt/connect-redis#0.0.0+20160305170114",
@@ -30,6 +31,7 @@
     "multer": "registry:dt/multer#0.0.0+20160317120654",
     "named-routes": "file:./definitions/named-routes.d.ts",
     "node": "registry:dt/node#6.0.0+20160621231320",
+    "qr-image": "file:./definitions/qr-image.d.ts",
     "sendgrid": "registry:dt/sendgrid#1.1.0+20160521152616",
     "serve-favicon": "registry:dt/serve-favicon#0.0.0+20160316155526",
     "serve-static": "registry:dt/serve-static#0.0.0+20160606155157",

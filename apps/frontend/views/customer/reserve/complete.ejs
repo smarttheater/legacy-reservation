@@ -31,6 +31,7 @@
                             <td><a class="btn btn-default" href="javascript:void(0)"><%- __('Button.Print') %></a></td>
                             <td><a class="btn btn-default send-mail" href="javascript:void(0)" data-reservation-id="<%- reservation._id %>" data-url="<%- url('reserve.email') %>"><%- __('Button.SendMail') %></a></td>
                             <td><img src="<%- url('reserve.barcode', {token: reservationResultModel.token, reservationId: reservation._id}) %>" width="200"></td>
+                            <td><img src="<%- url('reserve.qrcode', {token: reservationResultModel.token, reservationId: reservation._id}) %>"></td>
                         </tr>
                         <% }) %>
 

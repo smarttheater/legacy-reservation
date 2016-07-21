@@ -6,6 +6,7 @@ import moment = require('moment');
 import conf = require('config');
 import mongodb = require('mongodb');
 import PerformanceStatusesModel from '../../models/PerformanceStatusesModel';
+import qr = require('qr-image');
 
 export default class TaskController extends BaseController {
     public removeTemporaryReservation(): void {
@@ -475,6 +476,17 @@ export default class TaskController extends BaseController {
 
     public createBarcode() {
         let text = (this.req.query.text) ? this.req.query.text : "please enter a text.\n";
+
+
+        // var img = qr.imageSync(text);
+        var img = qr.image(text);
+
+        this.res.setHeader('Content-Type', 'image/png');
+        img.pipe(this.res);
+        // this.res.send(img);
+
+
+/*
         var bwipjs = require('bwip-js');
 
         // Optionally load some custom fonts.  Maximum 8.
@@ -509,5 +521,6 @@ export default class TaskController extends BaseController {
 
                 }
             });
+*/
     }
 }
