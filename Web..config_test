@@ -26,10 +26,10 @@
         <httpErrors existingResponse="PassThrough" />
 
 
-        <security>
-            <ipSecurity allowUnlisted="false" denyAction="Forbidden">
-                <add allowed="true" ipAddress="124.155.113.9" />
-            </ipSecurity>
-        </security>
+        <iisnode
+          node_env="test"
+          nodeProcessCountPerApplication="1"
+          watchedFiles="*.js"
+         />
     </system.webServer>
 </configuration>

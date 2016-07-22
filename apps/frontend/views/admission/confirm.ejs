@@ -1,6 +1,5 @@
 <%
 let resevation = reservationsById[Object.keys(reservationsById)[0]];
-console.log(resevation);
 %>
 
 <h1><%- __('h1.AdmissionConfirm') %></h1>
@@ -22,14 +21,21 @@ console.log(resevation);
 </div>
 
 <div class="row">
-    <form method="post">
+    <p class="text-primary text-center"><%- __('Message.PleaseReadBarcode') %></p>
+    <form method="post" style="opacity: 0; height: 0;">
         <div class="form-group">
             <label for="id_reservationId"></label>
             <input type="text" name="reservationId" id="id_reservationId" class="form-control" value="">
         </div>
 
-        <input class="btn btn-primary btn-lg btn-block confirm-reservation-id" type="submit" value="<%- __('Button.Send') %>">
     </form>
+
+    <audio class="audio-yes invisible">
+        <source src="/audio/yes01.mp3" type="audio/mpeg">
+    </audio>
+    <audio class="audio-no invisible">
+        <source src="/audio/no01.mp3" type="audio/mpeg">
+    </audio>
 </div>
 
 <div class="row result">
@@ -55,14 +61,20 @@ var confirmedReservationIds = [];
 
 $(function(){
     $('form').submit(function(e){
-    // $(document).on('click', '.confirm-reservation-id', function(){
         event.preventDefault();
         var reservationId = $('input[name="reservationId"]').val();
+        $('input[name="reservationId"]').val('');
+
+        if (!reservationId) {
+            return false;
+        }
 
         var result = '';
 
         // reservation exist. OK
         if (reservationIds.indexOf(reservationId) >= 0) {
+            $('.audio-yes').get(0).play();
+
             // already confirmed.
             if (confirmedReservationIds.indexOf(reservationId) >= 0) {
                 result = '入場済み';
@@ -96,6 +108,8 @@ $(function(){
 
         // NG        
         } else {
+            $('.audio-no').get(0).play();
+
             result = 'NG';
 
         $('.result').html(`
@@ -171,5 +185,11 @@ $(function(){
     }
 
     addAdmission();
+
+    // always force to forcus on text box.
+    $('input[name="reservationId"]').focus();
+    $('input[name="reservationId"]').focusout(function(e){
+        $('input[name="reservationId"]').focus();
+    });
 });
 </script>
