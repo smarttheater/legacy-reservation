@@ -21,23 +21,7 @@ let resevation = reservationsById[Object.keys(reservationsById)[0]];
 </div>
 
 <div class="row">
-    <p class="text-primary text-center"><%- __('Message.PleaseReadBarcode') %></p>
-    <form method="post" style="">
-        <div class="form-group">
-            <label for="id_reservationId"></label>
-            <input type="text" name="reservationId" id="id_reservationId" class="form-control" value="">
-        </div>
-
-    </form>
-
-<!--
-    <audio class="audio-yes" controls>
-        <source src="/audio/yes01.mp3" type="audio/mpeg">
-    </audio>
-    <audio class="audio-no" controls>
-        <source src="/audio/no01.mp3" type="audio/mpeg">
-    </audio>
--->
+    <p class="text-primary text-center process"><%- __('Message.PleaseReadBarcode') %></p>
 </div>
 
 <div class="row result">
@@ -62,10 +46,8 @@ var confirmingReservationIds = [];
 var confirmedReservationIds = [];
 
 $(function(){
-    $('form').submit(function(e){
-        event.preventDefault();
-        var reservationId = $('input[name="reservationId"]').val();
-        $('input[name="reservationId"]').val('');
+    function check(reservationId) {
+        console.log(reservationId);
 
         if (!reservationId) {
             return false;
@@ -131,7 +113,7 @@ $(function(){
 
         }
 
-    });
+    }
 
     /**
     * add admission log.
@@ -194,12 +176,31 @@ $(function(){
 
     addAdmission();
 
-    // always force to forcus on text box.
-    // $('input[name="reservationId"]').focusout(function(e){
-    //     $('input[name="reservationId"]').focus();
-    //     $('input[name="reservationId"]').click();
-    // });
-    $('#id_reservationId').focus();
-    $('#id_reservationId').click();
+
+
+
+    // handle events by barcode reader.
+    var chars = [];
+    $(window).keypress(function(e) {
+        if (chars.length === 0) {
+            $('.process').text('<%- __('Message.Searching') %>');
+            $('.result').html('');
+        }
+
+        // ASCIIとEnterのみ。なくても良いが。
+        if (e.charCode || e.keyCode === 13 ) {
+
+            if (e.keyCode === 13){
+                var reservationId = chars.join('');
+                chars = [];
+
+                $('.process').text('<%- __('Message.PleaseReadBarcode') %>');
+                check(reservationId);
+            } else {
+                chars.push(String.fromCharCode(e.charCode));
+            }
+        }
+
+    });
 });
 </script>
