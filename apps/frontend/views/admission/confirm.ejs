@@ -22,7 +22,7 @@ let resevation = reservationsById[Object.keys(reservationsById)[0]];
 
 <div class="row">
     <p class="text-primary text-center"><%- __('Message.PleaseReadBarcode') %></p>
-    <form method="post" style="opacity: 0; height: 0;">
+    <form method="post" style="">
         <div class="form-group">
             <label for="id_reservationId"></label>
             <input type="text" name="reservationId" id="id_reservationId" class="form-control" value="">
@@ -30,12 +30,14 @@ let resevation = reservationsById[Object.keys(reservationsById)[0]];
 
     </form>
 
-    <audio class="audio-yes invisible">
+<!--
+    <audio class="audio-yes" controls>
         <source src="/audio/yes01.mp3" type="audio/mpeg">
     </audio>
-    <audio class="audio-no invisible">
+    <audio class="audio-no" controls>
         <source src="/audio/no01.mp3" type="audio/mpeg">
     </audio>
+-->
 </div>
 
 <div class="row result">
@@ -73,7 +75,10 @@ $(function(){
 
         // reservation exist. OK
         if (reservationIds.indexOf(reservationId) >= 0) {
-            $('.audio-yes').get(0).play();
+            // $('.audio-yes').get(0).play();
+            var audio = new Audio('/audio/yes01.mp3');
+            audio.load();
+            audio.play();
 
             // already confirmed.
             if (confirmedReservationIds.indexOf(reservationId) >= 0) {
@@ -106,9 +111,12 @@ $(function(){
 
 `);
 
-        // NG        
+        // NG
         } else {
-            $('.audio-no').get(0).play();
+            // $('.audio-no').get(0).play();
+            var audio = new Audio('/audio/no01.mp3');
+            audio.load();
+            audio.play();
 
             result = 'NG';
 
@@ -187,9 +195,11 @@ $(function(){
     addAdmission();
 
     // always force to forcus on text box.
-    $('input[name="reservationId"]').focus();
-    $('input[name="reservationId"]').focusout(function(e){
-        $('input[name="reservationId"]').focus();
-    });
+    // $('input[name="reservationId"]').focusout(function(e){
+    //     $('input[name="reservationId"]').focus();
+    //     $('input[name="reservationId"]').click();
+    // });
+    $('#id_reservationId').focus();
+    $('#id_reservationId').click();
 });
 </script>
