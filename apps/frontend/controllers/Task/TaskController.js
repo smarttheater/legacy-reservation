@@ -11,7 +11,7 @@ var PerformanceUtil_1 = require('../../../common/models/Performance/PerformanceU
 var moment = require('moment');
 var conf = require('config');
 var mongodb = require('mongodb');
-var PerformanceStatusesModel_1 = require('../../models/PerformanceStatusesModel');
+var PerformanceStatusesModel_1 = require('../../../common/models/PerformanceStatusesModel');
 var qr = require('qr-image');
 var TaskController = (function (_super) {
     __extends(TaskController, _super);

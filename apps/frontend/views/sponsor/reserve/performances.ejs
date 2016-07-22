@@ -150,7 +150,7 @@ function showConditions() {
 function search() {
     $.ajax({
         dataType: 'json',
-        url: '<%- url('performance.search', {}) %>',
+        url: '/api/<%- req.getLocale() %>/performance/search',
         type: 'GET',
         data: conditions,
         beforeSend: function() {

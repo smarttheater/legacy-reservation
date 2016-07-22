@@ -37,10 +37,10 @@ export default class ReservationUtil {
     /**
      * create QR code from reservation infos.
      */
-    public static createQRCode(reservationId: string) {
+    public static createQRCode(reservationId: string): Buffer {
         let text = reservationId;
 
-        return qr.image(text, {
+        return qr.imageSync(text, {
             type: 'png'
         });
     }

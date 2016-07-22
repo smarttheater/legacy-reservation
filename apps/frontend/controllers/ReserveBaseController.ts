@@ -506,17 +506,28 @@ export default class ReserveBaseController extends BaseController {
             layout: false,
             reservationDocuments: reservationDocuments
         }, (err, html) => {
-            console.log(err, html);
             if (err) {
                 cb(err, null);
 
             } else {
+                let files = [];
+                for (let reservationDocument of reservationDocuments) {
+                    files.push({
+                        filename: `QR_${reservationDocument._id.toString()}.png`,
+                        contentType: 'image/png',
+                        cid: `qrcode_${reservationDocument._id.toString()}`,
+                        content: ReservationUtil.createQRCode(reservationDocument._id.toString())
+                    });
+                }
+                this.logger.info('email files:', files);
+
                 let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
                 let email = new _sendgrid.Email({
                     to: to,
                     from: 'noreply@devtiffwebapp.azurewebsites.net',
                     subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
-                    html: html
+                    html: html,
+                    files: files
                 });
 
                 this.logger.info('sending an email...email:', email);

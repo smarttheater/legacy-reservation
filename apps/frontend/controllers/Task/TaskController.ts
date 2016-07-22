@@ -5,7 +5,7 @@ import PerformanceUtil from '../../../common/models/Performance/PerformanceUtil'
 import moment = require('moment');
 import conf = require('config');
 import mongodb = require('mongodb');
-import PerformanceStatusesModel from '../../models/PerformanceStatusesModel';
+import PerformanceStatusesModel from '../../../common/models/PerformanceStatusesModel';
 import qr = require('qr-image');
 
 export default class TaskController extends BaseController {

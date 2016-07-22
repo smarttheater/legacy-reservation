@@ -407,17 +407,28 @@ var ReserveBaseController = (function (_super) {
             layout: false,
             reservationDocuments: reservationDocuments
         }, function (err, html) {
-            console.log(err, html);
             if (err) {
                 cb(err, null);
             }
             else {
+                var files = [];
+                for (var _i = 0, reservationDocuments_1 = reservationDocuments; _i < reservationDocuments_1.length; _i++) {
+                    var reservationDocument = reservationDocuments_1[_i];
+                    files.push({
+                        filename: "QR_" + reservationDocument._id.toString() + ".png",
+                        contentType: 'image/png',
+                        cid: "qrcode_" + reservationDocument._id.toString(),
+                        content: ReservationUtil_1.default.createQRCode(reservationDocument._id.toString())
+                    });
+                }
+                _this.logger.info('email files:', files);
                 var _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
                 var email = new _sendgrid.Email({
                     to: to,
                     from: 'noreply@devtiffwebapp.azurewebsites.net',
                     subject: "[TIFF][" + process.env.NODE_ENV + "] \u4E88\u7D04\u5B8C\u4E86",
-                    html: html
+                    html: html,
+                    files: files
                 });
                 _this.logger.info('sending an email...email:', email);
                 _sendgrid.send(email, function (err, json) {

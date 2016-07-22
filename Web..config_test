@@ -25,5 +25,11 @@
         <!-- Make sure error responses are left untouched -->
         <httpErrors existingResponse="PassThrough" />
 
+
+        <security>
+            <ipSecurity allowUnlisted="false" denyAction="Forbidden">
+                <add allowed="true" ipAddress="124.155.113.9" />
+            </ipSecurity>
+        </security>
     </system.webServer>
 </configuration>

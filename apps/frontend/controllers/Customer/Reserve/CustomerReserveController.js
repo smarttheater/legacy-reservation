@@ -298,7 +298,7 @@ var CustomerReserveController = (function (_super) {
                 return _this.next(new Error('予約プロセスが中断されました'));
             }
             _this.res.render('customer/reserve/complete', {
-                reservationResultModel: reservationResultModel,
+                reservationResultModel: reservationResultModel
             });
         });
     };

@@ -5,18 +5,6 @@
 <title></title>
 <meta name="viewport" content="width=device-width,user-scalable=no,maximum-scale=1" />
 
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-<link href="/css/theme.css" rel="stylesheet">
-
-<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-
-<script src="/js/common.js"></script>
-
 </head>
 
 <body>
@@ -25,32 +13,48 @@
 
     <h1>[TIFF][<%- process.env.NODE_ENV %>] <%- __('h1.CompleteReservation') %></h1>
 
-    <dl class="dl-horizontal">
-        <dt><%- __('Label.FilmName') %></dt>
-        <dd>
-            <%- reservationDocuments[0][`film_${__('DocumentField.name')}`] %>
-        </dd>
+    <table>
+        <tbody>
+            <tr>
+                <th><%- __('Label.FilmName') %></th>
+                <td><%- reservationDocuments[0][`film_${__('DocumentField.name')}`] %><td>
+            </tr>
 
-        <dt><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></dt>
-        <dd>
-            <%- reservationDocuments[0].performance_day %> <%- reservationDocuments[0].performance_start_time %> ～ 
-            <%- reservationDocuments[0][`theater_${__('DocumentField.name')}`] %> 
-            <%- reservationDocuments[0][`screen${__('DocumentField.name')}`] %>
-        </dd>
+            <tr>
+                <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
+                <td>
+                    <%- reservationDocuments[0].performance_day %> <%- reservationDocuments[0].performance_start_time %> ～ 
+                    <%- reservationDocuments[0][`theater_${__('DocumentField.name')}`] %> 
+                    <%- reservationDocuments[0][`screen${__('DocumentField.name')}`] %>
+                <td>
+            </tr>
 
-        <dt><%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %></dt>
-        <dd>
-            <div class="row">
-            <% reservationDocuments.forEach((reservationDocument, index) => { %>
-                <%- reservationDocument.seat_code %>、
-                <%- reservationDocument[`ticket_${__('DocumentField.name')}`] %>、
-                <%- __('{{price}} yen', {price: reservationDocument.ticket_price}) %><br>
-            <% }) %>
-            </div>
+            <tr>
+                <th><%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %>/QR</th>
+                <td>
+                    <% reservationDocuments.forEach((reservationDocument, index) => { %>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <%- reservationDocument.seat_code %>、
+                                        <%- reservationDocument[`ticket_${__('DocumentField.name')}`] %>、
+                                        <%- __('{{price}} yen', {price: reservationDocument.ticket_price}) %><br>
+                                    </td>
 
-        </dd>
+                                    <td>
+                                        <img src="cid:qrcode_<%- reservationDocument._id %>">
+                                    </td>
 
-    </dl>
+                                </tr>
+                            </tbody>
+                        </table>
+                    <% }) %>
+                <td>
+            </tr>
+
+        </tbody>
+    </table>
 
 </div>
 

@@ -335,7 +335,7 @@ export default class CustomerReserveController extends ReserveBaseController {
             }
 
             this.res.render('customer/reserve/complete', {
-                reservationResultModel: reservationResultModel,
+                reservationResultModel: reservationResultModel
             });
         });
     }

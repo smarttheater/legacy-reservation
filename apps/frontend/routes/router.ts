@@ -2,7 +2,6 @@ import NamedRoutes = require('named-routes');
 import express = require('express');
 
 import AdmissionController from '../controllers/Admission/AdmissionController';
-import PerformanceController from '../controllers/Performance/PerformanceController';
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
 import MemberReserveController from '../controllers/Member/Reserve/MemberReserveController';
 import GMOReserveController from  '../controllers/GMO/Reserve/GMOReserveController';
@@ -50,11 +49,7 @@ export default (app: any) => {
     // 言語
     app.get('/language/update/:locale', 'language.update', (req, res, next) => {(new LanguageController(req, res, next)).update()});
 
-    // パフォーマンス検索
-    app.get('/performance/search', 'performance.search', (req, res, next) => {(new PerformanceController(req, res, next)).search()});
-
     app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', (req, res, next) => {(new ReserveController(req, res, next)).getSeatProperties()});
-    app.post('/reserve/email', 'reserve.email', (req, res, next) => {(new ReserveController(req, res, next)).email()});
     app.get('/reserve/:token/:reservationId/barcode', 'reserve.barcode', (req, res, next) => {(new ReserveController(req, res, next)).barcode()});
     app.get('/reserve/:token/:reservationId/qrcode', 'reserve.qrcode', (req, res, next) => {(new ReserveController(req, res, next)).qrcode()});
 

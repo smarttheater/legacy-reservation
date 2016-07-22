@@ -106,57 +106,6 @@ var ReserveController = (function (_super) {
         });
     };
     /**
-     * 予約情報メールを送信する
-     */
-    ReserveController.prototype.email = function () {
-        var _this = this;
-        var id = this.req.body.id;
-        Models_1.default.Reservation.findOne({
-            _id: id,
-            status: ReservationUtil_1.default.STATUS_RESERVED
-        }, function (err, reservationDocument) {
-            if (err || reservationDocument === null) {
-                _this.res.json({
-                    isSuccess: false
-                });
-            }
-            else {
-                var to = void 0;
-                if (reservationDocument.get('staff_email')) {
-                    to = reservationDocument.get('staff_email');
-                }
-                else if (reservationDocument.get('sponsor_email')) {
-                    to = reservationDocument.get('sponsor_email');
-                }
-                else if (reservationDocument.get('purchaser_email')) {
-                    to = reservationDocument.get('purchaser_email');
-                }
-                else {
-                }
-                if (to) {
-                    _this.sendCompleteEmail(to, [reservationDocument], function (err, json) {
-                        if (err) {
-                            // TODO log
-                            _this.res.json({
-                                isSuccess: false
-                            });
-                        }
-                        else {
-                            _this.res.json({
-                                isSuccess: true
-                            });
-                        }
-                    });
-                }
-                else {
-                    _this.res.json({
-                        isSuccess: false
-                    });
-                }
-            }
-        });
-    };
-    /**
      * create barcode by reservation token and reservation id.
      */
     ReserveController.prototype.barcode = function () {
@@ -216,7 +165,7 @@ var ReserveController = (function (_super) {
             }
             var png = ReservationUtil_1.default.createQRCode(reservation._id);
             _this.res.setHeader('Content-Type', 'image/png');
-            png.pipe(_this.res);
+            _this.res.send(png);
         });
     };
     return ReserveController;

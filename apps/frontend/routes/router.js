@@ -1,7 +1,6 @@
 "use strict";
 var NamedRoutes = require('named-routes');
 var AdmissionController_1 = require('../controllers/Admission/AdmissionController');
-var PerformanceController_1 = require('../controllers/Performance/PerformanceController');
 var CustomerReserveController_1 = require('../controllers/Customer/Reserve/CustomerReserveController');
 var MemberReserveController_1 = require('../controllers/Member/Reserve/MemberReserveController');
 var GMOReserveController_1 = require('../controllers/GMO/Reserve/GMOReserveController');
@@ -30,10 +29,7 @@ exports.default = function (app) {
     app.get('/', 'Home', function (req, res, next) { (new IndexController_1.default(req, res, next)).index(); });
     // 言語
     app.get('/language/update/:locale', 'language.update', function (req, res, next) { (new LanguageController_1.default(req, res, next)).update(); });
-    // パフォーマンス検索
-    app.get('/performance/search', 'performance.search', function (req, res, next) { (new PerformanceController_1.default(req, res, next)).search(); });
     app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', function (req, res, next) { (new ReserveController_1.default(req, res, next)).getSeatProperties(); });
-    app.post('/reserve/email', 'reserve.email', function (req, res, next) { (new ReserveController_1.default(req, res, next)).email(); });
     app.get('/reserve/:token/:reservationId/barcode', 'reserve.barcode', function (req, res, next) { (new ReserveController_1.default(req, res, next)).barcode(); });
     app.get('/reserve/:token/:reservationId/qrcode', 'reserve.qrcode', function (req, res, next) { (new ReserveController_1.default(req, res, next)).qrcode(); });
     app.get('/screen/:id/show', 'screen.show', function (req, res, next) { (new ScreenController_1.default(req, res, next)).show(); });

@@ -2,8 +2,7 @@ import BaseController from '../BaseController';
 import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
-import ReservationModel from '../../models/Reserve/ReservationModel';
-import PerformanceStatusesModel from '../../models/PerformanceStatusesModel';
+import PerformanceStatusesModel from '../../../common/models/PerformanceStatusesModel';
 import moment = require('moment');
 
 export default class PerformanceController extends BaseController {
@@ -48,19 +47,26 @@ export default class PerformanceController extends BaseController {
                 conditions,
                 (err, count) => {
 
-                    Models.Performance.find(
+                    let query = Models.Performance.find(
                         conditions,
                         'day start_time end_time film screen theater', // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                         {
                             sort : {film: 1, day: 1, start_time: 1},
                         }
-                    )
-                    .skip(limit * (page - 1))
-                    .limit(limit)
-                    .populate('film', 'name name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
-                    .populate('screen', 'name name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
-                    .populate('theater', 'name name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
-                    .exec((err, performanceDocuments) => {
+                    ).skip(limit * (page - 1))
+                    .limit(limit);
+
+                    if (this.req.getLocale() === 'ja') {
+                        query.populate('film', 'name') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                             .populate('screen', 'name') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                          　 .populate('theater', 'name') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                    } else {
+                        query.populate('film', 'name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                             .populate('screen', 'name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                             .populate('theater', 'name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                    }
+
+                    query.exec((err, performanceDocuments) => {
                         this.logger.debug('find performances processed.', err);
 
                         let results = [];

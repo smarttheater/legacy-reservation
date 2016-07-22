@@ -6,7 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var BaseController_1 = require('../BaseController');
 var Models_1 = require('../../../common/models/Models');
-var PerformanceStatusesModel_1 = require('../../models/PerformanceStatusesModel');
+var PerformanceStatusesModel_1 = require('../../../common/models/PerformanceStatusesModel');
 var moment = require('moment');
 var PerformanceController = (function (_super) {
     __extends(PerformanceController, _super);
@@ -45,16 +45,22 @@ var PerformanceController = (function (_super) {
             _this.logger.debug('conditions:', conditions);
             // 総数検索
             Models_1.default.Performance.count(conditions, function (err, count) {
-                Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater', // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                var query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater', // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                 {
                     sort: { film: 1, day: 1, start_time: 1 },
-                })
-                    .skip(limit * (page - 1))
-                    .limit(limit)
-                    .populate('film', 'name name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
-                    .populate('screen', 'name name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
-                    .populate('theater', 'name name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
-                    .exec(function (err, performanceDocuments) {
+                }).skip(limit * (page - 1))
+                    .limit(limit);
+                if (_this.req.getLocale() === 'ja') {
+                    query.populate('film', 'name') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                        .populate('screen', 'name') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                        .populate('theater', 'name'); // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                }
+                else {
+                    query.populate('film', 'name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                        .populate('screen', 'name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                        .populate('theater', 'name_en'); // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                }
+                query.exec(function (err, performanceDocuments) {
                     _this.logger.debug('find performances processed.', err);
                     var results = [];
                     // 空席情報を追加

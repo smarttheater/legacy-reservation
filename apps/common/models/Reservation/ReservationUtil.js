@@ -28,7 +28,7 @@ var ReservationUtil = (function () {
      */
     ReservationUtil.createQRCode = function (reservationId) {
         var text = reservationId;
-        return qr.image(text, {
+        return qr.imageSync(text, {
             type: 'png'
         });
     };
