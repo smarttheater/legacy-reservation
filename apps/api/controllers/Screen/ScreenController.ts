@@ -1,5 +1,4 @@
 import BaseController from '../BaseController';
-import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 
 export default class ScreenController extends BaseController {

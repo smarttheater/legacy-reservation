@@ -1,8 +1,10 @@
 import NamedRoutes = require('named-routes');
 import express = require('express');
 
+import AdmissionController from '../controllers/Admission/AdmissionController';
 import PerformanceController from '../controllers/Performance/PerformanceController';
 import ReservationController from '../controllers/Reservation/ReservationController';
+import ScreenController from '../controllers/Screen/ScreenController';
 
 
 /**
@@ -29,8 +31,11 @@ export default (app: any) => {
     // reservation email
     app.post('/api/:locale/reservation/email', 'reservation.email', (req, res, next) => {(new ReservationController(req, res, next)).email()});
 
+    // show screen html
+    app.get('/api/screen/:id/show', 'screen.show', (req, res, next) => {(new ScreenController(req, res, next)).show()});
 
-
+    // create new admission
+    app.post('/api/admission/create', 'admission.add', (req, res, next) => {(new AdmissionController(req, res, next)).create()});
 
 
     // 404

@@ -35,12 +35,6 @@ var AdmissionController = (function (_super) {
             });
         });
     };
-    AdmissionController.prototype.add = function () {
-        var reservationId = this.req.body.reservationId;
-        this.res.json({
-            isSuccess: true
-        });
-    };
     return AdmissionController;
 }(BaseController_1.default));
 Object.defineProperty(exports, "__esModule", { value: true });

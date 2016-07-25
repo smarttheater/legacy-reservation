@@ -6,7 +6,6 @@ import CustomerReserveController from '../controllers/Customer/Reserve/CustomerR
 import MemberReserveController from '../controllers/Member/Reserve/MemberReserveController';
 import GMOReserveController from  '../controllers/GMO/Reserve/GMOReserveController';
 import ReserveController from '../controllers/Reserve/ReserveController';
-import ScreenController from '../controllers/Screen/ScreenController';
 import LanguageController from '../controllers/Language/LanguageController';
 
 import StaffAuthController from '../controllers/Staff/Auth/StaffAuthController';
@@ -53,8 +52,6 @@ export default (app: any) => {
     app.get('/reserve/:token/:reservationId/barcode', 'reserve.barcode', (req, res, next) => {(new ReserveController(req, res, next)).barcode()});
     app.get('/reserve/:token/:reservationId/qrcode', 'reserve.qrcode', (req, res, next) => {(new ReserveController(req, res, next)).qrcode()});
 
-    app.get('/screen/:id/show', 'screen.show', (req, res, next) => {(new ScreenController(req, res, next)).show()});
-
 
     // GMOプロセス
     app.get('/GMO/reserve/:token/start', 'gmo.reserve.start', (req, res, next) => {(new GMOReserveController(req, res, next)).start()});
@@ -91,7 +88,6 @@ export default (app: any) => {
     // admission
     app.get('/admission/performances', 'admission.performances', (req, res, next) => {(new AdmissionController(req, res, next)).performances()});
     app.get('/admission/performance/:id/confirm', 'admission.confirm', (req, res, next) => {(new AdmissionController(req, res, next)).confirm()});
-    app.post('/admission/add', 'admission.add', (req, res, next) => {(new AdmissionController(req, res, next)).add()});
     
 
 

@@ -5,7 +5,6 @@ var CustomerReserveController_1 = require('../controllers/Customer/Reserve/Custo
 var MemberReserveController_1 = require('../controllers/Member/Reserve/MemberReserveController');
 var GMOReserveController_1 = require('../controllers/GMO/Reserve/GMOReserveController');
 var ReserveController_1 = require('../controllers/Reserve/ReserveController');
-var ScreenController_1 = require('../controllers/Screen/ScreenController');
 var LanguageController_1 = require('../controllers/Language/LanguageController');
 var StaffAuthController_1 = require('../controllers/Staff/Auth/StaffAuthController');
 var StaffCancelController_1 = require('../controllers/Staff/Cancel/StaffCancelController');
@@ -32,7 +31,6 @@ exports.default = function (app) {
     app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', function (req, res, next) { (new ReserveController_1.default(req, res, next)).getSeatProperties(); });
     app.get('/reserve/:token/:reservationId/barcode', 'reserve.barcode', function (req, res, next) { (new ReserveController_1.default(req, res, next)).barcode(); });
     app.get('/reserve/:token/:reservationId/qrcode', 'reserve.qrcode', function (req, res, next) { (new ReserveController_1.default(req, res, next)).qrcode(); });
-    app.get('/screen/:id/show', 'screen.show', function (req, res, next) { (new ScreenController_1.default(req, res, next)).show(); });
     // GMOプロセス
     app.get('/GMO/reserve/:token/start', 'gmo.reserve.start', function (req, res, next) { (new GMOReserveController_1.default(req, res, next)).start(); });
     app.post('/GMO/reserve/result', 'gmo.reserve.result', function (req, res, next) { (new GMOReserveController_1.default(req, res, next)).result(); });
@@ -59,7 +57,6 @@ exports.default = function (app) {
     // admission
     app.get('/admission/performances', 'admission.performances', function (req, res, next) { (new AdmissionController_1.default(req, res, next)).performances(); });
     app.get('/admission/performance/:id/confirm', 'admission.confirm', function (req, res, next) { (new AdmissionController_1.default(req, res, next)).confirm(); });
-    app.post('/admission/add', 'admission.add', function (req, res, next) { (new AdmissionController_1.default(req, res, next)).add(); });
     var authenticationMember = function (req, res, next) {
         var memberUser = MemberUser_1.default.getInstance();
         if (!memberUser.isAuthenticated()) {

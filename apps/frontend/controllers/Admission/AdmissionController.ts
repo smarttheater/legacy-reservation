@@ -35,12 +35,4 @@ export default class AdmissionController extends BaseController {
         });
 
     }
-
-    public add(): void {
-        let reservationId = this.req.body.reservationId;
-        this.res.json({
-            isSuccess: true
-        });
-
-    }
 }

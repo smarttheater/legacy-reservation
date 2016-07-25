@@ -129,7 +129,7 @@ $(function(){
             console.log('being admitted...reservationId', reservationId);
             $.ajax({
                 dataType: 'json',
-                url: '<%- url('admission.add') %>',
+                url: '/api/admission/create',
                 type: 'POST',
                 data: {
                     reservationId: reservationId
