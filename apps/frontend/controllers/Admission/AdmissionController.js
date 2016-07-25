@@ -15,6 +15,7 @@ var AdmissionController = (function (_super) {
     }
     AdmissionController.prototype.performances = function () {
         this.res.render('admission/performances', {
+            layout: 'layouts/admission/layout',
             FilmUtil: FilmUtil_1.default
         });
     };
@@ -31,6 +32,7 @@ var AdmissionController = (function (_super) {
                 reservationsById[reservationDocument.get('_id')] = reservationDocument;
             }
             _this.res.render('admission/confirm', {
+                layout: 'layouts/admission/layout',
                 reservationsById: reservationsById
             });
         });

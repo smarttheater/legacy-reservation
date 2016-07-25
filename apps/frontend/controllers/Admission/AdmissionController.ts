@@ -10,6 +10,7 @@ import moment = require('moment');
 export default class AdmissionController extends BaseController {
     public performances(): void {
         this.res.render('admission/performances', {
+            layout: 'layouts/admission/layout',
             FilmUtil: FilmUtil
         });
     }
@@ -29,6 +30,7 @@ export default class AdmissionController extends BaseController {
             }
 
             this.res.render('admission/confirm', {
+                layout: 'layouts/admission/layout',
                 reservationsById: reservationsById
             });
 

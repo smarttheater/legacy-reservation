@@ -1,0 +1,15 @@
+<%
+var routeName = '';
+if (req.hasOwnProperty('route')) {
+    routeName = req.route.name;
+}
+%>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <% if (routeName === 'admission.confirm') { %>
+            <a class="navbar-brand" href="<%- url('admission.performances') %>"><%- __('Button.Back') %></a>
+            <% } %>
+        </div>
+    </div>
+</nav>
