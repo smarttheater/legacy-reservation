@@ -64,11 +64,11 @@ $(function(){
 
             // already confirmed.
             if (confirmedReservationIds.indexOf(reservationId) >= 0) {
-                result = '入場済み';
+                result = `${_reservation.seat_code} [${_reservation.ticket_name}] 入場済み`;
             } else {
                 var _reservation = reservationsById[reservationId];
                 result = `
-    ${_reservation.ticket_name}OK
+${_reservation.seat_code} [${_reservation.ticket_name}] OK
         `;
 
                 // add to list for admission.
@@ -84,7 +84,27 @@ $(function(){
             console.log('confirmingReservationIds:', confirmingReservationIds);
 
 
-        $('.result').html(`
+            if (_reservation.ticket_type === '03') {
+                $('.result').html(`
+<div class="alert alert-info" role="alert">
+    <span class="glyphicon glyphicon glyphicon-ok" aria-hidden="true"></span>
+    <span class="sr-only">Error:</span>
+    ${result}
+</div>
+
+`);
+
+            } else if (_reservation.ticket_type === '02') {
+                $('.result').html(`
+<div class="alert alert-warning" role="alert">
+    <span class="glyphicon glyphicon glyphicon-ok" aria-hidden="true"></span>
+    <span class="sr-only">Error:</span>
+    ${result}
+</div>
+
+`);
+            } else {
+                $('.result').html(`
 <div class="alert alert-success" role="alert">
     <span class="glyphicon glyphicon glyphicon-ok" aria-hidden="true"></span>
     <span class="sr-only">Error:</span>
@@ -93,6 +113,8 @@ $(function(){
 
 `);
 
+            }
+
         // NG
         } else {
             // $('.audio-no').get(0).play();
@@ -100,7 +122,7 @@ $(function(){
             audio.load();
             audio.play();
 
-            result = 'NG';
+            result = `NG`;
 
         $('.result').html(`
 <div class="alert alert-danger" role="alert">
@@ -202,5 +224,8 @@ $(function(){
         }
 
     });
+
+    // for debug
+    // check('57787fc92852ab1007fff0fe');
 });
 </script>

@@ -13,8 +13,8 @@
         Amount:<input type="text" name="Amount" value="<%- amount %>"><br>
         DateTime<input type="text" name="DateTime" value="<%- dateTime %>"><br>
         ShopPassString：<input type="text" name="ShopPassString" value="<%- shopPassString %>"><br>
-        RetURL<input type="text" name="RetURL" value="<%- req.protocol + '://' + req.headers.host + url('gmo.reserve.result') %>"><br>
-        CancelURL<input type="text" name="CancelURL" value="<%- req.protocol + '://' + req.headers.host + url('gmo.reserve.result') %>"><br>
+        RetURL<input type="text" name="RetURL" value="<%- 'https://' + req.headers.host + url('gmo.reserve.result') %>"><br>
+        CancelURL<input type="text" name="CancelURL" value="<%- 'https://' + req.headers.host + url('gmo.reserve.result') %>"><br>
 
         UseCredit:<input type="text" name="UseCredit" value="1"><br>
         UseCvs:<input type="text" name="UseCvs" value="1"><br>

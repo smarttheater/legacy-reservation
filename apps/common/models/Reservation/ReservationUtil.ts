@@ -18,19 +18,20 @@ export default class ReservationUtil {
 
         // creating barcode...
         bwipjs.toBuffer({
-                bcid:        'code128',     // Barcode type
-                text:        text,          // Text to encode
-                scale:       3,             // 3x scaling factor
-                height:      40,            // Bar height, in millimeters
-                includetext: true,          // Show human-readable text
-                textxalign:  'center',      // Always good to set this
-                // textfont:    'Inconsolata', // Use your custom font
-                textsize:    13             // Font size, in points
-            }, (err, png) => {
-                cb(err, png);
+            bcid:        'code128',     // Barcode type
+            text:        text,          // Text to encode
+            scale:       2,             // 3x scaling factor
+            height:      40,            // Bar height, in millimeters
+            includetext: true,          // Show human-readable text
+            textxalign:  'center',      // Always good to set this
+            // textfont:    'Inconsolata', // Use your custom font
+            textsize:    13,             // Font size, in points
+            paddingwidth: 40,
+            paddingheight: 20
+        }, (err, png) => {
+            cb(err, png);
 
-            }
-        );
+        });
 
     }
 

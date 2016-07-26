@@ -41,6 +41,7 @@ var CustomerReserveController = (function (_super) {
         }
     };
     CustomerReserveController.prototype.start = function () {
+        // TODO 内部以外は、上映開始20分過ぎていたらはじく
         var _this = this;
         // 予約トークンを発行
         var token = Util_1.default.createToken();
@@ -99,6 +100,8 @@ var CustomerReserveController = (function (_super) {
     };
     /**
      * 座席選択
+     *
+     * TODO 一アカウント、一パフォーマンスにつき4枚まで
      */
     CustomerReserveController.prototype.seats = function () {
         var _this = this;

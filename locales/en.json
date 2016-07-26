@@ -65,7 +65,8 @@
 		"No": "No",
 		"Yes": "Yes",
 		"Close": "Close",
-		"Login": "Login"
+		"Login": "Login",
+		"Transfer": "Transfer"
 	},
 	"Form": {
 		"FieldName": {
@@ -92,7 +93,8 @@
 		"Sending": "Sending...",
 		"Sent": "Sent.",
 		"FailedSending": "Failed sending.",
-		"Unsent": "Unsent."
+		"Unsent": "Unsent.",
+		"PleaseReadBarcode": "Message.PleaseReadBarcode"
 	},
 	"h3": {
 		"SeatChoices": "Seat Choices",

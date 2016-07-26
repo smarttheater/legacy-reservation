@@ -45,7 +45,9 @@
 		"Confirm": "確定",
 		"Print": "印刷",
 		"SendMail": "メール送信",
-		"TicketReservation": "オンラインチケット予約"
+		"TicketReservation": "オンラインチケット予約",
+		"Cancel": "キャンセル",
+		"Transfer": "転送"
 	},
 	"Form": {
 		"FieldName": {

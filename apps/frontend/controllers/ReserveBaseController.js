@@ -130,6 +130,12 @@ var ReserveBaseController = (function (_super) {
                                 name: '小人',
                                 name_en: 'child',
                                 price: 900,
+                            },
+                            {
+                                type: '03',
+                                name: '学生',
+                                name_en: 'student',
+                                price: 1000,
                             }
                         ];
                     }
@@ -411,25 +417,30 @@ var ReserveBaseController = (function (_super) {
                 cb(err, null);
             }
             else {
-                var files = [];
-                for (var _i = 0, reservationDocuments_1 = reservationDocuments; _i < reservationDocuments_1.length; _i++) {
-                    var reservationDocument = reservationDocuments_1[_i];
-                    files.push({
-                        filename: "QR_" + reservationDocument._id.toString() + ".png",
-                        contentType: 'image/png',
-                        cid: "qrcode_" + reservationDocument._id.toString(),
-                        content: ReservationUtil_1.default.createQRCode(reservationDocument._id.toString())
-                    });
-                }
-                _this.logger.info('email files:', files);
                 var _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
                 var email = new _sendgrid.Email({
                     to: to,
                     from: 'noreply@devtiffwebapp.azurewebsites.net',
                     subject: "[TIFF][" + process.env.NODE_ENV + "] \u4E88\u7D04\u5B8C\u4E86",
-                    html: html,
-                    files: files
+                    html: html
                 });
+                // add barcodes
+                for (var _i = 0, reservationDocuments_1 = reservationDocuments; _i < reservationDocuments_1.length; _i++) {
+                    var reservationDocument = reservationDocuments_1[_i];
+                    var reservationId = reservationDocument._id.toString();
+                    // email.addFile({
+                    //     filename: `barcode_${reservationId}.png`,
+                    //     contentType: 'image/png',
+                    //     cid: `barcode_${reservationId}`,
+                    //     url: this.router.build('reserve.barcode', {token: token, reservationId:reservationId})
+                    // });
+                    email.addFile({
+                        filename: "QR_" + reservationId + ".png",
+                        contentType: 'image/png',
+                        cid: "qrcode_" + reservationId,
+                        content: ReservationUtil_1.default.createQRCode(reservationId)
+                    });
+                }
                 _this.logger.info('sending an email...email:', email);
                 _sendgrid.send(email, function (err, json) {
                     _this.logger.info('an email sent.', err, json);

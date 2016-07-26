@@ -43,6 +43,8 @@ export default class CustomerReserveController extends ReserveBaseController {
     }
 
     public start(): void {
+        // TODO 内部以外は、上映開始20分過ぎていたらはじく
+
         // 予約トークンを発行
         let token = Util.createToken();
         let reservationModel = new ReservationModel();
@@ -107,6 +109,8 @@ export default class CustomerReserveController extends ReserveBaseController {
 
     /**
      * 座席選択
+     * 
+     * TODO 一アカウント、一パフォーマンスにつき4枚まで
      */
     public seats(): void {
         let token = this.req.params.token;

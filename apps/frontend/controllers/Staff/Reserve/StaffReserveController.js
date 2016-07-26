@@ -86,6 +86,8 @@ var StaffReserveController = (function (_super) {
     };
     /**
      * 座席選択
+     *
+     * TODO 1パフォーマンスにつき何件まで？？？
      */
     StaffReserveController.prototype.seats = function () {
         var _this = this;

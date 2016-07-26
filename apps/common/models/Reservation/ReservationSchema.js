@@ -39,6 +39,7 @@ var ReservationSchema = new mongoose.Schema({
     seat_code: String,
     ticket_type: String,
     ticket_name: String,
+    ticket_name_en: String,
     ticket_price: String,
     watcher_name: String,
     sponsor: {

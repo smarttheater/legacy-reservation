@@ -152,6 +152,12 @@ export default class ReserveBaseController extends BaseController {
                                 name: '小人',
                                 name_en: 'child',
                                 price: 900,
+                            },
+                            {
+                                type: '03',
+                                name: '学生',
+                                name_en: 'student',
+                                price: 1000,
                             }
                         ];
                     }
@@ -510,25 +516,33 @@ export default class ReserveBaseController extends BaseController {
                 cb(err, null);
 
             } else {
-                let files = [];
-                for (let reservationDocument of reservationDocuments) {
-                    files.push({
-                        filename: `QR_${reservationDocument._id.toString()}.png`,
-                        contentType: 'image/png',
-                        cid: `qrcode_${reservationDocument._id.toString()}`,
-                        content: ReservationUtil.createQRCode(reservationDocument._id.toString())
-                    });
-                }
-                this.logger.info('email files:', files);
-
                 let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
                 let email = new _sendgrid.Email({
                     to: to,
                     from: 'noreply@devtiffwebapp.azurewebsites.net',
                     subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
-                    html: html,
-                    files: files
+                    html: html
                 });
+
+
+                // add barcodes
+                for (let reservationDocument of reservationDocuments) {
+                    let reservationId = reservationDocument._id.toString();
+                    // email.addFile({
+                    //     filename: `barcode_${reservationId}.png`,
+                    //     contentType: 'image/png',
+                    //     cid: `barcode_${reservationId}`,
+                    //     url: this.router.build('reserve.barcode', {token: token, reservationId:reservationId})
+                    // });
+
+                    email.addFile({
+                        filename: `QR_${reservationId}.png`,
+                        contentType: 'image/png',
+                        cid: `qrcode_${reservationId}`,
+                        content: ReservationUtil.createQRCode(reservationId)
+                    });
+                }
+
 
                 this.logger.info('sending an email...email:', email);
                 _sendgrid.send(email, (err, json) => {

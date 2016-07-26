@@ -27,6 +27,7 @@ var PerformanceController = (function (_super) {
         // 検索条件を作成
         var andConditions = [];
         // デフォルトで、現在日以降のもの
+        // TODO 上映開始を20分過ぎたら出さない
         andConditions.push({
             'day': {
                 $gte: moment().add(-5, 'minutes').toISOString(),
@@ -45,6 +46,7 @@ var PerformanceController = (function (_super) {
             _this.logger.debug('conditions:', conditions);
             // 総数検索
             Models_1.default.Performance.count(conditions, function (err, count) {
+                // TODO ソート 上映日時昇順
                 var query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater', // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                 {
                     sort: { film: 1, day: 1, start_time: 1 },
@@ -103,6 +105,8 @@ var PerformanceController = (function (_super) {
                 'genres.code': { $in: [genre] }
             });
         }
+        // TODO フリーワードの検索対象はタイトル(日英両方)
+        // TODO 空白つなぎでOR検索
         if (words) {
             filmAndConditions.push({
                 $or: [

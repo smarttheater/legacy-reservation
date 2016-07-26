@@ -87,6 +87,8 @@ export default class StaffReserveController extends ReserveBaseController {
 
     /**
      * 座席選択
+     * 
+     * TODO 1パフォーマンスにつき何件まで？？？
      */
     public seats(): void {
         let token = this.req.params.token;

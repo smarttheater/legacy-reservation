@@ -11,6 +11,7 @@ export default class ReservationController extends BaseController {
      */
     public email(): void {
         let id = this.req.body.id;
+        let to = this.req.body.to;
         Models.Reservation.findOne(
             {
                 _id: id,
@@ -23,17 +24,6 @@ export default class ReservationController extends BaseController {
                     });
 
                 } else {
-
-                    let to: string;
-                    if (reservationDocument.get('staff_email')) {
-                        to = reservationDocument.get('staff_email');
-                    } else if (reservationDocument.get('sponsor_email')) {
-                        to = reservationDocument.get('sponsor_email');
-                    } else if (reservationDocument.get('purchaser_email')) {
-                        to = reservationDocument.get('purchaser_email');
-                    } else {
-                    }
-
                     if (to) {
                         let qrcodeBuffer = ReservationUtil.createQRCode(reservationDocument.get('_id').toString());
 
@@ -54,35 +44,59 @@ export default class ReservationController extends BaseController {
                                     to: to,
                                     from: 'noreply@devtiffwebapp.azurewebsites.net',
                                     subject: `[TIFF][${process.env.NODE_ENV}] 予約情報`,
-                                    html: html,
-                                    files: [
-                                        {
-                                            filename: `QR_${reservationDocument.get('_id').toString()}.png`,           // required only if file.content is used.
-                                            contentType: 'iamge/png',           // optional
-                                            cid: 'qrcode',           // optional, used to specify cid for inline content
-                                            content: qrcodeBuffer //
+                                    html: html
+                                });
+
+                                let reservationId = reservationDocument.get('_id').toString();
+
+                                email.addFile({
+                                    filename: `QR_${reservationId}.png`,
+                                    contentType: 'image/png',
+                                    cid: 'qrcode',
+                                    content: qrcodeBuffer
+                                });
+ 
+                                email.addFile({
+                                    filename: `qrcode4attachment_${reservationId}.png`,
+                                    contentType: 'image/png',
+                                    content: qrcodeBuffer
+                                });
+ 
+                                ReservationUtil.createBarcode(reservationId, (err, png) => {
+                                    email.addFile({
+                                        filename: `barcode_${reservationId}.png`,
+                                        contentType: 'image/png',
+                                        cid: 'barcode',
+                                        content: png
+                                    });
+
+                                    email.addFile({
+                                        filename: `barcode4attachment_${reservationId}.png`,
+                                        contentType: 'image/png',
+                                        content: png
+                                    });
+
+
+                                    this.logger.info('sending an email...email:', email);
+                                    _sendgrid.send(email, (err, json) => {
+                                        this.logger.info('an email sent.', err, json);
+                                        if (err) {
+                                            // TODO log
+                                            this.res.json({
+                                                isSuccess: false
+                                            });
+
+                                        } else {
+                                            this.res.json({
+                                                isSuccess: true
+                                            });
+
                                         }
-                                    ]
-                                });
 
-                                this.logger.info('sending an email...email:', email);
-                                _sendgrid.send(email, (err, json) => {
-                                    this.logger.info('an email sent.', err, json);
-                                    if (err) {
-                                        // TODO log
-                                        this.res.json({
-                                            isSuccess: false
-                                        });
-
-                                    } else {
-                                        this.res.json({
-                                            isSuccess: true
-                                        });
-
-                                    }
+                                    });
 
                                 });
-
+ 
                             }
 
                         });

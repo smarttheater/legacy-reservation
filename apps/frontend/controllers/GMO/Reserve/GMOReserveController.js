@@ -50,6 +50,7 @@ var GMOReserveController = (function (_super) {
                         reservationModel.save(function (err) {
                             // GMOへ遷移画面
                             var shopId = conf.get('gmo_payment_shop_id');
+                            // TODO 決済管理番号をなにかしら発行する？あるいは予約番号？
                             var orderID = reservationModel.token; // 27桁まで
                             var amount = reservationModel.getTotalPrice();
                             var shopPassword = conf.get('gmo_payment_shop_password');

@@ -22,6 +22,7 @@ export default class PerformanceController extends BaseController {
         let andConditions: Array<Object> = [];
 
         // デフォルトで、現在日以降のもの
+        // TODO 上映開始を20分過ぎたら出さない
         andConditions.push({
             'day': {
                 $gte: moment().add(-5, 'minutes').toISOString(),
@@ -47,6 +48,7 @@ export default class PerformanceController extends BaseController {
                 conditions,
                 (err, count) => {
 
+                    // TODO ソート 上映日時昇順
                     let query = Models.Performance.find(
                         conditions,
                         'day start_time end_time film screen theater', // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
@@ -120,6 +122,8 @@ export default class PerformanceController extends BaseController {
             });
         }
 
+        // TODO フリーワードの検索対象はタイトル(日英両方)
+        // TODO 空白つなぎでOR検索
         if (words) {
             filmAndConditions.push({
                 $or: [

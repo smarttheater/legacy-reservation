@@ -13,12 +13,14 @@ var ReservationUtil = (function () {
         bwipjs.toBuffer({
             bcid: 'code128',
             text: text,
-            scale: 3,
+            scale: 2,
             height: 40,
             includetext: true,
             textxalign: 'center',
             // textfont:    'Inconsolata', // Use your custom font
-            textsize: 13 // Font size, in points
+            textsize: 13,
+            paddingwidth: 40,
+            paddingheight: 20
         }, function (err, png) {
             cb(err, png);
         });

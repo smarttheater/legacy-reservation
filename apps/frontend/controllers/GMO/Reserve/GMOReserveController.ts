@@ -51,6 +51,7 @@ export default class GMOReserveController extends ReserveBaseController {
                         reservationModel.save((err) => {
                             // GMOへ遷移画面
                             let shopId = conf.get<string>('gmo_payment_shop_id');
+                            // TODO 決済管理番号をなにかしら発行する？あるいは予約番号？
                             let orderID = reservationModel.token; // 27桁まで
                             let amount = reservationModel.getTotalPrice();
                             let shopPassword = conf.get<string>('gmo_payment_shop_password');
