@@ -36,6 +36,8 @@ export default class SponsorReserveController extends ReserveBaseController {
 
     /**
      * スケジュール選択
+     * TODO 残り枚数表示
+     * TODO 0枚の場合は、メッセージを表示し、上映会一覧を表示しない
      */
     public performances(): void {
         let token = this.req.params.token;
@@ -160,6 +162,7 @@ export default class SponsorReserveController extends ReserveBaseController {
 
     /**
      * 券種選択
+     * TODO 鑑賞者氏名はなしにする
      */
     public tickets(): void {
         let token = this.req.params.token;
@@ -217,6 +220,7 @@ export default class SponsorReserveController extends ReserveBaseController {
 
     /**
      * 購入者情報
+     * TODO 同セッション内では、情報を保持する
      */
     public profile(): void {
         let token = this.req.params.token;
@@ -365,6 +369,9 @@ export default class SponsorReserveController extends ReserveBaseController {
         });
     }
 
+    /**
+     * TODO 続けて予約するボタンを追加
+     */
     public complete(): void {
         let token = this.req.params.token;
         ReservationResultModel.find(token, (err, reservationResultModel) => {

@@ -14,6 +14,7 @@ import ReservationResultModel from '../../../models/Reserve/ReservationResultMod
 export default class MemberReserveController extends ReserveBaseController {
     /**
      * 規約
+     * TODO 期限指定(固定日で)
      */
     public terms(): void {
         // ログイン中であればプロセス開始
@@ -280,6 +281,11 @@ export default class MemberReserveController extends ReserveBaseController {
         });
     }
 
+    /**
+     * complete reservation
+     * TODO force to logout
+     * TODO 固定日時を経過したら、空席ステータスにするバッチ
+     */
     public complete(): void {
         let token = this.req.params.token;
         ReservationResultModel.find(token, (err, reservationResultModel) => {

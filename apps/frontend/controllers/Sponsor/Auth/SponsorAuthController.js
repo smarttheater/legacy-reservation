@@ -13,6 +13,10 @@ var SponsorAuthController = (function (_super) {
     function SponsorAuthController() {
         _super.apply(this, arguments);
     }
+    /**
+     * sponsor login
+     * TODO パフォーマンス指定or無指定どちらか判断
+     */
     SponsorAuthController.prototype.login = function () {
         var _this = this;
         if (this.sponsorUser.isAuthenticated()) {
@@ -37,6 +41,7 @@ var SponsorAuthController = (function (_super) {
                         else {
                             // ログイン
                             _this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME] = sponsorDocument.toObject();
+                            // TODO リダイレクト先を指定できるようにする
                             _this.res.redirect(_this.router.build('sponsor.mypage', {}));
                         }
                     });

@@ -5,6 +5,10 @@ import Util from '../../../../common/Util/Util';
 import Models from '../../../../common/models/Models';
 
 export default class SponsorAuthController extends BaseController {
+    /**
+     * sponsor login
+     * TODO パフォーマンス指定or無指定どちらか判断
+     */
     public login(): void {
         if (this.sponsorUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
@@ -33,6 +37,7 @@ export default class SponsorAuthController extends BaseController {
                             // ログイン
                             this.req.session[SponsorUser.AUTH_SESSION_NAME] = sponsorDocument.toObject();
 
+                            // TODO リダイレクト先を指定できるようにする
                             this.res.redirect(this.router.build('sponsor.mypage', {}));
                         }
                     });

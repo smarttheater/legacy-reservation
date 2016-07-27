@@ -13,6 +13,9 @@ var StaffAuthController = (function (_super) {
     function StaffAuthController() {
         _super.apply(this, arguments);
     }
+    /**
+     * TODO 一般とadminの2種類の権限
+     */
     StaffAuthController.prototype.login = function () {
         var _this = this;
         if (this.staffUser.isAuthenticated()) {

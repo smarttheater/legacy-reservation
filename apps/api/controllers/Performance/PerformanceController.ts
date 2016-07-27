@@ -21,16 +21,28 @@ export default class PerformanceController extends BaseController {
         // 検索条件を作成
         let andConditions: Array<Object> = [];
 
-        // デフォルトで、現在日以降のもの
-        // TODO 上映開始を20分過ぎたら出さない
-        andConditions.push({
-            'day': {
-                $gte: moment().add(-5, 'minutes').toISOString(),
-            }
-        });
         if (day) {
             andConditions.push({
                 'day': day
+            });
+        } else {
+            // 日付指定がない場合は、上映開始時刻が20分前以降のもののみ
+            let today = moment().add(-20, 'minutes');
+            let tomorrow = moment().add(+1420, 'minutes');
+            andConditions.push({
+                $or: [
+                    {
+                        'day': today.format('YYYYMMDD'),
+                        'start_time': {
+                            $gte: today.format('HHmm')
+                        }
+                    },
+                    {
+                        'day': {
+                            $gte: tomorrow.format('YYYYMMDD')
+                        }
+                    }
+                ]
             });
         }
 
@@ -38,9 +50,12 @@ export default class PerformanceController extends BaseController {
         // 作品条件を追加する
         this.addFilmConditions(andConditions, section, genre, words, (err, andConditions) => {
 
-            let conditions = {
-                $and: andConditions
-            };
+            let conditions = null;
+            if (andConditions.length > 0) {
+                conditions = {
+                    $and: andConditions
+                };
+            }
             this.logger.debug('conditions:', conditions);
 
             // 総数検索
@@ -48,15 +63,10 @@ export default class PerformanceController extends BaseController {
                 conditions,
                 (err, count) => {
 
-                    // TODO ソート 上映日時昇順
                     let query = Models.Performance.find(
                         conditions,
-                        'day start_time end_time film screen theater', // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
-                        {
-                            sort : {film: 1, day: 1, start_time: 1},
-                        }
-                    ).skip(limit * (page - 1))
-                    .limit(limit);
+                        'day start_time end_time film screen theater' // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                    ).skip(limit * (page - 1)).limit(limit);
 
                     if (this.req.getLocale() === 'ja') {
                         query.populate('film', 'name') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
@@ -67,6 +77,16 @@ export default class PerformanceController extends BaseController {
                              .populate('screen', 'name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                              .populate('theater', 'name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                     }
+
+                    // 上映日、開始時刻
+                    // TODO 作品名昇順を追加？
+                    query.setOptions({
+                        sort : {
+                            day: 1,
+                            start_time: 1,
+                            // 'film.name_en': 1
+                        },
+                    });
 
                     query.exec((err, performanceDocuments) => {
                         this.logger.debug('find performances processed.', err);

@@ -26,32 +26,44 @@ var PerformanceController = (function (_super) {
         var words = (this.req.query.words) ? this.req.query.words : null; // フリーワード
         // 検索条件を作成
         var andConditions = [];
-        // デフォルトで、現在日以降のもの
-        // TODO 上映開始を20分過ぎたら出さない
-        andConditions.push({
-            'day': {
-                $gte: moment().add(-5, 'minutes').toISOString(),
-            }
-        });
         if (day) {
             andConditions.push({
                 'day': day
             });
         }
+        else {
+            // 日付指定がない場合は、上映開始時刻が20分前以降のもののみ
+            var today = moment().add(-20, 'minutes');
+            var tomorrow = moment().add(+1420, 'minutes');
+            andConditions.push({
+                $or: [
+                    {
+                        'day': today.format('YYYYMMDD'),
+                        'start_time': {
+                            $gte: today.format('HHmm')
+                        }
+                    },
+                    {
+                        'day': {
+                            $gte: tomorrow.format('YYYYMMDD')
+                        }
+                    }
+                ]
+            });
+        }
         // 作品条件を追加する
         this.addFilmConditions(andConditions, section, genre, words, function (err, andConditions) {
-            var conditions = {
-                $and: andConditions
-            };
+            var conditions = null;
+            if (andConditions.length > 0) {
+                conditions = {
+                    $and: andConditions
+                };
+            }
             _this.logger.debug('conditions:', conditions);
             // 総数検索
             Models_1.default.Performance.count(conditions, function (err, count) {
-                // TODO ソート 上映日時昇順
-                var query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater', // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
-                {
-                    sort: { film: 1, day: 1, start_time: 1 },
-                }).skip(limit * (page - 1))
-                    .limit(limit);
+                var query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater' // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                ).skip(limit * (page - 1)).limit(limit);
                 if (_this.req.getLocale() === 'ja') {
                     query.populate('film', 'name') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                         .populate('screen', 'name') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
@@ -62,6 +74,14 @@ var PerformanceController = (function (_super) {
                         .populate('screen', 'name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                         .populate('theater', 'name_en'); // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                 }
+                // 上映日、開始時刻
+                // TODO 作品名昇順を追加？
+                query.setOptions({
+                    sort: {
+                        day: 1,
+                        start_time: 1,
+                    },
+                });
                 query.exec(function (err, performanceDocuments) {
                     _this.logger.debug('find performances processed.', err);
                     var results = [];

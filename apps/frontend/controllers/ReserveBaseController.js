@@ -105,9 +105,9 @@ var ReserveBaseController = (function (_super) {
                         ticketChoicesBySeatCode[seatDocument.get('code')] = [
                             {
                                 type: '01',
-                                name: '一般',
-                                name_en: 'adult',
-                                price: 1500,
+                                name: '非売品',
+                                name_en: 'Not for Sale',
+                                price: 0,
                             }
                         ];
                     }
@@ -127,12 +127,6 @@ var ReserveBaseController = (function (_super) {
                             },
                             {
                                 type: '02',
-                                name: '小人',
-                                name_en: 'child',
-                                price: 900,
-                            },
-                            {
-                                type: '03',
                                 name: '学生',
                                 name_en: 'student',
                                 price: 1000,

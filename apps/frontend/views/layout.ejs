@@ -28,6 +28,7 @@ if (req.hasOwnProperty('route')) {
 </head>
 
 <body>
+<input type="hidden" name="locale" value="<%- req.getLocale() %>">
 
 <%- include('./layouts/_header') %>
 

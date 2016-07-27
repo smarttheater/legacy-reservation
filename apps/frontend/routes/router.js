@@ -136,6 +136,7 @@ exports.default = function (app) {
         next();
     };
     // 外部関係者
+    // TODO キャンセルするためだけのフォームページ
     app.all('/sponsor/login', 'sponsor.login', sponsorBase, function (req, res, next) { (new SponsorAuthController_1.default(req, res, next)).login(); });
     app.all('/sponsor/logout', 'sponsor.logout', sponsorBase, function (req, res, next) { (new SponsorAuthController_1.default(req, res, next)).logout(); });
     app.all('/sponsor/mypage', 'sponsor.mypage', sponsorBase, authenticationSponsor, function (req, res, next) { (new SponsorMyPageController_1.default(req, res, next)).index(); });

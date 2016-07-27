@@ -39,6 +39,8 @@ var SponsorReserveController = (function (_super) {
     };
     /**
      * スケジュール選択
+     * TODO 残り枚数表示
+     * TODO 0枚の場合は、メッセージを表示し、上映会一覧を表示しない
      */
     SponsorReserveController.prototype.performances = function () {
         var _this = this;
@@ -144,6 +146,7 @@ var SponsorReserveController = (function (_super) {
     };
     /**
      * 券種選択
+     * TODO 鑑賞者氏名はなしにする
      */
     SponsorReserveController.prototype.tickets = function () {
         var _this = this;
@@ -192,6 +195,7 @@ var SponsorReserveController = (function (_super) {
     };
     /**
      * 購入者情報
+     * TODO 同セッション内では、情報を保持する
      */
     SponsorReserveController.prototype.profile = function () {
         var _this = this;
@@ -321,6 +325,9 @@ var SponsorReserveController = (function (_super) {
             }
         });
     };
+    /**
+     * TODO 続けて予約するボタンを追加
+     */
     SponsorReserveController.prototype.complete = function () {
         var _this = this;
         var token = this.req.params.token;

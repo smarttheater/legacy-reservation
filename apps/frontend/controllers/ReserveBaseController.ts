@@ -127,15 +127,17 @@ export default class ReserveBaseController extends BaseController {
                         ticketChoicesBySeatCode[seatDocument.get('code')] = [
                             {
                                 type: '01',
-                                name: '一般',
-                                name_en: 'adult',
-                                price: 1500,
+                                name: '非売品',
+                                name_en: 'Not for Sale',
+                                price: 0,
                             }
                         ];
                     }
                     reservationModel.ticketChoicesBySeatCode = ticketChoicesBySeatCode;
 
                 // 一般、メルマガ当選者、の場合
+                // TODO メルマガの場合、一般だけ
+                // TODO 電話予約の場合は、一般と同じ。ただし、手数料が1席につき150円
                 } else {
                     for (let seatDocument of seatDocuments) {
                         // TODO いったん固定
@@ -149,12 +151,6 @@ export default class ReserveBaseController extends BaseController {
                             },
                             {
                                 type: '02',
-                                name: '小人',
-                                name_en: 'child',
-                                price: 900,
-                            },
-                            {
-                                type: '03',
                                 name: '学生',
                                 name_en: 'student',
                                 price: 1000,

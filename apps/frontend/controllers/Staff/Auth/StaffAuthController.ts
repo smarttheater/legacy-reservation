@@ -5,6 +5,9 @@ import Util from '../../../../common/Util/Util';
 import Models from '../../../../common/models/Models';
 
 export default class StaffAuthController extends BaseController {
+    /**
+     * TODO 一般とadminの2種類の権限
+     */
     public login(): void {
         if (this.staffUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('staff.reserve.performances', {}));

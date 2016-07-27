@@ -21,6 +21,7 @@ var MemberReserveController = (function (_super) {
     }
     /**
      * 規約
+     * TODO 期限指定(固定日で)
      */
     MemberReserveController.prototype.terms = function () {
         var _this = this;
@@ -244,6 +245,11 @@ var MemberReserveController = (function (_super) {
             });
         });
     };
+    /**
+     * complete reservation
+     * TODO force to logout
+     * TODO 固定日時を経過したら、空席ステータスにするバッチ
+     */
     MemberReserveController.prototype.complete = function () {
         var _this = this;
         var token = this.req.params.token;

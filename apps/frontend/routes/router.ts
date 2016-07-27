@@ -175,6 +175,7 @@ export default (app: any) => {
     }
 
     // 外部関係者
+    // TODO キャンセルするためだけのフォームページ
     app.all('/sponsor/login', 'sponsor.login', sponsorBase, (req, res, next) => {(new SponsorAuthController(req, res, next)).login()});
     app.all('/sponsor/logout', 'sponsor.logout', sponsorBase, (req, res, next) => {(new SponsorAuthController(req, res, next)).logout()});
     app.all('/sponsor/mypage', 'sponsor.mypage', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorMyPageController(req, res, next)).index()});
