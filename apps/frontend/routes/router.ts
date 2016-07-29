@@ -21,8 +21,6 @@ import SponsorCancelController from '../controllers/Sponsor/Cancel/SponsorCancel
 import ErrorController from '../controllers/Error/ErrorController';
 import IndexController from '../controllers/Index/IndexController';
 
-import TaskController from '../controllers/Task/TaskController';
-
 import MemberUser from '../models/User/MemberUser';
 import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
@@ -60,9 +58,9 @@ export default (app: any) => {
 
 
     // 一般
-    app.all('/customer/reserve/terms', 'customer.reserve.terms', (req, res, next) => {(new CustomerReserveController(req, res, next)).terms()});
-    app.get('/customer/reserve/start', 'customer.reserve.start', (req, res, next) => {(new CustomerReserveController(req, res, next)).start()});
-    app.all('/customer/reserve/:token/performances', 'customer.reserve.performances', (req, res, next) => {(new CustomerReserveController(req, res, next)).performances()});
+    app.all('/customer/reserve/performances', 'customer.reserve.performances', (req, res, next) => {(new CustomerReserveController(req, res, next)).performances()});
+    app.post('/customer/reserve/start', 'customer.reserve.start', (req, res, next) => {(new CustomerReserveController(req, res, next)).start()});
+    app.all('/customer/reserve/:token/terms', 'customer.reserve.terms', (req, res, next) => {(new CustomerReserveController(req, res, next)).terms()});
     app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', (req, res, next) => {(new CustomerReserveController(req, res, next)).seats()});
     app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', (req, res, next) => {(new CustomerReserveController(req, res, next)).tickets()});
     app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', (req, res, next) => {(new CustomerReserveController(req, res, next)).profile()});
@@ -70,18 +68,6 @@ export default (app: any) => {
     app.get('/customer/reserve/:token/waitingSettlement', 'customer.reserve.waitingSettlement', (req, res, next) => {(new CustomerReserveController(req, res, next)).waitingSettlement()});
     app.get('/customer/reserve/:token/complete', 'customer.reserve.complete', (req, res, next) => {(new CustomerReserveController(req, res, next)).complete()});
 
-
-
-
-    // タスク
-    app.get('/task/removeTemporaryReservation', 'task.removeTemporaryReservation', (req, res, next) => {(new TaskController(req, res, next)).removeTemporaryReservation()});
-    app.get('/task/createFilms', 'task.createFilms', (req, res, next) => {(new TaskController(req, res, next)).createFilms()});
-    app.get('/task/createScreens', 'task.createScreens', (req, res, next) => {(new TaskController(req, res, next)).createScreens()});
-    app.get('/task/createPerformances', 'task.createPerformances', (req, res, next) => {(new TaskController(req, res, next)).createPerformances()});
-    app.get('/task/resetReservations', 'task.resetReservations', (req, res, next) => {(new TaskController(req, res, next)).resetReservations()});
-    app.get('/task/updateReservations', 'task.updateReservations', (req, res, next) => {(new TaskController(req, res, next)).updateReservations()});
-    app.get('/task/calculatePerformanceStatuses', 'task.calculatePerformanceStatuses', (req, res, next) => {(new TaskController(req, res, next)).calculatePerformanceStatuses()});
-    app.get('/task/createBarcode', 'task.createBarcode', (req, res, next) => {(new TaskController(req, res, next)).createBarcode()});
 
 
 
@@ -148,6 +134,13 @@ export default (app: any) => {
 
 
 
+
+
+    // TODO admin権限フロー
+
+
+
+
     let staffBase = (req: express.Request, res: express.Response, next: express.NextFunction) => {
         req.setLocale('en');
         next();
@@ -188,6 +181,18 @@ export default (app: any) => {
     app.get('/sponsor/reserve/:token/process', 'sponsor.reserve.process', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).process()});
     app.get('/sponsor/reserve/:token/complete', 'sponsor.reserve.complete', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).complete()});
     app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', authenticationSponsor, sponsorBase, (req, res, next) => {(new SponsorCancelController(req, res, next)).execute()});
+
+
+
+    // TODO 当日窓口フロー
+    // 当日の場合、スケジュール選択候補は、検索条件通り全て出す
+    // 検索条件の初期値を、上映日：当日にする
+    // 4席制限
+
+
+
+    // TODO 電話窓口フロー
+
 
 
 

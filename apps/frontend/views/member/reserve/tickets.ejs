@@ -21,15 +21,18 @@
                     <td><%- reservation.seat_code %></td>
                     <td>
                         <select class="form-control">
-                        <% reservationModel.ticketChoicesBySeatCode[reservation.seat_code].forEach(function(ticket, index) { %>
+                        <% reservationModel.ticketTypes.forEach(function(ticketType, index) { %>
                         <option
-                            <% if (reservation.hasOwnProperty('ticket_type')) { %>
-                            <% if (reservation.ticket_type == ticket.type) { %> selected="selected"<% } %>
+                            <% if (reservation.hasOwnProperty('ticket_type_code')) { %>
+                            <% if (reservation.ticket_type_code == ticketType.code) { %> selected="selected"<% } %>
                             <% } %>
-                            value="<%- ticket.type %>"
-                            data-name="<%- ticket.name %>"
-                            data-name-en="<%- ticket.name_en %>"
-                            data-price="<%- ticket.price %>"><%- ticket.name %> <%- ticket.price %>円
+                            value="<%- ticketType.code %>"
+                            data-name="<%- ticketType.name %>"
+                            data-name-en="<%- ticketType.name_en %>"
+                            data-charge="<%- ticketType.charge %>">
+                            <%- ticketType[__('DocumentField.name')] %> <%- __('{{price}} yen', {price: ticketType.charge}) %>
+                            <%- (reservationModel.performance.is_mx4d) ? '[+200(MX4D)]' : '' %>
+                            <%- (reservation.seat_grade_additional_charge > 0) ? `[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_${__('DocumentField.name')}`]})]` : '' %>
                         </option>
                         <% }) %>
                         </select>
@@ -56,10 +59,10 @@ $(function(){
         $('.tickets tbody tr').each(function(index){
             choices.push({
                 reservation_id: $(this).attr('data-reservation-id'),
-                ticket_type: $('option:selected', this).val(),
-                ticket_name: $('option:selected', this).attr('data-name'),
-                ticket_name_en: $('option:selected', this).attr('data-name-en'),
-                ticket_price: $('option:selected', this).attr('data-price'),
+                ticket_type_code: $('option:selected', this).val(),
+                ticket_type_name: $('option:selected', this).attr('data-name'),
+                ticket_type_name_en: $('option:selected', this).attr('data-name-en'),
+                ticket_type_charge: $('option:selected', this).attr('data-charge'),
             });
         });
 

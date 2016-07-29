@@ -30,8 +30,10 @@
 
                         <div class="col-xs-3">
                             <a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a><br>
-                            <%- reservation[`ticket_${__('DocumentField.name')}`] %><br>
-                            <%- __('{{price}} yen', {price: reservation.ticket_price}) %><br>
+                            <%- reservation[`ticket_type_${__('DocumentField.name')}`] %><br>
+                            <%- __('{{price}} yen', {price: reservation.ticket_type_charge}) %><br>
+                            <%- (reservationModel.performance.is_mx4d) ? '<br>[+200(MX4D)]' : '' %>
+                            <%- (reservation.seat_grade_additional_charge > 0) ? `<br>[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_${__('DocumentField.name')}`]})]` : '' %>
                         </div>
                     <% }) %>
                     </div>

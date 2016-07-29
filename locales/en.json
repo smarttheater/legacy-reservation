@@ -94,7 +94,8 @@
 		"Sent": "Sent.",
 		"FailedSending": "Failed sending.",
 		"Unsent": "Unsent.",
-		"PleaseReadBarcode": "Message.PleaseReadBarcode"
+		"PleaseReadBarcode": "Message.PleaseReadBarcode",
+		"seatsLimit{{limit}}": "Message.seatsLimit{{limit}}"
 	},
 	"h3": {
 		"SeatChoices": "Seat Choices",

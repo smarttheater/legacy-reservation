@@ -13,6 +13,7 @@ import sendgrid = require('sendgrid')
 import conf = require('config')
 import util = require('util');
 import mongoose = require('mongoose');
+import moment = require('moment');
 
 /**
  * 予約フローベースコントローラー
@@ -76,9 +77,9 @@ export default class ReserveBaseController extends BaseController {
             {
                 _id: perfomanceId
             },
-            'day start_time end_time film screen theater' // 必要な項目だけ指定すること
+            'day start_time end_time is_mx4d film screen theater' // 必要な項目だけ指定すること
         )
-        .populate('film', 'name name_en') // 必要な項目だけ指定すること
+        .populate('film', 'name name_en ticket_type_group') // 必要な項目だけ指定すること
         .populate('screen', 'name name_en sections') // 必要な項目だけ指定すること
         .populate('theater', 'name name_en') // 必要な項目だけ指定すること
         .exec((err, performanceDocument) => {
@@ -87,114 +88,113 @@ export default class ReserveBaseController extends BaseController {
                 cb(err, reservationModel);
             } else {
 
-                reservationModel.reservationIds = [];
+                // TODO 内部以外は、上映開始20分過ぎていたらはじく
+                if (!reservationModel.staff) {
+                    let now = moment().add(-20, 'minutes');
+                    if (performanceDocument.get('day') === now.format('YYYYMMDD')) {
+                        if (performanceDocument.get('start') < now.format('HHmm')) {
+                            return cb(new Error('You cannot reserve this performance.'), reservationModel);
 
+                        }
 
+                    } else if (performanceDocument.get('day') < now.format('YYYYMMDD')) {
+                        return cb(new Error('You cannot reserve this performance.'), reservationModel);
 
-                // 座席コードごとの券種選択肢リスト
-                // TODO ここが、予約する主体によって異なってくる
-                // それをどう実装するか
-                let ticketChoicesBySeatCode = {};
-                let seatDocuments = performanceDocument.get('screen').get('sections')[0].get('seats');
-
-                // 内部関係者の場合
-                if (reservationModel.staff) {
-                    for (let seatDocument of seatDocuments) {
-                        // TODO 内部関係者の場合、ひとまず券種リストを固定にしておく
-                        // ticketChoicesBySeatCode[seatDocument.get('code')] = seatDocument.get('tickets');
-                        ticketChoicesBySeatCode[seatDocument.get('code')] = [
-                            {
-                                type: '01',
-                                name: '無料',
-                                name_en: 'free',
-                                price: 0,
-                            },
-                            {
-                                type: '02',
-                                name: '有料',
-                                name_en: 'charge',
-                                price: 1500,
-                            },
-                        ];
                     }
-                    reservationModel.ticketChoicesBySeatCode = ticketChoicesBySeatCode;
-
-                // 外部関係者の場合
-                } else if (reservationModel.sponsor) {
-                    for (let seatDocument of seatDocuments) {
-                        // TODO 外部関係者の場合、ひとまず券種リストを固定にしておく
-                        // ticketChoicesBySeatCode[seatDocument.get('code')] = seatDocument.get('tickets');
-                        ticketChoicesBySeatCode[seatDocument.get('code')] = [
-                            {
-                                type: '01',
-                                name: '非売品',
-                                name_en: 'Not for Sale',
-                                price: 0,
-                            }
-                        ];
-                    }
-                    reservationModel.ticketChoicesBySeatCode = ticketChoicesBySeatCode;
-
-                // 一般、メルマガ当選者、の場合
-                // TODO メルマガの場合、一般だけ
-                // TODO 電話予約の場合は、一般と同じ。ただし、手数料が1席につき150円
-                } else {
-                    for (let seatDocument of seatDocuments) {
-                        // TODO いったん固定
-                        // ticketChoicesBySeatCode[seatDocument.get('code')] = seatDocument.get('tickets');
-                        ticketChoicesBySeatCode[seatDocument.get('code')] = [
-                            {
-                                type: '01',
-                                name: '一般',
-                                name_en: 'adult',
-                                price: 1500,
-                            },
-                            {
-                                type: '02',
-                                name: '学生',
-                                name_en: 'student',
-                                price: 1000,
-                            }
-                        ];
-                    }
-                    reservationModel.ticketChoicesBySeatCode = ticketChoicesBySeatCode;
 
                 }
 
 
 
-                // パフォーマンス情報を保管
-                reservationModel.performance = {
-                    _id: performanceDocument.get('_id'),
-                    day: performanceDocument.get('day'),
-                    start_time: performanceDocument.get('start_time'),
-                    end_time: performanceDocument.get('end_time'),
-                    theater: {
-                        _id: performanceDocument.get('theater').get('_id'),
-                        name: performanceDocument.get('theater').get('name'),
-                        name_en: performanceDocument.get('theater').get('name_en'),
+                // 券種取得
+                Models.TicketTypeGroup.findOne(
+                    {
+                        _id: performanceDocument.get('film').get('ticket_type_group')
                     },
-                    screen: {
-                        _id: performanceDocument.get('screen').get('_id'),
-                        name: performanceDocument.get('screen').get('name'),
-                        name_en: performanceDocument.get('screen').get('name_en'),
-                        sections: performanceDocument.get('screen').get('sections'),
-                    },
-                    film: {
-                        _id: performanceDocument.get('film').get('_id'),
-                        name: performanceDocument.get('film').get('name'),
-                        name_en: performanceDocument.get('film').get('name_en'),
+                (err, ticketTypeGroupDocument) => {
+
+
+                    reservationModel.reservationIds = [];
+
+
+
+                    // 座席コードごとの券種選択肢リスト
+                    // TODO ここが、予約する主体によって異なってくる
+                    // それをどう実装するか
+
+                    // 内部関係者の場合
+                    if (reservationModel.staff) {
+                        // 内部関係者の場合、ひとまず券種リストを固定にしておく
+                        reservationModel.ticketTypes = [
+                            {
+                                code: '99',
+                                name: '非売品', // 券種名
+                                name_en: 'Not for Sale', // 券種名(英語)
+                                charge: 0, // 料金
+                                is_on_the_day: false // 当日だけフラグ
+                            }
+                        ];
+
+                    // 外部関係者の場合
+                    } else if (reservationModel.sponsor) {
+                        // 外部関係者の場合、ひとまず券種リストを固定にしておく
+                        reservationModel.ticketTypes = [
+                            {
+                                code: '99',
+                                name: '非売品', // 券種名
+                                name_en: 'Not for Sale', // 券種名(英語)
+                                charge: 0, // 料金
+                                is_on_the_day: false // 当日だけフラグ
+                            }
+                        ];
+
+
+                    // 一般、メルマガ当選者、の場合
+                    // TODO メルマガの場合、一般だけ
+                    // TODO 電話予約の場合は、一般と同じ。ただし、手数料が1席につき150円
+                    // TODO 当日の場合は、券種変わる
+                    // 当日窓口は、一般と同様の券種
+                    } else {
+                        reservationModel.ticketTypes = ticketTypeGroupDocument.get('types');
+
                     }
-                };
 
 
-                // スクリーン座席表HTMLを保管
-                // TODO ひとまず固定だが、最終的にはパフォーマンスに応じて適切なスクリーンを入れる
-                fs.readFile(`${__dirname}/../views/screens/map.ejs`, 'utf8', (err, data) => {
-                    reservationModel.screenHtml = data;
 
-                    cb(null, reservationModel);
+                    // パフォーマンス情報を保管
+                    reservationModel.performance = {
+                        _id: performanceDocument.get('_id'),
+                        day: performanceDocument.get('day'),
+                        start_time: performanceDocument.get('start_time'),
+                        end_time: performanceDocument.get('end_time'),
+                        is_mx4d: performanceDocument.get('is_mx4d'),
+                        theater: {
+                            _id: performanceDocument.get('theater').get('_id'),
+                            name: performanceDocument.get('theater').get('name'),
+                            name_en: performanceDocument.get('theater').get('name_en'),
+                        },
+                        screen: {
+                            _id: performanceDocument.get('screen').get('_id'),
+                            name: performanceDocument.get('screen').get('name'),
+                            name_en: performanceDocument.get('screen').get('name_en'),
+                            sections: performanceDocument.get('screen').get('sections'),
+                        },
+                        film: {
+                            _id: performanceDocument.get('film').get('_id'),
+                            name: performanceDocument.get('film').get('name'),
+                            name_en: performanceDocument.get('film').get('name_en'),
+                        }
+                    };
 
+
+                    // スクリーン座席表HTMLを保管
+                    // TODO ひとまず固定だが、最終的にはパフォーマンスに応じて適切なスクリーンを入れる
+                    fs.readFile(`${__dirname}/../views/screens/map.ejs`, 'utf8', (err, data) => {
+                        reservationModel.screenHtml = data;
+
+                        cb(null, reservationModel);
+
+                    });
                 });
 
             }
@@ -305,7 +305,10 @@ export default class ReserveBaseController extends BaseController {
                                         _id: reservationDocument.get('_id'),
                                         status: reservationDocument.get('status'),
                                         seat_code: reservationDocument.get('seat_code'),
-                                        performance: reservationDocument.get('performance'),
+                                        seat_grade_name: reservationDocument.get('seat_grade_name'),
+                                        seat_grade_name_en: reservationDocument.get('seat_grade_name_en'),
+                                        seat_grade_additional_charge: reservationDocument.get('seat_grade_additional_charge'),
+                                        performance: reservationDocument.get('performance')
                                     });
                                 }
                             }
@@ -372,10 +375,10 @@ export default class ReserveBaseController extends BaseController {
                         purchaser_email: (reservationModel.profile) ? reservationModel.profile.email : null,
                         purchaser_tel: (reservationModel.profile) ? reservationModel.profile.tel : null,
 
-                        ticket_type: reservation.ticket_type,
-                        ticket_name: reservation.ticket_name,
-                        ticket_name_en: reservation.ticket_name_en,
-                        ticket_price: reservation.ticket_price,
+                        ticket_type_code: reservation.ticket_type_code,
+                        ticket_type_name: reservation.ticket_type_name,
+                        ticket_type_name_en: reservation.ticket_type_name_en,
+                        ticket_type_charge: reservation.ticket_type_charge,
 
                         watcher_name: reservation.watcher_name,
 
@@ -422,7 +425,7 @@ export default class ReserveBaseController extends BaseController {
         Promise.all(promises).then(() => {
             this.logger.info('fix all success.');
 
-            // TODO メール送信？
+            // メール送信
             let to: string;
             if (reservationModel.staff) {
                 to = reservationModel.staff.email;

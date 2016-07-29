@@ -146,7 +146,6 @@ var SponsorReserveController = (function (_super) {
     };
     /**
      * 券種選択
-     * TODO 鑑賞者氏名はなしにする
      */
     SponsorReserveController.prototype.tickets = function () {
         var _this = this;
@@ -164,11 +163,10 @@ var SponsorReserveController = (function (_super) {
                         if (Array.isArray(choices)) {
                             choices.forEach(function (choice) {
                                 var reservation = reservationModel.getReservation(choice.reservation_id);
-                                reservation.ticket_type = choice.ticket_type;
-                                reservation.ticket_name = choice.ticket_name;
-                                reservation.ticket_name_en = choice.ticket_name_en;
-                                reservation.ticket_price = choice.ticket_price;
-                                reservation.watcher_name = choice.watcher_name;
+                                reservation.ticket_type_code = choice.ticket_type_code;
+                                reservation.ticket_type_name = choice.ticket_type_name;
+                                reservation.ticket_type_name_en = choice.ticket_type_name_en;
+                                reservation.ticket_type_charge = parseInt(choice.ticket_type_charge);
                                 reservationModel.setReservation(reservation._id, reservation);
                             });
                             _this.logger.debug('saving reservationModel... ', reservationModel);

@@ -23,7 +23,6 @@ var GMOReserveController = (function (_super) {
     }
     /**
      * GMO決済を開始する
-     * TODO コンビニ決済は5日前の24時まで
      */
     GMOReserveController.prototype.start = function () {
         var _this = this;

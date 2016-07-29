@@ -16,7 +16,6 @@ var SponsorReserveController_1 = require('../controllers/Sponsor/Reserve/Sponsor
 var SponsorCancelController_1 = require('../controllers/Sponsor/Cancel/SponsorCancelController');
 var ErrorController_1 = require('../controllers/Error/ErrorController');
 var IndexController_1 = require('../controllers/Index/IndexController');
-var TaskController_1 = require('../controllers/Task/TaskController');
 var MemberUser_1 = require('../models/User/MemberUser');
 var StaffUser_1 = require('../models/User/StaffUser');
 var SponsorUser_1 = require('../models/User/SponsorUser');
@@ -36,24 +35,15 @@ exports.default = function (app) {
     app.post('/GMO/reserve/result', 'gmo.reserve.result', function (req, res, next) { (new GMOReserveController_1.default(req, res, next)).result(); });
     app.all('/GMO/reserve/notify', 'gmo.reserve.notify', function (req, res, next) { (new GMOReserveController_1.default(req, res, next)).notify(); });
     // 一般
-    app.all('/customer/reserve/terms', 'customer.reserve.terms', function (req, res, next) { (new CustomerReserveController_1.default(req, res, next)).terms(); });
-    app.get('/customer/reserve/start', 'customer.reserve.start', function (req, res, next) { (new CustomerReserveController_1.default(req, res, next)).start(); });
-    app.all('/customer/reserve/:token/performances', 'customer.reserve.performances', function (req, res, next) { (new CustomerReserveController_1.default(req, res, next)).performances(); });
+    app.all('/customer/reserve/performances', 'customer.reserve.performances', function (req, res, next) { (new CustomerReserveController_1.default(req, res, next)).performances(); });
+    app.post('/customer/reserve/start', 'customer.reserve.start', function (req, res, next) { (new CustomerReserveController_1.default(req, res, next)).start(); });
+    app.all('/customer/reserve/:token/terms', 'customer.reserve.terms', function (req, res, next) { (new CustomerReserveController_1.default(req, res, next)).terms(); });
     app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', function (req, res, next) { (new CustomerReserveController_1.default(req, res, next)).seats(); });
     app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', function (req, res, next) { (new CustomerReserveController_1.default(req, res, next)).tickets(); });
     app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', function (req, res, next) { (new CustomerReserveController_1.default(req, res, next)).profile(); });
     app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', function (req, res, next) { (new CustomerReserveController_1.default(req, res, next)).confirm(); });
     app.get('/customer/reserve/:token/waitingSettlement', 'customer.reserve.waitingSettlement', function (req, res, next) { (new CustomerReserveController_1.default(req, res, next)).waitingSettlement(); });
     app.get('/customer/reserve/:token/complete', 'customer.reserve.complete', function (req, res, next) { (new CustomerReserveController_1.default(req, res, next)).complete(); });
-    // タスク
-    app.get('/task/removeTemporaryReservation', 'task.removeTemporaryReservation', function (req, res, next) { (new TaskController_1.default(req, res, next)).removeTemporaryReservation(); });
-    app.get('/task/createFilms', 'task.createFilms', function (req, res, next) { (new TaskController_1.default(req, res, next)).createFilms(); });
-    app.get('/task/createScreens', 'task.createScreens', function (req, res, next) { (new TaskController_1.default(req, res, next)).createScreens(); });
-    app.get('/task/createPerformances', 'task.createPerformances', function (req, res, next) { (new TaskController_1.default(req, res, next)).createPerformances(); });
-    app.get('/task/resetReservations', 'task.resetReservations', function (req, res, next) { (new TaskController_1.default(req, res, next)).resetReservations(); });
-    app.get('/task/updateReservations', 'task.updateReservations', function (req, res, next) { (new TaskController_1.default(req, res, next)).updateReservations(); });
-    app.get('/task/calculatePerformanceStatuses', 'task.calculatePerformanceStatuses', function (req, res, next) { (new TaskController_1.default(req, res, next)).calculatePerformanceStatuses(); });
-    app.get('/task/createBarcode', 'task.createBarcode', function (req, res, next) { (new TaskController_1.default(req, res, next)).createBarcode(); });
     // admission
     app.get('/admission/performances', 'admission.performances', function (req, res, next) { (new AdmissionController_1.default(req, res, next)).performances(); });
     app.get('/admission/performance/:id/confirm', 'admission.confirm', function (req, res, next) { (new AdmissionController_1.default(req, res, next)).confirm(); });
@@ -113,6 +103,7 @@ exports.default = function (app) {
     app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', authenticationMember, function (req, res, next) { (new MemberReserveController_1.default(req, res, next)).confirm(); });
     app.get('/member/reserve/:token/waitingSettlement', 'member.reserve.waitingSettlement', authenticationMember, function (req, res, next) { (new MemberReserveController_1.default(req, res, next)).waitingSettlement(); });
     app.get('/member/reserve/:token/complete', 'member.reserve.complete', authenticationMember, function (req, res, next) { (new MemberReserveController_1.default(req, res, next)).complete(); });
+    // TODO admin権限フロー
     var staffBase = function (req, res, next) {
         req.setLocale('en');
         next();
@@ -149,6 +140,11 @@ exports.default = function (app) {
     app.get('/sponsor/reserve/:token/process', 'sponsor.reserve.process', sponsorBase, authenticationSponsor, function (req, res, next) { (new SponsorReserveController_1.default(req, res, next)).process(); });
     app.get('/sponsor/reserve/:token/complete', 'sponsor.reserve.complete', sponsorBase, authenticationSponsor, function (req, res, next) { (new SponsorReserveController_1.default(req, res, next)).complete(); });
     app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', authenticationSponsor, sponsorBase, function (req, res, next) { (new SponsorCancelController_1.default(req, res, next)).execute(); });
+    // TODO 当日窓口フロー
+    // 当日の場合、スケジュール選択候補は、検索条件通り全て出す
+    // 検索条件の初期値を、上映日：当日にする
+    // 4席制限
+    // TODO 電話窓口フロー
     app.get('/Error/NotFound', 'Error.NotFound', function (req, res, next) { (new ErrorController_1.default(req, res, next)).notFound(); });
     // 404
     app.use(function (req, res, next) {

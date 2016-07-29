@@ -2,15 +2,24 @@ import BaseController from '../BaseController';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import PerformanceUtil from '../../../common/models/Performance/PerformanceUtil';
+import FilmUtil from '../../../common/models/Film/FilmUtil';
+import TicketTypeGroupUtil from '../../../common/models/TicketTypeGroup/TicketTypeGroupUtil';
+import ScreenUtil from '../../../common/models/Screen/ScreenUtil';
 import moment = require('moment');
 import conf = require('config');
 import mongodb = require('mongodb');
+import mongoose = require('mongoose');
 import PerformanceStatusesModel from '../../../common/models/PerformanceStatusesModel';
-import qr = require('qr-image');
 
-export default class TaskController extends BaseController {
-    public removeTemporaryReservation(): void {
-        // 仮予約ステータスで、一定時間過ぎた予約を空席にする
+let MONGOLAB_URI = conf.get<string>('mongolab_uri');
+
+export default class TestController extends BaseController {
+    /**
+     * 仮予約ステータスで、一定時間過ぎた予約を空席にする
+     */
+    public removeTemporaryReservations(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
         this.logger.info('updating temporary reservations...');
         Models.Reservation.update(
             {
@@ -27,112 +36,107 @@ export default class TaskController extends BaseController {
                 multi: true,
             },
             (err, affectedRows) => {
+                mongoose.disconnect();
+
                 // 失敗しても、次のタスクにまかせる(気にしない)
                 if (err) {
                 } else {
-                    this.res.send('success');
+                    process.exit(0);
                 }
             }
         );
     }
 
-    public createFilms(): void {
+    /**
+     * 券種グループを初期化する
+     */
+    public createTicketTypeGroups(): void {
+        mongoose.connect(MONGOLAB_URI, {});
 
-        let genres = [
-            {
-                code: "01",
-                name: "ヒューマンドラマ",
-                name_en: "Human Drama"
-            },
-            {
-                code: "02",
-                name: "コメディ",
-                name_en: "Comedy"
-            },
-            {
-                code: "03",
-                name: "ラブストーリー",
-                name_en: "Love Story"
-            },
-            {
-                code: "04",
-                name: "エロス",
-                name_en: "Eros"
-            },
-            {
-                code: "05",
-                name: "青春",
-                name_en: "Youth Drama"
-            },
-        ];
-
-        let sections = [
-            {
-                code: "01",
-                name: "コンペティション",
-                name_en: "Competition"
-            },
-            {
-                code: "02",
-                name: "アジアの未来",
-                name_en: "Asian Future"
-            },
-            {
-                code: "03",
-                name: "日本映画スプラッシュ",
-                name_en: "Japanese Cinema Splash"
-            },
-            {
-                code: "04",
-                name: "特別招待作品",
-                name_en: "Special Screenings"
-            },
-            {
-                code: "05",
-                name: "パノラマ",
-                name_en: "Panorama"
-            },
-        ];
-
-        let films = [
-        ];
-
-        for (let i = 0; i < 300; i++) {
-            let no = i + 1;
-            let _sections = this.shuffle(sections);
-            let _genres = this.shuffle(genres);
-            let min = 60 + Math.floor(Math.random() * 120);
-
-
-            films.push({
-                name: `テスト作品タイトル${no}`,
-                name_en: `Test Film Title ${no}`,
-                director: `テスト監督名前${no}`,
-                director_en: `Test Director Name ${no}`,
-                actor: `テスト俳優名前${no}`,
-                actor_en: `Test Actor Name ${no}`,
-                film_min: min,
-                sections: _sections.slice(0, Math.floor(Math.random() * 5)),
-                genres: _genres.slice(0, Math.floor(Math.random() * 5)),
-                created_user: 'system',
-                updated_user: 'system',
-            });
-        }
-
-        this.logger.debug('removing all films...');
-        Models.Film.remove({}, (err) => {
+        this.logger.debug('removing all ticketTypeGroups...');
+        Models.TicketTypeGroup.remove({}, (err) => {
             this.logger.debug('creating films...');
-            Models.Film.create(
-                films,
-                (err, filmDocuments) => {
-                    this.logger.debug('films created.', filmDocuments);
+            Models.TicketTypeGroup.create(
+                TicketTypeGroupUtil.getAll(),
+                (err, documents) => {
+                    this.logger.debug('ticketTypeGroups created.');
+
+                    mongoose.disconnect();
+
                     if (err) {
                     } else {
-                        this.res.send('success');
+                        this.logger.debug('success!');
+                        process.exit(0);
                     }
                 }
             );
         });
+    }
+
+    /**
+     * 作品を初期化する
+     */
+    public createFilms(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
+        Models.TicketTypeGroup.find({}, '_id', (err, ticketTypeGroupDocuments) => {
+            if (err) {
+                mongoose.disconnect();
+                this.logger.info('err:', err);
+                process.exit(0);
+            }
+
+            let genres = FilmUtil.getGenres();
+            let sections = FilmUtil.getSections();
+            let testNames = FilmUtil.getTestNames();
+            let length = testNames.length;
+            let films = [];
+
+            this.logger.info('ticketTypeGroupDocuments.length:', ticketTypeGroupDocuments.length);
+            for (let i = 0; i < length; i++) {
+                let no = i + 1;
+                let _sections = this.shuffle(sections);
+                let _genres = this.shuffle(genres);
+                let _ticketTypeGroupDocuments = this.shuffle(ticketTypeGroupDocuments);
+                let min = 60 + Math.floor(Math.random() * 120);
+
+                films.push({
+                    name: testNames[i].name,
+                    name_en: testNames[i].name_en,
+                    director: `テスト監督名前${no}`,
+                    director_en: `Test Director Name ${no}`,
+                    actor: `テスト俳優名前${no}`,
+                    actor_en: `Test Actor Name ${no}`,
+                    film_min: min,
+                    sections: _sections.slice(0, Math.floor(Math.random() * 5)),
+                    genres: _genres.slice(0, Math.floor(Math.random() * 5)),
+                    ticket_type_group: _ticketTypeGroupDocuments[0].get('_id'),
+                    created_user: 'system',
+                    updated_user: 'system',
+                });
+            }
+
+            this.logger.debug('removing all films...');
+            Models.Film.remove({}, (err) => {
+                this.logger.debug('creating films...');
+                Models.Film.create(
+                    films,
+                    (err, filmDocuments) => {
+                        this.logger.debug('films created.');
+
+                        mongoose.disconnect();
+
+                        if (err) {
+                        } else {
+                            this.logger.debug('success!');
+                            process.exit(0);
+                        }
+                    }
+                );
+            });
+
+        });
+
     }
 
     private shuffle(array) {
@@ -156,12 +160,17 @@ export default class TaskController extends BaseController {
     private getSeats() {
         let seats = [];
         let letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
+        let grades = ScreenUtil.getSeatGrades();
+
         for (let i = 0; i < 12; i++) {
             let no = i + 1;
 
             letters.forEach((letter) => {
+                let _grades = this.shuffle(grades);
+
                 seats.push({
                     code: `${letter}-${no}`,
+                    grade: _grades[0]
                 })
             })
         }
@@ -169,7 +178,12 @@ export default class TaskController extends BaseController {
         return seats;
     }
 
+    /**
+     * スクリーンを初期化する
+     */
     public createScreens(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
         let theaters = [
             '5750f5600b08d7700b973021',
             '5775b0f0cd62cab416b4b361',
@@ -209,99 +223,118 @@ export default class TaskController extends BaseController {
             Models.Screen.create(
                 screens,
                 (err, screenDocuments) => {
-                    this.logger.debug('screens created.', screenDocuments);
+                    this.logger.debug('screens created.');
+
+                    mongoose.disconnect();
+
                     if (err) {
                     } else {
-                        this.res.send('success');
+                        this.logger.debug('success!');
+                        process.exit(0);
                     }
                 }
             );
         });
     }
 
+    /**
+     * パフォーマンスを初期化する
+     */
     public createPerformances() {
-            let performances = [];
+        mongoose.connect(MONGOLAB_URI, {});
 
-            // 作品ごとのパフォーマンス数(最大3つになるように制御)
-            let performancesByFilm = {};
+        let performances = [];
 
-            Models.Film.find({}, '_id', (err, filmDocuments) => {
-                Models.Screen.find({}, '_id theater', (err, screenDocuments) => {
-                    let days = ['20161022', '20161023', '20161024', '20161025', '20161026', '20161027', '20161028'];
-                    let starts = ['0900', '1200', '1500', '1800'];
-                    let ends = ['1100', '1400', '1700', '2000'];
+        // 作品ごとのパフォーマンス数(最大3つになるように制御)
+        let performancesByFilm = {};
 
-                    // スクリーンごとに4時間帯のスケジュールを登録する
-                    screenDocuments.forEach((screen) => {
-                        this.logger.debug('performances length:', performances.length);
-                        days.forEach((day) => {
-                            starts.forEach((start, index) => {
+        Models.Film.find({}, '_id', (err, filmDocuments) => {
+            Models.Screen.find({}, '_id theater', (err, screenDocuments) => {
+                let days = ['20161022', '20161023', '20161024', '20161025', '20161026', '20161027', '20161028'];
+                let starts = ['0900', '1200', '1500', '1800'];
+                let ends = ['1100', '1400', '1700', '2000'];
+
+                // スクリーンごとに4時間帯のスケジュールを登録する
+                screenDocuments.forEach((screen) => {
+                    this.logger.debug('performances length:', performances.length);
+                    days.forEach((day) => {
+                        starts.forEach((start, index) => {
 
 
 
-                                // 作品を選考する
-                                this.logger.debug('selecting film...');
-                                let _filmId;
-                                while (_filmId === undefined) {
-                                    let _filmDocuments = this.shuffle(filmDocuments);
-                                    let _film = _filmDocuments[0];
+                            // 作品を選考する
+                            this.logger.debug('selecting film...');
+                            let _filmId;
+                            while (_filmId === undefined) {
+                                let _filmDocuments = this.shuffle(filmDocuments);
+                                let _film = _filmDocuments[0];
 
-                                    if (performancesByFilm.hasOwnProperty(_film.get('_id'))) {
-                                        if (performancesByFilm[_film.get('_id')].length > 2) {
-                                            continue;
-                                        } else {
-                                            performancesByFilm[_film.get('_id')].push('performance');
-                                            _filmId = _film.get('_id');
-                                        }
+                                if (performancesByFilm.hasOwnProperty(_film.get('_id'))) {
+                                    if (performancesByFilm[_film.get('_id')].length > 2) {
+                                        continue;
                                     } else {
-                                        performancesByFilm[_film.get('_id')] = [];
                                         performancesByFilm[_film.get('_id')].push('performance');
                                         _filmId = _film.get('_id');
                                     }
+                                } else {
+                                    performancesByFilm[_film.get('_id')] = [];
+                                    performancesByFilm[_film.get('_id')].push('performance');
+                                    _filmId = _film.get('_id');
                                 }
+                            }
 
 
 
-                                this.logger.debug('pushing performance...');
-                                performances.push({
-                                    theater: screen.get('theater'),
-                                    screen: screen.get('_id'),
-                                    film: _filmId,
-                                    day: day,
-                                    start_time: start,
-                                    end_time: ends[index],
-                                    created_user: 'system',
-                                    updated_user: 'system',
-                                });
+                            this.logger.debug('pushing performance...');
+                            performances.push({
+                                theater: screen.get('theater'),
+                                screen: screen.get('_id'),
+                                film: _filmId,
+                                day: day,
+                                start_time: start,
+                                end_time: ends[index],
+                                is_mx4d: this.shuffle([true, false, false, false])[0],
+                                created_user: 'system',
+                                updated_user: 'system'
                             });
                         });
                     });
-
-
-
-
-                    // 全削除
-                    this.logger.debug('removing all performances...');
-                    Models.Performance.remove({}, (err) => {
-                        this.logger.debug('creating performances...');
-                        Models.Performance.create(
-                            performances,
-                            (err, performanceDocuments) => {
-                                this.logger.debug('performances created.', performanceDocuments);
-                                if (err) {
-                                } else {
-                                }
-
-                                this.res.send('success');
-                            }
-                        );
-                    });
-
                 });
+
+
+
+
+                // 全削除して一気に作成
+                this.logger.debug('removing all performances...');
+                Models.Performance.remove({}, (err) => {
+                    this.logger.debug('creating performances...');
+                    Models.Performance.create(
+                        performances,
+                        (err, performanceDocuments) => {
+                            this.logger.debug('performances created.');
+
+                            mongoose.disconnect();
+
+                            if (err) {
+                            } else {
+                            }
+
+                            this.logger.debug('success!');
+                            process.exit(0);
+                        }
+                    );
+                });
+
             });
+        });
     }
 
+    /**
+     * 予約を初期化する
+     */
     public resetReservations(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
         Models.Reservation.remove({}, (err) => {
             this.logger.info('remove processed.', err);
 
@@ -322,21 +355,27 @@ export default class TaskController extends BaseController {
                                 performances.push({
                                     performance: performanceId,
                                     seat_code: seatDocument.get('code'),
+                                    seat_grade_name: seatDocument.get('grade').name,
+                                    seat_grade_name_en: seatDocument.get('grade').name_en,
+                                    seat_grade_additional_charge: seatDocument.get('grade').additional_charge,
                                     status: ReservationUtil.STATUS_AVAILABLE,
                                 });
                             });
                         });
 
+                        mongoose.disconnect();
+
 
                         this.logger.debug('creating reservations...count:', performances.length);
                         let MongoClient = mongodb.MongoClient;
-                        var url = conf.get<string>('mongolab_uri');
-                        MongoClient.connect(url, (err, db) => {
+                        MongoClient.connect(conf.get<string>('mongolab_uri'), (err, db) => {
                             db.collection('reservations').insertMany(performances, (err, result) => {
                                 this.logger.debug('reservations created.', err, result);
 
                                 db.close();
-                                this.res.send('success');
+
+                                this.logger.debug('success!');
+                                process.exit(0);
                             });
                         });
                     }
@@ -346,6 +385,8 @@ export default class TaskController extends BaseController {
     }
 
     public updateReservations(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
         // パフォーマンスごとに空席予約を入れる
         this.logger.debug('updating reservations...');
 
@@ -393,6 +434,9 @@ export default class TaskController extends BaseController {
                             },
                             (err, affectedRows, raw) => {
                                 this.logger.debug('reservation updated. _id:', id, index, err, affectedRows);
+
+                                mongoose.disconnect();
+
                                 if (err) {
                                     reject();
                                 } else {
@@ -413,10 +457,11 @@ export default class TaskController extends BaseController {
                     let memoryUsage = endMemory.rss - startMemory.rss;
                     let diff = process.hrtime(startTime);
 
-                    this.res.send(`success!! ${limit} reservations update. benchmark took ${diff[0]} seconds and ${diff[1]} nanoseconds.`);
+                    this.logger.debug(`success!! ${limit} reservations update. benchmark took ${diff[0]} seconds and ${diff[1]} nanoseconds.`);
 
                 }, (err) => {
-                    this.res.send('false');
+                    this.logger.debug('success!');
+                    process.exit(0);
 
                 });
 
@@ -426,6 +471,8 @@ export default class TaskController extends BaseController {
     }
 
     public calculatePerformanceStatuses() {
+        mongoose.connect(MONGOLAB_URI, {});
+
         Models.Performance.find({}, '_id day start_time').exec((err, performanceDocuments) => {
             let promises = [];
             let now = moment().format('YYYYMMDDHHmm');
@@ -446,6 +493,8 @@ export default class TaskController extends BaseController {
                                     performance: performanceDocument.get('_id'),
                                 }
                                 ,(err, countAll) => {
+                                    mongoose.disconnect();
+
                                     let start = performanceDocument.get('day') + performanceDocument.get('start_time');
                                     let status = PerformanceUtil.seatNum2status(countAvailable, countAll, start, now);
                                     performanceStatusesModel.setStatus(performanceDocument.get('_id'), status);
@@ -464,63 +513,15 @@ export default class TaskController extends BaseController {
 
             Promise.all(promises).then(() => {
                 performanceStatusesModel.save((err) => {
-                    this.res.send('success');
+                    this.logger.debug('success!');
+                    process.exit(0);
                 });
 
             }, (err) => {
-                this.res.send('false');
+                this.logger.debug('fail.');
+                process.exit(0);
 
             });
         });
-    }
-
-    public createBarcode() {
-        let text = (this.req.query.text) ? this.req.query.text : "please enter a text.\n";
-
-
-        // var img = qr.imageSync(text);
-        var img = qr.image(text);
-
-        this.res.setHeader('Content-Type', 'image/png');
-        img.pipe(this.res);
-        // this.res.send(img);
-
-
-/*
-        var bwipjs = require('bwip-js');
-
-        // Optionally load some custom fonts.  Maximum 8.
-        // OpenType and TrueType are supported.
-        // bwipjs.loadFont('Inconsolata', 108,
-        //             require('fs').readFileSync('fonts/Inconsolata.otf', 'binary'));
-
-        bwipjs.toBuffer({
-                bcid:        'code128',       // Barcode type
-                text:        text,    // Text to encode
-                scale:       3,               // 3x scaling factor
-                height:      10,              // Bar height, in millimeters
-                includetext: true,            // Show human-readable text
-                textxalign:  'center',        // Always good to set this
-                textfont:    'Inconsolata',   // Use your custom font
-                textsize:    13               // Font size, in points
-            }, (err, png) => {
-                if (err) {
-                    throw err;
-                    // Decide how to handle the error
-                    // `err` may be a string or Error object
-                } else {
-                    // `png` is a Buffer
-                    // png.length           : PNG file length
-                    // png.readUInt32BE(16) : PNG image width
-                    // png.readUInt32BE(20) : PNG image height
-
-                    // this.res.setHeader('Content-Type', 'image/png');
-                    // this.res.send(png);
-
-                    this.res.send(`<img src="data:image/png;base64,${png.toString('base64')}">`);
-
-                }
-            });
-*/
     }
 }

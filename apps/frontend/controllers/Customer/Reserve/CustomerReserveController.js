@@ -21,42 +21,59 @@ var CustomerReserveController = (function (_super) {
         _super.apply(this, arguments);
     }
     /**
-     * 規約
+     * スケジュール選択
      */
-    CustomerReserveController.prototype.terms = function () {
+    CustomerReserveController.prototype.performances = function () {
         var _this = this;
         if (this.req.method === 'POST') {
-            var form = reserveTermsForm_1.default(this.req);
-            form(this.req, this.res, function (err) {
+            reservePerformanceForm_1.default(this.req, this.res, function (err) {
                 if (_this.req.form.isValid) {
-                    _this.res.redirect(_this.router.build('customer.reserve.start', {}));
+                    _this.res.redirect(307, _this.router.build('customer.reserve.start'));
                 }
                 else {
-                    _this.res.render('customer/reserve/terms', {});
+                    _this.res.render('customer/reserve/performances', {});
                 }
             });
         }
         else {
-            this.res.render('customer/reserve/terms', {});
+            this.res.render('customer/reserve/performances', {
+                FilmUtil: FilmUtil_1.default
+            });
         }
     };
+    /**
+     * ポータルからパフォーマンス指定でPOSTされてくる
+     */
     CustomerReserveController.prototype.start = function () {
-        // TODO 内部以外は、上映開始20分過ぎていたらはじく
         var _this = this;
-        // 予約トークンを発行
-        var token = Util_1.default.createToken();
-        var reservationModel = new ReservationModel_1.default();
-        reservationModel.token = token;
-        // スケジュール選択へ
-        this.logger.debug('saving reservationModel... ', reservationModel);
-        reservationModel.save(function (err) {
-            _this.res.redirect(_this.router.build('customer.reserve.performances', { token: token }));
+        reservePerformanceForm_1.default(this.req, this.res, function (err) {
+            if (_this.req.form.isValid) {
+                // 予約トークンを発行
+                var token_1 = Util_1.default.createToken();
+                var reservationModel = new ReservationModel_1.default();
+                reservationModel.token = token_1;
+                // パフォーマンスFIX
+                _this.processFixPerformance(reservationModel, _this.req.form['performanceId'], function (err, reservationModel) {
+                    if (err) {
+                        _this.next(err);
+                    }
+                    else {
+                        _this.logger.debug('saving reservationModel... ', reservationModel);
+                        reservationModel.save(function (err) {
+                            _this.res.redirect(_this.router.build('customer.reserve.terms', { token: token_1 }));
+                        });
+                    }
+                });
+            }
+            else {
+                _this.next(new Error('invalid access.'));
+            }
         });
     };
     /**
-     * スケジュール選択
+     * 規約
      */
-    CustomerReserveController.prototype.performances = function () {
+    CustomerReserveController.prototype.terms = function () {
         var _this = this;
         var token = this.req.params.token;
         ReservationModel_1.default.find(token, function (err, reservationModel) {
@@ -65,46 +82,29 @@ var CustomerReserveController = (function (_super) {
             }
             _this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (_this.req.method === 'POST') {
-                reservePerformanceForm_1.default(_this.req, _this.res, function (err) {
+                var form = reserveTermsForm_1.default(_this.req);
+                form(_this.req, _this.res, function (err) {
                     if (_this.req.form.isValid) {
-                        // パフォーマンスFIX
-                        _this.processFixPerformance(reservationModel, _this.req.form['performanceId'], function (err, reservationModel) {
-                            if (err) {
-                                _this.next(err);
-                            }
-                            else {
-                                _this.logger.debug('saving reservationModel... ', reservationModel);
-                                reservationModel.save(function (err) {
-                                    _this.res.redirect(_this.router.build('customer.reserve.seats', { token: token }));
-                                });
-                            }
-                        });
+                        _this.res.redirect(_this.router.build('customer.reserve.seats', { token: token }));
                     }
                     else {
-                        _this.res.render('customer/reserve/performances', {});
+                        _this.res.render('customer/reserve/terms', {});
                     }
                 });
             }
             else {
-                // 仮予約あればキャンセルする
-                _this.processCancelSeats(reservationModel, function (err, reservationModel) {
-                    _this.logger.debug('saving reservationModel... ', reservationModel);
-                    reservationModel.save(function (err) {
-                        _this.res.render('customer/reserve/performances', {
-                            FilmUtil: FilmUtil_1.default
-                        });
-                    });
-                });
+                _this.res.render('customer/reserve/terms', {});
             }
         });
     };
     /**
      * 座席選択
-     *
-     * TODO 一アカウント、一パフォーマンスにつき4枚まで
      */
     CustomerReserveController.prototype.seats = function () {
         var _this = this;
+        var limit = 4; // 最大座席確保枚数
+        // TODO 1アカウント1パフォーマンスごとに枚数制限
+        // ここで、ログインユーザーの予約枚数をチェックする
         var token = this.req.params.token;
         ReservationModel_1.default.find(token, function (err, reservationModel) {
             if (err || reservationModel === null) {
@@ -115,6 +115,10 @@ var CustomerReserveController = (function (_super) {
                 reserveSeatForm_1.default(_this.req, _this.res, function (err) {
                     if (_this.req.form.isValid) {
                         var reservationIds_1 = JSON.parse(_this.req.form['reservationIds']);
+                        // ブラウザ側でも枚数チェックしているが、念のため
+                        if (reservationIds_1.length > limit) {
+                            return _this.next(new Error('invalid access.'));
+                        }
                         // 座席FIX
                         _this.processFixSeats(reservationModel, reservationIds_1, function (err, reservationModel) {
                             if (err) {
@@ -144,6 +148,7 @@ var CustomerReserveController = (function (_super) {
             else {
                 _this.res.render('customer/reserve/seats', {
                     reservationModel: reservationModel,
+                    limit: limit
                 });
             }
         });
@@ -167,10 +172,10 @@ var CustomerReserveController = (function (_super) {
                         if (Array.isArray(choices)) {
                             choices.forEach(function (choice) {
                                 var reservation = reservationModel.getReservation(choice.reservation_id);
-                                reservation.ticket_type = choice.ticket_type;
-                                reservation.ticket_name = choice.ticket_name;
-                                reservation.ticket_name_en = choice.ticket_name_en;
-                                reservation.ticket_price = choice.ticket_price;
+                                reservation.ticket_type_code = choice.ticket_type_code;
+                                reservation.ticket_type_name = choice.ticket_type_name;
+                                reservation.ticket_type_name_en = choice.ticket_type_name_en;
+                                reservation.ticket_type_charge = parseInt(choice.ticket_type_charge);
                                 reservationModel.setReservation(reservation._id, reservation);
                             });
                             _this.logger.debug('saving reservationModel... ', reservationModel);

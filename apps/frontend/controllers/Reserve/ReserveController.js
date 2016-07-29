@@ -29,7 +29,7 @@ var ReserveController = (function (_super) {
             // 予約リストを取得
             Models_1.default.Reservation.find({
                 performance: reservationModel.performance._id
-            }, 'seat_code status staff staff_name staff_department_name sponsor sponsor_name member member_email', {}, function (err, reservationDocuments) {
+            }, 'seat_code seat_grade_name seat_grade_name_en status staff staff_name staff_department_name sponsor sponsor_name member member_email', {}, function (err, reservationDocuments) {
                 if (err) {
                     _this.res.json({
                         propertiesBySeatCode: {}
@@ -47,6 +47,7 @@ var ReserveController = (function (_super) {
                         var attrs = {};
                         attrs['data-reservation-id'] = reservationDocument.get('_id');
                         var baloonContent = reservationDocument.get('seat_code');
+                        baloonContent += "<br>" + reservationDocument.get('seat_grade_' + _this.req.__('DocumentField.name'));
                         if (reservationDocument.get('status') === ReservationUtil_1.default.STATUS_AVAILABLE) {
                             // 予約可能
                             classes.push('select-seat');

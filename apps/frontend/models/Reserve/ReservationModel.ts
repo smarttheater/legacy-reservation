@@ -27,6 +27,7 @@ export default class ReservationModel {
         day: string,
         start_time: string,
         end_time: string,
+        is_mx4d: boolean, // MX4D上映かどうか
         theater: {
             _id: string,
             name: string,
@@ -38,7 +39,12 @@ export default class ReservationModel {
             name_en: string,
             sections: Array<{
                 seats: Array<{
-                    code: string
+                    code: string, // 座席コード
+                    grade: {
+                        name: string, // 座席レベル名
+                        name_en: string, // 座席レベル名(英語)
+                        additional_charge: Number // 追加料金
+                    }
                 }>
             }>
         },
@@ -50,14 +56,22 @@ export default class ReservationModel {
     };
 
     /**
+     * 券種リスト
+     */
+    public ticketTypes: Array<
+         {
+            code: string,
+            name: string, // 券種名
+            name_en: string, // 券種名(英語)
+            charge: number, // 料金
+            is_on_the_day: boolean // 当日だけフラグ
+        }
+    >;
+
+    /**
      * スクリーンの座席表HTML
      */
     public screenHtml: string;
-
-    /**
-     * 座席コードごとの券種選択肢リスト
-     */
-    public ticketChoicesBySeatCode: Object;
 
     /**
      * 予約IDリスト
@@ -185,8 +199,18 @@ export default class ReservationModel {
         if (Array.isArray(this.reservationIds) && this.reservationIds.length > 0) {
             this.reservationIds.forEach((reservationId, index) => {
                 let reservation = this.getReservation(reservationId);
-                if (reservation.ticket_price) {
-                    total += parseInt(reservation.ticket_price);
+                if (reservation.ticket_type_charge) {
+                    total += reservation.ticket_type_charge;
+
+                    // 座席グレード分加算
+                    if (reservation.seat_grade_additional_charge > 0) {
+                        total += reservation.seat_grade_additional_charge;
+                    }
+
+                    // MX4D分加算
+                    if (this.performance.is_mx4d) {
+                        total += 200;
+                    }
                 }
             });
         }
@@ -245,10 +269,10 @@ export default class ReservationModel {
                     purchaser_first_name: this.profile.first_name,
                     purchaser_email: this.profile.email,
                     purchaser_tel: this.profile.tel,
-                    ticket_type: reservation.ticket_type,
-                    ticket_name: reservation.ticket_name,
-                    ticket_name_en: reservation.ticket_name_en,
-                    ticket_price: reservation.ticket_price,
+                    ticket_type_code: reservation.ticket_type_code,
+                    ticket_type_name: reservation.ticket_type_name,
+                    ticket_type_name_en: reservation.ticket_type_name_en,
+                    ticket_type_charge: reservation.ticket_type_charge,
 
                     watcher_name: reservation.watcher_name,
 
@@ -327,11 +351,15 @@ interface Reservation {
     token?: string;
     status: string;
     seat_code: string,
+    seat_grade_name: string,
+    seat_grade_name_en: string,
+    seat_grade_additional_charge: number,
 
-    ticket_type?: string;
-    ticket_name?: string;
-    ticket_name_en?: string;
-    ticket_price?: string;
+    ticket_type_code?: string,
+    ticket_type_name?: string,
+    ticket_type_name_en?: string,
+    ticket_type_charge?: number,
+
     watcher_name?: string,
 
     payment_no?: string,

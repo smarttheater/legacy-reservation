@@ -80,8 +80,16 @@ var ReservationModel = (function () {
         if (Array.isArray(this.reservationIds) && this.reservationIds.length > 0) {
             this.reservationIds.forEach(function (reservationId, index) {
                 var reservation = _this.getReservation(reservationId);
-                if (reservation.ticket_price) {
-                    total += parseInt(reservation.ticket_price);
+                if (reservation.ticket_type_charge) {
+                    total += reservation.ticket_type_charge;
+                    // 座席グレード分加算
+                    if (reservation.seat_grade_additional_charge > 0) {
+                        total += reservation.seat_grade_additional_charge;
+                    }
+                    // MX4D分加算
+                    if (_this.performance.is_mx4d) {
+                        total += 200;
+                    }
                 }
             });
         }
@@ -132,10 +140,10 @@ var ReservationModel = (function () {
                 purchaser_first_name: _this.profile.first_name,
                 purchaser_email: _this.profile.email,
                 purchaser_tel: _this.profile.tel,
-                ticket_type: reservation.ticket_type,
-                ticket_name: reservation.ticket_name,
-                ticket_name_en: reservation.ticket_name_en,
-                ticket_price: reservation.ticket_price,
+                ticket_type_code: reservation.ticket_type_code,
+                ticket_type_name: reservation.ticket_type_name,
+                ticket_type_name_en: reservation.ticket_type_name_en,
+                ticket_type_charge: reservation.ticket_type_charge,
                 watcher_name: reservation.watcher_name,
                 member: (_this.member) ? _this.member._id : null,
                 member_user_id: (_this.member) ? _this.member.user_id : null,

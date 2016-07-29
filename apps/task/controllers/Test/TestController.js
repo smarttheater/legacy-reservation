@@ -8,19 +8,25 @@ var BaseController_1 = require('../BaseController');
 var Models_1 = require('../../../common/models/Models');
 var ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 var PerformanceUtil_1 = require('../../../common/models/Performance/PerformanceUtil');
+var FilmUtil_1 = require('../../../common/models/Film/FilmUtil');
+var TicketTypeGroupUtil_1 = require('../../../common/models/TicketTypeGroup/TicketTypeGroupUtil');
+var ScreenUtil_1 = require('../../../common/models/Screen/ScreenUtil');
 var moment = require('moment');
 var conf = require('config');
 var mongodb = require('mongodb');
+var mongoose = require('mongoose');
 var PerformanceStatusesModel_1 = require('../../../common/models/PerformanceStatusesModel');
-var qr = require('qr-image');
-var TaskController = (function (_super) {
-    __extends(TaskController, _super);
-    function TaskController() {
+var MONGOLAB_URI = conf.get('mongolab_uri');
+var TestController = (function (_super) {
+    __extends(TestController, _super);
+    function TestController() {
         _super.apply(this, arguments);
     }
-    TaskController.prototype.removeTemporaryReservation = function () {
-        var _this = this;
-        // 仮予約ステータスで、一定時間過ぎた予約を空席にする
+    /**
+     * 仮予約ステータスで、一定時間過ぎた予約を空席にする
+     */
+    TestController.prototype.removeTemporaryReservations = function () {
+        mongoose.connect(MONGOLAB_URI, {});
         this.logger.info('updating temporary reservations...');
         Models_1.default.Reservation.update({
             status: ReservationUtil_1.default.STATUS_TEMPORARY,
@@ -33,104 +39,92 @@ var TaskController = (function (_super) {
         }, {
             multi: true,
         }, function (err, affectedRows) {
+            mongoose.disconnect();
             // 失敗しても、次のタスクにまかせる(気にしない)
             if (err) {
             }
             else {
-                _this.res.send('success');
+                process.exit(0);
             }
         });
     };
-    TaskController.prototype.createFilms = function () {
+    /**
+     * 券種グループを初期化する
+     */
+    TestController.prototype.createTicketTypeGroups = function () {
         var _this = this;
-        var genres = [
-            {
-                code: "01",
-                name: "ヒューマンドラマ",
-                name_en: "Human Drama"
-            },
-            {
-                code: "02",
-                name: "コメディ",
-                name_en: "Comedy"
-            },
-            {
-                code: "03",
-                name: "ラブストーリー",
-                name_en: "Love Story"
-            },
-            {
-                code: "04",
-                name: "エロス",
-                name_en: "Eros"
-            },
-            {
-                code: "05",
-                name: "青春",
-                name_en: "Youth Drama"
-            },
-        ];
-        var sections = [
-            {
-                code: "01",
-                name: "コンペティション",
-                name_en: "Competition"
-            },
-            {
-                code: "02",
-                name: "アジアの未来",
-                name_en: "Asian Future"
-            },
-            {
-                code: "03",
-                name: "日本映画スプラッシュ",
-                name_en: "Japanese Cinema Splash"
-            },
-            {
-                code: "04",
-                name: "特別招待作品",
-                name_en: "Special Screenings"
-            },
-            {
-                code: "05",
-                name: "パノラマ",
-                name_en: "Panorama"
-            },
-        ];
-        var films = [];
-        for (var i = 0; i < 300; i++) {
-            var no = i + 1;
-            var _sections = this.shuffle(sections);
-            var _genres = this.shuffle(genres);
-            var min = 60 + Math.floor(Math.random() * 120);
-            films.push({
-                name: "\u30C6\u30B9\u30C8\u4F5C\u54C1\u30BF\u30A4\u30C8\u30EB" + no,
-                name_en: "Test Film Title " + no,
-                director: "\u30C6\u30B9\u30C8\u76E3\u7763\u540D\u524D" + no,
-                director_en: "Test Director Name " + no,
-                actor: "\u30C6\u30B9\u30C8\u4FF3\u512A\u540D\u524D" + no,
-                actor_en: "Test Actor Name " + no,
-                film_min: min,
-                sections: _sections.slice(0, Math.floor(Math.random() * 5)),
-                genres: _genres.slice(0, Math.floor(Math.random() * 5)),
-                created_user: 'system',
-                updated_user: 'system',
-            });
-        }
-        this.logger.debug('removing all films...');
-        Models_1.default.Film.remove({}, function (err) {
+        mongoose.connect(MONGOLAB_URI, {});
+        this.logger.debug('removing all ticketTypeGroups...');
+        Models_1.default.TicketTypeGroup.remove({}, function (err) {
             _this.logger.debug('creating films...');
-            Models_1.default.Film.create(films, function (err, filmDocuments) {
-                _this.logger.debug('films created.', filmDocuments);
+            Models_1.default.TicketTypeGroup.create(TicketTypeGroupUtil_1.default.getAll(), function (err, documents) {
+                _this.logger.debug('ticketTypeGroups created.');
+                mongoose.disconnect();
                 if (err) {
                 }
                 else {
-                    _this.res.send('success');
+                    _this.logger.debug('success!');
+                    process.exit(0);
                 }
             });
         });
     };
-    TaskController.prototype.shuffle = function (array) {
+    /**
+     * 作品を初期化する
+     */
+    TestController.prototype.createFilms = function () {
+        var _this = this;
+        mongoose.connect(MONGOLAB_URI, {});
+        Models_1.default.TicketTypeGroup.find({}, '_id', function (err, ticketTypeGroupDocuments) {
+            if (err) {
+                mongoose.disconnect();
+                _this.logger.info('err:', err);
+                process.exit(0);
+            }
+            var genres = FilmUtil_1.default.getGenres();
+            var sections = FilmUtil_1.default.getSections();
+            var testNames = FilmUtil_1.default.getTestNames();
+            var length = testNames.length;
+            var films = [];
+            _this.logger.info('ticketTypeGroupDocuments.length:', ticketTypeGroupDocuments.length);
+            for (var i = 0; i < length; i++) {
+                var no = i + 1;
+                var _sections = _this.shuffle(sections);
+                var _genres = _this.shuffle(genres);
+                var _ticketTypeGroupDocuments = _this.shuffle(ticketTypeGroupDocuments);
+                var min = 60 + Math.floor(Math.random() * 120);
+                films.push({
+                    name: testNames[i].name,
+                    name_en: testNames[i].name_en,
+                    director: "\u30C6\u30B9\u30C8\u76E3\u7763\u540D\u524D" + no,
+                    director_en: "Test Director Name " + no,
+                    actor: "\u30C6\u30B9\u30C8\u4FF3\u512A\u540D\u524D" + no,
+                    actor_en: "Test Actor Name " + no,
+                    film_min: min,
+                    sections: _sections.slice(0, Math.floor(Math.random() * 5)),
+                    genres: _genres.slice(0, Math.floor(Math.random() * 5)),
+                    ticket_type_group: _ticketTypeGroupDocuments[0].get('_id'),
+                    created_user: 'system',
+                    updated_user: 'system',
+                });
+            }
+            _this.logger.debug('removing all films...');
+            Models_1.default.Film.remove({}, function (err) {
+                _this.logger.debug('creating films...');
+                Models_1.default.Film.create(films, function (err, filmDocuments) {
+                    _this.logger.debug('films created.');
+                    mongoose.disconnect();
+                    if (err) {
+                    }
+                    else {
+                        _this.logger.debug('success!');
+                        process.exit(0);
+                    }
+                });
+            });
+        });
+    };
+    TestController.prototype.shuffle = function (array) {
         var m = array.length, t, i;
         // While there remain elements to shuffle…
         while (m) {
@@ -143,14 +137,18 @@ var TaskController = (function (_super) {
         }
         return array;
     };
-    TaskController.prototype.getSeats = function () {
+    TestController.prototype.getSeats = function () {
+        var _this = this;
         var seats = [];
         var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
+        var grades = ScreenUtil_1.default.getSeatGrades();
         var _loop_1 = function(i) {
             var no = i + 1;
             letters.forEach(function (letter) {
+                var _grades = _this.shuffle(grades);
                 seats.push({
                     code: letter + "-" + no,
+                    grade: _grades[0]
                 });
             });
         };
@@ -159,8 +157,12 @@ var TaskController = (function (_super) {
         }
         return seats;
     };
-    TaskController.prototype.createScreens = function () {
+    /**
+     * スクリーンを初期化する
+     */
+    TestController.prototype.createScreens = function () {
         var _this = this;
+        mongoose.connect(MONGOLAB_URI, {});
         var theaters = [
             '5750f5600b08d7700b973021',
             '5775b0f0cd62cab416b4b361',
@@ -191,17 +193,23 @@ var TaskController = (function (_super) {
         Models_1.default.Screen.remove({}, function (err) {
             _this.logger.debug('creating screens...');
             Models_1.default.Screen.create(screens, function (err, screenDocuments) {
-                _this.logger.debug('screens created.', screenDocuments);
+                _this.logger.debug('screens created.');
+                mongoose.disconnect();
                 if (err) {
                 }
                 else {
-                    _this.res.send('success');
+                    _this.logger.debug('success!');
+                    process.exit(0);
                 }
             });
         });
     };
-    TaskController.prototype.createPerformances = function () {
+    /**
+     * パフォーマンスを初期化する
+     */
+    TestController.prototype.createPerformances = function () {
         var _this = this;
+        mongoose.connect(MONGOLAB_URI, {});
         var performances = [];
         // 作品ごとのパフォーマンス数(最大3つになるように制御)
         var performancesByFilm = {};
@@ -244,30 +252,37 @@ var TaskController = (function (_super) {
                                 day: day,
                                 start_time: start,
                                 end_time: ends[index],
+                                is_mx4d: _this.shuffle([true, false, false, false])[0],
                                 created_user: 'system',
-                                updated_user: 'system',
+                                updated_user: 'system'
                             });
                         });
                     });
                 });
-                // 全削除
+                // 全削除して一気に作成
                 _this.logger.debug('removing all performances...');
                 Models_1.default.Performance.remove({}, function (err) {
                     _this.logger.debug('creating performances...');
                     Models_1.default.Performance.create(performances, function (err, performanceDocuments) {
-                        _this.logger.debug('performances created.', performanceDocuments);
+                        _this.logger.debug('performances created.');
+                        mongoose.disconnect();
                         if (err) {
                         }
                         else {
                         }
-                        _this.res.send('success');
+                        _this.logger.debug('success!');
+                        process.exit(0);
                     });
                 });
             });
         });
     };
-    TaskController.prototype.resetReservations = function () {
+    /**
+     * 予約を初期化する
+     */
+    TestController.prototype.resetReservations = function () {
         var _this = this;
+        mongoose.connect(MONGOLAB_URI, {});
         Models_1.default.Reservation.remove({}, function (err) {
             _this.logger.info('remove processed.', err);
             if (err) {
@@ -285,26 +300,31 @@ var TaskController = (function (_super) {
                             performances_1.push({
                                 performance: performanceId,
                                 seat_code: seatDocument.get('code'),
+                                seat_grade_name: seatDocument.get('grade').name,
+                                seat_grade_name_en: seatDocument.get('grade').name_en,
+                                seat_grade_additional_charge: seatDocument.get('grade').additional_charge,
                                 status: ReservationUtil_1.default.STATUS_AVAILABLE,
                             });
                         });
                     });
+                    mongoose.disconnect();
                     _this.logger.debug('creating reservations...count:', performances_1.length);
                     var MongoClient = mongodb.MongoClient;
-                    var url = conf.get('mongolab_uri');
-                    MongoClient.connect(url, function (err, db) {
+                    MongoClient.connect(conf.get('mongolab_uri'), function (err, db) {
                         db.collection('reservations').insertMany(performances_1, function (err, result) {
                             _this.logger.debug('reservations created.', err, result);
                             db.close();
-                            _this.res.send('success');
+                            _this.logger.debug('success!');
+                            process.exit(0);
                         });
                     });
                 });
             }
         });
     };
-    TaskController.prototype.updateReservations = function () {
+    TestController.prototype.updateReservations = function () {
         var _this = this;
+        mongoose.connect(MONGOLAB_URI, {});
         // パフォーマンスごとに空席予約を入れる
         this.logger.debug('updating reservations...');
         // Models.Reservation.update(
@@ -338,6 +358,7 @@ var TaskController = (function (_super) {
                         status: ReservationUtil_1.default.STATUS_TEMPORARY,
                     }, function (err, affectedRows, raw) {
                         _this.logger.debug('reservation updated. _id:', id, index, err, affectedRows);
+                        mongoose.disconnect();
                         if (err) {
                             reject();
                         }
@@ -351,14 +372,16 @@ var TaskController = (function (_super) {
                 var endMemory = process.memoryUsage();
                 var memoryUsage = endMemory.rss - startMemory.rss;
                 var diff = process.hrtime(startTime);
-                _this.res.send("success!! " + limit + " reservations update. benchmark took " + diff[0] + " seconds and " + diff[1] + " nanoseconds.");
+                _this.logger.debug("success!! " + limit + " reservations update. benchmark took " + diff[0] + " seconds and " + diff[1] + " nanoseconds.");
             }, function (err) {
-                _this.res.send('false');
+                _this.logger.debug('success!');
+                process.exit(0);
             });
         });
     };
-    TaskController.prototype.calculatePerformanceStatuses = function () {
+    TestController.prototype.calculatePerformanceStatuses = function () {
         var _this = this;
+        mongoose.connect(MONGOLAB_URI, {});
         Models_1.default.Performance.find({}, '_id day start_time').exec(function (err, performanceDocuments) {
             var promises = [];
             var now = moment().format('YYYYMMDDHHmm');
@@ -373,6 +396,7 @@ var TaskController = (function (_super) {
                         Models_1.default.Reservation.count({
                             performance: performanceDocument.get('_id'),
                         }, function (err, countAll) {
+                            mongoose.disconnect();
                             var start = performanceDocument.get('day') + performanceDocument.get('start_time');
                             var status = PerformanceUtil_1.default.seatNum2status(countAvailable, countAll, start, now);
                             performanceStatusesModel.setStatus(performanceDocument.get('_id'), status);
@@ -383,58 +407,16 @@ var TaskController = (function (_super) {
             });
             Promise.all(promises).then(function () {
                 performanceStatusesModel.save(function (err) {
-                    _this.res.send('success');
+                    _this.logger.debug('success!');
+                    process.exit(0);
                 });
             }, function (err) {
-                _this.res.send('false');
+                _this.logger.debug('fail.');
+                process.exit(0);
             });
         });
     };
-    TaskController.prototype.createBarcode = function () {
-        var text = (this.req.query.text) ? this.req.query.text : "please enter a text.\n";
-        // var img = qr.imageSync(text);
-        var img = qr.image(text);
-        this.res.setHeader('Content-Type', 'image/png');
-        img.pipe(this.res);
-        // this.res.send(img);
-        /*
-                var bwipjs = require('bwip-js');
-        
-                // Optionally load some custom fonts.  Maximum 8.
-                // OpenType and TrueType are supported.
-                // bwipjs.loadFont('Inconsolata', 108,
-                //             require('fs').readFileSync('fonts/Inconsolata.otf', 'binary'));
-        
-                bwipjs.toBuffer({
-                        bcid:        'code128',       // Barcode type
-                        text:        text,    // Text to encode
-                        scale:       3,               // 3x scaling factor
-                        height:      10,              // Bar height, in millimeters
-                        includetext: true,            // Show human-readable text
-                        textxalign:  'center',        // Always good to set this
-                        textfont:    'Inconsolata',   // Use your custom font
-                        textsize:    13               // Font size, in points
-                    }, (err, png) => {
-                        if (err) {
-                            throw err;
-                            // Decide how to handle the error
-                            // `err` may be a string or Error object
-                        } else {
-                            // `png` is a Buffer
-                            // png.length           : PNG file length
-                            // png.readUInt32BE(16) : PNG image width
-                            // png.readUInt32BE(20) : PNG image height
-        
-                            // this.res.setHeader('Content-Type', 'image/png');
-                            // this.res.send(png);
-        
-                            this.res.send(`<img src="data:image/png;base64,${png.toString('base64')}">`);
-        
-                        }
-                    });
-        */
-    };
-    return TaskController;
+    return TestController;
 }(BaseController_1.default));
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = TaskController;
+exports.default = TestController;

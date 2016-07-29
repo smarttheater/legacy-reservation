@@ -43,10 +43,15 @@ let ReservationSchema = new mongoose.Schema({
     purchaser_tel: String,
 
     seat_code: String,
-    ticket_type: String,
-    ticket_name: String,
-    ticket_name_en: String,
-    ticket_price: String,
+    seat_grade_name: String,
+    seat_grade_name_en: String,
+    seat_grade_additional_charge: Number,
+
+    ticket_type_code: String,
+    ticket_type_name: String,
+    ticket_type_name_en: String,
+    ticket_type_charge: Number,
+
     watcher_name: String,
 
     sponsor: {

@@ -19,6 +19,7 @@ var PerformanceSchema = new mongoose.Schema({
     day: String,
     start_time: String,
     end_time: String,
+    is_mx4d: Boolean,
     created_user: String,
     updated_user: String,
 }, {

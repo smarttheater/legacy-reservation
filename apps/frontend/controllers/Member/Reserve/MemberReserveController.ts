@@ -105,6 +105,9 @@ export default class MemberReserveController extends ReserveBaseController {
                                     _id: reservationDocument.get('_id'),
                                     status: reservationDocument.get('status'),
                                     seat_code: reservationDocument.get('seat_code'),
+                                    seat_grade_name: reservationDocument.get('seat_grade_name'),
+                                    seat_grade_name_en: reservationDocument.get('seat_grade_name_en'),
+                                    seat_grade_additional_charge: reservationDocument.get('seat_grade_additional_charge'),
                                     performance: this.memberUser.get('performance'),
                                 });
                             }
@@ -147,10 +150,10 @@ export default class MemberReserveController extends ReserveBaseController {
                         if (Array.isArray(choices)) {
                             choices.forEach((choice, index) => {
                                 let reservation = reservationModel.getReservation(choice.reservation_id);
-                                reservation.ticket_type = choice.ticket_type;
-                                reservation.ticket_name = choice.ticket_name;
-                                reservation.ticket_name_en = choice.ticket_name_en;
-                                reservation.ticket_price = choice.ticket_price;
+                                reservation.ticket_type_code = choice.ticket_type_code;
+                                reservation.ticket_type_name = choice.ticket_type_name;
+                                reservation.ticket_type_name_en = choice.ticket_type_name_en;
+                                reservation.ticket_type_charge = parseInt(choice.ticket_type_charge);
 
                                 reservationModel.setReservation(reservation._id, reservation);
                             });

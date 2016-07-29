@@ -8,7 +8,7 @@
     <form class="form-inline">
         <div class="form-group">
             <label for=""></label>
-            <select class="form-control" name="sections">
+            <select class="form-control" name="section">
                 <option value=""><%- __('Label.AllSections') %></option>
                 <% for (let section of FilmUtil.getSections()) { %>
                 <option value="<%- section.code %>"><%- section[__('DocumentField.name')] %></option>

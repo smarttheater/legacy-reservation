@@ -11,6 +11,7 @@ import ScreenSchema from '../models/Screen/ScreenSchema';
 import SponsorSchema from '../models/Sponsor/SponsorSchema';
 import StaffSchema from '../models/Staff/StaffSchema';
 import TheaterSchema from '../models/Theater/TheaterSchema';
+import TicketTypeGroupSchema from '../models/TicketTypeGroup/TicketTypeGroupSchema';
 
 let Film = mongoose.model('Film', FilmSchema);
 let Member = mongoose.model('Member', MemberSchema);
@@ -20,6 +21,7 @@ let Screen = mongoose.model('Screen', ScreenSchema);
 let Sponsor = mongoose.model('Sponsor', SponsorSchema);
 let Staff = mongoose.model('Staff', StaffSchema);
 let Theater = mongoose.model('Theater', TheaterSchema);
+let TicketTypeGroup = mongoose.model('TicketTypeGroup', TicketTypeGroupSchema);
 
 export default {
     Film,
@@ -30,4 +32,5 @@ export default {
     Sponsor,
     Staff,
     Theater,
+    TicketTypeGroup
 };

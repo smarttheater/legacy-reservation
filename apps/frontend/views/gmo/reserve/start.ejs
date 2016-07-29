@@ -17,7 +17,10 @@
         CancelURL<input type="text" name="CancelURL" value="<%- 'https://' + req.headers.host + url('gmo.reserve.result') %>"><br>
 
         UseCredit:<input type="text" name="UseCredit" value="1"><br>
+        <% // コンビニ決済は5日前の24時まで %>
+        <% if (parseInt(moment().format('YYYYMMDD')) < 20161018) { %>
         UseCvs:<input type="text" name="UseCvs" value="1"><br>
+        <% } %>
 
         JobCd:<input type="text" name="JobCd" value="CAPTURE"><br>
         SiteID:<input type="text" name="SiteID" value="tsite00022126"><br>

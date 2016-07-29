@@ -53,6 +53,9 @@ function showSeatStatusesMap() {
 }
 
 $(function(){
+    var limit = parseInt($('input[name="seatsLimit"]').val()) | 4;
+    var limitMessage = $('input[name="seatsLimitMessage"]').val();
+
     showSeatStatusesMap();
 
     $(document).on('click', '.select-seat', function(){
@@ -60,6 +63,14 @@ $(function(){
             return;
         }
 
+
+        // check seats limit
+        if (!$(this).hasClass('active')) {
+            if ($('.select-seat.active').length > limit - 1) {
+                alert(limitMessage);
+                return;
+            }
+        }
 
         // カウンター機能は、外部関係者のみのための機能
         var count = parseInt($('.reservable-count').text());

@@ -18,50 +18,67 @@ import crypto = require('crypto');
 
 export default class CustomerReserveController extends ReserveBaseController {
     /**
-     * 規約
+     * スケジュール選択
      */
-    public terms(): void {
+    public performances(): void {
         if (this.req.method === 'POST') {
-            let form = reserveTermsForm(this.req);
-            form(this.req, this.res, (err) => {
+            reservePerformanceForm(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
-                    this.res.redirect(this.router.build('customer.reserve.start', {}));
+                    this.res.redirect(307, this.router.build('customer.reserve.start'));
 
                 } else {
-                    this.res.render('customer/reserve/terms', {
+                    this.res.render('customer/reserve/performances', {
                     });
 
                 }
 
             });
         } else {
-            this.res.render('customer/reserve/terms', {
+            this.res.render('customer/reserve/performances', {
+                FilmUtil: FilmUtil
             });
 
         }
-
     }
 
+    /**
+     * ポータルからパフォーマンス指定でPOSTされてくる
+     */
     public start(): void {
-        // TODO 内部以外は、上映開始20分過ぎていたらはじく
 
-        // 予約トークンを発行
-        let token = Util.createToken();
-        let reservationModel = new ReservationModel();
-        reservationModel.token = token;
+        reservePerformanceForm(this.req, this.res, (err) => {
+            if (this.req.form.isValid) {
 
-        // スケジュール選択へ
-        this.logger.debug('saving reservationModel... ', reservationModel);
-        reservationModel.save((err) => {
-            this.res.redirect(this.router.build('customer.reserve.performances', {token: token}));
+                // 予約トークンを発行
+                let token = Util.createToken();
+                let reservationModel = new ReservationModel();
+                reservationModel.token = token;
+
+                // パフォーマンスFIX
+                this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
+                    if (err) {
+                        this.next(err);
+                    } else {
+                        this.logger.debug('saving reservationModel... ', reservationModel);
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('customer.reserve.terms', {token: token}));
+                        });
+                    }
+                });
+
+            } else {
+                this.next(new Error('invalid access.'));
+
+            }
+
         });
 
     }
 
     /**
-     * スケジュール選択
+     * 規約
      */
-    public performances(): void {
+    public terms(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
@@ -71,48 +88,36 @@ export default class CustomerReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
-                reservePerformanceForm(this.req, this.res, (err) => {
+                let form = reserveTermsForm(this.req);
+                form(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
-                        // パフォーマンスFIX
-                        this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
-                            if (err) {
-                                this.next(err);
-                            } else {
-                                this.logger.debug('saving reservationModel... ', reservationModel);
-                                reservationModel.save((err) => {
-                                    this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
-                                });
-                            }
-                        });
+                        this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
 
                     } else {
-                        this.res.render('customer/reserve/performances', {
+                        this.res.render('customer/reserve/terms', {
                         });
 
                     }
 
                 });
             } else {
-                // 仮予約あればキャンセルする
-                this.processCancelSeats(reservationModel, (err, reservationModel) => {
-                    this.logger.debug('saving reservationModel... ', reservationModel);
-                    reservationModel.save((err) => {
-                        this.res.render('customer/reserve/performances', {
-                            FilmUtil: FilmUtil
-                        });
-                    });
+                this.res.render('customer/reserve/terms', {
                 });
 
             }
+
         });
     }
 
     /**
      * 座席選択
-     * 
-     * TODO 一アカウント、一パフォーマンスにつき4枚まで
      */
     public seats(): void {
+        let limit = 4; // 最大座席確保枚数
+
+        // TODO 1アカウント1パフォーマンスごとに枚数制限
+        // ここで、ログインユーザーの予約枚数をチェックする
+
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
@@ -125,6 +130,11 @@ export default class CustomerReserveController extends ReserveBaseController {
                 reserveSeatForm(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
                         let reservationIds: Array<string> = JSON.parse(this.req.form['reservationIds']);
+
+                        // ブラウザ側でも枚数チェックしているが、念のため
+                        if (reservationIds.length > limit) {
+                            return this.next(new Error('invalid access.'));
+                        }
 
                         // 座席FIX
                         this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
@@ -159,6 +169,7 @@ export default class CustomerReserveController extends ReserveBaseController {
             } else {
                 this.res.render('customer/reserve/seats', {
                     reservationModel: reservationModel,
+                    limit: limit
                 });
 
             }
@@ -187,10 +198,10 @@ export default class CustomerReserveController extends ReserveBaseController {
                         if (Array.isArray(choices)) {
                             choices.forEach((choice) => {
                                 let reservation = reservationModel.getReservation(choice.reservation_id);
-                                reservation.ticket_type = choice.ticket_type;
-                                reservation.ticket_name = choice.ticket_name;
-                                reservation.ticket_name_en = choice.ticket_name_en;
-                                reservation.ticket_price = choice.ticket_price;
+                                reservation.ticket_type_code = choice.ticket_type_code;
+                                reservation.ticket_type_name = choice.ticket_type_name;
+                                reservation.ticket_type_name_en = choice.ticket_type_name_en;
+                                reservation.ticket_type_charge = parseInt(choice.ticket_type_charge);
 
                                 reservationModel.setReservation(reservation._id, reservation);
                             });

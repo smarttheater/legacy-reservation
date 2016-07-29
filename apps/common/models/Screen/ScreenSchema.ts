@@ -19,8 +19,12 @@ let ScreenSchema = new mongoose.Schema({
              seats: [
                  {
                      _id: false,
-                     code: String,
-                     enabled: Boolean,
+                     code: String, // 座席コード
+                     grade: {
+                         name: String, // 座席レベル名
+                         name_en: String, // 座席レベル名(英語)
+                         additional_charge: Number // 追加料金
+                     }
                  },
              ]
         },

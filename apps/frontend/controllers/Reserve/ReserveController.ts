@@ -23,7 +23,7 @@ export default class ReserveController extends ReserveBaseController {
                 {
                     performance: reservationModel.performance._id
                 },
-                'seat_code status staff staff_name staff_department_name sponsor sponsor_name member member_email',
+                'seat_code seat_grade_name seat_grade_name_en status staff staff_name staff_department_name sponsor sponsor_name member member_email',
                 {},
                 (err, reservationDocuments) => {
                     if (err) {
@@ -49,6 +49,7 @@ export default class ReserveController extends ReserveBaseController {
                             attrs['data-reservation-id'] = reservationDocument.get('_id');
 
                             let baloonContent = reservationDocument.get('seat_code');
+                            baloonContent +=  `<br>${reservationDocument.get('seat_grade_' + this.req.__('DocumentField.name'))}`;
 
                             if (reservationDocument.get('status') === ReservationUtil.STATUS_AVAILABLE) {
                                 // 予約可能

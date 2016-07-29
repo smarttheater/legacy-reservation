@@ -21,7 +21,6 @@ import GMOReserveCvsController from './Cvs/GMOReserveCvsController';
 export default class GMOReserveController extends ReserveBaseController {
     /**
      * GMO決済を開始する
-     * TODO コンビニ決済は5日前の24時まで
      */
     public start(): void {
         let token = this.req.params.token;

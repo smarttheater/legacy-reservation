@@ -142,18 +142,27 @@ export default class PerformanceController extends BaseController {
             });
         }
 
-        // TODO フリーワードの検索対象はタイトル(日英両方)
-        // TODO 空白つなぎでOR検索
+        // フリーワードの検索対象はタイトル(日英両方)
+        // 空白つなぎでOR検索
         if (words) {
-            filmAndConditions.push({
-                $or: [
+            // trim and to half-width space
+            words = words.replace(/(^\s+)|(\s+$)/g, '').replace(/\s/g, ' ');
+            let regexes = words.split(' ').filter((value) => {return (value.length > 0)});
+
+            let orConditions = [];
+            for (let regex of regexes) {
+                orConditions.push(
                     {
-                        'name': {$regex: `${words}`}
+                        'name': {$regex: `${regex}`}
                     },
                     {
-                        'name_en': {$regex: `${words}`}
+                        'name_en': {$regex: `${regex}`}
                     }
-                ]
+                );
+            }
+
+            filmAndConditions.push({
+                $or: orConditions
             });
         }
 

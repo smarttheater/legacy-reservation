@@ -125,18 +125,23 @@ var PerformanceController = (function (_super) {
                 'genres.code': { $in: [genre] }
             });
         }
-        // TODO フリーワードの検索対象はタイトル(日英両方)
-        // TODO 空白つなぎでOR検索
+        // フリーワードの検索対象はタイトル(日英両方)
+        // 空白つなぎでOR検索
         if (words) {
+            // trim and to half-width space
+            words = words.replace(/(^\s+)|(\s+$)/g, '').replace(/\s/g, ' ');
+            var regexes = words.split(' ').filter(function (value) { return (value.length > 0); });
+            var orConditions = [];
+            for (var _i = 0, regexes_1 = regexes; _i < regexes_1.length; _i++) {
+                var regex = regexes_1[_i];
+                orConditions.push({
+                    'name': { $regex: "" + regex }
+                }, {
+                    'name_en': { $regex: "" + regex }
+                });
+            }
             filmAndConditions.push({
-                $or: [
-                    {
-                        'name': { $regex: "" + words }
-                    },
-                    {
-                        'name_en': { $regex: "" + words }
-                    }
-                ]
+                $or: orConditions
             });
         }
         if (filmAndConditions.length > 0) {

@@ -20,7 +20,11 @@ var ScreenSchema = new mongoose.Schema({
                 {
                     _id: false,
                     code: String,
-                    enabled: Boolean,
+                    grade: {
+                        name: String,
+                        name_en: String,
+                        additional_charge: Number // 追加料金
+                    }
                 },
             ]
         },

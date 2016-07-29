@@ -73,7 +73,8 @@
 		"FailedSending": "Message.FailedSending",
 		"Sent": "送信しました",
 		"Unsent": "送信できませんでした",
-		"PleaseReadBarcode": "バーコードを読み取ってください"
+		"PleaseReadBarcode": "バーコードを読み取ってください",
+		"seatsLimit{{limit}}": "Message.seatsLimit{{limit}}"
 	},
 	"h3": {
 		"SeatChoices": "座席情報",

@@ -23,6 +23,10 @@ var FilmSchema = new mongoose.Schema({
             name_en: String,
         },
     ],
+    ticket_type_group: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'TicketTypeGroup'
+    },
     director: String,
     director_en: String,
     actor: String,
