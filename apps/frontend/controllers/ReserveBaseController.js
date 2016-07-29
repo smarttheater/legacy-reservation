@@ -61,7 +61,7 @@ var ReserveBaseController = (function (_super) {
             _id: perfomanceId
         }, 'day start_time end_time is_mx4d film screen theater' // 必要な項目だけ指定すること
         )
-            .populate('film', 'name name_en ticket_type_group') // 必要な項目だけ指定すること
+            .populate('film', 'name name_en ticket_type_group image') // 必要な項目だけ指定すること
             .populate('screen', 'name name_en sections') // 必要な項目だけ指定すること
             .populate('theater', 'name name_en') // 必要な項目だけ指定すること
             .exec(function (err, performanceDocument) {
@@ -139,6 +139,7 @@ var ReserveBaseController = (function (_super) {
                             _id: performanceDocument.get('film').get('_id'),
                             name: performanceDocument.get('film').get('name'),
                             name_en: performanceDocument.get('film').get('name_en'),
+                            image: performanceDocument.get('film').get('image')
                         }
                     };
                     // スクリーン座席表HTMLを保管

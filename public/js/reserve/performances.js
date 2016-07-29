@@ -30,29 +30,33 @@ $(function(){
             var performancesOnFilm = performancesByFilm[filmId];
 
             html += `
-            <h3>${performancesOnFilm[0].film[documentFieldName]}</h3>
+            <h3>
+                ${performancesOnFilm[0].film[documentFieldName]}
+            </h3>
             <div class="row">
-    `;
 
-            performancesOnFilm.forEach(function(performance, index) {
-                if (index % 12 === 0) {
-                    html += `
-                <div class="row">
+                <div class="col-sm-2">
+                    <img src="${performancesOnFilm[0].film.image}" alt="" class="img-thumbnail" style="width: 100px; height: 100px;">
                 </div>
     `;
+
+
+            performancesOnFilm.forEach(function(performance, index) {
+                if (index % 3 === 0) {
                 }
 
                 html += `
-                <div class="col-sm-4">
-                    <a href="javascript:void(0)" data-performance-id="${performance._id}" class="select-performance">
-                    ${performance.day}<br>
+                    <div class="col-sm-3">
+                        <a href="javascript:void(0)" data-performance-id="${performance._id}" class="select-performance">
+                            ${performance.day}<br>
 
-                    ${performance.theater[documentFieldName]} ${performance.screen[documentFieldName]}<br>
+                            ${performance.theater[documentFieldName]} ${performance.screen[documentFieldName]}<br>
 
-                    ${performance.start_time}-${performance.end_time}<br>
-                    ${performance.seat_status}
-                    </a>
-                </div>
+                            ${performance.start_time}-${performance.end_time}<br>
+                            ${performance.seat_status}
+
+                        </a>
+                    </div>
     `;
 
             });

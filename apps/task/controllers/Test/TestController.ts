@@ -10,6 +10,7 @@ import conf = require('config');
 import mongodb = require('mongodb');
 import mongoose = require('mongoose');
 import PerformanceStatusesModel from '../../../common/models/PerformanceStatusesModel';
+import request = require('request');
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
@@ -522,6 +523,76 @@ export default class TestController extends BaseController {
                 process.exit(0);
 
             });
+        });
+    }
+
+    /**
+     * 作品画像を取得する
+     */
+    public getFilmImages() {
+        mongoose.connect(MONGOLAB_URI, {});
+
+        Models.Film.find({}, 'name', (err, filmDocuments) => {
+
+            let next = (filmDocument) => {
+                let options = {
+                    url: `https://api.photozou.jp/rest/search_public.json?limit=1&keyword=${encodeURIComponent(filmDocument.get('name'))}`,
+                    json: true
+                };
+
+                console.log(options.url);
+
+                request.get(options, (error, response, body) => {
+                    if (!error && response.statusCode == 200) {
+                        if (body.stat === 'ok' && body.info.photo) {
+                            console.log(body.info.photo[0].image_url)
+                            let image = body.info.photo[0].image_url
+
+                            // 画像情報更新
+                            Models.Film.update(
+                                {
+                                    _id: filmDocument.get('_id')
+                                },
+                                {
+                                    image: image
+                                },
+                                (err) => {
+                                    this.logger.debug('film udpated.');
+
+                                    if (i === filmDocuments.length - 1) {
+                                        this.logger.debug('success!');
+
+                                        mongoose.disconnect();
+                                        process.exit(0);
+
+                                    } else {
+                                        i++;
+                                        next(filmDocuments[i]);
+
+                                    }
+
+                                }
+                            );
+
+                        } else {
+                            i++;
+                            next(filmDocuments[i]);
+
+                        }
+
+                    } else {
+                        i++;
+                        next(filmDocuments[i]);
+
+                    }
+                })
+
+
+            }
+
+            let i = 0;
+            next(filmDocuments[i]);
+
         });
     }
 }

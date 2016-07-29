@@ -24,6 +24,7 @@ var PerformanceController = (function (_super) {
         var section = (this.req.query.section) ? this.req.query.section : null; // 部門
         var genre = (this.req.query.genre) ? this.req.query.genre : null; // ジャンル
         var words = (this.req.query.words) ? this.req.query.words : null; // フリーワード
+        var startFrom = (this.req.query.start_from) ? this.req.query.start_from : null; // この時間以降開始のパフォーマンスに絞る(timestamp)
         // 検索条件を作成
         var andConditions = [];
         if (day) {
@@ -31,16 +32,15 @@ var PerformanceController = (function (_super) {
                 'day': day
             });
         }
-        else {
-            // 日付指定がない場合は、上映開始時刻が20分前以降のもののみ
-            var today = moment().add(-20, 'minutes');
-            var tomorrow = moment().add(+1420, 'minutes');
+        if (startFrom) {
+            var now = moment.unix(startFrom);
+            var tomorrow = moment.unix(startFrom).add(+24, 'hours');
             andConditions.push({
                 $or: [
                     {
-                        'day': today.format('YYYYMMDD'),
+                        'day': now.format('YYYYMMDD'),
                         'start_time': {
-                            $gte: today.format('HHmm')
+                            $gte: now.format('HHmm')
                         }
                     },
                     {
@@ -65,12 +65,12 @@ var PerformanceController = (function (_super) {
                 var query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater' // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                 ).skip(limit * (page - 1)).limit(limit);
                 if (_this.req.getLocale() === 'ja') {
-                    query.populate('film', 'name') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                    query.populate('film', 'name image') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                         .populate('screen', 'name') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                         .populate('theater', 'name'); // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                 }
                 else {
-                    query.populate('film', 'name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                    query.populate('film', 'name_en image') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                         .populate('screen', 'name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                         .populate('theater', 'name_en'); // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                 }

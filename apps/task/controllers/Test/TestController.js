@@ -16,6 +16,7 @@ var conf = require('config');
 var mongodb = require('mongodb');
 var mongoose = require('mongoose');
 var PerformanceStatusesModel_1 = require('../../../common/models/PerformanceStatusesModel');
+var request = require('request');
 var MONGOLAB_URI = conf.get('mongolab_uri');
 var TestController = (function (_super) {
     __extends(TestController, _super);
@@ -414,6 +415,57 @@ var TestController = (function (_super) {
                 _this.logger.debug('fail.');
                 process.exit(0);
             });
+        });
+    };
+    /**
+     * 作品画像を取得する
+     */
+    TestController.prototype.getFilmImages = function () {
+        var _this = this;
+        mongoose.connect(MONGOLAB_URI, {});
+        Models_1.default.Film.find({}, 'name', function (err, filmDocuments) {
+            var next = function (filmDocument) {
+                var options = {
+                    url: "https://api.photozou.jp/rest/search_public.json?limit=1&keyword=" + encodeURIComponent(filmDocument.get('name')),
+                    json: true
+                };
+                console.log(options.url);
+                request.get(options, function (error, response, body) {
+                    if (!error && response.statusCode == 200) {
+                        if (body.stat === 'ok' && body.info.photo) {
+                            console.log(body.info.photo[0].image_url);
+                            var image = body.info.photo[0].image_url;
+                            // 画像情報更新
+                            Models_1.default.Film.update({
+                                _id: filmDocument.get('_id')
+                            }, {
+                                image: image
+                            }, function (err) {
+                                _this.logger.debug('film udpated.');
+                                if (i === filmDocuments.length - 1) {
+                                    _this.logger.debug('success!');
+                                    mongoose.disconnect();
+                                    process.exit(0);
+                                }
+                                else {
+                                    i++;
+                                    next(filmDocuments[i]);
+                                }
+                            });
+                        }
+                        else {
+                            i++;
+                            next(filmDocuments[i]);
+                        }
+                    }
+                    else {
+                        i++;
+                        next(filmDocuments[i]);
+                    }
+                });
+            };
+            var i = 0;
+            next(filmDocuments[i]);
         });
     };
     return TestController;

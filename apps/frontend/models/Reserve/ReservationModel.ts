@@ -52,6 +52,7 @@ export default class ReservationModel {
             _id: string,
             name: string,
             name_en: string,
+            image: string
         },
     };
 

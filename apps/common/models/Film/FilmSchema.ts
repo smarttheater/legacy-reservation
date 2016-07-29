@@ -31,6 +31,7 @@ let FilmSchema = new mongoose.Schema({
     director_en: String,
     actor: String,
     actor_en: String,
+    image: String,
     created_user: String,
     updated_user: String,
 },{
