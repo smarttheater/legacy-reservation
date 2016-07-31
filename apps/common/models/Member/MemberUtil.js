@@ -1,8 +1,5 @@
 "use strict";
-var MemberUtil = (function () {
-    function MemberUtil() {
-    }
-    return MemberUtil;
-}());
+class MemberUtil {
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = MemberUtil;

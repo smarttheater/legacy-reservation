@@ -34,8 +34,8 @@
                 <td>
                     <% reservationDocuments.forEach((reservationDocument, index) => { %>
                         <%- reservationDocument.seat_code %>、
-                        <%- reservationDocument[`ticket_${__('DocumentField.name')}`] %>、
-                        <%- __('{{price}} yen', {price: reservationDocument.ticket_price}) %><br>
+                        <%- reservationDocument[`ticket_type_${__('DocumentField.name')}`] %>、
+                        <%- __('{{price}} yen', {price: reservationDocument.ticket_type_charge}) %><br>
                     <% }) %>
                 <td>
             </tr>

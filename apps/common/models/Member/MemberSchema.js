@@ -1,9 +1,9 @@
 "use strict";
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 /**
  * メルマガ会員スキーマ
  */
-var MemberSchema = new mongoose.Schema({
+let MemberSchema = new mongoose.Schema({
     user_id: String,
     password: String,
     performance: {

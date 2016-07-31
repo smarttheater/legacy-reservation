@@ -1,37 +1,27 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var ReserveBaseController_1 = require('../../ReserveBaseController');
-var Util_1 = require('../../../../common/Util/Util');
-var reserveTermsForm_1 = require('../../../forms/Reserve/reserveTermsForm');
-var reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerformanceForm');
-var reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
-var reserveTicketForm_1 = require('../../../forms/Reserve/reserveTicketForm');
-var reserveProfileForm_1 = require('../../../forms/Reserve/reserveProfileForm');
-var ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
-var FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
-var ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
-var ReservationResultModel_1 = require('../../../models/Reserve/ReservationResultModel');
-var CustomerReserveController = (function (_super) {
-    __extends(CustomerReserveController, _super);
-    function CustomerReserveController() {
-        _super.apply(this, arguments);
-    }
+const ReserveBaseController_1 = require('../../ReserveBaseController');
+const Util_1 = require('../../../../common/Util/Util');
+const reserveTermsForm_1 = require('../../../forms/Reserve/reserveTermsForm');
+const reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerformanceForm');
+const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
+const reserveTicketForm_1 = require('../../../forms/Reserve/reserveTicketForm');
+const reserveProfileForm_1 = require('../../../forms/Reserve/reserveProfileForm');
+const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
+const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
+const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
+const ReservationResultModel_1 = require('../../../models/Reserve/ReservationResultModel');
+class CustomerReserveController extends ReserveBaseController_1.default {
     /**
      * スケジュール選択
      */
-    CustomerReserveController.prototype.performances = function () {
-        var _this = this;
+    performances() {
         if (this.req.method === 'POST') {
-            reservePerformanceForm_1.default(this.req, this.res, function (err) {
-                if (_this.req.form.isValid) {
-                    _this.res.redirect(307, _this.router.build('customer.reserve.start'));
+            reservePerformanceForm_1.default(this.req, this.res, (err) => {
+                if (this.req.form.isValid) {
+                    this.res.redirect(307, this.router.build('customer.reserve.start'));
                 }
                 else {
-                    _this.res.render('customer/reserve/performances', {});
+                    this.res.render('customer/reserve/performances', {});
                 }
             });
         }
@@ -40,277 +30,275 @@ var CustomerReserveController = (function (_super) {
                 FilmUtil: FilmUtil_1.default
             });
         }
-    };
+    }
     /**
      * ポータルからパフォーマンス指定でPOSTされてくる
      */
-    CustomerReserveController.prototype.start = function () {
-        var _this = this;
-        reservePerformanceForm_1.default(this.req, this.res, function (err) {
-            if (_this.req.form.isValid) {
+    start() {
+        reservePerformanceForm_1.default(this.req, this.res, (err) => {
+            if (this.req.form.isValid) {
                 // 予約トークンを発行
-                var token_1 = Util_1.default.createToken();
-                var reservationModel = new ReservationModel_1.default();
-                reservationModel.token = token_1;
+                let token = Util_1.default.createToken();
+                let reservationModel = new ReservationModel_1.default();
+                reservationModel.token = token;
                 // パフォーマンスFIX
-                _this.processFixPerformance(reservationModel, _this.req.form['performanceId'], function (err, reservationModel) {
+                this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
                     if (err) {
-                        _this.next(err);
+                        this.next(err);
                     }
                     else {
-                        _this.logger.debug('saving reservationModel... ', reservationModel);
-                        reservationModel.save(function (err) {
-                            _this.res.redirect(_this.router.build('customer.reserve.terms', { token: token_1 }));
+                        this.logger.debug('saving reservationModel... ', reservationModel);
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('customer.reserve.terms', { token: token }));
                         });
                     }
                 });
             }
             else {
-                _this.next(new Error('invalid access.'));
+                this.next(new Error('invalid access.'));
             }
         });
-    };
+    }
     /**
      * 規約
      */
-    CustomerReserveController.prototype.terms = function () {
-        var _this = this;
-        var token = this.req.params.token;
-        ReservationModel_1.default.find(token, function (err, reservationModel) {
+    terms() {
+        let token = this.req.params.token;
+        ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
-                return _this.next(new Error('予約プロセスが中断されました'));
+                return this.next(new Error('予約プロセスが中断されました'));
             }
-            _this.logger.debug('reservationModel is ', reservationModel.toLog());
-            if (_this.req.method === 'POST') {
-                var form = reserveTermsForm_1.default(_this.req);
-                form(_this.req, _this.res, function (err) {
-                    if (_this.req.form.isValid) {
-                        _this.res.redirect(_this.router.build('customer.reserve.seats', { token: token }));
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
+            if (this.req.method === 'POST') {
+                let form = reserveTermsForm_1.default(this.req);
+                form(this.req, this.res, (err) => {
+                    if (this.req.form.isValid) {
+                        this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
                     }
                     else {
-                        _this.res.render('customer/reserve/terms', {});
+                        this.res.render('customer/reserve/terms', {});
                     }
                 });
             }
             else {
-                _this.res.render('customer/reserve/terms', {});
+                this.res.render('customer/reserve/terms', {});
             }
         });
-    };
+    }
     /**
      * 座席選択
      */
-    CustomerReserveController.prototype.seats = function () {
-        var _this = this;
-        var limit = 4; // 最大座席確保枚数
+    seats() {
+        let limit = 4; // 最大座席確保枚数
         // TODO 1アカウント1パフォーマンスごとに枚数制限
         // ここで、ログインユーザーの予約枚数をチェックする
-        var token = this.req.params.token;
-        ReservationModel_1.default.find(token, function (err, reservationModel) {
+        let token = this.req.params.token;
+        ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
-                return _this.next(new Error('予約プロセスが中断されました'));
+                return this.next(new Error('予約プロセスが中断されました'));
             }
-            _this.logger.debug('reservationModel is ', reservationModel.toLog());
-            if (_this.req.method === 'POST') {
-                reserveSeatForm_1.default(_this.req, _this.res, function (err) {
-                    if (_this.req.form.isValid) {
-                        var reservationIds_1 = JSON.parse(_this.req.form['reservationIds']);
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
+            if (this.req.method === 'POST') {
+                reserveSeatForm_1.default(this.req, this.res, (err) => {
+                    if (this.req.form.isValid) {
+                        let reservationIds = JSON.parse(this.req.form['reservationIds']);
                         // ブラウザ側でも枚数チェックしているが、念のため
-                        if (reservationIds_1.length > limit) {
-                            return _this.next(new Error('invalid access.'));
+                        if (reservationIds.length > limit) {
+                            return this.next(new Error('invalid access.'));
                         }
                         // 座席FIX
-                        _this.processFixSeats(reservationModel, reservationIds_1, function (err, reservationModel) {
+                        this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
                             if (err) {
-                                _this.next(err);
+                                this.next(err);
                             }
                             else {
-                                _this.logger.debug('saving reservationModel... ', reservationModel);
-                                reservationModel.save(function (err) {
+                                this.logger.debug('saving reservationModel... ', reservationModel);
+                                reservationModel.save((err) => {
                                     // 仮予約に失敗した座席コードがあった場合
-                                    if (reservationIds_1.length > reservationModel.reservationIds.length) {
+                                    if (reservationIds.length > reservationModel.reservationIds.length) {
                                         // TODO メッセージ？
-                                        var message = '座席を確保できませんでした。再度指定してください。';
-                                        _this.res.redirect(_this.router.build('customer.reserve.seats', { token: token }) + ("?message=" + encodeURIComponent(message)));
+                                        let message = '座席を確保できませんでした。再度指定してください。';
+                                        this.res.redirect(this.router.build('customer.reserve.seats', { token: token }) + `?message=${encodeURIComponent(message)}`);
                                     }
                                     else {
-                                        _this.res.redirect(_this.router.build('customer.reserve.tickets', { token: token }));
+                                        this.res.redirect(this.router.build('customer.reserve.tickets', { token: token }));
                                     }
                                 });
                             }
                         });
                     }
                     else {
-                        _this.res.redirect(_this.router.build('customer.reserve.seats', { token: token }));
+                        this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
                     }
                 });
             }
             else {
-                _this.res.render('customer/reserve/seats', {
+                this.res.render('customer/reserve/seats', {
                     reservationModel: reservationModel,
                     limit: limit
                 });
             }
         });
-    };
+    }
     /**
      * 券種選択
      */
-    CustomerReserveController.prototype.tickets = function () {
-        var _this = this;
-        var token = this.req.params.token;
-        ReservationModel_1.default.find(token, function (err, reservationModel) {
+    tickets() {
+        let token = this.req.params.token;
+        ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
-                return _this.next(new Error('予約プロセスが中断されました'));
+                return this.next(new Error('予約プロセスが中断されました'));
             }
-            _this.logger.debug('reservationModel is ', reservationModel.toLog());
-            if (_this.req.method === 'POST') {
-                reserveTicketForm_1.default(_this.req, _this.res, function (err) {
-                    if (_this.req.form.isValid) {
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
+            if (this.req.method === 'POST') {
+                reserveTicketForm_1.default(this.req, this.res, (err) => {
+                    if (this.req.form.isValid) {
                         // 座席選択情報を保存して座席選択へ
-                        var choices = JSON.parse(_this.req.form['choices']);
+                        let choices = JSON.parse(this.req.form['choices']);
                         if (Array.isArray(choices)) {
-                            choices.forEach(function (choice) {
-                                var reservation = reservationModel.getReservation(choice.reservation_id);
-                                reservation.ticket_type_code = choice.ticket_type_code;
-                                reservation.ticket_type_name = choice.ticket_type_name;
-                                reservation.ticket_type_name_en = choice.ticket_type_name_en;
-                                reservation.ticket_type_charge = parseInt(choice.ticket_type_charge);
+                            choices.forEach((choice) => {
+                                let reservation = reservationModel.getReservation(choice.reservation_id);
+                                let ticketType = reservationModel.ticketTypes.find((ticketType) => {
+                                    return (ticketType.code === choice.ticket_type_code);
+                                });
+                                if (!ticketType) {
+                                    return this.next(new Error('不適切なアクセスです'));
+                                }
+                                reservation.ticket_type_code = ticketType.code;
+                                reservation.ticket_type_name = ticketType.name;
+                                reservation.ticket_type_name_en = ticketType.name_en;
+                                reservation.ticket_type_charge = ticketType.charge;
+                                ;
                                 reservationModel.setReservation(reservation._id, reservation);
                             });
-                            _this.logger.debug('saving reservationModel... ', reservationModel);
-                            reservationModel.save(function (err) {
-                                _this.res.redirect(_this.router.build('customer.reserve.profile', { token: token }));
+                            this.logger.debug('saving reservationModel... ', reservationModel);
+                            reservationModel.save((err) => {
+                                this.res.redirect(this.router.build('customer.reserve.profile', { token: token }));
                             });
                         }
                         else {
-                            _this.next(new Error('不適切なアクセスです'));
+                            this.next(new Error('不適切なアクセスです'));
                         }
                     }
                     else {
-                        _this.res.redirect(_this.router.build('customer.reserve.tickets', { token: token }));
+                        this.res.redirect(this.router.build('customer.reserve.tickets', { token: token }));
                     }
                 });
             }
             else {
-                _this.res.render('customer/reserve/tickets', {
+                this.res.render('customer/reserve/tickets', {
                     reservationModel: reservationModel,
                 });
             }
         });
-    };
+    }
     /**
      * 購入者情報
      */
-    CustomerReserveController.prototype.profile = function () {
-        var _this = this;
-        var token = this.req.params.token;
-        ReservationModel_1.default.find(token, function (err, reservationModel) {
+    profile() {
+        let token = this.req.params.token;
+        ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
-                return _this.next(new Error('予約プロセスが中断されました'));
+                return this.next(new Error('予約プロセスが中断されました'));
             }
-            _this.logger.debug('reservationModel is ', reservationModel.toLog());
-            if (_this.req.method === 'POST') {
-                var form = reserveProfileForm_1.default(_this.req);
-                form(_this.req, _this.res, function (err) {
-                    if (_this.req.form.isValid) {
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
+            if (this.req.method === 'POST') {
+                let form = reserveProfileForm_1.default(this.req);
+                form(this.req, this.res, (err) => {
+                    if (this.req.form.isValid) {
                         // 購入者情報を保存して座席選択へ
                         reservationModel.profile = {
-                            last_name: _this.req.form['lastName'],
-                            first_name: _this.req.form['firstName'],
-                            email: _this.req.form['email'],
-                            tel: _this.req.form['tel']
+                            last_name: this.req.form['lastName'],
+                            first_name: this.req.form['firstName'],
+                            email: this.req.form['email'],
+                            tel: this.req.form['tel']
                         };
-                        _this.logger.debug('saving reservationModel... ', reservationModel);
-                        reservationModel.save(function (err) {
-                            _this.res.redirect(_this.router.build('customer.reserve.confirm', { token: token }));
+                        this.logger.debug('saving reservationModel... ', reservationModel);
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('customer.reserve.confirm', { token: token }));
                         });
                     }
                     else {
-                        _this.res.render('customer/reserve/profile', {
+                        this.res.render('customer/reserve/profile', {
                             reservationModel: reservationModel,
                         });
                     }
                 });
             }
             else {
-                _this.res.locals.lastName = '';
-                _this.res.locals.firstName = '';
-                _this.res.locals.tel = '';
-                _this.res.locals.email = '';
-                _this.res.locals.emailConfirm = '';
-                _this.res.locals.emailConfirmDomain = '';
+                this.res.locals.lastName = '';
+                this.res.locals.firstName = '';
+                this.res.locals.tel = '';
+                this.res.locals.email = '';
+                this.res.locals.emailConfirm = '';
+                this.res.locals.emailConfirmDomain = '';
                 if (process.env.NODE_ENV === 'dev') {
-                    _this.res.locals.lastName = 'てすとせい';
-                    _this.res.locals.firstName = 'てすとめい';
-                    _this.res.locals.tel = '09012345678';
-                    _this.res.locals.email = 'ilovegadd@gmail.com';
-                    _this.res.locals.emailConfirm = 'ilovegadd';
-                    _this.res.locals.emailConfirmDomain = 'gmail.com';
+                    this.res.locals.lastName = 'てすとせい';
+                    this.res.locals.firstName = 'てすとめい';
+                    this.res.locals.tel = '09012345678';
+                    this.res.locals.email = 'ilovegadd@gmail.com';
+                    this.res.locals.emailConfirm = 'ilovegadd';
+                    this.res.locals.emailConfirmDomain = 'gmail.com';
                 }
                 // セッションに情報があれば、フォーム初期値設定
                 if (reservationModel.profile) {
-                    var email = reservationModel.profile.email;
-                    _this.res.locals.lastName = reservationModel.profile.last_name;
-                    _this.res.locals.firstName = reservationModel.profile.first_name;
-                    _this.res.locals.tel = reservationModel.profile.tel;
-                    _this.res.locals.email = email;
-                    _this.res.locals.emailConfirm = email.substr(0, email.indexOf('@'));
-                    _this.res.locals.emailConfirmDomain = email.substr(email.indexOf('@') + 1);
+                    let email = reservationModel.profile.email;
+                    this.res.locals.lastName = reservationModel.profile.last_name;
+                    this.res.locals.firstName = reservationModel.profile.first_name;
+                    this.res.locals.tel = reservationModel.profile.tel;
+                    this.res.locals.email = email;
+                    this.res.locals.emailConfirm = email.substr(0, email.indexOf('@'));
+                    this.res.locals.emailConfirmDomain = email.substr(email.indexOf('@') + 1);
                 }
-                _this.res.render('customer/reserve/profile', {
+                this.res.render('customer/reserve/profile', {
                     reservationModel: reservationModel,
                 });
             }
         });
-    };
+    }
     /**
      * 予約内容確認
      */
-    CustomerReserveController.prototype.confirm = function () {
-        var _this = this;
-        var token = this.req.params.token;
-        ReservationModel_1.default.find(token, function (err, reservationModel) {
+    confirm() {
+        let token = this.req.params.token;
+        ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
-                return _this.next(new Error('予約プロセスが中断されました'));
+                return this.next(new Error('予約プロセスが中断されました'));
             }
-            _this.logger.debug('reservationModel is ', reservationModel.toLog());
-            if (_this.req.method === 'POST') {
-                _this.res.redirect(_this.router.build('gmo.reserve.start', { token: token }));
+            this.logger.debug('reservationModel is ', reservationModel.toLog());
+            if (this.req.method === 'POST') {
+                this.res.redirect(this.router.build('gmo.reserve.start', { token: token }));
             }
             else {
-                _this.res.render('customer/reserve/confirm', {
+                this.res.render('customer/reserve/confirm', {
                     reservationModel: reservationModel,
                     ReservationUtil: ReservationUtil_1.default
                 });
             }
         });
-    };
-    CustomerReserveController.prototype.waitingSettlement = function () {
-        var _this = this;
-        var token = this.req.params.token;
-        ReservationModel_1.default.find(token, function (err, reservationModel) {
+    }
+    waitingSettlement() {
+        let token = this.req.params.token;
+        ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
-                return _this.next(new Error('予約プロセスが中断されました'));
+                return this.next(new Error('予約プロセスが中断されました'));
             }
-            _this.res.render('customer/reserve/waitingSettlement', {
+            this.res.render('customer/reserve/waitingSettlement', {
                 reservationModel: reservationModel,
             });
         });
-    };
-    CustomerReserveController.prototype.complete = function () {
-        var _this = this;
-        var token = this.req.params.token;
-        ReservationResultModel_1.default.find(token, function (err, reservationResultModel) {
+    }
+    complete() {
+        let token = this.req.params.token;
+        ReservationResultModel_1.default.find(token, (err, reservationResultModel) => {
             if (err || reservationResultModel === null) {
-                return _this.next(new Error('予約プロセスが中断されました'));
+                return this.next(new Error('予約プロセスが中断されました'));
             }
-            _this.res.render('customer/reserve/complete', {
+            this.res.render('customer/reserve/complete', {
                 reservationResultModel: reservationResultModel
             });
         });
-    };
-    return CustomerReserveController;
-}(ReserveBaseController_1.default));
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = CustomerReserveController;

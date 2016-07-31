@@ -22,6 +22,7 @@ export default class ReservationResultModel {
         day: string,
         start_time: string,
         end_time: string,
+        is_mx4d: boolean, // MX4D上映かどうか
         theater: {
             _id: string,
             name: string,
@@ -33,7 +34,12 @@ export default class ReservationResultModel {
             name_en: string,
             sections: Array<{
                 seats: Array<{
-                    code: string
+                    code: string, // 座席コード
+                    grade: {
+                        name: string, // 座席レベル名
+                        name_en: string, // 座席レベル名(英語)
+                        additional_charge: Number // 追加料金
+                    }
                 }>
             }>
         },
@@ -41,8 +47,22 @@ export default class ReservationResultModel {
             _id: string,
             name: string,
             name_en: string,
+            image: string
         },
     };
+
+    /**
+     * 券種リスト
+     */
+    public ticketTypes: Array<
+         {
+            code: string,
+            name: string, // 券種名
+            name_en: string, // 券種名(英語)
+            charge: number, // 料金
+            is_on_the_day: boolean // 当日だけフラグ
+        }
+    >;
 
     /**
      * 予約IDリスト

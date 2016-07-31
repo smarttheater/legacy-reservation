@@ -182,12 +182,21 @@ export default class SponsorReserveController extends ReserveBaseController {
                         if (Array.isArray(choices)) {
                             choices.forEach((choice) => {
                                 let reservation = reservationModel.getReservation(choice.reservation_id);
-                                reservation.ticket_type_code = choice.ticket_type_code;
-                                reservation.ticket_type_name = choice.ticket_type_name;
-                                reservation.ticket_type_name_en = choice.ticket_type_name_en;
-                                reservation.ticket_type_charge = parseInt(choice.ticket_type_charge);
+
+                                let ticketType = reservationModel.ticketTypes.find((ticketType) => {
+                                    return (ticketType.code === choice.ticket_type_code);
+                                });
+                                if (!ticketType) {
+                                    return this.next(new Error('不適切なアクセスです'));
+                                }
+
+                                reservation.ticket_type_code = ticketType.code;
+                                reservation.ticket_type_name = ticketType.name;
+                                reservation.ticket_type_name_en = ticketType.name_en;
+                                reservation.ticket_type_charge = ticketType.charge;;
 
                                 reservationModel.setReservation(reservation._id, reservation);
+
                             });
 
                             this.logger.debug('saving reservationModel... ', reservationModel);

@@ -1,9 +1,9 @@
 "use strict";
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 /**
  * スクリーンスキーマ
  */
-var ScreenSchema = new mongoose.Schema({
+let ScreenSchema = new mongoose.Schema({
     theater: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Theater'

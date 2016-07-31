@@ -1,11 +1,9 @@
 "use strict";
-var FilmUtil = (function () {
-    function FilmUtil() {
-    }
+class FilmUtil {
     /**
      * ジャンルリストを取得する
      */
-    FilmUtil.getGenres = function () {
+    static getGenres() {
         return [
             {
                 code: "01",
@@ -33,11 +31,11 @@ var FilmUtil = (function () {
                 name_en: "Youth Drama"
             },
         ];
-    };
+    }
     /**
      * 部門リストを取得する
      */
-    FilmUtil.getSections = function () {
+    static getSections() {
         return [
             {
                 code: "01",
@@ -140,8 +138,8 @@ var FilmUtil = (function () {
                 name_en: "Japanese Students Film Festival"
             }
         ];
-    };
-    FilmUtil.getTestNames = function () {
+    }
+    static getTestNames() {
         return [
             {
                 name: 'シン・ゴジラ',
@@ -1344,8 +1342,7 @@ var FilmUtil = (function () {
                 name_en: 'KAMENRIDER / Japanese'
             }
         ];
-    };
-    return FilmUtil;
-}());
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = FilmUtil;

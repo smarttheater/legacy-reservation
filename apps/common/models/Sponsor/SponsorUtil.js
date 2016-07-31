@@ -1,8 +1,5 @@
 "use strict";
-var SponsorUtil = (function () {
-    function SponsorUtil() {
-    }
-    return SponsorUtil;
-}());
+class SponsorUtil {
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = SponsorUtil;

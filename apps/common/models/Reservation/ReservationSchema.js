@@ -1,9 +1,9 @@
 "use strict";
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 /**
  * 予約スキーマ
  */
-var ReservationSchema = new mongoose.Schema({
+let ReservationSchema = new mongoose.Schema({
     token: String,
     payment_no: String,
     performance: {

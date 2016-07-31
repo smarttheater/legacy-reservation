@@ -1,7 +1,5 @@
 "use strict";
-var PerformanceUtil = (function () {
-    function PerformanceUtil() {
-    }
+class PerformanceUtil {
     /**
      * パフォーマンスの残席ステータスを算出する
      *
@@ -12,7 +10,7 @@ var PerformanceUtil = (function () {
      *
      * @return string
      */
-    PerformanceUtil.seatNum2status = function (availableSeatNum, allSeatNum, start, now) {
+    static seatNum2status(availableSeatNum, allSeatNum, start, now) {
         // 開始時間を過ぎていればG
         if (start < now)
             return PerformanceUtil.SEAT_STATUS_G;
@@ -20,7 +18,7 @@ var PerformanceUtil = (function () {
         if (availableSeatNum <= 0)
             return PerformanceUtil.SEAT_STATUS_D;
         // 残席数よりステータスを算出
-        var seatNum = 100 * availableSeatNum;
+        let seatNum = 100 * availableSeatNum;
         if (99 * allSeatNum <= seatNum)
             return PerformanceUtil.SEAT_STATUS_A;
         if (90 * allSeatNum <= seatNum)
@@ -28,13 +26,12 @@ var PerformanceUtil = (function () {
         if (0 * allSeatNum < seatNum)
             return PerformanceUtil.SEAT_STATUS_C;
         return PerformanceUtil.SEAT_STATUS_D;
-    };
-    PerformanceUtil.SEAT_STATUS_A = '◎';
-    PerformanceUtil.SEAT_STATUS_B = '○';
-    PerformanceUtil.SEAT_STATUS_C = '△';
-    PerformanceUtil.SEAT_STATUS_D = '×';
-    PerformanceUtil.SEAT_STATUS_G = '-';
-    return PerformanceUtil;
-}());
+    }
+}
+PerformanceUtil.SEAT_STATUS_A = '◎';
+PerformanceUtil.SEAT_STATUS_B = '○';
+PerformanceUtil.SEAT_STATUS_C = '△';
+PerformanceUtil.SEAT_STATUS_D = '×';
+PerformanceUtil.SEAT_STATUS_G = '-';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PerformanceUtil;

@@ -1,53 +1,42 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var ReserveBaseController_1 = require('../ReserveBaseController');
-var Models_1 = require('../../../common/models/Models');
-var ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
-var ReservationModel_1 = require('../../models/Reserve/ReservationModel');
-var ReservationResultModel_1 = require('../../models/Reserve/ReservationResultModel');
-var ReserveController = (function (_super) {
-    __extends(ReserveController, _super);
-    function ReserveController() {
-        _super.apply(this, arguments);
-    }
+const ReserveBaseController_1 = require('../ReserveBaseController');
+const Models_1 = require('../../../common/models/Models');
+const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
+const ReservationModel_1 = require('../../models/Reserve/ReservationModel');
+const ReservationResultModel_1 = require('../../models/Reserve/ReservationResultModel');
+class ReserveController extends ReserveBaseController_1.default {
     /**
      * 座席の状態を取得する
      */
-    ReserveController.prototype.getSeatProperties = function () {
-        var _this = this;
-        var token = this.req.params.token;
-        ReservationModel_1.default.find(token, function (err, reservationModel) {
+    getSeatProperties() {
+        let token = this.req.params.token;
+        ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
-                return _this.res.json({
+                return this.res.json({
                     propertiesBySeatCode: {}
                 });
             }
             // 予約リストを取得
             Models_1.default.Reservation.find({
                 performance: reservationModel.performance._id
-            }, 'seat_code seat_grade_name seat_grade_name_en status staff staff_name staff_department_name sponsor sponsor_name member member_email', {}, function (err, reservationDocuments) {
+            }, 'seat_code seat_grade_name seat_grade_name_en status staff staff_name staff_department_name sponsor sponsor_name member member_email', {}, (err, reservationDocuments) => {
                 if (err) {
-                    _this.res.json({
+                    this.res.json({
                         propertiesBySeatCode: {}
                     });
                 }
                 else {
                     // 仮押さえ中の座席コードリスト
-                    var seatCodesInReservation = reservationModel.getSeatCodes();
-                    var propertiesBySeatCode = {};
-                    for (var _i = 0, reservationDocuments_1 = reservationDocuments; _i < reservationDocuments_1.length; _i++) {
-                        var reservationDocument = reservationDocuments_1[_i];
-                        var seatCode = reservationDocument.get('seat_code');
-                        var properties = {};
-                        var classes = [];
-                        var attrs = {};
+                    let seatCodesInReservation = reservationModel.getSeatCodes();
+                    let propertiesBySeatCode = {};
+                    for (let reservationDocument of reservationDocuments) {
+                        let seatCode = reservationDocument.get('seat_code');
+                        let properties = {};
+                        let classes = [];
+                        let attrs = {};
                         attrs['data-reservation-id'] = reservationDocument.get('_id');
-                        var baloonContent = reservationDocument.get('seat_code');
-                        baloonContent += "<br>" + reservationDocument.get('seat_grade_' + _this.req.__('DocumentField.name'));
+                        let baloonContent = reservationDocument.get('seat_code');
+                        baloonContent += `<br>${reservationDocument.get('seat_grade_' + this.req.__('DocumentField.name'))}`;
                         if (reservationDocument.get('status') === ReservationUtil_1.default.STATUS_AVAILABLE) {
                             // 予約可能
                             classes.push('select-seat');
@@ -65,13 +54,13 @@ var ReserveController = (function (_super) {
                                     switch (reservationDocument.get('status')) {
                                         case ReservationUtil_1.default.STATUS_RESERVED:
                                             if (reservationDocument.get('staff')) {
-                                                baloonContent += "<br>\u5185\u90E8\u95A2\u4FC2\u8005" + reservationDocument.get('staff_department_name') + "<br>" + reservationDocument.get('staff_name');
+                                                baloonContent += `<br>内部関係者${reservationDocument.get('staff_department_name')}<br>${reservationDocument.get('staff_name')}`;
                                             }
                                             else if (reservationDocument.get('sponsor')) {
-                                                baloonContent += "<br>\u5916\u90E8\u95A2\u4FC2\u8005" + reservationDocument.get('sponsor_name');
+                                                baloonContent += `<br>外部関係者${reservationDocument.get('sponsor_name')}`;
                                             }
                                             else if (reservationDocument.get('member')) {
-                                                baloonContent += "<br>\u30E1\u30EB\u30DE\u30AC\u5F53\u9078\u8005" + reservationDocument.get('member_email');
+                                                baloonContent += `<br>メルマガ当選者${reservationDocument.get('member_email')}`;
                                             }
                                             else {
                                                 baloonContent += '<br>一般';
@@ -99,77 +88,72 @@ var ReserveController = (function (_super) {
                         properties['attrs'] = attrs;
                         propertiesBySeatCode[seatCode] = properties;
                     }
-                    _this.res.json({
+                    this.res.json({
                         propertiesBySeatCode: propertiesBySeatCode
                     });
                 }
             });
         });
-    };
+    }
     /**
      * create barcode by reservation token and reservation id.
      */
-    ReserveController.prototype.barcode = function () {
-        var _this = this;
-        var token = this.req.params.token;
-        var reservationId = this.req.params.reservationId;
+    barcode() {
+        let token = this.req.params.token;
+        let reservationId = this.req.params.reservationId;
         // getting reservation document from redis by reservationId...
-        ReservationResultModel_1.default.find(token, function (err, reservationResultModel) {
+        ReservationResultModel_1.default.find(token, (err, reservationResultModel) => {
             if (err || reservationResultModel === null) {
-                return _this.res.send('false');
+                return this.res.send('false');
             }
-            var reservation;
-            for (var _i = 0, _a = reservationResultModel.reservedDocuments; _i < _a.length; _i++) {
-                var reservedDocument = _a[_i];
+            let reservation;
+            for (let reservedDocument of reservationResultModel.reservedDocuments) {
                 if (reservedDocument._id == reservationId) {
                     reservation = reservedDocument;
                     break;
                 }
             }
             if (!reservation) {
-                return _this.res.send('false');
+                return this.res.send('false');
             }
-            ReservationUtil_1.default.createBarcode(reservation._id, function (err, png) {
+            ReservationUtil_1.default.createBarcode(reservation._id, (err, png) => {
                 if (err) {
-                    _this.res.send('false');
+                    this.res.send('false');
                 }
                 else {
                     // `png` is a Buffer
-                    _this.res.setHeader('Content-Type', 'image/png');
-                    _this.res.send(png);
+                    this.res.setHeader('Content-Type', 'image/png');
+                    this.res.send(png);
                 }
             });
         });
-    };
+    }
     /**
      * create qrcode by reservation token and reservation id.
      */
-    ReserveController.prototype.qrcode = function () {
-        var _this = this;
-        var token = this.req.params.token;
-        var reservationId = this.req.params.reservationId;
+    qrcode() {
+        let token = this.req.params.token;
+        let reservationId = this.req.params.reservationId;
         // getting reservation document from redis by reservationId...
-        ReservationResultModel_1.default.find(token, function (err, reservationResultModel) {
+        ReservationResultModel_1.default.find(token, (err, reservationResultModel) => {
             if (err || reservationResultModel === null) {
-                return _this.res.send('false');
+                return this.res.send('false');
             }
-            var reservation;
-            for (var _i = 0, _a = reservationResultModel.reservedDocuments; _i < _a.length; _i++) {
-                var reservedDocument = _a[_i];
+            let reservation;
+            for (let reservedDocument of reservationResultModel.reservedDocuments) {
                 if (reservedDocument._id == reservationId) {
                     reservation = reservedDocument;
                     break;
                 }
             }
             if (!reservation) {
-                return _this.res.send('false');
+                return this.res.send('false');
             }
-            var png = ReservationUtil_1.default.createQRCode(reservation._id);
-            _this.res.setHeader('Content-Type', 'image/png');
-            _this.res.send(png);
+            let png = ReservationUtil_1.default.createQRCode(reservation._id);
+            this.res.setHeader('Content-Type', 'image/png');
+            this.res.send(png);
         });
-    };
-    return ReserveController;
-}(ReserveBaseController_1.default));
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = ReserveController;

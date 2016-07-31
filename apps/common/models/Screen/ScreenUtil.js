@@ -1,8 +1,6 @@
 "use strict";
-var ScreenUtil = (function () {
-    function ScreenUtil() {
-    }
-    ScreenUtil.getSeatGrades = function () {
+class ScreenUtil {
+    static getSeatGrades() {
         return [
             {
                 name: 'ノーマルシート',
@@ -20,8 +18,7 @@ var ScreenUtil = (function () {
                 additional_charge: 3000
             }
         ];
-    };
-    return ScreenUtil;
-}());
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = ScreenUtil;

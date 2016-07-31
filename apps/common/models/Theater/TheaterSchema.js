@@ -1,9 +1,9 @@
 "use strict";
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 /**
  * 劇場スキーマ
  */
-var TheaterSchema = new mongoose.Schema({
+let TheaterSchema = new mongoose.Schema({
     name: String,
     name_en: String,
     address: String,

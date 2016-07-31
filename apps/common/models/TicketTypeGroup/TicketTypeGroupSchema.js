@@ -1,9 +1,9 @@
 "use strict";
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 /**
  * 券種グループスキーマ
  */
-var TicketTypeGroupSchema = new mongoose.Schema({
+let TicketTypeGroupSchema = new mongoose.Schema({
     name: String,
     name_en: String,
     types: [

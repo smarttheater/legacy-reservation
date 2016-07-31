@@ -1,9 +1,9 @@
 "use strict";
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 /**
  * 内部関係者スキーマ
  */
-var StaffSchema = new mongoose.Schema({
+let StaffSchema = new mongoose.Schema({
     user_id: String,
     password: String,
     name: String,

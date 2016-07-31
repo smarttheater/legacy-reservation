@@ -64,11 +64,11 @@ $(function(){
 
             // already confirmed.
             if (confirmedReservationIds.indexOf(reservationId) >= 0) {
-                result = `${_reservation.seat_code} [${_reservation.ticket_name}] 入場済み`;
+                result = `${_reservation.seat_code} [${_reservation.ticket_type_name}] 入場済み`;
             } else {
                 var _reservation = reservationsById[reservationId];
                 result = `
-${_reservation.seat_code} [${_reservation.ticket_name}] OK
+${_reservation.seat_code} [${_reservation.ticket_type_name}] OK
         `;
 
                 // add to list for admission.
@@ -187,7 +187,7 @@ ${_reservation.seat_code} [${_reservation.ticket_name}] OK
             html += `
 <tr>
     <td>${_reservation._id}</td>
-    <td>${_reservation.ticket_name}</td>
+    <td>${_reservation.ticket_type_name}</td>
     <td>${(confirmedReservationIds.indexOf(_reservation._id) >= 0) ? '入場済み' : '入場中...'}</td>
 </tr>
 `;

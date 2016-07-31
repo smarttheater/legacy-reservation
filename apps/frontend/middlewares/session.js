@@ -1,8 +1,8 @@
 "use strict";
-var session = require('express-session');
-var conf = require('config');
-var connectRedis = require('connect-redis');
-var RedisStore = connectRedis(session);
+const session = require('express-session');
+const conf = require('config');
+const connectRedis = require('connect-redis');
+let RedisStore = connectRedis(session);
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = session({
     secret: 'TIFFFrontendSecret',

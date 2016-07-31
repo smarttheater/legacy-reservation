@@ -3,6 +3,7 @@ import Util from '../../common/Util/Util';
 
 import Models from '../../common/models/Models';
 import ReservationUtil from '../../common/models/Reservation/ReservationUtil';
+import TicketTypeGroupUtil from '../../common/models/TicketTypeGroup/TicketTypeGroupUtil';
 
 import ReservationModel from '../models/Reserve/ReservationModel';
 import ReservationResultModel from '../models/Reserve/ReservationResultModel';
@@ -118,46 +119,59 @@ export default class ReserveBaseController extends BaseController {
 
 
 
-                    // 座席コードごとの券種選択肢リスト
-                    // TODO ここが、予約する主体によって異なってくる
-                    // それをどう実装するか
+                    // 券種リストは、予約する主体によって異なる
 
                     // 内部関係者の場合
                     if (reservationModel.staff) {
-                        // 内部関係者の場合、ひとまず券種リストを固定にしておく
-                        reservationModel.ticketTypes = [
-                            {
-                                code: '99',
-                                name: '非売品', // 券種名
-                                name_en: 'Not for Sale', // 券種名(英語)
-                                charge: 0, // 料金
-                                is_on_the_day: false // 当日だけフラグ
-                            }
-                        ];
+                        reservationModel.ticketTypes = TicketTypeGroupUtil.getOne4staff();
 
                     // 外部関係者の場合
                     } else if (reservationModel.sponsor) {
-                        // 外部関係者の場合、ひとまず券種リストを固定にしておく
-                        reservationModel.ticketTypes = [
-                            {
-                                code: '99',
-                                name: '非売品', // 券種名
-                                name_en: 'Not for Sale', // 券種名(英語)
-                                charge: 0, // 料金
-                                is_on_the_day: false // 当日だけフラグ
+                        reservationModel.ticketTypes = TicketTypeGroupUtil.getOne4sponsor();
+
+                    // メルマガ当選者の場合、一般だけ
+                    } else if (reservationModel.member) {
+                        reservationModel.ticketTypes = [];
+
+                        for (let ticketType of ticketTypeGroupDocument.get('types')) {
+                            if (ticketType.get('code') === TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS) {
+                                reservationModel.ticketTypes.push(ticketType);
                             }
-                        ];
+                        }
 
-
-                    // 一般、メルマガ当選者、の場合
-                    // TODO メルマガの場合、一般だけ
-                    // TODO 電話予約の場合は、一般と同じ。ただし、手数料が1席につき150円
-                    // TODO 当日の場合は、券種変わる
-                    // 当日窓口は、一般と同様の券種
+                    // 一般の場合
+                    // 当日窓口、電話予約の場合は、一般と同様の券種
+                    // TODO 電話予約の場合は、手数料が1席につき150円(コンビニ分)
                     } else {
-                        reservationModel.ticketTypes = ticketTypeGroupDocument.get('types');
+                        reservationModel.ticketTypes = [];
+
+                        for (let ticketType of ticketTypeGroupDocument.get('types')) {
+                            switch (ticketType.get('code')) {
+                                // 学生当日は、当日だけ
+                                case TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY:
+                                    if (moment().format('YYYYMMDD') === performanceDocument.get('day')) {
+                                        reservationModel.ticketTypes.push(ticketType);
+                                    }
+
+                                    break;
+
+                                case TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS:
+                                    if (moment().format('YYYYMMDD') !== performanceDocument.get('day')) {
+                                        reservationModel.ticketTypes.push(ticketType);
+                                    }
+
+                                    break;
+
+                                default:
+                                    reservationModel.ticketTypes.push(ticketType);
+
+                                    break;
+                            }
+                        }
 
                     }
+
+
 
 
 
@@ -186,6 +200,9 @@ export default class ReserveBaseController extends BaseController {
                             image: performanceDocument.get('film').get('image')
                         }
                     };
+
+
+
 
 
                     // スクリーン座席表HTMLを保管

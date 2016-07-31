@@ -15,9 +15,10 @@
         ShopPassString：<input type="text" name="ShopPassString" value="<%- shopPassString %>"><br>
         RetURL<input type="text" name="RetURL" value="<%- 'https://' + req.headers.host + url('gmo.reserve.result') %>"><br>
         CancelURL<input type="text" name="CancelURL" value="<%- 'https://' + req.headers.host + url('gmo.reserve.result') %>"><br>
+        Lang<input type="text" name="Lang" value="<%- req.getLocale() %>"><br>
 
         UseCredit:<input type="text" name="UseCredit" value="1"><br>
-        <% // コンビニ決済は5日前の24時まで %>
+        <% // TODO コンビニ決済は5日前の24時までなので、日付確定 %>
         <% if (parseInt(moment().format('YYYYMMDD')) < 20161018) { %>
         UseCvs:<input type="text" name="UseCvs" value="1"><br>
         <% } %>

@@ -18,7 +18,7 @@
         <dd>
             <% reservationModel.reservationIds.forEach((reservationId, index) => { %>
             <% let reservation = reservationModel.getReservation(reservationId) %>
-            <a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a> <%- reservation.ticket_name %> <%- reservation.ticket_price %>円、
+            <a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a> <%- reservation.ticket_type_name %> <%- reservation.ticket_type_charge %>円、
             <% }) %><br>
             <strong>合計金額:<%- reservationModel.getTotalPrice() %>円</strong>
         </dd>

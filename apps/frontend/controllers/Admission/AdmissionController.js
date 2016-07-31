@@ -1,43 +1,31 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var BaseController_1 = require('../BaseController');
-var Models_1 = require('../../../common/models/Models');
-var ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
-var FilmUtil_1 = require('../../../common/models/Film/FilmUtil');
-var AdmissionController = (function (_super) {
-    __extends(AdmissionController, _super);
-    function AdmissionController() {
-        _super.apply(this, arguments);
-    }
-    AdmissionController.prototype.performances = function () {
+const BaseController_1 = require('../BaseController');
+const Models_1 = require('../../../common/models/Models');
+const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
+const FilmUtil_1 = require('../../../common/models/Film/FilmUtil');
+class AdmissionController extends BaseController_1.default {
+    performances() {
         this.res.render('admission/performances', {
             layout: 'layouts/admission/layout',
             FilmUtil: FilmUtil_1.default
         });
-    };
-    AdmissionController.prototype.confirm = function () {
-        var _this = this;
-        var performanceId = this.req.params.id;
+    }
+    confirm() {
+        let performanceId = this.req.params.id;
         Models_1.default.Reservation.find({
             performance: performanceId,
             status: ReservationUtil_1.default.STATUS_RESERVED
-        }).exec(function (err, reservationDocuments) {
-            var reservationsById = {};
-            for (var _i = 0, reservationDocuments_1 = reservationDocuments; _i < reservationDocuments_1.length; _i++) {
-                var reservationDocument = reservationDocuments_1[_i];
+        }).exec((err, reservationDocuments) => {
+            let reservationsById = {};
+            for (let reservationDocument of reservationDocuments) {
                 reservationsById[reservationDocument.get('_id')] = reservationDocument;
             }
-            _this.res.render('admission/confirm', {
+            this.res.render('admission/confirm', {
                 layout: 'layouts/admission/layout',
                 reservationsById: reservationsById
             });
         });
-    };
-    return AdmissionController;
-}(BaseController_1.default));
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = AdmissionController;

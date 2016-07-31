@@ -1,40 +1,30 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var BaseController_1 = require('../BaseController');
-var Models_1 = require('../../../common/models/Models');
-var PerformanceStatusesModel_1 = require('../../../common/models/PerformanceStatusesModel');
-var moment = require('moment');
-var PerformanceController = (function (_super) {
-    __extends(PerformanceController, _super);
-    function PerformanceController() {
-        _super.apply(this, arguments);
-    }
+const BaseController_1 = require('../BaseController');
+const Models_1 = require('../../../common/models/Models');
+const PerformanceStatusesModel_1 = require('../../../common/models/PerformanceStatusesModel');
+const moment = require('moment');
+class PerformanceController extends BaseController_1.default {
     /**
      * パフォーマンス検索API
      */
-    PerformanceController.prototype.search = function () {
-        var _this = this;
-        var limit = (this.req.query.limit) ? this.req.query.limit : 100;
-        var page = (this.req.query.page) ? this.req.query.page : 1;
-        var day = (this.req.query.day) ? this.req.query.day : null; // 上映日
-        var section = (this.req.query.section) ? this.req.query.section : null; // 部門
-        var genre = (this.req.query.genre) ? this.req.query.genre : null; // ジャンル
-        var words = (this.req.query.words) ? this.req.query.words : null; // フリーワード
-        var startFrom = (this.req.query.start_from) ? this.req.query.start_from : null; // この時間以降開始のパフォーマンスに絞る(timestamp)
+    search() {
+        let limit = (this.req.query.limit) ? this.req.query.limit : 100;
+        let page = (this.req.query.page) ? this.req.query.page : 1;
+        let day = (this.req.query.day) ? this.req.query.day : null; // 上映日
+        let section = (this.req.query.section) ? this.req.query.section : null; // 部門
+        let genre = (this.req.query.genre) ? this.req.query.genre : null; // ジャンル
+        let words = (this.req.query.words) ? this.req.query.words : null; // フリーワード
+        let startFrom = (this.req.query.start_from) ? this.req.query.start_from : null; // この時間以降開始のパフォーマンスに絞る(timestamp)
         // 検索条件を作成
-        var andConditions = [];
+        let andConditions = [];
         if (day) {
             andConditions.push({
                 'day': day
             });
         }
         if (startFrom) {
-            var now = moment.unix(startFrom);
-            var tomorrow = moment.unix(startFrom).add(+24, 'hours');
+            let now = moment.unix(startFrom);
+            let tomorrow = moment.unix(startFrom).add(+24, 'hours');
             andConditions.push({
                 $or: [
                     {
@@ -52,19 +42,19 @@ var PerformanceController = (function (_super) {
             });
         }
         // 作品条件を追加する
-        this.addFilmConditions(andConditions, section, genre, words, function (err, andConditions) {
-            var conditions = null;
+        this.addFilmConditions(andConditions, section, genre, words, (err, andConditions) => {
+            let conditions = null;
             if (andConditions.length > 0) {
                 conditions = {
                     $and: andConditions
                 };
             }
-            _this.logger.debug('conditions:', conditions);
+            this.logger.debug('conditions:', conditions);
             // 総数検索
-            Models_1.default.Performance.count(conditions, function (err, count) {
-                var query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater' // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+            Models_1.default.Performance.count(conditions, (err, count) => {
+                let query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater' // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                 ).skip(limit * (page - 1)).limit(limit);
-                if (_this.req.getLocale() === 'ja') {
+                if (this.req.getLocale() === 'ja') {
                     query.populate('film', 'name image') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                         .populate('screen', 'name') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                         .populate('theater', 'name'); // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
@@ -82,25 +72,25 @@ var PerformanceController = (function (_super) {
                         start_time: 1,
                     },
                 });
-                query.exec(function (err, performanceDocuments) {
-                    _this.logger.debug('find performances processed.', err);
-                    var results = [];
+                query.exec((err, performanceDocuments) => {
+                    this.logger.debug('find performances processed.', err);
+                    let results = [];
                     // 空席情報を追加
-                    PerformanceStatusesModel_1.default.find(function (err, performanceStatusesModel) {
-                        performanceDocuments.forEach(function (performanceDocument) {
-                            var result = performanceDocument.toObject();
+                    PerformanceStatusesModel_1.default.find((err, performanceStatusesModel) => {
+                        performanceDocuments.forEach((performanceDocument) => {
+                            let result = performanceDocument.toObject();
                             result['seat_status'] = performanceStatusesModel.getStatus(performanceDocument.get('_id'));
                             results.push(result);
                         });
                         if (err) {
-                            _this.res.json({
+                            this.res.json({
                                 isSuccess: false,
                                 results: [],
                                 count: 0
                             });
                         }
                         else {
-                            _this.res.json({
+                            this.res.json({
                                 isSuccess: true,
                                 results: results,
                                 count: count
@@ -110,9 +100,9 @@ var PerformanceController = (function (_super) {
                 });
             });
         });
-    };
-    PerformanceController.prototype.addFilmConditions = function (andConditions, section, genre, words, cb) {
-        var filmAndConditions = [];
+    }
+    addFilmConditions(andConditions, section, genre, words, cb) {
+        let filmAndConditions = [];
         if (section) {
             // 部門条件の追加
             filmAndConditions.push({
@@ -130,14 +120,13 @@ var PerformanceController = (function (_super) {
         if (words) {
             // trim and to half-width space
             words = words.replace(/(^\s+)|(\s+$)/g, '').replace(/\s/g, ' ');
-            var regexes = words.split(' ').filter(function (value) { return (value.length > 0); });
-            var orConditions = [];
-            for (var _i = 0, regexes_1 = regexes; _i < regexes_1.length; _i++) {
-                var regex = regexes_1[_i];
+            let regexes = words.split(' ').filter((value) => { return (value.length > 0); });
+            let orConditions = [];
+            for (let regex of regexes) {
                 orConditions.push({
-                    'name': { $regex: "" + regex }
+                    'name': { $regex: `${regex}` }
                 }, {
-                    'name_en': { $regex: "" + regex }
+                    'name_en': { $regex: `${regex}` }
                 });
             }
             filmAndConditions.push({
@@ -145,15 +134,15 @@ var PerformanceController = (function (_super) {
             });
         }
         if (filmAndConditions.length > 0) {
-            var filmConditions = {
+            let filmConditions = {
                 $and: filmAndConditions
             };
-            Models_1.default.Film.find(filmConditions, '_id', {}, function (err, filmDocuments) {
+            Models_1.default.Film.find(filmConditions, '_id', {}, (err, filmDocuments) => {
                 if (err) {
                     cb(err, andConditions);
                 }
                 else {
-                    var filmIds = filmDocuments.map(function (filmDocument) {
+                    let filmIds = filmDocuments.map((filmDocument) => {
                         return filmDocument.get('_id');
                     });
                     if (filmIds.length > 0) {
@@ -176,8 +165,7 @@ var PerformanceController = (function (_super) {
         else {
             cb(null, andConditions);
         }
-    };
-    return PerformanceController;
-}(BaseController_1.default));
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PerformanceController;

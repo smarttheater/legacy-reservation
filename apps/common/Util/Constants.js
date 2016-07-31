@@ -2,11 +2,8 @@
 /**
  * 定数クラス
  */
-var Constants = (function () {
-    function Constants() {
-    }
-    return Constants;
-}());
+class Constants {
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Constants;
 ;

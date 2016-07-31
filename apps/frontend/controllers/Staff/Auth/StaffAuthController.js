@@ -1,52 +1,42 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var BaseController_1 = require('../../BaseController');
-var StaffUser_1 = require('../../../models/User/StaffUser');
-var staffLoginForm_1 = require('../../../forms/Staff/staffLoginForm');
-var Models_1 = require('../../../../common/models/Models');
-var StaffAuthController = (function (_super) {
-    __extends(StaffAuthController, _super);
-    function StaffAuthController() {
-        _super.apply(this, arguments);
-    }
+const BaseController_1 = require('../../BaseController');
+const StaffUser_1 = require('../../../models/User/StaffUser');
+const staffLoginForm_1 = require('../../../forms/Staff/staffLoginForm');
+const Models_1 = require('../../../../common/models/Models');
+class StaffAuthController extends BaseController_1.default {
     /**
      * TODO 一般とadminの2種類の権限
      */
-    StaffAuthController.prototype.login = function () {
-        var _this = this;
+    login() {
         if (this.staffUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('staff.reserve.performances', {}));
         }
         if (this.req.method === 'POST') {
-            var form = staffLoginForm_1.default(this.req);
-            form(this.req, this.res, function (err) {
-                if (_this.req.form.isValid) {
+            let form = staffLoginForm_1.default(this.req);
+            form(this.req, this.res, (err) => {
+                if (this.req.form.isValid) {
                     // ユーザー認証
-                    _this.logger.debug('finding staff... user_id:', _this.req.form['userId']);
+                    this.logger.debug('finding staff... user_id:', this.req.form['userId']);
                     Models_1.default.Staff.findOne({
-                        user_id: _this.req.form['userId'],
-                        password: _this.req.form['password'],
-                    }, function (err, staffDocument) {
+                        user_id: this.req.form['userId'],
+                        password: this.req.form['password'],
+                    }, (err, staffDocument) => {
                         if (err || staffDocument === null) {
-                            _this.req.form.errors.push(_this.req.__('Message.invalid{{fieldName}}', { fieldName: _this.req.__('Form.FieldName.password') }));
-                            _this.res.render('staff/auth/login', {
+                            this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            this.res.render('staff/auth/login', {
                                 layout: 'layouts/staff/layout'
                             });
                         }
                         else {
                             // ログイン
-                            _this.req.session[StaffUser_1.default.AUTH_SESSION_NAME] = staffDocument.toObject();
-                            _this.req.session[StaffUser_1.default.AUTH_SESSION_NAME]['signature'] = _this.req.form['signature'];
-                            _this.res.redirect(_this.router.build('staff.mypage', {}));
+                            this.req.session[StaffUser_1.default.AUTH_SESSION_NAME] = staffDocument.toObject();
+                            this.req.session[StaffUser_1.default.AUTH_SESSION_NAME]['signature'] = this.req.form['signature'];
+                            this.res.redirect(this.router.build('staff.mypage', {}));
                         }
                     });
                 }
                 else {
-                    _this.res.render('staff/auth/login', {
+                    this.res.render('staff/auth/login', {
                         layout: 'layouts/staff/layout'
                     });
                 }
@@ -60,12 +50,11 @@ var StaffAuthController = (function (_super) {
                 layout: 'layouts/staff/layout'
             });
         }
-    };
-    StaffAuthController.prototype.logout = function () {
+    }
+    logout() {
         delete this.req.session[StaffUser_1.default.AUTH_SESSION_NAME];
         this.res.redirect('/');
-    };
-    return StaffAuthController;
-}(BaseController_1.default));
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = StaffAuthController;

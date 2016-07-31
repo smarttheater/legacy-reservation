@@ -1,40 +1,31 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var BaseController_1 = require('./BaseController');
-var Models_1 = require('../../common/models/Models');
-var ReservationUtil_1 = require('../../common/models/Reservation/ReservationUtil');
-var log4js = require('log4js');
-var fs = require('fs-extra');
-var sendgrid = require('sendgrid');
-var conf = require('config');
-var moment = require('moment');
+const BaseController_1 = require('./BaseController');
+const Models_1 = require('../../common/models/Models');
+const ReservationUtil_1 = require('../../common/models/Reservation/ReservationUtil');
+const TicketTypeGroupUtil_1 = require('../../common/models/TicketTypeGroup/TicketTypeGroupUtil');
+const log4js = require('log4js');
+const fs = require('fs-extra');
+const sendgrid = require('sendgrid');
+const conf = require('config');
+const moment = require('moment');
 /**
  * 予約フローベースコントローラー
  */
-var ReserveBaseController = (function (_super) {
-    __extends(ReserveBaseController, _super);
-    function ReserveBaseController() {
-        _super.apply(this, arguments);
-    }
-    ReserveBaseController.prototype.processCancelSeats = function (reservationModel, cb) {
-        var _this = this;
-        var reservationIdsInSession = (reservationModel.reservationIds) ? reservationModel.reservationIds : [];
-        var promises = [];
+class ReserveBaseController extends BaseController_1.default {
+    processCancelSeats(reservationModel, cb) {
+        let reservationIdsInSession = (reservationModel.reservationIds) ? reservationModel.reservationIds : [];
+        let promises = [];
         // セッション中の予約リストを初期化
         reservationModel.reservationIds = [];
         // 仮予約を空席ステータスに戻す
-        reservationIdsInSession.forEach(function (reservationIdInSession, index) {
-            promises.push(new Promise(function (resolve, reject) {
-                _this.logger.debug('updating reservation status to avalilable..._id:', reservationIdInSession);
+        reservationIdsInSession.forEach((reservationIdInSession, index) => {
+            promises.push(new Promise((resolve, reject) => {
+                this.logger.debug('updating reservation status to avalilable..._id:', reservationIdInSession);
                 Models_1.default.Reservation.update({
                     _id: reservationIdInSession,
                 }, {
                     status: ReservationUtil_1.default.STATUS_AVAILABLE,
-                }, function (err, affectedRows) {
+                }, (err, affectedRows) => {
                     // 失敗したとしても時間経過で消えるので放置
                     if (err) {
                     }
@@ -44,17 +35,17 @@ var ReserveBaseController = (function (_super) {
                 });
             }));
         });
-        Promise.all(promises).then(function () {
+        Promise.all(promises).then(() => {
             cb(null, reservationModel);
-        }, function (err) {
+        }, (err) => {
             cb(err, reservationModel);
         });
-    };
+    }
     /**
      * パフォーマンスをFIXするプロセス
      * パフォーマンスIDから、パフォーマンスを検索し、その後プロセスに必要な情報をreservationModelに追加する
      */
-    ReserveBaseController.prototype.processFixPerformance = function (reservationModel, perfomanceId, cb) {
+    processFixPerformance(reservationModel, perfomanceId, cb) {
         // パフォーマンス取得
         this.logger.debug('searching performance... id:', perfomanceId);
         Models_1.default.Performance.findOne({
@@ -64,14 +55,14 @@ var ReserveBaseController = (function (_super) {
             .populate('film', 'name name_en ticket_type_group image') // 必要な項目だけ指定すること
             .populate('screen', 'name name_en sections') // 必要な項目だけ指定すること
             .populate('theater', 'name name_en') // 必要な項目だけ指定すること
-            .exec(function (err, performanceDocument) {
+            .exec((err, performanceDocument) => {
             if (err) {
                 cb(err, reservationModel);
             }
             else {
                 // TODO 内部以外は、上映開始20分過ぎていたらはじく
                 if (!reservationModel.staff) {
-                    var now = moment().add(-20, 'minutes');
+                    let now = moment().add(-20, 'minutes');
                     if (performanceDocument.get('day') === now.format('YYYYMMDD')) {
                         if (performanceDocument.get('start') < now.format('HHmm')) {
                             return cb(new Error('You cannot reserve this performance.'), reservationModel);
@@ -84,38 +75,44 @@ var ReserveBaseController = (function (_super) {
                 // 券種取得
                 Models_1.default.TicketTypeGroup.findOne({
                     _id: performanceDocument.get('film').get('ticket_type_group')
-                }, function (err, ticketTypeGroupDocument) {
+                }, (err, ticketTypeGroupDocument) => {
                     reservationModel.reservationIds = [];
-                    // 座席コードごとの券種選択肢リスト
-                    // TODO ここが、予約する主体によって異なってくる
-                    // それをどう実装するか
+                    // 券種リストは、予約する主体によって異なる
                     // 内部関係者の場合
                     if (reservationModel.staff) {
-                        // 内部関係者の場合、ひとまず券種リストを固定にしておく
-                        reservationModel.ticketTypes = [
-                            {
-                                code: '99',
-                                name: '非売品',
-                                name_en: 'Not for Sale',
-                                charge: 0,
-                                is_on_the_day: false // 当日だけフラグ
-                            }
-                        ];
+                        reservationModel.ticketTypes = TicketTypeGroupUtil_1.default.getOne4staff();
                     }
                     else if (reservationModel.sponsor) {
-                        // 外部関係者の場合、ひとまず券種リストを固定にしておく
-                        reservationModel.ticketTypes = [
-                            {
-                                code: '99',
-                                name: '非売品',
-                                name_en: 'Not for Sale',
-                                charge: 0,
-                                is_on_the_day: false // 当日だけフラグ
+                        reservationModel.ticketTypes = TicketTypeGroupUtil_1.default.getOne4sponsor();
+                    }
+                    else if (reservationModel.member) {
+                        reservationModel.ticketTypes = [];
+                        for (let ticketType of ticketTypeGroupDocument.get('types')) {
+                            if (ticketType.get('code') === TicketTypeGroupUtil_1.default.TICKET_TYPE_CODE_ADULTS) {
+                                reservationModel.ticketTypes.push(ticketType);
                             }
-                        ];
+                        }
                     }
                     else {
-                        reservationModel.ticketTypes = ticketTypeGroupDocument.get('types');
+                        reservationModel.ticketTypes = [];
+                        for (let ticketType of ticketTypeGroupDocument.get('types')) {
+                            switch (ticketType.get('code')) {
+                                // 学生当日は、当日だけ
+                                case TicketTypeGroupUtil_1.default.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY:
+                                    if (moment().format('YYYYMMDD') === performanceDocument.get('day')) {
+                                        reservationModel.ticketTypes.push(ticketType);
+                                    }
+                                    break;
+                                case TicketTypeGroupUtil_1.default.TICKET_TYPE_CODE_STUDENTS:
+                                    if (moment().format('YYYYMMDD') !== performanceDocument.get('day')) {
+                                        reservationModel.ticketTypes.push(ticketType);
+                                    }
+                                    break;
+                                default:
+                                    reservationModel.ticketTypes.push(ticketType);
+                                    break;
+                            }
+                        }
                     }
                     // パフォーマンス情報を保管
                     reservationModel.performance = {
@@ -144,42 +141,41 @@ var ReserveBaseController = (function (_super) {
                     };
                     // スクリーン座席表HTMLを保管
                     // TODO ひとまず固定だが、最終的にはパフォーマンスに応じて適切なスクリーンを入れる
-                    fs.readFile(__dirname + "/../views/screens/map.ejs", 'utf8', function (err, data) {
+                    fs.readFile(`${__dirname}/../views/screens/map.ejs`, 'utf8', (err, data) => {
                         reservationModel.screenHtml = data;
                         cb(null, reservationModel);
                     });
                 });
             }
         });
-    };
+    }
     /**
      * 座席をFIXするプロセス
      */
-    ReserveBaseController.prototype.processFixSeats = function (reservationModel, reservationIds, cb) {
-        var _this = this;
-        var reservationIdsInSession = reservationModel.reservationIds;
+    processFixSeats(reservationModel, reservationIds, cb) {
+        let reservationIdsInSession = reservationModel.reservationIds;
         if (reservationIds.length < 1) {
             cb(new Error('座席が選択されていません'), reservationModel);
         }
         else {
             // 仮押さえ
             // まず仮押さえしてから、仮押さえキャンセル
-            var promises_1 = [];
+            let promises = [];
             // セッション中の予約リストを初期化
             reservationModel.reservationIds = [];
             // 仮予約解除の場合、空席ステータスに戻す(redis中の情報にあって、新たな指定リストにない座席コード)
-            reservationIdsInSession.forEach(function (reservationIdInSession, index) {
-                var reservation = reservationModel.getReservation(reservationIdInSession);
+            reservationIdsInSession.forEach((reservationIdInSession, index) => {
+                let reservation = reservationModel.getReservation(reservationIdInSession);
                 if (reservationIds.indexOf(reservationIdInSession) >= 0) {
                 }
                 else {
-                    promises_1.push(new Promise(function (resolve, reject) {
-                        _this.logger.debug('updating reservation status to avalilable..._id:', reservationIdInSession);
+                    promises.push(new Promise((resolve, reject) => {
+                        this.logger.debug('updating reservation status to avalilable..._id:', reservationIdInSession);
                         Models_1.default.Reservation.update({
                             _id: reservationIdInSession,
                         }, {
                             status: ReservationUtil_1.default.STATUS_AVAILABLE,
-                        }, function (err, affectedRows) {
+                        }, (err, affectedRows) => {
                             // 失敗したとしても時間経過で消えるので放置
                             if (err) {
                             }
@@ -191,18 +187,18 @@ var ReserveBaseController = (function (_super) {
                 }
             });
             // 新たな座席指定と、既に仮予約済みの座席コードについて
-            reservationIds.forEach(function (reservationId, index) {
+            reservationIds.forEach((reservationId, index) => {
                 // すでに仮予約済みであれば、セッションに加えるだけ
                 if (reservationIdsInSession.indexOf(reservationId) >= 0) {
-                    promises_1.push(new Promise(function (resolve, reject) {
+                    promises.push(new Promise((resolve, reject) => {
                         reservationModel.reservationIds.push(reservationId);
                         resolve();
                     }));
                 }
                 else {
                     // 新規仮予約
-                    promises_1.push(new Promise(function (resolve, reject) {
-                        var update = {
+                    promises.push(new Promise((resolve, reject) => {
+                        let update = {
                             status: ReservationUtil_1.default.STATUS_TEMPORARY
                         };
                         if (reservationModel.staff) {
@@ -216,13 +212,13 @@ var ReserveBaseController = (function (_super) {
                         }
                         else {
                         }
-                        _this.logger.debug('updating reservation status to temporary...reservationId:', reservationId);
+                        this.logger.debug('updating reservation status to temporary...reservationId:', reservationId);
                         Models_1.default.Reservation.findOneAndUpdate({
                             _id: reservationId,
                             status: ReservationUtil_1.default.STATUS_AVAILABLE // 空席ステータスのみ、新規仮登録できる(ここはポイントなので要注意！！！)
                         }, update, {
                             new: true,
-                        }, function (err, reservationDocument) {
+                        }, (err, reservationDocument) => {
                             if (err) {
                             }
                             else {
@@ -245,24 +241,23 @@ var ReserveBaseController = (function (_super) {
                     }));
                 }
             });
-            Promise.all(promises_1).then(function () {
+            Promise.all(promises).then(() => {
                 cb(null, reservationModel);
-            }, function (err) {
+            }, (err) => {
                 cb(err, reservationModel);
             });
         }
-    };
+    }
     /**
      * 予約全体をFIXするプロセス
      */
-    ReserveBaseController.prototype.processFixAll = function (reservationModel, cb) {
-        var _this = this;
+    processFixAll(reservationModel, cb) {
         reservationModel.reservedDocuments = [];
-        var promises = [];
-        reservationModel.reservationIds.forEach(function (reservationId, index) {
-            var reservation = reservationModel.getReservation(reservationId);
-            promises.push(new Promise(function (resolve, reject) {
-                _this.logger.info('updating reservation status to STATUS_RESERVED..._id:', reservationId);
+        let promises = [];
+        reservationModel.reservationIds.forEach((reservationId, index) => {
+            let reservation = reservationModel.getReservation(reservationId);
+            promises.push(new Promise((resolve, reject) => {
+                this.logger.info('updating reservation status to STATUS_RESERVED..._id:', reservationId);
                 Models_1.default.Reservation.findOneAndUpdate({
                     _id: reservationId,
                 }, {
@@ -303,11 +298,11 @@ var ReserveBaseController = (function (_super) {
                     staff_department_name: (reservationModel.staff) ? reservationModel.staff.department_name : null,
                     staff_tel: (reservationModel.staff) ? reservationModel.staff.tel : null,
                     staff_signature: (reservationModel.staff) ? reservationModel.staff.signature : null,
-                    updated_user: _this.constructor.toString(),
+                    updated_user: this.constructor.toString(),
                 }, {
                     new: true
-                }, function (err, reservationDocument) {
-                    _this.logger.info('STATUS_TEMPORARY to STATUS_RESERVED processed.', err, reservationDocument);
+                }, (err, reservationDocument) => {
+                    this.logger.info('STATUS_TEMPORARY to STATUS_RESERVED processed.', err, reservationDocument);
                     if (err) {
                     }
                     else {
@@ -318,10 +313,10 @@ var ReserveBaseController = (function (_super) {
                 });
             }));
         });
-        Promise.all(promises).then(function () {
-            _this.logger.info('fix all success.');
+        Promise.all(promises).then(() => {
+            this.logger.info('fix all success.');
             // メール送信
-            var to;
+            let to;
             if (reservationModel.staff) {
                 to = reservationModel.staff.email;
             }
@@ -334,7 +329,7 @@ var ReserveBaseController = (function (_super) {
             else {
             }
             if (to) {
-                _this.sendCompleteEmail(to, reservationModel.reservedDocuments, function (err, json) {
+                this.sendCompleteEmail(to, reservationModel.reservedDocuments, (err, json) => {
                     if (err) {
                     }
                     cb(null, reservationModel);
@@ -343,23 +338,22 @@ var ReserveBaseController = (function (_super) {
             else {
                 cb(null, reservationModel);
             }
-        }, function (err) {
-            _this.logger.error('fix all failure.', err);
+        }, (err) => {
+            this.logger.error('fix all failure.', err);
             cb(err, reservationModel);
         });
-    };
+    }
     /**
      * 予約プロセス用のロガーを設定する
      * 1決済管理番号につき、1ログファイル
      *
      * @param {string} paymentNo 予約番号
      */
-    ReserveBaseController.prototype.setProcessLogger = function (paymentNo, cb) {
-        var _this = this;
-        var env = process.env.NODE_ENV || 'dev';
-        var moment = require('moment');
-        var logDir = __dirname + "/../../../logs/" + env + "/frontend/reserve/" + moment().format('YYYYMMDD');
-        fs.mkdirs(logDir, function (err) {
+    setProcessLogger(paymentNo, cb) {
+        let env = process.env.NODE_ENV || 'dev';
+        let moment = require('moment');
+        let logDir = `${__dirname}/../../../logs/${env}/frontend/reserve/${moment().format('YYYYMMDD')}`;
+        fs.mkdirs(logDir, (err) => {
             if (err) {
             }
             else {
@@ -368,7 +362,7 @@ var ReserveBaseController = (function (_super) {
                         {
                             category: 'reserve',
                             type: 'dateFile',
-                            filename: logDir + "/" + paymentNo + ".log",
+                            filename: `${logDir}/${paymentNo}.log`,
                             pattern: '-yyyy-MM-dd',
                             backups: 3
                         },
@@ -381,35 +375,33 @@ var ReserveBaseController = (function (_super) {
                     },
                     replaceConsole: true
                 });
-                _this.logger = log4js.getLogger('reserve');
+                this.logger = log4js.getLogger('reserve');
                 cb();
             }
         });
-    };
+    }
     /**
      * 予約完了メールを送信する
      */
-    ReserveBaseController.prototype.sendCompleteEmail = function (to, reservationDocuments, cb) {
-        var _this = this;
+    sendCompleteEmail(to, reservationDocuments, cb) {
         this.res.render('email/reserveComplete', {
             layout: false,
             reservationDocuments: reservationDocuments
-        }, function (err, html) {
+        }, (err, html) => {
             if (err) {
                 cb(err, null);
             }
             else {
-                var _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
-                var email = new _sendgrid.Email({
+                let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
+                let email = new _sendgrid.Email({
                     to: to,
                     from: 'noreply@devtiffwebapp.azurewebsites.net',
-                    subject: "[TIFF][" + process.env.NODE_ENV + "] \u4E88\u7D04\u5B8C\u4E86",
+                    subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
                     html: html
                 });
                 // add barcodes
-                for (var _i = 0, reservationDocuments_1 = reservationDocuments; _i < reservationDocuments_1.length; _i++) {
-                    var reservationDocument = reservationDocuments_1[_i];
-                    var reservationId = reservationDocument._id.toString();
+                for (let reservationDocument of reservationDocuments) {
+                    let reservationId = reservationDocument._id.toString();
                     // email.addFile({
                     //     filename: `barcode_${reservationId}.png`,
                     //     contentType: 'image/png',
@@ -417,21 +409,20 @@ var ReserveBaseController = (function (_super) {
                     //     url: this.router.build('reserve.barcode', {token: token, reservationId:reservationId})
                     // });
                     email.addFile({
-                        filename: "QR_" + reservationId + ".png",
+                        filename: `QR_${reservationId}.png`,
                         contentType: 'image/png',
-                        cid: "qrcode_" + reservationId,
+                        cid: `qrcode_${reservationId}`,
                         content: ReservationUtil_1.default.createQRCode(reservationId)
                     });
                 }
-                _this.logger.info('sending an email...email:', email);
-                _sendgrid.send(email, function (err, json) {
-                    _this.logger.info('an email sent.', err, json);
+                this.logger.info('sending an email...email:', email);
+                _sendgrid.send(email, (err, json) => {
+                    this.logger.info('an email sent.', err, json);
                     cb(err, json);
                 });
             }
         });
-    };
-    return ReserveBaseController;
-}(BaseController_1.default));
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = ReserveBaseController;

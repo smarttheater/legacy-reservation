@@ -1,8 +1,5 @@
 "use strict";
-var TheaterUtil = (function () {
-    function TheaterUtil() {
-    }
-    return TheaterUtil;
-}());
+class TheaterUtil {
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = TheaterUtil;

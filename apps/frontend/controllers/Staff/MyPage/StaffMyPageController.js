@@ -1,35 +1,25 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var BaseController_1 = require('../../BaseController');
-var ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
-var Models_1 = require('../../../../common/models/Models');
-var StaffMyPageController = (function (_super) {
-    __extends(StaffMyPageController, _super);
-    function StaffMyPageController() {
-        _super.apply(this, arguments);
-    }
-    StaffMyPageController.prototype.index = function () {
+const BaseController_1 = require('../../BaseController');
+const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
+const Models_1 = require('../../../../common/models/Models');
+class StaffMyPageController extends BaseController_1.default {
+    index() {
         this.res.render('staff/mypage/index', {
             layout: 'layouts/staff/layout',
         });
-    };
+    }
     /**
      * マイページ予約検索API
      */
-    StaffMyPageController.prototype.search = function () {
-        var _this = this;
-        var limit = 2;
-        var page = (this.req.query.page) ? this.req.query.page : 1;
-        var day = (this.req.query.day) ? this.req.query.day : null;
-        var startTime = (this.req.query.start_time) ? this.req.query.start_time : null;
-        var film = (this.req.query.film) ? this.req.query.film : null;
-        var words = (this.req.query.words) ? this.req.query.words : null;
+    search() {
+        let limit = 2;
+        let page = (this.req.query.page) ? this.req.query.page : 1;
+        let day = (this.req.query.day) ? this.req.query.day : null;
+        let startTime = (this.req.query.start_time) ? this.req.query.start_time : null;
+        let film = (this.req.query.film) ? this.req.query.film : null;
+        let words = (this.req.query.words) ? this.req.query.words : null;
         // 検索条件を作成
-        var conditions = [];
+        let conditions = [];
         conditions.push({ staff: this.staffUser.get('_id') });
         conditions.push({ status: ReservationUtil_1.default.STATUS_RESERVED });
         if (film) {
@@ -49,13 +39,13 @@ var StaffMyPageController = (function (_super) {
             conditions.push({
                 $or: [
                     {
-                        film_name: { $regex: "" + words }
+                        film_name: { $regex: `${words}` }
                     },
                     {
-                        staff_signature: { $regex: "" + words }
+                        staff_signature: { $regex: `${words}` }
                     },
                     {
-                        watcher_name: { $regex: "" + words }
+                        watcher_name: { $regex: `${words}` }
                     }
                 ]
             });
@@ -63,7 +53,7 @@ var StaffMyPageController = (function (_super) {
         // 総数検索
         Models_1.default.Reservation.count({
             $and: conditions
-        }, function (err, count) {
+        }, (err, count) => {
             Models_1.default.Reservation.find({
                 $and: conditions
             }, {}, {
@@ -72,12 +62,12 @@ var StaffMyPageController = (function (_super) {
                 .skip(limit * (page - 1))
                 .limit(limit)
                 .populate('staff screen')
-                .exec(function (err, reservationDocuments) {
+                .exec((err, reservationDocuments) => {
                 if (err) {
                 }
                 else {
                     conditions['page'] = page;
-                    _this.res.json({
+                    this.res.json({
                         isSuccess: true,
                         // conditions: conditions,
                         results: reservationDocuments,
@@ -86,11 +76,10 @@ var StaffMyPageController = (function (_super) {
                 }
             });
         });
-    };
-    StaffMyPageController.prototype.updateWatcherName = function () {
-        var _this = this;
-        var reservationId = this.req.body.reservationId;
-        var watcherName = this.req.body.watcherName;
+    }
+    updateWatcherName() {
+        let reservationId = this.req.body.reservationId;
+        let watcherName = this.req.body.watcherName;
         this.logger.debug('updating watcher_name... id:', reservationId);
         Models_1.default.Reservation.findOneAndUpdate({
             staff: this.staffUser.get('_id'),
@@ -101,23 +90,22 @@ var StaffMyPageController = (function (_super) {
             staff_signature: this.staffUser.get('signature'),
         }, {
             new: true
-        }, function (err, reservationDocument) {
-            _this.logger.debug('updated watcher_name. reservationDocument:', reservationDocument);
+        }, (err, reservationDocument) => {
+            this.logger.debug('updated watcher_name. reservationDocument:', reservationDocument);
             if (err || reservationDocument === null) {
-                _this.res.json({
+                this.res.json({
                     isSuccess: false,
                     reservationId: null
                 });
             }
             else {
-                _this.res.json({
+                this.res.json({
                     isSuccess: true,
                     reservation: reservationDocument.toObject()
                 });
             }
         });
-    };
-    return StaffMyPageController;
-}(BaseController_1.default));
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = StaffMyPageController;

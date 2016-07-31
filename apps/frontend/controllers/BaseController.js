@@ -1,18 +1,18 @@
 "use strict";
-var log4js = require('log4js');
-var moment = require('moment');
-var util = require('util');
-var MemberUser_1 = require('../models/User/MemberUser');
-var StaffUser_1 = require('../models/User/StaffUser');
-var SponsorUser_1 = require('../models/User/SponsorUser');
+const log4js = require('log4js');
+const moment = require('moment');
+const util = require('util');
+const MemberUser_1 = require('../models/User/MemberUser');
+const StaffUser_1 = require('../models/User/StaffUser');
+const SponsorUser_1 = require('../models/User/SponsorUser');
 /**
  * ベースコントローラー
  *
  * 基本的にコントローラークラスはルーティングクラスより呼ばれる
  * あらゆるルーティングで実行されるメソッドは、このクラスがベースとなるので、メソッド共通の処理はここで実装するとよい
  */
-var BaseController = (function () {
-    function BaseController(req, res, next) {
+class BaseController {
+    constructor(req, res, next) {
         this.req = req;
         this.res = res;
         this.next = next;
@@ -29,7 +29,6 @@ var BaseController = (function () {
         this.res.locals.moment = moment;
         this.res.locals.util = util;
     }
-    return BaseController;
-}());
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = BaseController;

@@ -1,29 +1,27 @@
 "use strict";
-var TicketTypeGroupUtil = (function () {
-    function TicketTypeGroupUtil() {
-    }
-    TicketTypeGroupUtil.getAll = function () {
+class TicketTypeGroupUtil {
+    static getAll() {
         return [
             {
                 name: "オープニング",
                 name_en: "Opening",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 2000,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 1500,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 1500,
@@ -36,21 +34,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "Closing",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 2000,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 1500,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 1500,
@@ -63,21 +61,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "Special Invitation",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 2000,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 1500,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 1500,
@@ -90,21 +88,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "Panorama",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1500,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -117,21 +115,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "World Focus",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1500,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -144,21 +142,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "Tokyo Grand Prix",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1300,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -171,21 +169,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "Competition",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1300,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -198,21 +196,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "Asia Future",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1300,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -225,21 +223,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "Japanese Cinema Splash",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1300,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -252,21 +250,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "Crosscut Asia",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1300,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -279,21 +277,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "Audience Award",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1300,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -306,21 +304,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "Japan Now",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1800,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 1500,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -333,21 +331,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "Japanese Classics",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 500,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -360,21 +358,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "Minato",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 500,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -387,21 +385,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "New Face Award",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 500,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -414,21 +412,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "PFF Grand Prix",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 500,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -441,21 +439,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "SKIP City",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 500,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -468,21 +466,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "WOWOW",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 4500,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 4500,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 4500,
@@ -495,21 +493,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "Kabukiza Special Night",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 10000,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 10000,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 10000,
@@ -522,21 +520,21 @@ var TicketTypeGroupUtil = (function () {
                 name_en: "Japanese Students Film Festival",
                 types: [
                     {
-                        code: '01',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
                         name: '一般',
                         name_en: 'Adults',
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
-                        code: '02',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
                         name: '学生',
                         name_en: 'Students',
                         charge: 500,
                         is_on_the_day: false
                     },
                     {
-                        code: '03',
+                        code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
                         name: '学生当日',
                         name_en: 'Students on the day',
                         charge: 500,
@@ -545,8 +543,39 @@ var TicketTypeGroupUtil = (function () {
                 ]
             }
         ];
-    };
-    return TicketTypeGroupUtil;
-}());
+    }
+    /**
+     * 内部関係者用券種グループを取得する
+     */
+    static getOne4staff() {
+        return [
+            {
+                code: TicketTypeGroupUtil.TICKET_TYPE_CODE_NOT_FOR_SALE,
+                name: '非売品',
+                name_en: 'Not for Sale',
+                charge: 0,
+                is_on_the_day: false
+            }
+        ];
+    }
+    /**
+     * 外部関係者用券種グループを取得する
+     */
+    static getOne4sponsor() {
+        return [
+            {
+                code: TicketTypeGroupUtil.TICKET_TYPE_CODE_NOT_FOR_SALE,
+                name: '非売品',
+                name_en: 'Not for Sale',
+                charge: 0,
+                is_on_the_day: false
+            }
+        ];
+    }
+}
+TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS = '01';
+TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS = '02';
+TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY = '03';
+TicketTypeGroupUtil.TICKET_TYPE_CODE_NOT_FOR_SALE = '99';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = TicketTypeGroupUtil;

@@ -1,9 +1,9 @@
 "use strict";
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 /**
  * パフォーマンススキーマ
  */
-var PerformanceSchema = new mongoose.Schema({
+let PerformanceSchema = new mongoose.Schema({
     theater: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Theater'

@@ -1,9 +1,9 @@
 "use strict";
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 /**
  * 外部関係者スキーマ
  */
-var SponsorSchema = new mongoose.Schema({
+let SponsorSchema = new mongoose.Schema({
     user_id: String,
     password: String,
     name: String,

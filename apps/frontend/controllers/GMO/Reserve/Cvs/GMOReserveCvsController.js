@@ -1,38 +1,28 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var ReserveBaseController_1 = require('../../../ReserveBaseController');
-var GMOUtil_1 = require('../../../../../common/Util/GMO/GMOUtil');
-var Models_1 = require('../../../../../common/models/Models');
-var ReservationUtil_1 = require('../../../../../common/models/Reservation/ReservationUtil');
-var GMONotificationResponseModel_1 = require('../../../../models/Reserve/GMONotificationResponseModel');
-var GMOReserveCvsController = (function (_super) {
-    __extends(GMOReserveCvsController, _super);
-    function GMOReserveCvsController() {
-        _super.apply(this, arguments);
-    }
+const ReserveBaseController_1 = require('../../../ReserveBaseController');
+const GMOUtil_1 = require('../../../../../common/Util/GMO/GMOUtil');
+const Models_1 = require('../../../../../common/models/Models');
+const ReservationUtil_1 = require('../../../../../common/models/Reservation/ReservationUtil');
+const GMONotificationResponseModel_1 = require('../../../../models/Reserve/GMONotificationResponseModel');
+class GMOReserveCvsController extends ReserveBaseController_1.default {
     /**
      * GMOからの結果受信
      */
-    GMOReserveCvsController.prototype.result = function (reservationModel, gmoResultModel) {
-        var _this = this;
+    result(reservationModel, gmoResultModel) {
         // 決済待ちステータスへ変更
-        var promises = [];
-        reservationModel.reservationIds.forEach(function (reservationId, index) {
-            var reservation = reservationModel.getReservation(reservationId);
-            promises.push(new Promise(function (resolve, reject) {
-                _this.logger.debug('updating reservation status to STATUS_WAITING_SETTLEMENT..._id:', reservationId);
+        let promises = [];
+        reservationModel.reservationIds.forEach((reservationId, index) => {
+            let reservation = reservationModel.getReservation(reservationId);
+            promises.push(new Promise((resolve, reject) => {
+                this.logger.debug('updating reservation status to STATUS_WAITING_SETTLEMENT..._id:', reservationId);
                 Models_1.default.Reservation.update({
                     _id: reservationId,
                     status: ReservationUtil_1.default.STATUS_TEMPORARY
                 }, {
                     status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
-                    updated_user: _this.constructor.toString(),
-                }, function (err, affectedRows) {
-                    _this.logger.info('STATUS_TEMPORARY to STATUS_WAITING_SETTLEMENT processed.', err, affectedRows);
+                    updated_user: this.constructor.toString(),
+                }, (err, affectedRows) => {
+                    this.logger.info('STATUS_TEMPORARY to STATUS_WAITING_SETTLEMENT processed.', err, affectedRows);
                     if (err) {
                         // TODO ログ出力
                         reject();
@@ -43,53 +33,52 @@ var GMOReserveCvsController = (function (_super) {
                 });
             }));
         });
-        Promise.all(promises).then(function () {
-            _this.logger.info('redirecting to waitingSettlement...');
+        Promise.all(promises).then(() => {
+            this.logger.info('redirecting to waitingSettlement...');
             if (reservationModel.member) {
-                _this.res.redirect(_this.router.build('member.reserve.waitingSettlement', { token: reservationModel.token }));
+                this.res.redirect(this.router.build('member.reserve.waitingSettlement', { token: reservationModel.token }));
             }
             else {
-                _this.res.redirect(_this.router.build('customer.reserve.waitingSettlement', { token: reservationModel.token }));
+                this.res.redirect(this.router.build('customer.reserve.waitingSettlement', { token: reservationModel.token }));
             }
-        }, function (err) {
+        }, (err) => {
             // TODO どうする？
-            _this.next(err);
+            this.next(err);
         });
-    };
+    }
     /**
      * GMO結果通知受信
      */
-    GMOReserveCvsController.prototype.notify = function (reservationModel, gmoNotificationModel) {
-        var _this = this;
-        var promises = [];
+    notify(reservationModel, gmoNotificationModel) {
+        let promises = [];
         switch (gmoNotificationModel.Status) {
             case GMOUtil_1.default.STATUS_CVS_PAYSUCCESS:
                 // 決済待ちの予約を予約完了へ
                 // 予約情報セッション削除
                 // これ以降、予約情報はローカルに引き回す
                 this.logger.info('removing reservationModel... ', reservationModel.toLog());
-                reservationModel.remove(function (err) {
+                reservationModel.remove((err) => {
                     if (err) {
                     }
                     else {
                         // TODO GMOからポストされたパラメータを予約情報に追加する
                         // 予約確定
-                        _this.logger.info('fixing all... ');
-                        _this.processFixAll(reservationModel, function (err, reservationModel) {
+                        this.logger.info('fixing all... ');
+                        this.processFixAll(reservationModel, (err, reservationModel) => {
                             if (err) {
                                 // TODO 万が一の対応どうするか
-                                _this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
+                                this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                             }
                             else {
                                 // TODO 予約できていない在庫があった場合
                                 if (reservationModel.reservationIds.length > reservationModel.reservedDocuments.length) {
-                                    _this.logger.error('sending response RecvRes_NG... ');
-                                    _this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
+                                    this.logger.error('sending response RecvRes_NG... ');
+                                    this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                                 }
                                 else {
                                     // 完了
-                                    _this.logger.info('sending response RecvRes_OK... ');
-                                    _this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
+                                    this.logger.info('sending response RecvRes_OK... ');
+                                    this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
                                 }
                             }
                         });
@@ -98,18 +87,18 @@ var GMOReserveCvsController = (function (_super) {
                 break;
             case GMOUtil_1.default.STATUS_CVS_REQSUCCESS:
                 // 決済待ちステータスへ変更
-                reservationModel.reservationIds.forEach(function (reservationId, index) {
-                    var reservation = reservationModel.getReservation(reservationId);
-                    promises.push(new Promise(function (resolve, reject) {
-                        _this.logger.debug('updating reservation status to STATUS_WAITING_SETTLEMENT..._id:', reservationId);
+                reservationModel.reservationIds.forEach((reservationId, index) => {
+                    let reservation = reservationModel.getReservation(reservationId);
+                    promises.push(new Promise((resolve, reject) => {
+                        this.logger.debug('updating reservation status to STATUS_WAITING_SETTLEMENT..._id:', reservationId);
                         Models_1.default.Reservation.update({
                             _id: reservationId,
                             status: ReservationUtil_1.default.STATUS_TEMPORARY
                         }, {
                             status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
-                            updated_user: _this.constructor.toString(),
-                        }, function (err, affectedRows) {
-                            _this.logger.info('STATUS_TEMPORARY to STATUS_WAITING_SETTLEMENT processed.', err, affectedRows);
+                            updated_user: this.constructor.toString(),
+                        }, (err, affectedRows) => {
+                            this.logger.info('STATUS_TEMPORARY to STATUS_WAITING_SETTLEMENT processed.', err, affectedRows);
                             if (err) {
                                 // TODO ログ出力
                                 reject();
@@ -120,13 +109,13 @@ var GMOReserveCvsController = (function (_super) {
                         });
                     }));
                 });
-                Promise.all(promises).then(function () {
-                    _this.logger.info('sending response RecvRes_OK... ');
-                    _this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
-                }, function (err) {
+                Promise.all(promises).then(() => {
+                    this.logger.info('sending response RecvRes_OK... ');
+                    this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
+                }, (err) => {
                     // TODO どうする？
-                    _this.logger.info('sending response RecvRes_NG... ');
-                    _this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
+                    this.logger.info('sending response RecvRes_NG... ');
+                    this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                 });
                 break;
             case GMOUtil_1.default.STATUS_CVS_UNPROCESSED:
@@ -136,22 +125,22 @@ var GMOReserveCvsController = (function (_super) {
             case GMOUtil_1.default.STATUS_CVS_EXPIRED: // 期限切れ
             case GMOUtil_1.default.STATUS_CVS_CANCEL:
                 this.logger.debug('removing reservationModel... ');
-                reservationModel.remove(function (err) {
+                reservationModel.remove((err) => {
                     if (err) {
                     }
                     else {
                         // 空席に戻す
-                        reservationModel.reservationIds.forEach(function (reservationId, index) {
-                            var reservation = reservationModel.getReservation(reservationId);
-                            promises.push(new Promise(function (resolve, reject) {
-                                _this.logger.debug('updating reservation status to STATUS_AVAILABLE..._id:', reservationId);
+                        reservationModel.reservationIds.forEach((reservationId, index) => {
+                            let reservation = reservationModel.getReservation(reservationId);
+                            promises.push(new Promise((resolve, reject) => {
+                                this.logger.debug('updating reservation status to STATUS_AVAILABLE..._id:', reservationId);
                                 Models_1.default.Reservation.update({
                                     _id: reservationId
                                 }, {
                                     status: ReservationUtil_1.default.STATUS_AVAILABLE,
-                                    updated_user: _this.constructor.toString()
-                                }, function (err, affectedRows) {
-                                    _this.logger.info('STATUS_WAITING_SETTLEMENT to STATUS_AVAILABLE processed.', err, affectedRows);
+                                    updated_user: this.constructor.toString()
+                                }, (err, affectedRows) => {
+                                    this.logger.info('STATUS_WAITING_SETTLEMENT to STATUS_AVAILABLE processed.', err, affectedRows);
                                     if (err) {
                                         // TODO ログ出力
                                         reject();
@@ -162,13 +151,13 @@ var GMOReserveCvsController = (function (_super) {
                                 });
                             }));
                         });
-                        Promise.all(promises).then(function () {
-                            _this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
-                        }, function (err) {
+                        Promise.all(promises).then(() => {
+                            this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
+                        }, (err) => {
                             // TODO どうする？
-                            _this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
+                            this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                         });
-                        _this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
+                        this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     }
                 });
                 break;
@@ -176,8 +165,7 @@ var GMOReserveCvsController = (function (_super) {
                 this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                 break;
         }
-    };
-    return GMOReserveCvsController;
-}(ReserveBaseController_1.default));
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = GMOReserveCvsController;

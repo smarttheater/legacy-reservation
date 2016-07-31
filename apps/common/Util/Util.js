@@ -1,13 +1,11 @@
 "use strict";
-var redis = require('redis');
-var conf = require('config');
-var uniqid = require('uniqid');
+const redis = require('redis');
+const conf = require('config');
+const uniqid = require('uniqid');
 /**
  * 共通のユーティリティ
  */
-var Util = (function () {
-    function Util() {
-    }
+class Util {
     /**
      * トークン生成
      *
@@ -30,39 +28,38 @@ var Util = (function () {
      *
      * @return {string}
      */
-    Util.createToken = function () {
-        var uniq = uniqid();
-        var size = 24 - uniq.length;
-        var base = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    static createToken() {
+        let uniq = uniqid();
+        let size = 24 - uniq.length;
+        let base = 'abcdefghijklmnopqrstuvwxyz0123456789';
         var baseLength = base.length;
-        var buf = [];
-        for (var i = 0; i < size; i++) {
+        let buf = [];
+        for (let i = 0; i < size; i++) {
             buf.push(base[Math.floor(Math.random() * baseLength)]);
         }
-        var token = buf.join('') + uniq;
+        let token = buf.join('') + uniq;
         return buf.join('') + uniq;
-    };
+    }
     /**
      * 購入管理番号生成
      * TODO 生成方法考える
      *
      * @return {string}
      */
-    Util.createPaymentNo = function () {
-        var no = "" + (Math.floor(Math.random() * 10000) + 1000) + (Math.floor(Math.random() * 10000) + 1000);
+    static createPaymentNo() {
+        let no = `${Math.floor(Math.random() * 10000) + 1000}${Math.floor(Math.random() * 10000) + 1000}`;
         return no;
-    };
+    }
     /**
      * RedisCacheクライアントを取得する
      */
-    Util.getRedisClient = function () {
-        var client = redis.createClient(conf.get('redis_port'), conf.get('redis_host'), {
+    static getRedisClient() {
+        let client = redis.createClient(conf.get('redis_port'), conf.get('redis_host'), {
             password: conf.get('redis_key'),
             return_buffers: true
         });
         return client;
-    };
-    return Util;
-}());
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Util;

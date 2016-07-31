@@ -22,21 +22,18 @@
                     <td>
                         <select class="form-control<%- (reservationModel.ticketTypes.length === 1) ? ' hidden' : '' %>">
                         <% reservationModel.ticketTypes.forEach(function(ticketType, index) { %>
-                        <option
+                        <option value="<%- ticketType.code %>"
                             <% if (reservation.hasOwnProperty('ticket_type_code')) { %>
                             <% if (reservation.ticket_type_code == ticketType.code) { %> selected="selected"<% } %>
                             <% } %>
-                            value="<%- ticketType.code %>"
-                            data-name="<%- ticketType.name %>"
-                            data-name-en="<%- ticketType.name_en %>"
-                            data-charge="<%- ticketType.charge %>">
+                        >
                             <%- ticketType[__('DocumentField.name')] %> <%- __('{{price}} yen', {price: ticketType.charge}) %>
                         </option>
                         <% }) %>
                         </select>
                         <%- (reservationModel.ticketTypes.length === 1) ? `${reservationModel.ticketTypes[0][__('DocumentField.name')]} ${__('{{price}} yen', {price: reservationModel.ticketTypes[0].charge})}<br>` : '' %>
 
-                        <input type="text" name="watcherName" class="form-control" placeholder="<%- __('Label.PleaseEnterWatcherName') %>" value="">
+                        <input type="text" name="watcherName" class="form-control" placeholder="<%- __('Label.PleaseEnterWatcherName') %>" value="<%- (reservation.hasOwnProperty('watcher_name')) ? reservation.watcher_name : '' %>">
                     </td>
                 </tr>
                 <% } %>
@@ -62,9 +59,6 @@ $(function(){
             choices.push({
                 reservation_id: $(this).attr('data-reservation-id'),
                 ticket_type_code: $('option:selected', this).val(),
-                ticket_type_name: $('option:selected', this).attr('data-name'),
-                ticket_type_name_en: $('option:selected', this).attr('data-name-en'),
-                ticket_type_charge: $('option:selected', this).attr('data-charge'),
                 watcher_name: $('input', this).val()
             });
         });
