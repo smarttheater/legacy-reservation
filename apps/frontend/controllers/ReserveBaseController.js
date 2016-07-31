@@ -139,9 +139,9 @@ class ReserveBaseController extends BaseController_1.default {
                             image: performanceDocument.get('film').get('image')
                         }
                     };
-                    // スクリーン座席表HTMLを保管
+                    // スクリーン座席表HTMLを保管(apiで取得)
                     // TODO ひとまず固定だが、最終的にはパフォーマンスに応じて適切なスクリーンを入れる
-                    fs.readFile(`${__dirname}/../views/screens/map.ejs`, 'utf8', (err, data) => {
+                    fs.readFile(`${__dirname}/../../common/views/screens/map.ejs`, 'utf8', (err, data) => {
                         reservationModel.screenHtml = data;
                         cb(null, reservationModel);
                     });

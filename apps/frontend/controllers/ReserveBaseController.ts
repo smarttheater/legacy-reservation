@@ -15,6 +15,7 @@ import conf = require('config')
 import util = require('util');
 import mongoose = require('mongoose');
 import moment = require('moment');
+import request = require('request');
 
 /**
  * 予約フローベースコントローラー
@@ -205,9 +206,9 @@ export default class ReserveBaseController extends BaseController {
 
 
 
-                    // スクリーン座席表HTMLを保管
+                    // スクリーン座席表HTMLを保管(apiで取得)
                     // TODO ひとまず固定だが、最終的にはパフォーマンスに応じて適切なスクリーンを入れる
-                    fs.readFile(`${__dirname}/../views/screens/map.ejs`, 'utf8', (err, data) => {
+                    fs.readFile(`${__dirname}/../../common/views/screens/map.ejs`, 'utf8', (err, data) => {
                         reservationModel.screenHtml = data;
 
                         cb(null, reservationModel);

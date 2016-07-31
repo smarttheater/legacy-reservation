@@ -1,6 +1,8 @@
 import BaseController from '../BaseController';
 import Models from '../../../common/models/Models';
 
+import fs = require('fs-extra');
+
 export default class ScreenController extends BaseController {
     /**
      * スクリーンの座席マップを生成する
@@ -22,9 +24,11 @@ export default class ScreenController extends BaseController {
 
                 } else {
                     this.res.type('txt');
-                    this.res.render('screen/show', {
-                        layout: false,
-                        screenDocument: screenDocument,
+
+                    // スクリーン座席表HTMLを保管
+                    // TODO ひとまず固定だが、最終的にはパフォーマンスに応じて適切なスクリーンを入れる
+                    fs.readFile(`${__dirname}/../../../common/views/screens/map.ejs`, 'utf8', (err, data) => {
+                        this.res.send(data);
                     });
                 }
             }
