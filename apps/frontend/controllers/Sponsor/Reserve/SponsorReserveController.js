@@ -29,8 +29,6 @@ class SponsorReserveController extends ReserveBaseController_1.default {
     }
     /**
      * スケジュール選択
-     * TODO 残り枚数表示
-     * TODO 0枚の場合は、メッセージを表示し、上映会一覧を表示しない
      */
     performances() {
         let token = this.req.params.token;
@@ -38,39 +36,48 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
-            if (this.req.method === 'POST') {
-                reservePerformanceForm_1.default(this.req, this.res, (err) => {
-                    if (this.req.form.isValid) {
-                        // パフォーマンスFIX
-                        this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
-                            if (err) {
-                                this.next(err);
-                            }
-                            else {
-                                this.logger.debug('saving reservationModel... ', reservationModel);
-                                reservationModel.save((err) => {
-                                    this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
-                                });
-                            }
-                        });
-                    }
-                    else {
-                        this.next(new Error('不適切なアクセスです'));
-                    }
-                });
-            }
-            else {
-                // 仮予約あればキャンセルする
-                this.processCancelSeats(reservationModel, (err, reservationModel) => {
-                    this.logger.debug('saving reservationModel... ', reservationModel);
-                    reservationModel.save((err) => {
-                        this.res.render('sponsor/reserve/performances', {
-                            layout: 'layouts/sponsor/layout',
-                            FilmUtil: FilmUtil_1.default
+            // 外部関係者による予約数を取得
+            Models_1.default.Reservation.count({
+                sponsor: this.sponsorUser.get('_id')
+            }, (err, reservationsCount) => {
+                if (parseInt(this.sponsorUser.get('max_reservation_count')) <= reservationsCount) {
+                    return this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', { limit: this.sponsorUser.get('max_reservation_count') })));
+                }
+                if (this.req.method === 'POST') {
+                    reservePerformanceForm_1.default(this.req, this.res, (err) => {
+                        if (this.req.form.isValid) {
+                            // パフォーマンスFIX
+                            this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
+                                if (err) {
+                                    this.next(err);
+                                }
+                                else {
+                                    this.logger.debug('saving reservationModel... ', reservationModel);
+                                    reservationModel.save((err) => {
+                                        this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
+                                    });
+                                }
+                            });
+                        }
+                        else {
+                            this.next(new Error('不適切なアクセスです'));
+                        }
+                    });
+                }
+                else {
+                    // 仮予約あればキャンセルする
+                    this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                        this.logger.debug('saving reservationModel... ', reservationModel);
+                        reservationModel.save((err) => {
+                            this.res.render('sponsor/reserve/performances', {
+                                layout: 'layouts/sponsor/layout',
+                                FilmUtil: FilmUtil_1.default,
+                                reservationsCount: reservationsCount
+                            });
                         });
                     });
-                });
-            }
+                }
+            });
         });
     }
     /**
@@ -126,7 +133,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                     this.res.render('sponsor/reserve/seats', {
                         layout: 'layouts/sponsor/layout',
                         reservationModel: reservationModel,
-                        reservationsCount: reservationsCount,
+                        reservationsCount: reservationsCount
                     });
                 }
             });

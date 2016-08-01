@@ -1,4 +1,5 @@
 import BaseController from '../BaseController';
+import Constants from '../../../common/Util/Constants';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import PerformanceUtil from '../../../common/models/Performance/PerformanceUtil';
@@ -42,8 +43,9 @@ export default class TestController extends BaseController {
                 // 失敗しても、次のタスクにまかせる(気にしない)
                 if (err) {
                 } else {
-                    process.exit(0);
                 }
+
+                process.exit(0);
             }
         );
     }
@@ -524,6 +526,40 @@ export default class TestController extends BaseController {
 
             });
         });
+    }
+
+    /**
+     * 固定日時を経過したら、空席ステータスにするバッチ
+     */
+    public releaseSeatsKeptByMembers() {
+        let now = moment();
+        if (moment(Constants.RESERVE_END_DATETIME) < now) {
+            mongoose.connect(MONGOLAB_URI, {});
+
+            this.logger.info('releasing reservations kept by members...');
+            Models.Reservation.update(
+                {
+                    status: ReservationUtil.STATUS_KEPT_BY_MEMBER
+                },
+                {
+                    status: ReservationUtil.STATUS_AVAILABLE,
+                    updated_user: this.constructor.toString()
+                },
+                {
+                    multi: true,
+                },
+                (err, affectedRows) => {
+                    mongoose.disconnect();
+
+                    // 失敗しても、次のタスクにまかせる(気にしない)
+                    if (err) {
+                    } else {
+                    }
+
+                    process.exit(0);
+                }
+            );
+        }
     }
 
     /**

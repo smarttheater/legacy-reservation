@@ -37,8 +37,9 @@ export default class SponsorAuthController extends BaseController {
                             // ログイン
                             this.req.session[SponsorUser.AUTH_SESSION_NAME] = sponsorDocument.toObject();
 
-                            // TODO リダイレクト先を指定できるようにする
-                            this.res.redirect(this.router.build('sponsor.mypage', {}));
+                            // if exist parameter cb, redirect to cb.
+                            let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');
+                            this.res.redirect(cb);
                         }
                     });
 

@@ -90,7 +90,7 @@ export default class ReserveBaseController extends BaseController {
                 cb(err, reservationModel);
             } else {
 
-                // TODO 内部以外は、上映開始20分過ぎていたらはじく
+                // 内部以外は、上映開始20分過ぎていたらはじく
                 if (!reservationModel.staff) {
                     let now = moment().add(-20, 'minutes');
                     if (performanceDocument.get('day') === now.format('YYYYMMDD')) {

@@ -1,6 +1,7 @@
 "use strict";
 const ReserveBaseController_1 = require('../../ReserveBaseController');
 const MemberUser_1 = require('../../../models/User/MemberUser');
+const Constants_1 = require('../../../../common/Util/Constants');
 const Util_1 = require('../../../../common/Util/Util');
 const memberReserveLoginForm_1 = require('../../../forms/Member/Reserve/memberReserveLoginForm');
 const reserveTicketForm_1 = require('../../../forms/Reserve/reserveTicketForm');
@@ -9,12 +10,17 @@ const Models_1 = require('../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
 const ReservationResultModel_1 = require('../../../models/Reserve/ReservationResultModel');
+const moment = require('moment');
 class MemberReserveController extends ReserveBaseController_1.default {
     /**
      * 規約
-     * TODO 期限指定(固定日で)
      */
     terms() {
+        // 期限指定
+        let now = moment();
+        if (now < moment(Constants_1.default.RESERVE_START_DATETIME) || moment(Constants_1.default.RESERVE_END_DATETIME) < now) {
+            return this.next(new Error('expired.'));
+        }
         // ログイン中であればプロセス開始
         if (this.memberUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('member.reserve.start', {}));
@@ -219,6 +225,8 @@ class MemberReserveController extends ReserveBaseController_1.default {
             }
             this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (this.req.method === 'POST') {
+                // force to logout
+                delete this.req.session[MemberUser_1.default.AUTH_SESSION_NAME];
                 this.res.redirect(this.router.build('gmo.reserve.start', { token: token }));
             }
             else {
@@ -241,8 +249,6 @@ class MemberReserveController extends ReserveBaseController_1.default {
     }
     /**
      * complete reservation
-     * TODO force to logout
-     * TODO 固定日時を経過したら、空席ステータスにするバッチ
      */
     complete() {
         let token = this.req.params.token;
@@ -256,5 +262,9 @@ class MemberReserveController extends ReserveBaseController_1.default {
         });
     }
 }
+/** 予約開始日時 */
+MemberReserveController.RESERVE_START_DATETIME = '2016-10-22T00:00:00+09:00';
+/** 予約終了日時 */
+MemberReserveController.RESERVE_END_DATETIME = '2016-10-24T23:59:59+09:00';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = MemberReserveController;

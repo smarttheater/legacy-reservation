@@ -1,5 +1,6 @@
 "use strict";
 const BaseController_1 = require('../BaseController');
+const Constants_1 = require('../../../common/Util/Constants');
 const Models_1 = require('../../../common/models/Models');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const PerformanceUtil_1 = require('../../../common/models/Performance/PerformanceUtil');
@@ -36,8 +37,8 @@ class TestController extends BaseController_1.default {
             if (err) {
             }
             else {
-                process.exit(0);
             }
+            process.exit(0);
         });
     }
     /**
@@ -396,6 +397,32 @@ class TestController extends BaseController_1.default {
                 process.exit(0);
             });
         });
+    }
+    /**
+     * 固定日時を経過したら、空席ステータスにするバッチ
+     */
+    releaseSeatsKeptByMembers() {
+        let now = moment();
+        if (moment(Constants_1.default.RESERVE_END_DATETIME) < now) {
+            mongoose.connect(MONGOLAB_URI, {});
+            this.logger.info('releasing reservations kept by members...');
+            Models_1.default.Reservation.update({
+                status: ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER
+            }, {
+                status: ReservationUtil_1.default.STATUS_AVAILABLE,
+                updated_user: this.constructor.toString()
+            }, {
+                multi: true,
+            }, (err, affectedRows) => {
+                mongoose.disconnect();
+                // 失敗しても、次のタスクにまかせる(気にしない)
+                if (err) {
+                }
+                else {
+                }
+                process.exit(0);
+            });
+        }
     }
     /**
      * 作品画像を取得する

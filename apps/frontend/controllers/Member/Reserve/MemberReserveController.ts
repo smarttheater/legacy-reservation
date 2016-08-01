@@ -1,5 +1,6 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import MemberUser from '../../../models/User/MemberUser';
+import Constants from '../../../../common/Util/Constants';
 import Util from '../../../../common/Util/Util';
 import memberReserveLoginForm from '../../../forms/Member/Reserve/memberReserveLoginForm';
 import reserveTicketForm from '../../../forms/Reserve/reserveTicketForm';
@@ -10,13 +11,24 @@ import ReservationUtil from '../../../../common/models/Reservation/ReservationUt
 
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
+import moment = require('moment');
 
 export default class MemberReserveController extends ReserveBaseController {
+    /** 予約開始日時 */
+    private static RESERVE_START_DATETIME = '2016-10-22T00:00:00+09:00';
+    /** 予約終了日時 */
+    private static RESERVE_END_DATETIME = '2016-10-24T23:59:59+09:00';
+
     /**
      * 規約
-     * TODO 期限指定(固定日で)
      */
     public terms(): void {
+        // 期限指定
+        let now = moment();
+        if (now < moment(Constants.RESERVE_START_DATETIME) || moment(Constants.RESERVE_END_DATETIME) < now) {
+            return this.next(new Error('expired.'));
+        }
+
         // ログイン中であればプロセス開始
         if (this.memberUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('member.reserve.start', {}));
@@ -270,6 +282,9 @@ export default class MemberReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
+                // force to logout
+                delete this.req.session[MemberUser.AUTH_SESSION_NAME];
+
                 this.res.redirect(this.router.build('gmo.reserve.start', {token: token}));
             } else {
                 this.res.render('member/reserve/confirm', {
@@ -294,8 +309,6 @@ export default class MemberReserveController extends ReserveBaseController {
 
     /**
      * complete reservation
-     * TODO force to logout
-     * TODO 固定日時を経過したら、空席ステータスにするバッチ
      */
     public complete(): void {
         let token = this.req.params.token;

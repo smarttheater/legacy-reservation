@@ -31,7 +31,9 @@ class StaffAuthController extends BaseController_1.default {
                             // ログイン
                             this.req.session[StaffUser_1.default.AUTH_SESSION_NAME] = staffDocument.toObject();
                             this.req.session[StaffUser_1.default.AUTH_SESSION_NAME]['signature'] = this.req.form['signature'];
-                            this.res.redirect(this.router.build('staff.mypage', {}));
+                            // if exist parameter cb, redirect to cb.
+                            let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('staff.mypage');
+                            this.res.redirect(cb);
                         }
                     });
                 }
