@@ -6,6 +6,8 @@
 
 <div class="row">
     <form class="form-inline">
+        <input type="hidden" name="start_from" value="<%- moment().add(-20, 'minutes').format('X') %>">
+
         <div class="form-group">
             <label for=""></label>
             <select class="form-control" name="section">

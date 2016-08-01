@@ -116,8 +116,6 @@ $(function(){
 
 
 
-    // パフォーマンスリスト表示
-    search();
 
     // 検索
     $(document).on('click', '.search', function(){
@@ -150,4 +148,8 @@ $(function(){
         $('input[name="performanceId"]').val($(this).attr('data-performance-id'));
         $('form').submit();
     });
+
+
+    // パフォーマンスリスト表示
+    $('.search').click();
 });
