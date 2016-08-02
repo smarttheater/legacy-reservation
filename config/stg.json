@@ -12,5 +12,8 @@
     "sendgrid_password": "b-CyFAiJ2Pmb",
 
     "gmo_payment_shop_id": "tshop00024015",
-    "gmo_payment_shop_password": "hf3wsuyy"
+    "gmo_payment_shop_password": "hf3wsuyy",
+
+    "mvtk_wcf_endpoint": "https://ssl.movieticket.jp",
+    "mvtk_wcf2_endpoint": "https://testservices.movieticket.jp"
 }

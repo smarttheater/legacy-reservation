@@ -3,6 +3,7 @@ import log4js = require('log4js');
 import moment = require('moment');
 import util = require('util');
 
+import MvtkUser from '../models/User/MvtkUser';
 import MemberUser from '../models/User/MemberUser';
 import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
@@ -16,37 +17,29 @@ import NamedRoutes = require('named-routes');
  */
 export default class BaseController
 {
-    /**
-     * httpリクエストオブジェクト
-     */
+    /** httpリクエストオブジェクト */
     public req: express.Request;
 
-    /**
-     * httpレスポンスオブジェクト
-     */
+    /**httpレスポンスオブジェクト */
 
     public res: express.Response;
 
-    /**
-     * 次に一致するルートメソッド
-     */
+    /** 次に一致するルートメソッド */
     public next: express.NextFunction;
 
-    /**
-     * ロガー
-     */
+    /** ロガー */
     public logger: log4js.Logger;
 
-    /**
-     * ユーザーインスタンス
-     */
+    /** ムビチケユーザー */
+    public mvtkUser: MvtkUser;
+    /** メルマガ会員先行ユーザー */
     public memberUser: MemberUser;
+    /** 内部関係者ユーザー */
     public staffUser: StaffUser;
+    /** 外部関係者ユーザー */
     public sponsorUser: SponsorUser;
 
-    /**
-     * ルーティング
-     */
+    /** ルーティング */
     public router: Express.NamedRoutes;
 
     constructor(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -58,6 +51,7 @@ export default class BaseController
         this.router = this.req.app.namedRoutes;
 
 
+        this.mvtkUser = MvtkUser.getInstance();
         this.memberUser = MemberUser.getInstance();
         this.staffUser = StaffUser.getInstance();
         this.sponsorUser = SponsorUser.getInstance();

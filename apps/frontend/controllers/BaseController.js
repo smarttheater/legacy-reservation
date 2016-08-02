@@ -2,6 +2,7 @@
 const log4js = require('log4js');
 const moment = require('moment');
 const util = require('util');
+const MvtkUser_1 = require('../models/User/MvtkUser');
 const MemberUser_1 = require('../models/User/MemberUser');
 const StaffUser_1 = require('../models/User/StaffUser');
 const SponsorUser_1 = require('../models/User/SponsorUser');
@@ -18,6 +19,7 @@ class BaseController {
         this.next = next;
         this.logger = log4js.getLogger('system');
         this.router = this.req.app.namedRoutes;
+        this.mvtkUser = MvtkUser_1.default.getInstance();
         this.memberUser = MemberUser_1.default.getInstance();
         this.staffUser = StaffUser_1.default.getInstance();
         this.sponsorUser = SponsorUser_1.default.getInstance();

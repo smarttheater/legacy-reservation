@@ -1,6 +1,7 @@
 import ReservationResultModel from './ReservationResultModel';
 import Util from '../../../common/Util/Util';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
+import mvtkService = require('@motionpicture/mvtk-service');
 
 /**
  * 予約情報モデル
@@ -9,19 +10,13 @@ import ReservationUtil from '../../../common/models/Reservation/ReservationUtil'
  * この情報をセッションで引き継くことで、予約プロセスを管理しています
  */
 export default class ReservationModel {
-    /**
-     * 予約トークン
-     */
+    /** 予約トークン */
     public token: string;
 
-    /**
-     * 購入管理番号
-     */
+    /** 購入管理番号 */
     public paymentNo: string;
 
-    /**
-     * パフォーマンス
-     */
+    /** パフォーマンス */
     public performance: {
         _id: string,
         day: string,
@@ -56,9 +51,7 @@ export default class ReservationModel {
         },
     };
 
-    /**
-     * 券種リスト
-     */
+    /** 券種リスト */
     public ticketTypes: Array<
          {
             code: string,
@@ -69,19 +62,13 @@ export default class ReservationModel {
         }
     >;
 
-    /**
-     * スクリーンの座席表HTML
-     */
+    /** スクリーンの座席表HTML */
     public screenHtml: string;
 
-    /**
-     * 予約IDリスト
-     */
+    /** 予約IDリスト */
     public reservationIds: Array<string>;
 
-    /**
-     * プロフィール
-     */
+    /** プロフィール */
     public profile: {
         last_name: string,
         first_name: string,
@@ -89,22 +76,19 @@ export default class ReservationModel {
         tel: string,
     };
 
-    /**
-     * 決済方法
-     */
+    /** 決済方法 */
     public paymentMethod: string;
 
-    /**
-     * メルマガ当選者
-     */
+    /** ムビチケ会員詳細情報 */
+    public mvtkMemberInfoResult: mvtkService.services.MemberInfo.models.MemberInfoResult;
+
+    /** メルマガ当選者 */
     public member: {
         _id: string;
         user_id: string;
     };
 
-    /**
-     * 内部関係者
-     */
+    /** 内部関係者 */
     public staff: {
         _id: string;
         user_id: string;
@@ -115,9 +99,7 @@ export default class ReservationModel {
         signature: string;
     };
 
-    /**
-     * 外部関係者
-     */
+    /** 外部関係者 */
     public sponsor: {
         _id: string;
         user_id: string;

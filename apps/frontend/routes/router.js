@@ -1,11 +1,12 @@
 "use strict";
 const NamedRoutes = require('named-routes');
 const AdmissionController_1 = require('../controllers/Admission/AdmissionController');
-const CustomerReserveController_1 = require('../controllers/Customer/Reserve/CustomerReserveController');
 const MemberReserveController_1 = require('../controllers/Member/Reserve/MemberReserveController');
 const GMOReserveController_1 = require('../controllers/GMO/Reserve/GMOReserveController');
 const ReserveController_1 = require('../controllers/Reserve/ReserveController');
 const LanguageController_1 = require('../controllers/Language/LanguageController');
+const CustomerAuthController_1 = require('../controllers/Customer/Auth/CustomerAuthController');
+const CustomerReserveController_1 = require('../controllers/Customer/Reserve/CustomerReserveController');
 const StaffAuthController_1 = require('../controllers/Staff/Auth/StaffAuthController');
 const StaffCancelController_1 = require('../controllers/Staff/Cancel/StaffCancelController');
 const StaffMyPageController_1 = require('../controllers/Staff/MyPage/StaffMyPageController');
@@ -16,6 +17,7 @@ const SponsorReserveController_1 = require('../controllers/Sponsor/Reserve/Spons
 const SponsorCancelController_1 = require('../controllers/Sponsor/Cancel/SponsorCancelController');
 const ErrorController_1 = require('../controllers/Error/ErrorController');
 const IndexController_1 = require('../controllers/Index/IndexController');
+const MvtkUser_1 = require('../models/User/MvtkUser');
 const MemberUser_1 = require('../models/User/MemberUser');
 const StaffUser_1 = require('../models/User/StaffUser');
 const SponsorUser_1 = require('../models/User/SponsorUser');
@@ -34,19 +36,25 @@ exports.default = (app) => {
     app.get('/GMO/reserve/:token/start', 'gmo.reserve.start', (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).start(); });
     app.post('/GMO/reserve/result', 'gmo.reserve.result', (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).result(); });
     app.all('/GMO/reserve/notify', 'gmo.reserve.notify', (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).notify(); });
-    // 一般
-    app.all('/customer/reserve/performances', 'customer.reserve.performances', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).performances(); });
-    app.post('/customer/reserve/start', 'customer.reserve.start', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).start(); });
-    app.all('/customer/reserve/:token/terms', 'customer.reserve.terms', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).terms(); });
-    app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).seats(); });
-    app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).tickets(); });
-    app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).profile(); });
-    app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).confirm(); });
-    app.get('/customer/reserve/:token/waitingSettlement', 'customer.reserve.waitingSettlement', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).waitingSettlement(); });
-    app.get('/customer/reserve/:token/complete', 'customer.reserve.complete', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).complete(); });
     // admission
     app.get('/admission/performances', 'admission.performances', (req, res, next) => { (new AdmissionController_1.default(req, res, next)).performances(); });
     app.get('/admission/performance/:id/confirm', 'admission.confirm', (req, res, next) => { (new AdmissionController_1.default(req, res, next)).confirm(); });
+    let authenticationCustomer = (req, res, next) => {
+        let mvtkUser = MvtkUser_1.default.getInstance();
+        if (!mvtkUser.isAuthenticated()) {
+            if (req.xhr) {
+                res.json({
+                    message: 'login required.'
+                });
+            }
+            else {
+                res.redirect(`/customer/login?cb=${req.originalUrl}`);
+            }
+        }
+        else {
+            next();
+        }
+    };
     let authenticationMember = (req, res, next) => {
         let memberUser = MemberUser_1.default.getInstance();
         if (!memberUser.isAuthenticated()) {
@@ -95,6 +103,16 @@ exports.default = (app) => {
             next();
         }
     };
+    // 一般
+    app.all('/customer/reserve/performances', 'customer.reserve.performances', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).performances(); });
+    app.post('/customer/reserve/start', 'customer.reserve.start', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).start(); });
+    app.all('/customer/login', 'customer.login', (req, res, next) => { (new CustomerAuthController_1.default(req, res, next)).login(); });
+    app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).seats(); });
+    app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).tickets(); });
+    app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).profile(); });
+    app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).confirm(); });
+    app.get('/customer/reserve/:token/waitingSettlement', 'customer.reserve.waitingSettlement', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).waitingSettlement(); });
+    app.get('/customer/reserve/:token/complete', 'customer.reserve.complete', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).complete(); });
     // メルマガ先行
     app.all('/member/reserve/terms', 'member.reserve.terms', (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).terms(); });
     app.get('/member/reserve/start', 'member.reserve.start', (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).start(); });

@@ -29,6 +29,7 @@
     "log4js": "registry:dt/log4js#0.0.0+20160608042355",
     "mime": "registry:dt/mime#0.0.0+20160316155526",
     "multer": "registry:dt/multer#0.0.0+20160726135055",
+    "mvtk-service": "file:./node_modules/@motionpicture/mvtk-service/lib/mvtk-service.d.ts",
     "named-routes": "file:./definitions/named-routes.d.ts",
     "node": "registry:dt/node#6.0.0+20160728152422",
     "qr-image": "file:./definitions/qr-image.d.ts",

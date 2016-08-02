@@ -17,7 +17,8 @@
 		"CompleteReservation": "予約完了",
 		"CompleteTemporaryReservation": "仮予約完了",
 		"MyPage": "マイページ",
-		"AdmissionConfirm": "入場確認"
+		"AdmissionConfirm": "入場確認",
+		"Login": "h1.Login"
 	},
 	"Label": {
 		"Agree": "同意する",
@@ -47,7 +48,8 @@
 		"SendMail": "メール送信",
 		"TicketReservation": "オンラインチケット予約",
 		"Cancel": "キャンセル",
-		"Transfer": "転送"
+		"Transfer": "転送",
+		"Login": "ログイン"
 	},
 	"Form": {
 		"FieldName": {
@@ -56,7 +58,8 @@
 			"tel": "電話番号",
 			"email": "メールアドレス",
 			"emailConfirm": "メールアドレス(確認)",
-			"emailConfirmDomain": "メールアドレス(確認)ドメイン"
+			"emailConfirmDomain": "メールアドレス(確認)ドメイン",
+			"password": "パスワード"
 		}
 	},
 	"Message": {

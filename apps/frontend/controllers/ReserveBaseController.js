@@ -197,9 +197,19 @@ class ReserveBaseController extends BaseController_1.default {
                 }
                 else {
                     // 新規仮予約
+                    /***********************************************
+                     ***********************************************
+                     ***********************************************
+                     * ここが今回の肝です！！！
+                     ************************************************
+                     ************************************************
+                     ************************************************/
                     promises.push(new Promise((resolve, reject) => {
                         let update = {
-                            status: ReservationUtil_1.default.STATUS_TEMPORARY
+                            status: ReservationUtil_1.default.STATUS_TEMPORARY,
+                            member: (reservationModel.member) ? reservationModel.member._id : null,
+                            sponsor: (reservationModel.sponsor) ? reservationModel.sponsor._id : null,
+                            staff: (reservationModel.staff) ? reservationModel.staff._id : null // 誰が仮予約中かも分かるように
                         };
                         if (reservationModel.staff) {
                             update['staff'] = reservationModel.staff._id;
@@ -250,6 +260,7 @@ class ReserveBaseController extends BaseController_1.default {
     }
     /**
      * 予約全体をFIXするプロセス
+     * TODO 予約失敗したら全てキャンセル
      */
     processFixAll(reservationModel, cb) {
         reservationModel.reservedDocuments = [];
@@ -261,6 +272,9 @@ class ReserveBaseController extends BaseController_1.default {
                 Models_1.default.Reservation.findOneAndUpdate({
                     _id: reservationId,
                 }, {
+                    // TODO 配布先、署名、配布先更新日を追加
+                    // TODO 決済金額券種の合計席別の券種の金額(税込みと消費税と両方)
+                    // TODO 購入者区分 決済方法(現金、クレジット、コンビニ、、、)
                     payment_no: reservationModel.paymentNo,
                     status: ReservationUtil_1.default.STATUS_RESERVED,
                     performance: reservationModel.performance._id,
@@ -285,6 +299,7 @@ class ReserveBaseController extends BaseController_1.default {
                     ticket_type_name_en: reservation.ticket_type_name_en,
                     ticket_type_charge: reservation.ticket_type_charge,
                     watcher_name: reservation.watcher_name,
+                    mvtk_kiin_cd: (reservationModel.mvtkMemberInfoResult) ? reservationModel.mvtkMemberInfoResult.kiinCd : null,
                     member: (reservationModel.member) ? reservationModel.member._id : null,
                     member_user_id: (reservationModel.member) ? reservationModel.member.user_id : null,
                     sponsor: (reservationModel.sponsor) ? reservationModel.sponsor._id : null,

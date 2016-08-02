@@ -47,7 +47,10 @@ export default class SponsorReserveController extends ReserveBaseController {
             // 外部関係者による予約数を取得
             Models.Reservation.count(
                 {
-                    sponsor: this.sponsorUser.get('_id')
+                    sponsor: this.sponsorUser.get('_id'),
+                    status: {
+                        $ne: ReservationUtil.STATUS_AVAILABLE
+                    }
                 },
             (err, reservationsCount) => {
                 if (parseInt(this.sponsorUser.get('max_reservation_count')) <= reservationsCount) {
@@ -101,6 +104,9 @@ export default class SponsorReserveController extends ReserveBaseController {
      * 座席選択
      */
     public seats(): void {
+        // TODO 最勝ちで、残り枚数を厳密に守る(ユーザーにロックかける)
+
+
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
@@ -113,7 +119,10 @@ export default class SponsorReserveController extends ReserveBaseController {
             // 外部関係者による予約数を取得
             Models.Reservation.count(
                 {
-                    sponsor: this.sponsorUser.get('_id')
+                    sponsor: this.sponsorUser.get('_id'),
+                    status: {
+                        $ne: ReservationUtil.STATUS_AVAILABLE
+                    }
                 },
             (err, reservationsCount) => {
 

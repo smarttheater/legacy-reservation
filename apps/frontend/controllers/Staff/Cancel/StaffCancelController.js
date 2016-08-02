@@ -17,6 +17,7 @@ class StaffCancelController extends BaseController_1.default {
                         _id: reservationId,
                         staff: this.staffUser.get('_id'),
                     }, {
+                        // TODO 内部保留の所有者はadmin
                         status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
                     }, (err, affectedRows) => {
                         if (err || affectedRows === 0) {

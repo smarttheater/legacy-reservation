@@ -32,6 +32,7 @@ let ReservationSchema = new mongoose.Schema({
     },
     film_name: String,
     film_name_en: String,
+    purchaser_group: String,
     purchaser_last_name: String,
     purchaser_first_name: String,
     purchaser_email: String,
@@ -45,6 +46,7 @@ let ReservationSchema = new mongoose.Schema({
     ticket_type_name_en: String,
     ticket_type_charge: Number,
     watcher_name: String,
+    mvtk_kiin_cd: String,
     sponsor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Sponsor'

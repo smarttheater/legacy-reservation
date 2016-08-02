@@ -6,6 +6,7 @@ const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
 const reserveTicketForm_1 = require('../../../forms/Reserve/reserveTicketForm');
 const reserveProfileForm_1 = require('../../../forms/Reserve/reserveProfileForm');
 const Models_1 = require('../../../../common/models/Models');
+const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
 const ReservationResultModel_1 = require('../../../models/Reserve/ReservationResultModel');
@@ -38,7 +39,10 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             }
             // 外部関係者による予約数を取得
             Models_1.default.Reservation.count({
-                sponsor: this.sponsorUser.get('_id')
+                sponsor: this.sponsorUser.get('_id'),
+                status: {
+                    $ne: ReservationUtil_1.default.STATUS_AVAILABLE
+                }
             }, (err, reservationsCount) => {
                 if (parseInt(this.sponsorUser.get('max_reservation_count')) <= reservationsCount) {
                     return this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', { limit: this.sponsorUser.get('max_reservation_count') })));
@@ -84,6 +88,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
      * 座席選択
      */
     seats() {
+        // TODO 最勝ちで、残り枚数を厳密に守る(ユーザーにロックかける)
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
@@ -92,7 +97,10 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
             // 外部関係者による予約数を取得
             Models_1.default.Reservation.count({
-                sponsor: this.sponsorUser.get('_id')
+                sponsor: this.sponsorUser.get('_id'),
+                status: {
+                    $ne: ReservationUtil_1.default.STATUS_AVAILABLE
+                }
             }, (err, reservationsCount) => {
                 if (this.req.method === 'POST') {
                     reserveSeatForm_1.default(this.req, this.res, (err) => {

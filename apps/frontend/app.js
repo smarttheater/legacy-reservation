@@ -8,6 +8,7 @@ const multer = require('multer');
 const logger_1 = require('./middlewares/logger');
 const benchmarks_1 = require('./middlewares/benchmarks');
 const session_1 = require('./middlewares/session');
+const MvtkUser_1 = require('./models/User/MvtkUser');
 const MemberUser_1 = require('./models/User/MemberUser');
 const StaffUser_1 = require('./models/User/StaffUser');
 const SponsorUser_1 = require('./models/User/SponsorUser');
@@ -15,6 +16,7 @@ const router_1 = require('./routes/router');
 const conf = require('config');
 const mongoose = require('mongoose');
 const i18n = require('i18n');
+const mvtkService = require('@motionpicture/mvtk-service');
 let app = express();
 app.use(partials()); // レイアウト&パーシャルサポート
 app.use(useragent.express()); // ユーザーエージェント
@@ -52,6 +54,9 @@ app.use((req, res, next) => {
 // ユーザー認証
 app.use((req, res, next) => {
     // リクエスト毎にユーザーインスタンスを再生成する
+    MvtkUser_1.default.deleteInstance();
+    let mvtkUser = MvtkUser_1.default.getInstance();
+    mvtkUser.initialize(req.session);
     MemberUser_1.default.deleteInstance();
     let memberUser = MemberUser_1.default.getInstance();
     memberUser.initialize(req.session);
@@ -63,6 +68,7 @@ app.use((req, res, next) => {
     sponsorUser.initialize(req.session);
     next();
 });
+mvtkService.initialize(conf.get('mvtk_wcf_endpoint'), conf.get('mvtk_wcf2_endpoint'));
 // ルーティング
 router_1.default(app);
 let MONGOLAB_URI = conf.get('mongolab_uri');

@@ -6,6 +6,7 @@ const Models_1 = require('../../../../common/models/Models');
 class StaffAuthController extends BaseController_1.default {
     /**
      * TODO 一般とadminの2種類の権限
+     * TODO パスワードはハッシュ値で保管
      */
     login() {
         if (this.staffUser.isAuthenticated()) {

@@ -9,6 +9,7 @@ import multer = require('multer');
 import logger from './middlewares/logger';
 import benchmarks from './middlewares/benchmarks';
 import session from './middlewares/session';
+import MvtkUser from './models/User/MvtkUser';
 import MemberUser from './models/User/MemberUser';
 import StaffUser from './models/User/StaffUser';
 import SponsorUser from './models/User/SponsorUser';
@@ -16,6 +17,7 @@ import router from './routes/router';
 import conf = require('config');
 import mongoose = require('mongoose');
 import i18n = require('i18n');
+import mvtkService = require('@motionpicture/mvtk-service');
 
 let app = express();
 
@@ -69,6 +71,10 @@ app.use((req, res, next) => {
 // ユーザー認証
 app.use((req, res, next) => {
     // リクエスト毎にユーザーインスタンスを再生成する
+    MvtkUser.deleteInstance();
+    let mvtkUser = MvtkUser.getInstance();
+    mvtkUser.initialize(req.session);
+
     MemberUser.deleteInstance();
     let memberUser = MemberUser.getInstance();
     memberUser.initialize(req.session);
@@ -83,6 +89,10 @@ app.use((req, res, next) => {
 
     next();
 });
+
+mvtkService.initialize(conf.get<string>('mvtk_wcf_endpoint'), conf.get<string>('mvtk_wcf2_endpoint'));
+
+
 
 // ルーティング
 router(app);

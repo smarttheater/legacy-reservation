@@ -7,6 +7,7 @@ import Models from '../../../../common/models/Models';
 export default class StaffAuthController extends BaseController {
     /**
      * TODO 一般とadminの2種類の権限
+     * TODO パスワードはハッシュ値で保管
      */
     public login(): void {
         if (this.staffUser.isAuthenticated()) {

@@ -1,4 +1,5 @@
 import ReserveBaseController from '../../ReserveBaseController';
+import MvtkUser from '../../../models/User/MvtkUser';
 import Util from '../../../../common/Util/Util';
 import reserveTermsForm from '../../../forms/Reserve/reserveTermsForm';
 import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
@@ -15,6 +16,7 @@ import ReservationResultModel from '../../../models/Reserve/ReservationResultMod
 
 import moment = require('moment');
 import crypto = require('crypto');
+import mvtkService = require('@motionpicture/mvtk-service');
 
 export default class CustomerReserveController extends ReserveBaseController {
     /**
@@ -59,9 +61,9 @@ export default class CustomerReserveController extends ReserveBaseController {
                     if (err) {
                         this.next(err);
                     } else {
-                        this.logger.debug('saving reservationModel... ', reservationModel);
                         reservationModel.save((err) => {
-                            this.res.redirect(this.router.build('customer.reserve.terms', {token: token}));
+                            this.res.redirect(`${this.router.build('customer.login')}?cb=${encodeURIComponent(this.router.build('customer.reserve.seats', {token: token}))}`);
+
                         });
                     }
                 });
@@ -73,40 +75,6 @@ export default class CustomerReserveController extends ReserveBaseController {
 
         });
 
-    }
-
-    /**
-     * 規約
-     */
-    public terms(): void {
-        let token = this.req.params.token;
-        ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
-
-            this.logger.debug('reservationModel is ', reservationModel.toLog());
-
-            if (this.req.method === 'POST') {
-                let form = reserveTermsForm(this.req);
-                form(this.req, this.res, (err) => {
-                    if (this.req.form.isValid) {
-                        this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
-
-                    } else {
-                        this.res.render('customer/reserve/terms', {
-                        });
-
-                    }
-
-                });
-            } else {
-                this.res.render('customer/reserve/terms', {
-                });
-
-            }
-
-        });
     }
 
     /**
@@ -263,6 +231,8 @@ export default class CustomerReserveController extends ReserveBaseController {
                             tel: this.req.form['tel']
                         };
 
+                        reservationModel.mvtkMemberInfoResult = this.mvtkUser.memberInfoResult;
+
                         this.logger.debug('saving reservationModel... ', reservationModel);
                         reservationModel.save((err) => {
                             this.res.redirect(this.router.build('customer.reserve.confirm', {token: token}));
@@ -278,21 +248,13 @@ export default class CustomerReserveController extends ReserveBaseController {
                 });
 
             } else {
-                this.res.locals.lastName = '';
-                this.res.locals.firstName = '';
-                this.res.locals.tel = '';
-                this.res.locals.email = '';
-                this.res.locals.emailConfirm = '';
-                this.res.locals.emailConfirmDomain = '';
-
-                if (process.env.NODE_ENV === 'dev') {
-                    this.res.locals.lastName = 'てすとせい';
-                    this.res.locals.firstName = 'てすとめい';
-                    this.res.locals.tel = '09012345678';
-                    this.res.locals.email = 'ilovegadd@gmail.com';
-                    this.res.locals.emailConfirm = 'ilovegadd';
-                    this.res.locals.emailConfirmDomain = 'gmail.com';
-                }
+                let email = this.mvtkUser.memberInfoResult.kiinMladdr;
+                this.res.locals.lastName = this.mvtkUser.memberInfoResult.kiinsiNm;
+                this.res.locals.firstName = this.mvtkUser.memberInfoResult.kiimmiNm;
+                this.res.locals.tel = `${this.mvtkUser.memberInfoResult.kiinshgikykNo}${this.mvtkUser.memberInfoResult.kiinshnikykNo}${this.mvtkUser.memberInfoResult.kiinknyshNo}`;
+                this.res.locals.email = email;
+                this.res.locals.emailConfirm = email.substr(0, email.indexOf('@'));
+                this.res.locals.emailConfirmDomain = email.substr(email.indexOf('@') + 1);
 
                 // セッションに情報があれば、フォーム初期値設定
                 if (reservationModel.profile) {

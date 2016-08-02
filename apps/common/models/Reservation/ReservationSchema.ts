@@ -37,6 +37,7 @@ let ReservationSchema = new mongoose.Schema({
     film_name:String,
     film_name_en:String,
 
+    purchaser_group: String, // 購入者区分
     purchaser_last_name: String,
     purchaser_first_name: String,
     purchaser_email: String,
@@ -53,6 +54,8 @@ let ReservationSchema = new mongoose.Schema({
     ticket_type_charge: Number,
 
     watcher_name: String,
+
+    mvtk_kiin_cd: String, // ムビチケ会員ID
 
     sponsor: {
         type: mongoose.Schema.Types.ObjectId,

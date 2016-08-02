@@ -14,6 +14,7 @@ const GMOReserveCvsController_1 = require('./Cvs/GMOReserveCvsController');
 class GMOReserveController extends ReserveBaseController_1.default {
     /**
      * GMO決済を開始する
+     * TODO 仮実運用で確定
      */
     start() {
         let token = this.req.params.token;

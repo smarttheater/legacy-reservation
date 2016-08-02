@@ -2,11 +2,13 @@ import NamedRoutes = require('named-routes');
 import express = require('express');
 
 import AdmissionController from '../controllers/Admission/AdmissionController';
-import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
 import MemberReserveController from '../controllers/Member/Reserve/MemberReserveController';
 import GMOReserveController from  '../controllers/GMO/Reserve/GMOReserveController';
 import ReserveController from '../controllers/Reserve/ReserveController';
 import LanguageController from '../controllers/Language/LanguageController';
+
+import CustomerAuthController from '../controllers/Customer/Auth/CustomerAuthController';
+import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
 
 import StaffAuthController from '../controllers/Staff/Auth/StaffAuthController';
 import StaffCancelController from '../controllers/Staff/Cancel/StaffCancelController';
@@ -21,6 +23,7 @@ import SponsorCancelController from '../controllers/Sponsor/Cancel/SponsorCancel
 import ErrorController from '../controllers/Error/ErrorController';
 import IndexController from '../controllers/Index/IndexController';
 
+import MvtkUser from '../models/User/MvtkUser';
 import MemberUser from '../models/User/MemberUser';
 import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
@@ -57,17 +60,6 @@ export default (app: any) => {
     app.all('/GMO/reserve/notify', 'gmo.reserve.notify', (req, res, next) => {(new GMOReserveController(req, res, next)).notify()});
 
 
-    // 一般
-    app.all('/customer/reserve/performances', 'customer.reserve.performances', (req, res, next) => {(new CustomerReserveController(req, res, next)).performances()});
-    app.post('/customer/reserve/start', 'customer.reserve.start', (req, res, next) => {(new CustomerReserveController(req, res, next)).start()});
-    app.all('/customer/reserve/:token/terms', 'customer.reserve.terms', (req, res, next) => {(new CustomerReserveController(req, res, next)).terms()});
-    app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', (req, res, next) => {(new CustomerReserveController(req, res, next)).seats()});
-    app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', (req, res, next) => {(new CustomerReserveController(req, res, next)).tickets()});
-    app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', (req, res, next) => {(new CustomerReserveController(req, res, next)).profile()});
-    app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', (req, res, next) => {(new CustomerReserveController(req, res, next)).confirm()});
-    app.get('/customer/reserve/:token/waitingSettlement', 'customer.reserve.waitingSettlement', (req, res, next) => {(new CustomerReserveController(req, res, next)).waitingSettlement()});
-    app.get('/customer/reserve/:token/complete', 'customer.reserve.complete', (req, res, next) => {(new CustomerReserveController(req, res, next)).complete()});
-
 
 
 
@@ -77,6 +69,21 @@ export default (app: any) => {
     
 
 
+
+    let authenticationCustomer = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        let mvtkUser = MvtkUser.getInstance();
+        if (!mvtkUser.isAuthenticated()) {
+            if (req.xhr) {
+                res.json({
+                    message: 'login required.'
+                });
+            } else {
+                res.redirect(`/customer/login?cb=${req.originalUrl}`);
+            }
+        } else {
+            next();
+        }
+    }
 
     let authenticationMember = (req: express.Request, res: express.Response, next: express.NextFunction) => {
         let memberUser = MemberUser.getInstance();
@@ -122,6 +129,27 @@ export default (app: any) => {
             next();
         }
     }
+
+
+
+
+
+
+    // 一般
+    app.all('/customer/reserve/performances', 'customer.reserve.performances', (req, res, next) => {(new CustomerReserveController(req, res, next)).performances()});
+    app.post('/customer/reserve/start', 'customer.reserve.start', (req, res, next) => {(new CustomerReserveController(req, res, next)).start()});
+    app.all('/customer/login', 'customer.login', (req, res, next) => {(new CustomerAuthController(req, res, next)).login()});
+    app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).seats()});
+    app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).tickets()});
+    app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).profile()});
+    app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).confirm()});
+    app.get('/customer/reserve/:token/waitingSettlement', 'customer.reserve.waitingSettlement', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).waitingSettlement()});
+    app.get('/customer/reserve/:token/complete', 'customer.reserve.complete', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).complete()});
+
+
+
+
+
 
     // メルマガ先行
     app.all('/member/reserve/terms', 'member.reserve.terms', (req, res, next) => {(new MemberReserveController(req, res, next)).terms()});
@@ -181,6 +209,8 @@ export default (app: any) => {
     app.get('/sponsor/reserve/:token/process', 'sponsor.reserve.process', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).process()});
     app.get('/sponsor/reserve/:token/complete', 'sponsor.reserve.complete', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).complete()});
     app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', authenticationSponsor, sponsorBase, (req, res, next) => {(new SponsorCancelController(req, res, next)).execute()});
+
+
 
 
 
