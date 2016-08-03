@@ -10,6 +10,7 @@ import mongodb = require('mongodb');
 import mongoose = require('mongoose');
 import PerformanceStatusesModel from '../../../common/models/PerformanceStatusesModel';
 import request = require('request');
+import querystring = require('querystring');
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
@@ -34,11 +35,9 @@ export default class GMOController extends BaseController {
             } else {
 
                 let next = (reservationDocument) => {
-                    console.log(reservationDocument);
 
                     let options = {
                         url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
-                        // json: true,
                         form: {
                             ShopID: conf.get<string>('gmo_payment_shop_id'),
                             ShopPass: conf.get<string>('gmo_payment_shop_password'),
@@ -51,7 +50,7 @@ export default class GMOController extends BaseController {
 
                     request.post(options, (error, response, body) => {
                         if (!error && response.statusCode == 200) {
-                            console.log('body', body);
+                            let result = querystring.parse(body);
                             // AccessID
                             // AccessPass
                             // Forward
@@ -60,6 +59,12 @@ export default class GMOController extends BaseController {
                             // TranDate
                             // ErrCode
                             // ErrInfo
+
+                            if (result.hasOwnProperty('ErrCode')) {
+                                // TODO
+                            } else {
+                                
+                            }
 
                             if (i === reservationDocuments.length - 1) {
                                 this.logger.debug('success!');

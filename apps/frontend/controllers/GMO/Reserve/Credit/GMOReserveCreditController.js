@@ -4,6 +4,9 @@ const GMOUtil_1 = require('../../../../../common/Util/GMO/GMOUtil');
 const Models_1 = require('../../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../../common/models/Reservation/ReservationUtil');
 const GMONotificationResponseModel_1 = require('../../../../models/Reserve/GMONotificationResponseModel');
+const conf = require('config');
+const request = require('request');
+const querystring = require('querystring');
 class GMOReserveCreditController extends ReserveBaseController_1.default {
     /**
      * GMOからの結果受信
@@ -21,7 +24,7 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
             gmo_method: gmoResultModel.Method,
             gmo_approve: gmoResultModel.Approve,
             gmo_tran_id: gmoResultModel.TranID,
-            gmo_tranDate: gmoResultModel.TranDate,
+            gmo_tran_date: gmoResultModel.TranDate,
             gmo_pay_type: gmoResultModel.PayType,
             gmo_status: gmoResultModel.JobCd,
             // gmo_cvs_code: gmoResultModel.CvsCode,
@@ -65,6 +68,7 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
      */
     notify(gmoNotificationModel) {
         let paymentNo = gmoNotificationModel.OrderID;
+        let promises = [];
         let update;
         switch (gmoNotificationModel.Status) {
             case GMOUtil_1.default.STATUS_CREDIT_CAPTURE:
@@ -86,32 +90,55 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                     gmo_method: gmoNotificationModel.Method,
                     gmo_approve: gmoNotificationModel.Approve,
                     gmo_tran_id: gmoNotificationModel.TranID,
-                    gmo_tranDate: gmoNotificationModel.TranDate,
+                    gmo_tran_date: gmoNotificationModel.TranDate,
                     gmo_pay_type: gmoNotificationModel.PayType,
                     gmo_status: gmoNotificationModel.Status,
                     status: ReservationUtil_1.default.STATUS_RESERVED,
                     updated_user: 'GMOReserveCreditController'
                 };
-                this.logger.info('updating reservations...update:', update);
-                Models_1.default.Reservation.update({
+                Models_1.default.Reservation.find({
                     payment_no: paymentNo,
                     status: ReservationUtil_1.default.STATUS_TEMPORARY
-                }, update, {
-                    multi: true
-                }, (err, affectedRows, raw) => {
-                    this.logger.info('reservations updated.', err, affectedRows);
-                    if (err) {
-                        // TODO
-                        this.logger.info('sending response RecvRes_NG...');
-                        this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
+                }, '_id', (err, reservationDocuments) => {
+                    for (let reservationDocument of reservationDocuments) {
+                        promises.push(new Promise((resolve, reject) => {
+                            this.logger.info('updating reservations...update:', update);
+                            Models_1.default.Reservation.findOneAndUpdate({
+                                _id: reservationDocument.get('_id'),
+                            }, update, {
+                                new: true
+                            }, (err, reservationDocument) => {
+                                this.logger.info('reservation updated.', err, reservationDocument);
+                                if (err) {
+                                    reject();
+                                }
+                                else {
+                                    resolve();
+                                }
+                            });
+                        }));
                     }
-                    else {
-                        // TODO 予約できていない在庫があった場合
+                    ;
+                    Promise.all(promises).then(() => {
                         // TODO メール送信はバッチ処理？
                         // TODO メールの送信ログ（宛先、件名、本文）を保管して下さい。出来ればBlob（受信拒否等で取れなかった場合の再送用）
-                        this.logger.info('sending response RecvRes_OK...gmoNotificationModel.Status:', gmoNotificationModel.Status);
-                        this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
-                    }
+                        // 実売上要求
+                        this.alterTran2sales(gmoNotificationModel, (err) => {
+                            if (err) {
+                            }
+                            // 実売上に失敗しても、とりあえずOK
+                            this.logger.info('sending response RecvRes_OK...gmoNotificationModel.Status:', gmoNotificationModel.Status);
+                            this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
+                        });
+                    }, (err) => {
+                        // 売上取消
+                        this.alterTran2void(gmoNotificationModel, (err) => {
+                            if (err) {
+                            }
+                            this.logger.info('sending response RecvRes_NG...');
+                            this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
+                        });
+                    });
                 });
                 break;
             case GMOUtil_1.default.STATUS_CREDIT_SALES:
@@ -156,6 +183,84 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                 this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
                 break;
         }
+    }
+    alterTran2sales(gmoNotificationModel, cb) {
+        let options = {
+            url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
+            form: {
+                ShopID: conf.get('gmo_payment_shop_id'),
+                ShopPass: conf.get('gmo_payment_shop_password'),
+                AccessID: gmoNotificationModel.AccessID,
+                AccessPass: gmoNotificationModel.AccessPass,
+                JobCd: GMOUtil_1.default.STATUS_CREDIT_SALES,
+                Amount: gmoNotificationModel.Amount
+            }
+        };
+        this.logger.info('requesting... options:', options);
+        request.post(options, (error, response, body) => {
+            this.logger.info('request processed.', error, response, body);
+            if (error) {
+                return cb(error);
+            }
+            if (response.statusCode !== 200) {
+                return cb(new Error(body));
+            }
+            let result = querystring.parse(body);
+            // AccessID
+            // AccessPass
+            // Forward
+            // Approve
+            // TranID
+            // TranDate
+            // ErrCode
+            // ErrInfo
+            if (result.hasOwnProperty('ErrCode')) {
+                // TODO
+                cb(new Error(body));
+            }
+            else {
+                cb(null);
+            }
+        });
+    }
+    alterTran2void(gmoNotificationModel, cb) {
+        let options = {
+            url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
+            form: {
+                ShopID: conf.get('gmo_payment_shop_id'),
+                ShopPass: conf.get('gmo_payment_shop_password'),
+                AccessID: gmoNotificationModel.AccessID,
+                AccessPass: gmoNotificationModel.AccessPass,
+                JobCd: GMOUtil_1.default.STATUS_CREDIT_VOID,
+                Amount: gmoNotificationModel.Amount
+            }
+        };
+        this.logger.info('requesting... options:', options);
+        request.post(options, (error, response, body) => {
+            this.logger.info('request processed.', error, response, body);
+            if (error) {
+                return cb(error);
+            }
+            if (response.statusCode !== 200) {
+                return cb(new Error(body));
+            }
+            let result = querystring.parse(body);
+            // AccessID
+            // AccessPass
+            // Forward
+            // Approve
+            // TranID
+            // TranDate
+            // ErrCode
+            // ErrInfo
+            if (result.hasOwnProperty('ErrCode')) {
+                // TODO
+                cb(new Error(body));
+            }
+            else {
+                cb(null);
+            }
+        });
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

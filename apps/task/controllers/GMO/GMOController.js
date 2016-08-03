@@ -6,6 +6,7 @@ const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
 const conf = require('config');
 const mongoose = require('mongoose');
 const request = require('request');
+const querystring = require('querystring');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class GMOController extends BaseController_1.default {
     alterTran2sales() {
@@ -23,10 +24,8 @@ class GMOController extends BaseController_1.default {
             }
             else {
                 let next = (reservationDocument) => {
-                    console.log(reservationDocument);
                     let options = {
                         url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
-                        // json: true,
                         form: {
                             ShopID: conf.get('gmo_payment_shop_id'),
                             ShopPass: conf.get('gmo_payment_shop_password'),
@@ -38,7 +37,7 @@ class GMOController extends BaseController_1.default {
                     };
                     request.post(options, (error, response, body) => {
                         if (!error && response.statusCode == 200) {
-                            console.log('body', body);
+                            let result = querystring.parse(body);
                             // AccessID
                             // AccessPass
                             // Forward
@@ -47,6 +46,10 @@ class GMOController extends BaseController_1.default {
                             // TranDate
                             // ErrCode
                             // ErrInfo
+                            if (result.hasOwnProperty('ErrCode')) {
+                            }
+                            else {
+                            }
                             if (i === reservationDocuments.length - 1) {
                                 this.logger.debug('success!');
                                 mongoose.disconnect();
