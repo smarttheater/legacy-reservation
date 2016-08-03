@@ -21,6 +21,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
             gmo_amount: gmoResultModel.Amount,
             gmo_tax: gmoResultModel.Tax,
             gmo_access_id: gmoResultModel.AccessID,
+            gmo_access_pass: gmoResultModel.AccessPass,
             gmo_forward: gmoResultModel.Forwarded,
             gmo_method: gmoResultModel.Method,
             gmo_approve: gmoResultModel.Approve,
@@ -107,6 +108,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                     gmo_amount: gmoNotificationModel.Amount,
                     gmo_tax: gmoNotificationModel.Tax,
                     gmo_access_id: gmoNotificationModel.AccessID,
+                    gmo_access_pass: gmoNotificationModel.AccessPass,
                     gmo_forward: gmoNotificationModel.Forward,
                     gmo_method: gmoNotificationModel.Method,
                     gmo_approve: gmoNotificationModel.Approve,
@@ -140,6 +142,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
 
 
                         // TODO メール送信はバッチ処理？
+                        // TODO メールの送信ログ（宛先、件名、本文）を保管して下さい。出来ればBlob（受信拒否等で取れなかった場合の再送用）
 
 
                         this.logger.info('sending response RecvRes_OK...gmoNotificationModel.Status:', gmoNotificationModel.Status);
