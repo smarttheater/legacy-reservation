@@ -355,7 +355,12 @@ export default class CustomerReserveController extends ReserveBaseController {
 
     public waitingSettlement(): void {
         let paymentNo = this.req.params.paymentNo;
-        Models.Reservation.find({payment_no: paymentNo}, (err, reservationDocuments) => {
+        Models.Reservation.find(
+            {
+                payment_no: paymentNo,
+                status: ReservationUtil.STATUS_WAITING_SETTLEMENT
+            },
+        (err, reservationDocuments) => {
             if (err) {
                 // TODO
 
@@ -370,7 +375,12 @@ export default class CustomerReserveController extends ReserveBaseController {
 
     public complete(): void {
         let paymentNo = this.req.params.paymentNo;
-        Models.Reservation.find({payment_no: paymentNo}, (err, reservationDocuments) => {
+        Models.Reservation.find(
+            {
+                payment_no: paymentNo,
+                status: ReservationUtil.STATUS_RESERVED
+            },
+        (err, reservationDocuments) => {
             if (err) {
                 // TODO
 

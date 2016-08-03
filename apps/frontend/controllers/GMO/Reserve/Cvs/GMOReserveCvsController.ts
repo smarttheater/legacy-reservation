@@ -18,13 +18,6 @@ export default class GMOReserveCvsController extends ReserveBaseController {
             gmo_shop_id: gmoResultModel.ShopID,
             gmo_amount: gmoResultModel.Amount,
             gmo_tax: gmoResultModel.Tax,
-            // gmo_access_id: gmoResultModel.AccessID,
-            // gmo_forwarded: gmoResultModel.Forwarded,
-            // gmo_method: gmoResultModel.Method,
-            // gmo_approve: gmoResultModel.Approve,
-            // gmo_tran_id: gmoResultModel.TranID,
-            // gmo_tranDate: gmoResultModel.TranDate,
-            // gmo_pay_type: gmoResultModel.PayType,
             gmo_cvs_code: gmoResultModel.CvsCode,
             gmo_cvs_conf_no: gmoResultModel.CvsConfNo,
             gmo_cvs_receipt_no: gmoResultModel.CvsReceiptNo,
@@ -83,18 +76,96 @@ export default class GMOReserveCvsController extends ReserveBaseController {
      * GMO結果通知受信
      */
     public notify(gmoNotificationModel: GMONotificationModel): void {
-        let promises: Array<Promise<Function>> = [];
+        let paymentNo = gmoNotificationModel.OrderID;
+        let update;
+
         switch (gmoNotificationModel.Status) {
             case GMOUtil.STATUS_CVS_PAYSUCCESS:
-                this.logger.error('sending response RecvRes_NG... ');
-                this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                update = {
+                    gmo_status: gmoNotificationModel.Status,
+                    status: ReservationUtil.STATUS_RESERVED,
+                    updated_user: 'GMOReserveCvsController'
+                };
+
+                // GMOステータス変更
+                this.logger.info('updating reservations...update:', update);
+                Models.Reservation.update(
+                    {
+                        payment_no: paymentNo,
+                        status: ReservationUtil.STATUS_WAITING_SETTLEMENT
+                    },
+                    update,
+                    {
+                        multi: true
+                    },
+                (err, affectedRows, raw) => {
+                    this.logger.info('reservations updated.', err, affectedRows);
+                    if (err) {
+                        // TODO
+
+                        this.logger.info('sending response RecvRes_NG...');
+                        this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                    } else {
+                        // TODO 予約できていない在庫があった場合
+
+
+                        // TODO メール送信はバッチ処理？
+
+
+                        this.logger.error('sending response RecvRes_OK... ');
+                        this.res.send(GMONotificationResponseModel.RecvRes_OK);
+
+                    }
+
+                });
 
                 break;
 
+
             case GMOUtil.STATUS_CVS_REQSUCCESS:
                 // 決済待ちステータスへ変更
-                this.logger.error('sending response RecvRes_NG... ');
-                this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                update = {
+                    gmo_shop_id: gmoNotificationModel.ShopID,
+                    gmo_amount: gmoNotificationModel.Amount,
+                    gmo_tax: gmoNotificationModel.Tax,
+                    gmo_cvs_code: gmoNotificationModel.CvsCode,
+                    gmo_cvs_conf_no: gmoNotificationModel.CvsConfNo,
+                    gmo_cvs_receipt_no: gmoNotificationModel.CvsReceiptNo,
+                    status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
+                    updated_user: 'GMOReserveCvsController'
+                };
+
+                this.logger.info('updating reservations...update:', update);
+                Models.Reservation.update(
+                    {
+                        payment_no: paymentNo,
+                        status: ReservationUtil.STATUS_TEMPORARY
+                    },
+                    update,
+                    {
+                        multi: true
+                    },
+                (err, affectedRows, raw) => {
+                    this.logger.info('reservations updated.', err, affectedRows);
+                    if (err) {
+                        // TODO
+                        this.logger.info('sending response RecvRes_NG...');
+                        this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                    } else {
+                        // TODO 予約できていない在庫があった場合
+
+
+                        // TODO メール送信はバッチ処理？
+
+
+                        this.logger.error('sending response RecvRes_OK... ');
+                        this.res.send(GMONotificationResponseModel.RecvRes_OK);
+
+                    }
+
+                });
 
                 break;
 

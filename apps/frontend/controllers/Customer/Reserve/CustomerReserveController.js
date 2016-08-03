@@ -282,7 +282,10 @@ class CustomerReserveController extends ReserveBaseController_1.default {
     }
     waitingSettlement() {
         let paymentNo = this.req.params.paymentNo;
-        Models_1.default.Reservation.find({ payment_no: paymentNo }, (err, reservationDocuments) => {
+        Models_1.default.Reservation.find({
+            payment_no: paymentNo,
+            status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT
+        }, (err, reservationDocuments) => {
             if (err) {
             }
             this.res.render('customer/reserve/waitingSettlement', {
@@ -292,7 +295,10 @@ class CustomerReserveController extends ReserveBaseController_1.default {
     }
     complete() {
         let paymentNo = this.req.params.paymentNo;
-        Models_1.default.Reservation.find({ payment_no: paymentNo }, (err, reservationDocuments) => {
+        Models_1.default.Reservation.find({
+            payment_no: paymentNo,
+            status: ReservationUtil_1.default.STATUS_RESERVED
+        }, (err, reservationDocuments) => {
             if (err) {
             }
             this.res.render('customer/reserve/complete', {

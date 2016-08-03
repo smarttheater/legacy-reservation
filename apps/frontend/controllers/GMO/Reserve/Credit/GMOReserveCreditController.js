@@ -64,23 +64,18 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
      */
     notify(gmoNotificationModel) {
         let paymentNo = gmoNotificationModel.OrderID;
+        let update;
         switch (gmoNotificationModel.Status) {
             case GMOUtil_1.default.STATUS_CREDIT_CAPTURE:
-                this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
-                break;
             case GMOUtil_1.default.STATUS_CREDIT_UNPROCESSED:
-                this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
-                break;
             case GMOUtil_1.default.STATUS_CREDIT_AUTHENTICATED:
-                this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
-                break;
             case GMOUtil_1.default.STATUS_CREDIT_CHECK:
                 this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                 break;
             case GMOUtil_1.default.STATUS_CREDIT_AUTH:
                 // TODO 支払い期限過ぎていたらキャンセル(10分？)
                 // 予約完了ステータスへ変更
-                let update = {
+                update = {
                     gmo_shop_id: gmoNotificationModel.ShopID,
                     gmo_amount: gmoNotificationModel.Amount,
                     gmo_tax: gmoNotificationModel.Tax,
@@ -95,11 +90,13 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                     status: ReservationUtil_1.default.STATUS_RESERVED,
                     updated_user: 'GMOReserveCreditController'
                 };
-                this.logger.info('updating resertions...update:', update);
+                this.logger.info('updating reservations...update:', update);
                 Models_1.default.Reservation.update({
                     payment_no: paymentNo,
                     status: ReservationUtil_1.default.STATUS_TEMPORARY
-                }, update, (err, affectedRows, raw) => {
+                }, update, {
+                    multi: true
+                }, (err, affectedRows, raw) => {
                     this.logger.info('reservations updated.', err, affectedRows);
                     if (err) {
                         // TODO
@@ -109,14 +106,36 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                     else {
                         // TODO 予約できていない在庫があった場合
                         // TODO メール送信はバッチ処理？
-                        this.logger.info('sending response RecvRes_OK...');
+                        this.logger.info('sending response RecvRes_OK...gmoNotificationModel.Status:', gmoNotificationModel.Status);
                         this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
                     }
                 });
                 break;
             case GMOUtil_1.default.STATUS_CREDIT_SALES:
-                // TODO GMOステータス変更
-                this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
+                update = {
+                    gmo_status: gmoNotificationModel.Status,
+                    updated_user: 'GMOReserveCreditController'
+                };
+                // GMOステータス変更
+                this.logger.info('updating reservations...update:', update);
+                Models_1.default.Reservation.update({
+                    payment_no: paymentNo,
+                    status: ReservationUtil_1.default.STATUS_RESERVED
+                }, update, {
+                    multi: true
+                }, (err, affectedRows, raw) => {
+                    this.logger.info('reservations updated.', err, affectedRows);
+                    if (err) {
+                        // TODO
+                        this.logger.info('sending response RecvRes_NG...gmoNotificationModel.Status:', gmoNotificationModel.Status);
+                        this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
+                    }
+                    else {
+                        // TODO 予約できていない在庫があった場合
+                        this.logger.info('sending response RecvRes_OK...');
+                        this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
+                    }
+                });
                 break;
             case GMOUtil_1.default.STATUS_CREDIT_VOID:
                 this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);

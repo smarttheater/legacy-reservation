@@ -21,7 +21,6 @@ import GMOReserveCvsController from './Cvs/GMOReserveCvsController';
 export default class GMOReserveController extends ReserveBaseController {
     /**
      * GMO決済を開始する
-     * TODO 仮実運用で確定
      */
     public start(): void {
         let token = this.req.params.token;

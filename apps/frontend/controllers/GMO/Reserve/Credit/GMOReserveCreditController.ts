@@ -87,23 +87,12 @@ export default class GMOReserveCreditController extends ReserveBaseController {
      */
     public notify(gmoNotificationModel: GMONotificationModel): void {
         let paymentNo = gmoNotificationModel.OrderID;
+        let update;
 
         switch (gmoNotificationModel.Status) {
             case GMOUtil.STATUS_CREDIT_CAPTURE:
-                this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
-                break;
-
             case GMOUtil.STATUS_CREDIT_UNPROCESSED:
-                this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
-                break;
-
             case GMOUtil.STATUS_CREDIT_AUTHENTICATED:
-                this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
-                break;
-
             case GMOUtil.STATUS_CREDIT_CHECK:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
@@ -113,7 +102,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 // TODO 支払い期限過ぎていたらキャンセル(10分？)
 
                 // 予約完了ステータスへ変更
-                let update = {
+                update = {
                     gmo_shop_id: gmoNotificationModel.ShopID,
                     gmo_amount: gmoNotificationModel.Amount,
                     gmo_tax: gmoNotificationModel.Tax,
@@ -129,13 +118,16 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                     updated_user: 'GMOReserveCreditController'
                 };
 
-                this.logger.info('updating resertions...update:', update);
+                this.logger.info('updating reservations...update:', update);
                 Models.Reservation.update(
                     {
                         payment_no: paymentNo,
                         status: ReservationUtil.STATUS_TEMPORARY
                     },
                     update,
+                    {
+                        multi: true
+                    },
                 (err, affectedRows, raw) => {
                     this.logger.info('reservations updated.', err, affectedRows);
                     if (err) {
@@ -150,7 +142,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                         // TODO メール送信はバッチ処理？
 
 
-                        this.logger.info('sending response RecvRes_OK...');
+                        this.logger.info('sending response RecvRes_OK...gmoNotificationModel.Status:', gmoNotificationModel.Status);
                         this.res.send(GMONotificationResponseModel.RecvRes_OK);
 
                     }
@@ -160,9 +152,39 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 break;
 
             case GMOUtil.STATUS_CREDIT_SALES:
-                // TODO GMOステータス変更
+                update = {
+                    gmo_status: gmoNotificationModel.Status,
+                    updated_user: 'GMOReserveCreditController'
+                };
 
-                this.res.send(GMONotificationResponseModel.RecvRes_OK);
+                // GMOステータス変更
+                this.logger.info('updating reservations...update:', update);
+                Models.Reservation.update(
+                    {
+                        payment_no: paymentNo,
+                        status: ReservationUtil.STATUS_RESERVED
+                    },
+                    update,
+                    {
+                        multi: true
+                    },
+                (err, affectedRows, raw) => {
+                    this.logger.info('reservations updated.', err, affectedRows);
+                    if (err) {
+                        // TODO
+                        this.logger.info('sending response RecvRes_NG...gmoNotificationModel.Status:', gmoNotificationModel.Status);
+                        this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                    } else {
+                        // TODO 予約できていない在庫があった場合
+
+
+                        this.logger.info('sending response RecvRes_OK...');
+                        this.res.send(GMONotificationResponseModel.RecvRes_OK);
+
+                    }
+
+                });
 
                 break;
 
