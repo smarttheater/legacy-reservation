@@ -50,8 +50,8 @@ export default (app: any) => {
     app.get('/language/update/:locale', 'language.update', (req, res, next) => {(new LanguageController(req, res, next)).update()});
 
     app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', (req, res, next) => {(new ReserveController(req, res, next)).getSeatProperties()});
-    app.get('/reserve/:token/:reservationId/barcode', 'reserve.barcode', (req, res, next) => {(new ReserveController(req, res, next)).barcode()});
-    app.get('/reserve/:token/:reservationId/qrcode', 'reserve.qrcode', (req, res, next) => {(new ReserveController(req, res, next)).qrcode()});
+    app.get('/reserve/:reservationId/barcode', 'reserve.barcode', (req, res, next) => {(new ReserveController(req, res, next)).barcode()});
+    app.get('/reserve/:reservationId/qrcode', 'reserve.qrcode', (req, res, next) => {(new ReserveController(req, res, next)).qrcode()});
 
 
     // GMOプロセス
@@ -143,8 +143,8 @@ export default (app: any) => {
     app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).tickets()});
     app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).profile()});
     app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).confirm()});
-    app.get('/customer/reserve/:token/waitingSettlement', 'customer.reserve.waitingSettlement', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).waitingSettlement()});
-    app.get('/customer/reserve/:token/complete', 'customer.reserve.complete', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).complete()});
+    app.get('/customer/reserve/:paymentNo/waitingSettlement', 'customer.reserve.waitingSettlement', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).waitingSettlement()});
+    app.get('/customer/reserve/:paymentNo/complete', 'customer.reserve.complete', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).complete()});
 
 
 
@@ -158,7 +158,7 @@ export default (app: any) => {
     app.all('/member/reserve/:token/profile', 'member.reserve.profile', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).profile()});
     app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', authenticationMember, (req, res, next) => {(new MemberReserveController(req, res, next)).confirm()});
     app.get('/member/reserve/:token/waitingSettlement', 'member.reserve.waitingSettlement', (req, res, next) => {(new MemberReserveController(req, res, next)).waitingSettlement()});
-    app.get('/member/reserve/:token/complete', 'member.reserve.complete', (req, res, next) => {(new MemberReserveController(req, res, next)).complete()});
+    app.get('/member/reserve/:paymentNo/complete', 'member.reserve.complete', (req, res, next) => {(new MemberReserveController(req, res, next)).complete()});
 
 
 

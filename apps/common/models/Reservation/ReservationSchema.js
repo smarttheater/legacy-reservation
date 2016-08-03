@@ -6,11 +6,13 @@ const mongoose = require('mongoose');
 let ReservationSchema = new mongoose.Schema({
     token: String,
     payment_no: String,
+    total_charge: Number,
+    charge: Number,
     performance: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Performance'
     },
-    status: String,
+    status: Number,
     performance_day: String,
     performance_start_time: String,
     performance_end_time: String,
@@ -69,6 +71,21 @@ let ReservationSchema = new mongoose.Schema({
         ref: 'Member'
     },
     member_user_id: String,
+    gmo_shop_id: String,
+    gmo_amount: String,
+    gmo_tax: String,
+    gmo_access_id: String,
+    gmo_forward: String,
+    gmo_method: String,
+    gmo_approve: String,
+    gmo_tran_id: String,
+    gmo_tranDate: String,
+    gmo_pay_type: String,
+    gmo_cvs_code: String,
+    gmo_cvs_conf_no: String,
+    gmo_cvs_receipt_no: String,
+    gmo_cvs_receipt_url: String,
+    gmo_status: String,
     created_user: String,
     updated_user: String,
 }, {

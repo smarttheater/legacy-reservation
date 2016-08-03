@@ -30,8 +30,8 @@ exports.default = (app) => {
     // 言語
     app.get('/language/update/:locale', 'language.update', (req, res, next) => { (new LanguageController_1.default(req, res, next)).update(); });
     app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', (req, res, next) => { (new ReserveController_1.default(req, res, next)).getSeatProperties(); });
-    app.get('/reserve/:token/:reservationId/barcode', 'reserve.barcode', (req, res, next) => { (new ReserveController_1.default(req, res, next)).barcode(); });
-    app.get('/reserve/:token/:reservationId/qrcode', 'reserve.qrcode', (req, res, next) => { (new ReserveController_1.default(req, res, next)).qrcode(); });
+    app.get('/reserve/:reservationId/barcode', 'reserve.barcode', (req, res, next) => { (new ReserveController_1.default(req, res, next)).barcode(); });
+    app.get('/reserve/:reservationId/qrcode', 'reserve.qrcode', (req, res, next) => { (new ReserveController_1.default(req, res, next)).qrcode(); });
     // GMOプロセス
     app.get('/GMO/reserve/:token/start', 'gmo.reserve.start', (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).start(); });
     app.post('/GMO/reserve/result', 'gmo.reserve.result', (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).result(); });
@@ -111,8 +111,8 @@ exports.default = (app) => {
     app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).tickets(); });
     app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).profile(); });
     app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).confirm(); });
-    app.get('/customer/reserve/:token/waitingSettlement', 'customer.reserve.waitingSettlement', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).waitingSettlement(); });
-    app.get('/customer/reserve/:token/complete', 'customer.reserve.complete', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).complete(); });
+    app.get('/customer/reserve/:paymentNo/waitingSettlement', 'customer.reserve.waitingSettlement', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).waitingSettlement(); });
+    app.get('/customer/reserve/:paymentNo/complete', 'customer.reserve.complete', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).complete(); });
     // メルマガ先行
     app.all('/member/reserve/terms', 'member.reserve.terms', (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).terms(); });
     app.get('/member/reserve/start', 'member.reserve.start', (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).start(); });
@@ -120,7 +120,7 @@ exports.default = (app) => {
     app.all('/member/reserve/:token/profile', 'member.reserve.profile', authenticationMember, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).profile(); });
     app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', authenticationMember, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).confirm(); });
     app.get('/member/reserve/:token/waitingSettlement', 'member.reserve.waitingSettlement', (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).waitingSettlement(); });
-    app.get('/member/reserve/:token/complete', 'member.reserve.complete', (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).complete(); });
+    app.get('/member/reserve/:paymentNo/complete', 'member.reserve.complete', (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).complete(); });
     // TODO admin権限フロー
     let staffBase = (req, res, next) => {
         req.setLocale('en');

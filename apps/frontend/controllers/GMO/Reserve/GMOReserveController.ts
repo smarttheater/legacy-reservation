@@ -38,23 +38,14 @@ export default class GMOReserveController extends ReserveBaseController {
                 if (err) {
 
                 } else {
-                    // ここで予約番号発行
-                    reservationModel.paymentNo = Util.createPaymentNo();
 
                     // 予約プロセス固有のログファイルをセット
                     this.setProcessLogger(reservationModel.paymentNo, () => {
-                        this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
 
-                        // GMOからの結果受信にそなえてセッションを新規に作成する
-                        // コンビニ支払い期限は3日なので、reservationModelは4日有効にする
-                        reservationModel.token = Util.createToken();
-                        this.logger.info('saving reservationModel...new token:', reservationModel.token);
-                        reservationModel.save((err) => {
                             // GMOへ遷移画面
                             let shopId = conf.get<string>('gmo_payment_shop_id');
-                            // TODO 決済管理番号をなにかしら発行する？あるいは予約番号？
-                            let orderID = reservationModel.token; // 27桁まで
-                            let amount = reservationModel.getTotalPrice();
+                            let orderID = reservationModel.paymentNo; // 27桁まで(予約番号を使用)
+                            let amount = reservationModel.getTotalCharge();
                             let shopPassword = conf.get<string>('gmo_payment_shop_password');
                             let dateTime = moment().format('YYYYMMDDHHmmss');
 
@@ -75,10 +66,7 @@ export default class GMOReserveController extends ReserveBaseController {
                                 shopPassString
                             });
 
-                        }, 345600);
-
                     });
-
 
                 }
             });
@@ -93,55 +81,52 @@ export default class GMOReserveController extends ReserveBaseController {
      */
     public result(): void {
         let gmoResultModel = GMOResultModel.parse(this.req.body);
+        let paymentNo = gmoResultModel.OrderID;
 
-        let token = gmoResultModel.OrderID;
-        ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
-
-
-            // 予約プロセス固有のログファイルをセット
-            this.setProcessLogger(reservationModel.paymentNo, () => {
-                this.logger.info('reservationModel is ', reservationModel.toLog());
-                this.logger.info('gmoResultModel is ', gmoResultModel);
-
-                if (this.req.method === 'POST') {
-                    // TODO エラー結果の場合
-                    if (gmoResultModel.ErrCode) {
-                        this.next(new Error(`エラー結果を受信しました。 ErrCode:${gmoResultModel.ErrCode} ErrInfo:${gmoResultModel.ErrInfo}`));
-
-                    } else {
-                        // 決済方法によって振り分け
-                        let nextController;
-                        switch (gmoResultModel.PayType) {
-
-                            case GMOUtil.PAY_TYPE_CREDIT:
-                                this.logger.info('starting GMOReserveCreditController.result...');
-                                let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
-                                creditController.logger = this.logger;
-                                creditController.result(reservationModel, gmoResultModel);
-
-                                break;
-
-                            case GMOUtil.PAY_TYPE_CVS:
-                                this.logger.info('starting GMOReserveCsvController.result...');
-                                let cvsController = new GMOReserveCvsController(this.req, this.res, this.next);
-                                cvsController.logger = this.logger;
-                                cvsController.result(reservationModel, gmoResultModel);
-
-                                break;
-
-                            default:
-                                this.next(new Error('対応していない決済方法です'));
-
-                                break;
-                        }
-
-                    }
+        // 予約プロセス固有のログファイルをセット
+        this.setProcessLogger(paymentNo, () => {
+            Models.Reservation.find({payment_no: paymentNo}).exec((err, reservationDocuments) => {
+                if (err) {
+                    // TODO
                 }
 
-            })
+                this.logger.debug('reservationDocuments are ', reservationDocuments);
+                this.logger.info('gmoResultModel is ', gmoResultModel);
+
+
+                // TODO エラー結果の場合
+                if (gmoResultModel.ErrCode) {
+                    this.next(new Error(`エラー結果を受信しました。 ErrCode:${gmoResultModel.ErrCode} ErrInfo:${gmoResultModel.ErrInfo}`));
+
+                } else {
+                    // 決済方法によって振り分け
+                    switch (gmoResultModel.PayType) {
+
+                        case GMOUtil.PAY_TYPE_CREDIT:
+                            this.logger.info('starting GMOReserveCreditController.result...');
+                            let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
+                            creditController.logger = this.logger;
+                            creditController.result(gmoResultModel);
+
+                            break;
+
+                        case GMOUtil.PAY_TYPE_CVS:
+                            this.logger.info('starting GMOReserveCsvController.result...');
+                            let cvsController = new GMOReserveCvsController(this.req, this.res, this.next);
+                            cvsController.logger = this.logger;
+                            cvsController.result(gmoResultModel);
+
+                            break;
+
+                        default:
+                            this.next(new Error('invalid pay method.'));
+
+                            break;
+                    }
+
+                }
+
+            });
 
         });
 
@@ -183,17 +168,10 @@ export default class GMOReserveController extends ReserveBaseController {
 
 
         let gmoNotificationModel = GMONotificationModel.parse(this.req.body);
-
-        let token = gmoNotificationModel.OrderID;
-        ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                // TODO ログ
-                return this.res.send(GMONotificationResponseModel.RecvRes_NG);
-            }
+        let paymenyNo = gmoNotificationModel.OrderID;
 
             // 予約プロセス固有のログファイルをセット
-            this.setProcessLogger(reservationModel.paymentNo, () => {
-                this.logger.info('reservationModel is ', reservationModel.toLog());
+            this.setProcessLogger(paymenyNo, () => {
                 this.logger.info('gmoNotificationModel is ', gmoNotificationModel);
 
                 switch (gmoNotificationModel.PayType) {
@@ -201,7 +179,7 @@ export default class GMOReserveController extends ReserveBaseController {
                     case GMOUtil.PAY_TYPE_CREDIT:
                         this.logger.info('starting GMOReserveCreditController.notify...');
                         let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
-                        creditController.notify(reservationModel, gmoNotificationModel);
+                        creditController.notify(gmoNotificationModel);
                         creditController.logger = this.logger;
 
                         break;
@@ -209,7 +187,7 @@ export default class GMOReserveController extends ReserveBaseController {
                     case GMOUtil.PAY_TYPE_CVS:
                         this.logger.info('starting GMOReserveCsvController.notify...');
                         let cvsController = new GMOReserveCvsController(this.req, this.res, this.next);
-                        cvsController.notify(reservationModel, gmoNotificationModel);
+                        cvsController.notify(gmoNotificationModel);
                         cvsController.logger = this.logger;
 
                         break;
@@ -222,8 +200,6 @@ export default class GMOReserveController extends ReserveBaseController {
                 }
 
             });
-
-        });
 
     }
 }

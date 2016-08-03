@@ -52,15 +52,13 @@ export default class ReservationModel {
     };
 
     /** 券種リスト */
-    public ticketTypes: Array<
-         {
-            code: string,
-            name: string, // 券種名
-            name_en: string, // 券種名(英語)
-            charge: number, // 料金
-            is_on_the_day: boolean // 当日だけフラグ
-        }
-    >;
+    public ticketTypes: Array<{
+        code: string,
+        name: string, // 券種名
+        name_en: string, // 券種名(英語)
+        charge: number, // 料金
+        is_on_the_day: boolean // 当日だけフラグ
+    }>;
 
     /** スクリーンの座席表HTML */
     public screenHtml: string;
@@ -114,7 +112,7 @@ export default class ReservationModel {
      * 
      * @param {number} ttl 有効期間(default: 3600)
      */
-    public save(cb: (err: Error) => any, ttl?: number) {
+    public save(cb: (err: Error) => void, ttl?: number) {
         let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
         let _ttl = (ttl) ? ttl : 3600;
@@ -127,7 +125,7 @@ export default class ReservationModel {
     /**
      * プロセス中の購入情報をセッションから削除する
      */
-    public remove(cb: (err: Error) => any) {
+    public remove(cb: (err: Error) => void) {
         let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
         client.del(key, (err, reply) => {
@@ -139,7 +137,7 @@ export default class ReservationModel {
     /**
      * プロセス中の購入情報をセッションから取得する
      */
-    public static find(token: string, cb: (err: Error, reservationModel: ReservationModel) => any): void {
+    public static find(token: string, cb: (err: Error, reservationModel: ReservationModel) => void): void {
         let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(token);
         client.get(key, (err, reply: Buffer) => {
@@ -176,29 +174,44 @@ export default class ReservationModel {
     /**
      * 合計金額を算出する
      */
-    public getTotalPrice(): number {
+    public getTotalCharge(): number {
         let total = 0;
 
         if (Array.isArray(this.reservationIds) && this.reservationIds.length > 0) {
-            this.reservationIds.forEach((reservationId, index) => {
-                let reservation = this.getReservation(reservationId);
-                if (reservation.ticket_type_charge) {
-                    total += reservation.ticket_type_charge;
-
-                    // 座席グレード分加算
-                    if (reservation.seat_grade_additional_charge > 0) {
-                        total += reservation.seat_grade_additional_charge;
-                    }
-
-                    // MX4D分加算
-                    if (this.performance.is_mx4d) {
-                        total += 200;
-                    }
-                }
+            this.reservationIds.forEach((reservationId) => {
+                total += this.getChargeByReservationId(reservationId);
             });
         }
 
         return total;
+    }
+
+    /**
+     * 座席単体の料金を算出する
+     */
+    public getChargeByReservationId(reservationId: string): number {
+        let charge = 0;
+
+        let reservation = this.getReservation(reservationId);
+        if (reservation.ticket_type_charge) {
+            charge += reservation.ticket_type_charge;
+
+            // 座席グレード分加算
+            if (reservation.seat_grade_additional_charge > 0) {
+                charge += reservation.seat_grade_additional_charge;
+            }
+
+            // MX4D分加算
+            if (this.performance.is_mx4d) {
+                charge += ReservationUtil.CHARGE_MX4D;
+            }
+
+            // TODO コンビニ手数料加算
+            // if () {
+            // }
+        }
+
+        return charge;
     }
 
     /**
@@ -230,34 +243,63 @@ export default class ReservationModel {
      */
     public toReservationDocuments(): Array<Object> {
         let documents: Array<Object> = [];
+        let totalCharge = this.getTotalCharge();
+
+        // 購入者区分
+        let purchaserGroup = ReservationUtil.PURCHASER_GROUP_CUSTOMER;
+        if (this.member) {
+            purchaserGroup = ReservationUtil.PURCHASER_GROUP_MEMBER;
+        } else if (this.sponsor) {
+            purchaserGroup = ReservationUtil.PURCHASER_GROUP_SPONROR;
+        } else if (this.staff) {
+            purchaserGroup = ReservationUtil.PURCHASER_GROUP_STAFF;
+        }
 
         this.reservationIds.forEach((reservationId, index) => {
             let reservation = this.getReservation(reservationId);
 
             documents.push(
                 {
+                    // TODO 配布先更新日を追加
+                    // TODO 金額系の税込みと消費税と両方
+                    // TODO 決済方法(現金、クレジット、コンビニ、、、)
+
+                    _id: reservationId,
+                    total_charge: totalCharge,
+                    charge: this.getChargeByReservationId(reservationId),
                     payment_no: this.paymentNo,
-                    status: ReservationUtil.STATUS_RESERVED,
+                    purchaser_group: purchaserGroup,
+
                     performance: this.performance._id,
                     performance_day: this.performance.day,
                     performance_start_time: this.performance.start_time,
                     performance_end_time: this.performance.end_time,
+
                     theater: this.performance.theater._id,
                     theater_name: this.performance.theater.name,
+                    theater_name_en: this.performance.theater.name_en,
+
                     screen: this.performance.screen._id,
                     screen_name: this.performance.screen.name,
+                    screen_name_en: this.performance.screen.name_en,
+
                     film: this.performance.film._id,
                     film_name: this.performance.film.name,
-                    purchaser_last_name: this.profile.last_name,
-                    purchaser_first_name: this.profile.first_name,
-                    purchaser_email: this.profile.email,
-                    purchaser_tel: this.profile.tel,
+                    film_name_en: this.performance.film.name_en,
+
+                    purchaser_last_name: (this.profile) ? this.profile.last_name : null,
+                    purchaser_first_name: (this.profile) ? this.profile.first_name : null,
+                    purchaser_email: (this.profile) ? this.profile.email : null,
+                    purchaser_tel: (this.profile) ? this.profile.tel : null,
+
                     ticket_type_code: reservation.ticket_type_code,
                     ticket_type_name: reservation.ticket_type_name,
                     ticket_type_name_en: reservation.ticket_type_name_en,
                     ticket_type_charge: reservation.ticket_type_charge,
 
                     watcher_name: reservation.watcher_name,
+
+                    mvtk_kiin_cd: (this.mvtkMemberInfoResult) ? this.mvtkMemberInfoResult.kiinCd : null,
 
                     member: (this.member) ? this.member._id : null,
                     member_user_id: (this.member) ? this.member.user_id : null,
@@ -275,8 +317,7 @@ export default class ReservationModel {
                     staff_tel: (this.staff) ? this.staff.tel : null,
                     staff_signature: (this.staff) ? this.staff.signature : null,
 
-                    created_user: this.constructor.toString(),
-                    updated_user: this.constructor.toString(),
+                    updated_user: 'ReservationModel'
                 }
             );
         });
@@ -331,7 +372,6 @@ export default class ReservationModel {
 
 interface Reservation {
     _id: string;
-    token?: string;
     status: string;
     seat_code: string,
     seat_grade_name: string,
@@ -344,35 +384,4 @@ interface Reservation {
     ticket_type_charge?: number,
 
     watcher_name?: string,
-
-    payment_no?: string,
-
-    performance: string,
-    performance_day?: string,
-    performance_start_time?: string,
-    performance_end_time?: string,
-    theater?: string,
-    theater_name?: string,
-    screen?: string,
-    screen_name?: string,
-    film?: string,
-    film_name?: string,
-    purchaser_last_name?: string,
-    purchaser_first_name?: string,
-    purchaser_email?: string,
-    purchaser_tel?: string,
-
-    sponsor?: string,
-    sponsor_user_id?: string,
-    sponsor_name?: string,
-    sponsor_email?: string,
-    staff?: string,
-    staff_user_id?: string,
-    staff_name?: string,
-    staff_email?: string,
-    staff_department_name?: string,
-    staff_tel?: string,
-    staff_signature?: string,
-    member?: string,
-    member_user_id?: string,
 }

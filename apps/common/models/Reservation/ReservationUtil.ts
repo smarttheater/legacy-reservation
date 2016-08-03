@@ -2,13 +2,35 @@ import bwipjs = require('bwip-js');
 import qr = require('qr-image');
 
 export default class ReservationUtil {
-    public static STATUS_AVAILABLE = 'AVAILABLE'; // 空席
-    public static STATUS_TEMPORARY = 'TEMPORARY'; // 仮予約
-    public static STATUS_RESERVED = 'RESERVED'; // 予約確定
-    public static STATUS_WAITING_SETTLEMENT = 'WAITING_SETTLEMENT'; // 決済待ち
-    public static STATUS_WAITING_SETTLEMENT_WINDOW = 'WAITING_SETTLEMENT_WINDOW'; // 窓口清算待ち
-    public static STATUS_KEPT_BY_TIFF = 'KEPT_BY_TIFF'; // 関係者席保留
-    public static STATUS_KEPT_BY_MEMBER = 'KEPT_BY_MEMBER'; // メルマガ会員保留
+    /** 空席 */
+    public static STATUS_AVAILABLE = 100;
+    /** 仮予約 */
+    public static STATUS_TEMPORARY = 110;
+    /** 関係者席保留 */
+    public static STATUS_KEPT_BY_TIFF = 111;
+    /** メルマガ会員保留 */
+    public static STATUS_KEPT_BY_MEMBER = 112;
+    /** 決済待ち */
+    public static STATUS_WAITING_SETTLEMENT = 120;
+    /**  窓口清算待ち */
+    public static STATUS_WAITING_SETTLEMENT_WINDOW = 121;
+    /** 予約確定 */
+    public static STATUS_RESERVED = 200;
+
+    /** 一般 */
+    public static PURCHASER_GROUP_CUSTOMER = '01'; 
+    /** メルマガ会員先行 */
+    public static PURCHASER_GROUP_MEMBER = '02';
+    /** 外部関係者 */
+    public static PURCHASER_GROUP_SPONROR = '03';
+    /** 内部関係者 */
+    public static PURCHASER_GROUP_STAFF = '04';
+    /** 電話 */
+    public static PURCHASER_GROUP_TEL = '05';
+    /** 窓口 */
+    public static PURCHASER_GROUP_WINDOW = '06';
+
+    public static CHARGE_MX4D = 1200;
 
     /**
      * create barcode from reservation infos.

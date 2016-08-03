@@ -289,39 +289,97 @@ export default class CustomerReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
-                this.res.redirect(this.router.build('gmo.reserve.start', {token: token}));
+                // ここで予約番号発行
+                reservationModel.paymentNo = Util.createPaymentNo();
+
+                // 予約プロセス固有のログファイルをセット
+                this.setProcessLogger(reservationModel.paymentNo, () => {
+                    this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
+
+
+                    // いったん全情報をDBに保存
+                    let promises = [];
+                    let reservationDocuments4update = reservationModel.toReservationDocuments();
+                    for (let reservationDocument4update of reservationDocuments4update) {
+                        promises.push(new Promise((resolve, reject) => {
+
+                            this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
+                            Models.Reservation.findOneAndUpdate(
+                                {
+                                    _id: reservationDocument4update['_id'],
+                                },
+                                reservationDocument4update,
+                            (err, reservationDocument) => {
+                                this.logger.info('STATUS_TEMPORARY to STATUS_RESERVED processed.', err, reservationDocument);
+
+                                if (err) {
+                                    // TODO ログ出力
+                                    reject();
+
+                                } else {
+                                    resolve();
+
+                                }
+
+                            });
+
+                        }));
+                    };
+
+                    Promise.all(promises).then(() => {
+                        reservationModel.save((err) => {
+                            this.logger.info('starting GMO payment...');
+                            this.res.redirect(this.router.build('gmo.reserve.start', {token: token}));
+
+                        });
+
+                    }, (err) => {
+                        this.res.render('customer/reserve/confirm', {
+                            reservationModel: reservationModel,
+                            ReservationUtil: ReservationUtil
+                        });
+
+                    });
+
+                });
+
             } else {
                 this.res.render('customer/reserve/confirm', {
                     reservationModel: reservationModel,
                     ReservationUtil: ReservationUtil
                 });
+
             }
         });
     }
 
     public waitingSettlement(): void {
-        let token = this.req.params.token;
-        ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
+        let paymentNo = this.req.params.paymentNo;
+        Models.Reservation.find({payment_no: paymentNo}, (err, reservationDocuments) => {
+            if (err) {
+                // TODO
+
             }
 
             this.res.render('customer/reserve/waitingSettlement', {
-                reservationModel: reservationModel,
+                reservationDocuments: reservationDocuments
             });
+
         });
     }
 
     public complete(): void {
-        let token = this.req.params.token;
-        ReservationResultModel.find(token, (err, reservationResultModel) => {
-            if (err || reservationResultModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
+        let paymentNo = this.req.params.paymentNo;
+        Models.Reservation.find({payment_no: paymentNo}, (err, reservationDocuments) => {
+            if (err) {
+                // TODO
+
             }
 
             this.res.render('customer/reserve/complete', {
-                reservationResultModel: reservationResultModel
+                reservationDocuments: reservationDocuments
             });
+
         });
     }
 }

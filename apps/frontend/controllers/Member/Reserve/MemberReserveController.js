@@ -86,14 +86,12 @@ class MemberReserveController extends ReserveBaseController_1.default {
                         for (let reservationDocument of reservationDocuments) {
                             reservationModel.reservationIds.push(reservationDocument.get('_id'));
                             reservationModel.setReservation(reservationDocument.get('_id'), {
-                                token: token,
                                 _id: reservationDocument.get('_id'),
                                 status: reservationDocument.get('status'),
                                 seat_code: reservationDocument.get('seat_code'),
                                 seat_grade_name: reservationDocument.get('seat_grade_name'),
                                 seat_grade_name_en: reservationDocument.get('seat_grade_name_en'),
                                 seat_grade_additional_charge: reservationDocument.get('seat_grade_additional_charge'),
-                                performance: this.memberUser.get('performance'),
                             });
                         }
                         // パフォーマンスと座席指定した状態で券種選択へ

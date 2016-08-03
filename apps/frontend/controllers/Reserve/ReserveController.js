@@ -3,7 +3,6 @@ const ReserveBaseController_1 = require('../ReserveBaseController');
 const Models_1 = require('../../../common/models/Models');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const ReservationModel_1 = require('../../models/Reserve/ReservationModel');
-const ReservationResultModel_1 = require('../../models/Reserve/ReservationResultModel');
 class ReserveController extends ReserveBaseController_1.default {
     /**
      * 座席の状態を取得する
@@ -99,60 +98,26 @@ class ReserveController extends ReserveBaseController_1.default {
      * create barcode by reservation token and reservation id.
      */
     barcode() {
-        let token = this.req.params.token;
         let reservationId = this.req.params.reservationId;
-        // getting reservation document from redis by reservationId...
-        ReservationResultModel_1.default.find(token, (err, reservationResultModel) => {
-            if (err || reservationResultModel === null) {
-                return this.res.send('false');
+        ReservationUtil_1.default.createBarcode(reservationId, (err, png) => {
+            if (err) {
+                this.res.send('false');
             }
-            let reservation;
-            for (let reservedDocument of reservationResultModel.reservedDocuments) {
-                if (reservedDocument._id == reservationId) {
-                    reservation = reservedDocument;
-                    break;
-                }
+            else {
+                // `png` is a Buffer
+                this.res.setHeader('Content-Type', 'image/png');
+                this.res.send(png);
             }
-            if (!reservation) {
-                return this.res.send('false');
-            }
-            ReservationUtil_1.default.createBarcode(reservation._id, (err, png) => {
-                if (err) {
-                    this.res.send('false');
-                }
-                else {
-                    // `png` is a Buffer
-                    this.res.setHeader('Content-Type', 'image/png');
-                    this.res.send(png);
-                }
-            });
         });
     }
     /**
      * create qrcode by reservation token and reservation id.
      */
     qrcode() {
-        let token = this.req.params.token;
         let reservationId = this.req.params.reservationId;
-        // getting reservation document from redis by reservationId...
-        ReservationResultModel_1.default.find(token, (err, reservationResultModel) => {
-            if (err || reservationResultModel === null) {
-                return this.res.send('false');
-            }
-            let reservation;
-            for (let reservedDocument of reservationResultModel.reservedDocuments) {
-                if (reservedDocument._id == reservationId) {
-                    reservation = reservedDocument;
-                    break;
-                }
-            }
-            if (!reservation) {
-                return this.res.send('false');
-            }
-            let png = ReservationUtil_1.default.createQRCode(reservation._id);
-            this.res.setHeader('Content-Type', 'image/png');
-            this.res.send(png);
-        });
+        let png = ReservationUtil_1.default.createQRCode(reservationId);
+        this.res.setHeader('Content-Type', 'image/png');
+        this.res.send(png);
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

@@ -72,25 +72,33 @@ class ReservationModel {
     /**
      * 合計金額を算出する
      */
-    getTotalPrice() {
+    getTotalCharge() {
         let total = 0;
         if (Array.isArray(this.reservationIds) && this.reservationIds.length > 0) {
-            this.reservationIds.forEach((reservationId, index) => {
-                let reservation = this.getReservation(reservationId);
-                if (reservation.ticket_type_charge) {
-                    total += reservation.ticket_type_charge;
-                    // 座席グレード分加算
-                    if (reservation.seat_grade_additional_charge > 0) {
-                        total += reservation.seat_grade_additional_charge;
-                    }
-                    // MX4D分加算
-                    if (this.performance.is_mx4d) {
-                        total += 200;
-                    }
-                }
+            this.reservationIds.forEach((reservationId) => {
+                total += this.getChargeByReservationId(reservationId);
             });
         }
         return total;
+    }
+    /**
+     * 座席単体の料金を算出する
+     */
+    getChargeByReservationId(reservationId) {
+        let charge = 0;
+        let reservation = this.getReservation(reservationId);
+        if (reservation.ticket_type_charge) {
+            charge += reservation.ticket_type_charge;
+            // 座席グレード分加算
+            if (reservation.seat_grade_additional_charge > 0) {
+                charge += reservation.seat_grade_additional_charge;
+            }
+            // MX4D分加算
+            if (this.performance.is_mx4d) {
+                charge += ReservationUtil_1.default.CHARGE_MX4D;
+            }
+        }
+        return charge;
     }
     /**
      * 仮予約中の座席コードリストを取得する
@@ -116,30 +124,52 @@ class ReservationModel {
      */
     toReservationDocuments() {
         let documents = [];
+        let totalCharge = this.getTotalCharge();
+        // 購入者区分
+        let purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER;
+        if (this.member) {
+            purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_MEMBER;
+        }
+        else if (this.sponsor) {
+            purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_SPONROR;
+        }
+        else if (this.staff) {
+            purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_STAFF;
+        }
         this.reservationIds.forEach((reservationId, index) => {
             let reservation = this.getReservation(reservationId);
             documents.push({
+                // TODO 配布先更新日を追加
+                // TODO 金額系の税込みと消費税と両方
+                // TODO 決済方法(現金、クレジット、コンビニ、、、)
+                _id: reservationId,
+                total_charge: totalCharge,
+                charge: this.getChargeByReservationId(reservationId),
                 payment_no: this.paymentNo,
-                status: ReservationUtil_1.default.STATUS_RESERVED,
+                purchaser_group: purchaserGroup,
                 performance: this.performance._id,
                 performance_day: this.performance.day,
                 performance_start_time: this.performance.start_time,
                 performance_end_time: this.performance.end_time,
                 theater: this.performance.theater._id,
                 theater_name: this.performance.theater.name,
+                theater_name_en: this.performance.theater.name_en,
                 screen: this.performance.screen._id,
                 screen_name: this.performance.screen.name,
+                screen_name_en: this.performance.screen.name_en,
                 film: this.performance.film._id,
                 film_name: this.performance.film.name,
-                purchaser_last_name: this.profile.last_name,
-                purchaser_first_name: this.profile.first_name,
-                purchaser_email: this.profile.email,
-                purchaser_tel: this.profile.tel,
+                film_name_en: this.performance.film.name_en,
+                purchaser_last_name: (this.profile) ? this.profile.last_name : null,
+                purchaser_first_name: (this.profile) ? this.profile.first_name : null,
+                purchaser_email: (this.profile) ? this.profile.email : null,
+                purchaser_tel: (this.profile) ? this.profile.tel : null,
                 ticket_type_code: reservation.ticket_type_code,
                 ticket_type_name: reservation.ticket_type_name,
                 ticket_type_name_en: reservation.ticket_type_name_en,
                 ticket_type_charge: reservation.ticket_type_charge,
                 watcher_name: reservation.watcher_name,
+                mvtk_kiin_cd: (this.mvtkMemberInfoResult) ? this.mvtkMemberInfoResult.kiinCd : null,
                 member: (this.member) ? this.member._id : null,
                 member_user_id: (this.member) ? this.member.user_id : null,
                 sponsor: (this.sponsor) ? this.sponsor._id : null,
@@ -153,8 +183,7 @@ class ReservationModel {
                 staff_department_name: (this.staff) ? this.staff.department_name : null,
                 staff_tel: (this.staff) ? this.staff.tel : null,
                 staff_signature: (this.staff) ? this.staff.signature : null,
-                created_user: this.constructor.toString(),
-                updated_user: this.constructor.toString(),
+                updated_user: 'ReservationModel'
             });
         });
         return documents;

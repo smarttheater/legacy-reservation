@@ -337,7 +337,6 @@ export default class ReserveBaseController extends BaseController {
                                         seat_grade_name: reservationDocument.get('seat_grade_name'),
                                         seat_grade_name_en: reservationDocument.get('seat_grade_name_en'),
                                         seat_grade_additional_charge: reservationDocument.get('seat_grade_additional_charge'),
-                                        performance: reservationDocument.get('performance')
                                     });
                                 }
                             }
@@ -372,70 +371,17 @@ export default class ReserveBaseController extends BaseController {
         reservationModel.reservedDocuments = [];
 
         let promises = [];
-        reservationModel.reservationIds.forEach((reservationId, index) => {
-            let reservation = reservationModel.getReservation(reservationId);
+        let reservationDocuments4update = reservationModel.toReservationDocuments();
+        reservationDocuments4update.forEach((reservationDocument4update, index) => {
 
             promises.push(new Promise((resolve, reject) => {
 
-                this.logger.info('updating reservation status to STATUS_RESERVED..._id:', reservationId);
+                this.logger.info('updating reservation status to STATUS_RESERVED..._id:', reservationDocument4update['_id']);
                 Models.Reservation.findOneAndUpdate(
                     {
-                        _id: reservationId,
+                        _id: reservationDocument4update['_id'],
                     },
-                    {
-                        // TODO 配布先、署名、配布先更新日を追加
-                        // TODO 決済金額券種の合計席別の券種の金額(税込みと消費税と両方)
-                        // TODO 購入者区分 決済方法(現金、クレジット、コンビニ、、、)
-
-                        payment_no: reservationModel.paymentNo,
-                        status: ReservationUtil.STATUS_RESERVED,
-                        performance: reservationModel.performance._id,
-                        performance_day: reservationModel.performance.day,
-                        performance_start_time: reservationModel.performance.start_time,
-                        performance_end_time: reservationModel.performance.end_time,
-
-                        theater: reservationModel.performance.theater._id,
-                        theater_name: reservationModel.performance.theater.name,
-                        theater_name_en: reservationModel.performance.theater.name_en,
-                        screen: reservationModel.performance.screen._id,
-                        screen_name: reservationModel.performance.screen.name,
-                        screen_name_en: reservationModel.performance.screen.name_en,
-                        film: reservationModel.performance.film._id,
-                        film_name: reservationModel.performance.film.name,
-                        film_name_en: reservationModel.performance.film.name_en,
-
-                        purchaser_last_name: (reservationModel.profile) ? reservationModel.profile.last_name : null,
-                        purchaser_first_name: (reservationModel.profile) ? reservationModel.profile.first_name : null,
-                        purchaser_email: (reservationModel.profile) ? reservationModel.profile.email : null,
-                        purchaser_tel: (reservationModel.profile) ? reservationModel.profile.tel : null,
-
-                        ticket_type_code: reservation.ticket_type_code,
-                        ticket_type_name: reservation.ticket_type_name,
-                        ticket_type_name_en: reservation.ticket_type_name_en,
-                        ticket_type_charge: reservation.ticket_type_charge,
-
-                        watcher_name: reservation.watcher_name,
-
-                        mvtk_kiin_cd: (reservationModel.mvtkMemberInfoResult) ? reservationModel.mvtkMemberInfoResult.kiinCd : null,
-
-                        member: (reservationModel.member) ? reservationModel.member._id : null,
-                        member_user_id: (reservationModel.member) ? reservationModel.member.user_id : null,
-
-                        sponsor: (reservationModel.sponsor) ? reservationModel.sponsor._id : null,
-                        sponsor_user_id: (reservationModel.sponsor) ? reservationModel.sponsor.user_id : null,
-                        sponsor_name: (reservationModel.sponsor) ? reservationModel.sponsor.name : null,
-                        sponsor_email: (reservationModel.sponsor) ? reservationModel.sponsor.email : null,
-
-                        staff: (reservationModel.staff) ? reservationModel.staff._id : null,
-                        staff_user_id: (reservationModel.staff) ? reservationModel.staff.user_id : null,
-                        staff_name: (reservationModel.staff) ? reservationModel.staff.name : null,
-                        staff_email: (reservationModel.staff) ? reservationModel.staff.email : null,
-                        staff_department_name: (reservationModel.staff) ? reservationModel.staff.department_name : null,
-                        staff_tel: (reservationModel.staff) ? reservationModel.staff.tel : null,
-                        staff_signature: (reservationModel.staff) ? reservationModel.staff.signature : null,
-
-                        updated_user: this.constructor.toString(),
-                    },
+                    reservationDocument4update,
                     {
                         new: true
                     },
@@ -501,7 +447,7 @@ export default class ReserveBaseController extends BaseController {
      * 
      * @param {string} paymentNo 予約番号
      */
-    protected setProcessLogger(paymentNo: string, cb: () => any) {
+    protected setProcessLogger(paymentNo: string, cb: () => void) {
         let env = process.env.NODE_ENV || 'dev';
         let moment = require('moment');
         let logDir = `${__dirname}/../../../logs/${env}/frontend/reserve/${moment().format('YYYYMMDD')}`;

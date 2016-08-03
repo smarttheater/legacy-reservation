@@ -7,14 +7,14 @@
         <dl class="dl-horizontal">
             <dt><%- __('Label.FilmName') %></dt>
             <dd>
-                <%- reservationModel.performance.film[__('DocumentField.name')] %>
+                <%- reservationDocuments[0].get(`film_${__('DocumentField.name')}`) %>
             </dd>
 
             <dt><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></dt>
             <dd>
-                <%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ 
-                <%- reservationModel.performance.theater[__('DocumentField.name')] %> 
-                <%- reservationModel.performance.screen[__('DocumentField.name')] %>
+                <%- reservationDocuments[0].performance_day %> <%- reservationDocuments[0].performance_start_time %> ～ 
+                <%- reservationDocuments[0].get(`theater_${__('DocumentField.name')}`) %> 
+                <%- reservationDocuments[0].get(`screen_${__('DocumentField.name')}`) %>
             </dd>
 
             <dt><%- __('Label.SeatCode') %></dt>
@@ -23,10 +23,9 @@
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <tbody>
-                            <% reservationModel.reservationIds.forEach((reservationId, index) => { %>
-                            <% let reservation = reservationModel.getReservation(reservationId) %>
+                            <% reservationDocuments.forEach((reservation, index) => { %>
                             <tr>
-                                <td><a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a></td>
+                                <td><a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservation.screen %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a></td>
                             </tr>
                             <% }) %>
 

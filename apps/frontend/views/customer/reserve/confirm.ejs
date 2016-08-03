@@ -32,7 +32,7 @@
             <%- (reservation.seat_grade_additional_charge > 0) ? `[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_${__('DocumentField.name')}`]})]` : '' %>
             <br>
             <% }) %><br>
-            <strong><%- __('Label.TotalPrice') %>:<%- __('{{price}} yen', {price: reservationModel.getTotalPrice()}) %></strong>
+            <strong><%- __('Label.TotalPrice') %>:<%- __('{{price}} yen', {price: reservationModel.getTotalCharge()}) %></strong>
         </dd>
 
     </dl>

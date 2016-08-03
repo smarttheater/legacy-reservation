@@ -1,0 +1,19 @@
+{
+    "storage_account_name": "devtiffstorage",
+    "storage_account_key": "bED6gjMShYo0RSIiXK4kCbtTIiX0nIr414+GckwED2DKDEBKk6GeSnbRl64f/Be8djV1E1PDXFfjzSSrRNamUA==",
+
+    "redis_host": "devtiffredis.redis.cache.windows.net",
+    "redis_port": "6379",
+    "redis_key": "WAmLeJlJrH3TPhF5CIdb6Zr6cxaqgTQtKY/OjjWX7Wg=",
+
+    "mongolab_uri": "mongodb://pretiffmlabmongodbuser:QiiaJ7zCjMAQhyaXtfBNMky9uJSDHBz4AfndP62ziz7a@ds042729.mlab.com:42729/pretiffmlabmongodb",
+
+    "sendgrid_username": "azure_debf4fb72943203af5c20a96a96e0678@azure.com",
+    "sendgrid_password": "b-CyFAiJ2Pmb",
+
+    "gmo_payment_shop_id": "tshop00024015",
+    "gmo_payment_shop_password": "hf3wsuyy",
+
+    "mvtk_wcf_endpoint": "https://ssl.movieticket.jp",
+    "mvtk_wcf2_endpoint": "https://testservices.movieticket.jp"
+}

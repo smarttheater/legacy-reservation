@@ -5,10 +5,10 @@ const reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerforma
 const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
 const reserveTicketForm_1 = require('../../../forms/Reserve/reserveTicketForm');
 const reserveProfileForm_1 = require('../../../forms/Reserve/reserveProfileForm');
+const Models_1 = require('../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
-const ReservationResultModel_1 = require('../../../models/Reserve/ReservationResultModel');
 class CustomerReserveController extends ReserveBaseController_1.default {
     /**
      * スケジュール選択
@@ -233,7 +233,44 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             }
             this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (this.req.method === 'POST') {
-                this.res.redirect(this.router.build('gmo.reserve.start', { token: token }));
+                // ここで予約番号発行
+                reservationModel.paymentNo = Util_1.default.createPaymentNo();
+                // 予約プロセス固有のログファイルをセット
+                this.setProcessLogger(reservationModel.paymentNo, () => {
+                    this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
+                    // いったん全情報をDBに保存
+                    let promises = [];
+                    let reservationDocuments4update = reservationModel.toReservationDocuments();
+                    for (let reservationDocument4update of reservationDocuments4update) {
+                        promises.push(new Promise((resolve, reject) => {
+                            this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
+                            Models_1.default.Reservation.findOneAndUpdate({
+                                _id: reservationDocument4update['_id'],
+                            }, reservationDocument4update, (err, reservationDocument) => {
+                                this.logger.info('STATUS_TEMPORARY to STATUS_RESERVED processed.', err, reservationDocument);
+                                if (err) {
+                                    // TODO ログ出力
+                                    reject();
+                                }
+                                else {
+                                    resolve();
+                                }
+                            });
+                        }));
+                    }
+                    ;
+                    Promise.all(promises).then(() => {
+                        reservationModel.save((err) => {
+                            this.logger.info('starting GMO payment...');
+                            this.res.redirect(this.router.build('gmo.reserve.start', { token: token }));
+                        });
+                    }, (err) => {
+                        this.res.render('customer/reserve/confirm', {
+                            reservationModel: reservationModel,
+                            ReservationUtil: ReservationUtil_1.default
+                        });
+                    });
+                });
             }
             else {
                 this.res.render('customer/reserve/confirm', {
@@ -244,24 +281,22 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         });
     }
     waitingSettlement() {
-        let token = this.req.params.token;
-        ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
+        let paymentNo = this.req.params.paymentNo;
+        Models_1.default.Reservation.find({ payment_no: paymentNo }, (err, reservationDocuments) => {
+            if (err) {
             }
             this.res.render('customer/reserve/waitingSettlement', {
-                reservationModel: reservationModel,
+                reservationDocuments: reservationDocuments
             });
         });
     }
     complete() {
-        let token = this.req.params.token;
-        ReservationResultModel_1.default.find(token, (err, reservationResultModel) => {
-            if (err || reservationResultModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
+        let paymentNo = this.req.params.paymentNo;
+        Models_1.default.Reservation.find({ payment_no: paymentNo }, (err, reservationDocuments) => {
+            if (err) {
             }
             this.res.render('customer/reserve/complete', {
-                reservationResultModel: reservationResultModel
+                reservationDocuments: reservationDocuments
             });
         });
     }
