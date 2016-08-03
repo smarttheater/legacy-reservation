@@ -21,6 +21,14 @@ export default class SponsorUser extends BaseUser {
 
     public static AUTH_SESSION_NAME = 'TIFFFrontendSponsorAuth';
 
+    /** 購入フロー中のプロフィール */
+    public profile: {
+        last_name: string,
+        first_name: string,
+        tel: string,
+        email: string
+    };
+
     public initialize(session: Express.Session): void {
         let sessionName = SponsorUser.AUTH_SESSION_NAME;
 

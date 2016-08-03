@@ -17,8 +17,7 @@
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <tbody>
-                            <% reservationModel.reservationIds.forEach((reservationId, index) => { %>
-                            <% let reservation = reservationModel.getReservation(reservationId) %>
+                            <% reservationDocuments.forEach((reservation, index) => { %>
                             <tr>
                                 <td><a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a></td>
                             </tr>

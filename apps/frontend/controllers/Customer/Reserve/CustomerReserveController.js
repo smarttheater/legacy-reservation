@@ -246,8 +246,10 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                             this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
                             Models_1.default.Reservation.findOneAndUpdate({
                                 _id: reservationDocument4update['_id'],
-                            }, reservationDocument4update, (err, reservationDocument) => {
-                                this.logger.info('STATUS_TEMPORARY to STATUS_RESERVED processed.', err, reservationDocument);
+                            }, reservationDocument4update, {
+                                new: true
+                            }, (err, reservationDocument) => {
+                                this.logger.info('reservation updated.', err, reservationDocument);
                                 if (err) {
                                     // TODO ログ出力
                                     reject();
@@ -280,26 +282,38 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             }
         });
     }
+    /**
+     * 仮予約完了
+     */
     waitingSettlement() {
         let paymentNo = this.req.params.paymentNo;
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
-            status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT
+            status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
+            mvtk_kiin_cd: this.mvtkUser.memberInfoResult.kiinCd
         }, (err, reservationDocuments) => {
-            if (err) {
+            if (err || reservationDocuments.length < 1) {
+                // TODO
+                return this.next(new Error('invalid access.'));
             }
             this.res.render('customer/reserve/waitingSettlement', {
                 reservationDocuments: reservationDocuments
             });
         });
     }
+    /**
+     * 予約完了
+     */
     complete() {
         let paymentNo = this.req.params.paymentNo;
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
-            status: ReservationUtil_1.default.STATUS_RESERVED
+            status: ReservationUtil_1.default.STATUS_RESERVED,
+            mvtk_kiin_cd: this.mvtkUser.memberInfoResult.kiinCd
         }, (err, reservationDocuments) => {
-            if (err) {
+            if (err || reservationDocuments.length < 1) {
+                // TODO
+                return this.next(new Error('invalid access.'));
             }
             this.res.render('customer/reserve/complete', {
                 reservationDocuments: reservationDocuments

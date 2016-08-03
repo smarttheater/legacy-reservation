@@ -137,8 +137,7 @@ exports.default = (app) => {
     app.all('/staff/reserve/:token/seats', 'staff.reserve.seats', staffBase, authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).seats(); });
     app.all('/staff/reserve/:token/tickets', 'staff.reserve.tickets', staffBase, authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).tickets(); });
     app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', staffBase, authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).confirm(); });
-    app.get('/staff/reserve/:token/process', 'staff.reserve.process', staffBase, authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).process(); });
-    app.get('/staff/reserve/:token/complete', 'staff.reserve.complete', staffBase, authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).complete(); });
+    app.get('/staff/reserve/:paymentNo/complete', 'staff.reserve.complete', staffBase, authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).complete(); });
     app.post('/staff/cancel/execute', 'staff.cancel.execute', staffBase, authenticationStaff, (req, res, next) => { (new StaffCancelController_1.default(req, res, next)).execute(); });
     let sponsorBase = (req, res, next) => {
         req.setLocale('en');
@@ -155,8 +154,7 @@ exports.default = (app) => {
     app.all('/sponsor/reserve/:token/tickets', 'sponsor.reserve.tickets', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).tickets(); });
     app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).profile(); });
     app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).confirm(); });
-    app.get('/sponsor/reserve/:token/process', 'sponsor.reserve.process', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).process(); });
-    app.get('/sponsor/reserve/:token/complete', 'sponsor.reserve.complete', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).complete(); });
+    app.get('/sponsor/reserve/:paymentNo/complete', 'sponsor.reserve.complete', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).complete(); });
     app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', authenticationSponsor, sponsorBase, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).execute(); });
     // TODO 当日窓口フロー
     // 当日の場合、スケジュール選択候補は、検索条件通り全て出す

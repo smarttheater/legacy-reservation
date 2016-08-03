@@ -258,63 +258,6 @@ class ReserveBaseController extends BaseController_1.default {
         }
     }
     /**
-     * 予約全体をFIXするプロセス
-     * TODO 予約失敗したら全てキャンセル
-     */
-    processFixAll(reservationModel, cb) {
-        reservationModel.reservedDocuments = [];
-        let promises = [];
-        let reservationDocuments4update = reservationModel.toReservationDocuments();
-        reservationDocuments4update.forEach((reservationDocument4update, index) => {
-            promises.push(new Promise((resolve, reject) => {
-                this.logger.info('updating reservation status to STATUS_RESERVED..._id:', reservationDocument4update['_id']);
-                Models_1.default.Reservation.findOneAndUpdate({
-                    _id: reservationDocument4update['_id'],
-                }, reservationDocument4update, {
-                    new: true
-                }, (err, reservationDocument) => {
-                    this.logger.info('STATUS_TEMPORARY to STATUS_RESERVED processed.', err, reservationDocument);
-                    if (err) {
-                    }
-                    else {
-                        // ステータス更新に成功したらリストに追加
-                        reservationModel.reservedDocuments.push(reservationDocument);
-                        resolve();
-                    }
-                });
-            }));
-        });
-        Promise.all(promises).then(() => {
-            this.logger.info('fix all success.');
-            // メール送信
-            let to;
-            if (reservationModel.staff) {
-                to = reservationModel.staff.email;
-            }
-            else if (reservationModel.sponsor) {
-                to = reservationModel.sponsor.email;
-            }
-            else if (reservationModel.profile) {
-                to = reservationModel.profile.email;
-            }
-            else {
-            }
-            if (to) {
-                this.sendCompleteEmail(to, reservationModel.reservedDocuments, (err, json) => {
-                    if (err) {
-                    }
-                    cb(null, reservationModel);
-                });
-            }
-            else {
-                cb(null, reservationModel);
-            }
-        }, (err) => {
-            this.logger.error('fix all failure.', err);
-            cb(err, reservationModel);
-        });
-    }
-    /**
      * 予約プロセス用のロガーを設定する
      * 1決済管理番号につき、1ログファイル
      *

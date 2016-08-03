@@ -1,22 +1,14 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import MvtkUser from '../../../models/User/MvtkUser';
 import Util from '../../../../common/Util/Util';
-import reserveTermsForm from '../../../forms/Reserve/reserveTermsForm';
 import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
 import reserveTicketForm from '../../../forms/Reserve/reserveTicketForm';
 import reserveProfileForm from '../../../forms/Reserve/reserveProfileForm';
-
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
-
 import ReservationModel from '../../../models/Reserve/ReservationModel';
-import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
-
-import moment = require('moment');
-import crypto = require('crypto');
-import mvtkService = require('@motionpicture/mvtk-service');
 
 export default class CustomerReserveController extends ReserveBaseController {
     /**
@@ -309,8 +301,11 @@ export default class CustomerReserveController extends ReserveBaseController {
                                     _id: reservationDocument4update['_id'],
                                 },
                                 reservationDocument4update,
+                                {
+                                    new: true
+                                },
                             (err, reservationDocument) => {
-                                this.logger.info('STATUS_TEMPORARY to STATUS_RESERVED processed.', err, reservationDocument);
+                                this.logger.info('reservation updated.', err, reservationDocument);
 
                                 if (err) {
                                     // TODO ログ出力
@@ -353,16 +348,21 @@ export default class CustomerReserveController extends ReserveBaseController {
         });
     }
 
+    /**
+     * 仮予約完了
+     */
     public waitingSettlement(): void {
         let paymentNo = this.req.params.paymentNo;
         Models.Reservation.find(
             {
                 payment_no: paymentNo,
-                status: ReservationUtil.STATUS_WAITING_SETTLEMENT
+                status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
+                mvtk_kiin_cd: this.mvtkUser.memberInfoResult.kiinCd
             },
         (err, reservationDocuments) => {
-            if (err) {
+            if (err || reservationDocuments.length < 1) {
                 // TODO
+                return this.next(new Error('invalid access.'));
 
             }
 
@@ -373,16 +373,21 @@ export default class CustomerReserveController extends ReserveBaseController {
         });
     }
 
+    /**
+     * 予約完了
+     */
     public complete(): void {
         let paymentNo = this.req.params.paymentNo;
         Models.Reservation.find(
             {
                 payment_no: paymentNo,
-                status: ReservationUtil.STATUS_RESERVED
+                status: ReservationUtil.STATUS_RESERVED,
+                mvtk_kiin_cd: this.mvtkUser.memberInfoResult.kiinCd
             },
         (err, reservationDocuments) => {
-            if (err) {
+            if (err || reservationDocuments.length < 1) {
                 // TODO
+                return this.next(new Error('invalid access.'));
 
             }
 

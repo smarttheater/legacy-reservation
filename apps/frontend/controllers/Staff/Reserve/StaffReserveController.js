@@ -5,9 +5,9 @@ const reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerforma
 const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
 const reserveTicketForm_1 = require('../../../forms/Reserve/reserveTicketForm');
 const Models_1 = require('../../../../common/models/Models');
+const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
-const ReservationResultModel_1 = require('../../../models/Reserve/ReservationResultModel');
 class StaffReserveController extends ReserveBaseController_1.default {
     start() {
         // 予約トークンを発行
@@ -193,7 +193,47 @@ class StaffReserveController extends ReserveBaseController_1.default {
             }
             this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (this.req.method === 'POST') {
-                this.res.redirect(this.router.build('staff.reserve.process', { token: token }));
+                // ここで予約番号発行
+                reservationModel.paymentNo = Util_1.default.createPaymentNo();
+                // 予約プロセス固有のログファイルをセット
+                this.setProcessLogger(reservationModel.paymentNo, () => {
+                    this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
+                    let promises = [];
+                    let reservationDocuments4update = reservationModel.toReservationDocuments();
+                    for (let reservationDocument4update of reservationDocuments4update) {
+                        promises.push(new Promise((resolve, reject) => {
+                            // 予約完了
+                            reservationDocument4update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
+                            this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
+                            Models_1.default.Reservation.findOneAndUpdate({
+                                _id: reservationDocument4update['_id'],
+                            }, reservationDocument4update, {
+                                new: true
+                            }, (err, reservationDocument) => {
+                                this.logger.info('reservation updated.', err, reservationDocument);
+                                if (err) {
+                                    // TODO ログ出力
+                                    reject();
+                                }
+                                else {
+                                    resolve();
+                                }
+                            });
+                        }));
+                    }
+                    ;
+                    Promise.all(promises).then(() => {
+                        reservationModel.remove((err) => {
+                            this.logger.info('redirecting to complete...');
+                            this.res.redirect(this.router.build('staff.reserve.complete', { paymentNo: reservationModel.paymentNo }));
+                        });
+                    }, (err) => {
+                        this.res.render('staff/reserve/confirm', {
+                            layout: 'layouts/staff/layout',
+                            reservationModel: reservationModel
+                        });
+                    });
+                });
             }
             else {
                 this.res.render('staff/reserve/confirm', {
@@ -203,64 +243,20 @@ class StaffReserveController extends ReserveBaseController_1.default {
             }
         });
     }
-    process() {
-        let token = this.req.params.token;
-        ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
-            this.logger.debug('reservationModel is ', reservationModel.toLog());
-            if (this.req.method === 'POST') {
-            }
-            else {
-                // 予約情報セッション削除
-                this.logger.debug('removing reservationModel... ', reservationModel);
-                reservationModel.remove(() => {
-                    if (err) {
-                    }
-                    else {
-                        // ここで予約番号発行
-                        reservationModel.paymentNo = Util_1.default.createPaymentNo();
-                        // 予約プロセス固有のログファイルをセット
-                        this.setProcessLogger(reservationModel.paymentNo, () => {
-                            this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
-                            this.logger.info('fixing all...');
-                            this.processFixAll(reservationModel, (err, reservationModel) => {
-                                if (err) {
-                                    // TODO 万が一の対応どうするか
-                                    this.next(err);
-                                }
-                                else {
-                                    // TODO 予約できていない在庫があった場合
-                                    if (reservationModel.reservationIds.length > reservationModel.reservedDocuments.length) {
-                                        this.res.redirect(this.router.build('staff.reserve.confirm', { token: token }));
-                                    }
-                                    else {
-                                        // 予約結果セッションを保存して、完了画面へ
-                                        let reservationResultModel = reservationModel.toReservationResult();
-                                        this.logger.info('saving reservationResult...', reservationResultModel.toLog());
-                                        reservationResultModel.save((err) => {
-                                            this.logger.info('redirecting to complete...');
-                                            this.res.redirect(this.router.build('staff.reserve.complete', { token: token }));
-                                        });
-                                    }
-                                }
-                            });
-                        });
-                    }
-                });
-            }
-        });
-    }
     complete() {
-        let token = this.req.params.token;
-        ReservationResultModel_1.default.find(token, (err, reservationResultModel) => {
-            if (err || reservationResultModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
+        let paymentNo = this.req.params.paymentNo;
+        Models_1.default.Reservation.find({
+            payment_no: paymentNo,
+            status: ReservationUtil_1.default.STATUS_RESERVED,
+            staff: this.staffUser.get('_id')
+        }, (err, reservationDocuments) => {
+            if (err || reservationDocuments.length < 1) {
+                // TODO
+                return this.next(new Error('invalid access.'));
             }
             this.res.render('staff/reserve/complete', {
                 layout: 'layouts/staff/layout',
-                reservationResultModel: reservationResultModel,
+                reservationDocuments: reservationDocuments
             });
         });
     }

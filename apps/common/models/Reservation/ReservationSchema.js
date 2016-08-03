@@ -92,7 +92,7 @@ let ReservationSchema = new mongoose.Schema({
     collection: 'reservations',
     timestamps: {
         createdAt: 'created_dt',
-        updatedAt: 'updated_dt',
+        updatedAt: 'updated_dt'
     }
 });
 Object.defineProperty(exports, "__esModule", { value: true });

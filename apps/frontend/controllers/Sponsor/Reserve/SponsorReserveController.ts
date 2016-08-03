@@ -273,6 +273,15 @@ export default class SponsorReserveController extends ReserveBaseController {
 
                         this.logger.debug('saving reservationModel... ', reservationModel);
                         reservationModel.save((err) => {
+                            // ユーザーセッションにプローフィール格納
+                            this.sponsorUser.profile = {
+                                last_name: this.req.form['lastName'],
+                                first_name: this.req.form['firstName'],
+                                email: this.req.form['email'],
+                                tel: this.req.form['tel']
+                            };
+                            this.req.session[SponsorUser.AUTH_SESSION_NAME] = this.sponsorUser;
+
                             this.res.redirect(this.router.build('sponsor.reserve.confirm', {token: token}));
                         });
 
@@ -293,6 +302,17 @@ export default class SponsorReserveController extends ReserveBaseController {
                 this.res.locals.email = '';
                 this.res.locals.emailConfirm = '';
                 this.res.locals.emailConfirmDomain = '';
+
+                // ユーザーセッションに情報があれば、フォーム初期値設定
+                if (this.sponsorUser.profile) {
+                    let email = this.sponsorUser.profile.email;
+                    this.res.locals.lastName = this.sponsorUser.profile.last_name;
+                    this.res.locals.firstName = this.sponsorUser.profile.first_name;
+                    this.res.locals.tel = this.sponsorUser.profile.tel;
+                    this.res.locals.email = email;
+                    this.res.locals.emailConfirm = email.substr(0, email.indexOf('@'));
+                    this.res.locals.emailConfirmDomain = email.substr(email.indexOf('@') + 1);
+                }
 
                 // セッションに情報があれば、フォーム初期値設定
                 if (reservationModel.profile) {
@@ -328,7 +348,64 @@ export default class SponsorReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
-                this.res.redirect(this.router.build('sponsor.reserve.process', {token: token}));
+                // ここで予約番号発行
+                reservationModel.paymentNo = Util.createPaymentNo();
+
+                // 予約プロセス固有のログファイルをセット
+                this.setProcessLogger(reservationModel.paymentNo, () => {
+                    this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
+
+                    let promises = [];
+                    let reservationDocuments4update = reservationModel.toReservationDocuments();
+                    for (let reservationDocument4update of reservationDocuments4update) {
+
+                        promises.push(new Promise((resolve, reject) => {
+                            // 予約完了
+                            reservationDocument4update['status'] = ReservationUtil.STATUS_RESERVED;
+
+                            this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
+                            Models.Reservation.findOneAndUpdate(
+                                {
+                                    _id: reservationDocument4update['_id'],
+                                },
+                                reservationDocument4update,
+                                {
+                                    new: true
+                                },
+                            (err, reservationDocument) => {
+                                this.logger.info('reservation updated.', err, reservationDocument);
+
+                                if (err) {
+                                    // TODO ログ出力
+                                    reject();
+
+                                } else {
+                                    resolve();
+
+                                }
+
+                            });
+
+                        }));
+                    };
+
+                    Promise.all(promises).then(() => {
+                        reservationModel.remove((err) => {
+                            this.logger.info('redirecting to complete...');
+                            this.res.redirect(this.router.build('sponsor.reserve.complete', {paymentNo: reservationModel.paymentNo}));
+
+                        });
+
+                    }, (err) => {
+                        this.res.render('sponsor/reserve/confirm', {
+                            layout: 'layouts/sponsor/layout',
+                            reservationModel: reservationModel
+                        });
+
+                    });
+
+                });
+
             } else {
                 this.res.render('sponsor/reserve/confirm', {
                     layout: 'layouts/sponsor/layout',
@@ -338,78 +415,30 @@ export default class SponsorReserveController extends ReserveBaseController {
         });
     }
 
-    public process(): void {
-        let token = this.req.params.token;
-        ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
-
-            this.logger.debug('reservationModel is ', reservationModel.toLog());
-
-            if (this.req.method === 'POST') {
-            } else {
-                // 予約情報セッション削除
-                this.logger.debug('removing reservationModel... ', reservationModel);
-                reservationModel.remove(() => {
-                    if (err) {
-
-                    } else {
-
-                        // ここで予約番号発行
-                        reservationModel.paymentNo = Util.createPaymentNo();
-
-                        // 予約プロセス固有のログファイルをセット
-                        this.setProcessLogger(reservationModel.paymentNo, () => {
-                            this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
-                            this.logger.info('fixing all...');
-                            this.processFixAll(reservationModel, (err, reservationModel) => {
-                                if (err) {
-                                    // TODO 万が一の対応どうするか
-                                    this.next(err);
-
-                                } else {
-                                    // TODO 予約できていない在庫があった場合
-                                    if (reservationModel.reservationIds.length > reservationModel.reservedDocuments.length) {
-                                        this.res.redirect(this.router.build('sponsor.reserve.confirm', {token: token}));
-
-                                    } else {
-                                        // 予約結果セッションを保存して、完了画面へ
-                                        let reservationResultModel = reservationModel.toReservationResult();
-
-                                        this.logger.info('saving reservationResult...', reservationResultModel.toLog());
-                                        reservationResultModel.save((err) => {
-                                            this.logger.info('redirecting to complete...');
-                                            this.res.redirect(this.router.build('sponsor.reserve.complete', {token: token}));
-                                        });
-
-                                    }
-
-                                }
-                            });
-
-                        });
-
-                    }
-                });
-            }
-        });
-    }
-
     /**
      * TODO 続けて予約するボタンを追加
      */
     public complete(): void {
-        let token = this.req.params.token;
-        ReservationResultModel.find(token, (err, reservationResultModel) => {
-            if (err || reservationResultModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
+        let paymentNo = this.req.params.paymentNo;
+        Models.Reservation.find(
+            {
+                payment_no: paymentNo,
+                status: ReservationUtil.STATUS_RESERVED,
+                sponsor: this.sponsorUser.get('_id')
+            },
+        (err, reservationDocuments) => {
+            if (err || reservationDocuments.length < 1) {
+                // TODO
+                return this.next(new Error('invalid access.'));
+
             }
 
             this.res.render('sponsor/reserve/complete', {
                 layout: 'layouts/sponsor/layout',
-                reservationResultModel: reservationResultModel,
+                reservationDocuments: reservationDocuments
             });
+
         });
+
     }
 }
