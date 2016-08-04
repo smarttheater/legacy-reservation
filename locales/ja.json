@@ -34,7 +34,12 @@
 		"AllSections": "すべての部門・特集",
 		"AllGenres": "すべてのジャンル",
 		"AllDay": "すべての上映日",
-		"Tel": "電話番号"
+		"Tel": "電話番号",
+		"PaymentMethodName": {
+			"CREDIT": "Label.PaymentMethodName.CREDIT",
+			"CVS": "Label.PaymentMethodName.CVS"
+		},
+		"PaymentMethod": "Label.PaymentMethod"
 	},
 	"Button": {
 		"Send": "送信",
@@ -59,7 +64,8 @@
 			"email": "メールアドレス",
 			"emailConfirm": "メールアドレス(確認)",
 			"emailConfirmDomain": "メールアドレス(確認)ドメイン",
-			"password": "パスワード"
+			"password": "パスワード",
+			"paymentMethod": "Form.FieldName.paymentMethod"
 		}
 	},
 	"Message": {

@@ -1,6 +1,7 @@
 "use strict";
 const ReserveBaseController_1 = require('../../ReserveBaseController');
 const Util_1 = require('../../../../common/Util/Util');
+const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
 const reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerformanceForm');
 const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
 const reserveTicketForm_1 = require('../../../forms/Reserve/reserveTicketForm');
@@ -203,6 +204,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
             this.logger.debug('reservationModel is ', reservationModel.toLog());
+            this.res.locals.GMOUtil = GMOUtil_1.default;
             if (this.req.method === 'POST') {
                 let form = reserveProfileForm_1.default(this.req);
                 form(this.req, this.res, (err) => {
@@ -214,6 +216,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                             email: this.req.form['email'],
                             tel: this.req.form['tel']
                         };
+                        reservationModel.paymentMethod = this.req.form['paymentMethod'];
                         this.logger.debug('saving reservationModel... ', reservationModel);
                         reservationModel.save((err) => {
                             this.res.redirect(this.router.build('customer.reserve.confirm', { token: token }));
@@ -221,7 +224,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     }
                     else {
                         this.res.render('customer/reserve/profile', {
-                            reservationModel: reservationModel,
+                            reservationModel: reservationModel
                         });
                     }
                 });
@@ -234,6 +237,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                 this.res.locals.email = email;
                 this.res.locals.emailConfirm = email.substr(0, email.indexOf('@'));
                 this.res.locals.emailConfirmDomain = email.substr(email.indexOf('@') + 1);
+                this.res.locals.paymentMethod = GMOUtil_1.default.PAY_TYPE_CREDIT;
                 // セッションに情報があれば、フォーム初期値設定
                 if (reservationModel.profile) {
                     let email = reservationModel.profile.email;
@@ -244,8 +248,11 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     this.res.locals.emailConfirm = email.substr(0, email.indexOf('@'));
                     this.res.locals.emailConfirmDomain = email.substr(email.indexOf('@') + 1);
                 }
+                if (reservationModel.paymentMethod) {
+                    this.res.locals.paymentMethod = reservationModel.paymentMethod;
+                }
                 this.res.render('customer/reserve/profile', {
-                    reservationModel: reservationModel,
+                    reservationModel: reservationModel
                 });
             }
         });

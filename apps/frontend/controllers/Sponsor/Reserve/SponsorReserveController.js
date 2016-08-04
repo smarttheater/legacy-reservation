@@ -202,7 +202,6 @@ class SponsorReserveController extends ReserveBaseController_1.default {
     }
     /**
      * 購入者情報
-     * TODO 同セッション内では、情報を保持する
      */
     profile() {
         let token = this.req.params.token;

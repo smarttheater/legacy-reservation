@@ -9,7 +9,6 @@ const reserveProfileForm_1 = require('../../../forms/Reserve/reserveProfileForm'
 const Models_1 = require('../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
-const ReservationResultModel_1 = require('../../../models/Reserve/ReservationResultModel');
 const moment = require('moment');
 class MemberReserveController extends ReserveBaseController_1.default {
     /**
@@ -223,8 +222,6 @@ class MemberReserveController extends ReserveBaseController_1.default {
             }
             this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (this.req.method === 'POST') {
-                // force to logout
-                delete this.req.session[MemberUser_1.default.AUTH_SESSION_NAME];
                 this.res.redirect(this.router.build('gmo.reserve.start', { token: token }));
             }
             else {
@@ -249,13 +246,20 @@ class MemberReserveController extends ReserveBaseController_1.default {
      * complete reservation
      */
     complete() {
-        let token = this.req.params.token;
-        ReservationResultModel_1.default.find(token, (err, reservationResultModel) => {
-            if (err || reservationResultModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
+        let paymentNo = this.req.params.paymentNo;
+        Models_1.default.Reservation.find({
+            payment_no: paymentNo,
+            status: ReservationUtil_1.default.STATUS_RESERVED,
+            member: this.memberUser.get('_id')
+        }, (err, reservationDocuments) => {
+            if (err || reservationDocuments.length < 1) {
+                // TODO
+                return this.next(new Error('invalid access.'));
             }
+            // TODO force to logout
+            delete this.req.session[MemberUser_1.default.AUTH_SESSION_NAME];
             this.res.render('member/reserve/complete', {
-                reservationResultModel: reservationResultModel,
+                reservationDocuments: reservationDocuments
             });
         });
     }

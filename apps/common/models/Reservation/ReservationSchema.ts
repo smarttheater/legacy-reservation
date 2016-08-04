@@ -46,6 +46,8 @@ let ReservationSchema = new mongoose.Schema({
     purchaser_email: String,
     purchaser_tel: String,
 
+    payment_method: String, // 決済方法
+
     seat_code: String,
     seat_grade_name: String,
     seat_grade_name_en: String,

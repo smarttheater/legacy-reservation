@@ -231,6 +231,7 @@ class ReserveBaseController extends BaseController_1.default {
                             new: true,
                         }, (err, reservationDocument) => {
                             if (err) {
+                                reject();
                             }
                             else {
                                 if (reservationDocument) {
@@ -245,8 +246,8 @@ class ReserveBaseController extends BaseController_1.default {
                                         seat_grade_additional_charge: reservationDocument.get('seat_grade_additional_charge'),
                                     });
                                 }
+                                resolve();
                             }
-                            resolve();
                         });
                     }));
                 }

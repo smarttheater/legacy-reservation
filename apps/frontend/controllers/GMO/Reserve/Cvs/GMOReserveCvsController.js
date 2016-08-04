@@ -25,7 +25,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
         this.logger.info('finding reservations...payment_no:', gmoResultModel.OrderID);
         Models_1.default.Reservation.find({
             payment_no: gmoResultModel.OrderID,
-            status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_RESERVED] }
+            status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT] }
         }, '_id total_charge', (err, reservationDocuments) => {
             this.logger.info('reservations found.', err, reservationDocuments.length);
             if (err) {
@@ -54,7 +54,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
             this.logger.info('changing status to STATUS_WAITING_SETTLEMENT...update:', update);
             this.processChangeStatus2waitingSettlement(reservationIds, update, (err, reservationDocuments) => {
                 if (err) {
-                    // TODO 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
+                    // 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
                     this.next(new Error('failed in payment.'));
                 }
                 else {
@@ -136,7 +136,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                 this.logger.info('finding reservations...payment_no:', gmoNotificationModel.OrderID);
                 Models_1.default.Reservation.find({
                     payment_no: gmoNotificationModel.OrderID,
-                    status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_RESERVED] }
+                    status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT] }
                 }, '_id total_charge', (err, reservationDocuments) => {
                     this.logger.info('reservations found.', err, reservationDocuments.length);
                     if (err) {

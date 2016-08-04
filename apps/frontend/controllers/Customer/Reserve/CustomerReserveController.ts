@@ -1,6 +1,7 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import MvtkUser from '../../../models/User/MvtkUser';
 import Util from '../../../../common/Util/Util';
+import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
 import reserveTicketForm from '../../../forms/Reserve/reserveTicketForm';
@@ -256,6 +257,8 @@ export default class CustomerReserveController extends ReserveBaseController {
 
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
+            this.res.locals.GMOUtil = GMOUtil;
+
             if (this.req.method === 'POST') {
                 let form = reserveProfileForm(this.req);
                 form(this.req, this.res, (err) => {
@@ -268,6 +271,8 @@ export default class CustomerReserveController extends ReserveBaseController {
                             tel: this.req.form['tel']
                         };
 
+                        reservationModel.paymentMethod = this.req.form['paymentMethod'];
+
                         this.logger.debug('saving reservationModel... ', reservationModel);
                         reservationModel.save((err) => {
                             this.res.redirect(this.router.build('customer.reserve.confirm', {token: token}));
@@ -275,7 +280,7 @@ export default class CustomerReserveController extends ReserveBaseController {
 
                     } else {
                         this.res.render('customer/reserve/profile', {
-                            reservationModel: reservationModel,
+                            reservationModel: reservationModel
                         });
 
                     }
@@ -290,6 +295,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                 this.res.locals.email = email;
                 this.res.locals.emailConfirm = email.substr(0, email.indexOf('@'));
                 this.res.locals.emailConfirmDomain = email.substr(email.indexOf('@') + 1);
+                this.res.locals.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
 
                 // セッションに情報があれば、フォーム初期値設定
                 if (reservationModel.profile) {
@@ -302,8 +308,12 @@ export default class CustomerReserveController extends ReserveBaseController {
                     this.res.locals.emailConfirmDomain = email.substr(email.indexOf('@') + 1);
                 }
 
+                if (reservationModel.paymentMethod) {
+                    this.res.locals.paymentMethod = reservationModel.paymentMethod;
+                }
+
                 this.res.render('customer/reserve/profile', {
-                    reservationModel: reservationModel,
+                    reservationModel: reservationModel
                 });
 
             }

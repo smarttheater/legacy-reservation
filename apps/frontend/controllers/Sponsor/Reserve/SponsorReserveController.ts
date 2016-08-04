@@ -10,7 +10,6 @@ import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
-import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
 
 export default class SponsorReserveController extends ReserveBaseController {
     public start(): void {
@@ -247,7 +246,6 @@ export default class SponsorReserveController extends ReserveBaseController {
 
     /**
      * 購入者情報
-     * TODO 同セッション内では、情報を保持する
      */
     public profile(): void {
         let token = this.req.params.token;

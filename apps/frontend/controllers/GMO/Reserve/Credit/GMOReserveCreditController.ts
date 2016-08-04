@@ -17,8 +17,6 @@ export default class GMOReserveCreditController extends ReserveBaseController {
      * GMOからの結果受信
      */
     public result(gmoResultModel: GMOResultModel): void {
-        // TODO 支払い期限過ぎていたらキャンセル(10分？)
-
         // 予約完了ステータスへ変更
         let update = {
             gmo_shop_id: gmoResultModel.ShopID,
@@ -76,7 +74,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 this.logger.info('fixing reservations... update:', update);
                 this.processFixReservations(reservationIds, update, (err, reservationDocuments) => {
                     if (err) {
-                        // TODO 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
+                        // 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
 
                         this.next(new Error('failed in payment.'));
 
@@ -114,8 +112,6 @@ export default class GMOReserveCreditController extends ReserveBaseController {
 
         switch (gmoNotificationModel.Status) {
             case GMOUtil.STATUS_CREDIT_CAPTURE:
-                // TODO 支払い期限過ぎていたらキャンセル(10分？)
-
                 // 予約完了ステータスへ変更
                 update = {
                     gmo_shop_id: gmoNotificationModel.ShopID,

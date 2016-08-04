@@ -1,5 +1,4 @@
 "use strict";
-const ReservationResultModel_1 = require('./ReservationResultModel');
 const Util_1 = require('../../../common/Util/Util');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 /**
@@ -164,6 +163,7 @@ class ReservationModel {
                 purchaser_first_name: (this.profile) ? this.profile.first_name : null,
                 purchaser_email: (this.profile) ? this.profile.email : null,
                 purchaser_tel: (this.profile) ? this.profile.tel : null,
+                payment_method: (this.paymentMethod) ? this.paymentMethod : null,
                 ticket_type_code: reservation.ticket_type_code,
                 ticket_type_name: reservation.ticket_type_name,
                 ticket_type_name_en: reservation.ticket_type_name_en,
@@ -187,26 +187,6 @@ class ReservationModel {
             });
         });
         return documents;
-    }
-    /**
-     * 予約結果モデルへ変換
-     */
-    toReservationResult() {
-        let reservationResultModel = new ReservationResultModel_1.default();
-        reservationResultModel.token = this.token;
-        reservationResultModel.paymentNo = this.paymentNo;
-        reservationResultModel.performance = this.performance;
-        reservationResultModel.reservations = [];
-        reservationResultModel.profile = this.profile;
-        reservationResultModel.paymentMethod = this.paymentMethod;
-        reservationResultModel.member = this.member;
-        reservationResultModel.staff = this.staff;
-        reservationResultModel.sponsor = this.sponsor;
-        reservationResultModel.reservedDocuments = this.reservedDocuments;
-        this.reservationIds.forEach((reservationId, index) => {
-            reservationResultModel.reservations.push(this.getReservation(reservationId));
-        });
-        return reservationResultModel;
     }
     /**
      * ログ用の形式にする

@@ -10,7 +10,6 @@ import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 
 import ReservationModel from '../../../models/Reserve/ReservationModel';
-import ReservationResultModel from '../../../models/Reserve/ReservationResultModel';
 import moment = require('moment');
 
 export default class MemberReserveController extends ReserveBaseController {
@@ -280,9 +279,6 @@ export default class MemberReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
-                // force to logout
-                delete this.req.session[MemberUser.AUTH_SESSION_NAME];
-
                 this.res.redirect(this.router.build('gmo.reserve.start', {token: token}));
             } else {
                 this.res.render('member/reserve/confirm', {
@@ -309,15 +305,28 @@ export default class MemberReserveController extends ReserveBaseController {
      * complete reservation
      */
     public complete(): void {
-        let token = this.req.params.token;
-        ReservationResultModel.find(token, (err, reservationResultModel) => {
-            if (err || reservationResultModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
+        let paymentNo = this.req.params.paymentNo;
+        Models.Reservation.find(
+            {
+                payment_no: paymentNo,
+                status: ReservationUtil.STATUS_RESERVED,
+                member: this.memberUser.get('_id')
+            },
+        (err, reservationDocuments) => {
+            if (err || reservationDocuments.length < 1) {
+                // TODO
+                return this.next(new Error('invalid access.'));
+
             }
 
+            // TODO force to logout
+            delete this.req.session[MemberUser.AUTH_SESSION_NAME];
+
             this.res.render('member/reserve/complete', {
-                reservationResultModel: reservationResultModel,
+                reservationDocuments: reservationDocuments
             });
+
         });
+
     }
 }

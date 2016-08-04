@@ -37,6 +37,11 @@ class GMOReserveController extends ReserveBaseController_1.default {
                         this.res.locals.amount = reservationModel.getTotalCharge();
                         this.res.locals.shopPassword = conf.get('gmo_payment_shop_password');
                         this.res.locals.dateTime = moment().format('YYYYMMDDHHmmss');
+                        this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CREDIT) ? '1' : '0';
+                        this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CVS) ? '1' : '0';
+                        // TODO コンビニ決済は5日前の24時までなので、日付確定
+                        if (parseInt(moment().format('YYYYMMDD')) < 20161018) {
+                        }
                         // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
                         let md5hash = crypto.createHash('md5');
                         md5hash.update(`${this.res.locals.shopId}${this.res.locals.orderID}${this.res.locals.amount}${this.res.locals.shopPassword}${this.res.locals.dateTime}`, 'utf8');
@@ -52,7 +57,6 @@ class GMOReserveController extends ReserveBaseController_1.default {
     }
     /**
      * GMOからの結果受信
-     * TODO 決済結果チェック文字列を確認する
      */
     result() {
         let gmoResultModel = GMOResultModel_1.default.parse(this.req.body);

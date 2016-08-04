@@ -1,4 +1,3 @@
-import ReservationResultModel from './ReservationResultModel';
 import Util from '../../../common/Util/Util';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import mvtkService = require('@motionpicture/mvtk-service');
@@ -292,6 +291,8 @@ export default class ReservationModel {
                     purchaser_email: (this.profile) ? this.profile.email : null,
                     purchaser_tel: (this.profile) ? this.profile.tel : null,
 
+                    payment_method: (this.paymentMethod) ? this.paymentMethod : null,
+
                     ticket_type_code: reservation.ticket_type_code,
                     ticket_type_name: reservation.ticket_type_name,
                     ticket_type_name_en: reservation.ticket_type_name_en,
@@ -323,30 +324,6 @@ export default class ReservationModel {
         });
 
         return documents;
-    }
-
-    /**
-     * 予約結果モデルへ変換
-     */
-    public toReservationResult(): ReservationResultModel {
-        let reservationResultModel = new ReservationResultModel();
-
-        reservationResultModel.token = this.token;
-        reservationResultModel.paymentNo = this.paymentNo;
-        reservationResultModel.performance = this.performance;
-        reservationResultModel.reservations = [];
-        reservationResultModel.profile = this.profile;
-        reservationResultModel.paymentMethod = this.paymentMethod;
-        reservationResultModel.member = this.member;
-        reservationResultModel.staff = this.staff;
-        reservationResultModel.sponsor = this.sponsor;
-        reservationResultModel.reservedDocuments = this.reservedDocuments;
-
-        this.reservationIds.forEach((reservationId, index) => {
-            reservationResultModel.reservations.push(this.getReservation(reservationId));
-        });
-
-        return reservationResultModel;
     }
 
     /**

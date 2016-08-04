@@ -39,6 +39,7 @@ let ReservationSchema = new mongoose.Schema({
     purchaser_first_name: String,
     purchaser_email: String,
     purchaser_tel: String,
+    payment_method: String,
     seat_code: String,
     seat_grade_name: String,
     seat_grade_name_en: String,

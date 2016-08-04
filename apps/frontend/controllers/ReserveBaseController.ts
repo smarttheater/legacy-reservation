@@ -6,7 +6,6 @@ import ReservationUtil from '../../common/models/Reservation/ReservationUtil';
 import TicketTypeGroupUtil from '../../common/models/TicketTypeGroup/TicketTypeGroupUtil';
 
 import ReservationModel from '../models/Reserve/ReservationModel';
-import ReservationResultModel from '../models/Reserve/ReservationResultModel';
 
 import log4js = require('log4js');
 import fs = require('fs-extra');
@@ -325,7 +324,7 @@ export default class ReserveBaseController extends BaseController {
                         (err, reservationDocument) => {
 
                             if (err) {
-                                // TODO ログ出力(後で追えるように)
+                                reject();
 
                             } else {
                                 if (reservationDocument) {
@@ -340,9 +339,10 @@ export default class ReserveBaseController extends BaseController {
                                         seat_grade_additional_charge: reservationDocument.get('seat_grade_additional_charge'),
                                     });
                                 }
+
+                                resolve();
                             }
 
-                            resolve();
                         });
 
                     }));

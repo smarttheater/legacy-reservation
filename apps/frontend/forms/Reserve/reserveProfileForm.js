@@ -20,5 +20,5 @@ exports.default = (req) => {
         }
     }), form.field('emailConfirm', req.__('Form.FieldName.emailConfirm')).trim()
         .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' })), form.field('emailConfirmDomain', req.__('Form.FieldName.emailConfirmDomain')).trim()
-        .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' })));
+        .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' })), form.field('paymentMethod', req.__('Form.FieldName.paymentMethod')).trim());
 };
