@@ -363,6 +363,66 @@ export default class ReserveBaseController extends BaseController {
     }
 
     /**
+     * 購入番号から全ての予約を完了にする
+     * 
+     * @param {string} paymentNo 購入番号
+     * @param {Object} update 追加更新パラメータ
+     */
+    protected processFixReservations(paymentNo: string, update: Object, cb: (err: Error, reservationDocuments: Array<mongoose.Document>) => void): void {
+        let promises = [];
+        let reservationDocuments: Array<mongoose.Document> = [];
+        update['status'] = ReservationUtil.STATUS_RESERVED;
+        update['updated_user'] = 'GMOReserveCreditController';
+
+        // 予約完了ステータスへ変更
+        this.logger.info('finding reservations...paymentNo:', paymentNo);
+        Models.Reservation.find(
+            {
+                payment_no: paymentNo
+            },
+            '_id',
+            (err, reservationDocuments) => {
+                for (let reservationDocument of reservationDocuments) {
+                    promises.push(new Promise((resolve, reject) => {
+
+                        this.logger.info('updating reservations...update:', update);
+                        Models.Reservation.findOneAndUpdate(
+                            {
+                                _id: reservationDocument.get('_id'),
+                            },
+                            update,
+                            {
+                                new: true
+                            },
+                        (err, reservationDocument) => {
+                            this.logger.info('reservation updated.', err, reservationDocument);
+
+                            if (err) {
+                                reject();
+
+                            } else {
+                                reservationDocuments.push(reservationDocument);
+                                resolve();
+
+                            }
+
+                        });
+
+                    }));
+                };
+
+                Promise.all(promises).then(() => {
+                    cb(null, reservationDocuments);
+
+                }, (err) => {
+                    cb(err, reservationDocuments);
+
+                });
+            }
+        );
+    }
+
+    /**
      * 予約プロセス用のロガーを設定する
      * 1決済管理番号につき、1ログファイル
      * 

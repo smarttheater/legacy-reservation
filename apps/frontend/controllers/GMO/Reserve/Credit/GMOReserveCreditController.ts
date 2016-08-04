@@ -24,51 +24,35 @@ export default class GMOReserveCreditController extends ReserveBaseController {
             gmo_amount: gmoResultModel.Amount,
             gmo_tax: gmoResultModel.Tax,
             gmo_access_id: gmoResultModel.AccessID,
-            gmo_access_pass: gmoResultModel.AccessPass,
             gmo_forward: gmoResultModel.Forwarded,
             gmo_method: gmoResultModel.Method,
             gmo_approve: gmoResultModel.Approve,
             gmo_tran_id: gmoResultModel.TranID,
             gmo_tran_date: gmoResultModel.TranDate,
             gmo_pay_type: gmoResultModel.PayType,
-            gmo_status: gmoResultModel.JobCd,
-            // gmo_cvs_code: gmoResultModel.CvsCode,
-            // gmo_cvs_conf_no: gmoResultModel.CvsConfNo,
-            // gmo_cvs_receipt_no: gmoResultModel.CvsReceiptNo,
-            // gmo_cvs_receipt_url: gmoResultModel.CvsReceiptUrl,
-            status: ReservationUtil.STATUS_RESERVED,
-            updated_user: 'GMOReserveCreditController'
+            gmo_status: gmoResultModel.JobCd
         };
 
-        this.logger.info('updating resertions...update:', update);
-        Models.Reservation.update(
-            {
-                payment_no: gmoResultModel.OrderID,
-                status: ReservationUtil.STATUS_TEMPORARY
-            },
-            update,
-            {
-                multi: true
-            },
-        (err, affectedRows, raw) => {
-            this.logger.info('reservations updated.', err, affectedRows);
+        this.logger.info('fixing reservations... update:', update);
+        this.processFixReservations(gmoResultModel.OrderID, update, (err, reservationDocuments) => {
             if (err) {
-                // TODO
+                // TODO 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
+                // this.alterTran2void(gmoResultModel, (err: Error) => {
+                //     if (err) {
 
-            }
+                //     }
 
-            // TODO メール送信はバッチ通知のほうでのみやる
-            // TODO 予約できていない在庫があった場合
-            this.logger.info('redirecting to complete...');
+                //     this.logger.info('sending response RecvRes_NG...');
+                //     this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
-            // 購入者区分による振り分け
-            Models.Reservation.findOne({payment_no: gmoResultModel.OrderID}, 'purchaser_group', (err, reservationDocument) => {
-                if (err) {
-                    // TODO
+                // });
+                this.next(new Error('failed in payment.'));
 
-                }
+            } else {
+                this.logger.info('redirecting to complete...');
 
-                let group = reservationDocument.get('purchaser_group');
+                // 購入者区分による振り分け
+                let group = reservationDocuments[0].get('purchaser_group');
                 switch (group) {
                     case ReservationUtil.PURCHASER_GROUP_MEMBER:
                         this.res.redirect(this.router.build('member.reserve.complete', {paymentNo: gmoResultModel.OrderID}));
@@ -79,12 +63,12 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                         break;
 
                 }
-            });
+
+            }
 
         });
 
     }
-
 
     /**
      * GMO結果通知受信
@@ -96,6 +80,42 @@ export default class GMOReserveCreditController extends ReserveBaseController {
 
         switch (gmoNotificationModel.Status) {
             case GMOUtil.STATUS_CREDIT_CAPTURE:
+                // TODO 支払い期限過ぎていたらキャンセル(10分？)
+
+                // 予約完了ステータスへ変更
+                update = {
+                    gmo_shop_id: gmoNotificationModel.ShopID,
+                    gmo_amount: gmoNotificationModel.Amount,
+                    gmo_tax: gmoNotificationModel.Tax,
+                    gmo_access_id: gmoNotificationModel.AccessID,
+                    gmo_forward: gmoNotificationModel.Forward,
+                    gmo_method: gmoNotificationModel.Method,
+                    gmo_approve: gmoNotificationModel.Approve,
+                    gmo_tran_id: gmoNotificationModel.TranID,
+                    gmo_tran_date: gmoNotificationModel.TranDate,
+                    gmo_pay_type: gmoNotificationModel.PayType,
+                    gmo_status: gmoNotificationModel.Status
+                };
+
+                this.logger.info('fixing reservations... update:', update);
+                this.processFixReservations(paymentNo, update, (err, reservationDocuments) => {
+                    if (err) {
+                        // AccessPassが************なので、売上取消要求は行えない
+                        // 失敗した場合、約60分毎に5回再通知されるので、それをリトライとみなす
+                        this.logger.info('sending response RecvRes_NG...gmoNotificationModel.Status:', gmoNotificationModel.Status);
+                        this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                    } else {
+                        // TODO メール送信はバッチ処理？
+                        // TODO メールの送信ログ（宛先、件名、本文）を保管して下さい。出来ればBlob（受信拒否等で取れなかった場合の再送用）
+
+                        this.logger.info('sending response RecvRes_OK...gmoNotificationModel.Status:', gmoNotificationModel.Status);
+                        this.res.send(GMONotificationResponseModel.RecvRes_OK);
+
+                    }
+
+                });
+
             case GMOUtil.STATUS_CREDIT_UNPROCESSED:
             case GMOUtil.STATUS_CREDIT_AUTHENTICATED:
             case GMOUtil.STATUS_CREDIT_CHECK:
@@ -104,161 +124,39 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 break;
 
             case GMOUtil.STATUS_CREDIT_AUTH:
-                // TODO 支払い期限過ぎていたらキャンセル(10分？)
-
-
-                // 予約完了ステータスへ変更
-                update = {
-                    gmo_shop_id: gmoNotificationModel.ShopID,
-                    gmo_amount: gmoNotificationModel.Amount,
-                    gmo_tax: gmoNotificationModel.Tax,
-                    gmo_access_id: gmoNotificationModel.AccessID,
-                    gmo_access_pass: gmoNotificationModel.AccessPass,
-                    gmo_forward: gmoNotificationModel.Forward,
-                    gmo_method: gmoNotificationModel.Method,
-                    gmo_approve: gmoNotificationModel.Approve,
-                    gmo_tran_id: gmoNotificationModel.TranID,
-                    gmo_tran_date: gmoNotificationModel.TranDate,
-                    gmo_pay_type: gmoNotificationModel.PayType,
-                    gmo_status: gmoNotificationModel.Status,
-                    status: ReservationUtil.STATUS_RESERVED,
-                    updated_user: 'GMOReserveCreditController'
-                };
-
-                Models.Reservation.find(
-                    {
-                        payment_no: paymentNo,
-                        status: ReservationUtil.STATUS_TEMPORARY
-                    },
-                    '_id',
-                    (err, reservationDocuments) => {
-                        for (let reservationDocument of reservationDocuments) {
-                            promises.push(new Promise((resolve, reject) => {
-
-                                this.logger.info('updating reservations...update:', update);
-                                Models.Reservation.findOneAndUpdate(
-                                    {
-                                        _id: reservationDocument.get('_id'),
-                                    },
-                                    update,
-                                    {
-                                        new: true
-                                    },
-                                (err, reservationDocument) => {
-                                    this.logger.info('reservation updated.', err, reservationDocument);
-
-                                    if (err) {
-                                        reject();
-
-                                    } else {
-                                        resolve();
-
-                                    }
-
-                                });
-
-                            }));
-                        };
-
-                        Promise.all(promises).then(() => {
-                            // TODO メール送信はバッチ処理？
-                            // TODO メールの送信ログ（宛先、件名、本文）を保管して下さい。出来ればBlob（受信拒否等で取れなかった場合の再送用）
-
-                            // 実売上要求
-                            this.alterTran2sales(gmoNotificationModel, (err: Error) => {
-                                if (err) {
-
-                                }
-
-                                // 実売上に失敗しても、とりあえずOK
-                                this.logger.info('sending response RecvRes_OK...gmoNotificationModel.Status:', gmoNotificationModel.Status);
-                                this.res.send(GMONotificationResponseModel.RecvRes_OK);
-
-                            });
-
-                        }, (err) => {
-                            // 売上取消
-                            this.alterTran2void(gmoNotificationModel, (err: Error) => {
-                                if (err) {
-
-                                }
-
-                                this.logger.info('sending response RecvRes_NG...');
-                                this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
-                            });
-
-                        });
-                    }
-                );
-
+                this.res.send(GMONotificationResponseModel.RecvRes_NG);
                 break;
 
             case GMOUtil.STATUS_CREDIT_SALES:
-                update = {
-                    gmo_status: gmoNotificationModel.Status,
-                    updated_user: 'GMOReserveCreditController'
-                };
-
-                // GMOステータス変更
-                this.logger.info('updating reservations...update:', update);
-                Models.Reservation.update(
-                    {
-                        payment_no: paymentNo,
-                        status: ReservationUtil.STATUS_RESERVED
-                    },
-                    update,
-                    {
-                        multi: true
-                    },
-                (err, affectedRows, raw) => {
-                    this.logger.info('reservations updated.', err, affectedRows);
-                    if (err) {
-                        // TODO
-                        this.logger.info('sending response RecvRes_NG...gmoNotificationModel.Status:', gmoNotificationModel.Status);
-                        this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
-                    } else {
-                        // TODO 予約できていない在庫があった場合
-
-
-                        this.logger.info('sending response RecvRes_OK...');
-                        this.res.send(GMONotificationResponseModel.RecvRes_OK);
-
-                    }
-
-                });
-
+                this.res.send(GMONotificationResponseModel.RecvRes_NG);
                 break;
 
             case GMOUtil.STATUS_CREDIT_VOID:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
                 break;
 
             case GMOUtil.STATUS_CREDIT_RETURN:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
                 break;
 
             case GMOUtil.STATUS_CREDIT_RETURNX:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
                 break;
 
             case GMOUtil.STATUS_CREDIT_SAUTH:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
                 break;
 
             default:
                 this.res.send(GMONotificationResponseModel.RecvRes_OK);
-
                 break;
         }
 
     }
 
+    /**
+     * GMOに対して実売上要求を行う
+     */
     private alterTran2sales(gmoNotificationModel: GMONotificationModel, cb: (err: Error) => void): void {
 
         let options = {
@@ -305,6 +203,9 @@ export default class GMOReserveCreditController extends ReserveBaseController {
         });
     }
 
+    /**
+     * GMOに対して取消要求を行う
+     */
     private alterTran2void(gmoNotificationModel: GMONotificationModel, cb: (err: Error) => void): void {
 
         let options = {

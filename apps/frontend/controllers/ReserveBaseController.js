@@ -258,6 +258,49 @@ class ReserveBaseController extends BaseController_1.default {
         }
     }
     /**
+     * 購入番号から全ての予約を完了にする
+     *
+     * @param {string} paymentNo 購入番号
+     * @param {Object} update 追加更新パラメータ
+     */
+    processFixReservations(paymentNo, update, cb) {
+        let promises = [];
+        let reservationDocuments = [];
+        update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
+        update['updated_user'] = 'GMOReserveCreditController';
+        // 予約完了ステータスへ変更
+        this.logger.info('finding reservations...paymentNo:', paymentNo);
+        Models_1.default.Reservation.find({
+            payment_no: paymentNo
+        }, '_id', (err, reservationDocuments) => {
+            for (let reservationDocument of reservationDocuments) {
+                promises.push(new Promise((resolve, reject) => {
+                    this.logger.info('updating reservations...update:', update);
+                    Models_1.default.Reservation.findOneAndUpdate({
+                        _id: reservationDocument.get('_id'),
+                    }, update, {
+                        new: true
+                    }, (err, reservationDocument) => {
+                        this.logger.info('reservation updated.', err, reservationDocument);
+                        if (err) {
+                            reject();
+                        }
+                        else {
+                            reservationDocuments.push(reservationDocument);
+                            resolve();
+                        }
+                    });
+                }));
+            }
+            ;
+            Promise.all(promises).then(() => {
+                cb(null, reservationDocuments);
+            }, (err) => {
+                cb(err, reservationDocuments);
+            });
+        });
+    }
+    /**
      * 予約プロセス用のロガーを設定する
      * 1決済管理番号につき、1ログファイル
      *

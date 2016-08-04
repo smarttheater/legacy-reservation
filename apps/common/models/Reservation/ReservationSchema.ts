@@ -89,7 +89,6 @@ let ReservationSchema = new mongoose.Schema({
     gmo_amount: String,
     gmo_tax: String,
     gmo_access_id: String,
-    gmo_access_pass: String,
     gmo_forward: String,
     gmo_method: String,
     gmo_approve: String,
