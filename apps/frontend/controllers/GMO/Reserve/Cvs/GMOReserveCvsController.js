@@ -17,28 +17,18 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
             gmo_cvs_code: gmoResultModel.CvsCode,
             gmo_cvs_conf_no: gmoResultModel.CvsConfNo,
             gmo_cvs_receipt_no: gmoResultModel.CvsReceiptNo,
-            gmo_cvs_receipt_url: gmoResultModel.CvsReceiptUrl,
-            status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
-            updated_user: 'GMOReserveCvsController'
+            gmo_cvs_receipt_url: gmoResultModel.CvsReceiptUrl
         };
-        this.logger.info('updating reservations...update:', update);
-        Models_1.default.Reservation.update({
-            payment_no: gmoResultModel.OrderID,
-            status: ReservationUtil_1.default.STATUS_TEMPORARY
-        }, update, {
-            multi: true
-        }, (err, affectedRows, raw) => {
-            this.logger.info('reservations updated.', err, affectedRows);
+        this.logger.info('changing status to STATUS_WAITING_SETTLEMENT...update:', update);
+        this.processChangeStatus2waitingSettlement(gmoResultModel.OrderID, update, (err, reservationDocuments) => {
             if (err) {
+                // TODO 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
+                this.next(new Error('failed in payment.'));
             }
-            // TODO メール送信はバッチ通知のほうでのみやる
-            // TODO 予約できていない在庫があった場合
-            this.logger.info('redirecting to waitingSettlement...');
-            // 購入者区分による振り分け
-            Models_1.default.Reservation.findOne({ payment_no: gmoResultModel.OrderID }, 'purchaser_group', (err, reservationDocument) => {
-                if (err) {
-                }
-                let group = reservationDocument.get('purchaser_group');
+            else {
+                this.logger.info('redirecting to waitingSettlement...');
+                // 購入者区分による振り分け
+                let group = reservationDocuments[0].get('purchaser_group');
                 switch (group) {
                     case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
                         this.res.redirect(this.router.build('member.reserve.waitingSettlement', { paymentNo: gmoResultModel.OrderID }));
@@ -47,7 +37,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                         this.res.redirect(this.router.build('customer.reserve.waitingSettlement', { paymentNo: gmoResultModel.OrderID }));
                         break;
                 }
-            });
+            }
         });
     }
     /**
@@ -59,28 +49,20 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
         switch (gmoNotificationModel.Status) {
             case GMOUtil_1.default.STATUS_CVS_PAYSUCCESS:
                 update = {
-                    gmo_status: gmoNotificationModel.Status,
-                    status: ReservationUtil_1.default.STATUS_RESERVED,
-                    updated_user: 'GMOReserveCvsController'
+                    gmo_status: gmoNotificationModel.Status
                 };
-                // GMOステータス変更
-                this.logger.info('updating reservations...update:', update);
-                Models_1.default.Reservation.update({
-                    payment_no: paymentNo,
-                    status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT
-                }, update, {
-                    multi: true
-                }, (err, affectedRows, raw) => {
-                    this.logger.info('reservations updated.', err, affectedRows);
+                this.logger.info('fixing reservations... update:', update);
+                this.processFixReservations(paymentNo, update, (err, reservationDocuments) => {
                     if (err) {
-                        // TODO
-                        this.logger.info('sending response RecvRes_NG...');
+                        // AccessPassが************なので、売上取消要求は行えない
+                        // 失敗した場合、約60分毎に5回再通知されるので、それをリトライとみなす
+                        this.logger.info('sending response RecvRes_NG...gmoNotificationModel.Status:', gmoNotificationModel.Status);
                         this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     }
                     else {
-                        // TODO 予約できていない在庫があった場合
                         // TODO メール送信はバッチ処理？
-                        this.logger.error('sending response RecvRes_OK... ');
+                        // TODO メールの送信ログ（宛先、件名、本文）を保管して下さい。出来ればBlob（受信拒否等で取れなかった場合の再送用）
+                        this.logger.info('sending response RecvRes_OK...gmoNotificationModel.Status:', gmoNotificationModel.Status);
                         this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
                     }
                 });
@@ -93,27 +75,16 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                     gmo_tax: gmoNotificationModel.Tax,
                     gmo_cvs_code: gmoNotificationModel.CvsCode,
                     gmo_cvs_conf_no: gmoNotificationModel.CvsConfNo,
-                    gmo_cvs_receipt_no: gmoNotificationModel.CvsReceiptNo,
-                    status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
-                    updated_user: 'GMOReserveCvsController'
+                    gmo_cvs_receipt_no: gmoNotificationModel.CvsReceiptNo
                 };
-                this.logger.info('updating reservations...update:', update);
-                Models_1.default.Reservation.update({
-                    payment_no: paymentNo,
-                    status: ReservationUtil_1.default.STATUS_TEMPORARY
-                }, update, {
-                    multi: true
-                }, (err, affectedRows, raw) => {
-                    this.logger.info('reservations updated.', err, affectedRows);
+                this.logger.info('changing status to STATUS_WAITING_SETTLEMENT...update:', update);
+                this.processChangeStatus2waitingSettlement(gmoNotificationModel.OrderID, update, (err, reservationDocuments) => {
                     if (err) {
-                        // TODO
                         this.logger.info('sending response RecvRes_NG...');
                         this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     }
                     else {
-                        // TODO 予約できていない在庫があった場合
-                        // TODO メール送信はバッチ処理？
-                        this.logger.error('sending response RecvRes_OK... ');
+                        this.logger.info('sending response RecvRes_OK...');
                         this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
                     }
                 });
@@ -131,6 +102,49 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                 this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                 break;
         }
+    }
+    /**
+     * 購入番号から全ての予約を完了にする
+     *
+     * @param {string} paymentNo 購入番号
+     * @param {Object} update 追加更新パラメータ
+     */
+    processChangeStatus2waitingSettlement(paymentNo, update, cb) {
+        let promises = [];
+        let reservationDocuments = [];
+        update['status'] = ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT;
+        update['updated_user'] = 'GMOReserveCreditController';
+        // 予約完了ステータスへ変更
+        this.logger.info('finding reservations...paymentNo:', paymentNo);
+        Models_1.default.Reservation.find({
+            payment_no: paymentNo
+        }, '_id', (err, reservationDocuments) => {
+            for (let reservationDocument of reservationDocuments) {
+                promises.push(new Promise((resolve, reject) => {
+                    this.logger.info('updating reservations...update:', update);
+                    Models_1.default.Reservation.findOneAndUpdate({
+                        _id: reservationDocument.get('_id'),
+                    }, update, {
+                        new: true
+                    }, (err, reservationDocument) => {
+                        this.logger.info('reservation updated.', err, reservationDocument);
+                        if (err) {
+                            reject();
+                        }
+                        else {
+                            reservationDocuments.push(reservationDocument);
+                            resolve();
+                        }
+                    });
+                }));
+            }
+            ;
+            Promise.all(promises).then(() => {
+                cb(null, reservationDocuments);
+            }, (err) => {
+                cb(err, reservationDocuments);
+            });
+        });
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

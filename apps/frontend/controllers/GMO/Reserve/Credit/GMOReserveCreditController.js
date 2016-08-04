@@ -58,7 +58,6 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
      */
     notify(gmoNotificationModel) {
         let paymentNo = gmoNotificationModel.OrderID;
-        let promises = [];
         let update;
         switch (gmoNotificationModel.Status) {
             case GMOUtil_1.default.STATUS_CREDIT_CAPTURE:

@@ -75,7 +75,6 @@ export default class GMOReserveCreditController extends ReserveBaseController {
      */
     public notify(gmoNotificationModel: GMONotificationModel): void {
         let paymentNo = gmoNotificationModel.OrderID;
-        let promises = [];
         let update;
 
         switch (gmoNotificationModel.Status) {
