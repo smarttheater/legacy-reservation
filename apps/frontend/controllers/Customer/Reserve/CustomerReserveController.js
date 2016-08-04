@@ -243,6 +243,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     let reservationDocuments4update = reservationModel.toReservationDocuments();
                     for (let reservationDocument4update of reservationDocuments4update) {
                         promises.push(new Promise((resolve, reject) => {
+                            // reservationDocument4update['status'] = ReservationUtil.STATUS_GMO_PROCESSING;
                             this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
                             Models_1.default.Reservation.findOneAndUpdate({
                                 _id: reservationDocument4update['_id'],

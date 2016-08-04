@@ -54,6 +54,8 @@ export default class GMOResultModel {
     public CvsReceiptNo: string;
     /** 払込票URL */
     public CvsReceiptUrl: string;
+    /** 支払期限日時((yyyyMMddHHmmss 形式)) */
+    public PaymentTerm: string;
     // /** Edy 受付番号 */
     // public EdyReceiptNo: string;
     // /** Edy 注文番号 */
@@ -66,8 +68,6 @@ export default class GMOResultModel {
     // public BkCode: string;
     // /**  */
     // public ConfNo: string;
-    // /**  */
-    // public PaymentTerm: string;
     // /**  */
     // public CustID: string;
     // /**  */

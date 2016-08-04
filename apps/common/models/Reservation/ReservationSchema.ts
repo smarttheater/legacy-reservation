@@ -14,7 +14,7 @@ let ReservationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Performance'
     },
-    status: Number,
+    status: String,
     performance_day: String,
     performance_start_time: String,
     performance_end_time: String,

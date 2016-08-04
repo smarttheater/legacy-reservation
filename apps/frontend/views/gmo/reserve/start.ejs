@@ -6,7 +6,6 @@
 </head>
 <body>
     <h1>GMO決済開発用ページ</h1>
-    token：<%- reservationModel.token %><br />
     <form action="https://pt01.mul-pay.jp/link/<%- shopId %>/Multi/Entry" method="post">
         ShopID：<input type="text" name="ShopID" value="<%- shopId %>"><br>
         OrderID：<input type="text" name="OrderID" value="<%- orderID %>"><br>
@@ -14,7 +13,10 @@
         DateTime<input type="text" name="DateTime" value="<%- dateTime %>"><br>
         ShopPassString：<input type="text" name="ShopPassString" value="<%- shopPassString %>"><br>
         RetURL<input type="text" name="RetURL" value="<%- 'https://' + req.headers.host + url('gmo.reserve.result') %>"><br>
-        CancelURL<input type="text" name="CancelURL" value="<%- 'https://' + req.headers.host + url('gmo.reserve.result') %>"><br>
+        <!-- 決済キャンセル時に遷移する加盟店URL -->
+        CancelURL<input type="text" name="CancelURL" value="<%- 'https://' + req.headers.host + url('gmo.reserve.cancel', {paymentNo: orderID}) %>"><br>
+        <!-- カード決済画面を表示してから決済を行うまでの経過時間の上限で、設定単位は秒 -->
+        SessionTimeout<input type="text" name="SessionTimeout" value="300"><br>
         Lang<input type="text" name="Lang" value="<%- req.getLocale() %>"><br>
 
         UseCredit:<input type="text" name="UseCredit" value="1"><br>

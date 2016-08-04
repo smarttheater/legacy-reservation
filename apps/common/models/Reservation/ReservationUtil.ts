@@ -3,19 +3,21 @@ import qr = require('qr-image');
 
 export default class ReservationUtil {
     /** 空席 */
-    public static STATUS_AVAILABLE = 100;
+    public static STATUS_AVAILABLE = 'AVAILABLE';
     /** 仮予約 */
-    public static STATUS_TEMPORARY = 110;
-    /** 関係者席保留 */
-    public static STATUS_KEPT_BY_TIFF = 111;
-    /** メルマガ会員保留 */
-    public static STATUS_KEPT_BY_MEMBER = 112;
+    public static STATUS_TEMPORARY = 'TEMPORARY';
+    /** GMOプロセス中 */
+    public static STATUS_GMO_PROCESSING = 'GMO_PROCESSING';
     /** 決済待ち */
-    public static STATUS_WAITING_SETTLEMENT = 120;
+    public static STATUS_WAITING_SETTLEMENT = 'WAITING_SETTLEMENT';
     /**  窓口清算待ち */
-    public static STATUS_WAITING_SETTLEMENT_WINDOW = 121;
+    public static STATUS_WAITING_SETTLEMENT_WINDOW = 'WAITING_SETTLEMENT_WINDOW';
+    /** 関係者席保留 */
+    public static STATUS_KEPT_BY_TIFF = 'KEPT_BY_TIFF';
+    /** メルマガ会員保留 */
+    public static STATUS_KEPT_BY_MEMBER = 'KEPT_BY_MEMBER';
     /** 予約確定 */
-    public static STATUS_RESERVED = 200;
+    public static STATUS_RESERVED = 'RESERVED';
 
     /** 一般 */
     public static PURCHASER_GROUP_CUSTOMER = '01'; 

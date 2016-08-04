@@ -41,29 +41,22 @@ export default class GMOReserveController extends ReserveBaseController {
                     // 予約プロセス固有のログファイルをセット
                     this.setProcessLogger(reservationModel.paymentNo, () => {
 
-                            // GMOへ遷移画面
-                            let shopId = conf.get<string>('gmo_payment_shop_id');
-                            let orderID = reservationModel.paymentNo; // 27桁まで(予約番号を使用)
-                            let amount = reservationModel.getTotalCharge();
-                            let shopPassword = conf.get<string>('gmo_payment_shop_password');
-                            let dateTime = moment().format('YYYYMMDDHHmmss');
+                        // GMOへ遷移画面
+                        this.res.locals.shopId = conf.get<string>('gmo_payment_shop_id');
+                        this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(予約番号を使用)
+                        this.res.locals.amount = reservationModel.getTotalCharge();
+                        this.res.locals.shopPassword = conf.get<string>('gmo_payment_shop_password');
+                        this.res.locals.dateTime = moment().format('YYYYMMDDHHmmss');
 
-                            // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
-                            let md5hash = crypto.createHash('md5');
-                            md5hash.update(`${shopId}${orderID}${amount}${shopPassword}${dateTime}`, 'utf8');
-                            let shopPassString = md5hash.digest('hex');
+                        // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
+                        let md5hash = crypto.createHash('md5');
+                        md5hash.update(`${this.res.locals.shopId}${this.res.locals.orderID}${this.res.locals.amount}${this.res.locals.shopPassword}${this.res.locals.dateTime}`, 'utf8');
+                        this.res.locals.shopPassString = md5hash.digest('hex');
 
-                            this.logger.info('redirecting to GMO payment...orderID:', orderID);
-                            this.res.render('gmo/reserve/start', {
-                                layout: false,
-                                reservationModel: reservationModel,
-                                shopId,
-                                orderID,
-                                amount,
-                                shopPassword,
-                                dateTime,
-                                shopPassString
-                            });
+                        this.logger.info('redirecting to GMO payment...orderID:', this.res.locals.orderID);
+                        this.res.render('gmo/reserve/start', {
+                            layout: false
+                        });
 
                     });
 
@@ -84,17 +77,16 @@ export default class GMOReserveController extends ReserveBaseController {
 
         // 予約プロセス固有のログファイルをセット
         this.setProcessLogger(paymentNo, () => {
+            this.logger.info('gmoResultModel is ', gmoResultModel);
+
             Models.Reservation.find({payment_no: paymentNo}).exec((err, reservationDocuments) => {
                 if (err) {
                     // TODO
                 }
 
-                this.logger.debug('reservationDocuments are ', reservationDocuments);
-                this.logger.info('gmoResultModel is ', gmoResultModel);
-
-
                 // TODO エラー結果の場合
                 if (gmoResultModel.ErrCode) {
+                    // 空席に戻すのは、仮予約タイムアウトタスクにまかせる！
                     this.next(new Error(`エラー結果を受信しました。 ErrCode:${gmoResultModel.ErrCode} ErrInfo:${gmoResultModel.ErrInfo}`));
 
                 } else {
@@ -199,6 +191,88 @@ export default class GMOReserveController extends ReserveBaseController {
                 }
 
             });
+
+    }
+
+    /**
+     * 決済キャンセル
+     */
+    public cancel(): void {
+        let paymentNo = this.req.params.paymentNo;
+        let promises = [];
+
+        this.setProcessLogger(paymentNo, () => {
+            Models.Reservation.find({payment_no: paymentNo}).exec((err, reservationDocuments) => {
+                if (err || reservationDocuments.length < 1) {
+                    // TODO
+                    return this.next(new Error('invalid access.'));
+                }
+
+                // ログイン中ユーザーの決済かどうかチェック
+                let purchaserGroup = reservationDocuments[0].get('purchaser_group');
+                switch (purchaserGroup) {
+                    case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
+                        if (!this.mvtkUser.isAuthenticated()) {
+                            return this.next(new Error('invalid access.'));
+
+                        } else if (this.mvtkUser.memberInfoResult.kiinCd !== reservationDocuments[0].get('mvtk_kiin_cd')) {
+                            return this.next(new Error('invalid access.'));
+
+                        }
+
+                        break;
+
+                    case ReservationUtil.PURCHASER_GROUP_MEMBER:
+                        if (!this.memberUser.isAuthenticated()) {
+                            return this.next(new Error('invalid access.'));
+
+                        } else if (this.memberUser.get('_id') !== reservationDocuments[0].get('member').toString()) {
+                            return this.next(new Error('invalid access.'));
+
+                        }
+
+                        break;
+
+                    default:
+                        break;
+                }
+
+                // キャンセル
+                for (let reservationDocument of reservationDocuments) {
+                    promises.push(new Promise((resolve, reject) => {
+                        Models.Reservation.findByIdAndUpdate(
+                            reservationDocument.get('_id').toString(),
+                            {
+                                status: ReservationUtil.STATUS_AVAILABLE
+                            },
+                            {
+                                new: true
+                                
+                            },
+                            (err, reservationDocument) => {
+                                if (err) {
+                                    // TODO ログ
+                                }
+
+                                resolve();
+
+                            }
+                        );
+
+                    }));
+
+                }
+
+                Promise.all(promises).then(() => {
+                    this.res.redirect(this.router.build('Home'));
+
+                }, (err) => {
+
+                });
+
+            });
+
+        });
 
     }
 }

@@ -368,58 +368,48 @@ export default class ReserveBaseController extends BaseController {
      * @param {string} paymentNo 購入番号
      * @param {Object} update 追加更新パラメータ
      */
-    protected processFixReservations(paymentNo: string, update: Object, cb: (err: Error, reservationDocuments: Array<mongoose.Document>) => void): void {
+    protected processFixReservations(reservationsIds: Array<string>, update: Object, cb: (err: Error, reservationDocuments: Array<mongoose.Document>) => void): void {
         let promises = [];
         let reservationDocuments: Array<mongoose.Document> = [];
+
         update['status'] = ReservationUtil.STATUS_RESERVED;
-        update['updated_user'] = 'GMOReserveCreditController';
+        update['updated_user'] = 'ReserveBaseController';
 
         // 予約完了ステータスへ変更
-        this.logger.info('finding reservations...paymentNo:', paymentNo);
-        Models.Reservation.find(
-            {
-                payment_no: paymentNo
-            },
-            '_id',
-            (err, reservationDocuments) => {
-                for (let reservationDocument of reservationDocuments) {
-                    promises.push(new Promise((resolve, reject) => {
+        for (let reservationsId of reservationsIds) {
+            promises.push(new Promise((resolve, reject) => {
 
-                        this.logger.info('updating reservations...update:', update);
-                        Models.Reservation.findOneAndUpdate(
-                            {
-                                _id: reservationDocument.get('_id'),
-                            },
-                            update,
-                            {
-                                new: true
-                            },
-                        (err, reservationDocument) => {
-                            this.logger.info('reservation updated.', err, reservationDocument);
+                this.logger.info('updating reservation by id...update:', update);
+                Models.Reservation.findByIdAndUpdate(
+                    reservationsId,
+                    update,
+                    {
+                        new: true
+                    },
+                (err, reservationDocument) => {
+                    this.logger.info('reservation updated.', err, reservationDocument);
 
-                            if (err) {
-                                reject();
+                    if (err) {
+                        reject();
 
-                            } else {
-                                reservationDocuments.push(reservationDocument);
-                                resolve();
+                    } else {
+                        reservationDocuments.push(reservationDocument);
+                        resolve();
 
-                            }
-
-                        });
-
-                    }));
-                };
-
-                Promise.all(promises).then(() => {
-                    cb(null, reservationDocuments);
-
-                }, (err) => {
-                    cb(err, reservationDocuments);
+                    }
 
                 });
-            }
-        );
+
+            }));
+        };
+
+        Promise.all(promises).then(() => {
+            cb(null, reservationDocuments);
+
+        }, (err) => {
+            cb(err, reservationDocuments);
+
+        });
     }
 
     /**

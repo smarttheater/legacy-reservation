@@ -16,8 +16,6 @@ class GMOResultModel {
     // /**  */
     // public ConfNo: string;
     // /**  */
-    // public PaymentTerm: string;
-    // /**  */
     // public CustID: string;
     // /**  */
     // public EncryptReceiptNo: string;

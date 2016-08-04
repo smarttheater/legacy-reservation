@@ -58,6 +58,7 @@ export default (app: any) => {
     app.get('/GMO/reserve/:token/start', 'gmo.reserve.start', (req, res, next) => {(new GMOReserveController(req, res, next)).start()});
     app.post('/GMO/reserve/result', 'gmo.reserve.result', (req, res, next) => {(new GMOReserveController(req, res, next)).result()});
     app.all('/GMO/reserve/notify', 'gmo.reserve.notify', (req, res, next) => {(new GMOReserveController(req, res, next)).notify()});
+    app.all('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', (req, res, next) => {(new GMOReserveController(req, res, next)).cancel()});
 
 
 

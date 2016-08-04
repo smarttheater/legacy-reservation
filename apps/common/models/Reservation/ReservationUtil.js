@@ -34,19 +34,21 @@ class ReservationUtil {
     }
 }
 /** 空席 */
-ReservationUtil.STATUS_AVAILABLE = 100;
+ReservationUtil.STATUS_AVAILABLE = 'AVAILABLE';
 /** 仮予約 */
-ReservationUtil.STATUS_TEMPORARY = 110;
-/** 関係者席保留 */
-ReservationUtil.STATUS_KEPT_BY_TIFF = 111;
-/** メルマガ会員保留 */
-ReservationUtil.STATUS_KEPT_BY_MEMBER = 112;
+ReservationUtil.STATUS_TEMPORARY = 'TEMPORARY';
+/** GMOプロセス中 */
+ReservationUtil.STATUS_GMO_PROCESSING = 'GMO_PROCESSING';
 /** 決済待ち */
-ReservationUtil.STATUS_WAITING_SETTLEMENT = 120;
+ReservationUtil.STATUS_WAITING_SETTLEMENT = 'WAITING_SETTLEMENT';
 /**  窓口清算待ち */
-ReservationUtil.STATUS_WAITING_SETTLEMENT_WINDOW = 121;
+ReservationUtil.STATUS_WAITING_SETTLEMENT_WINDOW = 'WAITING_SETTLEMENT_WINDOW';
+/** 関係者席保留 */
+ReservationUtil.STATUS_KEPT_BY_TIFF = 'KEPT_BY_TIFF';
+/** メルマガ会員保留 */
+ReservationUtil.STATUS_KEPT_BY_MEMBER = 'KEPT_BY_MEMBER';
 /** 予約確定 */
-ReservationUtil.STATUS_RESERVED = 200;
+ReservationUtil.STATUS_RESERVED = 'RESERVED';
 /** 一般 */
 ReservationUtil.PURCHASER_GROUP_CUSTOMER = '01';
 /** メルマガ会員先行 */
