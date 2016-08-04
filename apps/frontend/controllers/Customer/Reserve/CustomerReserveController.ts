@@ -9,8 +9,11 @@ import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
+import lockFile = require('lockfile');
 
 export default class CustomerReserveController extends ReserveBaseController {
+    public static RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数
+
     /**
      * スケジュール選択
      */
@@ -47,6 +50,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                 let token = Util.createToken();
                 let reservationModel = new ReservationModel();
                 reservationModel.token = token;
+                reservationModel.mvtkMemberInfoResult = this.mvtkUser.memberInfoResult;
 
                 // パフォーマンスFIX
                 this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
@@ -73,66 +77,107 @@ export default class CustomerReserveController extends ReserveBaseController {
      * 座席選択
      */
     public seats(): void {
-        let limit = 4; // 最大座席確保枚数
-
-        // TODO 1アカウント1パフォーマンスごとに枚数制限
-        // ここで、ログインユーザーの予約枚数をチェックする
-
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel.toLog());
+            // 1アカウント1パフォーマンスごとに枚数制限
+            let lockPath = `${__dirname}/../../../../../logs/CustomerFixSeats${this.mvtkUser.memberInfoResult.kiinCd}${reservationModel.performance._id}.lock`;
+            lockFile.lock(lockPath, {wait: 10000}, (err) => {
 
-            if (this.req.method === 'POST') {
-                reserveSeatForm(this.req, this.res, (err) => {
-                    if (this.req.form.isValid) {
-                        let reservationIds: Array<string> = JSON.parse(this.req.form['reservationIds']);
+                Models.Reservation.count(
+                    {
+                        mvtk_kiin_cd: this.mvtkUser.memberInfoResult.kiinCd,
+                        performance: reservationModel.performance._id,
+                        status: {
+                            $ne: ReservationUtil.STATUS_AVAILABLE
+                        },
+                        _id: {
+                            $nin: reservationModel.reservationIds // 現在のフロー中の予約は除く
+                        }
+                    },
+                    (err, reservationsCount) => {
+                        let limit = CustomerReserveController.RESERVATION_LIMIT_PER_PERFORMANCE - reservationsCount;
 
-                        // ブラウザ側でも枚数チェックしているが、念のため
-                        if (reservationIds.length > limit) {
-                            return this.next(new Error('invalid access.'));
+                        // すでに枚数制限に達している場合
+                        if (limit <= 0) {
+                            return this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()})));
                         }
 
-                        // 座席FIX
-                        this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
-                            if (err) {
-                                this.next(err);
+                        if (this.req.method === 'POST') {
+                            reserveSeatForm(this.req, this.res, (err) => {
+                                if (this.req.form.isValid) {
+                                    let reservationIds: Array<string> = JSON.parse(this.req.form['reservationIds']);
 
-                            } else {
-                                this.logger.debug('saving reservationModel... ', reservationModel);
-                                reservationModel.save((err) => {
-                                    // 仮予約に失敗した座席コードがあった場合
-                                    if (reservationIds.length > reservationModel.reservationIds.length) {
-                                        // TODO メッセージ？
-                                        let message = '座席を確保できませんでした。再度指定してください。';
-                                        this.res.redirect(this.router.build('customer.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
+                                    // 追加指定席を合わせて制限枚数を超過した場合
+                                    if (reservationIds.length > limit) {
+
+                                        lockFile.unlock(lockPath, (err) => {
+                                            let message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
+                                            this.res.redirect(`${this.router.build('customer.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+
+                                        });
 
                                     } else {
-                                        this.res.redirect(this.router.build('customer.reserve.tickets', {token: token}));
+                                        // 座席FIX
+                                        this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
+                                            lockFile.unlock(lockPath, (err) => {
+
+                                                if (err) {
+                                                    this.next(err);
+
+                                                } else {
+                                                    this.logger.debug('saving reservationModel... ', reservationModel);
+                                                    reservationModel.save((err) => {
+                                                        // 仮予約に失敗した座席コードがあった場合
+                                                        if (reservationIds.length > reservationModel.reservationIds.length) {
+                                                            let message = '座席を確保できませんでした。再度指定してください。';
+                                                            this.res.redirect(`${this.router.build('customer.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+
+                                                        } else {
+                                                            // 券種選択へ
+                                                            this.res.redirect(this.router.build('customer.reserve.tickets', {token: token}));
+
+                                                        }
+
+                                                    });
+
+                                                }
+
+                                            });
+
+                                        });
 
                                     }
 
+                                } else {
+                                    lockFile.unlock(lockPath, (err) => {
+                                        this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
+
+                                    });
+
+                                }
+
+                            });
+                        } else {
+
+                            lockFile.unlock(lockPath, (err) => {
+                                this.res.render('customer/reserve/seats', {
+                                    reservationModel: reservationModel,
+                                    limit: limit
                                 });
 
-                            }
-                        });
+                            });
 
-                    } else {
-                        this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
+                        }
 
                     }
+                );
 
-                });
-            } else {
-                this.res.render('customer/reserve/seats', {
-                    reservationModel: reservationModel,
-                    limit: limit
-                });
+            });
 
-            }
 
         });
     }
@@ -222,8 +267,6 @@ export default class CustomerReserveController extends ReserveBaseController {
                             email: this.req.form['email'],
                             tel: this.req.form['tel']
                         };
-
-                        reservationModel.mvtkMemberInfoResult = this.mvtkUser.memberInfoResult;
 
                         this.logger.debug('saving reservationModel... ', reservationModel);
                         reservationModel.save((err) => {

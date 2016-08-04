@@ -207,6 +207,7 @@ class ReserveBaseController extends BaseController_1.default {
                     promises.push(new Promise((resolve, reject) => {
                         let update = {
                             status: ReservationUtil_1.default.STATUS_TEMPORARY,
+                            mvtk_kiin_cd: (reservationModel.mvtkMemberInfoResult) ? reservationModel.mvtkMemberInfoResult.kiinCd : null,
                             member: (reservationModel.member) ? reservationModel.member._id : null,
                             sponsor: (reservationModel.sponsor) ? reservationModel.sponsor._id : null,
                             staff: (reservationModel.staff) ? reservationModel.staff._id : null // 誰が仮予約中かも分かるように

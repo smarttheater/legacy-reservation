@@ -6,7 +6,6 @@ import mongoose = require('mongoose');
 let FilmSchema = new mongoose.Schema({
     name: String,
     name_en: String,
-    film_min: String,
     sections: [
          {
              _id: false,
@@ -27,10 +26,6 @@ let FilmSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'TicketTypeGroup'
     },
-    director: String,
-    director_en: String,
-    actor: String,
-    actor_en: String,
     image: String,
     created_user: String,
     updated_user: String,

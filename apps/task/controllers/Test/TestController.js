@@ -87,11 +87,6 @@ class TestController extends BaseController_1.default {
                 films.push({
                     name: testNames[i].name,
                     name_en: testNames[i].name_en,
-                    director: `テスト監督名前${no}`,
-                    director_en: `Test Director Name ${no}`,
-                    actor: `テスト俳優名前${no}`,
-                    actor_en: `Test Actor Name ${no}`,
-                    film_min: min,
                     sections: _sections.slice(0, Math.floor(Math.random() * 5)),
                     genres: _genres.slice(0, Math.floor(Math.random() * 5)),
                     ticket_type_group: _ticketTypeGroupDocuments[0].get('_id'),

@@ -53,9 +53,10 @@ function showSeatStatusesMap() {
 }
 
 $(function(){
-    var limit = parseInt($('input[name="seatsLimit"]').val()) | 4;
+    var limit = parseInt($('input[name="seatsLimit"]').val());
     var limitMessage = $('input[name="seatsLimitMessage"]').val();
 
+    console.log(limit);
     showSeatStatusesMap();
 
     $(document).on('click', '.select-seat', function(){
@@ -65,6 +66,7 @@ $(function(){
 
 
         // check seats limit
+        console.log($('.select-seat.active').length, limit - 1);
         if (!$(this).hasClass('active')) {
             if ($('.select-seat.active').length > limit - 1) {
                 alert(limitMessage);
