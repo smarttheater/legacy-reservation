@@ -78,7 +78,8 @@
 			"emailConfirmDomain": "Email Confirm(Domain)",
 			"userId": "User Id",
 			"password": "Password",
-			"signature": "Signature"
+			"signature": "Signature",
+			"paymentMethod": "Payment Method"
 		}
 	},
 	"Message": {
@@ -95,7 +96,8 @@
 		"FailedSending": "Failed sending.",
 		"Unsent": "Unsent.",
 		"PleaseReadBarcode": "Message.PleaseReadBarcode",
-		"seatsLimit{{limit}}": "Message.seatsLimit{{limit}}"
+		"seatsLimit{{limit}}": "Message.seatsLimit{{limit}}",
+		"UnexpectedError": "Unexpected Error"
 	},
 	"h3": {
 		"SeatChoices": "Seat Choices",

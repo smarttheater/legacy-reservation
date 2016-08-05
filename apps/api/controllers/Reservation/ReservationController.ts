@@ -81,7 +81,6 @@ export default class ReservationController extends BaseController {
                                     _sendgrid.send(email, (err, json) => {
                                         this.logger.info('an email sent.', err, json);
                                         if (err) {
-                                            // TODO log
                                             this.res.json({
                                                 isSuccess: false
                                             });

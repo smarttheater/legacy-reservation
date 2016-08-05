@@ -42,13 +42,13 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                 }
 
                 if (reservationDocuments.length < 1) {
-                    return this.next(new Error('invalid access.'));
+                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 }
 
                 // 利用金額の整合性
                 this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
                 if (parseInt(gmoResultModel.Amount) !== reservationDocuments[0].get('total_charge')) {
-                    return this.next(new Error('invalid access.'));
+                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 }
 
                 // チェック文字列
@@ -59,7 +59,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
 
                 this.logger.info('CheckString must be ', checkString);
                 if (checkString !== gmoResultModel.CheckString) {
-                    return this.next(new Error('invalid access.'));
+                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 }
 
 
@@ -128,13 +128,13 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                         }
 
                         if (reservationDocuments.length < 1) {
-                            return this.next(new Error('invalid access.'));
+                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         }
 
                         // 利用金額の整合性
                         this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
                         if (parseInt(gmoNotificationModel.Amount) !== reservationDocuments[0].get('total_charge')) {
-                            return this.next(new Error('invalid access.'));
+                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         }
 
 
@@ -187,13 +187,13 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                         }
 
                         if (reservationDocuments.length < 1) {
-                            return this.next(new Error('invalid access.'));
+                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         }
 
                         // 利用金額の整合性
                         this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
                         if (parseInt(gmoNotificationModel.Amount) !== reservationDocuments[0].get('total_charge')) {
-                            return this.next(new Error('invalid access.'));
+                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         }
 
 

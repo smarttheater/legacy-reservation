@@ -65,7 +65,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                 });
 
             } else {
-                this.next(new Error('invalid access.'));
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
 
             }
 
@@ -100,8 +100,8 @@ export default class CustomerReserveController extends ReserveBaseController {
             }
 
             // 1アカウント1パフォーマンスごとに枚数制限
-            let lockPath = `${__dirname}/../../../../../logs/CustomerFixSeats${this.mvtkUser.memberInfoResult.kiinCd}${reservationModel.performance._id}.lock`;
-            lockFile.lock(lockPath, {wait: 10000}, (err) => {
+            let lockPath = `${__dirname}/../../../../../lock/CustomerFixSeats${this.mvtkUser.memberInfoResult.kiinCd}${reservationModel.performance._id}.lock`;
+            lockFile.lock(lockPath, {wait: 5000}, (err) => {
 
                 Models.Reservation.count(
                     {
@@ -119,82 +119,83 @@ export default class CustomerReserveController extends ReserveBaseController {
 
                         // すでに枚数制限に達している場合
                         if (limit <= 0) {
-                            return this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()})));
-                        }
+                            lockFile.unlock(lockPath, (err) => {
+                                this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()})));
 
-                        if (this.req.method === 'POST') {
-                            reserveSeatForm(this.req, this.res, (err) => {
-                                if (this.req.form.isValid) {
-                                    let reservationIds: Array<string> = JSON.parse(this.req.form['reservationIds']);
+                            });
 
-                                    // 追加指定席を合わせて制限枚数を超過した場合
-                                    if (reservationIds.length > limit) {
+                        } else {
 
-                                        lockFile.unlock(lockPath, (err) => {
-                                            let message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
-                                            this.res.redirect(`${this.router.build('customer.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+                            if (this.req.method === 'POST') {
+                                reserveSeatForm(this.req, this.res, (err) => {
+                                    if (this.req.form.isValid) {
+                                        let reservationIds: Array<string> = JSON.parse(this.req.form['reservationIds']);
 
-                                        });
+                                        // 追加指定席を合わせて制限枚数を超過した場合
+                                        if (reservationIds.length > limit) {
 
-                                    } else {
-                                        // 座席FIX
-                                        this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
                                             lockFile.unlock(lockPath, (err) => {
-
-                                                if (err) {
-                                                    this.next(err);
-
-                                                } else {
-                                                    this.logger.debug('saving reservationModel... ', reservationModel);
-                                                    reservationModel.save((err) => {
-                                                        // 仮予約に失敗した座席コードがあった場合
-                                                        if (reservationIds.length > reservationModel.reservationIds.length) {
-                                                            let message = '座席を確保できませんでした。再度指定してください。';
-                                                            this.res.redirect(`${this.router.build('customer.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
-
-                                                        } else {
-                                                            // 券種選択へ
-                                                            this.res.redirect(this.router.build('customer.reserve.tickets', {token: token}));
-
-                                                        }
-
-                                                    });
-
-                                                }
+                                                let message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
+                                                this.res.redirect(`${this.router.build('customer.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
 
                                             });
+
+                                        } else {
+                                            // 座席FIX
+                                            this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
+                                                lockFile.unlock(lockPath, (err) => {
+
+                                                    if (err) {
+                                                        this.next(err);
+
+                                                    } else {
+                                                        this.logger.debug('saving reservationModel... ', reservationModel);
+                                                        reservationModel.save((err) => {
+                                                            // 仮予約に失敗した座席コードがあった場合
+                                                            if (reservationIds.length > reservationModel.reservationIds.length) {
+                                                                let message = '座席を確保できませんでした。再度指定してください。';
+                                                                this.res.redirect(`${this.router.build('customer.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+
+                                                            } else {
+                                                                // 券種選択へ
+                                                                this.res.redirect(this.router.build('customer.reserve.tickets', {token: token}));
+
+                                                            }
+
+                                                        });
+
+                                                    }
+
+                                                });
+
+                                            });
+
+                                        }
+
+                                    } else {
+                                        lockFile.unlock(lockPath, (err) => {
+                                            this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
 
                                         });
 
                                     }
 
-                                } else {
-                                    lockFile.unlock(lockPath, (err) => {
-                                        this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
+                                });
+                            } else {
 
+                                lockFile.unlock(lockPath, (err) => {
+                                    this.res.render('customer/reserve/seats', {
+                                        reservationModel: reservationModel,
+                                        limit: limit
                                     });
 
-                                }
-
-                            });
-                        } else {
-
-                            lockFile.unlock(lockPath, (err) => {
-                                this.res.render('customer/reserve/seats', {
-                                    reservationModel: reservationModel,
-                                    limit: limit
                                 });
 
-                            });
-
+                            }
                         }
-
                     }
                 );
-
             });
-
-
         });
     }
 
@@ -224,7 +225,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                                     return (ticketType.code === choice.ticket_type_code);
                                 });
                                 if (!ticketType) {
-                                    return this.next(new Error('不適切なアクセスです'));
+                                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                 }
 
                                 reservation.ticket_type_code = ticketType.code;
@@ -241,7 +242,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                             });
 
                         } else {
-                            this.next(new Error('不適切なアクセスです'));
+                            this.next(new Error(this.req.__('Message.UnexpectedError')));
                         }
 
                     } else {
@@ -368,13 +369,13 @@ export default class CustomerReserveController extends ReserveBaseController {
                             Models.Reservation.update(
                                 {
                                     _id: reservationDocument4update['_id'],
+                                    status: ReservationUtil.STATUS_TEMPORARY
                                 },
                                 reservationDocument4update,
                                 (err, raw) => {
                                     this.logger.info('reservation updated.', err, raw);
 
                                     if (err) {
-                                        // TODO ログ出力
                                         reject();
 
                                     } else {
@@ -428,8 +429,7 @@ export default class CustomerReserveController extends ReserveBaseController {
             },
         (err, reservationDocuments) => {
             if (err || reservationDocuments.length < 1) {
-                // TODO
-                return this.next(new Error('invalid access.'));
+                return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
             }
 
@@ -453,8 +453,7 @@ export default class CustomerReserveController extends ReserveBaseController {
             },
         (err, reservationDocuments) => {
             if (err || reservationDocuments.length < 1) {
-                // TODO
-                return this.next(new Error('invalid access.'));
+                return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
             }
 

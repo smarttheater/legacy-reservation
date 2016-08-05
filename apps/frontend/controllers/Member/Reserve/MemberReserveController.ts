@@ -164,7 +164,7 @@ export default class MemberReserveController extends ReserveBaseController {
                                     return (ticketType.code === choice.ticket_type_code);
                                 });
                                 if (!ticketType) {
-                                    return this.next(new Error('不適切なアクセスです'));
+                                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                 }
 
                                 reservation.ticket_type_code = ticketType.code;
@@ -181,7 +181,7 @@ export default class MemberReserveController extends ReserveBaseController {
                             });
 
                         } else {
-                            this.next(new Error('不適切なアクセスです'));
+                            this.next(new Error(this.req.__('Message.UnexpectedError')));
                         }
 
                     } else {
@@ -315,7 +315,7 @@ export default class MemberReserveController extends ReserveBaseController {
         (err, reservationDocuments) => {
             if (err || reservationDocuments.length < 1) {
                 // TODO
-                return this.next(new Error('invalid access.'));
+                return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
             }
 

@@ -1,5 +1,6 @@
 iisnode.yml
 Web.config
+lock/*
 logs/*
 node_modules/*
 typings/*

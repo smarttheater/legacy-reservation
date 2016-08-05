@@ -35,15 +35,15 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
         }, '_id total_charge purchaser_group', (err, reservationDocuments) => {
             this.logger.info('reservations found.', err, reservationDocuments.length);
             if (err) {
-                return this.next(new Error('unexpected error.'));
+                return this.next(new Error(this.req.__('Message.UnexpectedError')));
             }
             if (reservationDocuments.length < 1) {
-                return this.next(new Error('invalid access.'));
+                return this.next(new Error(this.req.__('Message.UnexpectedError')));
             }
             // 利用金額の整合性
             this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
             if (parseInt(gmoResultModel.Amount) !== reservationDocuments[0].get('total_charge')) {
-                return this.next(new Error('invalid access.'));
+                return this.next(new Error(this.req.__('Message.UnexpectedError')));
             }
             // チェック文字列
             // 8 ＋ 9 ＋ 10 ＋ 11 ＋ 12 ＋ 13 ＋ 14 ＋ ショップパスワード
@@ -52,7 +52,7 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
             let checkString = md5hash.digest('hex');
             this.logger.info('CheckString must be ', checkString);
             if (checkString !== gmoResultModel.CheckString) {
-                return this.next(new Error('invalid access.'));
+                return this.next(new Error(this.req.__('Message.UnexpectedError')));
             }
             let reservationIds = reservationDocuments.map((reservationDocument) => {
                 return reservationDocument.get('_id');
@@ -112,12 +112,12 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                         return this.next(new Error('unexpected error.'));
                     }
                     if (reservationDocuments.length < 1) {
-                        return this.next(new Error('invalid access.'));
+                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
                     }
                     // 利用金額の整合性
                     this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
                     if (parseInt(gmoNotificationModel.Amount) !== reservationDocuments[0].get('total_charge')) {
-                        return this.next(new Error('invalid access.'));
+                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
                     }
                     let reservationIds = reservationDocuments.map((reservationDocument) => {
                         return reservationDocument.get('_id');

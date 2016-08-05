@@ -1,4 +1,7 @@
 <script src="/js/reserve/seats.js"></script>
+<input type="hidden" name="seatsLimit" value="<%- limit %>">
+<input type="hidden" name="seatsLimitMessage" value="<%- __('Message.seatsLimit{{limit}}', {limit: limit.toString()}) %>">
+
 
 <h1><%- __('h1.SelectSeats') %></h1>
 

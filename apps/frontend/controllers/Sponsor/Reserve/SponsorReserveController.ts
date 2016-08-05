@@ -10,6 +10,7 @@ import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
+import lockFile = require('lockfile');
 
 export default class SponsorReserveController extends ReserveBaseController {
     public start(): void {
@@ -74,7 +75,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                             });
 
                         } else {
-                            this.next(new Error('不適切なアクセスです'));
+                            this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                         }
 
@@ -103,78 +104,110 @@ export default class SponsorReserveController extends ReserveBaseController {
      * 座席選択
      */
     public seats(): void {
-        // TODO 最勝ちで、残り枚数を厳密に守る(ユーザーにロックかける)
-
-
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            this.logger.debug('reservationModel is ', reservationModel.toLog());
-
-
             // 外部関係者による予約数を取得
-            Models.Reservation.count(
-                {
-                    sponsor: this.sponsorUser.get('_id'),
-                    status: {
-                        $ne: ReservationUtil.STATUS_AVAILABLE
-                    }
-                },
-            (err, reservationsCount) => {
+            let lockPath = `${__dirname}/../../../../../lock/SponsorFixSeats${this.sponsorUser.get('_id')}.lock`;
+            lockFile.lock(lockPath, {wait: 5000}, (err) => {
 
-                if (this.req.method === 'POST') {
-                    reserveSeatForm(this.req, this.res, (err) => {
-                        if (this.req.form.isValid) {
+                Models.Reservation.count(
+                    {
+                        sponsor: this.sponsorUser.get('_id'),
+                        status: {
+                            $ne: ReservationUtil.STATUS_AVAILABLE
+                        },
+                        _id: {
+                            $nin: reservationModel.reservationIds // 現在のフロー中の予約は除く
+                        }
+                    },
+                    (err, reservationsCount) => {
+                        // 一度に確保できる座席数は、残り可能枚数と、10の小さい方
+                        let reservableCount = parseInt(this.sponsorUser.get('max_reservation_count')) - reservationsCount;
+                        let limit = Math.min(10, reservableCount);
 
-                            let reservationIds: Array<string> = JSON.parse(this.req.form['reservationIds']);
+                        // すでに枚数制限に達している場合
+                        if (limit <= 0) {
+                            lockFile.unlock(lockPath, (err) => {
+                                this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()})));
 
-                            // 座席指定可能数チェック
-                            if (reservationIds.length > parseInt(this.sponsorUser.get('max_reservation_count')) - reservationsCount) {
-                                let message = '座席指定可能枚数を超えました。';
-                                return this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
-                            }
-
-
-                            // 座席FIX
-                            this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
-                                if (err) {
-                                    this.next(err);
-
-                                } else {
-                                    this.logger.debug('saving reservationModel... ', reservationModel);
-                                    reservationModel.save((err) => {
-                                        // 仮予約に失敗した座席コードがあった場合
-                                        if (reservationIds.length > reservationModel.reservationIds.length) {
-                                            // TODO メッセージ？
-                                            let message = '座席を確保できませんでした。再度指定してください。';
-                                            this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
-                                        } else {
-                                            this.res.redirect(this.router.build('sponsor.reserve.tickets', {token: token}));
-                                        }
-
-                                    });
-
-                                }
                             });
 
                         } else {
-                            this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
 
+                            if (this.req.method === 'POST') {
+                                reserveSeatForm(this.req, this.res, (err) => {
+                                    if (this.req.form.isValid) {
+                                        let reservationIds: Array<string> = JSON.parse(this.req.form['reservationIds']);
+
+                                        // 追加指定席を合わせて制限枚数を超過した場合
+                                        if (reservationIds.length > limit) {
+
+                                            lockFile.unlock(lockPath, (err) => {
+                                                let message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
+                                                this.res.redirect(`${this.router.build('sponsor.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+
+                                            });
+
+                                        } else {
+                                            // 座席FIX
+                                            this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
+                                                lockFile.unlock(lockPath, (err) => {
+
+                                                    if (err) {
+                                                        this.next(err);
+
+                                                    } else {
+                                                        this.logger.debug('saving reservationModel... ', reservationModel);
+                                                        reservationModel.save((err) => {
+                                                            // 仮予約に失敗した座席コードがあった場合
+                                                            if (reservationIds.length > reservationModel.reservationIds.length) {
+                                                                let message = '座席を確保できませんでした。再度指定してください。';
+                                                                this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
+
+                                                            } else {
+                                                                // 券種選択へ
+                                                                this.res.redirect(this.router.build('sponsor.reserve.tickets', {token: token}));
+
+                                                            }
+
+                                                        });
+
+                                                    }
+
+                                                });
+
+                                            });
+
+                                        }
+
+                                    } else {
+                                        lockFile.unlock(lockPath, (err) => {
+                                            this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
+
+                                        });
+
+                                    }
+
+                                });
+                            } else {
+
+                                lockFile.unlock(lockPath, (err) => {
+                                    this.res.render('sponsor/reserve/seats', {
+                                        layout: 'layouts/sponsor/layout',
+                                        reservationModel: reservationModel,
+                                        limit: limit,
+                                        reservableCount: reservableCount
+                                    });
+
+                                });
+                            }
                         }
-
-                    });
-                } else {
-                    this.res.render('sponsor/reserve/seats', {
-                        layout: 'layouts/sponsor/layout',
-                        reservationModel: reservationModel,
-                        reservationsCount: reservationsCount
-                    });
-
-                }
-
+                    }
+                );
             });
         });
     }
@@ -206,7 +239,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                                     return (ticketType.code === choice.ticket_type_code);
                                 });
                                 if (!ticketType) {
-                                    return this.next(new Error('不適切なアクセスです'));
+                                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                 }
 
                                 reservation.ticket_type_code = ticketType.code;
@@ -224,7 +257,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                             });
 
                         } else {
-                            this.next(new Error('不適切なアクセスです'));
+                            this.next(new Error(this.req.__('Message.UnexpectedError')));
                         }
 
                     } else {
@@ -365,13 +398,13 @@ export default class SponsorReserveController extends ReserveBaseController {
                             Models.Reservation.update(
                                 {
                                     _id: reservationDocument4update['_id'],
+                                    status: ReservationUtil.STATUS_TEMPORARY
                                 },
                                 reservationDocument4update,
                             (err, raw) => {
                                 this.logger.info('reservation updated.', err, raw);
 
                                 if (err) {
-                                    // TODO ログ出力
                                     reject();
 
                                 } else {
@@ -385,11 +418,27 @@ export default class SponsorReserveController extends ReserveBaseController {
                     };
 
                     Promise.all(promises).then(() => {
-                        reservationModel.remove((err) => {
-                            this.logger.info('redirecting to complete...');
-                            this.res.redirect(this.router.build('sponsor.reserve.complete', {paymentNo: reservationModel.paymentNo}));
+                        this.logger.info('creating reservationEmailCue...');
+                        Models.ReservationEmailCue.create(
+                            {
+                                payment_no: reservationModel.paymentNo,
+                                is_sent: false
+                            },
+                            (err, reservationEmailCueDocument) => {
+                                this.logger.info('reservationEmailCue created.', err, reservationEmailCueDocument);
+                                if (err) {
+                                    // 失敗してもスルー(ログと運用でなんとかする)
 
-                        });
+                                }
+
+                                reservationModel.remove((err) => {
+                                    this.logger.info('redirecting to complete...');
+                                    this.res.redirect(this.router.build('sponsor.reserve.complete', {paymentNo: reservationModel.paymentNo}));
+
+                                });
+
+                            }
+                        );
 
                     }, (err) => {
                         this.res.render('sponsor/reserve/confirm', {
@@ -410,9 +459,6 @@ export default class SponsorReserveController extends ReserveBaseController {
         });
     }
 
-    /**
-     * TODO 続けて予約するボタンを追加
-     */
     public complete(): void {
         let paymentNo = this.req.params.paymentNo;
         Models.Reservation.find(
@@ -421,19 +467,19 @@ export default class SponsorReserveController extends ReserveBaseController {
                 status: ReservationUtil.STATUS_RESERVED,
                 sponsor: this.sponsorUser.get('_id')
             },
-        (err, reservationDocuments) => {
-            if (err || reservationDocuments.length < 1) {
-                // TODO
-                return this.next(new Error('invalid access.'));
+            (err, reservationDocuments) => {
+                if (err || reservationDocuments.length < 1) {
+                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
+
+                }
+
+                this.res.render('sponsor/reserve/complete', {
+                    layout: 'layouts/sponsor/layout',
+                    reservationDocuments: reservationDocuments
+                });
 
             }
-
-            this.res.render('sponsor/reserve/complete', {
-                layout: 'layouts/sponsor/layout',
-                reservationDocuments: reservationDocuments
-            });
-
-        });
+        );
 
     }
 }

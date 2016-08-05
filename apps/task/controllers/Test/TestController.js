@@ -472,6 +472,9 @@ class TestController extends BaseController_1.default {
             next(filmDocuments[i]);
         });
     }
+    /**
+     * 予約完了メールを送信する
+     */
     sendCompleteEmail() {
         mongoose.connect(MONGOLAB_URI, {});
         let promises = [];
@@ -509,10 +512,20 @@ class TestController extends BaseController_1.default {
                         let purchaserGroup = reservationDocuments[0].get('purchaser_group');
                         switch (purchaserGroup) {
                             case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
+                            case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
+                            case ReservationUtil_1.default.PURCHASER_GROUP_SPONROR:
                                 to = reservationDocuments[0].get('purchaser_email');
+                                break;
+                            case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
+                                to = reservationDocuments[0].get('staff_email');
                                 break;
                             default:
                                 break;
+                        }
+                        if (!to) {
+                            mongoose.disconnect();
+                            process.exit(0);
+                            return;
                         }
                         let EmailTemplate = emailTemplates.EmailTemplate;
                         var path = require('path');

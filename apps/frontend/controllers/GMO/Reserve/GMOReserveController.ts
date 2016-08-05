@@ -114,7 +114,7 @@ export default class GMOReserveController extends ReserveBaseController {
                             break;
 
                         default:
-                            this.next(new Error('invalid pay method.'));
+                            this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                             break;
                     }
@@ -213,7 +213,7 @@ export default class GMOReserveController extends ReserveBaseController {
             ).exec((err, reservationDocuments) => {
                 if (err || reservationDocuments.length < 1) {
                     // TODO
-                    return this.next(new Error('invalid access.'));
+                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 }
 
                 // ログイン中ユーザーの決済かどうかチェック
@@ -221,10 +221,10 @@ export default class GMOReserveController extends ReserveBaseController {
                 switch (purchaserGroup) {
                     case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
                         if (!this.mvtkUser.isAuthenticated()) {
-                            return this.next(new Error('invalid access.'));
+                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                         } else if (this.mvtkUser.memberInfoResult.kiinCd !== reservationDocuments[0].get('mvtk_kiin_cd')) {
-                            return this.next(new Error('invalid access.'));
+                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                         }
 
@@ -232,10 +232,10 @@ export default class GMOReserveController extends ReserveBaseController {
 
                     case ReservationUtil.PURCHASER_GROUP_MEMBER:
                         if (!this.memberUser.isAuthenticated()) {
-                            return this.next(new Error('invalid access.'));
+                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                         } else if (this.memberUser.get('_id') !== reservationDocuments[0].get('member').toString()) {
-                            return this.next(new Error('invalid access.'));
+                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                         }
 

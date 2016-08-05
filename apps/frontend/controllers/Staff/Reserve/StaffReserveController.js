@@ -55,7 +55,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                         });
                     }
                     else {
-                        this.next(new Error('不適切なアクセスです'));
+                        this.next(new Error(this.req.__('Message.UnexpectedError')));
                     }
                 });
             }
@@ -75,8 +75,6 @@ class StaffReserveController extends ReserveBaseController_1.default {
     }
     /**
      * 座席選択
-     *
-     * TODO 1パフォーマンスにつき何件まで？？？
      */
     seats() {
         let token = this.req.params.token;
@@ -84,15 +82,17 @@ class StaffReserveController extends ReserveBaseController_1.default {
             if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
-            this.logger.debug('reservationModel is ', reservationModel.toLog());
-            // 外部関係者による予約数を取得
-            Models_1.default.Reservation.count({
-                staff: this.staffUser.get('_id')
-            }, (err, reservationsCount) => {
-                if (this.req.method === 'POST') {
-                    reserveSeatForm_1.default(this.req, this.res, (err) => {
-                        if (this.req.form.isValid) {
-                            let reservationIds = JSON.parse(this.req.form['reservationIds']);
+            let limit = 10;
+            if (this.req.method === 'POST') {
+                reserveSeatForm_1.default(this.req, this.res, (err) => {
+                    if (this.req.form.isValid) {
+                        let reservationIds = JSON.parse(this.req.form['reservationIds']);
+                        // 追加指定席を合わせて制限枚数を超過した場合
+                        if (reservationIds.length > limit) {
+                            let message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
+                            this.res.redirect(`${this.router.build('staff.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                        }
+                        else {
                             // 座席FIX
                             this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
                                 if (err) {
@@ -103,29 +103,30 @@ class StaffReserveController extends ReserveBaseController_1.default {
                                     reservationModel.save((err) => {
                                         // 仮押さえできていない在庫があった場合
                                         if (reservationIds.length > reservationModel.reservationIds.length) {
-                                            // TODO メッセージ？
                                             let message = '座席を確保できませんでした。再度指定してください。';
                                             this.res.redirect(this.router.build('staff.reserve.seats', { token: token }) + `?message=${encodeURIComponent(message)}`);
                                         }
                                         else {
+                                            // 券種選択へ
                                             this.res.redirect(this.router.build('staff.reserve.tickets', { token: token }));
                                         }
                                     });
                                 }
                             });
                         }
-                        else {
-                            this.res.redirect(this.router.build('staff.reserve.seats', { token: token }));
-                        }
-                    });
-                }
-                else {
-                    this.res.render('staff/reserve/seats', {
-                        layout: 'layouts/staff/layout',
-                        reservationModel: reservationModel,
-                    });
-                }
-            });
+                    }
+                    else {
+                        this.res.redirect(this.router.build('staff.reserve.seats', { token: token }));
+                    }
+                });
+            }
+            else {
+                this.res.render('staff/reserve/seats', {
+                    layout: 'layouts/staff/layout',
+                    reservationModel: reservationModel,
+                    limit: limit
+                });
+            }
         });
     }
     /**
@@ -150,7 +151,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                                     return (ticketType.code === choice.ticket_type_code);
                                 });
                                 if (!ticketType) {
-                                    return this.next(new Error('不適切なアクセスです'));
+                                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                 }
                                 reservation.ticket_type_code = ticketType.code;
                                 reservation.ticket_type_name = ticketType.name;
@@ -166,7 +167,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                             });
                         }
                         else {
-                            this.next(new Error('不適切なアクセスです'));
+                            this.next(new Error(this.req.__('Message.UnexpectedError')));
                         }
                     }
                     else {
@@ -207,10 +208,10 @@ class StaffReserveController extends ReserveBaseController_1.default {
                             this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
                             Models_1.default.Reservation.update({
                                 _id: reservationDocument4update['_id'],
+                                status: ReservationUtil_1.default.STATUS_TEMPORARY
                             }, reservationDocument4update, (err, raw) => {
                                 this.logger.info('reservation updated.', err, raw);
                                 if (err) {
-                                    // TODO ログ出力
                                     reject();
                                 }
                                 else {
@@ -221,9 +222,18 @@ class StaffReserveController extends ReserveBaseController_1.default {
                     }
                     ;
                     Promise.all(promises).then(() => {
-                        reservationModel.remove((err) => {
-                            this.logger.info('redirecting to complete...');
-                            this.res.redirect(this.router.build('staff.reserve.complete', { paymentNo: reservationModel.paymentNo }));
+                        this.logger.info('creating reservationEmailCue...');
+                        Models_1.default.ReservationEmailCue.create({
+                            payment_no: reservationModel.paymentNo,
+                            is_sent: false
+                        }, (err, reservationEmailCueDocument) => {
+                            this.logger.info('reservationEmailCue created.', err, reservationEmailCueDocument);
+                            if (err) {
+                            }
+                            reservationModel.remove((err) => {
+                                this.logger.info('redirecting to complete...');
+                                this.res.redirect(this.router.build('staff.reserve.complete', { paymentNo: reservationModel.paymentNo }));
+                            });
                         });
                     }, (err) => {
                         this.res.render('staff/reserve/confirm', {
@@ -249,8 +259,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
             staff: this.staffUser.get('_id')
         }, (err, reservationDocuments) => {
             if (err || reservationDocuments.length < 1) {
-                // TODO
-                return this.next(new Error('invalid access.'));
+                return this.next(new Error(this.req.__('Message.UnexpectedError')));
             }
             this.res.render('staff/reserve/complete', {
                 layout: 'layouts/staff/layout',

@@ -1,4 +1,7 @@
 <script src="/js/reserve/seats.js"></script>
+<input type="hidden" name="seatsLimit" value="<%- limit %>">
+<input type="hidden" name="seatsLimitMessage" value="<%- __('Message.seatsLimit{{limit}}', {limit: limit.toString()}) %>">
+
 
 <h1><%- __('h1.SelectSeats') %></h1>
 
@@ -15,7 +18,7 @@
 
 <div class="row">
     <div class="row">
-        <h3><%- __('Label.AvailableTicketsCountLeft') %> : <span class="reservable-count"><%- parseInt(sponsorUser.get('max_reservation_count')) - reservationsCount %></span></h3>
+        <h3><%- __('Label.AvailableTicketsCountLeft') %> : <span class="reservable-count"><%- reservableCount - reservationModel.reservationIds.length %></span></h3>
     </div>
 
     <div class="seatStatusesMap hidden" data-token="<%- reservationModel.token %>">

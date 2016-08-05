@@ -403,7 +403,6 @@ export default class ReserveBaseController extends BaseController {
         };
 
         Promise.all(promises).then(() => {
-            // TODO メールの送信ログ（宛先、件名、本文）を保管して下さい。出来ればBlob（受信拒否等で取れなかった場合の再送用）
             this.logger.info('creating reservationEmailCue...');
             Models.ReservationEmailCue.create(
                 {
