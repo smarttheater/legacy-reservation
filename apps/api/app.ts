@@ -12,6 +12,32 @@ import router from './routes/router';
 import conf = require('config');
 import mongoose = require('mongoose');
 import i18n = require('i18n');
+import passport = require('passport');
+import passportHttpBearer = require('passport-http-bearer');
+let BearerStrategy = passportHttpBearer.Strategy;
+import Models from '../common/models/Models';
+
+passport.use(new BearerStrategy(
+    (token, cb) => {
+
+        Models.Authentication.findOne(
+            {
+                token: token
+            },
+            (err, authenticationDocument) => {
+                if (err) {
+                    return cb(err);
+                }
+
+                if (!authenticationDocument) {
+                    return cb(null, false);
+                }
+
+                return cb(null, authenticationDocument);
+            }
+        );
+    }
+));
 
 let app = express();
 

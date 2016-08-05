@@ -3,6 +3,7 @@
  * MongoDBのモデルをまとめたモジュール
  */
 const mongoose = require('mongoose');
+const AuthenticationSchema_1 = require('../models/Authentication/AuthenticationSchema');
 const FilmSchema_1 = require('../models/Film/FilmSchema');
 const MemberSchema_1 = require('../models/Member/MemberSchema');
 const PerformanceSchema_1 = require('../models/Performance/PerformanceSchema');
@@ -13,6 +14,7 @@ const SponsorSchema_1 = require('../models/Sponsor/SponsorSchema');
 const StaffSchema_1 = require('../models/Staff/StaffSchema');
 const TheaterSchema_1 = require('../models/Theater/TheaterSchema');
 const TicketTypeGroupSchema_1 = require('../models/TicketTypeGroup/TicketTypeGroupSchema');
+let Authentication = mongoose.model('Authentication', AuthenticationSchema_1.default);
 let Film = mongoose.model('Film', FilmSchema_1.default);
 let Member = mongoose.model('Member', MemberSchema_1.default);
 let Performance = mongoose.model('Performance', PerformanceSchema_1.default);
@@ -25,6 +27,7 @@ let Theater = mongoose.model('Theater', TheaterSchema_1.default);
 let TicketTypeGroup = mongoose.model('TicketTypeGroup', TicketTypeGroupSchema_1.default);
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
+    Authentication: Authentication,
     Film: Film,
     Member: Member,
     Performance: Performance,

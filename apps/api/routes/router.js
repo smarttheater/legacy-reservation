@@ -1,5 +1,7 @@
 "use strict";
 const NamedRoutes = require('named-routes');
+const passport = require('passport');
+const AuthController_1 = require('../controllers/Auth/AuthController');
 const AdmissionController_1 = require('../controllers/Admission/AdmissionController');
 const PerformanceController_1 = require('../controllers/Performance/PerformanceController');
 const ReservationController_1 = require('../controllers/Reservation/ReservationController');
@@ -9,6 +11,10 @@ exports.default = (app) => {
     let router = new NamedRoutes();
     router.extendExpress(app);
     router.registerAppHelpers(app);
+    app.all('/api/login', 'login', (req, res, next) => { (new AuthController_1.default(req, res, next)).login(); });
+    // 要認証サービス
+    app.all('/api/reservations', 'reservations', passport.authenticate('bearer', { session: false }), (req, res, next) => { (new ReservationController_1.default(req, res, next)).findByMvtkUser(); });
+    app.all('/api/reservation/:id', 'reservation', passport.authenticate('bearer', { session: false }), (req, res, next) => { (new ReservationController_1.default(req, res, next)).findById(); });
     // search performances
     app.get('/api/:locale/performance/search', 'performance.search', (req, res, next) => { (new PerformanceController_1.default(req, res, next)).search(); });
     // reservation email

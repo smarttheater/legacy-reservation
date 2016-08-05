@@ -3,6 +3,7 @@
  */
 import mongoose = require('mongoose');
 
+import AuthenticationSchema from '../models/Authentication/AuthenticationSchema';
 import FilmSchema from '../models/Film/FilmSchema';
 import MemberSchema from '../models/Member/MemberSchema';
 import PerformanceSchema from '../models/Performance/PerformanceSchema';
@@ -14,6 +15,7 @@ import StaffSchema from '../models/Staff/StaffSchema';
 import TheaterSchema from '../models/Theater/TheaterSchema';
 import TicketTypeGroupSchema from '../models/TicketTypeGroup/TicketTypeGroupSchema';
 
+let Authentication = mongoose.model('Authentication', AuthenticationSchema);
 let Film = mongoose.model('Film', FilmSchema);
 let Member = mongoose.model('Member', MemberSchema);
 let Performance = mongoose.model('Performance', PerformanceSchema);
@@ -26,6 +28,7 @@ let Theater = mongoose.model('Theater', TheaterSchema);
 let TicketTypeGroup = mongoose.model('TicketTypeGroup', TicketTypeGroupSchema);
 
 export default {
+    Authentication,
     Film,
     Member,
     Performance,

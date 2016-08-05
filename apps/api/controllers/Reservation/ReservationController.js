@@ -93,6 +93,38 @@ class ReservationController extends BaseController_1.default {
             }
         });
     }
+    findByMvtkUser() {
+        Models_1.default.Reservation.find({
+            mvtk_kiin_cd: this.req.user.mvtk_kiin_cd,
+            status: ReservationUtil_1.default.STATUS_RESERVED
+        }, (err, reservationDocuments) => {
+            if (err) {
+            }
+            else {
+                this.res.json({
+                    isSuccess: true,
+                    reservations: reservationDocuments
+                });
+            }
+        });
+    }
+    findById() {
+        let id = this.req.params.id;
+        Models_1.default.Reservation.findOne({
+            _id: id,
+            mvtk_kiin_cd: this.req.user.mvtk_kiin_cd,
+            status: ReservationUtil_1.default.STATUS_RESERVED
+        }, (err, reservationDocument) => {
+            if (err) {
+            }
+            else {
+                this.res.json({
+                    isSuccess: true,
+                    reservation: reservationDocument
+                });
+            }
+        });
+    }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = ReservationController;

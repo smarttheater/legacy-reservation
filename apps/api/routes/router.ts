@@ -1,6 +1,8 @@
 import NamedRoutes = require('named-routes');
 import express = require('express');
+import passport = require('passport');
 
+import AuthController from '../controllers/Auth/AuthController';
 import AdmissionController from '../controllers/Admission/AdmissionController';
 import PerformanceController from '../controllers/Performance/PerformanceController';
 import ReservationController from '../controllers/Reservation/ReservationController';
@@ -22,6 +24,15 @@ export default (app: any) => {
     let router = new NamedRoutes();
     router.extendExpress(app);
     router.registerAppHelpers(app);
+
+
+
+
+    app.all('/api/login', 'login', (req, res, next) => {(new AuthController(req, res, next)).login()});
+
+    // 要認証サービス
+    app.all('/api/reservations', 'reservations', passport.authenticate('bearer', {session: false}), (req, res, next) => {(new ReservationController(req, res, next)).findByMvtkUser()});
+    app.all('/api/reservation/:id', 'reservation', passport.authenticate('bearer', {session: false}), (req, res, next) => {(new ReservationController(req, res, next)).findById()});
 
 
 

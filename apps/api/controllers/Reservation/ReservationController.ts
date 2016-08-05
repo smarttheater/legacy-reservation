@@ -111,4 +111,49 @@ export default class ReservationController extends BaseController {
             }
         );
     }
+
+    public findByMvtkUser(): void {
+        Models.Reservation.find(
+            {
+                mvtk_kiin_cd: this.req.user.mvtk_kiin_cd,
+                status: ReservationUtil.STATUS_RESERVED
+            },
+            (err, reservationDocuments) => {
+                if (err) {
+
+                } else {
+                    this.res.json({
+                        isSuccess: true,
+                        reservations: reservationDocuments
+                    });
+                }
+
+            }
+        );
+
+    }
+
+    public findById(): void {
+        let id = this.req.params.id;
+
+        Models.Reservation.findOne(
+            {
+                _id: id,
+                mvtk_kiin_cd: this.req.user.mvtk_kiin_cd,
+                status: ReservationUtil.STATUS_RESERVED
+            },
+            (err, reservationDocument) => {
+                if (err) {
+
+                } else {
+                    this.res.json({
+                        isSuccess: true,
+                        reservation: reservationDocument
+                    });
+                }
+
+            }
+        );
+
+    }
 }

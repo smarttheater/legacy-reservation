@@ -11,6 +11,23 @@ const router_1 = require('./routes/router');
 const conf = require('config');
 const mongoose = require('mongoose');
 const i18n = require('i18n');
+const passport = require('passport');
+const passportHttpBearer = require('passport-http-bearer');
+let BearerStrategy = passportHttpBearer.Strategy;
+const Models_1 = require('../common/models/Models');
+passport.use(new BearerStrategy((token, cb) => {
+    Models_1.default.Authentication.findOne({
+        token: token
+    }, (err, authenticationDocument) => {
+        if (err) {
+            return cb(err);
+        }
+        if (!authenticationDocument) {
+            return cb(null, false);
+        }
+        return cb(null, authenticationDocument);
+    });
+}));
 let app = express();
 app.use(partials()); // レイアウト&パーシャルサポート
 app.use(useragent.express()); // ユーザーエージェント
