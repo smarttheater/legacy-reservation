@@ -14,7 +14,8 @@ class AuthController extends BaseController_1.default {
                 if (err) {
                     return this.res.json({
                         isSuccess: false,
-                        accessToken: null
+                        accessToken: null,
+                        mvtkKiinCd: null
                     });
                 }
                 if (kiinCd) {
@@ -31,7 +32,8 @@ class AuthController extends BaseController_1.default {
                         else {
                             this.res.json({
                                 isSuccess: true,
-                                accessToken: token
+                                accessToken: token,
+                                mvtkKiinCd: kiinCd
                             });
                         }
                     });
@@ -39,7 +41,8 @@ class AuthController extends BaseController_1.default {
                 else {
                     this.res.json({
                         isSuccess: false,
-                        acceeToken: null
+                        acceeToken: null,
+                        mvtkKiinCd: null
                     });
                 }
             });

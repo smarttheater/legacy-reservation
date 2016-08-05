@@ -11,7 +11,7 @@ exports.default = (app) => {
     let router = new NamedRoutes();
     router.extendExpress(app);
     router.registerAppHelpers(app);
-    app.all('/api/login', 'login', (req, res, next) => { (new AuthController_1.default(req, res, next)).login(); });
+    app.post('/api/login', 'login', (req, res, next) => { (new AuthController_1.default(req, res, next)).login(); });
     // 要認証サービス
     app.all('/api/reservations', 'reservations', passport.authenticate('bearer', { session: false }), (req, res, next) => { (new ReservationController_1.default(req, res, next)).findByMvtkUser(); });
     app.all('/api/reservation/:id', 'reservation', passport.authenticate('bearer', { session: false }), (req, res, next) => { (new ReservationController_1.default(req, res, next)).findById(); });

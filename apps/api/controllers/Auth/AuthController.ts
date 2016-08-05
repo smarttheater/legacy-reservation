@@ -14,7 +14,8 @@ export default class AuthController extends BaseController {
                 if (err) {
                     return this.res.json({
                         isSuccess: false,
-                        accessToken: null
+                        accessToken: null,
+                        mvtkKiinCd: null
                     });
                 }
 
@@ -36,7 +37,8 @@ export default class AuthController extends BaseController {
                             } else {
                                 this.res.json({
                                     isSuccess: true,
-                                    accessToken: token
+                                    accessToken: token,
+                                    mvtkKiinCd: kiinCd
                                 });
 
                             }
@@ -47,7 +49,8 @@ export default class AuthController extends BaseController {
                 } else {
                     this.res.json({
                         isSuccess: false,
-                        acceeToken: null
+                        acceeToken: null,
+                        mvtkKiinCd: null
                     });
 
                 }
