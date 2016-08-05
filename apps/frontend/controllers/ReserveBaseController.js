@@ -1,9 +1,9 @@
 "use strict";
 const BaseController_1 = require('./BaseController');
+const Util_1 = require('../../common/Util/Util');
 const Models_1 = require('../../common/models/Models');
 const ReservationUtil_1 = require('../../common/models/Reservation/ReservationUtil');
 const TicketTypeGroupUtil_1 = require('../../common/models/TicketTypeGroup/TicketTypeGroupUtil');
-const log4js = require('log4js');
 const fs = require('fs-extra');
 const sendgrid = require('sendgrid');
 const conf = require('config');
@@ -265,7 +265,7 @@ class ReserveBaseController extends BaseController_1.default {
      * @param {string} paymentNo 購入番号
      * @param {Object} update 追加更新パラメータ
      */
-    processFixReservations(reservationIds, update, cb) {
+    processFixReservations(paymentNo, reservationIds, update, cb) {
         let promises = [];
         update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
         update['updated_user'] = 'ReserveBaseController';
@@ -288,7 +288,17 @@ class ReserveBaseController extends BaseController_1.default {
         }
         ;
         Promise.all(promises).then(() => {
-            cb(null);
+            // TODO メールの送信ログ（宛先、件名、本文）を保管して下さい。出来ればBlob（受信拒否等で取れなかった場合の再送用）
+            this.logger.info('creating reservationEmailCue...');
+            Models_1.default.ReservationEmailCue.create({
+                payment_no: paymentNo,
+                is_sent: false
+            }, (err, reservationEmailCueDocument) => {
+                this.logger.info('reservationEmailCue created.', err, reservationEmailCueDocument);
+                if (err) {
+                }
+                cb(null);
+            });
         }, (err) => {
             cb(new Error('some reservations not updated.'));
         });
@@ -300,34 +310,13 @@ class ReserveBaseController extends BaseController_1.default {
      * @param {string} paymentNo 予約番号
      */
     setProcessLogger(paymentNo, cb) {
-        let env = process.env.NODE_ENV || 'dev';
-        let moment = require('moment');
-        let logDir = `${__dirname}/../../../logs/${env}/frontend/reserve/${moment().format('YYYYMMDD')}`;
-        fs.mkdirs(logDir, (err) => {
+        Util_1.default.getReservationLogger(paymentNo, (err, logger) => {
             if (err) {
             }
             else {
-                log4js.configure({
-                    appenders: [
-                        {
-                            category: 'reserve',
-                            type: 'dateFile',
-                            filename: `${logDir}/${paymentNo}.log`,
-                            pattern: '-yyyy-MM-dd',
-                            backups: 3
-                        },
-                        {
-                            type: 'console'
-                        }
-                    ],
-                    levels: {
-                        reserve: 'ALL'
-                    },
-                    replaceConsole: true
-                });
-                this.logger = log4js.getLogger('reserve');
-                cb();
+                this.logger = logger;
             }
+            cb();
         });
     }
     /**

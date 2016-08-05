@@ -7,6 +7,7 @@ import FilmSchema from '../models/Film/FilmSchema';
 import MemberSchema from '../models/Member/MemberSchema';
 import PerformanceSchema from '../models/Performance/PerformanceSchema';
 import ReservationSchema from '../models/Reservation/ReservationSchema';
+import ReservationEmailCueSchema from '../models/ReservationEmailCue/ReservationEmailCueSchema';
 import ScreenSchema from '../models/Screen/ScreenSchema';
 import SponsorSchema from '../models/Sponsor/SponsorSchema';
 import StaffSchema from '../models/Staff/StaffSchema';
@@ -17,6 +18,7 @@ let Film = mongoose.model('Film', FilmSchema);
 let Member = mongoose.model('Member', MemberSchema);
 let Performance = mongoose.model('Performance', PerformanceSchema);
 let Reservation = mongoose.model('Reservation', ReservationSchema);
+let ReservationEmailCue = mongoose.model('ReservationEmailCue', ReservationEmailCueSchema);
 let Screen = mongoose.model('Screen', ScreenSchema);
 let Sponsor = mongoose.model('Sponsor', SponsorSchema);
 let Staff = mongoose.model('Staff', StaffSchema);
@@ -28,6 +30,7 @@ export default {
     Member,
     Performance,
     Reservation,
+    ReservationEmailCue,
     Screen,
     Sponsor,
     Staff,

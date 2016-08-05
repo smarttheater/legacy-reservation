@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 /**
  * 券種グループスキーマ
  */
-let TicketTypeGroupSchema = new mongoose.Schema({
+let Schema = new mongoose.Schema({
     name: String,
     name_en: String,
     types: [
@@ -26,4 +26,4 @@ let TicketTypeGroupSchema = new mongoose.Schema({
     }
 });
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = TicketTypeGroupSchema;
+exports.default = Schema;

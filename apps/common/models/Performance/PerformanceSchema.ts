@@ -3,7 +3,7 @@ import mongoose = require('mongoose');
 /**
  * パフォーマンススキーマ
  */
-let PerformanceSchema = new mongoose.Schema({
+let Schema = new mongoose.Schema({
     theater: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Theater'
@@ -30,4 +30,4 @@ let PerformanceSchema = new mongoose.Schema({
     }
 });
 
-export default PerformanceSchema;
+export default Schema;

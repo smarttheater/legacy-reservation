@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 /**
  * スクリーンスキーマ
  */
-let ScreenSchema = new mongoose.Schema({
+let Schema = new mongoose.Schema({
     theater: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Theater'
@@ -39,4 +39,4 @@ let ScreenSchema = new mongoose.Schema({
     }
 });
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = ScreenSchema;
+exports.default = Schema;

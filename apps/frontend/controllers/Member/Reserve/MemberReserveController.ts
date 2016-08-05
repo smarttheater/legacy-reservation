@@ -320,7 +320,7 @@ export default class MemberReserveController extends ReserveBaseController {
             }
 
             // TODO force to logout
-            delete this.req.session[MemberUser.AUTH_SESSION_NAME];
+            // delete this.req.session[MemberUser.AUTH_SESSION_NAME];
 
             this.res.render('member/reserve/complete', {
                 reservationDocuments: reservationDocuments

@@ -369,7 +369,7 @@ export default class ReserveBaseController extends BaseController {
      * @param {string} paymentNo 購入番号
      * @param {Object} update 追加更新パラメータ
      */
-    protected processFixReservations(reservationIds: Array<string>, update: Object, cb: (err: Error) => void): void {
+    protected processFixReservations(paymentNo: string, reservationIds: Array<string>, update: Object, cb: (err: Error) => void): void {
         let promises = [];
 
         update['status'] = ReservationUtil.STATUS_RESERVED;
@@ -403,7 +403,24 @@ export default class ReserveBaseController extends BaseController {
         };
 
         Promise.all(promises).then(() => {
-            cb(null);
+            // TODO メールの送信ログ（宛先、件名、本文）を保管して下さい。出来ればBlob（受信拒否等で取れなかった場合の再送用）
+            this.logger.info('creating reservationEmailCue...');
+            Models.ReservationEmailCue.create(
+                {
+                    payment_no: paymentNo,
+                    is_sent: false
+                },
+                (err, reservationEmailCueDocument) => {
+                    this.logger.info('reservationEmailCue created.', err, reservationEmailCueDocument);
+                    if (err) {
+                        // 失敗してもスルー(ログと運用でなんとかする)
+
+                    }
+
+                    cb(null);
+
+                }
+            );
 
         }, (err) => {
             cb(new Error('some reservations not updated.'));
@@ -418,41 +435,19 @@ export default class ReserveBaseController extends BaseController {
      * @param {string} paymentNo 予約番号
      */
     protected setProcessLogger(paymentNo: string, cb: () => void) {
-        let env = process.env.NODE_ENV || 'dev';
-        let moment = require('moment');
-        let logDir = `${__dirname}/../../../logs/${env}/frontend/reserve/${moment().format('YYYYMMDD')}`;
-
-        fs.mkdirs(logDir, (err) => {
+        Util.getReservationLogger(paymentNo, (err, logger) => {
             if (err) {
                 // 失敗したとしても処理は続行
                 // ログファイルがデフォルトになってしまうが仕方ない
 
             } else {
-                log4js.configure({
-                    appenders: [
-                        {
-                            category: 'reserve',
-                            type: 'dateFile',
-                            filename: `${logDir}/${paymentNo}.log`,
-                            pattern: '-yyyy-MM-dd',
-                            backups: 3
-                        },
-                        {
-                            type: 'console'
-                        }
-                    ],
-                    levels: {
-                        reserve: 'ALL'
-                    },
-                    replaceConsole: true
-                });
-
-                this.logger = log4js.getLogger('reserve');
-
-                cb();
+                this.logger = logger;
 
             }
+    
+            cb();
         });
+
     }
 
     /**

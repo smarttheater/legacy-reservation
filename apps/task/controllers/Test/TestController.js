@@ -1,6 +1,7 @@
 "use strict";
 const BaseController_1 = require('../BaseController');
 const Constants_1 = require('../../../common/Util/Constants');
+const Util_1 = require('../../../common/Util/Util');
 const Models_1 = require('../../../common/models/Models');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const PerformanceUtil_1 = require('../../../common/models/Performance/PerformanceUtil');
@@ -13,6 +14,7 @@ const mongodb = require('mongodb');
 const mongoose = require('mongoose');
 const PerformanceStatusesModel_1 = require('../../../common/models/PerformanceStatusesModel');
 const request = require('request');
+const sendgrid = require('sendgrid');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class TestController extends BaseController_1.default {
     /**
@@ -467,6 +469,74 @@ class TestController extends BaseController_1.default {
             };
             let i = 0;
             next(filmDocuments[i]);
+        });
+    }
+    sendCompleteEmail() {
+        mongoose.connect(MONGOLAB_URI, {});
+        let promises = [];
+        Models_1.default.ReservationEmailCue.find({
+            is_sent: false
+        }).limit(10).exec((err, cueDocuments) => {
+            let next = (i) => {
+                if (i === cueDocuments.length) {
+                    mongoose.disconnect();
+                    process.exit(0);
+                    return;
+                }
+                let cueDocument = cueDocuments[i];
+                // 予約ロガーを取得
+                Util_1.default.getReservationLogger(cueDocument.get('payment_no'), (err, logger) => {
+                    if (err) {
+                    }
+                    else {
+                        this.logger = logger;
+                    }
+                    // 送信
+                    Models_1.default.Reservation.find({
+                        payment_no: cueDocument.get('payment_no'),
+                        status: ReservationUtil_1.default.STATUS_RESERVED
+                    }, (err, reservationDocuments) => {
+                        let to = '';
+                        let purchaserGroup = reservationDocuments[0].get('purchaser_group');
+                        switch (purchaserGroup) {
+                            case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
+                                to = reservationDocuments[0].get('purchaser_email');
+                                break;
+                            default:
+                                break;
+                        }
+                        let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
+                        let email = new _sendgrid.Email({
+                            to: to,
+                            from: 'noreply@devtiffwebapp.azurewebsites.net',
+                            subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
+                            html: '<html><body>complete</body></html>'
+                        });
+                        // add barcodes
+                        for (let reservationDocument of reservationDocuments) {
+                            let reservationId = reservationDocument.get('_id').toString();
+                        }
+                        this.logger.info('sending an email...email:', email);
+                        _sendgrid.send(email, (err, json) => {
+                            this.logger.info('an email sent.', err, json);
+                            if (err) {
+                                i++;
+                                next(i);
+                            }
+                            else {
+                                // TODO 送信済みフラグを立てる
+                                cueDocument.set('is_sent', true);
+                                cueDocument.save((err, res) => {
+                                    i++;
+                                    next(i);
+                                });
+                            }
+                        });
+                    });
+                });
+            };
+            let i = 0;
+            next(i);
         });
     }
 }

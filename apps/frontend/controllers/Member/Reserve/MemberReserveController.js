@@ -257,7 +257,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                 return this.next(new Error('invalid access.'));
             }
             // TODO force to logout
-            delete this.req.session[MemberUser_1.default.AUTH_SESSION_NAME];
+            // delete this.req.session[MemberUser.AUTH_SESSION_NAME];
             this.res.render('member/reserve/complete', {
                 reservationDocuments: reservationDocuments
             });

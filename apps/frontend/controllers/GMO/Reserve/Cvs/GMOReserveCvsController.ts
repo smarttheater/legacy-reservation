@@ -142,7 +142,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                             return reservationDocument.get('_id');
                         });
                         this.logger.info('fixing reservations... update:', update);
-                        this.processFixReservations(reservationIds, update, (err) => {
+                        this.processFixReservations(paymentNo, reservationIds, update, (err) => {
                             if (err) {
                                 // AccessPassが************なので、売上取消要求は行えない
                                 // 失敗した場合、約60分毎に5回再通知されるので、それをリトライとみなす

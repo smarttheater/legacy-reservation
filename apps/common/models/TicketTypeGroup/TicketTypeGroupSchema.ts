@@ -3,7 +3,7 @@ import mongoose = require('mongoose');
 /**
  * 券種グループスキーマ
  */
-let TicketTypeGroupSchema = new mongoose.Schema({
+let Schema = new mongoose.Schema({
     name: String, // 券種グループ名
     name_en: String, // 券種グループ名(英語)
     types: [
@@ -26,4 +26,4 @@ let TicketTypeGroupSchema = new mongoose.Schema({
     }
 });
 
-export default TicketTypeGroupSchema;
+export default Schema;

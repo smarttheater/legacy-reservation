@@ -2,6 +2,8 @@ import redis = require('redis');
 import conf = require('config');
 import crypto = require('crypto');
 import uniqid = require('uniqid');
+import fs = require('fs-extra');
+import log4js = require('log4js');
 
 /**
  * 共通のユーティリティ
@@ -78,5 +80,45 @@ export default class Util {
         );
 
         return client;
+    }
+
+    /**
+     * 予約プロセス用のロガーを設定する
+     * 1決済管理番号につき、1ログファイル
+     * 
+     * @param {string} paymentNo 予約番号
+     */
+    public static getReservationLogger(paymentNo: string, cb: (err: Error, logger: log4js.Logger) => void) {
+        let env = process.env.NODE_ENV || 'dev';
+        let moment = require('moment');
+        let logDir = `${__dirname}/../../../logs/${env}/reservations/${moment().format('YYYYMMDD')}`;
+
+        fs.mkdirs(logDir, (err) => {
+            if (err) {
+                cb(err, null);
+
+            } else {
+                log4js.configure({
+                    appenders: [
+                        {
+                            category: 'reservation',
+                            type: 'dateFile',
+                            filename: `${logDir}/${paymentNo}.log`,
+                            pattern: '-yyyy-MM-dd'
+                        },
+                        {
+                            type: 'console'
+                        }
+                    ],
+                    levels: {
+                        reserve: 'ALL'
+                    },
+                    replaceConsole: true
+                });
+
+                cb(null, log4js.getLogger('reservation'));
+
+            }
+        });
     }
 }

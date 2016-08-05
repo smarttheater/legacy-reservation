@@ -1,5 +1,6 @@
 import BaseController from '../BaseController';
 import Constants from '../../../common/Util/Constants';
+import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import PerformanceUtil from '../../../common/models/Performance/PerformanceUtil';
@@ -12,6 +13,7 @@ import mongodb = require('mongodb');
 import mongoose = require('mongoose');
 import PerformanceStatusesModel from '../../../common/models/PerformanceStatusesModel';
 import request = require('request');
+import sendgrid = require('sendgrid')
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
@@ -625,5 +627,110 @@ export default class TestController extends BaseController {
             next(filmDocuments[i]);
 
         });
+    }
+
+    public sendCompleteEmail(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
+        let promises = [];
+
+        Models.ReservationEmailCue.find(
+            {
+                is_sent: false
+            }
+        ).limit(10).exec((err, cueDocuments) => {
+            let next = (i: number) => {
+                if (i === cueDocuments.length) {
+                    mongoose.disconnect();
+                    process.exit(0);
+                    return;
+
+                }
+
+                let cueDocument = cueDocuments[i];
+
+                // 予約ロガーを取得
+                Util.getReservationLogger(cueDocument.get('payment_no'), (err, logger) => {
+                    if (err) {
+                        // 失敗したらデフォルトロガーに逃げる
+
+                    } else {
+                        this.logger = logger;
+                    }
+
+                    // 送信
+                    Models.Reservation.find(
+                        {
+                            payment_no: cueDocument.get('payment_no'),
+                            status: ReservationUtil.STATUS_RESERVED
+                        },
+                        (err, reservationDocuments) => {
+                            let to = '';
+                            let purchaserGroup = reservationDocuments[0].get('purchaser_group');
+                            switch (purchaserGroup) {
+                                case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
+                                    to = reservationDocuments[0].get('purchaser_email')
+                                    break;
+
+                                default:
+                                    break;
+
+                            }
+
+
+                            let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
+                            let email = new _sendgrid.Email({
+                                to: to,
+                                from: 'noreply@devtiffwebapp.azurewebsites.net',
+                                subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
+                                html: '<html><body>complete</body></html>'
+                            });
+
+
+                            // add barcodes
+                            for (let reservationDocument of reservationDocuments) {
+                                let reservationId = reservationDocument.get('_id').toString();
+
+                                // email.addFile({
+                                //     filename: `QR_${reservationId}.png`,
+                                //     contentType: 'image/png',
+                                //     cid: `qrcode_${reservationId}`,
+                                //     content: ReservationUtil.createQRCode(reservationId)
+                                // });
+                            }
+
+
+                            this.logger.info('sending an email...email:', email);
+                            _sendgrid.send(email, (err, json) => {
+                                this.logger.info('an email sent.', err, json);
+
+                                if (err) {
+                                    i++;
+                                    next(i);
+
+                                } else {
+                                    // TODO 送信済みフラグを立てる
+                                    cueDocument.set('is_sent', true);
+                                    cueDocument.save((err, res) => {
+                                        i++;
+                                        next(i);
+
+                                    });
+
+                                }
+
+                            });
+
+                        }
+                    );
+
+                });
+            }
+
+            let i = 0;
+            next(i);
+
+        });
+
     }
 }

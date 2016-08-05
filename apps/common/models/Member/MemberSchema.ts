@@ -3,7 +3,7 @@ import mongoose = require('mongoose');
 /**
  * メルマガ会員スキーマ
  */
-let MemberSchema = new mongoose.Schema({
+let Schema = new mongoose.Schema({
     user_id: String,
     password: String,
     performance: { 
@@ -19,4 +19,4 @@ let MemberSchema = new mongoose.Schema({
     }
 });
 
-export default MemberSchema;
+export default Schema;

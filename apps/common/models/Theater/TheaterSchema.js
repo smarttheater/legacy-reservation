@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 /**
  * 劇場スキーマ
  */
-let TheaterSchema = new mongoose.Schema({
+let Schema = new mongoose.Schema({
     name: String,
     name_en: String,
     address: String,
@@ -19,4 +19,4 @@ let TheaterSchema = new mongoose.Schema({
     }
 });
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = TheaterSchema;
+exports.default = Schema;

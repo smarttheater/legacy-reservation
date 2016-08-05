@@ -3,7 +3,7 @@ import mongoose = require('mongoose');
 /**
  * 外部関係者スキーマ
  */
-let SponsorSchema = new mongoose.Schema({
+let Schema = new mongoose.Schema({
     user_id: String,
     password: String,
     name: String,
@@ -23,4 +23,4 @@ let SponsorSchema = new mongoose.Schema({
     }
 });
 
-export default SponsorSchema;
+export default Schema;

@@ -3,7 +3,7 @@ import mongoose = require('mongoose');
 /**
  * 作品スキーマ
  */
-let FilmSchema = new mongoose.Schema({
+let Schema = new mongoose.Schema({
     name: String,
     name_en: String,
     sections: [
@@ -37,4 +37,4 @@ let FilmSchema = new mongoose.Schema({
     }
 });
 
-export default FilmSchema;
+export default Schema;

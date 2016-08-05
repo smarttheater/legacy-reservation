@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 /**
  * 内部関係者スキーマ
  */
-let StaffSchema = new mongoose.Schema({
+let Schema = new mongoose.Schema({
     user_id: String,
     password: String,
     name: String,
@@ -19,4 +19,4 @@ let StaffSchema = new mongoose.Schema({
     }
 });
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = StaffSchema;
+exports.default = Schema;
