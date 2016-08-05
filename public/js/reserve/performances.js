@@ -26,45 +26,37 @@ $(function(){
 
         var html = '';
 
-        for (var filmId of filmIds) {
+        filmIds.forEach(function(filmId) {
             var performancesOnFilm = performancesByFilm[filmId];
 
-            html += `
-            <h3>
-                ${performancesOnFilm[0].film[documentFieldName]}
-            </h3>
-            <div class="row">
-
-                <div class="col-sm-2">
-                    <img src="${performancesOnFilm[0].film.image}" alt="" class="img-thumbnail" style="width: 100px; height: 100px;">
-                </div>
-    `;
+            html += '\
+<h3>' + performancesOnFilm[0].film[documentFieldName] + '</h3>\
+<div class="row">\
+    <div class="col-sm-2">\
+        <img src="' + performancesOnFilm[0].film.image + '" alt="" class="img-thumbnail" style="width: 100px; height: 100px;">\
+    </div>\
+';
 
 
             performancesOnFilm.forEach(function(performance, index) {
                 if (index % 3 === 0) {
                 }
 
-                html += `
-                    <div class="col-sm-3">
-                        <a href="javascript:void(0)" data-performance-id="${performance._id}" class="select-performance">
-                            ${performance.day}<br>
-
-                            ${performance.theater[documentFieldName]} ${performance.screen[documentFieldName]}<br>
-
-                            ${performance.start_time}-${performance.end_time}<br>
-                            ${performance.seat_status}
-
-                        </a>
-                    </div>
-    `;
+                html += '\
+<div class="col-sm-3">\
+    <a href="javascript:void(0)" data-performance-id="' + performance._id + '" class="select-performance">\
+        ' + performance.day + '<br>\
+        ' + performance.theater[documentFieldName] + ' ' + performance.screen[documentFieldName] + '<br>\
+        ' + performance.start_time + '-' + performance.end_time + '<br>\
+        ' + performance.seat_status + '\
+    </a>\
+</div>\
+';
 
             });
 
-                html += `
-            </div>
-    `;
-        }
+            html += '</div>';
+        });
 
 
         $('.performances').html(html);
@@ -78,9 +70,9 @@ $(function(){
         formDatas.forEach(function(formData, index){
             var name = formData.name;
             if (conditions.hasOwnProperty(name)) {
-                $(`input[name="${name}"], select[name="${name}"]`, $('form')).val(conditions[name]);
+                $('input[name="' + name + '"], select[name="' + name + '"]', $('form')).val(conditions[name]);
             } else {
-                $(`input[name="${name}"], select[name="${name}"]`, $('form')).val('');
+                $('input[name="' + name + '"], select[name="' + name + '"]', $('form')).val('');
             }
         });
     }
@@ -88,7 +80,7 @@ $(function(){
     function search() {
         $.ajax({
             dataType: 'json',
-            url: `/api/${locale}/performance/search`,
+            url: '/api/' + locale + '/performance/search',
             type: 'GET',
             data: conditions,
             beforeSend: function() {

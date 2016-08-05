@@ -108,6 +108,7 @@ exports.default = (app) => {
     app.all('/customer/reserve/performances', 'customer.reserve.performances', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).performances(); });
     app.post('/customer/reserve/start', 'customer.reserve.start', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).start(); });
     app.all('/customer/login', 'customer.login', (req, res, next) => { (new CustomerAuthController_1.default(req, res, next)).login(); });
+    app.get('/customer/reserve/:token/login', 'customer.reserve.login', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).login(); });
     app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).seats(); });
     app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).tickets(); });
     app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).profile(); });

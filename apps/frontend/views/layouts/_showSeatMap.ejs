@@ -27,7 +27,7 @@
 function showSeatPositon(screenId, selecteSeatCodes) {
     $.ajax({
         dataType: 'text',
-        url: `/api/screen/${screenId}/show`,
+        url: '/api/screen/' + screenId + '/show',
         type: 'GET',
         data: {},
         beforeSend: function() {
@@ -38,7 +38,7 @@ function showSeatPositon(screenId, selecteSeatCodes) {
         new ScreenSeatStatusesMap($('.screen'));
 
         selecteSeatCodes.forEach(function(selecteSeatCode){
-            $(`.selected-seat-map .modal-body .seat a[data-seat-code="${selecteSeatCode}"]`).addClass('active');
+            $('.selected-seat-map .modal-body .seat a[data-seat-code="' + selecteSeatCode + '"]').addClass('active');
         });
 
         $('.selected-seat-map').modal();

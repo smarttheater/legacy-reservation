@@ -42,7 +42,6 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                 let token = Util_1.default.createToken();
                 let reservationModel = new ReservationModel_1.default();
                 reservationModel.token = token;
-                reservationModel.mvtkMemberInfoResult = this.mvtkUser.memberInfoResult;
                 // パフォーマンスFIX
                 this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
                     if (err) {
@@ -50,7 +49,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     }
                     else {
                         reservationModel.save((err) => {
-                            this.res.redirect(`${this.router.build('customer.login')}?cb=${encodeURIComponent(this.router.build('customer.reserve.seats', { token: token }))}`);
+                            this.res.redirect(`${this.router.build('customer.login')}?cb=${encodeURIComponent(this.router.build('customer.reserve.login', { token: token }))}`);
                         });
                     }
                 });
@@ -58,6 +57,18 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             else {
                 this.next(new Error('invalid access.'));
             }
+        });
+    }
+    login() {
+        let token = this.req.params.token;
+        ReservationModel_1.default.find(token, (err, reservationModel) => {
+            if (err || reservationModel === null) {
+                return this.next(new Error('予約プロセスが中断されました'));
+            }
+            reservationModel.mvtkMemberInfoResult = this.mvtkUser.memberInfoResult;
+            reservationModel.save((err) => {
+                this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
+            });
         });
     }
     /**

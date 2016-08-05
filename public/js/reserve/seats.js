@@ -6,7 +6,7 @@ var screenSeatStatusesMap;
 function showSeatStatusesMap() {
     $.ajax({
         dataType: 'json',
-        url: `/reserve/${$('.seatStatusesMap').attr('data-token')}/getSeatProperties`,
+        url: '/reserve/' + $('.seatStatusesMap').attr('data-token') + '/getSeatProperties',
         type: 'GET',
         data: {},
         beforeSend: function() {
