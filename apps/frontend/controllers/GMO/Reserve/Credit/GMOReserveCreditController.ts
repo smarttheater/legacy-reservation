@@ -164,9 +164,6 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                             } else {
-                                // TODO メール送信はバッチ処理？
-                                // TODO メールの送信ログ（宛先、件名、本文）を保管して下さい。出来ればBlob（受信拒否等で取れなかった場合の再送用）
-
                                 this.logger.info('sending response RecvRes_OK...gmoNotificationModel.Status:', gmoNotificationModel.Status);
                                 this.res.send(GMONotificationResponseModel.RecvRes_OK);
 
@@ -256,7 +253,6 @@ export default class GMOReserveCreditController extends ReserveBaseController {
             // ErrInfo
 
             if (result.hasOwnProperty('ErrCode')) {
-                // TODO
                 cb(new Error(body));
             } else {
                 cb(null);
@@ -305,7 +301,6 @@ export default class GMOReserveCreditController extends ReserveBaseController {
             // ErrInfo
 
             if (result.hasOwnProperty('ErrCode')) {
-                // TODO
                 cb(new Error(body));
             } else {
                 cb(null);

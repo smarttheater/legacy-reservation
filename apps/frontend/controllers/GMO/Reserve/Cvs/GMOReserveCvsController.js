@@ -114,8 +114,6 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                             this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                         }
                         else {
-                            // TODO メール送信はバッチ処理？
-                            // TODO メールの送信ログ（宛先、件名、本文）を保管して下さい。出来ればBlob（受信拒否等で取れなかった場合の再送用）
                             this.logger.info('sending response RecvRes_OK...gmoNotificationModel.Status:', gmoNotificationModel.Status);
                             this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
                         }

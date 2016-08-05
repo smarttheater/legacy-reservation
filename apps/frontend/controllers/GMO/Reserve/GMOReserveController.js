@@ -67,7 +67,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
             Models_1.default.Reservation.find({ payment_no: paymentNo }).exec((err, reservationDocuments) => {
                 if (err) {
                 }
-                // TODO エラー結果の場合
+                // エラー結果の場合
                 if (gmoResultModel.ErrCode) {
                     // 空席に戻すのは、仮予約タイムアウトタスクにまかせる！
                     this.next(new Error(`エラー結果を受信しました。 ErrCode:${gmoResultModel.ErrCode} ErrInfo:${gmoResultModel.ErrInfo}`));
@@ -97,7 +97,6 @@ class GMOReserveController extends ReserveBaseController_1.default {
     }
     /**
      * GMO結果通知受信
-     * TODO 何かしら決済情報チェック処理を入れる(金額とか)
      */
     notify() {
         // お客様は、受信したHTTPリクエストに対するHTTPレスポンスが必要となります。

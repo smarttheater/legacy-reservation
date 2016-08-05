@@ -15,6 +15,7 @@ const mongoose = require('mongoose');
 const PerformanceStatusesModel_1 = require('../../../common/models/PerformanceStatusesModel');
 const request = require('request');
 const sendgrid = require('sendgrid');
+const emailTemplates = require('email-templates');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class TestController extends BaseController_1.default {
     /**
@@ -474,9 +475,17 @@ class TestController extends BaseController_1.default {
     sendCompleteEmail() {
         mongoose.connect(MONGOLAB_URI, {});
         let promises = [];
+        this.logger.info('finding reservationEmailCues...');
         Models_1.default.ReservationEmailCue.find({
             is_sent: false
         }).limit(10).exec((err, cueDocuments) => {
+            this.logger.info('reservationEmailCues found.', err, cueDocuments);
+            if (err || cueDocuments.length === 0) {
+                mongoose.disconnect();
+                process.exit(0);
+                return;
+            }
+            let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
             let next = (i) => {
                 if (i === cueDocuments.length) {
                     mongoose.disconnect();
@@ -505,30 +514,50 @@ class TestController extends BaseController_1.default {
                             default:
                                 break;
                         }
-                        let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
-                        let email = new _sendgrid.Email({
-                            to: to,
-                            from: 'noreply@devtiffwebapp.azurewebsites.net',
-                            subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
-                            html: '<html><body>complete</body></html>'
-                        });
-                        // add barcodes
-                        for (let reservationDocument of reservationDocuments) {
-                            let reservationId = reservationDocument.get('_id').toString();
-                        }
-                        this.logger.info('sending an email...email:', email);
-                        _sendgrid.send(email, (err, json) => {
-                            this.logger.info('an email sent.', err, json);
+                        let EmailTemplate = emailTemplates.EmailTemplate;
+                        var path = require('path');
+                        let dir = `${__dirname}/../../views/email/reserveComplete`;
+                        let template = new EmailTemplate(dir);
+                        let locals = {
+                            reservationDocuments: reservationDocuments
+                        };
+                        template.render(locals, (err, result) => {
                             if (err) {
                                 i++;
                                 next(i);
                             }
                             else {
-                                // TODO 送信済みフラグを立てる
-                                cueDocument.set('is_sent', true);
-                                cueDocument.save((err, res) => {
-                                    i++;
-                                    next(i);
+                                let email = new _sendgrid.Email({
+                                    to: to,
+                                    from: 'noreply@devtiffwebapp.azurewebsites.net',
+                                    subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
+                                    html: result.html
+                                });
+                                // add barcodes
+                                for (let reservationDocument of reservationDocuments) {
+                                    let reservationId = reservationDocument.get('_id').toString();
+                                    email.addFile({
+                                        filename: `QR_${reservationId}.png`,
+                                        contentType: 'image/png',
+                                        cid: `qrcode_${reservationId}`,
+                                        content: ReservationUtil_1.default.createQRCode(reservationId)
+                                    });
+                                }
+                                this.logger.info('sending an email...email:', email);
+                                _sendgrid.send(email, (err, json) => {
+                                    this.logger.info('an email sent.', err, json);
+                                    if (err) {
+                                        i++;
+                                        next(i);
+                                    }
+                                    else {
+                                        // 送信済みフラグを立てる
+                                        cueDocument.set('is_sent', true);
+                                        cueDocument.save((err, res) => {
+                                            i++;
+                                            next(i);
+                                        });
+                                    }
                                 });
                             }
                         });

@@ -5,8 +5,6 @@ const Models_1 = require('../../common/models/Models');
 const ReservationUtil_1 = require('../../common/models/Reservation/ReservationUtil');
 const TicketTypeGroupUtil_1 = require('../../common/models/TicketTypeGroup/TicketTypeGroupUtil');
 const fs = require('fs-extra');
-const sendgrid = require('sendgrid');
-const conf = require('config');
 const moment = require('moment');
 /**
  * 予約フローベースコントローラー
@@ -317,49 +315,6 @@ class ReserveBaseController extends BaseController_1.default {
                 this.logger = logger;
             }
             cb();
-        });
-    }
-    /**
-     * 予約完了メールを送信する
-     */
-    sendCompleteEmail(to, reservationDocuments, cb) {
-        this.res.render('email/reserveComplete', {
-            layout: false,
-            reservationDocuments: reservationDocuments
-        }, (err, html) => {
-            if (err) {
-                cb(err, null);
-            }
-            else {
-                let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
-                let email = new _sendgrid.Email({
-                    to: to,
-                    from: 'noreply@devtiffwebapp.azurewebsites.net',
-                    subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
-                    html: html
-                });
-                // add barcodes
-                for (let reservationDocument of reservationDocuments) {
-                    let reservationId = reservationDocument._id.toString();
-                    // email.addFile({
-                    //     filename: `barcode_${reservationId}.png`,
-                    //     contentType: 'image/png',
-                    //     cid: `barcode_${reservationId}`,
-                    //     url: this.router.build('reserve.barcode', {token: token, reservationId:reservationId})
-                    // });
-                    email.addFile({
-                        filename: `QR_${reservationId}.png`,
-                        contentType: 'image/png',
-                        cid: `qrcode_${reservationId}`,
-                        content: ReservationUtil_1.default.createQRCode(reservationId)
-                    });
-                }
-                this.logger.info('sending an email...email:', email);
-                _sendgrid.send(email, (err, json) => {
-                    this.logger.info('an email sent.', err, json);
-                    cb(err, json);
-                });
-            }
         });
     }
 }

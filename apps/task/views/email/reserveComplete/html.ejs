@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title></title>
+<meta name="viewport" content="width=device-width,user-scalable=no,maximum-scale=1" />
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>[TIFF][<%- process.env.NODE_ENV %>]</h1>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>メールは日英併記になります。メールは日英併記になります。メールは日英併記になります。</th>
+                <td><%- reservationDocuments[0].film_name %><td>
+            </tr>
+
+            <tr>
+                <th></th>
+                <td>
+                    <%- reservationDocuments[0].performance_day %> <%- reservationDocuments[0].performance_start_time %> ～ 
+                    <%- reservationDocuments[0].theater_name %> 
+                    <%- reservationDocuments[0].screen_name %>
+                <td>
+            </tr>
+
+            <tr>
+                <th></th>
+                <td>
+                    <% reservationDocuments.forEach((reservationDocument, index) => { %>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <%- reservationDocument.seat_code %>、
+                                        <%- reservationDocument.ticket_type_name %>、
+                                        <%- reservationDocument.ticket_type_charge %> yen<br>
+                                    </td>
+
+                                    <td>
+                                        <img src="cid:qrcode_<%- reservationDocument._id %>">
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    <% }) %>
+                <td>
+            </tr>
+
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+
+</html>
