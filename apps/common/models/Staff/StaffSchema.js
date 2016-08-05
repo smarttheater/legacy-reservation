@@ -14,8 +14,8 @@ let StaffSchema = new mongoose.Schema({
 }, {
     collection: 'staffs',
     timestamps: {
-        createdAt: 'created_dt',
-        updatedAt: 'updated_dt',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
     }
 });
 Object.defineProperty(exports, "__esModule", { value: true });

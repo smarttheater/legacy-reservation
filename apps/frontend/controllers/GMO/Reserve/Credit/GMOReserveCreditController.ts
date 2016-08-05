@@ -39,7 +39,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 payment_no: gmoResultModel.OrderID,
                 status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED]}
             },
-            '_id total_charge',
+            '_id total_charge purchaser_group',
             (err, reservationDocuments) => {
                 this.logger.info('reservations found.', err, reservationDocuments.length);
                 if (err) {
@@ -72,7 +72,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                     return reservationDocument.get('_id');
                 });
                 this.logger.info('fixing reservations... update:', update);
-                this.processFixReservations(reservationIds, update, (err, reservationDocuments) => {
+                this.processFixReservations(reservationIds, update, (err) => {
                     if (err) {
                         // 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
 
@@ -156,7 +156,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                             return reservationDocument.get('_id');
                         });
                         this.logger.info('fixing reservations... update:', update);
-                        this.processFixReservations(reservationIds, update, (err, reservationDocuments) => {
+                        this.processFixReservations(reservationIds, update, (err) => {
                             if (err) {
                                 // AccessPassが************なので、売上取消要求は行えない
                                 // 失敗した場合、約60分毎に5回再通知されるので、それをリトライとみなす

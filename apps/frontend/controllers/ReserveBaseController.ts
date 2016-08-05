@@ -369,46 +369,44 @@ export default class ReserveBaseController extends BaseController {
      * @param {string} paymentNo 購入番号
      * @param {Object} update 追加更新パラメータ
      */
-    protected processFixReservations(reservationsIds: Array<string>, update: Object, cb: (err: Error, reservationDocuments: Array<mongoose.Document>) => void): void {
+    protected processFixReservations(reservationIds: Array<string>, update: Object, cb: (err: Error) => void): void {
         let promises = [];
-        let reservationDocuments: Array<mongoose.Document> = [];
 
         update['status'] = ReservationUtil.STATUS_RESERVED;
         update['updated_user'] = 'ReserveBaseController';
 
         // 予約完了ステータスへ変更
-        for (let reservationsId of reservationsIds) {
+        for (let reservationId of reservationIds) {
             promises.push(new Promise((resolve, reject) => {
 
                 this.logger.info('updating reservation by id...update:', update);
-                Models.Reservation.findByIdAndUpdate(
-                    reservationsId,
-                    update,
+                Models.Reservation.update(
                     {
-                        new: true
+                        _id: reservationId
                     },
-                (err, reservationDocument) => {
-                    this.logger.info('reservation updated.', err, reservationDocument);
+                    update,
+                    (err, raw) => {
+                        this.logger.info('reservation updated.', err, raw);
 
-                    if (err) {
-                        reject();
+                        if (err) {
+                            reject();
 
-                    } else {
-                        reservationDocuments.push(reservationDocument);
-                        resolve();
+                        } else {
+                            resolve();
+
+                        }
 
                     }
-
-                });
+                );
 
             }));
         };
 
         Promise.all(promises).then(() => {
-            cb(null, reservationDocuments);
+            cb(null);
 
         }, (err) => {
-            cb(err, reservationDocuments);
+            cb(new Error('some reservations not updated.'));
 
         });
     }

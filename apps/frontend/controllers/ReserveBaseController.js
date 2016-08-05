@@ -265,24 +265,22 @@ class ReserveBaseController extends BaseController_1.default {
      * @param {string} paymentNo 購入番号
      * @param {Object} update 追加更新パラメータ
      */
-    processFixReservations(reservationsIds, update, cb) {
+    processFixReservations(reservationIds, update, cb) {
         let promises = [];
-        let reservationDocuments = [];
         update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
         update['updated_user'] = 'ReserveBaseController';
         // 予約完了ステータスへ変更
-        for (let reservationsId of reservationsIds) {
+        for (let reservationId of reservationIds) {
             promises.push(new Promise((resolve, reject) => {
                 this.logger.info('updating reservation by id...update:', update);
-                Models_1.default.Reservation.findByIdAndUpdate(reservationsId, update, {
-                    new: true
-                }, (err, reservationDocument) => {
-                    this.logger.info('reservation updated.', err, reservationDocument);
+                Models_1.default.Reservation.update({
+                    _id: reservationId
+                }, update, (err, raw) => {
+                    this.logger.info('reservation updated.', err, raw);
                     if (err) {
                         reject();
                     }
                     else {
-                        reservationDocuments.push(reservationDocument);
                         resolve();
                     }
                 });
@@ -290,9 +288,9 @@ class ReserveBaseController extends BaseController_1.default {
         }
         ;
         Promise.all(promises).then(() => {
-            cb(null, reservationDocuments);
+            cb(null);
         }, (err) => {
-            cb(err, reservationDocuments);
+            cb(new Error('some reservations not updated.'));
         });
     }
     /**

@@ -32,7 +32,7 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             payment_no: gmoResultModel.OrderID,
             status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_RESERVED] }
-        }, '_id total_charge', (err, reservationDocuments) => {
+        }, '_id total_charge purchaser_group', (err, reservationDocuments) => {
             this.logger.info('reservations found.', err, reservationDocuments.length);
             if (err) {
                 return this.next(new Error('unexpected error.'));
@@ -58,7 +58,7 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                 return reservationDocument.get('_id');
             });
             this.logger.info('fixing reservations... update:', update);
-            this.processFixReservations(reservationIds, update, (err, reservationDocuments) => {
+            this.processFixReservations(reservationIds, update, (err) => {
                 if (err) {
                     // 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
                     this.next(new Error('failed in payment.'));
@@ -123,7 +123,7 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                         return reservationDocument.get('_id');
                     });
                     this.logger.info('fixing reservations... update:', update);
-                    this.processFixReservations(reservationIds, update, (err, reservationDocuments) => {
+                    this.processFixReservations(reservationIds, update, (err) => {
                         if (err) {
                             // AccessPassが************なので、売上取消要求は行えない
                             // 失敗した場合、約60分毎に5回再通知されるので、それをリトライとみなす

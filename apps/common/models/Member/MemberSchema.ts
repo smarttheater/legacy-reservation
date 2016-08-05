@@ -14,8 +14,8 @@ let MemberSchema = new mongoose.Schema({
 },{
     collection: 'members',
     timestamps: { 
-        createdAt: 'created_dt',
-        updatedAt: 'updated_dt',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
     }
 });
 

@@ -280,12 +280,10 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                         promises.push(new Promise((resolve, reject) => {
                             // reservationDocument4update['status'] = ReservationUtil.STATUS_GMO_PROCESSING;
                             this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
-                            Models_1.default.Reservation.findOneAndUpdate({
+                            Models_1.default.Reservation.update({
                                 _id: reservationDocument4update['_id'],
-                            }, reservationDocument4update, {
-                                new: true
-                            }, (err, reservationDocument) => {
-                                this.logger.info('reservation updated.', err, reservationDocument);
+                            }, reservationDocument4update, (err, raw) => {
+                                this.logger.info('reservation updated.', err, raw);
                                 if (err) {
                                     // TODO ログ出力
                                     reject();

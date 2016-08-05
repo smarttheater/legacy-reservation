@@ -58,7 +58,11 @@ let ReservationSchema = new mongoose.Schema({
     ticket_type_name_en: String,
     ticket_type_charge: Number,
 
-    watcher_name: String,
+    watcher_name: String, // 配布先
+    watcher_name_updated_at: { // 配布先更新日時
+        type: Date,
+        default: Date.now
+    },
 
     mvtk_kiin_cd: String, // ムビチケ会員ID
 
@@ -108,8 +112,8 @@ let ReservationSchema = new mongoose.Schema({
 },{
     collection: 'reservations',
     timestamps: { 
-        createdAt: 'created_dt',
-        updatedAt: 'updated_dt'
+        createdAt: 'created_at',
+        updatedAt: 'updated_at'
     }
 });
 

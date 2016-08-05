@@ -87,6 +87,7 @@ class StaffMyPageController extends BaseController_1.default {
             _id: reservationId,
         }, {
             watcher_name: watcherName,
+            watcher_name_updated_at: Date.now(),
             staff_signature: this.staffUser.get('signature'),
         }, {
             new: true

@@ -206,7 +206,12 @@ export default class GMOReserveController extends ReserveBaseController {
         let promises = [];
 
         this.setProcessLogger(paymentNo, () => {
-            Models.Reservation.find({payment_no: paymentNo}).exec((err, reservationDocuments) => {
+            Models.Reservation.find(
+                {
+                    payment_no: paymentNo,
+                    status: ReservationUtil.STATUS_TEMPORARY
+                }
+            ).exec((err, reservationDocuments) => {
                 if (err || reservationDocuments.length < 1) {
                     // TODO
                     return this.next(new Error('invalid access.'));
@@ -244,21 +249,20 @@ export default class GMOReserveController extends ReserveBaseController {
                 // キャンセル
                 for (let reservationDocument of reservationDocuments) {
                     promises.push(new Promise((resolve, reject) => {
-                        Models.Reservation.findByIdAndUpdate(
-                            reservationDocument.get('_id').toString(),
+                        Models.Reservation.update(
+                            {
+                                _id: reservationDocument.get('_id').toString()
+                            },
                             {
                                 status: ReservationUtil.STATUS_AVAILABLE
                             },
-                            {
-                                new: true
-                                
-                            },
-                            (err, reservationDocument) => {
+                            (err, raw) => {
                                 if (err) {
                                     // TODO ログ
+                                    reject();
+                                } else {
+                                    resolve();
                                 }
-
-                                resolve();
 
                             }
                         );
@@ -271,6 +275,7 @@ export default class GMOReserveController extends ReserveBaseController {
                     this.res.redirect(this.router.build('Home'));
 
                 }, (err) => {
+                    this.res.redirect(this.router.build('Home'));
 
                 });
 

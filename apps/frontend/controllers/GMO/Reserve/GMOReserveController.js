@@ -150,7 +150,10 @@ class GMOReserveController extends ReserveBaseController_1.default {
         let paymentNo = this.req.params.paymentNo;
         let promises = [];
         this.setProcessLogger(paymentNo, () => {
-            Models_1.default.Reservation.find({ payment_no: paymentNo }).exec((err, reservationDocuments) => {
+            Models_1.default.Reservation.find({
+                payment_no: paymentNo,
+                status: ReservationUtil_1.default.STATUS_TEMPORARY
+            }).exec((err, reservationDocuments) => {
                 if (err || reservationDocuments.length < 1) {
                     // TODO
                     return this.next(new Error('invalid access.'));
@@ -180,20 +183,25 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 // キャンセル
                 for (let reservationDocument of reservationDocuments) {
                     promises.push(new Promise((resolve, reject) => {
-                        Models_1.default.Reservation.findByIdAndUpdate(reservationDocument.get('_id').toString(), {
-                            status: ReservationUtil_1.default.STATUS_AVAILABLE
+                        Models_1.default.Reservation.update({
+                            _id: reservationDocument.get('_id').toString()
                         }, {
-                            new: true
-                        }, (err, reservationDocument) => {
+                            status: ReservationUtil_1.default.STATUS_AVAILABLE
+                        }, (err, raw) => {
                             if (err) {
+                                // TODO ログ
+                                reject();
                             }
-                            resolve();
+                            else {
+                                resolve();
+                            }
                         });
                     }));
                 }
                 Promise.all(promises).then(() => {
                     this.res.redirect(this.router.build('Home'));
                 }, (err) => {
+                    this.res.redirect(this.router.build('Home'));
                 });
             });
         });

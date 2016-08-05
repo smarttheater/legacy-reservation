@@ -138,9 +138,7 @@ class ReservationModel {
         this.reservationIds.forEach((reservationId, index) => {
             let reservation = this.getReservation(reservationId);
             documents.push({
-                // TODO 配布先更新日を追加
                 // TODO 金額系の税込みと消費税と両方
-                // TODO 決済方法(現金、クレジット、コンビニ、、、)
                 _id: reservationId,
                 total_charge: totalCharge,
                 charge: this.getChargeByReservationId(reservationId),
@@ -169,6 +167,7 @@ class ReservationModel {
                 ticket_type_name_en: reservation.ticket_type_name_en,
                 ticket_type_charge: reservation.ticket_type_charge,
                 watcher_name: reservation.watcher_name,
+                watcher_name_updated_at: Date.now(),
                 mvtk_kiin_cd: (this.mvtkMemberInfoResult) ? this.mvtkMemberInfoResult.kiinCd : null,
                 member: (this.member) ? this.member._id : null,
                 member_user_id: (this.member) ? this.member.user_id : null,

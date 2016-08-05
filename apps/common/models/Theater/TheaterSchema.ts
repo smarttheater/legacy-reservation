@@ -14,8 +14,8 @@ let TheaterSchema = new mongoose.Schema({
 },{
     collection: 'theaters',
     timestamps: { 
-        createdAt: 'created_dt',
-        updatedAt: 'updated_dt',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
     }
 });
 

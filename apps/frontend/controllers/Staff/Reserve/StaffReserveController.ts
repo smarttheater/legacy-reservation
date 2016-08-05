@@ -244,16 +244,13 @@ export default class StaffReserveController extends ReserveBaseController {
                             reservationDocument4update['status'] = ReservationUtil.STATUS_RESERVED;
 
                             this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
-                            Models.Reservation.findOneAndUpdate(
+                            Models.Reservation.update(
                                 {
                                     _id: reservationDocument4update['_id'],
                                 },
                                 reservationDocument4update,
-                                {
-                                    new: true
-                                },
-                            (err, reservationDocument) => {
-                                this.logger.info('reservation updated.', err, reservationDocument);
+                            (err, raw) => {
+                                this.logger.info('reservation updated.', err, raw);
 
                                 if (err) {
                                     // TODO ログ出力

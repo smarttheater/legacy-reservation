@@ -205,12 +205,10 @@ class StaffReserveController extends ReserveBaseController_1.default {
                             // 予約完了
                             reservationDocument4update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
                             this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
-                            Models_1.default.Reservation.findOneAndUpdate({
+                            Models_1.default.Reservation.update({
                                 _id: reservationDocument4update['_id'],
-                            }, reservationDocument4update, {
-                                new: true
-                            }, (err, reservationDocument) => {
-                                this.logger.info('reservation updated.', err, reservationDocument);
+                            }, reservationDocument4update, (err, raw) => {
+                                this.logger.info('reservation updated.', err, raw);
                                 if (err) {
                                     // TODO ログ出力
                                     reject();

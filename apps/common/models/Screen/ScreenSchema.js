@@ -34,8 +34,8 @@ let ScreenSchema = new mongoose.Schema({
 }, {
     collection: 'screens',
     timestamps: {
-        createdAt: 'created_dt',
-        updatedAt: 'updated_dt',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
     }
 });
 Object.defineProperty(exports, "__esModule", { value: true });

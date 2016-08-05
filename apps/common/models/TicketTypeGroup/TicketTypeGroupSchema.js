@@ -21,8 +21,8 @@ let TicketTypeGroupSchema = new mongoose.Schema({
 }, {
     collection: 'ticket_type_groups',
     timestamps: {
-        createdAt: 'created_dt',
-        updatedAt: 'updated_dt',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
     }
 });
 Object.defineProperty(exports, "__esModule", { value: true });

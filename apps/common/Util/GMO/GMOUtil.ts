@@ -2,8 +2,34 @@
  * GMOペイメントユーティリティ
  */
 export default class GMOUtil {
+    /** カード */
     public static PAY_TYPE_CREDIT = '0';
-    public static PAY_TYPE_CVS   = '3';
+    /** モバイルSuica */
+    public static PAY_TYPE_SUICA = '1';
+    /** 楽天Edy */
+    public static PAY_TYPE_EDY = '2';
+    /** コンビニ */
+    public static PAY_TYPE_CVS = '3';
+    /** 現金(GMOではありえないが、決済方法をここにまとめるために作成) */
+    public static PAY_TYPE_CASH = 'Z';
+    // 4：Pay-easy
+    // 5：PayPal
+    // 6：iD
+    // 7：WebMoney
+    // 8：au かんたん
+    // 9：docomo
+    // B：ソフトバンクまとめて支払い(Ｂ)
+    // C：じぶん銀行
+    // E：JCB プリカ
+    // G：NET CASH・nanaco ギフト
+    // I：楽天ID
+    // J：多通貨クレジットカード
+    // K：LINE Pay 決済
+    // L：ネット銀聯決済
+    // N：銀行振込(バーチャル口座)
+    // O：リクルートかんたん支払い決済
+
+
 
 
     /** 未決済 */

@@ -110,6 +110,7 @@ export default class StaffMyPageController extends BaseController {
             },
             {
                 watcher_name: watcherName,
+                watcher_name_updated_at: Date.now(),
                 staff_signature: this.staffUser.get('signature'),
             },
             {
