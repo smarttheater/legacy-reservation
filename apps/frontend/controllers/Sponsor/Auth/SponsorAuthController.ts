@@ -7,7 +7,6 @@ import Models from '../../../../common/models/Models';
 export default class SponsorAuthController extends BaseController {
     /**
      * sponsor login
-     * TODO パフォーマンス指定or無指定どちらか判断
      */
     public login(): void {
         if (this.sponsorUser.isAuthenticated()) {

@@ -249,7 +249,7 @@ export default class ReservationModel {
         if (this.member) {
             purchaserGroup = ReservationUtil.PURCHASER_GROUP_MEMBER;
         } else if (this.sponsor) {
-            purchaserGroup = ReservationUtil.PURCHASER_GROUP_SPONROR;
+            purchaserGroup = ReservationUtil.PURCHASER_GROUP_SPONSOR;
         } else if (this.staff) {
             purchaserGroup = ReservationUtil.PURCHASER_GROUP_STAFF;
         }

@@ -2,6 +2,7 @@ import BaseController from '../../BaseController';
 import Util from '../../../../common/Util/Util';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
+import sponsorCancelForm from '../../../forms/sponsor/sponsorCancelForm';
 
 export default class SponsorCancelController extends BaseController {
     public execute(): void {

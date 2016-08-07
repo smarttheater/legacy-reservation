@@ -173,16 +173,16 @@ export default class GMOReserveController extends ReserveBaseController {
                     case GMOUtil.PAY_TYPE_CREDIT:
                         this.logger.info('starting GMOReserveCreditController.notify...');
                         let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
-                        creditController.notify(gmoNotificationModel);
                         creditController.logger = this.logger;
+                        creditController.notify(gmoNotificationModel);
 
                         break;
 
                     case GMOUtil.PAY_TYPE_CVS:
                         this.logger.info('starting GMOReserveCsvController.notify...');
                         let cvsController = new GMOReserveCvsController(this.req, this.res, this.next);
-                        cvsController.notify(gmoNotificationModel);
                         cvsController.logger = this.logger;
+                        cvsController.notify(gmoNotificationModel);
 
                         break;
 

@@ -227,9 +227,78 @@ export default class GMOReserveCvsController extends ReserveBaseController {
             case GMOUtil.STATUS_CVS_PAYFAIL: // 決済失敗
             case GMOUtil.STATUS_CVS_EXPIRED: // 期限切れ
             case GMOUtil.STATUS_CVS_CANCEL: // 支払い停止
-                // TODO 空席ステータスに戻す
-                this.logger.error('sending response RecvRes_NG... ');
-                this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                // 空席ステータスに戻す
+                update = {
+                    status: ReservationUtil.STATUS_AVAILABLE,
+                    payment_no: null
+                };
+
+                let promises = [];
+
+                this.logger.info('finding reservations...payment_no:', gmoNotificationModel.OrderID);
+                Models.Reservation.find(
+                    {
+                        payment_no: gmoNotificationModel.OrderID,
+                        status: ReservationUtil.STATUS_WAITING_SETTLEMENT
+                    },
+                    '_id total_charge',
+                    (err, reservationDocuments) => {
+                        this.logger.info('reservations found.', err, reservationDocuments.length);
+                        if (err) {
+                            this.logger.info('sending response RecvRes_NG...');
+                            return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        }
+
+                        if (reservationDocuments.length < 1) {
+                            this.logger.info('sending response RecvRes_NG...');
+                            return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        }
+
+                        // 利用金額の整合性
+                        this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
+                        if (parseInt(gmoNotificationModel.Amount) !== reservationDocuments[0].get('total_charge')) {
+                            this.logger.info('sending response RecvRes_NG...');
+                            return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        }
+
+
+                        for (let reservationDocument of reservationDocuments) {
+                            promises.push(new Promise((resolve, reject) => {
+
+                                this.logger.info('updating reservations...update:', update);
+                                Models.Reservation.update(
+                                    {
+                                        _id: reservationDocument.get('_id')
+                                    },
+                                    update,
+                                    (err, raw) => {
+                                        this.logger.info('reservation updated.', err, raw);
+
+                                        if (err) {
+                                            reject();
+
+                                        } else {
+                                            resolve();
+
+                                        }
+
+                                    }
+                                );
+
+                            }));
+                        };
+
+                        Promise.all(promises).then(() => {
+                            this.logger.info('sending response RecvRes_OK...');
+                            this.res.send(GMONotificationResponseModel.RecvRes_OK);
+
+                        }, (err) => {
+                            this.logger.info('sending response RecvRes_NG...');
+                            this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                        });
+                    }
+                );
 
                 break;
 

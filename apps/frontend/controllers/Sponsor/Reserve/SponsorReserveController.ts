@@ -26,10 +26,30 @@ export default class SponsorReserveController extends ReserveBaseController {
         };
 
 
-        // スケジュール選択へ
         this.logger.debug('saving reservationModel... ', reservationModel);
         reservationModel.save((err) => {
-            this.res.redirect(this.router.build('sponsor.reserve.performances', {token: token}));
+            // パフォーマンス指定or無指定どちらか判断
+            if (this.sponsorUser.get('performance')) {
+                // パフォーマンスFIX
+                this.processFixPerformance(reservationModel, this.sponsorUser.get('performance'), (err, reservationModel) => {
+                    if (err) {
+                        this.next(err);
+
+                    } else {
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
+                        });
+
+                    }
+                });
+
+            } else {
+                // スケジュール選択へ
+                reservationModel.save((err) => {
+                    this.res.redirect(this.router.build('sponsor.reserve.performances', {token: token}));
+                });
+
+            }
         });
 
     }

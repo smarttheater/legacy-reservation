@@ -130,7 +130,7 @@ class ReservationModel {
             purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_MEMBER;
         }
         else if (this.sponsor) {
-            purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_SPONROR;
+            purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR;
         }
         else if (this.staff) {
             purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_STAFF;

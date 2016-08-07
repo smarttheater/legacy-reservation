@@ -6,7 +6,6 @@ const Models_1 = require('../../../../common/models/Models');
 class SponsorAuthController extends BaseController_1.default {
     /**
      * sponsor login
-     * TODO パフォーマンス指定or無指定どちらか判断
      */
     login() {
         if (this.sponsorUser.isAuthenticated()) {

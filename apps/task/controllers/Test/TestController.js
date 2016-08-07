@@ -513,7 +513,7 @@ class TestController extends BaseController_1.default {
                         switch (purchaserGroup) {
                             case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
                             case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
-                            case ReservationUtil_1.default.PURCHASER_GROUP_SPONROR:
+                            case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
                                 to = reservationDocuments[0].get('purchaser_email');
                                 break;
                             case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:

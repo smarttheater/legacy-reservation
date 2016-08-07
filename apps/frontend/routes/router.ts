@@ -209,7 +209,7 @@ export default (app: any) => {
     app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).profile()});
     app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).confirm()});
     app.get('/sponsor/reserve/:paymentNo/complete', 'sponsor.reserve.complete', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).complete()});
-    app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', authenticationSponsor, sponsorBase, (req, res, next) => {(new SponsorCancelController(req, res, next)).execute()});
+    app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', sponsorBase, (req, res, next) => {(new SponsorCancelController(req, res, next)).execute()});
 
 
 

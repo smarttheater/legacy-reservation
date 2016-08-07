@@ -685,7 +685,7 @@ export default class TestController extends BaseController {
                             switch (purchaserGroup) {
                                 case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
                                 case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                                case ReservationUtil.PURCHASER_GROUP_SPONROR:
+                                case ReservationUtil.PURCHASER_GROUP_SPONSOR:
                                     to = reservationDocuments[0].get('purchaser_email')
                                     break;
 

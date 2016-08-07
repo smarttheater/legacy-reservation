@@ -24,7 +24,7 @@ export default class ReservationUtil {
     /** メルマガ会員先行 */
     public static PURCHASER_GROUP_MEMBER = '02';
     /** 外部関係者 */
-    public static PURCHASER_GROUP_SPONROR = '03';
+    public static PURCHASER_GROUP_SPONSOR = '03';
     /** 内部関係者 */
     public static PURCHASER_GROUP_STAFF = '04';
     /** 電話 */

@@ -7,10 +7,9 @@ let Schema = new mongoose.Schema({
     user_id: String,
     password: String,
     name: String,
-    email: String,
-    film: {
+    performance: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Film'
+        ref: 'Performance'
     },
     max_reservation_count: Number,
     created_user: String,

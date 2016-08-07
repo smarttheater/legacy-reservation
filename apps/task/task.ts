@@ -2,7 +2,6 @@ import program = require('commander');
 import fs = require('fs-extra');
 import log4js = require('log4js');
 
-import GMOController from './controllers/GMO/GMOController';
 import TestController from './controllers/Test/TestController';
 import PreTiffController from './controllers/PreTiff/PreTiffController';
 
@@ -62,25 +61,6 @@ program
         log4js.configure(logDefaultConfiguration);
 
         (new PreTiffController())[method]();
-    });
-
-program
-    .command('gmo <method>')
-    .description('GMOタスク')
-    .action((method) => {
-        let logDir = `${__dirname}/../../logs/${env}/task/GMO${method.charAt(0).toUpperCase()}${method.slice(1)}`;
-        fs.mkdirsSync(logDir);
-        logDefaultConfiguration.appenders.push({
-            category: 'system',
-            type: 'dateFile',
-            filename: `${logDir}/system.log`,
-            pattern: '-yyyy-MM-dd',
-            backups: 3
-        });
-        logDefaultConfiguration.levels.system = "ALL";
-        log4js.configure(logDefaultConfiguration);
-
-        (new GMOController())[method]();
     });
 
 // program
