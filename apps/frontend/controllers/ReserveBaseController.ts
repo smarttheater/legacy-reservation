@@ -404,10 +404,16 @@ export default class ReserveBaseController extends BaseController {
 
         Promise.all(promises).then(() => {
             this.logger.info('creating reservationEmailCue...');
-            Models.ReservationEmailCue.create(
+            Models.ReservationEmailCue.findOneAndUpdate(
                 {
-                    payment_no: paymentNo,
+                    payment_no: paymentNo
+                },
+                {
                     is_sent: false
+                },
+                {
+                    upsert: true,
+                    new: true
                 },
                 (err, reservationEmailCueDocument) => {
                     this.logger.info('reservationEmailCue created.', err, reservationEmailCueDocument);
@@ -446,6 +452,36 @@ export default class ReserveBaseController extends BaseController {
     
             cb();
         });
+
+    }
+
+    /**
+     * 購入管理番号生成
+     *
+     * @return {string}
+     */
+    protected createPaymentNo(cb: (no: string) => void): void {
+        Models.Sequence.findOneAndUpdate(
+            {
+                target: 'payment_no'
+            },
+            {
+                $inc: {
+                    no: 1
+                }
+            },
+            {
+                new: true
+            },
+            (err, sequenceDocument) => {
+                let no: number = sequenceDocument.get('no');
+                let paymentNo = `${no}${Util.getCheckDigit(no)}`;
+                this.logger.debug('paymentNo:', paymentNo);
+                cb(paymentNo);
+
+            }
+
+        );
 
     }
 }

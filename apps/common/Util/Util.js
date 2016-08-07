@@ -43,16 +43,6 @@ class Util {
         return buf.join('') + uniq;
     }
     /**
-     * 購入管理番号生成
-     * TODO 生成方法考える
-     *
-     * @return {string}
-     */
-    static createPaymentNo() {
-        let no = `${Math.floor(Math.random() * 10000) + 1000}${Math.floor(Math.random() * 10000) + 1000}`;
-        return no;
-    }
-    /**
      * RedisCacheクライアントを取得する
      */
     static getRedisClient() {
@@ -71,7 +61,8 @@ class Util {
     static getReservationLogger(paymentNo, cb) {
         let env = process.env.NODE_ENV || 'dev';
         let moment = require('moment');
-        let logDir = `${__dirname}/../../../logs/${env}/reservations/${moment().format('YYYYMMDD')}`;
+        // let logDir = `${__dirname}/../../../logs/${env}/reservations/${moment().format('YYYYMMDD')}`;
+        let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.slice(0, 1)}`;
         fs.mkdirs(logDir, (err) => {
             if (err) {
                 cb(err, null);
@@ -97,6 +88,17 @@ class Util {
                 cb(null, log4js.getLogger('reservation'));
             }
         });
+    }
+    static getCheckDigit(source) {
+        let sourceString = source.toString();
+        let weights = [2, 6, 3, 4, 3, 7, 5, 4, 2];
+        let digits = sourceString.length;
+        let sum = 0;
+        for (let i = 0; i < digits; i++) {
+            sum += parseInt(sourceString[i]) * weights[i];
+        }
+        let checkDigit = 11 - (sum % 11);
+        return checkDigit;
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

@@ -287,9 +287,13 @@ class ReserveBaseController extends BaseController_1.default {
         ;
         Promise.all(promises).then(() => {
             this.logger.info('creating reservationEmailCue...');
-            Models_1.default.ReservationEmailCue.create({
-                payment_no: paymentNo,
+            Models_1.default.ReservationEmailCue.findOneAndUpdate({
+                payment_no: paymentNo
+            }, {
                 is_sent: false
+            }, {
+                upsert: true,
+                new: true
             }, (err, reservationEmailCueDocument) => {
                 this.logger.info('reservationEmailCue created.', err, reservationEmailCueDocument);
                 if (err) {
@@ -314,6 +318,27 @@ class ReserveBaseController extends BaseController_1.default {
                 this.logger = logger;
             }
             cb();
+        });
+    }
+    /**
+     * 購入管理番号生成
+     *
+     * @return {string}
+     */
+    createPaymentNo(cb) {
+        Models_1.default.Sequence.findOneAndUpdate({
+            target: 'payment_no'
+        }, {
+            $inc: {
+                no: 1
+            }
+        }, {
+            new: true
+        }, (err, sequenceDocument) => {
+            let no = sequenceDocument.get('no');
+            let paymentNo = `${no}${Util_1.default.getCheckDigit(no)}`;
+            this.logger.debug('paymentNo:', paymentNo);
+            cb(paymentNo);
         });
     }
 }

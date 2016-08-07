@@ -55,18 +55,6 @@ export default class Util {
     }
 
     /**
-     * 購入管理番号生成
-     * TODO 生成方法考える
-     *
-     * @return {string}
-     */
-    public static createPaymentNo(): string {
-        let no = `${Math.floor(Math.random() * 10000) + 1000}${Math.floor(Math.random() * 10000) + 1000}`;
-
-        return no;
-    }
-
-    /**
      * RedisCacheクライアントを取得する
      */
     public static getRedisClient(): redis.RedisClient {
@@ -91,7 +79,8 @@ export default class Util {
     public static getReservationLogger(paymentNo: string, cb: (err: Error, logger: log4js.Logger) => void) {
         let env = process.env.NODE_ENV || 'dev';
         let moment = require('moment');
-        let logDir = `${__dirname}/../../../logs/${env}/reservations/${moment().format('YYYYMMDD')}`;
+        // let logDir = `${__dirname}/../../../logs/${env}/reservations/${moment().format('YYYYMMDD')}`;
+        let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.slice(0, 1)}`;
 
         fs.mkdirs(logDir, (err) => {
             if (err) {
@@ -120,5 +109,18 @@ export default class Util {
 
             }
         });
+    }
+
+    public static getCheckDigit(source: number): number {
+        let sourceString = source.toString();
+        let weights = [2, 6, 3, 4, 3, 7, 5, 4, 2];
+        let digits = sourceString.length;
+        let sum = 0;
+        for (let i = 0; i < digits; i++) {
+            sum += parseInt(sourceString[i]) * weights[i];
+        }
+        let checkDigit = 11 - (sum % 11);
+
+        return checkDigit;
     }
 }

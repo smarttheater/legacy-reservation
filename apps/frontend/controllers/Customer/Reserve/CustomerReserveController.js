@@ -284,41 +284,43 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (this.req.method === 'POST') {
                 // ここで予約番号発行
-                reservationModel.paymentNo = Util_1.default.createPaymentNo();
-                // 予約プロセス固有のログファイルをセット
-                this.setProcessLogger(reservationModel.paymentNo, () => {
-                    this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
-                    // いったん全情報をDBに保存
-                    let promises = [];
-                    let reservationDocuments4update = reservationModel.toReservationDocuments();
-                    for (let reservationDocument4update of reservationDocuments4update) {
-                        promises.push(new Promise((resolve, reject) => {
-                            // reservationDocument4update['status'] = ReservationUtil.STATUS_GMO_PROCESSING;
-                            this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
-                            Models_1.default.Reservation.update({
-                                _id: reservationDocument4update['_id'],
-                                status: ReservationUtil_1.default.STATUS_TEMPORARY
-                            }, reservationDocument4update, (err, raw) => {
-                                this.logger.info('reservation updated.', err, raw);
-                                if (err) {
-                                    reject();
-                                }
-                                else {
-                                    resolve();
-                                }
+                this.createPaymentNo((paymentNo) => {
+                    reservationModel.paymentNo = paymentNo;
+                    // 予約プロセス固有のログファイルをセット
+                    this.setProcessLogger(reservationModel.paymentNo, () => {
+                        this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
+                        // いったん全情報をDBに保存
+                        let promises = [];
+                        let reservationDocuments4update = reservationModel.toReservationDocuments();
+                        for (let reservationDocument4update of reservationDocuments4update) {
+                            promises.push(new Promise((resolve, reject) => {
+                                // reservationDocument4update['status'] = ReservationUtil.STATUS_GMO_PROCESSING;
+                                this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
+                                Models_1.default.Reservation.update({
+                                    _id: reservationDocument4update['_id'],
+                                    status: ReservationUtil_1.default.STATUS_TEMPORARY
+                                }, reservationDocument4update, (err, raw) => {
+                                    this.logger.info('reservation updated.', err, raw);
+                                    if (err) {
+                                        reject();
+                                    }
+                                    else {
+                                        resolve();
+                                    }
+                                });
+                            }));
+                        }
+                        ;
+                        Promise.all(promises).then(() => {
+                            reservationModel.save((err) => {
+                                this.logger.info('starting GMO payment...');
+                                this.res.redirect(this.router.build('gmo.reserve.start', { token: token }));
                             });
-                        }));
-                    }
-                    ;
-                    Promise.all(promises).then(() => {
-                        reservationModel.save((err) => {
-                            this.logger.info('starting GMO payment...');
-                            this.res.redirect(this.router.build('gmo.reserve.start', { token: token }));
-                        });
-                    }, (err) => {
-                        this.res.render('customer/reserve/confirm', {
-                            reservationModel: reservationModel,
-                            ReservationUtil: ReservationUtil_1.default
+                        }, (err) => {
+                            this.res.render('customer/reserve/confirm', {
+                                reservationModel: reservationModel,
+                                ReservationUtil: ReservationUtil_1.default
+                            });
                         });
                     });
                 });
