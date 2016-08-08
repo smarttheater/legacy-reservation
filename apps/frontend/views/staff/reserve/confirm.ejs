@@ -22,8 +22,8 @@
         <dt><%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %></dt>
 
         <dd>
-            <% reservationModel.reservationIds.forEach((reservationId, index) => { %>
-            <% let reservation = reservationModel.getReservation(reservationId) %>
+            <% reservationModel.seatCodes.forEach((seatCode) => { %>
+            <% let reservation = reservationModel.getReservation(seatCode) %>
             <a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a> <%- reservation[`ticket_type_${__('DocumentField.name')}`] %>、
             <% }) %><br>
         </dd>

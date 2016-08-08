@@ -65,7 +65,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
-            reservationModel.mvtkMemberInfoResult = this.mvtkUser.memberInfoResult;
+            reservationModel.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER;
             reservationModel.save((err) => {
                 this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
             });
@@ -89,8 +89,8 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     status: {
                         $ne: ReservationUtil_1.default.STATUS_AVAILABLE
                     },
-                    _id: {
-                        $nin: reservationModel.reservationIds // 現在のフロー中の予約は除く
+                    seat_code: {
+                        $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
                     }
                 }, (err, reservationsCount) => {
                     let limit = CustomerReserveController.RESERVATION_LIMIT_PER_PERFORMANCE - reservationsCount;
@@ -104,9 +104,9 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                         if (this.req.method === 'POST') {
                             reserveSeatForm_1.default(this.req, this.res, (err) => {
                                 if (this.req.form.isValid) {
-                                    let reservationIds = JSON.parse(this.req.form['reservationIds']);
+                                    let seatCodes = JSON.parse(this.req.form['seatCodes']);
                                     // 追加指定席を合わせて制限枚数を超過した場合
-                                    if (reservationIds.length > limit) {
+                                    if (seatCodes.length > limit) {
                                         lockFile.unlock(lockPath, (err) => {
                                             let message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
                                             this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
@@ -114,7 +114,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                                     }
                                     else {
                                         // 座席FIX
-                                        this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
+                                        this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                             lockFile.unlock(lockPath, (err) => {
                                                 if (err) {
                                                     this.next(err);
@@ -123,7 +123,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                                                     this.logger.debug('saving reservationModel... ', reservationModel);
                                                     reservationModel.save((err) => {
                                                         // 仮予約に失敗した座席コードがあった場合
-                                                        if (reservationIds.length > reservationModel.reservationIds.length) {
+                                                        if (seatCodes.length > reservationModel.seatCodes.length) {
                                                             let message = '座席を確保できませんでした。再度指定してください。';
                                                             this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                                                         }
@@ -174,7 +174,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                         let choices = JSON.parse(this.req.form['choices']);
                         if (Array.isArray(choices)) {
                             choices.forEach((choice) => {
-                                let reservation = reservationModel.getReservation(choice.reservation_id);
+                                let reservation = reservationModel.getReservation(choice.seat_code);
                                 let ticketType = reservationModel.ticketTypes.find((ticketType) => {
                                     return (ticketType.code === choice.ticket_type_code);
                                 });
@@ -293,6 +293,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                         let promises = [];
                         let reservationDocuments4update = reservationModel.toReservationDocuments();
                         for (let reservationDocument4update of reservationDocuments4update) {
+                            reservationDocument4update['mvtk_kiin_cd'] = this.mvtkUser.memberInfoResult.kiinCd;
                             promises.push(new Promise((resolve, reject) => {
                                 // reservationDocument4update['status'] = ReservationUtil.STATUS_GMO_PROCESSING;
                                 this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);

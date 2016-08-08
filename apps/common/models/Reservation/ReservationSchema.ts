@@ -3,7 +3,7 @@ import mongoose = require('mongoose');
 /**
  * 予約スキーマ
  */
-let ReservationSchema = new mongoose.Schema({
+let Schema = new mongoose.Schema({
     token: String,
     payment_no: String,
 
@@ -117,4 +117,14 @@ let ReservationSchema = new mongoose.Schema({
     }
 });
 
-export default ReservationSchema;
+Schema.index(
+    {
+        performance: 1,
+        seat_code: 1
+    },
+    {
+        unique: true
+    }
+);
+
+export default Schema;

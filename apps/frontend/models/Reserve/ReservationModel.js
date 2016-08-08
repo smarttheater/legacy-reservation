@@ -73,9 +73,9 @@ class ReservationModel {
      */
     getTotalCharge() {
         let total = 0;
-        if (Array.isArray(this.reservationIds) && this.reservationIds.length > 0) {
-            this.reservationIds.forEach((reservationId) => {
-                total += this.getChargeByReservationId(reservationId);
+        if (Array.isArray(this.seatCodes) && this.seatCodes.length > 0) {
+            this.seatCodes.forEach((seatCode) => {
+                total += this.getChargeBySeatCode(seatCode);
             });
         }
         return total;
@@ -83,9 +83,9 @@ class ReservationModel {
     /**
      * 座席単体の料金を算出する
      */
-    getChargeByReservationId(reservationId) {
+    getChargeBySeatCode(seatCode) {
         let charge = 0;
-        let reservation = this.getReservation(reservationId);
+        let reservation = this.getReservation(seatCode);
         if (reservation.ticket_type_charge) {
             charge += reservation.ticket_type_charge;
             // 座席グレード分加算
@@ -100,23 +100,16 @@ class ReservationModel {
         return charge;
     }
     /**
-     * 仮予約中の座席コードリストを取得する
+     * 座席コードから予約情報を取得する
      */
-    getSeatCodes() {
-        let seatcodes = [];
-        if (Array.isArray(this.reservationIds) && this.reservationIds.length > 0) {
-            this.reservationIds.forEach((reservationId, index) => {
-                let reservation = this.getReservation(reservationId);
-                seatcodes.push(reservation.seat_code);
-            });
-        }
-        return seatcodes;
+    getReservation(seatCode) {
+        return (this[`reservation_${seatCode}`]) ? this[`reservation_${seatCode}`] : null;
     }
-    getReservation(id) {
-        return (this[`reservation_${id}`]) ? this[`reservation_${id}`] : null;
-    }
-    setReservation(id, reservation) {
-        this[`reservation_${id}`] = reservation;
+    /**
+     * 座席コードの予約情報をセットする
+     */
+    setReservation(seatCode, reservation) {
+        this[`reservation_${seatCode}`] = reservation;
     }
     /**
      * 予約ドキュメントへ変換
@@ -124,26 +117,15 @@ class ReservationModel {
     toReservationDocuments() {
         let documents = [];
         let totalCharge = this.getTotalCharge();
-        // 購入者区分
-        let purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER;
-        if (this.member) {
-            purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_MEMBER;
-        }
-        else if (this.sponsor) {
-            purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR;
-        }
-        else if (this.staff) {
-            purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_STAFF;
-        }
-        this.reservationIds.forEach((reservationId, index) => {
-            let reservation = this.getReservation(reservationId);
+        this.seatCodes.forEach((seatCode) => {
+            let reservation = this.getReservation(seatCode);
             documents.push({
                 // TODO 金額系の税込みと消費税と両方
-                _id: reservationId,
+                _id: reservation._id,
                 total_charge: totalCharge,
-                charge: this.getChargeByReservationId(reservationId),
+                charge: this.getChargeBySeatCode(seatCode),
                 payment_no: this.paymentNo,
-                purchaser_group: purchaserGroup,
+                purchaser_group: this.purchaserGroup,
                 performance: this.performance._id,
                 performance_day: this.performance.day,
                 performance_start_time: this.performance.start_time,
@@ -168,20 +150,8 @@ class ReservationModel {
                 ticket_type_charge: reservation.ticket_type_charge,
                 watcher_name: reservation.watcher_name,
                 watcher_name_updated_at: Date.now(),
-                mvtk_kiin_cd: (this.mvtkMemberInfoResult) ? this.mvtkMemberInfoResult.kiinCd : null,
-                member: (this.member) ? this.member._id : null,
-                member_user_id: (this.member) ? this.member.user_id : null,
-                sponsor: (this.sponsor) ? this.sponsor._id : null,
-                sponsor_user_id: (this.sponsor) ? this.sponsor.user_id : null,
-                sponsor_name: (this.sponsor) ? this.sponsor.name : null,
-                sponsor_email: (this.sponsor) ? this.sponsor.email : null,
-                staff: (this.staff) ? this.staff._id : null,
-                staff_user_id: (this.staff) ? this.staff.user_id : null,
-                staff_name: (this.staff) ? this.staff.name : null,
-                staff_email: (this.staff) ? this.staff.email : null,
-                staff_department_name: (this.staff) ? this.staff.department_name : null,
-                staff_tel: (this.staff) ? this.staff.tel : null,
-                staff_signature: (this.staff) ? this.staff.signature : null,
+                // member: (this.member) ? this.member._id : null,
+                // member_user_id: (this.member) ? this.member.user_id : null,
                 updated_user: 'ReservationModel'
             });
         });
@@ -195,13 +165,10 @@ class ReservationModel {
             token: this.token,
             paymentNo: this.paymentNo,
             performance: this.performance,
-            reservationIds: this.reservationIds,
+            seatCodes: this.seatCodes,
             profile: this.profile,
             paymentMethod: this.paymentMethod,
-            member: this.member,
-            staff: this.staff,
-            sponsor: this.sponsor,
-            reservedDocuments: this.reservedDocuments,
+            purchaserGroup: this.purchaserGroup
         };
         return log;
     }

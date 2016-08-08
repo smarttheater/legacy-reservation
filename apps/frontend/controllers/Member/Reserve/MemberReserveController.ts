@@ -96,10 +96,7 @@ export default class MemberReserveController extends ReserveBaseController {
                     let token = Util.createToken();
                     let reservationModel = new ReservationModel();
                     reservationModel.token = token;
-                    reservationModel.member = {
-                        _id: this.memberUser.get('_id'),
-                        user_id: this.memberUser.get('user_id')
-                    };
+                    reservationModel.purchaserGroup = ReservationUtil.PURCHASER_GROUP_MEMBER;
 
 
                     // パフォーマンスFIX
@@ -110,14 +107,18 @@ export default class MemberReserveController extends ReserveBaseController {
 
                             // 確保中の座席指定情報を追加
                             for (let reservationDocument of reservationDocuments) {
-                                reservationModel.reservationIds.push(reservationDocument.get('_id'));
-                                reservationModel.setReservation(reservationDocument.get('_id'), {
+                                let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
+                                    return (seat.code === reservationDocument.get('seat_code'));
+                                });
+
+                                reservationModel.seatCodes.push(reservationDocument.get('seat_code'));
+                                reservationModel.setReservation(reservationDocument.get('seat_code'), {
                                     _id: reservationDocument.get('_id'),
                                     status: reservationDocument.get('status'),
                                     seat_code: reservationDocument.get('seat_code'),
-                                    seat_grade_name: reservationDocument.get('seat_grade_name'),
-                                    seat_grade_name_en: reservationDocument.get('seat_grade_name_en'),
-                                    seat_grade_additional_charge: reservationDocument.get('seat_grade_additional_charge'),
+                                    seat_grade_name: seatInfo.grade.name,
+                                    seat_grade_name_en: seatInfo.grade.name_en,
+                                    seat_grade_additional_charge: seatInfo.grade.additional_charge
                                 });
                             }
 
@@ -158,7 +159,7 @@ export default class MemberReserveController extends ReserveBaseController {
 
                         if (Array.isArray(choices)) {
                             choices.forEach((choice, index) => {
-                                let reservation = reservationModel.getReservation(choice.reservation_id);
+                                let reservation = reservationModel.getReservation(choice.seat_code);
 
                                 let ticketType = reservationModel.ticketTypes.find((ticketType) => {
                                     return (ticketType.code === choice.ticket_type_code);

@@ -14,15 +14,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
         let token = Util_1.default.createToken();
         let reservationModel = new ReservationModel_1.default();
         reservationModel.token = token;
-        reservationModel.staff = {
-            _id: this.staffUser.get('_id'),
-            user_id: this.staffUser.get('user_id'),
-            name: this.staffUser.get('name'),
-            email: this.staffUser.get('email'),
-            department_name: this.staffUser.get('department_name'),
-            tel: this.staffUser.get('tel'),
-            signature: this.staffUser.get('signature'),
-        };
+        reservationModel.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_STAFF;
         // スケジュール選択へ
         this.logger.debug('saving reservationModel... ', reservationModel);
         reservationModel.save((err) => {
@@ -86,15 +78,15 @@ class StaffReserveController extends ReserveBaseController_1.default {
             if (this.req.method === 'POST') {
                 reserveSeatForm_1.default(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
-                        let reservationIds = JSON.parse(this.req.form['reservationIds']);
+                        let seatCodes = JSON.parse(this.req.form['seatCodes']);
                         // 追加指定席を合わせて制限枚数を超過した場合
-                        if (reservationIds.length > limit) {
+                        if (seatCodes.length > limit) {
                             let message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
                             this.res.redirect(`${this.router.build('staff.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                         }
                         else {
                             // 座席FIX
-                            this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
+                            this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                 if (err) {
                                     this.next(err);
                                 }
@@ -102,7 +94,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                                     this.logger.debug('saving reservationModel... ', reservationModel);
                                     reservationModel.save((err) => {
                                         // 仮押さえできていない在庫があった場合
-                                        if (reservationIds.length > reservationModel.reservationIds.length) {
+                                        if (seatCodes.length > reservationModel.seatCodes.length) {
                                             let message = '座席を確保できませんでした。再度指定してください。';
                                             this.res.redirect(this.router.build('staff.reserve.seats', { token: token }) + `?message=${encodeURIComponent(message)}`);
                                         }
@@ -146,7 +138,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                         let choices = JSON.parse(this.req.form['choices']);
                         if (Array.isArray(choices)) {
                             choices.forEach((choice) => {
-                                let reservation = reservationModel.getReservation(choice.reservation_id);
+                                let reservation = reservationModel.getReservation(choice.seat_code);
                                 let ticketType = reservationModel.ticketTypes.find((ticketType) => {
                                     return (ticketType.code === choice.ticket_type_code);
                                 });
@@ -206,6 +198,13 @@ class StaffReserveController extends ReserveBaseController_1.default {
                             promises.push(new Promise((resolve, reject) => {
                                 // 予約完了
                                 reservationDocument4update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
+                                reservationDocument4update['staff'] = this.staffUser.get('_id');
+                                reservationDocument4update['staff_user_id'] = this.staffUser.get('user_id');
+                                reservationDocument4update['staff_name'] = this.staffUser.get('name');
+                                reservationDocument4update['staff_email'] = this.staffUser.get('email');
+                                reservationDocument4update['staff_department_name'] = this.staffUser.get('department_name');
+                                reservationDocument4update['staff_tel'] = this.staffUser.get('tel');
+                                reservationDocument4update['staff_signature'] = this.staffUser.get('signature');
                                 this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
                                 Models_1.default.Reservation.update({
                                     _id: reservationDocument4update['_id'],

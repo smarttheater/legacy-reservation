@@ -11,16 +11,18 @@ const moment = require('moment');
  */
 class ReserveBaseController extends BaseController_1.default {
     processCancelSeats(reservationModel, cb) {
-        let reservationIdsInSession = (reservationModel.reservationIds) ? reservationModel.reservationIds : [];
+        let seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
         let promises = [];
         // セッション中の予約リストを初期化
-        reservationModel.reservationIds = [];
+        reservationModel.seatCodes = [];
         // 仮予約を空席ステータスに戻す
-        reservationIdsInSession.forEach((reservationIdInSession, index) => {
+        seatCodesInSession.forEach((seatCodeInSession) => {
             promises.push(new Promise((resolve, reject) => {
-                this.logger.debug('updating reservation status to avalilable..._id:', reservationIdInSession);
+                this.logger.debug('updating reservation status to avalilable...seat_code:', seatCodeInSession);
                 Models_1.default.Reservation.update({
-                    _id: reservationIdInSession,
+                    performance: reservationModel.performance._id,
+                    seat_code: seatCodeInSession,
+                    status: ReservationUtil_1.default.STATUS_TEMPORARY
                 }, {
                     status: ReservationUtil_1.default.STATUS_AVAILABLE,
                 }, (err, affectedRows) => {
@@ -59,7 +61,7 @@ class ReserveBaseController extends BaseController_1.default {
             }
             else {
                 // 内部以外は、上映開始20分過ぎていたらはじく
-                if (!reservationModel.staff) {
+                if (reservationModel.purchaserGroup !== ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
                     let now = moment().add(-20, 'minutes');
                     if (performanceDocument.get('day') === now.format('YYYYMMDD')) {
                         if (performanceDocument.get('start') < now.format('HHmm')) {
@@ -74,43 +76,49 @@ class ReserveBaseController extends BaseController_1.default {
                 Models_1.default.TicketTypeGroup.findOne({
                     _id: performanceDocument.get('film').get('ticket_type_group')
                 }, (err, ticketTypeGroupDocument) => {
-                    reservationModel.reservationIds = [];
+                    reservationModel.seatCodes = [];
                     // 券種リストは、予約する主体によって異なる
                     // 内部関係者の場合
-                    if (reservationModel.staff) {
-                        reservationModel.ticketTypes = TicketTypeGroupUtil_1.default.getOne4staff();
-                    }
-                    else if (reservationModel.sponsor) {
-                        reservationModel.ticketTypes = TicketTypeGroupUtil_1.default.getOne4sponsor();
-                    }
-                    else if (reservationModel.member) {
-                        reservationModel.ticketTypes = [];
-                        for (let ticketType of ticketTypeGroupDocument.get('types')) {
-                            if (ticketType.get('code') === TicketTypeGroupUtil_1.default.TICKET_TYPE_CODE_ADULTS) {
-                                reservationModel.ticketTypes.push(ticketType);
-                            }
-                        }
-                    }
-                    else {
-                        reservationModel.ticketTypes = [];
-                        for (let ticketType of ticketTypeGroupDocument.get('types')) {
-                            switch (ticketType.get('code')) {
-                                // 学生当日は、当日だけ
-                                case TicketTypeGroupUtil_1.default.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY:
-                                    if (moment().format('YYYYMMDD') === performanceDocument.get('day')) {
-                                        reservationModel.ticketTypes.push(ticketType);
-                                    }
-                                    break;
-                                case TicketTypeGroupUtil_1.default.TICKET_TYPE_CODE_STUDENTS:
-                                    if (moment().format('YYYYMMDD') !== performanceDocument.get('day')) {
-                                        reservationModel.ticketTypes.push(ticketType);
-                                    }
-                                    break;
-                                default:
+                    switch (reservationModel.purchaserGroup) {
+                        case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
+                            reservationModel.ticketTypes = TicketTypeGroupUtil_1.default.getOne4staff();
+                            break;
+                        case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
+                            reservationModel.ticketTypes = TicketTypeGroupUtil_1.default.getOne4sponsor();
+                            break;
+                        case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
+                            // メルマガ当選者の場合、一般だけ
+                            reservationModel.ticketTypes = [];
+                            for (let ticketType of ticketTypeGroupDocument.get('types')) {
+                                if (ticketType.get('code') === TicketTypeGroupUtil_1.default.TICKET_TYPE_CODE_ADULTS) {
                                     reservationModel.ticketTypes.push(ticketType);
-                                    break;
+                                }
                             }
-                        }
+                            break;
+                        default:
+                            // 一般の場合
+                            // 当日窓口、電話予約の場合は、一般と同様の券種
+                            // TODO 電話予約の場合は、手数料が1席につき150円(コンビニ分)
+                            reservationModel.ticketTypes = [];
+                            for (let ticketType of ticketTypeGroupDocument.get('types')) {
+                                switch (ticketType.get('code')) {
+                                    // 学生当日は、当日だけ
+                                    case TicketTypeGroupUtil_1.default.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY:
+                                        if (moment().format('YYYYMMDD') === performanceDocument.get('day')) {
+                                            reservationModel.ticketTypes.push(ticketType);
+                                        }
+                                        break;
+                                    case TicketTypeGroupUtil_1.default.TICKET_TYPE_CODE_STUDENTS:
+                                        if (moment().format('YYYYMMDD') !== performanceDocument.get('day')) {
+                                            reservationModel.ticketTypes.push(ticketType);
+                                        }
+                                        break;
+                                    default:
+                                        reservationModel.ticketTypes.push(ticketType);
+                                        break;
+                                }
+                            }
+                            break;
                     }
                     // パフォーマンス情報を保管
                     reservationModel.performance = {
@@ -150,9 +158,9 @@ class ReserveBaseController extends BaseController_1.default {
     /**
      * 座席をFIXするプロセス
      */
-    processFixSeats(reservationModel, reservationIds, cb) {
-        let reservationIdsInSession = reservationModel.reservationIds;
-        if (reservationIds.length < 1) {
+    processFixSeats(reservationModel, seatCodes, cb) {
+        let seatCodesInSession = reservationModel.seatCodes;
+        if (seatCodes.length < 1) {
             cb(new Error('座席が選択されていません'), reservationModel);
         }
         else {
@@ -160,17 +168,19 @@ class ReserveBaseController extends BaseController_1.default {
             // まず仮押さえしてから、仮押さえキャンセル
             let promises = [];
             // セッション中の予約リストを初期化
-            reservationModel.reservationIds = [];
+            reservationModel.seatCodes = [];
             // 仮予約解除の場合、空席ステータスに戻す(redis中の情報にあって、新たな指定リストにない座席コード)
-            reservationIdsInSession.forEach((reservationIdInSession, index) => {
-                let reservation = reservationModel.getReservation(reservationIdInSession);
-                if (reservationIds.indexOf(reservationIdInSession) >= 0) {
+            seatCodesInSession.forEach((seatCodeInSession, index) => {
+                let reservation = reservationModel.getReservation(seatCodeInSession);
+                if (seatCodes.indexOf(seatCodeInSession) >= 0) {
                 }
                 else {
                     promises.push(new Promise((resolve, reject) => {
-                        this.logger.debug('updating reservation status to avalilable..._id:', reservationIdInSession);
+                        this.logger.debug('updating reservation status to avalilable...seat_code:', seatCodeInSession);
                         Models_1.default.Reservation.update({
-                            _id: reservationIdInSession,
+                            performance: reservationModel.performance._id,
+                            seat_code: seatCodeInSession,
+                            status: ReservationUtil_1.default.STATUS_TEMPORARY
                         }, {
                             status: ReservationUtil_1.default.STATUS_AVAILABLE,
                         }, (err, affectedRows) => {
@@ -185,11 +195,11 @@ class ReserveBaseController extends BaseController_1.default {
                 }
             });
             // 新たな座席指定と、既に仮予約済みの座席コードについて
-            reservationIds.forEach((reservationId, index) => {
+            seatCodes.forEach((seatCode) => {
                 // すでに仮予約済みであれば、セッションに加えるだけ
-                if (reservationIdsInSession.indexOf(reservationId) >= 0) {
+                if (seatCodesInSession.indexOf(seatCode) >= 0) {
                     promises.push(new Promise((resolve, reject) => {
-                        reservationModel.reservationIds.push(reservationId);
+                        reservationModel.seatCodes.push(seatCode);
                         resolve();
                     }));
                 }
@@ -204,49 +214,91 @@ class ReserveBaseController extends BaseController_1.default {
                      ************************************************/
                     promises.push(new Promise((resolve, reject) => {
                         let update = {
-                            status: ReservationUtil_1.default.STATUS_TEMPORARY,
-                            mvtk_kiin_cd: (reservationModel.mvtkMemberInfoResult) ? reservationModel.mvtkMemberInfoResult.kiinCd : null,
-                            member: (reservationModel.member) ? reservationModel.member._id : null,
-                            sponsor: (reservationModel.sponsor) ? reservationModel.sponsor._id : null,
-                            staff: (reservationModel.staff) ? reservationModel.staff._id : null // 誰が仮予約中かも分かるように
+                            status: ReservationUtil_1.default.STATUS_TEMPORARY
                         };
-                        if (reservationModel.staff) {
-                            update['staff'] = reservationModel.staff._id;
+                        // 誰が仮予約中かも分かるように
+                        switch (reservationModel.purchaserGroup) {
+                            case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
+                                update['staff'] = this.staffUser.get('_id');
+                                break;
+                            case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
+                                update['sponsor'] = this.sponsorUser.get('_id');
+                                break;
+                            case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
+                                update['member'] = this.memberUser.get('_id');
+                                break;
+                            case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
+                                update['mvtk_kiin_cd'] = this.mvtkUser.memberInfoResult.kiinCd;
+                                break;
+                            default:
+                                break;
                         }
-                        else if (reservationModel.sponsor) {
-                            update['sponsor'] = reservationModel.sponsor._id;
-                        }
-                        else if (reservationModel.member) {
-                            update['member'] = reservationModel.member._id;
-                        }
-                        else {
-                        }
-                        this.logger.debug('updating reservation status to temporary...reservationId:', reservationId);
+                        this.logger.debug('updating reservation status to temporary...seat_code:', seatCode);
                         Models_1.default.Reservation.findOneAndUpdate({
-                            _id: reservationId,
+                            performance: reservationModel.performance._id,
+                            seat_code: seatCode,
                             status: ReservationUtil_1.default.STATUS_AVAILABLE // 空席ステータスのみ、新規仮登録できる(ここはポイントなので要注意！！！)
-                        }, update, {
-                            new: true,
+                        }, {
+                            $set: update,
+                            $setOnInsert: {}
+                        }, {
+                            upsert: true,
+                            new: true
                         }, (err, reservationDocument) => {
-                            if (err) {
+                            if (err || !reservationDocument) {
                                 reject();
                             }
                             else {
-                                if (reservationDocument) {
+                                let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
+                                    return (seat.code === seatCode);
+                                });
+                                // 万が一座席が存在しなかったら
+                                if (!seatInfo) {
+                                    reject();
+                                }
+                                else {
                                     // ステータス更新に成功したらセッションに保管
-                                    reservationModel.reservationIds.push(reservationDocument.get('_id'));
-                                    reservationModel.setReservation(reservationDocument.get('_id'), {
+                                    reservationModel.seatCodes.push(seatCode);
+                                    reservationModel.setReservation(seatCode, {
                                         _id: reservationDocument.get('_id'),
                                         status: reservationDocument.get('status'),
                                         seat_code: reservationDocument.get('seat_code'),
-                                        seat_grade_name: reservationDocument.get('seat_grade_name'),
-                                        seat_grade_name_en: reservationDocument.get('seat_grade_name_en'),
-                                        seat_grade_additional_charge: reservationDocument.get('seat_grade_additional_charge'),
+                                        seat_grade_name: seatInfo.grade.name,
+                                        seat_grade_name_en: seatInfo.grade.name_en,
+                                        seat_grade_additional_charge: seatInfo.grade.additional_charge,
                                     });
+                                    resolve();
                                 }
-                                resolve();
                             }
                         });
+                        // Models.Reservation.findOneAndUpdate(
+                        //     {
+                        //         _id: reservationId,
+                        //         status: ReservationUtil.STATUS_AVAILABLE // 空席ステータスのみ、新規仮登録できる(ここはポイントなので要注意！！！)
+                        //     },
+                        //     update,
+                        //     {
+                        //         new: true,
+                        //     },
+                        // (err, reservationDocument) => {
+                        //     if (err) {
+                        //         reject();
+                        //     } else {
+                        //         if (reservationDocument) {
+                        //             // ステータス更新に成功したらセッションに保管
+                        //             reservationModel.reservationIds.push(reservationDocument.get('_id'));
+                        //             reservationModel.setReservation(reservationDocument.get('_id'), {
+                        //                 _id: reservationDocument.get('_id'),
+                        //                 status: reservationDocument.get('status'),
+                        //                 seat_code: reservationDocument.get('seat_code'),
+                        //                 seat_grade_name: reservationDocument.get('seat_grade_name'),
+                        //                 seat_grade_name_en: reservationDocument.get('seat_grade_name_en'),
+                        //                 seat_grade_additional_charge: reservationDocument.get('seat_grade_additional_charge'),
+                        //             });
+                        //         }
+                        //         resolve();
+                        //     }
+                        // });
                     }));
                 }
             });
@@ -286,16 +338,13 @@ class ReserveBaseController extends BaseController_1.default {
         }
         ;
         Promise.all(promises).then(() => {
+            // 完了メールキューがあれば何も更新しないし、なければ追加する
             this.logger.info('creating reservationEmailCue...');
-            Models_1.default.ReservationEmailCue.findOneAndUpdate({
-                payment_no: paymentNo
-            }, {
+            Models_1.default.ReservationEmailCue.create({
+                payment_no: paymentNo,
                 is_sent: false
-            }, {
-                upsert: true,
-                new: true
-            }, (err, reservationEmailCueDocument) => {
-                this.logger.info('reservationEmailCue created.', err, reservationEmailCueDocument);
+            }, (err, cueDocument) => {
+                this.logger.info('reservationEmailCue created.', err, cueDocument);
                 if (err) {
                 }
                 cb(null);

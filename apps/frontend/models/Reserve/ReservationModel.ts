@@ -37,7 +37,7 @@ export default class ReservationModel {
                     grade: {
                         name: string, // 座席レベル名
                         name_en: string, // 座席レベル名(英語)
-                        additional_charge: Number // 追加料金
+                        additional_charge: number // 追加料金
                     }
                 }>
             }>
@@ -62,8 +62,8 @@ export default class ReservationModel {
     /** スクリーンの座席表HTML */
     public screenHtml: string;
 
-    /** 予約IDリスト */
-    public reservationIds: Array<string>;
+    /** 予約座席コードリスト */
+    public seatCodes: Array<string>;
 
     /** プロフィール */
     public profile: {
@@ -76,35 +76,8 @@ export default class ReservationModel {
     /** 決済方法 */
     public paymentMethod: string;
 
-    /** ムビチケ会員詳細情報 */
-    public mvtkMemberInfoResult: mvtkService.services.MemberInfo.models.MemberInfoResult;
-
-    /** メルマガ当選者 */
-    public member: {
-        _id: string;
-        user_id: string;
-    };
-
-    /** 内部関係者 */
-    public staff: {
-        _id: string;
-        user_id: string;
-        name: string;
-        email: string;
-        department_name: string;
-        tel: string;
-        signature: string;
-    };
-
-    /** 外部関係者 */
-    public sponsor: {
-        _id: string;
-        user_id: string;
-        name: string;
-        email: string;
-    };
-
-    public reservedDocuments: Array<any>;
+    /** 購入者区分 */
+    public purchaserGroup: string;
 
     /**
      * プロセス中の購入情報をセッションに保存する
@@ -176,9 +149,9 @@ export default class ReservationModel {
     public getTotalCharge(): number {
         let total = 0;
 
-        if (Array.isArray(this.reservationIds) && this.reservationIds.length > 0) {
-            this.reservationIds.forEach((reservationId) => {
-                total += this.getChargeByReservationId(reservationId);
+        if (Array.isArray(this.seatCodes) && this.seatCodes.length > 0) {
+            this.seatCodes.forEach((seatCode) => {
+                total += this.getChargeBySeatCode(seatCode);
             });
         }
 
@@ -188,10 +161,10 @@ export default class ReservationModel {
     /**
      * 座席単体の料金を算出する
      */
-    public getChargeByReservationId(reservationId: string): number {
+    public getChargeBySeatCode(seatCode: string): number {
         let charge = 0;
 
-        let reservation = this.getReservation(reservationId);
+        let reservation = this.getReservation(seatCode);
         if (reservation.ticket_type_charge) {
             charge += reservation.ticket_type_charge;
 
@@ -214,27 +187,17 @@ export default class ReservationModel {
     }
 
     /**
-     * 仮予約中の座席コードリストを取得する
+     * 座席コードから予約情報を取得する
      */
-    public getSeatCodes(): Array<string> {
-        let seatcodes = [];
-
-        if (Array.isArray(this.reservationIds) && this.reservationIds.length > 0) {
-            this.reservationIds.forEach((reservationId, index) => {
-                let reservation = this.getReservation(reservationId);
-                seatcodes.push(reservation.seat_code);
-            });
-        }
-
-        return seatcodes;
+    public getReservation(seatCode: string): Reservation {
+        return (this[`reservation_${seatCode}`]) ? this[`reservation_${seatCode}`] : null;
     }
 
-    public getReservation(id: string): Reservation {
-        return (this[`reservation_${id}`]) ? this[`reservation_${id}`] : null;
-    }
-
-    public setReservation(id: string, reservation: Reservation): void {
-        this[`reservation_${id}`] = reservation;
+    /**
+     * 座席コードの予約情報をセットする
+     */
+    public setReservation(seatCode: string, reservation: Reservation): void {
+        this[`reservation_${seatCode}`] = reservation;
     }
 
     /**
@@ -244,28 +207,19 @@ export default class ReservationModel {
         let documents: Array<Object> = [];
         let totalCharge = this.getTotalCharge();
 
-        // 購入者区分
-        let purchaserGroup = ReservationUtil.PURCHASER_GROUP_CUSTOMER;
-        if (this.member) {
-            purchaserGroup = ReservationUtil.PURCHASER_GROUP_MEMBER;
-        } else if (this.sponsor) {
-            purchaserGroup = ReservationUtil.PURCHASER_GROUP_SPONSOR;
-        } else if (this.staff) {
-            purchaserGroup = ReservationUtil.PURCHASER_GROUP_STAFF;
-        }
 
-        this.reservationIds.forEach((reservationId, index) => {
-            let reservation = this.getReservation(reservationId);
+        this.seatCodes.forEach((seatCode) => {
+            let reservation = this.getReservation(seatCode);
 
             documents.push(
                 {
                     // TODO 金額系の税込みと消費税と両方
 
-                    _id: reservationId,
+                    _id: reservation._id,
                     total_charge: totalCharge,
-                    charge: this.getChargeByReservationId(reservationId),
+                    charge: this.getChargeBySeatCode(seatCode),
                     payment_no: this.paymentNo,
-                    purchaser_group: purchaserGroup,
+                    purchaser_group: this.purchaserGroup,
 
                     performance: this.performance._id,
                     performance_day: this.performance.day,
@@ -299,23 +253,8 @@ export default class ReservationModel {
                     watcher_name: reservation.watcher_name,
                     watcher_name_updated_at: Date.now(),
 
-                    mvtk_kiin_cd: (this.mvtkMemberInfoResult) ? this.mvtkMemberInfoResult.kiinCd : null,
-
-                    member: (this.member) ? this.member._id : null,
-                    member_user_id: (this.member) ? this.member.user_id : null,
-
-                    sponsor: (this.sponsor) ? this.sponsor._id : null,
-                    sponsor_user_id: (this.sponsor) ? this.sponsor.user_id : null,
-                    sponsor_name: (this.sponsor) ? this.sponsor.name : null,
-                    sponsor_email: (this.sponsor) ? this.sponsor.email : null,
-
-                    staff: (this.staff) ? this.staff._id : null,
-                    staff_user_id: (this.staff) ? this.staff.user_id : null,
-                    staff_name: (this.staff) ? this.staff.name : null,
-                    staff_email: (this.staff) ? this.staff.email : null,
-                    staff_department_name: (this.staff) ? this.staff.department_name : null,
-                    staff_tel: (this.staff) ? this.staff.tel : null,
-                    staff_signature: (this.staff) ? this.staff.signature : null,
+                    // member: (this.member) ? this.member._id : null,
+                    // member_user_id: (this.member) ? this.member.user_id : null,
 
                     updated_user: 'ReservationModel'
                 }
@@ -333,13 +272,10 @@ export default class ReservationModel {
             token: this.token,
             paymentNo: this.paymentNo,
             performance: this.performance,
-            reservationIds: this.reservationIds,
+            seatCodes: this.seatCodes,
             profile: this.profile,
             paymentMethod: this.paymentMethod,
-            member: this.member,
-            staff: this.staff,
-            sponsor: this.sponsor,
-            reservedDocuments: this.reservedDocuments,
+            purchaserGroup: this.purchaserGroup
         };
 
         return log;

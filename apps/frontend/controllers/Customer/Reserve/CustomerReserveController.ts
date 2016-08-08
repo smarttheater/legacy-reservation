@@ -80,7 +80,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
 
-            reservationModel.mvtkMemberInfoResult = this.mvtkUser.memberInfoResult;
+            reservationModel.purchaserGroup = ReservationUtil.PURCHASER_GROUP_CUSTOMER;
 
             reservationModel.save((err) => {
                 this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
@@ -110,8 +110,8 @@ export default class CustomerReserveController extends ReserveBaseController {
                         status: {
                             $ne: ReservationUtil.STATUS_AVAILABLE
                         },
-                        _id: {
-                            $nin: reservationModel.reservationIds // 現在のフロー中の予約は除く
+                        seat_code: {
+                            $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
                         }
                     },
                     (err, reservationsCount) => {
@@ -129,10 +129,10 @@ export default class CustomerReserveController extends ReserveBaseController {
                             if (this.req.method === 'POST') {
                                 reserveSeatForm(this.req, this.res, (err) => {
                                     if (this.req.form.isValid) {
-                                        let reservationIds: Array<string> = JSON.parse(this.req.form['reservationIds']);
+                                        let seatCodes: Array<string> = JSON.parse(this.req.form['seatCodes']);
 
                                         // 追加指定席を合わせて制限枚数を超過した場合
-                                        if (reservationIds.length > limit) {
+                                        if (seatCodes.length > limit) {
 
                                             lockFile.unlock(lockPath, (err) => {
                                                 let message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
@@ -142,7 +142,7 @@ export default class CustomerReserveController extends ReserveBaseController {
 
                                         } else {
                                             // 座席FIX
-                                            this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
+                                            this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                                 lockFile.unlock(lockPath, (err) => {
 
                                                     if (err) {
@@ -152,7 +152,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                                                         this.logger.debug('saving reservationModel... ', reservationModel);
                                                         reservationModel.save((err) => {
                                                             // 仮予約に失敗した座席コードがあった場合
-                                                            if (reservationIds.length > reservationModel.reservationIds.length) {
+                                                            if (seatCodes.length > reservationModel.seatCodes.length) {
                                                                 let message = '座席を確保できませんでした。再度指定してください。';
                                                                 this.res.redirect(`${this.router.build('customer.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
 
@@ -219,7 +219,7 @@ export default class CustomerReserveController extends ReserveBaseController {
 
                         if (Array.isArray(choices)) {
                             choices.forEach((choice) => {
-                                let reservation = reservationModel.getReservation(choice.reservation_id);
+                                let reservation = reservationModel.getReservation(choice.seat_code);
 
                                 let ticketType = reservationModel.ticketTypes.find((ticketType) => {
                                     return (ticketType.code === choice.ticket_type_code);
@@ -363,6 +363,8 @@ export default class CustomerReserveController extends ReserveBaseController {
                         let promises = [];
                         let reservationDocuments4update = reservationModel.toReservationDocuments();
                         for (let reservationDocument4update of reservationDocuments4update) {
+                            reservationDocument4update['mvtk_kiin_cd'] = this.mvtkUser.memberInfoResult.kiinCd;
+
                             promises.push(new Promise((resolve, reject) => {
                                 // reservationDocument4update['status'] = ReservationUtil.STATUS_GMO_PROCESSING;
 

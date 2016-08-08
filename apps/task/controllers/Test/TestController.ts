@@ -26,21 +26,14 @@ export default class TestController extends BaseController {
         mongoose.connect(MONGOLAB_URI, {});
 
         this.logger.info('updating temporary reservations...');
-        Models.Reservation.update(
+        Models.Reservation.remove(
             {
                 status: ReservationUtil.STATUS_TEMPORARY,
-                updated_dt: {
-                    $lt: moment().add(-10, 'minutes').toISOString(),
+                updated_at: {
+                    $lt: moment().add(-10, 'minutes').toISOString()
                 },
             },
-            {
-                status: ReservationUtil.STATUS_AVAILABLE,
-                updated_user: this.constructor.toString()
-            },
-            {
-                multi: true,
-            },
-            (err, affectedRows) => {
+            (err) => {
                 mongoose.disconnect();
 
                 // 失敗しても、次のタスクにまかせる(気にしない)
@@ -339,49 +332,52 @@ export default class TestController extends BaseController {
         Models.Reservation.remove({}, (err) => {
             this.logger.info('remove processed.', err);
 
-            if (err) {
+            mongoose.disconnect();
+            process.exit(0);
 
-            } else {
-                let performances = [];
+            // if (err) {
 
-                // パフォーマンスごとに空席予約を入れる
-           	    Models.Performance.find({}, '_id screen')
-                    .populate('film screen theater')
-                    .exec((err, performanceDocuments) => {
-                        performanceDocuments.forEach((performanceDocument) => {
-                            let seats = performanceDocument.get('screen').get('sections')[0].get('seats');
-                            let performanceId = performanceDocument.get('_id');
+            // } else {
+            //     let performances = [];
 
-                            seats.forEach((seatDocument) => {
-                                performances.push({
-                                    performance: performanceId,
-                                    seat_code: seatDocument.get('code'),
-                                    seat_grade_name: seatDocument.get('grade').name,
-                                    seat_grade_name_en: seatDocument.get('grade').name_en,
-                                    seat_grade_additional_charge: seatDocument.get('grade').additional_charge,
-                                    status: ReservationUtil.STATUS_AVAILABLE,
-                                });
-                            });
-                        });
+            //     // パフォーマンスごとに空席予約を入れる
+           	//     Models.Performance.find({}, '_id screen')
+            //         .populate('film screen theater')
+            //         .exec((err, performanceDocuments) => {
+            //             performanceDocuments.forEach((performanceDocument) => {
+            //                 let seats = performanceDocument.get('screen').get('sections')[0].get('seats');
+            //                 let performanceId = performanceDocument.get('_id');
 
-                        mongoose.disconnect();
+            //                 seats.forEach((seatDocument) => {
+            //                     performances.push({
+            //                         performance: performanceId,
+            //                         seat_code: seatDocument.get('code'),
+            //                         seat_grade_name: seatDocument.get('grade').name,
+            //                         seat_grade_name_en: seatDocument.get('grade').name_en,
+            //                         seat_grade_additional_charge: seatDocument.get('grade').additional_charge,
+            //                         status: ReservationUtil.STATUS_AVAILABLE,
+            //                     });
+            //                 });
+            //             });
+
+            //             mongoose.disconnect();
 
 
-                        this.logger.debug('creating reservations...count:', performances.length);
-                        let MongoClient = mongodb.MongoClient;
-                        MongoClient.connect(conf.get<string>('mongolab_uri'), (err, db) => {
-                            db.collection('reservations').insertMany(performances, (err, result) => {
-                                this.logger.debug('reservations created.', err, result);
+            //             this.logger.debug('creating reservations...count:', performances.length);
+            //             let MongoClient = mongodb.MongoClient;
+            //             MongoClient.connect(conf.get<string>('mongolab_uri'), (err, db) => {
+            //                 db.collection('reservations').insertMany(performances, (err, result) => {
+            //                     this.logger.debug('reservations created.', err, result);
 
-                                db.close();
+            //                     db.close();
 
-                                this.logger.debug('success!');
-                                process.exit(0);
-                            });
-                        });
-                    }
-                );
-            }
+            //                     this.logger.debug('success!');
+            //                     process.exit(0);
+            //                 });
+            //             });
+            //         }
+            //     );
+            // }
         });
     }
 
@@ -778,5 +774,109 @@ export default class TestController extends BaseController {
 
         });
 
+    }
+
+    public upsertReservation(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
+        let promises = [];
+
+        for (let i = 0; i < 3; i++) {
+            promises.push(new Promise((resolve, reject) => {
+                this.logger.debug('updating reservation...');
+                Models.Reservation.findOneAndUpdate(
+                    {
+                        performance: "57a7c71e59e0a513283e0507",
+                        seat_code: "A-2",
+                        status: ReservationUtil.STATUS_AVAILABLE
+                    },
+                    {
+                        $set: {
+                            status: ReservationUtil.STATUS_TEMPORARY
+                        },
+                        $setOnInsert: {
+                        }
+                    },
+                    {
+                        upsert: true,
+                        new: true
+                    },
+                    (err, reservationDocument) => {
+                        this.logger.debug('reservation updated.', err, reservationDocument);
+
+                        resolve();
+
+                    }
+                );
+            }));
+        }
+
+
+        Promise.all(promises).then(() => {
+            mongoose.disconnect();
+            process.exit(0);
+
+        }, (err) => {
+
+        });
+    }
+
+    public createIndexes() {
+        let MongoClient = mongodb.MongoClient;
+        MongoClient.connect(conf.get<string>('mongolab_uri'), (err, db) => {
+            let promises = [];
+
+            promises.push(new Promise((resolve, reject) => {
+                db.collection('reservations').createIndex(
+                    {
+                        performance: 1,
+                        seat_code: 1
+                    },
+                    {
+                        unique: true
+                    },
+                    (err) => {
+                        this.logger.debug('index created.', err);
+                        if (err) {
+                            reject();
+                        } else {
+                            resolve();
+                        }
+                    }
+                );
+            }));
+
+            promises.push(new Promise((resolve, reject) => {
+                db.collection('reservation_email_cues').createIndex(
+                    {
+                        payment_no: 1,
+                    },
+                    {
+                        unique: true
+                    },
+                    (err) => {
+                        this.logger.debug('index created.', err);
+                        if (err) {
+                            reject();
+                        } else {
+                            resolve();
+                        }
+                    }
+                );
+            }));
+
+
+
+            Promise.all(promises).then(() => {
+                this.logger.debug('success!');
+                db.close();
+                process.exit(0);
+
+            }, (err) => {
+                db.close();
+                process.exit(0);
+
+            });
+        });
     }
 }

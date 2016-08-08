@@ -56,7 +56,6 @@ $(function(){
     var limit = parseInt($('input[name="seatsLimit"]').val());
     var limitMessage = $('input[name="seatsLimitMessage"]').val();
 
-    console.log(limit);
     showSeatStatusesMap();
 
     $(document).on('click', '.select-seat', function(){
@@ -66,7 +65,6 @@ $(function(){
 
 
         // check seats limit
-        console.log($('.select-seat.active').length, limit - 1);
         if (!$(this).hasClass('active')) {
             if ($('.select-seat.active').length > limit - 1) {
                 alert(limitMessage);
@@ -88,21 +86,21 @@ $(function(){
     });
 
     $(document).on('click', '.select-seats', function(){
-        var reservationIds = [];
+        var seatCodes = [];
 
         // 座席コードリストを取得
         $('.select-seat.active').each(function(index){
-            reservationIds.push($(this).attr('data-reservation-id'));
+            seatCodes.push($(this).attr('data-seat-code'));
         });
 
-        if (reservationIds.length < 1) {
+        if (seatCodes.length < 1) {
             alert($('input[name="messageRequiredSeat"]').val());
         } else {
             var form = $('<form/>', {'method': 'post'}); // location.hrefにpostする
             form.append($('<input/>', {
                 'type': 'hidden',
-                'name': 'reservationIds',
-                'value': JSON.stringify(reservationIds)
+                'name': 'seatCodes',
+                'value': JSON.stringify(seatCodes)
             }));
             form.appendTo(document.body);
             form.submit();

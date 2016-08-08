@@ -18,12 +18,7 @@ export default class SponsorReserveController extends ReserveBaseController {
         let token = Util.createToken();
         let reservationModel = new ReservationModel();
         reservationModel.token = token;
-        reservationModel.sponsor = {
-            _id: this.sponsorUser.get('_id'),
-            user_id: this.sponsorUser.get('user_id'),
-            name: this.sponsorUser.get('name'),
-            email: this.sponsorUser.get('email'),
-        };
+        reservationModel.purchaserGroup = ReservationUtil.PURCHASER_GROUP_SPONSOR;
 
 
         this.logger.debug('saving reservationModel... ', reservationModel);
@@ -140,8 +135,8 @@ export default class SponsorReserveController extends ReserveBaseController {
                         status: {
                             $ne: ReservationUtil.STATUS_AVAILABLE
                         },
-                        _id: {
-                            $nin: reservationModel.reservationIds // 現在のフロー中の予約は除く
+                        seat_code: {
+                            $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
                         }
                     },
                     (err, reservationsCount) => {
@@ -161,10 +156,10 @@ export default class SponsorReserveController extends ReserveBaseController {
                             if (this.req.method === 'POST') {
                                 reserveSeatForm(this.req, this.res, (err) => {
                                     if (this.req.form.isValid) {
-                                        let reservationIds: Array<string> = JSON.parse(this.req.form['reservationIds']);
+                                        let seatCodes: Array<string> = JSON.parse(this.req.form['seatCodes']);
 
                                         // 追加指定席を合わせて制限枚数を超過した場合
-                                        if (reservationIds.length > limit) {
+                                        if (seatCodes.length > limit) {
 
                                             lockFile.unlock(lockPath, (err) => {
                                                 let message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
@@ -174,7 +169,7 @@ export default class SponsorReserveController extends ReserveBaseController {
 
                                         } else {
                                             // 座席FIX
-                                            this.processFixSeats(reservationModel, reservationIds, (err, reservationModel) => {
+                                            this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                                 lockFile.unlock(lockPath, (err) => {
 
                                                     if (err) {
@@ -184,7 +179,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                                                         this.logger.debug('saving reservationModel... ', reservationModel);
                                                         reservationModel.save((err) => {
                                                             // 仮予約に失敗した座席コードがあった場合
-                                                            if (reservationIds.length > reservationModel.reservationIds.length) {
+                                                            if (seatCodes.length > reservationModel.seatCodes.length) {
                                                                 let message = '座席を確保できませんでした。再度指定してください。';
                                                                 this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
 
@@ -253,7 +248,7 @@ export default class SponsorReserveController extends ReserveBaseController {
 
                         if (Array.isArray(choices)) {
                             choices.forEach((choice) => {
-                                let reservation = reservationModel.getReservation(choice.reservation_id);
+                                let reservation = reservationModel.getReservation(choice.seat_code);
 
                                 let ticketType = reservationModel.ticketTypes.find((ticketType) => {
                                     return (ticketType.code === choice.ticket_type_code);
@@ -414,6 +409,9 @@ export default class SponsorReserveController extends ReserveBaseController {
                             promises.push(new Promise((resolve, reject) => {
                                 // 予約完了
                                 reservationDocument4update['status'] = ReservationUtil.STATUS_RESERVED;
+                                reservationDocument4update['sponsor'] = this.sponsorUser.get('_id');
+                                reservationDocument4update['sponsor_user_id'] = this.sponsorUser.get('user_id');
+                                reservationDocument4update['sponsor_name'] = this.sponsorUser.get('name');
 
                                 this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
                                 Models.Reservation.update(

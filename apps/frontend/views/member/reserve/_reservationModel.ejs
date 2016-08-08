@@ -19,11 +19,11 @@
 
             <dt><%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %></dt>
             <dd>
-                <% if (reservationModel.reservationIds.length > 0) { %>
+                <% if (reservationModel.seatCodes.length > 0) { %>
 
                     <div class="row">
-                    <% reservationModel.reservationIds.forEach((reservationId, index) => { %>
-                        <% let reservation = reservationModel.getReservation(reservationId) %>
+                    <% reservationModel.seatCodes.forEach((seatCode) => { %>
+                        <% let reservation = reservationModel.getReservation(seatCode) %>
                         <% if (index > 0 && index % 4 === 0) { %>
                         </div>
                         <div class="row">

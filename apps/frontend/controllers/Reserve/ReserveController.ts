@@ -3,6 +3,7 @@ import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import ReservationModel from '../../models/Reserve/ReservationModel';
+import mongoose = require('mongoose');
 
 export default class ReserveController extends ReserveBaseController {
     /**
@@ -18,11 +19,16 @@ export default class ReserveController extends ReserveBaseController {
             }
 
             // 予約リストを取得
+            let fields = 'seat_code seat_grade_name seat_grade_name_en status';
+            if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
+                fields = 'seat_code seat_grade_name seat_grade_name_en status staff staff_name staff_department_name sponsor sponsor_name member member_email';
+            }
+
             Models.Reservation.find(
                 {
                     performance: reservationModel.performance._id
                 },
-                'seat_code seat_grade_name seat_grade_name_en status staff staff_name staff_department_name sponsor sponsor_name member member_email',
+                fields,
                 {},
                 (err, reservationDocuments) => {
                     if (err) {
@@ -31,8 +37,6 @@ export default class ReserveController extends ReserveBaseController {
                         });
 
                     } else {
-                        // 仮押さえ中の座席コードリスト
-                        let seatCodesInReservation = reservationModel.getSeatCodes();
 
                         let propertiesBySeatCode = {};
 
@@ -43,78 +47,48 @@ export default class ReserveController extends ReserveBaseController {
                             let classes = [];
                             let attrs = {};
 
-
-
-                            attrs['data-reservation-id'] = reservationDocument.get('_id');
-
-                            let baloonContent = reservationDocument.get('seat_code');
-                            baloonContent +=  `<br>${reservationDocument.get('seat_grade_' + this.req.__('DocumentField.name'))}`;
-
                             if (reservationDocument.get('status') === ReservationUtil.STATUS_AVAILABLE) {
                                 // 予約可能
                                 classes.push('select-seat');
 
                             } else {
-                                if (seatCodesInReservation.indexOf(seatCode) >= 0) {
+                                if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
                                     // 仮押さえ中
                                     classes.push('select-seat', 'active');
 
                                 } else {
-
                                     // 予約不可
                                     classes.push('disabled');
-
-
-                                    // 内部関係者の場合、予約情報ポップアップ
-                                    if (reservationModel.staff) {
-
-                                        switch (reservationDocument.get('status')) {
-                                            case ReservationUtil.STATUS_RESERVED:
-                                                if (reservationDocument.get('staff')) {
-                                                    baloonContent +=  `<br>内部関係者${reservationDocument.get('staff_department_name')}<br>${reservationDocument.get('staff_name')}`;
-                                                } else if (reservationDocument.get('sponsor')) {
-                                                    baloonContent +=  `<br>外部関係者${reservationDocument.get('sponsor_name')}`;
-                                                } else if (reservationDocument.get('member')) {
-                                                    baloonContent +=  `<br>メルマガ当選者${reservationDocument.get('member_email')}`;
-                                                } else {
-                                                    baloonContent +=  '<br>一般';
-                                                }
-
-                                                break;
-
-                                            case ReservationUtil.STATUS_TEMPORARY:
-                                                baloonContent += '<br>仮予約中...';
-                                                break;
-
-                                            case ReservationUtil.STATUS_WAITING_SETTLEMENT:
-                                                baloonContent += '<br>決済中...';
-                                                break;
-
-                                            case ReservationUtil.STATUS_KEPT_BY_TIFF:
-                                                baloonContent += '<br>TIFF確保中...';
-                                                break;
-
-                                            default:
-                                                break;
-                                        }
-
-                                    } else {
-
-                                    }
 
                                 }
 
                             }
 
-
-
-                            attrs['data-baloon-content'] = baloonContent;
+                            attrs['data-baloon-content'] = this.getBaloonContent(reservationModel, reservationDocument);
 
                             properties['classes'] = classes;
                             properties['attrs'] = attrs;
                             propertiesBySeatCode[seatCode] = properties;
                         }
 
+
+
+                        // 予約レコードはないものは空席
+                        reservationModel.performance.screen.sections[0].seats.forEach((seat) => {
+                            let seatCode = seat.code;
+                            if (!propertiesBySeatCode.hasOwnProperty(seatCode)) {
+
+                                let properties = {
+                                    classes: ['select-seat'],
+                                    attrs: {
+                                        'data-baloon-content': `${seatCode}<br>${seat.grade[this.req.__('DocumentField.name')]}`
+                                    }
+                                };
+
+                                propertiesBySeatCode[seatCode] = properties;
+                            }
+
+                        });
 
 
                         this.res.json({
@@ -125,6 +99,50 @@ export default class ReserveController extends ReserveBaseController {
                 }
             );
         });
+    }
+
+    private getBaloonContent(reservationModel: ReservationModel, reservationDocument: mongoose.Document) :string {
+        let baloonContent = reservationDocument.get('seat_code');
+        baloonContent +=  `<br>${reservationDocument.get('seat_grade_' + this.req.__('DocumentField.name'))}`;
+
+        // 内部関係者の場合、予約情報ポップアップ
+        if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
+
+            switch (reservationDocument.get('status')) {
+                case ReservationUtil.STATUS_RESERVED:
+                    if (reservationDocument.get('staff')) {
+                        baloonContent +=  `<br>内部関係者${reservationDocument.get('staff_department_name')}<br>${reservationDocument.get('staff_name')}`;
+                    } else if (reservationDocument.get('sponsor')) {
+                        baloonContent +=  `<br>外部関係者${reservationDocument.get('sponsor_name')}`;
+                    } else if (reservationDocument.get('member')) {
+                        baloonContent +=  `<br>メルマガ当選者${reservationDocument.get('member_email')}`;
+                    } else {
+                        baloonContent +=  '<br>一般';
+                    }
+
+                    break;
+
+                case ReservationUtil.STATUS_TEMPORARY:
+                    baloonContent += '<br>仮予約中...';
+                    break;
+
+                case ReservationUtil.STATUS_WAITING_SETTLEMENT:
+                    baloonContent += '<br>決済中...';
+                    break;
+
+                case ReservationUtil.STATUS_KEPT_BY_TIFF:
+                    baloonContent += '<br>TIFF確保中...';
+                    break;
+
+                default:
+                    break;
+            }
+
+        } else {
+
+        }
+
+        return baloonContent;
     }
 
     /**

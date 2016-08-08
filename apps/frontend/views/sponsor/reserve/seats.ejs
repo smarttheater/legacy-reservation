@@ -18,7 +18,7 @@
 
 <div class="row">
     <div class="row">
-        <h3><%- __('Label.AvailableTicketsCountLeft') %> : <span class="reservable-count"><%- reservableCount - reservationModel.reservationIds.length %></span></h3>
+        <h3><%- __('Label.AvailableTicketsCountLeft') %> : <span class="reservable-count"><%- reservableCount - reservationModel.seatCodes.length %></span></h3>
     </div>
 
     <div class="seatStatusesMap hidden" data-token="<%- reservationModel.token %>">

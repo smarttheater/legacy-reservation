@@ -15,9 +15,9 @@
             </thead>
 
             <tbody>
-                <% for (let reservationId of reservationModel.reservationIds) { %>
-                <% let reservation = reservationModel.getReservation(reservationId) %>
-                <tr data-seat-code="<%- reservation.seat_code %>" data-reservation-id="<%- reservationId %>">
+                <% for (let seatCode of reservationModel.seatCodes) { %>
+                <% let reservation = reservationModel.getReservation(seatCode) %>
+                <tr data-seat-code="<%- reservation.seat_code %>">
                     <td><%- reservation.seat_code %></td>
                     <td>
                         <select class="form-control">
@@ -56,7 +56,7 @@ $(function(){
         var choices = [];
         $('.tickets tbody tr').each(function(index){
             choices.push({
-                reservation_id: $(this).attr('data-reservation-id'),
+                seat_code: $(this).attr('data-seat-code'),
                 ticket_type_code: $('option:selected', this).val()
             });
         });

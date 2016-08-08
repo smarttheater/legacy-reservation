@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 /**
  * 予約スキーマ
  */
-let ReservationSchema = new mongoose.Schema({
+let Schema = new mongoose.Schema({
     token: String,
     payment_no: String,
     total_charge: Number,
@@ -100,5 +100,11 @@ let ReservationSchema = new mongoose.Schema({
         updatedAt: 'updated_at'
     }
 });
+Schema.index({
+    performance: 1,
+    seat_code: 1
+}, {
+    unique: true
+});
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = ReservationSchema;
+exports.default = Schema;
