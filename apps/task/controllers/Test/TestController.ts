@@ -153,10 +153,10 @@ export default class TestController extends BaseController {
 
     private getSeats() {
         let seats = [];
-        let letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
+        let letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q'];
         let grades = ScreenUtil.getSeatGrades();
 
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < 24; i++) {
             let no = i + 1;
 
             letters.forEach((letter) => {
@@ -334,143 +334,17 @@ export default class TestController extends BaseController {
 
             mongoose.disconnect();
             process.exit(0);
-
-            // if (err) {
-
-            // } else {
-            //     let performances = [];
-
-            //     // パフォーマンスごとに空席予約を入れる
-           	//     Models.Performance.find({}, '_id screen')
-            //         .populate('film screen theater')
-            //         .exec((err, performanceDocuments) => {
-            //             performanceDocuments.forEach((performanceDocument) => {
-            //                 let seats = performanceDocument.get('screen').get('sections')[0].get('seats');
-            //                 let performanceId = performanceDocument.get('_id');
-
-            //                 seats.forEach((seatDocument) => {
-            //                     performances.push({
-            //                         performance: performanceId,
-            //                         seat_code: seatDocument.get('code'),
-            //                         seat_grade_name: seatDocument.get('grade').name,
-            //                         seat_grade_name_en: seatDocument.get('grade').name_en,
-            //                         seat_grade_additional_charge: seatDocument.get('grade').additional_charge,
-            //                         status: ReservationUtil.STATUS_AVAILABLE,
-            //                     });
-            //                 });
-            //             });
-
-            //             mongoose.disconnect();
-
-
-            //             this.logger.debug('creating reservations...count:', performances.length);
-            //             let MongoClient = mongodb.MongoClient;
-            //             MongoClient.connect(conf.get<string>('mongolab_uri'), (err, db) => {
-            //                 db.collection('reservations').insertMany(performances, (err, result) => {
-            //                     this.logger.debug('reservations created.', err, result);
-
-            //                     db.close();
-
-            //                     this.logger.debug('success!');
-            //                     process.exit(0);
-            //                 });
-            //             });
-            //         }
-            //     );
-            // }
-        });
-    }
-
-    public updateReservations(): void {
-        mongoose.connect(MONGOLAB_URI, {});
-
-        // パフォーマンスごとに空席予約を入れる
-        this.logger.debug('updating reservations...');
-
-
-        // Models.Reservation.update(
-        //     {
-        //         status: ReservationUtil.STATUS_AVAILABLE
-        //     },
-        //     {
-        //         status: ReservationUtil.STATUS_TEMPORARY,
-        //     },
-        //     {
-        //         multi: true
-        //     },
-        //     (err, affectedRows) => {
-        //         this.logger.debug('reservations updated.', err, affectedRows);
-
-        //         this.res.send('success');
-        //     }
-        // );
-
-
-        let limit = 1000;
-
-        let promises = [];
-        Models.Reservation.find({status: ReservationUtil.STATUS_AVAILABLE}, '_id', {limit: limit}, (err, reservationDocuments) => {
-
-                let startMemory = process.memoryUsage();
-                let startTime = process.hrtime();
-
-
-
-                reservationDocuments.forEach((reservationDocument, index) => {
-                    promises.push(new Promise((resolve, reject) => {
-                        let id = reservationDocument.get('_id');
-                        this.logger.debug('updating reservation..._id:', id, index);
-
-                        Models.Reservation.update(
-                            {
-                                _id: id,
-                                status: ReservationUtil.STATUS_AVAILABLE
-                            },
-                            {
-                                status: ReservationUtil.STATUS_TEMPORARY,
-                            },
-                            (err, affectedRows, raw) => {
-                                this.logger.debug('reservation updated. _id:', id, index, err, affectedRows);
-
-                                mongoose.disconnect();
-
-                                if (err) {
-                                    reject();
-                                } else {
-                                    resolve();
-                                }
-                            }
-                        );
-                    }));
-
-                });
-
-
-
-
-
-                Promise.all(promises).then(() => {
-                    let endMemory = process.memoryUsage();
-                    let memoryUsage = endMemory.rss - startMemory.rss;
-                    let diff = process.hrtime(startTime);
-
-                    this.logger.debug(`success!! ${limit} reservations update. benchmark took ${diff[0]} seconds and ${diff[1]} nanoseconds.`);
-
-                }, (err) => {
-                    this.logger.debug('success!');
-                    process.exit(0);
-
-                });
-
-
-
         });
     }
 
     public calculatePerformanceStatuses() {
         mongoose.connect(MONGOLAB_URI, {});
 
-        Models.Performance.find({}, '_id day start_time').exec((err, performanceDocuments) => {
+        Models.Performance.find(
+            {},
+            'day start_time screen'
+        ).populate('screen', 'sections')
+        .exec((err, performanceDocuments) => {
             let promises = [];
             let now = moment().format('YYYYMMDDHHmm');
             let performanceStatusesModel = new PerformanceStatusesModel();
@@ -480,25 +354,22 @@ export default class TestController extends BaseController {
                 promises.push(new Promise((resolve, reject) => {
                     Models.Reservation.count(
                         {
-                            performance: performanceDocument.get('_id'),
-                            status: ReservationUtil.STATUS_AVAILABLE
+                            performance: performanceDocument.get('_id')
                         }
-                        ,(err, countAvailable) => {
+                        ,(err, reservationCount) => {
+                            if (err) {
 
-                            Models.Reservation.count(
-                                {
-                                    performance: performanceDocument.get('_id'),
-                                }
-                                ,(err, countAll) => {
-                                    mongoose.disconnect();
+                            } else {
+                                console.log(reservationCount);
 
-                                    let start = performanceDocument.get('day') + performanceDocument.get('start_time');
-                                    let status = PerformanceUtil.seatNum2status(countAvailable, countAll, start, now);
-                                    performanceStatusesModel.setStatus(performanceDocument.get('_id'), status);
+                                let seatCount = performanceDocument.get('screen').get('sections')[0].seats.length;
+                                let start = performanceDocument.get('day') + performanceDocument.get('start_time');
+                                let status = PerformanceUtil.seatNum2status(reservationCount, seatCount, start, now);
+                                performanceStatusesModel.setStatus(performanceDocument.get('_id'), status);
 
-                                    resolve();
-                                }
-                            );
+                            }
+
+                            resolve();
 
                         }
                     );
@@ -511,11 +382,13 @@ export default class TestController extends BaseController {
             Promise.all(promises).then(() => {
                 performanceStatusesModel.save((err) => {
                     this.logger.debug('success!');
+                    mongoose.disconnect();
                     process.exit(0);
                 });
 
             }, (err) => {
                 this.logger.debug('fail.');
+                mongoose.disconnect();
                 process.exit(0);
 
             });
@@ -531,28 +404,22 @@ export default class TestController extends BaseController {
             mongoose.connect(MONGOLAB_URI, {});
 
             this.logger.info('releasing reservations kept by members...');
-            Models.Reservation.update(
+            Models.Reservation.remove(
                 {
                     status: ReservationUtil.STATUS_KEPT_BY_MEMBER
                 },
-                {
-                    status: ReservationUtil.STATUS_AVAILABLE,
-                    updated_user: this.constructor.toString()
-                },
-                {
-                    multi: true,
-                },
-                (err, affectedRows) => {
-                    mongoose.disconnect();
-
+                (err) => {
                     // 失敗しても、次のタスクにまかせる(気にしない)
                     if (err) {
                     } else {
                     }
 
+                    mongoose.disconnect();
                     process.exit(0);
                 }
             );
+        } else {
+            process.exit(0);            
         }
     }
 
@@ -676,92 +543,110 @@ export default class TestController extends BaseController {
                             status: ReservationUtil.STATUS_RESERVED
                         },
                         (err, reservationDocuments) => {
-                            let to = '';
-                            let purchaserGroup = reservationDocuments[0].get('purchaser_group');
-                            switch (purchaserGroup) {
-                                case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-                                case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                                case ReservationUtil.PURCHASER_GROUP_SPONSOR:
-                                    to = reservationDocuments[0].get('purchaser_email')
-                                    break;
+                            if (err) {
+                                i++;
+                                next(i);
 
-                                case ReservationUtil.PURCHASER_GROUP_STAFF:
-                                    to = reservationDocuments[0].get('staff_email')
-                                    break;
+                            } else {
+                                if (reservationDocuments.length === 0) {
+                                    // 送信済みフラグを立てる
+                                    cueDocument.set('is_sent', true);
+                                    cueDocument.save((err, res) => {
+                                        i++;
+                                        next(i);
 
-                                default:
-                                    break;
-
-                            }
-
-
-                            if (!to) {
-                                mongoose.disconnect();
-                                process.exit(0);
-                                return;
-
-                            }
-
-                            let EmailTemplate = emailTemplates.EmailTemplate
-                            var path = require('path')
-
-                            let dir = `${__dirname}/../../views/email/reserveComplete`;
-
-                            let template = new EmailTemplate(dir);
-                            let locals = {
-                                reservationDocuments: reservationDocuments
-                            };
-                            template.render(locals, (err, result) => {
-                                if (err) {
-                                    i++;
-                                    next(i);
-
-                                } else {
-                                    let email = new _sendgrid.Email({
-                                        to: to,
-                                        from: 'noreply@devtiffwebapp.azurewebsites.net',
-                                        subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
-                                        html: result.html
                                     });
+                                    
+                                } else {
+                                    let to = '';
+                                    let purchaserGroup = reservationDocuments[0].get('purchaser_group');
+                                    switch (purchaserGroup) {
+                                        case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
+                                        case ReservationUtil.PURCHASER_GROUP_MEMBER:
+                                        case ReservationUtil.PURCHASER_GROUP_SPONSOR:
+                                            to = reservationDocuments[0].get('purchaser_email')
+                                            break;
 
+                                        case ReservationUtil.PURCHASER_GROUP_STAFF:
+                                            to = reservationDocuments[0].get('staff_email')
+                                            break;
 
-                                    // add barcodes
-                                    for (let reservationDocument of reservationDocuments) {
-                                        let reservationId = reservationDocument.get('_id').toString();
+                                        default:
+                                            break;
 
-                                        email.addFile({
-                                            filename: `QR_${reservationId}.png`,
-                                            contentType: 'image/png',
-                                            cid: `qrcode_${reservationId}`,
-                                            content: ReservationUtil.createQRCode(reservationId)
-                                        });
                                     }
 
 
-                                    this.logger.info('sending an email...email:', email);
-                                    _sendgrid.send(email, (err, json) => {
-                                        this.logger.info('an email sent.', err, json);
+                                    if (!to) {
+                                        mongoose.disconnect();
+                                        process.exit(0);
+                                        return;
 
+                                    }
+
+                                    let EmailTemplate = emailTemplates.EmailTemplate
+                                    var path = require('path')
+
+                                    let dir = `${__dirname}/../../views/email/reserveComplete`;
+
+                                    let template = new EmailTemplate(dir);
+                                    let locals = {
+                                        reservationDocuments: reservationDocuments
+                                    };
+                                    template.render(locals, (err, result) => {
                                         if (err) {
                                             i++;
                                             next(i);
 
                                         } else {
-                                            // 送信済みフラグを立てる
-                                            cueDocument.set('is_sent', true);
-                                            cueDocument.save((err, res) => {
-                                                i++;
-                                                next(i);
+                                            let email = new _sendgrid.Email({
+                                                to: to,
+                                                from: 'noreply@devtiffwebapp.azurewebsites.net',
+                                                subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
+                                                html: result.html
+                                            });
+
+
+                                            // add barcodes
+                                            for (let reservationDocument of reservationDocuments) {
+                                                let reservationId = reservationDocument.get('_id').toString();
+
+                                                email.addFile({
+                                                    filename: `QR_${reservationId}.png`,
+                                                    contentType: 'image/png',
+                                                    cid: `qrcode_${reservationId}`,
+                                                    content: ReservationUtil.createQRCode(reservationId)
+                                                });
+                                            }
+
+
+                                            this.logger.info('sending an email...email:', email);
+                                            _sendgrid.send(email, (err, json) => {
+                                                this.logger.info('an email sent.', err, json);
+
+                                                if (err) {
+                                                    i++;
+                                                    next(i);
+
+                                                } else {
+                                                    // 送信済みフラグを立てる
+                                                    cueDocument.set('is_sent', true);
+                                                    cueDocument.save((err, res) => {
+                                                        i++;
+                                                        next(i);
+
+                                                    });
+
+                                                }
 
                                             });
 
                                         }
 
                                     });
-
                                 }
 
-                            });
+                            }
 
                         }
                     );
@@ -787,8 +672,7 @@ export default class TestController extends BaseController {
                 Models.Reservation.findOneAndUpdate(
                     {
                         performance: "57a7c71e59e0a513283e0507",
-                        seat_code: "A-2",
-                        status: ReservationUtil.STATUS_AVAILABLE
+                        seat_code: "A-2"
                     },
                     {
                         $set: {

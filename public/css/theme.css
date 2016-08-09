@@ -1,9 +1,6 @@
-@import url(https://fonts.googleapis.com/earlyaccess/notosansjapanese.css);
-
 body {
   padding-top: 70px;
   padding-bottom: 30px;
-  font-family: "Noto Sans", "Noto Sans Japanese", sans-serif;
 }
 
 .theme-dropdown .dropdown-menu {

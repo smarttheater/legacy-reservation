@@ -2,8 +2,6 @@ import bwipjs = require('bwip-js');
 import qr = require('qr-image');
 
 export default class ReservationUtil {
-    /** 空席 */
-    public static STATUS_AVAILABLE = 'AVAILABLE';
     /** 仮予約 */
     public static STATUS_TEMPORARY = 'TEMPORARY';
     /** GMOプロセス中 */

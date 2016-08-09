@@ -86,9 +86,6 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                 Models_1.default.Reservation.count({
                     mvtk_kiin_cd: this.mvtkUser.memberInfoResult.kiinCd,
                     performance: reservationModel.performance._id,
-                    status: {
-                        $ne: ReservationUtil_1.default.STATUS_AVAILABLE
-                    },
                     seat_code: {
                         $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
                     }

@@ -18,14 +18,12 @@ class ReserveBaseController extends BaseController_1.default {
         // 仮予約を空席ステータスに戻す
         seatCodesInSession.forEach((seatCodeInSession) => {
             promises.push(new Promise((resolve, reject) => {
-                this.logger.debug('updating reservation status to avalilable...seat_code:', seatCodeInSession);
-                Models_1.default.Reservation.update({
+                this.logger.debug('removing reservation... seat_code:', seatCodeInSession);
+                Models_1.default.Reservation.remove({
                     performance: reservationModel.performance._id,
                     seat_code: seatCodeInSession,
                     status: ReservationUtil_1.default.STATUS_TEMPORARY
-                }, {
-                    status: ReservationUtil_1.default.STATUS_AVAILABLE,
-                }, (err, affectedRows) => {
+                }, (err) => {
                     // 失敗したとしても時間経過で消えるので放置
                     if (err) {
                     }
@@ -169,21 +167,20 @@ class ReserveBaseController extends BaseController_1.default {
             let promises = [];
             // セッション中の予約リストを初期化
             reservationModel.seatCodes = [];
-            // 仮予約解除の場合、空席ステータスに戻す(redis中の情報にあって、新たな指定リストにない座席コード)
+            // 仮予約解除の場合、空席に戻す(redis中の情報にあって、新たな指定リストにない座席コード)
             seatCodesInSession.forEach((seatCodeInSession, index) => {
                 let reservation = reservationModel.getReservation(seatCodeInSession);
                 if (seatCodes.indexOf(seatCodeInSession) >= 0) {
                 }
                 else {
                     promises.push(new Promise((resolve, reject) => {
-                        this.logger.debug('updating reservation status to avalilable...seat_code:', seatCodeInSession);
-                        Models_1.default.Reservation.update({
+                        this.logger.debug('removing reservation... seat_code:', seatCodeInSession);
+                        Models_1.default.Reservation.remove({
                             performance: reservationModel.performance._id,
                             seat_code: seatCodeInSession,
                             status: ReservationUtil_1.default.STATUS_TEMPORARY
-                        }, {
-                            status: ReservationUtil_1.default.STATUS_AVAILABLE,
-                        }, (err, affectedRows) => {
+                        }, (err) => {
+                            this.logger.debug('reservation removed.', err);
                             // 失敗したとしても時間経過で消えるので放置
                             if (err) {
                             }
@@ -213,92 +210,56 @@ class ReserveBaseController extends BaseController_1.default {
                      ************************************************
                      ************************************************/
                     promises.push(new Promise((resolve, reject) => {
-                        let update = {
+                        let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
+                            return (seat.code === seatCode);
+                        });
+                        // 万が一座席が存在しなかったら
+                        if (!seatInfo) {
+                            return reject();
+                        }
+                        let newReservation = {
+                            performance: reservationModel.performance._id,
+                            seat_code: seatCode,
                             status: ReservationUtil_1.default.STATUS_TEMPORARY
                         };
                         // 誰が仮予約中かも分かるように
                         switch (reservationModel.purchaserGroup) {
                             case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
-                                update['staff'] = this.staffUser.get('_id');
+                                newReservation['staff'] = this.staffUser.get('_id');
                                 break;
                             case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
-                                update['sponsor'] = this.sponsorUser.get('_id');
+                                newReservation['sponsor'] = this.sponsorUser.get('_id');
                                 break;
                             case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
-                                update['member'] = this.memberUser.get('_id');
+                                newReservation['member'] = this.memberUser.get('_id');
                                 break;
                             case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
-                                update['mvtk_kiin_cd'] = this.mvtkUser.memberInfoResult.kiinCd;
+                                newReservation['mvtk_kiin_cd'] = this.mvtkUser.memberInfoResult.kiinCd;
                                 break;
                             default:
                                 break;
                         }
-                        this.logger.debug('updating reservation status to temporary...seat_code:', seatCode);
-                        Models_1.default.Reservation.findOneAndUpdate({
-                            performance: reservationModel.performance._id,
-                            seat_code: seatCode,
-                            status: ReservationUtil_1.default.STATUS_AVAILABLE // 空席ステータスのみ、新規仮登録できる(ここはポイントなので要注意！！！)
-                        }, {
-                            $set: update,
-                            $setOnInsert: {}
-                        }, {
-                            upsert: true,
-                            new: true
-                        }, (err, reservationDocument) => {
+                        this.logger.debug('creating reservation... seat_code:', seatCode);
+                        // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、uniqueではじかれる)
+                        Models_1.default.Reservation.create(newReservation, (err, reservationDocument) => {
+                            this.logger.debug('reservation created.', err, reservationDocument);
                             if (err || !reservationDocument) {
                                 reject();
                             }
                             else {
-                                let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
-                                    return (seat.code === seatCode);
+                                // ステータス更新に成功したらセッションに保管
+                                reservationModel.seatCodes.push(seatCode);
+                                reservationModel.setReservation(seatCode, {
+                                    _id: reservationDocument.get('_id'),
+                                    status: reservationDocument.get('status'),
+                                    seat_code: reservationDocument.get('seat_code'),
+                                    seat_grade_name: seatInfo.grade.name,
+                                    seat_grade_name_en: seatInfo.grade.name_en,
+                                    seat_grade_additional_charge: seatInfo.grade.additional_charge,
                                 });
-                                // 万が一座席が存在しなかったら
-                                if (!seatInfo) {
-                                    reject();
-                                }
-                                else {
-                                    // ステータス更新に成功したらセッションに保管
-                                    reservationModel.seatCodes.push(seatCode);
-                                    reservationModel.setReservation(seatCode, {
-                                        _id: reservationDocument.get('_id'),
-                                        status: reservationDocument.get('status'),
-                                        seat_code: reservationDocument.get('seat_code'),
-                                        seat_grade_name: seatInfo.grade.name,
-                                        seat_grade_name_en: seatInfo.grade.name_en,
-                                        seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                                    });
-                                    resolve();
-                                }
+                                resolve();
                             }
                         });
-                        // Models.Reservation.findOneAndUpdate(
-                        //     {
-                        //         _id: reservationId,
-                        //         status: ReservationUtil.STATUS_AVAILABLE // 空席ステータスのみ、新規仮登録できる(ここはポイントなので要注意！！！)
-                        //     },
-                        //     update,
-                        //     {
-                        //         new: true,
-                        //     },
-                        // (err, reservationDocument) => {
-                        //     if (err) {
-                        //         reject();
-                        //     } else {
-                        //         if (reservationDocument) {
-                        //             // ステータス更新に成功したらセッションに保管
-                        //             reservationModel.reservationIds.push(reservationDocument.get('_id'));
-                        //             reservationModel.setReservation(reservationDocument.get('_id'), {
-                        //                 _id: reservationDocument.get('_id'),
-                        //                 status: reservationDocument.get('status'),
-                        //                 seat_code: reservationDocument.get('seat_code'),
-                        //                 seat_grade_name: reservationDocument.get('seat_grade_name'),
-                        //                 seat_grade_name_en: reservationDocument.get('seat_grade_name_en'),
-                        //                 seat_grade_additional_charge: reservationDocument.get('seat_grade_additional_charge'),
-                        //             });
-                        //         }
-                        //         resolve();
-                        //     }
-                        // });
                     }));
                 }
             });

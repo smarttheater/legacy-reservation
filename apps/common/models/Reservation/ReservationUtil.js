@@ -33,8 +33,6 @@ class ReservationUtil {
         });
     }
 }
-/** 空席 */
-ReservationUtil.STATUS_AVAILABLE = 'AVAILABLE';
 /** 仮予約 */
 ReservationUtil.STATUS_TEMPORARY = 'TEMPORARY';
 /** GMOプロセス中 */

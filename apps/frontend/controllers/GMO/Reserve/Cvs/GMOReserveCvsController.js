@@ -170,11 +170,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
             case GMOUtil_1.default.STATUS_CVS_PAYFAIL: // 決済失敗
             case GMOUtil_1.default.STATUS_CVS_EXPIRED: // 期限切れ
             case GMOUtil_1.default.STATUS_CVS_CANCEL:
-                // 空席ステータスに戻す
-                update = {
-                    status: ReservationUtil_1.default.STATUS_AVAILABLE,
-                    payment_no: null
-                };
+                // 空席に戻す
                 let promises = [];
                 this.logger.info('finding reservations...payment_no:', gmoNotificationModel.OrderID);
                 Models_1.default.Reservation.find({
@@ -198,11 +194,11 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                     }
                     for (let reservationDocument of reservationDocuments) {
                         promises.push(new Promise((resolve, reject) => {
-                            this.logger.info('updating reservations...update:', update);
-                            Models_1.default.Reservation.update({
+                            this.logger.info('removing reservations...update:', update);
+                            Models_1.default.Reservation.remove({
                                 _id: reservationDocument.get('_id')
-                            }, update, (err, raw) => {
-                                this.logger.info('reservation updated.', err, raw);
+                            }, (err) => {
+                                this.logger.info('reservation removed.', err);
                                 if (err) {
                                     reject();
                                 }

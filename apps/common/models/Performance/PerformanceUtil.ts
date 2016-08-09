@@ -8,14 +8,16 @@ export default class PerformanceUtil {
     /**
      * パフォーマンスの残席ステータスを算出する
      *
-     * @param {string} availableSeatNum 残席数
+     * @param {string} unavailableSeatNum 予約付加席数
      * @param {string} allSeatNum    スクリーン全席数
      * @param {string} start         上映開始時刻(YYYYMMDDhhmm)
-     * @param {string} nowTime       TOHO的現在時刻(YYYYMMDDhhmm)
+     * @param {string} nowTime       現在時刻(YYYYMMDDhhmm)
      * 
      * @return string
      */
-    public static seatNum2status(availableSeatNum, allSeatNum, start, now) {
+    public static seatNum2status(unavailableSeatNum, allSeatNum, start, now) {
+        let availableSeatNum = allSeatNum - unavailableSeatNum;
+
         // 開始時間を過ぎていればG
         if (start < now) return PerformanceUtil.SEAT_STATUS_G;
 

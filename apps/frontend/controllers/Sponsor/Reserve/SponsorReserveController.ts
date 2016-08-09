@@ -62,10 +62,7 @@ export default class SponsorReserveController extends ReserveBaseController {
             // 外部関係者による予約数を取得
             Models.Reservation.count(
                 {
-                    sponsor: this.sponsorUser.get('_id'),
-                    status: {
-                        $ne: ReservationUtil.STATUS_AVAILABLE
-                    }
+                    sponsor: this.sponsorUser.get('_id')
                 },
             (err, reservationsCount) => {
                 if (parseInt(this.sponsorUser.get('max_reservation_count')) <= reservationsCount) {
@@ -132,9 +129,6 @@ export default class SponsorReserveController extends ReserveBaseController {
                 Models.Reservation.count(
                     {
                         sponsor: this.sponsorUser.get('_id'),
-                        status: {
-                            $ne: ReservationUtil.STATUS_AVAILABLE
-                        },
                         seat_code: {
                             $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
                         }

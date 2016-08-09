@@ -216,6 +216,12 @@ export default class ReservationModel {
                     // TODO 金額系の税込みと消費税と両方
 
                     _id: reservation._id,
+
+                    seat_code: seatCode,
+                    seat_grade_name: reservation.seat_grade_name,
+                    seat_grade_name_en: reservation.seat_grade_name_en,
+                    seat_grade_additional_charge: reservation.seat_grade_additional_charge,
+
                     total_charge: totalCharge,
                     charge: this.getChargeBySeatCode(seatCode),
                     payment_no: this.paymentNo,

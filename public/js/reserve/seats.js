@@ -31,7 +31,10 @@ function showSeatStatusesMap() {
 
             } else {
                 // 未販売
-                aNode.addClass('disabled');
+                // 予約データがない場合、空席
+                aNode.addClass('select-seat');
+                aNode.attr('data-baloon-content', seatCode);
+                // aNode.addClass('disabled');
 
             }
 

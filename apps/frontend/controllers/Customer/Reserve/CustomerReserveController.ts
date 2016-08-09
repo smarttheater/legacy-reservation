@@ -107,9 +107,6 @@ export default class CustomerReserveController extends ReserveBaseController {
                     {
                         mvtk_kiin_cd: this.mvtkUser.memberInfoResult.kiinCd,
                         performance: reservationModel.performance._id,
-                        status: {
-                            $ne: ReservationUtil.STATUS_AVAILABLE
-                        },
                         seat_code: {
                             $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
                         }
