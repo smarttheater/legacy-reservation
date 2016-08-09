@@ -123,4 +123,12 @@ export default class Util {
 
         return checkDigit;
     }
+
+    public static createHash(password: string, salt: string): string {
+        let sha512 = crypto.createHash('sha512');
+        sha512.update(salt + password, 'utf8')
+        let hash = sha512.digest('hex')
+
+        return hash;
+    }
 }

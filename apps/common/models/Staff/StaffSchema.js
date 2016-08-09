@@ -4,13 +4,15 @@ const mongoose = require('mongoose');
  * 内部関係者スキーマ
  */
 let Schema = new mongoose.Schema({
-    user_id: String,
-    password: String,
+    user_id: {
+        type: String,
+        unique: true
+    },
+    password_salt: String,
+    password_hash: String,
     name: String,
     email: String,
-    department_name: String,
-    created_user: String,
-    updated_user: String,
+    department_name: String
 }, {
     collection: 'staffs',
     timestamps: {

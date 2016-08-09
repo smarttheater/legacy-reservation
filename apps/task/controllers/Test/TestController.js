@@ -643,6 +643,36 @@ class TestController extends BaseController_1.default {
                     }
                 });
             }));
+            promises.push(new Promise((resolve, reject) => {
+                db.collection('staffs').createIndex({
+                    user_id: 1,
+                }, {
+                    unique: true
+                }, (err) => {
+                    this.logger.debug('index created.', err);
+                    if (err) {
+                        reject();
+                    }
+                    else {
+                        resolve();
+                    }
+                });
+            }));
+            promises.push(new Promise((resolve, reject) => {
+                db.collection('sponsors').createIndex({
+                    user_id: 1,
+                }, {
+                    unique: true
+                }, (err) => {
+                    this.logger.debug('index created.', err);
+                    if (err) {
+                        reject();
+                    }
+                    else {
+                        resolve();
+                    }
+                });
+            }));
             Promise.all(promises).then(() => {
                 this.logger.debug('success!');
                 db.close();
@@ -651,6 +681,37 @@ class TestController extends BaseController_1.default {
                 db.close();
                 process.exit(0);
             });
+        });
+    }
+    createStaffs() {
+        mongoose.connect(MONGOLAB_URI, {});
+        let password_salt = Util_1.default.createToken();
+        Models_1.default.Staff.create({
+            user_id: 'motionpicture',
+            password_salt: password_salt,
+            password_hash: Util_1.default.createHash('password', password_salt),
+            name: 'モーションピクチャー',
+            email: 'ilovegadd@gmail.com',
+            tel: '09012345678',
+            department_name: '作品部'
+        }, () => {
+            mongoose.disconnect();
+            process.exit(0);
+        });
+    }
+    createSponsors() {
+        mongoose.connect(MONGOLAB_URI, {});
+        let password_salt = Util_1.default.createToken();
+        Models_1.default.Sponsor.create({
+            user_id: 'motionpicture',
+            password_salt: password_salt,
+            password_hash: Util_1.default.createHash('password', password_salt),
+            name: 'モーションピクチャーというスポンサー',
+            max_reservation_count: 50,
+            performance: '57a3d45ddfada98420a623b2'
+        }, () => {
+            mongoose.disconnect();
+            process.exit(0);
         });
     }
 }

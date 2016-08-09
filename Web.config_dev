@@ -27,9 +27,13 @@
 
 
         <iisnode
-          node_env="dev"
-          nodeProcessCountPerApplication="1"
-          watchedFiles="*.js"
+            node_env="dev"
+            nodeProcessCountPerApplication="0"
+            maxConcurrentRequestsPerProcess="1024"
+            maxNamedPipeConnectionRetry="200"
+            namedPipeConnectionRetryDelay="250"
+            watchedFiles="*.js;web.config"
+            loggingEnabled="false"
          />
     </system.webServer>
 </configuration>

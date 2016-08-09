@@ -4,14 +4,16 @@
         "target": "es6",
         "noImplicitAny": false,
         "sourceMap": false,
-//        "outDir": "out",
         "watch": true
     },
     "exclude": [
-        "node_modules",
-        "typings",
+        "config",
         "definitions",
+        "locales",
+        "lock",
+        "logs",
+        "node_modules",
         "public",
-        "logs"
+        "typings"
     ]
 }

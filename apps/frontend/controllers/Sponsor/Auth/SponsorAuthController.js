@@ -2,6 +2,7 @@
 const BaseController_1 = require('../../BaseController');
 const SponsorUser_1 = require('../../../models/User/SponsorUser');
 const sponsorLoginForm_1 = require('../../../forms/Sponsor/sponsorLoginForm');
+const Util_1 = require('../../../../common/Util/Util');
 const Models_1 = require('../../../../common/models/Models');
 class SponsorAuthController extends BaseController_1.default {
     /**
@@ -18,8 +19,7 @@ class SponsorAuthController extends BaseController_1.default {
                     // ユーザー認証
                     this.logger.debug('finding sponsor... user_id:', this.req.form['userId']);
                     Models_1.default.Sponsor.findOne({
-                        user_id: this.req.form['userId'],
-                        password: this.req.form['password'],
+                        user_id: this.req.form['userId']
                     }, (err, sponsorDocument) => {
                         if (err || sponsorDocument === null) {
                             this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
@@ -28,11 +28,20 @@ class SponsorAuthController extends BaseController_1.default {
                             });
                         }
                         else {
-                            // ログイン
-                            this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME] = sponsorDocument.toObject();
-                            // if exist parameter cb, redirect to cb.
-                            let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');
-                            this.res.redirect(cb);
+                            // パスワードチェック
+                            if (sponsorDocument.get('password_hash') !== Util_1.default.createHash(this.req.form['password'], sponsorDocument.get('password_salt'))) {
+                                this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                                this.res.render('sponsor/auth/login', {
+                                    layout: 'layouts/sponsor/layout'
+                                });
+                            }
+                            else {
+                                // ログイン
+                                this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME] = sponsorDocument.toObject();
+                                // if exist parameter cb, redirect to cb.
+                                let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');
+                                this.res.redirect(cb);
+                            }
                         }
                     });
                 }

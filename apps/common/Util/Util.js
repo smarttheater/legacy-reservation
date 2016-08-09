@@ -1,6 +1,7 @@
 "use strict";
 const redis = require('redis');
 const conf = require('config');
+const crypto = require('crypto');
 const uniqid = require('uniqid');
 const fs = require('fs-extra');
 const log4js = require('log4js');
@@ -99,6 +100,12 @@ class Util {
         }
         let checkDigit = 11 - (sum % 11);
         return checkDigit;
+    }
+    static createHash(password, salt) {
+        let sha512 = crypto.createHash('sha512');
+        sha512.update(salt + password, 'utf8');
+        let hash = sha512.digest('hex');
+        return hash;
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

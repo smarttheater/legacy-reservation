@@ -315,9 +315,7 @@ export default class MemberReserveController extends ReserveBaseController {
             },
         (err, reservationDocuments) => {
             if (err || reservationDocuments.length < 1) {
-                // TODO
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
             }
 
             // TODO force to logout

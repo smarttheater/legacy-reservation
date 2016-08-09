@@ -21,26 +21,35 @@ export default class SponsorAuthController extends BaseController {
                     // ユーザー認証
                     this.logger.debug('finding sponsor... user_id:', this.req.form['userId']);
                     Models.Sponsor.findOne(
-                    {
-                        user_id: this.req.form['userId'],
-                        password: this.req.form['password'],
-                    },
-                    (err, sponsorDocument) => {
+                        {
+                            user_id: this.req.form['userId']
+                        },
+                        (err, sponsorDocument) => {
+                            if (err || sponsorDocument === null) {
+                                this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
+                                this.res.render('sponsor/auth/login', {
+                                    layout: 'layouts/sponsor/layout'
+                                });
+                            } else {
+                                // パスワードチェック
+                                if (sponsorDocument.get('password_hash') !== Util.createHash(this.req.form['password'], sponsorDocument.get('password_salt'))) {
+                                    this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
+                                    this.res.render('sponsor/auth/login', {
+                                        layout: 'layouts/sponsor/layout'
+                                    });
 
-                        if (err || sponsorDocument === null) {
-                            this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
-                            this.res.render('sponsor/auth/login', {
-                                layout: 'layouts/sponsor/layout'
-                            });
-                        } else {
-                            // ログイン
-                            this.req.session[SponsorUser.AUTH_SESSION_NAME] = sponsorDocument.toObject();
+                                } else {
+                                    // ログイン
+                                    this.req.session[SponsorUser.AUTH_SESSION_NAME] = sponsorDocument.toObject();
 
-                            // if exist parameter cb, redirect to cb.
-                            let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');
-                            this.res.redirect(cb);
+                                    // if exist parameter cb, redirect to cb.
+                                    let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');
+                                    this.res.redirect(cb);
+
+                                }
+                            }
                         }
-                    });
+                    );
 
                 } else {
                     this.res.render('sponsor/auth/login', {
