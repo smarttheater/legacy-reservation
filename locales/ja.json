@@ -84,7 +84,8 @@
 		"Unsent": "送信できませんでした",
 		"PleaseReadBarcode": "バーコードを読み取ってください",
 		"seatsLimit{{limit}}": "Message.seatsLimit{{limit}}",
-		"UnexpectedError": "予期せぬエラー"
+		"UnexpectedError": "予期せぬエラー",
+		"UnavailableSeat": "Message.UnavailableSeat"
 	},
 	"h3": {
 		"SeatChoices": "座席情報",

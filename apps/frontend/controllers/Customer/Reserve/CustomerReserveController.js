@@ -104,38 +104,40 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                                     let seatCodes = JSON.parse(this.req.form['seatCodes']);
                                     // 追加指定席を合わせて制限枚数を超過した場合
                                     if (seatCodes.length > limit) {
-                                        lockFile.unlock(lockPath, (err) => {
+                                        lockFile.unlock(lockPath, () => {
                                             let message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
                                             this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                                         });
                                     }
                                     else {
-                                        // 座席FIX
-                                        this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
-                                            lockFile.unlock(lockPath, (err) => {
-                                                if (err) {
-                                                    this.next(err);
-                                                }
-                                                else {
-                                                    this.logger.debug('saving reservationModel... ', reservationModel);
-                                                    reservationModel.save((err) => {
-                                                        // 仮予約に失敗した座席コードがあった場合
-                                                        if (seatCodes.length > reservationModel.seatCodes.length) {
-                                                            let message = '座席を確保できませんでした。再度指定してください。';
-                                                            this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
-                                                        }
-                                                        else {
+                                        // 仮予約あればキャンセルする
+                                        this.logger.debug('processCancelSeats processing...');
+                                        this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                                            this.logger.debug('processCancelSeats processed.', err);
+                                            // 座席FIX
+                                            this.logger.debug('processFixSeats processing...', reservationModel.token, seatCodes);
+                                            this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
+                                                this.logger.debug('processFixSeats processed.', reservationModel.token, err);
+                                                lockFile.unlock(lockPath, () => {
+                                                    // 仮予約に失敗した座席コードがあった場合
+                                                    if (err) {
+                                                        let message = err.message;
+                                                        this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                                                    }
+                                                    else {
+                                                        this.logger.debug('saving reservationModel... ');
+                                                        reservationModel.save((err) => {
                                                             // 券種選択へ
                                                             this.res.redirect(this.router.build('customer.reserve.tickets', { token: token }));
-                                                        }
-                                                    });
-                                                }
+                                                        });
+                                                    }
+                                                });
                                             });
                                         });
                                     }
                                 }
                                 else {
-                                    lockFile.unlock(lockPath, (err) => {
+                                    lockFile.unlock(lockPath, () => {
                                         this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
                                     });
                                 }
@@ -163,7 +165,6 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
-            this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (this.req.method === 'POST') {
                 reserveTicketForm_1.default(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
@@ -185,7 +186,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                                 ;
                                 reservationModel.setReservation(reservation._id, reservation);
                             });
-                            this.logger.debug('saving reservationModel... ', reservationModel);
+                            this.logger.debug('saving reservationModel... ');
                             reservationModel.save((err) => {
                                 this.res.redirect(this.router.build('customer.reserve.profile', { token: token }));
                             });

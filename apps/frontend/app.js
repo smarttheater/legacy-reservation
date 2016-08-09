@@ -2,6 +2,7 @@
 const express = require('express');
 const partials = require('express-partials');
 const useragent = require('express-useragent');
+const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const multer = require('multer');
@@ -34,7 +35,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 let storage = multer.memoryStorage();
 app.use(multer({ storage: storage }).any());
 app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, '/../../public')));
+app.use(express.static(path.join(__dirname, '/../../public')));
 // i18n を利用する設定
 i18n.configure({
     locales: ['en', 'ja'],

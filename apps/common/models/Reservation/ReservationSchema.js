@@ -16,6 +16,7 @@ let Schema = new mongoose.Schema({
     performance_day: String,
     performance_start_time: String,
     performance_end_time: String,
+    performance_is_mx4d: Boolean,
     theater: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Theater'

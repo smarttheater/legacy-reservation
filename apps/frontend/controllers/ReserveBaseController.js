@@ -4,12 +4,15 @@ const Util_1 = require('../../common/Util/Util');
 const Models_1 = require('../../common/models/Models');
 const ReservationUtil_1 = require('../../common/models/Reservation/ReservationUtil');
 const TicketTypeGroupUtil_1 = require('../../common/models/TicketTypeGroup/TicketTypeGroupUtil');
-const fs = require('fs-extra');
 const moment = require('moment');
+const fs = require('fs-extra');
 /**
  * 予約フローベースコントローラー
  */
 class ReserveBaseController extends BaseController_1.default {
+    /**
+     * 予約フロー中の座席をキャンセルするプロセス
+     */
     processCancelSeats(reservationModel, cb) {
         let seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
         let promises = [];
@@ -26,8 +29,6 @@ class ReserveBaseController extends BaseController_1.default {
                 }, (err) => {
                     // 失敗したとしても時間経過で消えるので放置
                     if (err) {
-                    }
-                    else {
                     }
                     resolve();
                 });
@@ -77,7 +78,8 @@ class ReserveBaseController extends BaseController_1.default {
                     reservationModel.seatCodes = [];
                     // 券種リストは、予約する主体によって異なる
                     // 内部関係者の場合
-                    switch (reservationModel.purchaserGroup) {
+                    let group = reservationModel.purchaserGroup;
+                    switch (group) {
                         case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
                             reservationModel.ticketTypes = TicketTypeGroupUtil_1.default.getOne4staff();
                             break;
@@ -146,8 +148,13 @@ class ReserveBaseController extends BaseController_1.default {
                     // スクリーン座席表HTMLを保管(apiで取得)
                     // TODO ひとまず固定だが、最終的にはパフォーマンスに応じて適切なスクリーンを入れる
                     fs.readFile(`${__dirname}/../../common/views/screens/map.ejs`, 'utf8', (err, data) => {
-                        reservationModel.screenHtml = data;
-                        cb(null, reservationModel);
+                        if (err) {
+                            cb(err, reservationModel);
+                        }
+                        else {
+                            reservationModel.screenHtml = data;
+                            cb(null, reservationModel);
+                        }
                     });
                 });
             }
@@ -157,66 +164,32 @@ class ReserveBaseController extends BaseController_1.default {
      * 座席をFIXするプロセス
      */
     processFixSeats(reservationModel, seatCodes, cb) {
-        let seatCodesInSession = reservationModel.seatCodes;
         if (seatCodes.length < 1) {
-            cb(new Error('座席が選択されていません'), reservationModel);
+            cb(new Error(this.req.__('Message.PleaseChooseSeats')), reservationModel);
         }
         else {
-            // 仮押さえ
-            // まず仮押さえしてから、仮押さえキャンセル
             let promises = [];
             // セッション中の予約リストを初期化
             reservationModel.seatCodes = [];
-            // 仮予約解除の場合、空席に戻す(redis中の情報にあって、新たな指定リストにない座席コード)
-            seatCodesInSession.forEach((seatCodeInSession, index) => {
-                let reservation = reservationModel.getReservation(seatCodeInSession);
-                if (seatCodes.indexOf(seatCodeInSession) >= 0) {
-                }
-                else {
-                    promises.push(new Promise((resolve, reject) => {
-                        this.logger.debug('removing reservation... seat_code:', seatCodeInSession);
-                        Models_1.default.Reservation.remove({
-                            performance: reservationModel.performance._id,
-                            seat_code: seatCodeInSession,
-                            status: ReservationUtil_1.default.STATUS_TEMPORARY
-                        }, (err) => {
-                            this.logger.debug('reservation removed.', err);
-                            // 失敗したとしても時間経過で消えるので放置
-                            if (err) {
-                            }
-                            else {
-                            }
-                            resolve();
-                        });
-                    }));
-                }
-            });
             // 新たな座席指定と、既に仮予約済みの座席コードについて
             seatCodes.forEach((seatCode) => {
-                // すでに仮予約済みであれば、セッションに加えるだけ
-                if (seatCodesInSession.indexOf(seatCode) >= 0) {
-                    promises.push(new Promise((resolve, reject) => {
-                        reservationModel.seatCodes.push(seatCode);
-                        resolve();
-                    }));
-                }
-                else {
-                    // 新規仮予約
-                    /***********************************************
-                     ***********************************************
-                     ***********************************************
-                     * ここが今回の肝です！！！
-                     ************************************************
-                     ************************************************
-                     ************************************************/
-                    promises.push(new Promise((resolve, reject) => {
-                        let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
-                            return (seat.code === seatCode);
-                        });
-                        // 万が一座席が存在しなかったら
-                        if (!seatInfo) {
-                            return reject();
-                        }
+                // 新規仮予約
+                /***********************************************
+                 ***********************************************
+                 ***********************************************
+                 * ここが今回の肝です！！！
+                 ************************************************
+                 ************************************************
+                 ************************************************/
+                promises.push(new Promise((resolve, reject) => {
+                    let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
+                        return (seat.code === seatCode);
+                    });
+                    // 万が一、座席が存在しなかったら
+                    if (!seatInfo) {
+                        return reject();
+                    }
+                    else {
                         let newReservation = {
                             performance: reservationModel.performance._id,
                             seat_code: seatCode,
@@ -239,12 +212,12 @@ class ReserveBaseController extends BaseController_1.default {
                             default:
                                 break;
                         }
-                        this.logger.debug('creating reservation... seat_code:', seatCode);
                         // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、uniqueではじかれる)
+                        this.logger.debug('creating reservation... seat_code:', seatCode, reservationModel.token);
                         Models_1.default.Reservation.create(newReservation, (err, reservationDocument) => {
-                            this.logger.debug('reservation created.', err, reservationDocument);
+                            this.logger.debug('reservation created.', err, reservationDocument, reservationModel.token);
                             if (err || !reservationDocument) {
-                                reject();
+                                reject(new Error(this.req.__('Message.UnavailableSeat')));
                             }
                             else {
                                 // ステータス更新に成功したらセッションに保管
@@ -260,8 +233,8 @@ class ReserveBaseController extends BaseController_1.default {
                                 resolve();
                             }
                         });
-                    }));
-                }
+                    }
+                }));
             });
             Promise.all(promises).then(() => {
                 cb(null, reservationModel);
@@ -345,9 +318,9 @@ class ReserveBaseController extends BaseController_1.default {
         }, {
             new: true
         }, (err, sequenceDocument) => {
+            // TODO err
             let no = sequenceDocument.get('no');
             let paymentNo = `${no}${Util_1.default.getCheckDigit(no)}`;
-            this.logger.debug('paymentNo:', paymentNo);
             cb(paymentNo);
         });
     }

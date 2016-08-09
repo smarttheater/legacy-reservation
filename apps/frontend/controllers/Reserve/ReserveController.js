@@ -19,7 +19,7 @@ class ReserveController extends ReserveBaseController_1.default {
             // 予約リストを取得
             let fields = 'seat_code status';
             if (reservationModel.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
-                fields = 'seat_code status staff staff_name staff_department_name sponsor sponsor_name member member_email';
+                fields = 'seat_code status purchaser_group staff staff_name staff_department_name sponsor sponsor_name member member_email';
             }
             Models_1.default.Reservation.find({
                 performance: reservationModel.performance._id
@@ -34,7 +34,7 @@ class ReserveController extends ReserveBaseController_1.default {
                     for (let reservationDocument of reservationDocuments) {
                         let seatCode = reservationDocument.get('seat_code');
                         let classes = [];
-                        let baloonContent = '';
+                        let baloonContent = `${seatCode}`;
                         if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
                             // 仮押さえ中
                             classes.push('select-seat', 'active');
@@ -45,7 +45,7 @@ class ReserveController extends ReserveBaseController_1.default {
                         }
                         // 内部用コンテンツ
                         if (reservationModel.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
-                            baloonContent += this.getBaloonContent4staffs(reservationModel, reservationDocument);
+                            baloonContent += this.getBaloonContent4staffs(reservationDocument);
                         }
                         propertiesBySeatCode[seatCode] = {
                             classes: classes,
@@ -61,21 +61,24 @@ class ReserveController extends ReserveBaseController_1.default {
             });
         });
     }
-    getBaloonContent4staffs(reservationModel, reservationDocument) {
+    getBaloonContent4staffs(reservationDocument) {
+        console.log(reservationDocument);
         let baloonContent = '';
         // 内部関係者の場合、予約情報ポップアップ
-        switch (reservationDocument.get('status')) {
+        let status = reservationDocument.get('status');
+        let group = reservationDocument.get('purchaser_group');
+        switch (status) {
             case ReservationUtil_1.default.STATUS_RESERVED:
-                if (reservationDocument.get('staff')) {
+                if (group === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
                     baloonContent += `<br>内部関係者${reservationDocument.get('staff_department_name')}<br>${reservationDocument.get('staff_name')}`;
                 }
-                else if (reservationDocument.get('sponsor')) {
+                else if (group === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR) {
                     baloonContent += `<br>外部関係者${reservationDocument.get('sponsor_name')}`;
                 }
-                else if (reservationDocument.get('member')) {
-                    baloonContent += `<br>メルマガ当選者${reservationDocument.get('member_email')}`;
+                else if (group === ReservationUtil_1.default.PURCHASER_GROUP_MEMBER) {
+                    baloonContent += `<br>メルマガ当選者`;
                 }
-                else {
+                else if (group === ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER) {
                     baloonContent += '<br>一般';
                 }
                 break;

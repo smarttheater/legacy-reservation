@@ -231,6 +231,7 @@ export default class ReservationModel {
                     performance_day: this.performance.day,
                     performance_start_time: this.performance.start_time,
                     performance_end_time: this.performance.end_time,
+                    performance_is_mx4d: this.performance.is_mx4d,
 
                     theater: this.performance.theater._id,
                     theater_name: this.performance.theater.name,
