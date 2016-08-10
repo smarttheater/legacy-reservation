@@ -33,6 +33,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                         user_id: this.req.form['user_id'],
                         password: this.req.form['password'],
                     }, (err, memberDocument) => {
+                        // TODO 調整
                         if (err || memberDocument === null) {
                             this.res.render('member/reserve/terms', {});
                         }
@@ -61,46 +62,44 @@ class MemberReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             member: this.memberUser.get('_id'),
             status: ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER
-        }, {}, {}, (err, reservationDocuments) => {
-            // 確保中のメルマガ当選者席がなければ終了
-            if (err || reservationDocuments.length < 1) {
-                this.next(new Error('すでに予約済みです'));
-            }
-            else {
-                // 予約トークンを発行
-                let token = Util_1.default.createToken();
-                let reservationModel = new ReservationModel_1.default();
-                reservationModel.token = token;
-                reservationModel.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_MEMBER;
-                // パフォーマンスFIX
-                this.processFixPerformance(reservationModel, this.memberUser.get('performance'), (err, reservationModel) => {
-                    if (err) {
-                        this.next(err);
-                    }
-                    else {
-                        // 確保中の座席指定情報を追加
-                        for (let reservationDocument of reservationDocuments) {
-                            let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
-                                return (seat.code === reservationDocument.get('seat_code'));
-                            });
-                            reservationModel.seatCodes.push(reservationDocument.get('seat_code'));
-                            reservationModel.setReservation(reservationDocument.get('seat_code'), {
-                                _id: reservationDocument.get('_id'),
-                                status: reservationDocument.get('status'),
-                                seat_code: reservationDocument.get('seat_code'),
-                                seat_grade_name: seatInfo.grade.name,
-                                seat_grade_name_en: seatInfo.grade.name_en,
-                                seat_grade_additional_charge: seatInfo.grade.additional_charge
-                            });
-                        }
-                        // パフォーマンスと座席指定した状態で券種選択へ
-                        this.logger.debug('saving reservationModel... ', reservationModel);
-                        reservationModel.save((err) => {
-                            this.res.redirect(this.router.build('member.reserve.tickets', { token: token }));
+        }, 'seat_code status', (err, reservationDocuments) => {
+            if (err)
+                return this.next(new Error(this.req.__('Message.UnexpectedError')));
+            if (reservationDocuments.length === 0)
+                return this.next(new Error(this.req.__('Message.NotFound')));
+            // 予約トークンを発行
+            let token = Util_1.default.createToken();
+            let reservationModel = new ReservationModel_1.default();
+            reservationModel.token = token;
+            reservationModel.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_MEMBER;
+            // パフォーマンスFIX
+            this.processFixPerformance(reservationModel, this.memberUser.get('performance'), (err, reservationModel) => {
+                if (err) {
+                    this.next(new Error(this.req.__('Message.UnexpectedError')));
+                }
+                else {
+                    // 確保中の座席指定情報を追加
+                    for (let reservationDocument of reservationDocuments) {
+                        let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
+                            return (seat.code === reservationDocument.get('seat_code'));
+                        });
+                        reservationModel.seatCodes.push(reservationDocument.get('seat_code'));
+                        reservationModel.setReservation(reservationDocument.get('seat_code'), {
+                            _id: reservationDocument.get('_id'),
+                            status: reservationDocument.get('status'),
+                            seat_code: reservationDocument.get('seat_code'),
+                            seat_grade_name: seatInfo.grade.name,
+                            seat_grade_name_en: seatInfo.grade.name_en,
+                            seat_grade_additional_charge: seatInfo.grade.additional_charge
                         });
                     }
-                });
-            }
+                    // パフォーマンスと座席指定した状態で券種選択へ
+                    this.logger.debug('saving reservationModel... ', reservationModel);
+                    reservationModel.save((err) => {
+                        this.res.redirect(this.router.build('member.reserve.tickets', { token: token }));
+                    });
+                }
+            });
         });
     }
     /**
@@ -109,9 +108,8 @@ class MemberReserveController extends ReserveBaseController_1.default {
     tickets() {
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err)
+                return this.next(new Error(this.req.__('Message.Expired')));
             this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (this.req.method === 'POST') {
                 reserveTicketForm_1.default(this.req, this.res, (err) => {
@@ -161,9 +159,8 @@ class MemberReserveController extends ReserveBaseController_1.default {
     profile() {
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err)
+                return this.next(new Error(this.req.__('Message.Expired')));
             this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (this.req.method === 'POST') {
                 let form = reserveProfileForm_1.default(this.req);
@@ -217,9 +214,8 @@ class MemberReserveController extends ReserveBaseController_1.default {
     confirm() {
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err)
+                return this.next(new Error(this.req.__('Message.Expired')));
             this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (this.req.method === 'POST') {
                 this.res.redirect(this.router.build('gmo.reserve.start', { token: token }));
@@ -234,9 +230,8 @@ class MemberReserveController extends ReserveBaseController_1.default {
     waitingSettlement() {
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err)
+                return this.next(new Error(this.req.__('Message.Expired')));
             this.res.render('member/reserve/waitingSettlement', {
                 reservationModel: reservationModel,
             });
@@ -252,9 +247,10 @@ class MemberReserveController extends ReserveBaseController_1.default {
             status: ReservationUtil_1.default.STATUS_RESERVED,
             member: this.memberUser.get('_id')
         }, (err, reservationDocuments) => {
-            if (err || reservationDocuments.length < 1) {
+            if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
-            }
+            if (reservationDocuments.length === 0)
+                return this.next(new Error(this.req.__('Message.NotFound')));
             // TODO force to logout
             // delete this.req.session[MemberUser.AUTH_SESSION_NAME];
             this.res.render('member/reserve/complete', {

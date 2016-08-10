@@ -25,7 +25,9 @@ export default class StaffAuthController extends BaseController {
                             user_id: this.req.form['userId']
                         },
                         (err, staffDocument) => {
-                            if (err || staffDocument === null) {
+                            if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+
+                            if (!staffDocument) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
                                 this.res.render('staff/auth/login', {
                                     layout: 'layouts/staff/layout'

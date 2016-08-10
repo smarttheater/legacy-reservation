@@ -98,7 +98,8 @@
 		"PleaseReadBarcode": "Message.PleaseReadBarcode",
 		"seatsLimit{{limit}}": "Message.seatsLimit{{limit}}",
 		"UnexpectedError": "Unexpected Error",
-		"InvalidSeatCode": "Message.InvalidSeatCode"
+		"InvalidSeatCode": "Message.InvalidSeatCode",
+		"Expired": "Message.Expired"
 	},
 	"h3": {
 		"SeatChoices": "Seat Choices",

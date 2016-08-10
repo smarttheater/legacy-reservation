@@ -93,9 +93,17 @@ class StaffMyPageController extends BaseController_1.default {
             new: true
         }, (err, reservationDocument) => {
             this.logger.debug('updated watcher_name. reservationDocument:', reservationDocument);
-            if (err || reservationDocument === null) {
+            if (err) {
+                return this.res.json({
+                    isSuccess: false,
+                    message: this.req.__('message.UnexpectedError'),
+                    reservationId: null
+                });
+            }
+            if (!reservationDocument) {
                 this.res.json({
                     isSuccess: false,
+                    message: this.req.__('message.NotFound'),
                     reservationId: null
                 });
             }

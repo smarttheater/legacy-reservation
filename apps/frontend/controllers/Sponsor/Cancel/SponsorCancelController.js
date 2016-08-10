@@ -12,10 +12,11 @@ class SponsorCancelController extends BaseController_1.default {
             sponsor: this.sponsorUser.get('_id'),
         }, {
             status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
-        }, (err, affectedRows) => {
-            if (err || affectedRows === 0) {
+        }, (err, raw) => {
+            if (err) {
                 this.res.json({
                     isSuccess: false,
+                    messaeg: this.req.__('Message.UnexpectedError'),
                     reservationId: reservationId
                 });
             }

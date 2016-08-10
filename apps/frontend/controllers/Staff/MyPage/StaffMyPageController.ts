@@ -119,14 +119,21 @@ export default class StaffMyPageController extends BaseController {
             (err, reservationDocument) => {
                 this.logger.debug('updated watcher_name. reservationDocument:', reservationDocument);
 
-                if (err || reservationDocument === null) {
+                if (err) {
+                    return this.res.json({
+                        isSuccess: false,
+                        message: this.req.__('message.UnexpectedError'),
+                        reservationId: null
+                    });
+                }
 
+                if (!reservationDocument) {
                     this.res.json({
                         isSuccess: false,
+                        message: this.req.__('message.NotFound'),
                         reservationId: null
                     });
                 } else {
-
                     this.res.json({
                         isSuccess: true,
                         reservation: reservationDocument.toObject()

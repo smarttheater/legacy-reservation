@@ -24,9 +24,7 @@ export default class GMOReserveController extends ReserveBaseController {
     public start(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
@@ -208,9 +206,8 @@ export default class GMOReserveController extends ReserveBaseController {
                 }
             ).exec((err, reservationDocuments) => {
                 this.logger.info('reservations found.', err, reservationDocuments);
-                if (err || reservationDocuments.length < 1) {
-                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                }
+                if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
                 // ログイン中ユーザーの決済かどうかチェック
                 let purchaserGroup = reservationDocuments[0].get('purchaser_group');

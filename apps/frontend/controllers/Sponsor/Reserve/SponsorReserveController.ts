@@ -55,9 +55,7 @@ export default class SponsorReserveController extends ReserveBaseController {
     public performances(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             // 外部関係者による予約数を取得
             Models.Reservation.count(
@@ -118,9 +116,7 @@ export default class SponsorReserveController extends ReserveBaseController {
     public seats(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             // 外部関係者による予約数を取得
             let lockPath = `${__dirname}/../../../../../lock/SponsorFixSeats${this.sponsorUser.get('_id')}.lock`;
@@ -224,9 +220,7 @@ export default class SponsorReserveController extends ReserveBaseController {
     public tickets(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
@@ -289,9 +283,7 @@ export default class SponsorReserveController extends ReserveBaseController {
     public profile(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
@@ -378,9 +370,7 @@ export default class SponsorReserveController extends ReserveBaseController {
     public confirm(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
@@ -479,10 +469,8 @@ export default class SponsorReserveController extends ReserveBaseController {
                 sponsor: this.sponsorUser.get('_id')
             },
             (err, reservationDocuments) => {
-                if (err || reservationDocuments.length < 1) {
-                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
-                }
+                if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
                 this.res.render('sponsor/reserve/complete', {
                     layout: 'layouts/sponsor/layout',

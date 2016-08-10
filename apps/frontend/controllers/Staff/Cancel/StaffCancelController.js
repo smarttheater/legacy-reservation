@@ -19,33 +19,26 @@ class StaffCancelController extends BaseController_1.default {
                     }, {
                         // TODO 内部保留の所有者はadmin
                         status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
-                    }, (err, affectedRows) => {
-                        if (err || affectedRows === 0) {
+                    }, (err, raw) => {
+                        if (err) {
+                            reject(err);
                         }
                         else {
                             updatedReservationIds.push(reservationId);
+                            resolve();
                         }
-                        resolve();
                     });
                 }));
             }
             Promise.all(promises).then(() => {
-                // 変更できていない予約があった場合
-                if (reservationIds.length > updatedReservationIds.length) {
-                    this.res.json({
-                        isSuccess: false,
-                        reservationIds: updatedReservationIds
-                    });
-                }
-                else {
-                    this.res.json({
-                        isSuccess: true,
-                        reservationIds: updatedReservationIds
-                    });
-                }
+                this.res.json({
+                    isSuccess: true,
+                    reservationIds: updatedReservationIds
+                });
             }, (err) => {
                 this.res.json({
                     isSuccess: false,
+                    message: err.message,
                     reservationId: []
                 });
             });
@@ -53,6 +46,7 @@ class StaffCancelController extends BaseController_1.default {
         else {
             this.res.json({
                 isSuccess: false,
+                message: this.req.__('Message.UnexpectedError'),
                 reservationId: []
             });
         }

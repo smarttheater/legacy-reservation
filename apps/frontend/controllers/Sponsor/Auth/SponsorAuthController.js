@@ -21,7 +21,9 @@ class SponsorAuthController extends BaseController_1.default {
                     Models_1.default.Sponsor.findOne({
                         user_id: this.req.form['userId']
                     }, (err, sponsorDocument) => {
-                        if (err || sponsorDocument === null) {
+                        if (err)
+                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                        if (!sponsorDocument) {
                             this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                             this.res.render('sponsor/auth/login', {
                                 layout: 'layouts/sponsor/layout'

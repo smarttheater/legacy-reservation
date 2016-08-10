@@ -9,56 +9,43 @@ export default class StaffCancelController extends BaseController {
         // 予約IDリストをjson形式で受け取る
         let reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
-
             let promises: Array<Promise<Function>> = [];
             let updatedReservationIds = [];
 
             for (let reservationId of reservationIds) {
                 promises.push(new Promise((resolve, reject) => {
-
                     // TIFF確保にステータス更新
                     this.logger.debug('canceling reservation...id:', reservationId);
-                    Models.Reservation.update(
-                    {
-                        _id: reservationId,
-                        staff: this.staffUser.get('_id'),
-                    },
-                    {
-                        // TODO 内部保留の所有者はadmin
-                        status: ReservationUtil.STATUS_KEPT_BY_TIFF
-                    },
-                    (err, affectedRows) => {
-                        if (err || affectedRows === 0) {
-                        } else {
-                            updatedReservationIds.push(reservationId);
+                        Models.Reservation.update(
+                        {
+                            _id: reservationId,
+                            staff: this.staffUser.get('_id'),
+                        },
+                        {
+                            // TODO 内部保留の所有者はadmin
+                            status: ReservationUtil.STATUS_KEPT_BY_TIFF
+                        },
+                        (err, raw) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                updatedReservationIds.push(reservationId);
+                                resolve();
+                            }
                         }
-
-                        resolve();
-                    });
-
+                    );
                 }));
             }
 
-
             Promise.all(promises).then(() => {
-                // 変更できていない予約があった場合
-                if (reservationIds.length > updatedReservationIds.length) {
-
-                    this.res.json({
-                        isSuccess: false,
-                        reservationIds: updatedReservationIds
-                    });
-                } else {
-
-                    this.res.json({
-                        isSuccess: true,
-                        reservationIds: updatedReservationIds
-                    });
-                }
-
+                this.res.json({
+                    isSuccess: true,
+                    reservationIds: updatedReservationIds
+                });
             }, (err) => {
                 this.res.json({
                     isSuccess: false,
+                    message: err.message,
                     reservationId: []
                 });
             });
@@ -66,10 +53,9 @@ export default class StaffCancelController extends BaseController {
         } else {
             this.res.json({
                 isSuccess: false,
+                message: this.req.__('Message.UnexpectedError'),
                 reservationId: []
             });
         }
-
-
     }
 }

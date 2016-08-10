@@ -27,9 +27,8 @@ class StaffReserveController extends ReserveBaseController_1.default {
     performances() {
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err)
+                return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
                 reservePerformanceForm_1.default(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
@@ -71,9 +70,8 @@ class StaffReserveController extends ReserveBaseController_1.default {
     seats() {
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err)
+                return this.next(new Error(this.req.__('Message.Expired')));
             let limit = 10;
             if (this.req.method === 'POST') {
                 reserveSeatForm_1.default(this.req, this.res, (err) => {
@@ -126,9 +124,8 @@ class StaffReserveController extends ReserveBaseController_1.default {
     tickets() {
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err)
+                return this.next(new Error(this.req.__('Message.Expired')));
             this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (this.req.method === 'POST') {
                 reserveTicketForm_1.default(this.req, this.res, (err) => {
@@ -180,9 +177,8 @@ class StaffReserveController extends ReserveBaseController_1.default {
     confirm() {
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err)
+                return this.next(new Error(this.req.__('Message.Expired')));
             this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (this.req.method === 'POST') {
                 // 購入番号発行
@@ -262,9 +258,10 @@ class StaffReserveController extends ReserveBaseController_1.default {
             status: ReservationUtil_1.default.STATUS_RESERVED,
             staff: this.staffUser.get('_id')
         }, (err, reservationDocuments) => {
-            if (err || reservationDocuments.length < 1) {
+            if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
-            }
+            if (reservationDocuments.length === 0)
+                return this.next(new Error(this.req.__('Message.NotFound')));
             this.res.render('staff/reserve/complete', {
                 layout: 'layouts/staff/layout',
                 reservationDocuments: reservationDocuments

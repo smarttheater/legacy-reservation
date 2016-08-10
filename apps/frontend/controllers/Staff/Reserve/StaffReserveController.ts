@@ -32,9 +32,7 @@ export default class StaffReserveController extends ReserveBaseController {
     public performances(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 reservePerformanceForm(this.req, this.res, (err) => {
@@ -82,9 +80,7 @@ export default class StaffReserveController extends ReserveBaseController {
     public seats(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             let limit = 10;
 
@@ -149,9 +145,7 @@ export default class StaffReserveController extends ReserveBaseController {
     public tickets(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
@@ -214,9 +208,7 @@ export default class StaffReserveController extends ReserveBaseController {
     public confirm(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
@@ -320,10 +312,8 @@ export default class StaffReserveController extends ReserveBaseController {
                 staff: this.staffUser.get('_id')
             },
             (err, reservationDocuments) => {
-                if (err || reservationDocuments.length < 1) {
-                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
-                }
+                if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
                 this.res.render('staff/reserve/complete', {
                     layout: 'layouts/staff/layout',

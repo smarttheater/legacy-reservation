@@ -18,9 +18,17 @@ export default class ReservationController extends BaseController {
                 status: ReservationUtil.STATUS_RESERVED
             },
             (err, reservationDocument) => {
-                if (err || reservationDocument === null) {
+                if (err) {
+                    return this.res.json({
+                        isSuccess: false,
+                        message: this.req.__('Message.UnexpectedError')
+                    });
+                }
+
+                if (!reservationDocument) {
                     this.res.json({
-                        isSuccess: false
+                        isSuccess: false,
+                        message: this.req.__('Message.NotFound')
                     });
 
                 } else {

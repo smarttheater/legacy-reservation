@@ -153,10 +153,10 @@ export default class TestController extends BaseController {
 
     private getSeats() {
         let seats = [];
-        let letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q'];
+        let letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
         let grades = ScreenUtil.getSeatGrades();
 
-        for (let i = 0; i < 24; i++) {
+        for (let i = 0; i < 30; i++) {
             let no = i + 1;
 
             letters.forEach((letter) => {
@@ -509,7 +509,13 @@ export default class TestController extends BaseController {
         ).limit(10).exec((err, cueDocuments) => {
             this.logger.info('reservationEmailCues found.', err, cueDocuments);
 
-            if (err || cueDocuments.length === 0) {
+            if (err) {
+                mongoose.disconnect();
+                process.exit(0);
+                return;
+            }
+
+            if (cueDocuments.length === 0) {
                 mongoose.disconnect();
                 process.exit(0);
                 return;

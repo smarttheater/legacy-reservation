@@ -62,9 +62,8 @@ class CustomerReserveController extends ReserveBaseController_1.default {
     login() {
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err)
+                return this.next(new Error(this.req.__('Message.Expired')));
             reservationModel.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER;
             reservationModel.save((err) => {
                 this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
@@ -77,9 +76,8 @@ class CustomerReserveController extends ReserveBaseController_1.default {
     seats() {
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err)
+                return this.next(new Error(this.req.__('Message.Expired')));
             // 1アカウント1パフォーマンスごとに枚数制限
             let lockPath = `${__dirname}/../../../../../lock/CustomerFixSeats${this.mvtkUser.memberInfoResult.kiinCd}${reservationModel.performance._id}.lock`;
             lockFile.lock(lockPath, { wait: 5000 }, (err) => {
@@ -162,9 +160,8 @@ class CustomerReserveController extends ReserveBaseController_1.default {
     tickets() {
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err)
+                return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
                 reserveTicketForm_1.default(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
@@ -213,9 +210,8 @@ class CustomerReserveController extends ReserveBaseController_1.default {
     profile() {
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err)
+                return this.next(new Error(this.req.__('Message.Expired')));
             this.logger.debug('reservationModel is ', reservationModel.toLog());
             this.res.locals.GMOUtil = GMOUtil_1.default;
             if (this.req.method === 'POST') {
@@ -276,9 +272,8 @@ class CustomerReserveController extends ReserveBaseController_1.default {
     confirm() {
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err)
+                return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
                 // 購入番号発行
                 this.createPaymentNo((err, paymentNo) => {
@@ -344,9 +339,10 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
             mvtk_kiin_cd: this.mvtkUser.memberInfoResult.kiinCd
         }, (err, reservationDocuments) => {
-            if (err || reservationDocuments.length < 1) {
+            if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
-            }
+            if (reservationDocuments.length === 0)
+                return this.next(new Error(this.req.__('Message.NotFound')));
             this.res.render('customer/reserve/waitingSettlement', {
                 reservationDocuments: reservationDocuments
             });
@@ -362,9 +358,10 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             status: ReservationUtil_1.default.STATUS_RESERVED,
             mvtk_kiin_cd: this.mvtkUser.memberInfoResult.kiinCd
         }, (err, reservationDocuments) => {
-            if (err || reservationDocuments.length < 1) {
+            if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
-            }
+            if (reservationDocuments.length === 0)
+                return this.next(new Error(this.req.__('Message.NotFound')));
             this.res.render('customer/reserve/complete', {
                 reservationDocuments: reservationDocuments
             });

@@ -46,7 +46,7 @@ class ReservationModel {
             }
             else {
                 if (reply === null) {
-                    cb(err, null);
+                    cb(new Error('Not Found'), null);
                 }
                 else {
                     let reservationModel = new ReservationModel();

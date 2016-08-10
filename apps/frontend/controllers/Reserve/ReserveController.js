@@ -10,11 +10,8 @@ class ReserveController extends ReserveBaseController_1.default {
     getSeatProperties() {
         let token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.res.json({
-                    propertiesBySeatCode: {}
-                });
-            }
+            if (err)
+                return this.res.json({ propertiesBySeatCode: {} });
             let propertiesBySeatCode = {};
             // 予約リストを取得
             let fields = 'seat_code status';

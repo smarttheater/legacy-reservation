@@ -76,9 +76,7 @@ export default class CustomerReserveController extends ReserveBaseController {
     public login(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             reservationModel.purchaserGroup = ReservationUtil.PURCHASER_GROUP_CUSTOMER;
 
@@ -95,9 +93,7 @@ export default class CustomerReserveController extends ReserveBaseController {
     public seats(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             // 1アカウント1パフォーマンスごとに枚数制限
             let lockPath = `${__dirname}/../../../../../lock/CustomerFixSeats${this.mvtkUser.memberInfoResult.kiinCd}${reservationModel.performance._id}.lock`;
@@ -204,9 +200,7 @@ export default class CustomerReserveController extends ReserveBaseController {
     public tickets(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 reserveTicketForm(this.req, this.res, (err) => {
@@ -264,9 +258,7 @@ export default class CustomerReserveController extends ReserveBaseController {
     public profile(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
@@ -340,9 +332,7 @@ export default class CustomerReserveController extends ReserveBaseController {
     public confirm(): void {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || reservationModel === null) {
-                return this.next(new Error('予約プロセスが中断されました'));
-            }
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // 購入番号発行
@@ -420,17 +410,16 @@ export default class CustomerReserveController extends ReserveBaseController {
                 status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
                 mvtk_kiin_cd: this.mvtkUser.memberInfoResult.kiinCd
             },
-        (err, reservationDocuments) => {
-            if (err || reservationDocuments.length < 1) {
-                return this.next(new Error(this.req.__('Message.UnexpectedError')));
+            (err, reservationDocuments) => {
+                if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
+
+                this.res.render('customer/reserve/waitingSettlement', {
+                    reservationDocuments: reservationDocuments
+                });
 
             }
-
-            this.res.render('customer/reserve/waitingSettlement', {
-                reservationDocuments: reservationDocuments
-            });
-
-        });
+        );
     }
 
     /**
@@ -445,10 +434,8 @@ export default class CustomerReserveController extends ReserveBaseController {
                 mvtk_kiin_cd: this.mvtkUser.memberInfoResult.kiinCd
             },
             (err, reservationDocuments) => {
-                if (err || reservationDocuments.length < 1) {
-                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
-                }
+                if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
                 this.res.render('customer/reserve/complete', {
                     reservationDocuments: reservationDocuments
