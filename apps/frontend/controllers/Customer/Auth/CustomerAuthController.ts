@@ -67,4 +67,10 @@ export default class CustomerAuthController extends BaseController {
         }
 
     }
+
+    public logout(): void {
+        delete this.req.session[MvtkUser.AUTH_SESSION_NAME];
+
+        this.res.redirect('/');
+    }
 }

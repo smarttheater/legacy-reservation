@@ -2,25 +2,54 @@
 <input type="hidden" name="seatsLimit" value="<%- limit %>">
 <input type="hidden" name="seatsLimitMessage" value="<%- __('Message.seatsLimit{{limit}}', {limit: limit.toString()}) %>">
 
-<h1><%- __('h1.SelectSeats') %></h1>
-
-<% if (req.query.message) { %>
-<div class="alert alert-danger" role="alert">
-    <a href="javascript:void(0)" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-    <%- req.query.message %>
-</div>
-<% } %>
-
-<%- include('./_reservationModel') %>
 
 <%- include('./_step') %>
 
-<div class="row">
-    <div class="seatStatusesMap hidden" data-token="<%- reservationModel.token %>">
-        <%- reservationModel.screenHtml %>
-        <input type="hidden" name="messageRequiredSeat" value="<%- __('Message.PleaseSelectSeat') %>">
+<h1 class="pagetitle"><%- __('h1.SelectSeats') %></h1>
+<p class="guidetext">ご希望の座席を選択して次へボタンを押してください。</p>
+
+
+<div class="wrapper-2clm">
+
+    <div class="clm-right">
+        <%- include('./_reservationModel') %>
     </div>
 
+    <p class="guidetext visible-mobile-block">
+        画面をタッチすると画面がズームしますので<br>
+        座席を選択してください
+    </p>
+
+    <div class="clm-left wrapper-seats seatStatusesMap" data-token="<%- reservationModel.token %>">
+
+        <% if (req.query.message) { %>
+        <div class="alert alert-danger" role="alert">
+            <a href="javascript:void(0)" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <%- req.query.message %>
+        </div>
+        <% } %>
+
+        <div class="seats-guide">
+            <div class="figure">
+                <div><strong>空席</strong>クリックで座席を選択します</div>
+            </div>
+            <div class="figure figure-selected">
+                <div><strong>選択した席</strong>クリックで選択を解除します</div>
+            </div>
+            <div class="figure figure-unavailable">
+                <div><strong>購入済みの席</strong>既に他の方が購入済みの席です</div>
+            </div>
+        </div>
+
+        <%- reservationModel.screenHtml %>
+        <input type="hidden" name="messageRequiredSeat" value="<%- __('Message.PleaseSelectSeat') %>">
+
+    </div>
+
+</div>
+
+
+<div class="center">
     <!-- TODO ↑警告する 座席の仮押さえ状態が解除されますが、よろしいですか？ -->
-    <a class="btn btn-primary btn-lg btn-block select-seats" href="javascript:void(0);"><%- __('Button.SelectTickets') %></a>
+    <a class="btn btn-lg btn-next" href="javascript:void(0);"><span><%- __('Button.Next') %></span></a>
 </div>

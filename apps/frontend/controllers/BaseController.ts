@@ -57,6 +57,7 @@ export default class BaseController
         this.sponsorUser = SponsorUser.getInstance();
 
         // ユーザーインスタンスをテンプレート変数へ渡す
+        this.res.locals.mvtkUser = this.mvtkUser;
         this.res.locals.memberUser = this.memberUser;
         this.res.locals.staffUser = this.staffUser;
         this.res.locals.sponsorUser = this.sponsorUser;

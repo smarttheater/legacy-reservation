@@ -1,84 +1,113 @@
-<h1><%- __('h1.CompleteReservation') %></h1>
+<script src="/js/reserve/complete.js"></script>
 
 <%- include('./_step') %>
 
-<div class="row">
+<h1 class="pagetitle"><%- __('h1.CompleteReservation') %></h1>
+<p class="guidetext">
+    ご購入ありがとうございました。<br>
+    当日は下記のバーコードを印刷、またはスマートフォンで表示して入場してください。<br>
+    また予約者情報入力でご入力頂いたメールアドレスにもバーコード付きメールを送信しておりますので、<br>
+    そちらをご提示頂いてもご入場頂けます。
+</p>
 
-    <dl class="dl-horizontal">
-        <dt><%- __('Label.PaymentNo') %></dt>
-        <dd><%- reservationDocuments[0].get('payment_no') %></dd>
 
-        <dt><%- __('Label.FilmName') %></dt>
-        <dd>
-            <%- reservationDocuments[0].get(`film_${__('DocumentField.name')}`) %>
-        </dd>
+<table class="table table-complete">
+    <thead>
+        <tr>
+            <th><%- __('Label.PaymentNo') %></th>
+            <td><%- reservationDocuments[0].get('payment_no') %></td>
+        </tr>
+        <tr>
+            <th><%- __('Label.FilmName') %></th>
+            <td><%- reservationDocuments[0].get(`film_${__('DocumentField.name')}`) %></td>
+        </tr>
+        <tr>
+            <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
+            <td>
+                <%- reservationDocuments[0].performance_day %> <%- reservationDocuments[0].performance_start_time %> ～ 
+                <%- reservationDocuments[0].get(`theater_${__('DocumentField.name')}`) %> 
+                <%- reservationDocuments[0].get(`screen_${__('DocumentField.name')}`) %>
+            </td>
+        </tr>
+    </thead>
 
-        <dt><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></dt>
-        <dd>
-            <%- reservationDocuments[0].performance_day %> <%- reservationDocuments[0].performance_start_time %> ～ 
-            <%- reservationDocuments[0].get(`theater_${__('DocumentField.name')}`) %> 
-            <%- reservationDocuments[0].get(`screen_${__('DocumentField.name')}`) %>
-        </dd>
+    <tbody>
+        <tr>
+            <th>座席番号</th>
+            <td>
+                    <% reservationDocuments.forEach((reservation, index) => { %>
+                    <div class="wrapper-seatcells">
+                        <h2 class="accordion_mobile_toggle">座席番号 <%- reservation.seat_code %></h2>
+                        <div class="accordion_mobile_inner">
+                            <div class="innercontent">
+                                <div class="cell-seatcode">
+                                    <%- reservation.seat_code %>
+                                </div>
+                                <div class="cell-btn cell-print">
+                                    <a class="btn btn-default btn-icon-print" href="javascript:void(0)"><span><%- __('Button.Print') %></span></a>
+                                </div>
+                                <div class="cell-codeimg">
+                                    <img class="codeimg-barcode" src="<%- url('reserve.qrcode', {reservationId: reservation._id}) %>">
+                                </div>
+                                <div class="cell-btn cell-mail">
+                                    <a class="btn btn-default btn-icon-mail send-mail" href="javascript:void(0)" data-reservation-id="<%- reservation._id %>" data-url="/api/<%- req.getLocale() %>/reservation/email"><span><%- __('Button.InformFriends') %></span></a>
+                                </div>
+                                <div class="cell-btn cell-showseat">
+                                    <a class="btn btn-showseat show-seat-position" href="javascript:void(0)" data-screen-id="<%- reservation.screen %>" data-seat-codes="<%- reservation.seat_code %>"><span>座席を表示</span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+            </td>
+        </tr>
 
-        <dt><%- __('Label.SeatCode') %></dt>
-        <dd>
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <tbody>
-                        <% reservationDocuments.forEach((reservation, index) => { %>
-                        <tr>
-                            <td><a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservation.screen %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a></td>
-                            <td><a class="btn btn-default" href="javascript:void(0)"><%- __('Button.Print') %></a></td>
-                            <td><a class="btn btn-default send-mail" href="javascript:void(0)" data-reservation-id="<%- reservation._id %>" data-url="/api/<%- req.getLocale() %>/reservation/email"><%- __('Button.SendMail') %></a></td>
-                            <td><img src="<%- url('reserve.qrcode', {reservationId: reservation._id}) %>"></td>
-                        </tr>
-                        <% }) %>
+    </tbody>
 
-                    </tbody>
-                </table>
-            </div>
-        </dd>
+</table>
 
-    </dl>
+<%
+let seatCodes = reservationDocuments.map((reservationDocument) => {return reservationDocument.seat_code});
+%>
+<a class="visible-pc btn btn-lg btn-showseat show-seat-position" href="javascript:void(0)" data-screen-id="<%- reservationDocuments[0].screen %>" data-seat-codes="<%- seatCodes.join(',') %>"><span>座席を表示</span></a>
 
-    <a class="btn btn-default btn-lg btn-block" href="/">TOP</a>
+
+
+<div class="btns2clm">
+    <a class="btn btn-lg btn-next" href="http://2016.tiff-jp.net/"><span>続けて他の作品を予約する</span></a>
+    <a class="btn btn-lg btn-back" href="http://2016.tiff-jp.net/"><span>公式サイトに戻る</span></a>
 </div>
 
 
 
-<div class="modal fade transfering" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+
+<div class="modal modal-mail fade transfering" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            </div>
-
+            <p class="btn-circle-close" data-dismiss="modal"></p>
             <div class="modal-body">
-                <div class="form-group">
-                    <label for="id_email"><%- __('Form.FieldName.email') %></label>
-                    <input type="text" name="email" id="id_email" class="form-control">
+                <h2>メールアドレスを入力して<br class="visible-mobile-block">送信ボタンを押してください。</h2>
+                <p class="errmsg">正しい形式のメールアドレスを入力してください。</p>
+                <div class="form-group form-inline">
+                    <input type="email" name="email" id="id_email" class="form-control">
+                    <p class="btn btn-submit form-control execute-transfer"><span><%- __('Button.Send') %></span></p>
                 </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal"><%- __('Button.Cancel') %></button>
-                <button type="button" class="btn btn-primary execute-transfer"><%- __('Button.Transfer') %></button>
             </div>
         </div>
     </div>
 </div>
-
-<div class="modal fade loading" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal modal-mail fade loading" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
+            <p class="btn-circle-close" data-dismiss="modal"></p>
             <div class="modal-body">
                 <div class="text-center sending"><%- __('Message.Sending') %></div>
                 <div class="text-center sent"><%- __('Message.Sent') %></div>
                 <div class="text-center unsent"><%- __('Message.Unsent') %></div>
             </div>
+            <div class="modal-footer">
+                <p class="btn btn-close" data-dismiss="modal"><span><%- __('Button.Close') %></span></p>
+            </div>
         </div>
     </div>
 </div>
-
-
-<script src="/js/reserve/complete.js"></script>

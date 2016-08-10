@@ -88,6 +88,7 @@ let Schema = new mongoose.Schema({
     gmo_cvs_conf_no: String,
     gmo_cvs_receipt_no: String,
     gmo_cvs_receipt_url: String,
+    gmo_payment_term: String,
     gmo_status: String,
     created_user: String,
     updated_user: String,

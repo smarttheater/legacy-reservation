@@ -58,6 +58,10 @@ class CustomerAuthController extends BaseController_1.default {
             this.res.render('customer/auth/login');
         }
     }
+    logout() {
+        delete this.req.session[MvtkUser_1.default.AUTH_SESSION_NAME];
+        this.res.redirect('/');
+    }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = CustomerAuthController;

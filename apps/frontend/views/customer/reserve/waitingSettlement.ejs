@@ -1,41 +1,71 @@
-<h1><%- __('h1.CompleteTemporaryReservation') %></h1>
-
 <%- include('./_step') %>
 
-<div class="row">
+<h1 class="pagetitle"><%- __('h1.CompleteTemporaryReservation') %></h1>
+<p class="guidetext">
+    仮予約が完了しました。<br>
+    仮予約内容は「仮予約完了メール」に記載して送信したしました。<br>
+    まだ購入は完了しておりませんので最寄りのファミリーマートよりお支払いください。
+</p>
 
-        <dl class="dl-horizontal">
-            <dt><%- __('Label.FilmName') %></dt>
-            <dd>
-                <%- reservationDocuments[0].get(`film_${__('DocumentField.name')}`) %>
-            </dd>
-
-            <dt><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></dt>
-            <dd>
+<table class="table table-waitingSettlement">
+    <tbody>
+        <tr>
+            <th><%- __('Label.FilmName') %></th>
+            <td><%- reservationDocuments[0].get(`film_${__('DocumentField.name')}`) %></td>
+        </tr>
+        <tr>
+            <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
+            <td>
                 <%- reservationDocuments[0].performance_day %> <%- reservationDocuments[0].performance_start_time %> ～ 
                 <%- reservationDocuments[0].get(`theater_${__('DocumentField.name')}`) %> 
                 <%- reservationDocuments[0].get(`screen_${__('DocumentField.name')}`) %>
-            </dd>
+            </td>
+        </tr>
+        <tr>
+            <th><%- __('Label.SeatCode') %></th>
+            <td>
+                <%
+                let seatCodes = reservationDocuments.map((reservationDocument) => {return reservationDocument.seat_code;});
+                %>
+                <%- seatCodes.join('、') %>
+            </td>
+        </tr>
+    </thead>
+</table>
 
-            <dt><%- __('Label.SeatCode') %></dt>
-
-            <dd>
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <tbody>
-                            <% reservationDocuments.forEach((reservation, index) => { %>
-                            <tr>
-                                <td><a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservation.screen %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a></td>
-                            </tr>
-                            <% }) %>
-
-                        </tbody>
-                    </table>
-                </div>
-            </dd>
-
-        </dl>
+<div class="center">
+    <a class="btn btn-lg btn-showseat show-seat-position" href="javascript:void(0)" data-screen-id="<%- reservationDocuments[0].screen %>" data-seat-codes="<%- seatCodes.join(',') %>"><span>座席を表示</span></a>
+</div>
 
 
-    <a class="btn btn-default btn-lg btn-block"  href="/">TOP</a>
+
+<p class="guidetext">
+    お支払いの際は以下の「お客様番号」と「確認番号」が必要となります。
+</p>
+
+<table class="table table-waitingSettlement">
+    <tbody>
+        <tr>
+            <th>お客様番号</th>
+            <td><%- reservationDocuments[0].gmo_cvs_receipt_no %></td>
+        </tr>
+        <tr>
+            <th>確認番号</th>
+            <td><%- reservationDocuments[0].gmo_cvs_conf_no %></td>
+        </tr>
+        <tr>
+            <th>お支払い期限</th>
+            <td><%- reservationDocuments[0].gmo_payment_term %></td>
+        </tr>
+        <tr>
+            <th>お支払い方法</th>
+            <td><a href="">GMOのコンビニ払い説明URL？</a></td>
+        </tr>
+    </thead>
+</table>
+
+
+<div class="btns2clm">
+    <a class="btn btn-lg btn-next" href="http://2016.tiff-jp.net/"><span>続けて他の作品を予約する</span></a>
+    <a class="btn btn-lg btn-back" href="http://2016.tiff-jp.net/"><span>公式サイトに戻る</span></a>
 </div>

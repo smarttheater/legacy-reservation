@@ -1,23 +1,30 @@
-<nav class="navbar navbar-inverse navbar-fixed-top">
+<%
+let routeName = '';
+if (req.hasOwnProperty('route')) {
+    routeName = req.route.name;
+}
+%>
+<header>
     <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">TIFF <%- __('Online Ticket Reservation') %></a>
+
+        <a href="/" class="header-logo"><img src="/images/common/logo.png" alt="TIFF"></a>
+
+        <div class="header-menu">
+
+            <% if (routeName === 'customer.reserve.terms') { %>
+            <ul class="menu-langs">
+                <li class="langs-ja"><a href="<%- url('language.update', {locale: 'ja'}) %>"><span class="visible-pc">Japanese</span><span class="visible-mobile">JA</span></a></li>
+                <li class="langs-en"><a href="<%- url('language.update', {locale: 'en'}) %>"><span class="visible-pc">English</span><span class="visible-mobile">EN</span></a></li>
+            </ul>
+            <% } %>
+
+            <% if (mvtkUser.isAuthenticated()) { %>
+            <div class="menu-user">
+                <p class="myname"><%= mvtkUser.memberInfoResult.kiinsiNm %> <%= mvtkUser.memberInfoResult.kiimmiNm %> 様</p>
+                <a class="link-cancel" href="<%- url('customer.logout') %>">ログアウトして購入をキャンセル</a>
+            </div>
+            <% } %>
+    
         </div>
-
-        <div id="navbar" class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-            </ul>
-
-            <ul class="nav navbar-nav navbar-right">
-                <li class="<%- (req.getLocale() === 'ja') ? 'active' : '' %>"><a href="<%- url('language.update', {locale: 'ja'}) %>">日本語</a></li>
-                <li class="<%- (req.getLocale() === 'en') ? 'active' : '' %>"><a href="<%- url('language.update', {locale: 'en'}) %>">English</a></li>
-            </ul>
-        </div><!--/.nav-collapse -->
     </div>
-</nav>
+</header>

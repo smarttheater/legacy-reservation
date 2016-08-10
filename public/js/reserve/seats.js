@@ -88,7 +88,7 @@ $(function(){
         $(this).toggleClass('active');
     });
 
-    $(document).on('click', '.select-seats', function(){
+    $(document).on('click', '.btn-next', function(){
         var seatCodes = [];
 
         // 座席コードリストを取得

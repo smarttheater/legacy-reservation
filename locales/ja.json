@@ -36,10 +36,12 @@
 		"AllDay": "すべての上映日",
 		"Tel": "電話番号",
 		"PaymentMethodName": {
-			"CREDIT": "Label.PaymentMethodName.CREDIT",
-			"CVS": "Label.PaymentMethodName.CVS"
+			"CREDIT": "クレジットカード",
+			"CVS": "コンビニ決済",
+			"CASH": "現金"
 		},
-		"PaymentMethod": "Label.PaymentMethod"
+		"PaymentMethod": "お支払い方法",
+		"Login": "Label.Login"
 	},
 	"Button": {
 		"Send": "送信",
@@ -54,7 +56,10 @@
 		"TicketReservation": "オンラインチケット予約",
 		"Cancel": "キャンセル",
 		"Transfer": "転送",
-		"Login": "ログイン"
+		"Login": "ログイン",
+		"GoToPayment": "決済へ進む",
+		"InformFriends": "お友達に渡す",
+		"Close": "閉じる"
 	},
 	"Form": {
 		"FieldName": {
@@ -85,7 +90,9 @@
 		"PleaseReadBarcode": "バーコードを読み取ってください",
 		"seatsLimit{{limit}}": "Message.seatsLimit{{limit}}",
 		"UnexpectedError": "予期せぬエラー",
-		"UnavailableSeat": "Message.UnavailableSeat"
+		"UnavailableSeat": "Message.UnavailableSeat",
+		"SelectedSeatsUnavailable": "Message.SelectedSeatsUnavailable",
+		"Expired": "Message.Expired"
 	},
 	"h3": {
 		"SeatChoices": "座席情報",

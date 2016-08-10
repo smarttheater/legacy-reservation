@@ -24,7 +24,8 @@ export default class GMOReserveCvsController extends ReserveBaseController {
             gmo_cvs_code: gmoResultModel.CvsCode,
             gmo_cvs_conf_no: gmoResultModel.CvsConfNo,
             gmo_cvs_receipt_no: gmoResultModel.CvsReceiptNo,
-            gmo_cvs_receipt_url: gmoResultModel.CvsReceiptUrl
+            gmo_cvs_receipt_url: gmoResultModel.CvsReceiptUrl,
+            gmo_payment_term: gmoResultModel.PaymentTerm
         };
 
         // 内容の整合性チェック
@@ -149,7 +150,8 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                     gmo_tax: gmoNotificationModel.Tax,
                     gmo_cvs_code: gmoNotificationModel.CvsCode,
                     gmo_cvs_conf_no: gmoNotificationModel.CvsConfNo,
-                    gmo_cvs_receipt_no: gmoNotificationModel.CvsReceiptNo
+                    gmo_cvs_receipt_no: gmoNotificationModel.CvsReceiptNo,
+                    gmo_payment_term: gmoNotificationModel.PaymentTerm
                 };
 
                 // 内容の整合性チェック

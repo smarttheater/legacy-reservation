@@ -24,6 +24,7 @@ class BaseController {
         this.staffUser = StaffUser_1.default.getInstance();
         this.sponsorUser = SponsorUser_1.default.getInstance();
         // ユーザーインスタンスをテンプレート変数へ渡す
+        this.res.locals.mvtkUser = this.mvtkUser;
         this.res.locals.memberUser = this.memberUser;
         this.res.locals.staffUser = this.staffUser;
         this.res.locals.sponsorUser = this.sponsorUser;

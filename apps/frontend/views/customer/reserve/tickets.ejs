@@ -1,49 +1,63 @@
-<h1><%- __('h1.SelectTickets') %></h1>
-
-<%- include('./_reservationModel') %>
-
 <%- include('./_step') %>
+<h1 class="pagetitle"><%- __('h1.SelectTickets') %></h1>
+<p class="guidetext">ご希望の券種を選択して次へボタンを押してください。</p>
 
-<div class="row">
-    <div class="table-responsive tickets">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th><%- __('Label.SeatCode') %></th>
-                    <th><%- __('Label.TicketType') %></th>
-                </tr>
-            </thead>
+
+<div class="wrapper-2clm">
+
+    <div class="clm-right">
+        <%- include('./_reservationModel') %>
+    </div>
+
+    <div class="clm-left" data-token="">
+
+        <table class="table table-tickets">
+
+            <thead><tr><th><%- __('Label.SeatCode') %></th><th><%- __('Label.TicketType') %></th></tr></thead>
 
             <tbody>
                 <% for (let seatCode of reservationModel.seatCodes) { %>
                 <% let reservation = reservationModel.getReservation(seatCode) %>
                 <tr data-seat-code="<%- reservation.seat_code %>">
-                    <td><%- reservation.seat_code %></td>
+
+                    <th><span class="visible-mobile"><%- __('Label.SeatCode') %></span><%- reservation.seat_code %></th>
                     <td>
                         <select class="form-control">
-                        <% reservationModel.ticketTypes.forEach(function(ticketType, index) { %>
-                        <option value="<%- ticketType.code %>"
-                            <% if (reservation.hasOwnProperty('ticket_type_code')) { %>
-                            <% if (reservation.ticket_type_code == ticketType.code) { %> selected="selected"<% } %>
-                            <% } %>
-                        >
-                            <%- ticketType[__('DocumentField.name')] %> <%- __('{{price}} yen', {price: ticketType.charge}) %>
-                            <%- (reservationModel.performance.is_mx4d) ? '[+200(MX4D)]' : '' %>
-                            <%- (reservation.seat_grade_additional_charge > 0) ? `[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_${__('DocumentField.name')}`]})]` : '' %>
-                        </option>
-                        <% }) %>
+                            <% reservationModel.ticketTypes.forEach(function(ticketType, index) { %>
+                            <option value="<%- ticketType.code %>"
+                                <% if (reservation.hasOwnProperty('ticket_type_code')) { %>
+                                <% if (reservation.ticket_type_code == ticketType.code) { %> selected="selected"<% } %>
+                                <% } %>
+                            >
+                                <%- ticketType[__('DocumentField.name')] %> <%- __('{{price}} yen', {price: ticketType.charge}) %>
+                                <%- (reservationModel.performance.is_mx4d) ? '[+200(MX4D)]' : '' %>
+                                <%- (reservation.seat_grade_additional_charge > 0) ? `[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_${__('DocumentField.name')}`]})]` : '' %>
+                            </option>
+                            <% }) %>
                         </select>
                     </td>
                 </tr>
                 <% } %>
-
             </tbody>
+
+            <tfoot>
+            <!-- TODO 金額動的変更 -->
+                <tr><td colspan="2">
+                    合計金額<span class="price">1500円</span>
+                </td></tr>
+            </tfoot>
+
         </table>
+
     </div>
 
-    <a class="btn btn-default btn-lg btn-block" href="<%- url('customer.reserve.seats', {token: req.params.token}) %>"><%- __('Button.Back') %></a>
-    <a class="btn btn-primary btn-lg btn-block select-tickets" href="javascript:void(0);"><%- __('Button.Next') %></a>
 </div>
+
+<div class="btns2clm">
+    <a class="btn btn-lg btn-next" href="javascript:void(0);"><span><%- __('Button.Next') %></span></a>
+    <a class="btn btn-lg btn-back" href="<%- url('customer.reserve.seats', {token: req.params.token}) %>"><span><%- __('Button.Back') %></span></a>
+</div>
+
 
 <form method="post">
     <input type="hidden" name="choices">
@@ -51,10 +65,10 @@
 
 <script>
 $(function(){
-    $('.select-tickets').on('click', function(){
+    $('.btn-next').on('click', function(){
         // 座席コードリストを取得
         var choices = [];
-        $('.tickets tbody tr').each(function(index){
+        $('.table-tickets tbody tr').each(function(){
             choices.push({
                 seat_code: $(this).attr('data-seat-code'),
                 ticket_type_code: $('option:selected', this).val()

@@ -49,7 +49,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     }
                     else {
                         reservationModel.save((err) => {
-                            this.res.redirect(`${this.router.build('customer.login')}?cb=${encodeURIComponent(this.router.build('customer.reserve.login', { token: token }))}`);
+                            this.res.redirect(`${this.router.build('customer.reserve.terms')}?cb=${encodeURIComponent(this.router.build('customer.reserve.login', { token: token }))}`);
                         });
                     }
                 });
@@ -119,8 +119,11 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                                                 lockFile.unlock(lockPath, () => {
                                                     // 仮予約に失敗した座席コードがあった場合
                                                     if (err) {
-                                                        let message = err.message;
-                                                        this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                                                        this.logger.debug('saving reservationModel... ');
+                                                        reservationModel.save((err) => {
+                                                            let message = this.req.__('Message.SelectedSeatsUnavailable');
+                                                            this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                                                        });
                                                     }
                                                     else {
                                                         this.logger.debug('saving reservationModel... ');
@@ -226,7 +229,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                             tel: this.req.form['tel']
                         };
                         reservationModel.paymentMethod = this.req.form['paymentMethod'];
-                        this.logger.debug('saving reservationModel... ', reservationModel);
+                        this.logger.debug('saving reservationModel... ');
                         reservationModel.save((err) => {
                             this.res.redirect(this.router.build('customer.reserve.confirm', { token: token }));
                         });
@@ -324,7 +327,8 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             else {
                 this.res.render('customer/reserve/confirm', {
                     reservationModel: reservationModel,
-                    ReservationUtil: ReservationUtil_1.default
+                    ReservationUtil: ReservationUtil_1.default,
+                    GMOUtil: GMOUtil_1.default
                 });
             }
         });
