@@ -279,49 +279,51 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             if (err || reservationModel === null) {
                 return this.next(new Error('予約プロセスが中断されました'));
             }
-            this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (this.req.method === 'POST') {
-                // ここで予約番号発行
-                this.createPaymentNo((paymentNo) => {
-                    reservationModel.paymentNo = paymentNo;
-                    // 予約プロセス固有のログファイルをセット
-                    this.setProcessLogger(reservationModel.paymentNo, () => {
-                        this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
-                        // いったん全情報をDBに保存
-                        let promises = [];
-                        let reservationDocuments4update = reservationModel.toReservationDocuments();
-                        for (let reservationDocument4update of reservationDocuments4update) {
-                            reservationDocument4update['mvtk_kiin_cd'] = this.mvtkUser.memberInfoResult.kiinCd;
-                            promises.push(new Promise((resolve, reject) => {
-                                // reservationDocument4update['status'] = ReservationUtil.STATUS_GMO_PROCESSING;
-                                this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
-                                Models_1.default.Reservation.update({
-                                    _id: reservationDocument4update['_id'],
-                                    status: ReservationUtil_1.default.STATUS_TEMPORARY
-                                }, reservationDocument4update, (err, raw) => {
-                                    this.logger.info('reservation updated.', err, raw);
-                                    if (err) {
-                                        reject();
-                                    }
-                                    else {
-                                        resolve();
-                                    }
+                // 購入番号発行
+                this.createPaymentNo((err, paymentNo) => {
+                    if (err) {
+                        let message = this.req.__('Message.UnexpectedError');
+                        this.res.redirect(`${this.router.build('customer.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
+                    }
+                    else {
+                        reservationModel.paymentNo = paymentNo;
+                        // 予約プロセス固有のログファイルをセット
+                        this.setProcessLogger(reservationModel.paymentNo, () => {
+                            this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
+                            // いったん全情報をDBに保存
+                            let promises = [];
+                            let reservationDocuments4update = reservationModel.toReservationDocuments();
+                            for (let reservationDocument4update of reservationDocuments4update) {
+                                reservationDocument4update['mvtk_kiin_cd'] = this.mvtkUser.memberInfoResult.kiinCd;
+                                promises.push(new Promise((resolve, reject) => {
+                                    this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
+                                    Models_1.default.Reservation.update({
+                                        _id: reservationDocument4update['_id'],
+                                        status: ReservationUtil_1.default.STATUS_TEMPORARY
+                                    }, reservationDocument4update, (err, raw) => {
+                                        this.logger.info('reservation updated.', err, raw);
+                                        if (err) {
+                                            reject(new Error(this.req.__('Message.UnexpectedError')));
+                                        }
+                                        else {
+                                            resolve();
+                                        }
+                                    });
+                                }));
+                            }
+                            ;
+                            Promise.all(promises).then(() => {
+                                reservationModel.save((err) => {
+                                    this.logger.info('starting GMO payment...');
+                                    this.res.redirect(this.router.build('gmo.reserve.start', { token: token }));
                                 });
-                            }));
-                        }
-                        ;
-                        Promise.all(promises).then(() => {
-                            reservationModel.save((err) => {
-                                this.logger.info('starting GMO payment...');
-                                this.res.redirect(this.router.build('gmo.reserve.start', { token: token }));
-                            });
-                        }, (err) => {
-                            this.res.render('customer/reserve/confirm', {
-                                reservationModel: reservationModel,
-                                ReservationUtil: ReservationUtil_1.default
+                            }, (err) => {
+                                let message = err.message;
+                                this.res.redirect(`${this.router.build('customer.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
                             });
                         });
-                    });
+                    }
                 });
             }
             else {

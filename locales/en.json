@@ -97,7 +97,8 @@
 		"Unsent": "Unsent.",
 		"PleaseReadBarcode": "Message.PleaseReadBarcode",
 		"seatsLimit{{limit}}": "Message.seatsLimit{{limit}}",
-		"UnexpectedError": "Unexpected Error"
+		"UnexpectedError": "Unexpected Error",
+		"InvalidSeatCode": "Message.InvalidSeatCode"
 	},
 	"h3": {
 		"SeatChoices": "Seat Choices",

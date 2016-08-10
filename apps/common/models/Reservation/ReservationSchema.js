@@ -50,10 +50,7 @@ let Schema = new mongoose.Schema({
     ticket_type_name_en: String,
     ticket_type_charge: Number,
     watcher_name: String,
-    watcher_name_updated_at: {
-        type: Date,
-        default: Date.now
-    },
+    watcher_name_updated_at: Date,
     mvtk_kiin_cd: String,
     sponsor: {
         type: mongoose.Schema.Types.ObjectId,

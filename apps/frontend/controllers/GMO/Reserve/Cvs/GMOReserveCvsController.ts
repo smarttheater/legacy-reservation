@@ -269,7 +269,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                                         this.logger.info('reservation removed.', err);
 
                                         if (err) {
-                                            reject();
+                                            reject(new Error(this.req.__('Message.UnexpectedError')));
 
                                         } else {
                                             resolve();
@@ -329,7 +329,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                         this.logger.info('reservation updated.', err, raw);
 
                         if (err) {
-                            reject();
+                            reject(new Error(this.req.__('Message.UnexpectedError')));
 
                         } else {
                             resolve();

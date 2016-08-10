@@ -135,26 +135,25 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                                         });
                                     }
                                     else {
-                                        // 座席FIX
-                                        this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
-                                            lockFile.unlock(lockPath, (err) => {
-                                                if (err) {
-                                                    this.next(err);
-                                                }
-                                                else {
-                                                    this.logger.debug('saving reservationModel... ', reservationModel);
-                                                    reservationModel.save((err) => {
-                                                        // 仮予約に失敗した座席コードがあった場合
-                                                        if (seatCodes.length > reservationModel.seatCodes.length) {
-                                                            let message = '座席を確保できませんでした。再度指定してください。';
-                                                            this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }) + `?message=${encodeURIComponent(message)}`);
-                                                        }
-                                                        else {
+                                        // 仮予約あればキャンセルする
+                                        this.logger.debug('processCancelSeats processing...');
+                                        this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                                            this.logger.debug('processCancelSeats processed.', err);
+                                            // 座席FIX
+                                            this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
+                                                lockFile.unlock(lockPath, () => {
+                                                    if (err) {
+                                                        let message = err.message;
+                                                        this.res.redirect(`${this.router.build('sponsor.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                                                    }
+                                                    else {
+                                                        this.logger.debug('saving reservationModel... ');
+                                                        reservationModel.save((err) => {
                                                             // 券種選択へ
                                                             this.res.redirect(this.router.build('sponsor.reserve.tickets', { token: token }));
-                                                        }
-                                                    });
-                                                }
+                                                        });
+                                                    }
+                                                });
                                             });
                                         });
                                     }
@@ -321,58 +320,62 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             }
             this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (this.req.method === 'POST') {
-                // ここで予約番号発行
-                this.createPaymentNo((paymentNo) => {
-                    reservationModel.paymentNo = paymentNo;
-                    // 予約プロセス固有のログファイルをセット
-                    this.setProcessLogger(reservationModel.paymentNo, () => {
-                        this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
-                        let promises = [];
-                        let reservationDocuments4update = reservationModel.toReservationDocuments();
-                        for (let reservationDocument4update of reservationDocuments4update) {
-                            promises.push(new Promise((resolve, reject) => {
-                                // 予約完了
-                                reservationDocument4update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
-                                reservationDocument4update['sponsor'] = this.sponsorUser.get('_id');
-                                reservationDocument4update['sponsor_user_id'] = this.sponsorUser.get('user_id');
-                                reservationDocument4update['sponsor_name'] = this.sponsorUser.get('name');
-                                this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
-                                Models_1.default.Reservation.update({
-                                    _id: reservationDocument4update['_id'],
-                                    status: ReservationUtil_1.default.STATUS_TEMPORARY
-                                }, reservationDocument4update, (err, raw) => {
-                                    this.logger.info('reservation updated.', err, raw);
+                // 購入番号発行
+                this.createPaymentNo((err, paymentNo) => {
+                    if (err) {
+                        let message = this.req.__('Message.UnexpectedError');
+                        this.res.redirect(`${this.router.build('sponsor.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
+                    }
+                    else {
+                        reservationModel.paymentNo = paymentNo;
+                        // 予約プロセス固有のログファイルをセット
+                        this.setProcessLogger(reservationModel.paymentNo, () => {
+                            this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
+                            let promises = [];
+                            let reservationDocuments4update = reservationModel.toReservationDocuments();
+                            for (let reservationDocument4update of reservationDocuments4update) {
+                                promises.push(new Promise((resolve, reject) => {
+                                    // 予約完了
+                                    reservationDocument4update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
+                                    reservationDocument4update['sponsor'] = this.sponsorUser.get('_id');
+                                    reservationDocument4update['sponsor_user_id'] = this.sponsorUser.get('user_id');
+                                    reservationDocument4update['sponsor_name'] = this.sponsorUser.get('name');
+                                    this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
+                                    Models_1.default.Reservation.update({
+                                        _id: reservationDocument4update['_id'],
+                                        status: ReservationUtil_1.default.STATUS_TEMPORARY
+                                    }, reservationDocument4update, (err, raw) => {
+                                        this.logger.info('reservation updated.', err, raw);
+                                        if (err) {
+                                            reject(new Error(this.req.__('Message.UnexpectedError')));
+                                        }
+                                        else {
+                                            resolve();
+                                        }
+                                    });
+                                }));
+                            }
+                            ;
+                            Promise.all(promises).then(() => {
+                                this.logger.info('creating reservationEmailCue...');
+                                Models_1.default.ReservationEmailCue.create({
+                                    payment_no: reservationModel.paymentNo,
+                                    is_sent: false
+                                }, (err, reservationEmailCueDocument) => {
+                                    this.logger.info('reservationEmailCue created.', err, reservationEmailCueDocument);
                                     if (err) {
-                                        reject();
                                     }
-                                    else {
-                                        resolve();
-                                    }
+                                    reservationModel.remove((err) => {
+                                        this.logger.info('redirecting to complete...');
+                                        this.res.redirect(this.router.build('sponsor.reserve.complete', { paymentNo: reservationModel.paymentNo }));
+                                    });
                                 });
-                            }));
-                        }
-                        ;
-                        Promise.all(promises).then(() => {
-                            this.logger.info('creating reservationEmailCue...');
-                            Models_1.default.ReservationEmailCue.create({
-                                payment_no: reservationModel.paymentNo,
-                                is_sent: false
-                            }, (err, reservationEmailCueDocument) => {
-                                this.logger.info('reservationEmailCue created.', err, reservationEmailCueDocument);
-                                if (err) {
-                                }
-                                reservationModel.remove((err) => {
-                                    this.logger.info('redirecting to complete...');
-                                    this.res.redirect(this.router.build('sponsor.reserve.complete', { paymentNo: reservationModel.paymentNo }));
-                                });
-                            });
-                        }, (err) => {
-                            this.res.render('sponsor/reserve/confirm', {
-                                layout: 'layouts/sponsor/layout',
-                                reservationModel: reservationModel
+                            }, (err) => {
+                                let message = err.message;
+                                this.res.redirect(`${this.router.build('sponsor.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
                             });
                         });
-                    });
+                    }
                 });
             }
             else {

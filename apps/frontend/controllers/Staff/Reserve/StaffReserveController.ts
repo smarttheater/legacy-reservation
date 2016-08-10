@@ -100,28 +100,28 @@ export default class StaffReserveController extends ReserveBaseController {
                             this.res.redirect(`${this.router.build('staff.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
 
                         } else {
-                            // 座席FIX
-                            this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
-                                if (err) {
-                                    this.next(err);
+                            // 仮予約あればキャンセルする
+                            this.logger.debug('processCancelSeats processing...');
+                            this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                                this.logger.debug('processCancelSeats processed.', err);
 
-                                } else {
-                                    this.logger.debug('saving reservationModel... ', reservationModel);
-                                    reservationModel.save((err) => {
-                                        // 仮押さえできていない在庫があった場合
-                                        if (seatCodes.length > reservationModel.seatCodes.length) {
-                                            let message = '座席を確保できませんでした。再度指定してください。';
-                                            this.res.redirect(this.router.build('staff.reserve.seats', {token: token}) + `?message=${encodeURIComponent(message)}`);
+                                // 座席FIX
+                                this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
+                                    if (err) {
+                                        let message = err.message;
+                                        this.res.redirect(`${this.router.build('staff.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
 
-                                        } else {
+                                    } else {
+                                        this.logger.debug('saving reservationModel... ', reservationModel);
+                                        reservationModel.save((err) => {
                                             // 券種選択へ
                                             this.res.redirect(this.router.build('staff.reserve.tickets', {token: token}));
+                                        });
 
-                                        }
-                                    });
-
-                                }
+                                    }
+                                });
                             });
+
                         }
 
                     } else {
@@ -221,84 +221,84 @@ export default class StaffReserveController extends ReserveBaseController {
             this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
-                // ここで予約番号発行
-                this.createPaymentNo((paymentNo) => {
-                    reservationModel.paymentNo = paymentNo;
+                // 購入番号発行
+                this.createPaymentNo((err, paymentNo) => {
+                    if (err) {
+                        let message = this.req.__('Message.UnexpectedError');
+                        this.res.redirect(`${this.router.build('staff.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
 
-                    // 予約プロセス固有のログファイルをセット
-                    this.setProcessLogger(reservationModel.paymentNo, () => {
-                        this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
+                    } else {
+                        reservationModel.paymentNo = paymentNo;
 
-                        let promises = [];
-                        let reservationDocuments4update = reservationModel.toReservationDocuments();
-                        for (let reservationDocument4update of reservationDocuments4update) {
+                        // 予約プロセス固有のログファイルをセット
+                        this.setProcessLogger(reservationModel.paymentNo, () => {
+                            this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
 
-                            promises.push(new Promise((resolve, reject) => {
-                                // 予約完了
-                                reservationDocument4update['status'] = ReservationUtil.STATUS_RESERVED;
-                                reservationDocument4update['staff'] = this.staffUser.get('_id');
-                                reservationDocument4update['staff_user_id'] = this.staffUser.get('user_id');
-                                reservationDocument4update['staff_name'] = this.staffUser.get('name');
-                                reservationDocument4update['staff_email'] = this.staffUser.get('email');
-                                reservationDocument4update['staff_department_name'] = this.staffUser.get('department_name');
-                                reservationDocument4update['staff_tel'] = this.staffUser.get('tel');
-                                reservationDocument4update['staff_signature'] = this.staffUser.get('signature');
+                            let promises = [];
+                            let reservationDocuments4update = reservationModel.toReservationDocuments();
+                            for (let reservationDocument4update of reservationDocuments4update) {
 
-                                this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
-                                Models.Reservation.update(
+                                promises.push(new Promise((resolve, reject) => {
+                                    // 予約完了
+                                    reservationDocument4update['status'] = ReservationUtil.STATUS_RESERVED;
+                                    reservationDocument4update['staff'] = this.staffUser.get('_id');
+                                    reservationDocument4update['staff_user_id'] = this.staffUser.get('user_id');
+                                    reservationDocument4update['staff_name'] = this.staffUser.get('name');
+                                    reservationDocument4update['staff_email'] = this.staffUser.get('email');
+                                    reservationDocument4update['staff_department_name'] = this.staffUser.get('department_name');
+                                    reservationDocument4update['staff_tel'] = this.staffUser.get('tel');
+                                    reservationDocument4update['staff_signature'] = this.staffUser.get('signature');
+
+                                    this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
+                                    Models.Reservation.update(
+                                        {
+                                            _id: reservationDocument4update['_id'],
+                                            status: ReservationUtil.STATUS_TEMPORARY
+                                        },
+                                        reservationDocument4update,
+                                        (err, raw) => {
+                                            this.logger.info('reservation updated.', err, raw);
+                                            if (err) {
+                                                reject(new Error(this.req.__('Message.UnexpectedError')));
+                                            } else {
+                                                resolve();
+                                            }
+                                        }
+                                    );
+
+                                }));
+                            };
+
+                            Promise.all(promises).then(() => {
+                                this.logger.info('creating reservationEmailCue...');
+                                Models.ReservationEmailCue.create(
                                     {
-                                        _id: reservationDocument4update['_id'],
-                                        status: ReservationUtil.STATUS_TEMPORARY
+                                        payment_no: reservationModel.paymentNo,
+                                        is_sent: false
                                     },
-                                    reservationDocument4update,
-                                (err, raw) => {
-                                    this.logger.info('reservation updated.', err, raw);
+                                    (err, reservationEmailCueDocument) => {
+                                        this.logger.info('reservationEmailCue created.', err, reservationEmailCueDocument);
+                                        if (err) {
+                                            // 失敗してもスルー(ログと運用でなんとかする)
 
-                                    if (err) {
-                                        reject();
+                                        }
 
-                                    } else {
-                                        resolve();
+                                        reservationModel.remove((err) => {
+                                            this.logger.info('redirecting to complete...');
+                                            this.res.redirect(this.router.build('staff.reserve.complete', {paymentNo: reservationModel.paymentNo}));
 
-                                    }
-
-                                });
-
-                            }));
-                        };
-
-                        Promise.all(promises).then(() => {
-                            this.logger.info('creating reservationEmailCue...');
-                            Models.ReservationEmailCue.create(
-                                {
-                                    payment_no: reservationModel.paymentNo,
-                                    is_sent: false
-                                },
-                                (err, reservationEmailCueDocument) => {
-                                    this.logger.info('reservationEmailCue created.', err, reservationEmailCueDocument);
-                                    if (err) {
-                                        // 失敗してもスルー(ログと運用でなんとかする)
+                                        });
 
                                     }
+                                );
 
-                                    reservationModel.remove((err) => {
-                                        this.logger.info('redirecting to complete...');
-                                        this.res.redirect(this.router.build('staff.reserve.complete', {paymentNo: reservationModel.paymentNo}));
-
-                                    });
-
-                                }
-                            );
-
-                        }, (err) => {
-                            this.res.render('staff/reserve/confirm', {
-                                layout: 'layouts/staff/layout',
-                                reservationModel: reservationModel
+                            }, (err) => {
+                                let message = err.message;
+                                this.res.redirect(`${this.router.build('staff.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
                             });
 
                         });
-
-                    });
+                    }
 
                 });
 
@@ -319,18 +319,17 @@ export default class StaffReserveController extends ReserveBaseController {
                 status: ReservationUtil.STATUS_RESERVED,
                 staff: this.staffUser.get('_id')
             },
-        (err, reservationDocuments) => {
-            if (err || reservationDocuments.length < 1) {
-                return this.next(new Error(this.req.__('Message.UnexpectedError')));
+            (err, reservationDocuments) => {
+                if (err || reservationDocuments.length < 1) {
+                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
+                }
+
+                this.res.render('staff/reserve/complete', {
+                    layout: 'layouts/staff/layout',
+                    reservationDocuments: reservationDocuments
+                });
             }
-
-            this.res.render('staff/reserve/complete', {
-                layout: 'layouts/staff/layout',
-                reservationDocuments: reservationDocuments
-            });
-
-        });
-
+        );
     }
 }

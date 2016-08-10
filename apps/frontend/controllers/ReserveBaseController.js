@@ -12,6 +12,8 @@ const fs = require('fs-extra');
 class ReserveBaseController extends BaseController_1.default {
     /**
      * 予約フロー中の座席をキャンセルするプロセス
+     *
+     * @param {ReservationModel} reservationModel
      */
     processCancelSeats(reservationModel, cb) {
         let seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
@@ -162,91 +164,71 @@ class ReserveBaseController extends BaseController_1.default {
     }
     /**
      * 座席をFIXするプロセス
+     * 新規仮予約 ここが今回の肝です！！！
+     *
+     * @param {ReservationModel} reservationModel
+     * @param {Array<string>} seatCodes
      */
     processFixSeats(reservationModel, seatCodes, cb) {
-        if (seatCodes.length < 1) {
-            cb(new Error(this.req.__('Message.PleaseChooseSeats')), reservationModel);
-        }
-        else {
-            let promises = [];
-            // セッション中の予約リストを初期化
-            reservationModel.seatCodes = [];
-            // 新たな座席指定と、既に仮予約済みの座席コードについて
-            seatCodes.forEach((seatCode) => {
-                // 新規仮予約
-                /***********************************************
-                 ***********************************************
-                 ***********************************************
-                 * ここが今回の肝です！！！
-                 ************************************************
-                 ************************************************
-                 ************************************************/
-                promises.push(new Promise((resolve, reject) => {
-                    let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
-                        return (seat.code === seatCode);
-                    });
-                    // 万が一、座席が存在しなかったら
-                    if (!seatInfo) {
-                        return reject();
-                    }
-                    else {
-                        let newReservation = {
-                            performance: reservationModel.performance._id,
-                            seat_code: seatCode,
-                            status: ReservationUtil_1.default.STATUS_TEMPORARY
-                        };
-                        // 誰が仮予約中かも分かるように
-                        switch (reservationModel.purchaserGroup) {
-                            case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
-                                newReservation['staff'] = this.staffUser.get('_id');
-                                break;
-                            case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
-                                newReservation['sponsor'] = this.sponsorUser.get('_id');
-                                break;
-                            case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
-                                newReservation['member'] = this.memberUser.get('_id');
-                                break;
-                            case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
-                                newReservation['mvtk_kiin_cd'] = this.mvtkUser.memberInfoResult.kiinCd;
-                                break;
-                            default:
-                                break;
+        let promises = [];
+        let purchaserGroup = reservationModel.purchaserGroup;
+        // セッション中の予約リストを初期化
+        reservationModel.seatCodes = [];
+        // 新たな座席指定と、既に仮予約済みの座席コードについて
+        seatCodes.forEach((seatCode) => {
+            promises.push(new Promise((resolve, reject) => {
+                let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
+                    return (seat.code === seatCode);
+                });
+                // 万が一、座席が存在しなかったら
+                if (!seatInfo) {
+                    return reject(new Error(this.req.__('Message.InvalidSeatCode')));
+                }
+                else {
+                    let newReservation = {
+                        performance: reservationModel.performance._id,
+                        seat_code: seatCode,
+                        status: ReservationUtil_1.default.STATUS_TEMPORARY,
+                        mvtk_kiin_cd: (purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER) ? this.mvtkUser.memberInfoResult.kiinCd : undefined,
+                        staff: (purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) ? this.staffUser.get('_id') : undefined,
+                        sponsor: (purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR) ? this.sponsorUser.get('_id') : undefined,
+                        member: (purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_MEMBER) ? this.memberUser.get('_id') : undefined,
+                    };
+                    // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
+                    this.logger.debug('creating reservation... seat_code:', seatCode);
+                    Models_1.default.Reservation.create(newReservation, (err, reservationDocument) => {
+                        this.logger.debug('reservation created.', err, reservationDocument);
+                        if (err) {
+                            reject(err);
                         }
-                        // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、uniqueではじかれる)
-                        this.logger.debug('creating reservation... seat_code:', seatCode, reservationModel.token);
-                        Models_1.default.Reservation.create(newReservation, (err, reservationDocument) => {
-                            this.logger.debug('reservation created.', err, reservationDocument, reservationModel.token);
-                            if (err || !reservationDocument) {
-                                reject(new Error(this.req.__('Message.UnavailableSeat')));
-                            }
-                            else {
-                                // ステータス更新に成功したらセッションに保管
-                                reservationModel.seatCodes.push(seatCode);
-                                reservationModel.setReservation(seatCode, {
-                                    _id: reservationDocument.get('_id'),
-                                    status: reservationDocument.get('status'),
-                                    seat_code: reservationDocument.get('seat_code'),
-                                    seat_grade_name: seatInfo.grade.name,
-                                    seat_grade_name_en: seatInfo.grade.name_en,
-                                    seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                                });
-                                resolve();
-                            }
-                        });
-                    }
-                }));
-            });
-            Promise.all(promises).then(() => {
-                cb(null, reservationModel);
-            }, (err) => {
-                cb(err, reservationModel);
-            });
-        }
+                        else {
+                            // ステータス更新に成功したらセッションに保管
+                            reservationModel.seatCodes.push(seatCode);
+                            reservationModel.setReservation(seatCode, {
+                                _id: reservationDocument.get('_id'),
+                                status: reservationDocument.get('status'),
+                                seat_code: reservationDocument.get('seat_code'),
+                                seat_grade_name: seatInfo.grade.name,
+                                seat_grade_name_en: seatInfo.grade.name_en,
+                                seat_grade_additional_charge: seatInfo.grade.additional_charge,
+                            });
+                            resolve();
+                        }
+                    });
+                }
+            }));
+        });
+        Promise.all(promises).then(() => {
+            cb(null, reservationModel);
+        }, (err) => {
+            cb(err, reservationModel);
+        });
     }
     /**
      * 購入番号から全ての予約を完了にする
      *
      * @param {string} paymentNo 購入番号
+     * @param {Array<string>} reservationIds 予約IDリスト
      * @param {Object} update 追加更新パラメータ
      */
     processFixReservations(paymentNo, reservationIds, update, cb) {
@@ -256,13 +238,13 @@ class ReserveBaseController extends BaseController_1.default {
         // 予約完了ステータスへ変更
         for (let reservationId of reservationIds) {
             promises.push(new Promise((resolve, reject) => {
-                this.logger.info('updating reservation by id...update:', update);
+                this.logger.info('updating reservation by id...', reservationId, update);
                 Models_1.default.Reservation.update({
                     _id: reservationId
                 }, update, (err, raw) => {
                     this.logger.info('reservation updated.', err, raw);
                     if (err) {
-                        reject();
+                        reject(err);
                     }
                     else {
                         resolve();
@@ -305,8 +287,6 @@ class ReserveBaseController extends BaseController_1.default {
     }
     /**
      * 購入管理番号生成
-     *
-     * @return {string}
      */
     createPaymentNo(cb) {
         Models_1.default.Sequence.findOneAndUpdate({
@@ -318,10 +298,14 @@ class ReserveBaseController extends BaseController_1.default {
         }, {
             new: true
         }, (err, sequenceDocument) => {
-            // TODO err
-            let no = sequenceDocument.get('no');
-            let paymentNo = `${no}${Util_1.default.getCheckDigit(no)}`;
-            cb(paymentNo);
+            if (err) {
+                cb(err, null);
+            }
+            else {
+                let no = sequenceDocument.get('no');
+                let paymentNo = `${no}${Util_1.default.getCheckDigit(no)}`;
+                cb(err, paymentNo);
+            }
         });
     }
 }

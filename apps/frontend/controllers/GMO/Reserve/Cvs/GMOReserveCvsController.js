@@ -200,7 +200,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                             }, (err) => {
                                 this.logger.info('reservation removed.', err);
                                 if (err) {
-                                    reject();
+                                    reject(new Error(this.req.__('Message.UnexpectedError')));
                                 }
                                 else {
                                     resolve();
@@ -242,7 +242,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                 }, update, (err, raw) => {
                     this.logger.info('reservation updated.', err, raw);
                     if (err) {
-                        reject();
+                        reject(new Error(this.req.__('Message.UnexpectedError')));
                     }
                     else {
                         resolve();

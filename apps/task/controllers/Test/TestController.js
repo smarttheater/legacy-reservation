@@ -546,7 +546,7 @@ class TestController extends BaseController_1.default {
                 }, (err) => {
                     this.logger.debug('index created.', err);
                     if (err) {
-                        reject();
+                        reject(err);
                     }
                     else {
                         resolve();
@@ -561,7 +561,7 @@ class TestController extends BaseController_1.default {
                 }, (err) => {
                     this.logger.debug('index created.', err);
                     if (err) {
-                        reject();
+                        reject(err);
                     }
                     else {
                         resolve();
@@ -576,7 +576,7 @@ class TestController extends BaseController_1.default {
                 }, (err) => {
                     this.logger.debug('index created.', err);
                     if (err) {
-                        reject();
+                        reject(err);
                     }
                     else {
                         resolve();
@@ -591,7 +591,7 @@ class TestController extends BaseController_1.default {
                 }, (err) => {
                     this.logger.debug('index created.', err);
                     if (err) {
-                        reject();
+                        reject(err);
                     }
                     else {
                         resolve();

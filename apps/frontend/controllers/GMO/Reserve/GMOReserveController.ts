@@ -253,7 +253,7 @@ export default class GMOReserveController extends ReserveBaseController {
                             (err) => {
                                 this.logger.info('reservation removed.', err);
                                 if (err) {
-                                    reject();
+                                    reject(new Error(this.req.__('Message.UnexpectedError')));
                                 } else {
                                     resolve();
                                 }

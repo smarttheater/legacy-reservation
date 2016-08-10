@@ -722,7 +722,7 @@ export default class TestController extends BaseController {
                     (err) => {
                         this.logger.debug('index created.', err);
                         if (err) {
-                            reject();
+                            reject(err);
                         } else {
                             resolve();
                         }
@@ -741,7 +741,7 @@ export default class TestController extends BaseController {
                     (err) => {
                         this.logger.debug('index created.', err);
                         if (err) {
-                            reject();
+                            reject(err);
                         } else {
                             resolve();
                         }
@@ -760,7 +760,7 @@ export default class TestController extends BaseController {
                     (err) => {
                         this.logger.debug('index created.', err);
                         if (err) {
-                            reject();
+                            reject(err);
                         } else {
                             resolve();
                         }
@@ -779,7 +779,7 @@ export default class TestController extends BaseController {
                     (err) => {
                         this.logger.debug('index created.', err);
                         if (err) {
-                            reject();
+                            reject(err);
                         } else {
                             resolve();
                         }

@@ -60,10 +60,7 @@ let Schema = new mongoose.Schema({
     ticket_type_charge: Number,
 
     watcher_name: String, // 配布先
-    watcher_name_updated_at: { // 配布先更新日時
-        type: Date,
-        default: Date.now
-    },
+    watcher_name_updated_at: Date, // 配布先更新日時 default: Date.now
 
     mvtk_kiin_cd: String, // ムビチケ会員ID
 
