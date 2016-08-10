@@ -1,3 +1,7 @@
+String.prototype.splice = function(idx, str) { //※日時整形用(Stringのidx文字目にstrを差し込む)
+    return (this.slice(0, idx) + str + this.slice(idx));
+};
+
 $(function(){
     var locale = $('input[name="locale"]').val();
     var documentFieldName = (locale === 'ja') ? 'name' : 'name_en';
@@ -24,38 +28,63 @@ $(function(){
 
 
 
+        var NAMETABLE_STATUS = { // CSSクラス分けのため変換
+            '◎':'vacant',
+            '○':'capable',
+            '△':'crowded',
+            '×':'soldout',
+            '?':'unknown'
+        };
+
         var html = '';
 
         filmIds.forEach(function(filmId) {
             var performancesOnFilm = performancesByFilm[filmId];
 
-            html += '\
-<h3>' + performancesOnFilm[0].film[documentFieldName] + '</h3>\
-<div class="row">\
-    <div class="col-sm-2">\
-        <img src="' + performancesOnFilm[0].film.image + '" alt="" class="img-thumbnail" style="width: 100px; height: 100px;">\
-    </div>\
-';
-
-
+            html += 
+                '<div class="performance accordion_mobile_toggle">'+
+                    '<div class="performance-image"><img src="'+performancesOnFilm[0].film.image+'"></div>'+///images/temp_performance_thumb.jpg"></div>'+
+                    '<div class="performance-title"><h3><span>'+performancesOnFilm[0].film[documentFieldName]+'</span></h3></div>'+
+                    '<div class="performance-inner accordion_mobile_inner">'+
+                        '<div class="performance-info">'+
+                            '<div class="desc">' + performancesOnFilm[0].film.sections.map((section) => {return section[documentFieldName];}).join(',') + '</div>'+
+                            '<div class="genreslength">'+
+                                '<div class="genres">'+
+                                    performancesOnFilm[0].film.sections.map((section) => {return '<span>' + section[documentFieldName] + '</span>';}).join('') + 
+                                '</div>'+
+                                '<span class="length">本編 102分</span>'+
+                            '</div>'+
+                        '</div>'+
+                        '<div class="performance-schedule">'
+            ;
+            var scheduleClmCount = 0; //3列ごとにwrapperで括る
             performancesOnFilm.forEach(function(performance, index) {
-                if (index % 3 === 0) {
+                performance.day = performance.day.substr(4).splice(2,'/');//Ymdをm/dに
+                performance.start_time = performance.start_time.splice(2,':');//hiをh:iに
+
+                if(scheduleClmCount === 0){
+                    html += '<div class="wrapper-scheduleitems">';
                 }
-
-                html += '\
-<div class="col-sm-3">\
-    <a href="javascript:void(0)" data-performance-id="' + performance._id + '" class="select-performance">\
-        ' + performance.day + '<br>\
-        ' + performance.theater[documentFieldName] + ' ' + performance.screen[documentFieldName] + '<br>\
-        ' + performance.start_time + '-' + performance.end_time + '<br>\
-        ' + performance.seat_status + '\
-    </a>\
-</div>\
-';
-
+                html += 
+                                '<div class="scheduleitem scheduleitem-'+NAMETABLE_STATUS[performance.seat_status]+' select-performance" data-performance-id="'+performance._id+'">'+
+                                    '<div class="text">'+ 
+                                        '<h3>'+performance.day+' '+performance.start_time+' - </h3>'+
+                                        '<p>'+performance.theater[documentFieldName]+performance.screen[documentFieldName]+'</p>'+
+                                    '</div>'+
+                                    '<span class="status">'+performance.seat_status+'</span>'+
+                                '</div>'
+                ;
+                scheduleClmCount = scheduleClmCount + 1;
+                if(scheduleClmCount === 3 || index === performancesOnFilm.length-1){
+                    html += '</div>';
+                    scheduleClmCount = 0;
+                }
             });
-
-            html += '</div>';
+            html += 
+                        '</div>'+
+                    '</div>'+
+                '</div>'
+            ;
         });
 
 

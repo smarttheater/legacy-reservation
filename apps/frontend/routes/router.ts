@@ -179,7 +179,7 @@ export default (app: any) => {
     }
 
     // 内部関係者
-    app.all('/staff/login', 'staff.login', staffBase, (req, res, next) => {(new StaffAuthController(req, res, next)).login()});
+    app.all('/staff/login', 'staff.mypage.login', staffBase, (req, res, next) => {(new StaffAuthController(req, res, next)).login()});
     app.all('/staff/logout', 'staff.logout', staffBase, (req, res, next) => {(new StaffAuthController(req, res, next)).logout()});
     app.all('/staff/mypage', 'staff.mypage', staffBase, authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).index()});
     app.get('/staff/mypage/search', 'staff.mypage.search', staffBase, authenticationStaff, (req, res, next) => {(new StaffMyPageController(req, res, next)).search()});

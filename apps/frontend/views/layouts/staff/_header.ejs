@@ -1,33 +1,25 @@
-<nav class="navbar navbar-inverse navbar-fixed-top">
+<%
+let routeName = '';
+if (req.hasOwnProperty('route')) {
+    routeName = req.route.name;
+}
+%>
+<header>
     <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">TIFF <%- __('Online Ticket Reservation') %></a>
+
+        <a href="/" class="header-logo"><img src="/images/common/logo.png" alt="TIFF"></a>
+
+        <div class="header-menu">
+            <% if (routeName.indexOf('mypage') >= 0 && staffUser.isAuthenticated()) { %>
+            <div class="menu-staff">
+                <p class="myname"><%- staffUser.get('department_name') %> <%- staffUser.get('name') %>様</p>
+                <div class="staff-btns">
+                    <a class="btn btn-logout" href="<%- url('staff.logout') %>"><span>Logout</span></a>
+                    <a class="btn btn-newticket" href="<%- url('staff.reserve.start') %>"><span>New Ticket</span></a>
+                    <a class="btn btn-release" href="release"><span>座席解放</span></a>
+                </div>
+            </div>
+            <% } %>
         </div>
-
-        <div id="navbar" class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-            </ul>
-
-            <% if (staffUser.isAuthenticated()) {%>
-            <a class="btn btn-default navbar-btn navbar-right" href="<%- url('staff.logout', {}) %>">Logout</a>
-            <% } %>
-
-            <ul class="nav navbar-nav navbar-right">
-            <!--
-                <li class="<%- (req.originalUrl === url('Home')) ? 'active' : '' %>"><a href="<%- url('Home') %>">TOP</a></li>
-            -->
-            </ul>
-
-            <% if (staffUser.isAuthenticated()) {%>
-            <p class="navbar-text navbar-right"><a href="<%- url('staff.mypage') %>" class="navbar-link"><%- staffUser.get('signature') %> MyPage</a></p>
-            <% } %>
-
-        </div><!--/.nav-collapse -->
     </div>
-</nav>
+</header>

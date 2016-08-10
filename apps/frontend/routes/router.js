@@ -130,7 +130,7 @@ exports.default = (app) => {
         next();
     };
     // 内部関係者
-    app.all('/staff/login', 'staff.login', staffBase, (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).login(); });
+    app.all('/staff/login', 'staff.mypage.login', staffBase, (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).login(); });
     app.all('/staff/logout', 'staff.logout', staffBase, (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).logout(); });
     app.all('/staff/mypage', 'staff.mypage', staffBase, authenticationStaff, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).index(); });
     app.get('/staff/mypage/search', 'staff.mypage.search', staffBase, authenticationStaff, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).search(); });

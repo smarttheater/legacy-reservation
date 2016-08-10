@@ -35,30 +35,30 @@
         <tr>
             <th>座席番号</th>
             <td>
-                    <% reservationDocuments.forEach((reservation, index) => { %>
-                    <div class="wrapper-seatcells">
-                        <h2 class="accordion_mobile_toggle">座席番号 <%- reservation.seat_code %></h2>
-                        <div class="accordion_mobile_inner">
-                            <div class="innercontent">
-                                <div class="cell-seatcode">
-                                    <%- reservation.seat_code %>
-                                </div>
-                                <div class="cell-btn cell-print">
-                                    <a class="btn btn-default btn-icon-print" href="javascript:void(0)"><span><%- __('Button.Print') %></span></a>
-                                </div>
-                                <div class="cell-codeimg">
-                                    <img class="codeimg-barcode" src="<%- url('reserve.qrcode', {reservationId: reservation._id}) %>">
-                                </div>
-                                <div class="cell-btn cell-mail">
-                                    <a class="btn btn-default btn-icon-mail send-mail" href="javascript:void(0)" data-reservation-id="<%- reservation._id %>" data-url="/api/<%- req.getLocale() %>/reservation/email"><span><%- __('Button.InformFriends') %></span></a>
-                                </div>
-                                <div class="cell-btn cell-showseat">
-                                    <a class="btn btn-showseat show-seat-position" href="javascript:void(0)" data-screen-id="<%- reservation.screen %>" data-seat-codes="<%- reservation.seat_code %>"><span>座席を表示</span></a>
-                                </div>
+                <% reservationDocuments.forEach((reservation, index) => { %>
+                <div class="wrapper-seatcells">
+                    <h2 class="accordion_mobile_toggle">座席番号 <%- reservation.seat_code %></h2>
+                    <div class="accordion_mobile_inner">
+                        <div class="innercontent">
+                            <div class="cell-seatcode">
+                                <%- reservation.seat_code %>
+                            </div>
+                            <div class="cell-btn cell-print">
+                                <a class="btn btn-default btn-icon-print" href="javascript:void(0)"><span><%- __('Button.Print') %></span></a>
+                            </div>
+                            <div class="cell-codeimg">
+                                <img class="codeimg-barcode" src="<%- url('reserve.qrcode', {reservationId: reservation._id}) %>">
+                            </div>
+                            <div class="cell-btn cell-mail">
+                                <a class="btn btn-default btn-icon-mail send-mail" href="javascript:void(0)" data-reservation-id="<%- reservation._id %>" data-url="/api/<%- req.getLocale() %>/reservation/email"><span><%- __('Button.InformFriends') %></span></a>
+                            </div>
+                            <div class="cell-btn cell-showseat">
+                                <a class="btn btn-showseat show-seat-position" href="javascript:void(0)" data-screen-id="<%- reservation.screen %>" data-seat-codes="<%- reservation.seat_code %>"><span>座席を表示</span></a>
                             </div>
                         </div>
                     </div>
-                    <% }) %>
+                </div>
+                <% }) %>
             </td>
         </tr>
 
@@ -90,7 +90,7 @@ let seatCodes = reservationDocuments.map((reservationDocument) => {return reserv
                 <p class="errmsg">正しい形式のメールアドレスを入力してください。</p>
                 <div class="form-group form-inline">
                     <input type="email" name="email" id="id_email" class="form-control">
-                    <p class="btn btn-submit form-control execute-transfer"><span><%- __('Button.Send') %></span></p>
+                    <p class="btn btn-submit form-control execute-transfer"><%- __('Button.Send') %></p>
                 </div>
             </div>
         </div>

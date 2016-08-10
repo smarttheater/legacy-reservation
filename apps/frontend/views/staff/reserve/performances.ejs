@@ -1,13 +1,15 @@
 <script src="/js/reserve/performances.js"></script>
 
-<h1><%- __('h1.SelectPerformance') %></h1>
-
 <%- include('./_step') %>
 
-<div class="row">
+<script src="/js/reserve/performances.js"></script>
+
+<h1 class="pagetitle"><%- __('h1.SelectPerformance') %></h1>
+<p class="guidetext">以下より鑑賞作品の上映スケジュールを選択してください。</p>
+
+<div class="performancesearchform">
     <form class="form-inline">
         <div class="form-group">
-            <label for=""></label>
             <select class="form-control" name="section">
                 <option value=""><%- __('Label.AllSections') %></option>
                 <% for (let section of FilmUtil.getSections()) { %>
@@ -17,7 +19,6 @@
         </div>
 
         <div class="form-group">
-            <label for=""></label>
             <select class="form-control" name="genre">
                 <option value=""><%- __('Label.AllGenres') %></option>
                 <% for (let genre of FilmUtil.getGenres()) { %>
@@ -27,7 +28,6 @@
         </div>
 
         <div class="form-group">
-            <label for=""></label>
             <select class="form-control" name="day">
                 <option value=""><%- __('Label.AllDay') %></option>
                 <option value="20161022">10/22</option>
@@ -41,14 +41,19 @@
             </select>
         </div>
 
-        <div class="form-group">
-            <label for=""></label>
+        <div class="form-group form-seachqueryinput">
             <input type="text" class="form-control" name="words">
         </div>
-
-        <a class="btn btn-primary search" href="javascript:void(0)"><%- __('Button.Search') %></a>
+        
+        <div class="wrapper-btn">
+            <a class="btn btn-search search" href="javascript:void(0)"><span><%- __('Button.Search') %></span></a>
+        </div>
     </form>
 </div>
+
+<p class="searchresult">
+    検索結果 20 作品
+</p>
 
 <div class="row performances">
 </div>
@@ -57,7 +62,7 @@
     <input type="hidden" name="performanceId">
 </form>
 
-<a class="btn btn-default btn-lg btn-block" href="<%- url('staff.mypage', {}) %>"><%- __('Button.Back') %></a>
+<a class="btn btn-default btn-lg btn-block" href="<%- url('staff.mypage') %>"><%- __('Button.Back') %></a>
 
 
 
