@@ -155,37 +155,36 @@ export default class GMOReserveController extends ReserveBaseController {
         let gmoNotificationModel = GMONotificationModel.parse(this.req.body);
         let paymenyNo = gmoNotificationModel.OrderID;
 
-            // 予約プロセス固有のログファイルをセット
-            this.setProcessLogger(paymenyNo, () => {
-                this.logger.info('gmoNotificationModel is ', gmoNotificationModel);
+        // 予約プロセス固有のログファイルをセット
+        this.setProcessLogger(paymenyNo, () => {
+            this.logger.info('gmoNotificationModel is ', gmoNotificationModel);
 
-                switch (gmoNotificationModel.PayType) {
+            switch (gmoNotificationModel.PayType) {
 
-                    case GMOUtil.PAY_TYPE_CREDIT:
-                        this.logger.info('starting GMOReserveCreditController.notify...');
-                        let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
-                        creditController.logger = this.logger;
-                        creditController.notify(gmoNotificationModel);
+                case GMOUtil.PAY_TYPE_CREDIT:
+                    this.logger.info('starting GMOReserveCreditController.notify...');
+                    let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
+                    creditController.logger = this.logger;
+                    creditController.notify(gmoNotificationModel);
 
-                        break;
+                    break;
 
-                    case GMOUtil.PAY_TYPE_CVS:
-                        this.logger.info('starting GMOReserveCsvController.notify...');
-                        let cvsController = new GMOReserveCvsController(this.req, this.res, this.next);
-                        cvsController.logger = this.logger;
-                        cvsController.notify(gmoNotificationModel);
+                case GMOUtil.PAY_TYPE_CVS:
+                    this.logger.info('starting GMOReserveCsvController.notify...');
+                    let cvsController = new GMOReserveCvsController(this.req, this.res, this.next);
+                    cvsController.logger = this.logger;
+                    cvsController.notify(gmoNotificationModel);
 
-                        break;
+                    break;
 
-                    default:
-                        // 他の決済は本案件では非対応
-                        this.res.send(GMONotificationResponseModel.RecvRes_OK);
+                default:
+                    // 他の決済は本案件では非対応
+                    this.res.send(GMONotificationResponseModel.RecvRes_OK);
 
-                        break;
-                }
+                    break;
+            }
 
-            });
-
+        });
     }
 
     /**
@@ -262,11 +261,11 @@ export default class GMOReserveController extends ReserveBaseController {
                 }
 
                 Promise.all(promises).then(() => {
-                    this.logger.error('canceling reservations success.');
+                    this.logger.info('reservations successfully canceled.');
                     this.res.redirect(this.router.build('Home'));
 
                 }, (err) => {
-                    this.logger.error('canceling reservations fail.', err);
+                    this.logger.error('any reservations not canceled.', err);
                     this.res.redirect(this.router.build('Home'));
 
                 });

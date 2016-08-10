@@ -37,13 +37,8 @@ export default class GMOReserveCvsController extends ReserveBaseController {
             '_id total_charge purchaser_group',
             (err, reservationDocuments) => {
                 this.logger.info('reservations found.', err, reservationDocuments.length);
-                if (err) {
-                    return this.next(new Error('unexpected error.'));
-                }
-
-                if (reservationDocuments.length < 1) {
-                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                }
+                if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                 // 利用金額の整合性
                 this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
@@ -66,36 +61,28 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                 let reservationIds = reservationDocuments.map((reservationDocument) => {
                     return reservationDocument.get('_id');
                 });
-                this.logger.info('changing status to STATUS_WAITING_SETTLEMENT...update:', update);
+                this.logger.info('processChangeStatus2waitingSettlement processing...update:', update);
                 this.processChangeStatus2waitingSettlement(reservationIds, update, (err) => {
-                    if (err) {
-                        // 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
+                    this.logger.info('processChangeStatus2waitingSettlement processed.', err);
+                    // 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
+                    if (err) return this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
 
-                        this.next(new Error('failed in payment.'));
+                    this.logger.info('redirecting to waitingSettlement...');
 
-                    } else {
-                        this.logger.info('redirecting to waitingSettlement...');
+                    // 購入者区分による振り分け
+                    let group = reservationDocuments[0].get('purchaser_group');
+                    switch (group) {
+                        case ReservationUtil.PURCHASER_GROUP_MEMBER:
+                            this.res.redirect(this.router.build('member.reserve.waitingSettlement', {paymentNo: gmoResultModel.OrderID}));
+                            break;
 
-                        // 購入者区分による振り分け
-                        let group = reservationDocuments[0].get('purchaser_group');
-                        switch (group) {
-                            case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                                this.res.redirect(this.router.build('member.reserve.waitingSettlement', {paymentNo: gmoResultModel.OrderID}));
-                                break;
-
-                            default:
-                                this.res.redirect(this.router.build('customer.reserve.waitingSettlement', {paymentNo: gmoResultModel.OrderID}));
-                                break;
-
-                        }
-
+                        default:
+                            this.res.redirect(this.router.build('customer.reserve.waitingSettlement', {paymentNo: gmoResultModel.OrderID}));
+                            break;
                     }
-
                 });
-
             }
         );
-
     }
 
 
@@ -123,38 +110,31 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                     '_id total_charge',
                     (err, reservationDocuments) => {
                         this.logger.info('reservations found.', err, reservationDocuments.length);
-                        if (err) {
-                            return this.next(new Error('unexpected error.'));
-                        }
-
-                        if (reservationDocuments.length < 1) {
-                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        }
+                        if (err) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        if (reservationDocuments.length === 0) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                         // 利用金額の整合性
                         this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
                         if (parseInt(gmoNotificationModel.Amount) !== reservationDocuments[0].get('total_charge')) {
-                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                            return this.res.send(GMONotificationResponseModel.RecvRes_NG);
                         }
 
 
                         let reservationIds = reservationDocuments.map((reservationDocument) => {
                             return reservationDocument.get('_id');
                         });
-                        this.logger.info('fixing reservations... update:', update);
+                        this.logger.info('processFixReservations processing... update:', update);
                         this.processFixReservations(paymentNo, reservationIds, update, (err) => {
+                            this.logger.info('processFixReservations processed.', err);
                             if (err) {
                                 // AccessPassが************なので、売上取消要求は行えない
                                 // 失敗した場合、約60分毎に5回再通知されるので、それをリトライとみなす
                                 this.logger.info('sending response RecvRes_NG...gmoNotificationModel.Status:', gmoNotificationModel.Status);
                                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
                             } else {
                                 this.logger.info('sending response RecvRes_OK...gmoNotificationModel.Status:', gmoNotificationModel.Status);
                                 this.res.send(GMONotificationResponseModel.RecvRes_OK);
-
                             }
-
                         });
                     }
                 );
@@ -182,38 +162,30 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                     '_id total_charge',
                     (err, reservationDocuments) => {
                         this.logger.info('reservations found.', err, reservationDocuments.length);
-                        if (err) {
-                            return this.next(new Error('unexpected error.'));
-                        }
-
-                        if (reservationDocuments.length < 1) {
-                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        }
+                        if (err) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        if (reservationDocuments.length === 0) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                         // 利用金額の整合性
                         this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
                         if (parseInt(gmoNotificationModel.Amount) !== reservationDocuments[0].get('total_charge')) {
-                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                            return this.res.send(GMONotificationResponseModel.RecvRes_NG);
                         }
 
 
                         let reservationIds = reservationDocuments.map((reservationDocument) => {
                             return reservationDocument.get('_id');
                         });
-                        this.logger.info('changing status to STATUS_WAITING_SETTLEMENT...update:', update);
+                        this.logger.info('processChangeStatus2waitingSettlement processing... update:', update);
                         this.processChangeStatus2waitingSettlement(reservationIds, update, (err) => {
+                            this.logger.info('processChangeStatus2waitingSettlement processed.', err);
                             if (err) {
                                 this.logger.info('sending response RecvRes_NG...');
                                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
                             } else {
                                 this.logger.info('sending response RecvRes_OK...');
                                 this.res.send(GMONotificationResponseModel.RecvRes_OK);
-
                             }
-
                         });
-
                     }
                 );
 
@@ -239,15 +211,8 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                     '_id total_charge',
                     (err, reservationDocuments) => {
                         this.logger.info('reservations found.', err, reservationDocuments.length);
-                        if (err) {
-                            this.logger.info('sending response RecvRes_NG...');
-                            return this.res.send(GMONotificationResponseModel.RecvRes_NG);
-                        }
-
-                        if (reservationDocuments.length < 1) {
-                            this.logger.info('sending response RecvRes_NG...');
-                            return this.res.send(GMONotificationResponseModel.RecvRes_NG);
-                        }
+                        if (err) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        if (reservationDocuments.length === 0) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                         // 利用金額の整合性
                         this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
@@ -267,29 +232,22 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                                     },
                                     (err) => {
                                         this.logger.info('reservation removed.', err);
-
                                         if (err) {
                                             reject(new Error(this.req.__('Message.UnexpectedError')));
-
                                         } else {
                                             resolve();
-
                                         }
-
                                     }
                                 );
-
                             }));
                         };
 
                         Promise.all(promises).then(() => {
                             this.logger.info('sending response RecvRes_OK...');
                             this.res.send(GMONotificationResponseModel.RecvRes_OK);
-
                         }, (err) => {
                             this.logger.info('sending response RecvRes_NG...');
                             this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
                         });
                     }
                 );
@@ -330,24 +288,18 @@ export default class GMOReserveCvsController extends ReserveBaseController {
 
                         if (err) {
                             reject(new Error(this.req.__('Message.UnexpectedError')));
-
                         } else {
                             resolve();
-
                         }
-
                     }
                 );
-
             }));
         };
 
         Promise.all(promises).then(() => {
             cb(null);
-
         }, (err) => {
-            cb(new Error('some reservations not updated.'));
-
+            cb(new Error('any reservations not updated.'));
         });
     }
 }

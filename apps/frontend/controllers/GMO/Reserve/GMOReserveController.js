@@ -196,10 +196,10 @@ class GMOReserveController extends ReserveBaseController_1.default {
                     }));
                 }
                 Promise.all(promises).then(() => {
-                    this.logger.error('canceling reservations success.');
+                    this.logger.info('reservations successfully canceled.');
                     this.res.redirect(this.router.build('Home'));
                 }, (err) => {
-                    this.logger.error('canceling reservations fail.', err);
+                    this.logger.error('any reservations not canceled.', err);
                     this.res.redirect(this.router.build('Home'));
                 });
             });

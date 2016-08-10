@@ -5,8 +5,6 @@ const Models_1 = require('../../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../../common/models/Reservation/ReservationUtil');
 const GMONotificationResponseModel_1 = require('../../../../models/Reserve/GMONotificationResponseModel');
 const conf = require('config');
-const request = require('request');
-const querystring = require('querystring');
 const crypto = require('crypto');
 class GMOReserveCreditController extends ReserveBaseController_1.default {
     /**
@@ -34,12 +32,10 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
             status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_RESERVED] }
         }, '_id total_charge purchaser_group', (err, reservationDocuments) => {
             this.logger.info('reservations found.', err, reservationDocuments.length);
-            if (err) {
+            if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
-            }
-            if (reservationDocuments.length < 1) {
+            if (reservationDocuments.length === 0)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
-            }
             // 利用金額の整合性
             this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
             if (parseInt(gmoResultModel.Amount) !== reservationDocuments[0].get('total_charge')) {
@@ -57,24 +53,22 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
             let reservationIds = reservationDocuments.map((reservationDocument) => {
                 return reservationDocument.get('_id');
             });
-            this.logger.info('fixing reservations... update:', update);
+            this.logger.info('processFixReservations processing... update:', update);
             this.processFixReservations(gmoResultModel.OrderID, reservationIds, update, (err) => {
-                if (err) {
-                    // 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
-                    this.next(new Error('failed in payment.'));
-                }
-                else {
-                    this.logger.info('redirecting to complete...');
-                    // 購入者区分による振り分け
-                    let group = reservationDocuments[0].get('purchaser_group');
-                    switch (group) {
-                        case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
-                            this.res.redirect(this.router.build('member.reserve.complete', { paymentNo: gmoResultModel.OrderID }));
-                            break;
-                        default:
-                            this.res.redirect(this.router.build('customer.reserve.complete', { paymentNo: gmoResultModel.OrderID }));
-                            break;
-                    }
+                this.logger.info('processFixReservations processed.', err);
+                // 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
+                if (err)
+                    return this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
+                this.logger.info('redirecting to complete...');
+                // 購入者区分による振り分け
+                let group = reservationDocuments[0].get('purchaser_group');
+                switch (group) {
+                    case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
+                        this.res.redirect(this.router.build('member.reserve.complete', { paymentNo: gmoResultModel.OrderID }));
+                        break;
+                    default:
+                        this.res.redirect(this.router.build('customer.reserve.complete', { paymentNo: gmoResultModel.OrderID }));
+                        break;
                 }
             });
         });
@@ -108,22 +102,21 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                     status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_RESERVED] }
                 }, '_id total_charge', (err, reservationDocuments) => {
                     this.logger.info('reservations found.', err, reservationDocuments.length);
-                    if (err) {
-                        return this.next(new Error('unexpected error.'));
-                    }
-                    if (reservationDocuments.length < 1) {
-                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                    }
+                    if (err)
+                        return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
+                    if (reservationDocuments.length === 0)
+                        return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     // 利用金額の整合性
                     this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
                     if (parseInt(gmoNotificationModel.Amount) !== reservationDocuments[0].get('total_charge')) {
-                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                        return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     }
                     let reservationIds = reservationDocuments.map((reservationDocument) => {
                         return reservationDocument.get('_id');
                     });
-                    this.logger.info('fixing reservations... update:', update);
+                    this.logger.info('processFixReservations processing... update:', update);
                     this.processFixReservations(paymentNo, reservationIds, update, (err) => {
+                        this.logger.info('processFixReservations processed.', err);
                         if (err) {
                             // AccessPassが************なので、売上取消要求は行えない
                             // 失敗した場合、約60分毎に5回再通知されるので、それをリトライとみなす
@@ -164,88 +157,6 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                 this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
                 break;
         }
-    }
-    /**
-     * GMOに対して実売上要求を行う
-     */
-    alterTran2sales(gmoNotificationModel, cb) {
-        let options = {
-            url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
-            form: {
-                ShopID: conf.get('gmo_payment_shop_id'),
-                ShopPass: conf.get('gmo_payment_shop_password'),
-                AccessID: gmoNotificationModel.AccessID,
-                AccessPass: gmoNotificationModel.AccessPass,
-                JobCd: GMOUtil_1.default.STATUS_CREDIT_SALES,
-                Amount: gmoNotificationModel.Amount
-            }
-        };
-        this.logger.info('requesting... options:', options);
-        request.post(options, (error, response, body) => {
-            this.logger.info('request processed.', error, response, body);
-            if (error) {
-                return cb(error);
-            }
-            if (response.statusCode !== 200) {
-                return cb(new Error(body));
-            }
-            let result = querystring.parse(body);
-            // AccessID
-            // AccessPass
-            // Forward
-            // Approve
-            // TranID
-            // TranDate
-            // ErrCode
-            // ErrInfo
-            if (result.hasOwnProperty('ErrCode')) {
-                cb(new Error(body));
-            }
-            else {
-                cb(null);
-            }
-        });
-    }
-    /**
-     * GMOに対して取消要求を行う
-     */
-    alterTran2void(gmoNotificationModel, cb) {
-        let options = {
-            url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
-            form: {
-                ShopID: conf.get('gmo_payment_shop_id'),
-                ShopPass: conf.get('gmo_payment_shop_password'),
-                AccessID: gmoNotificationModel.AccessID,
-                AccessPass: gmoNotificationModel.AccessPass,
-                JobCd: GMOUtil_1.default.STATUS_CREDIT_VOID,
-                Amount: gmoNotificationModel.Amount
-            }
-        };
-        this.logger.info('requesting... options:', options);
-        request.post(options, (error, response, body) => {
-            this.logger.info('request processed.', error, response, body);
-            if (error) {
-                return cb(error);
-            }
-            if (response.statusCode !== 200) {
-                return cb(new Error(body));
-            }
-            let result = querystring.parse(body);
-            // AccessID
-            // AccessPass
-            // Forward
-            // Approve
-            // TranID
-            // TranDate
-            // ErrCode
-            // ErrInfo
-            if (result.hasOwnProperty('ErrCode')) {
-                cb(new Error(body));
-            }
-            else {
-                cb(null);
-            }
-        });
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
