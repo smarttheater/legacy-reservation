@@ -40,8 +40,8 @@ $(function(){
 
         filmIds.forEach(function(filmId) {
             var performancesOnFilm = performancesByFilm[filmId];
-            var sections = performancesOnFilm[0].film.sections.map((section) => {return section[documentFieldName];}); // 部門名
-            var genres = performancesOnFilm[0].film.sections.map((section) => {return section[documentFieldName];}); // ジャンル名
+            var sections = performancesOnFilm[0].film.sections.map(function(section) {return section[documentFieldName];}); // 部門名
+            var genres = performancesOnFilm[0].film.genres.map(function(genre) {return genre[documentFieldName];}); // ジャンル名
 
             html += 
                 '<div class="performance accordion_mobile_toggle">'+

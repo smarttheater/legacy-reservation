@@ -8,7 +8,7 @@ $(function(){
     function showReservations() {
         var html = '';
 
-        reservationDocuments.forEach((reservationDocument, index) => {
+        reservationDocuments.forEach(function(reservationDocument) {
             html += ''
             + '<tr data-payment-no="' + reservationDocument.payment_no + '"'
                 + 'data-seat-code="' + reservationDocument.seat_code + '"'
