@@ -186,6 +186,26 @@ export default class ReservationModel {
         return charge;
     }
 
+    public getChargeExceptTicketTypeBySeatCode(seatCode: string): number {
+        let charge = 0;
+
+        if (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER) {
+            let reservation = this.getReservation(seatCode);
+
+            // 座席グレード分加算
+            if (reservation.seat_grade_additional_charge > 0) {
+                charge += reservation.seat_grade_additional_charge;
+            }
+
+            // MX4D分加算
+            if (this.performance.is_mx4d) {
+                charge += ReservationUtil.CHARGE_MX4D;
+            }
+        }
+
+        return charge;
+    }
+
     /**
      * 座席コードから予約情報を取得する
      */

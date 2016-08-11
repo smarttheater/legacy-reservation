@@ -45,7 +45,8 @@
 		"Print": "Print",
 		"CompleteCancelReservations": "Canceled reservations.",
 		"AvailableTicketsCountLeft": "Available tickets count left",
-		"Actions": "Actions"
+		"Actions": "Actions",
+		"TotalCharge": "Label.TotalCharge"
 	},
 	"Button": {
 		"Send": "Send",

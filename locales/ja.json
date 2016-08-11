@@ -41,7 +41,8 @@
 			"CASH": "現金"
 		},
 		"PaymentMethod": "お支払い方法",
-		"Login": "Label.Login"
+		"Login": "Label.Login",
+		"TotalCharge": "Label.TotalCharge"
 	},
 	"Button": {
 		"Send": "送信",
