@@ -34,6 +34,19 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                     }
                 });
             }
+            else if (this.req.query.performance) {
+                // パフォーマンスFIX
+                this.processFixPerformance(reservationModel, this.req.query.performance, (err, reservationModel) => {
+                    if (err) {
+                        this.next(err);
+                    }
+                    else {
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
+                        });
+                    }
+                });
+            }
             else {
                 // スケジュール選択へ
                 reservationModel.save((err) => {
@@ -52,7 +65,8 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                 return this.next(new Error(this.req.__('Message.Expired')));
             // 外部関係者による予約数を取得
             Models_1.default.Reservation.count({
-                sponsor: this.sponsorUser.get('_id')
+                sponsor: this.sponsorUser.get('_id'),
+                status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_RESERVED] }
             }, (err, reservationsCount) => {
                 if (parseInt(this.sponsorUser.get('max_reservation_count')) <= reservationsCount) {
                     return this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', { limit: this.sponsorUser.get('max_reservation_count') })));
@@ -80,6 +94,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                 }
                 else {
                     // 仮予約あればキャンセルする
+                    // TODO キャンセルのタイミングとカウントのタイミング
                     this.processCancelSeats(reservationModel, (err, reservationModel) => {
                         this.logger.debug('saving reservationModel... ', reservationModel);
                         reservationModel.save((err) => {
@@ -107,6 +122,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             lockFile.lock(lockPath, { wait: 5000 }, (err) => {
                 Models_1.default.Reservation.count({
                     sponsor: this.sponsorUser.get('_id'),
+                    status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_RESERVED] },
                     seat_code: {
                         $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
                     }

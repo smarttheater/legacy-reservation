@@ -61,10 +61,24 @@ export default class ReserveController extends ReserveBaseController {
 
                             }
 
-                            // 内部用コンテンツ
+
+
+                            // 内部関係者用
                             if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
+                                // TODO TIFF確保中をどうする？
+                                // if (reservationDocument.get('status') === ReservationUtil.STATUS_KEPT_BY_TIFF) {
+                                //     classes = ['select-seat'];
+
+                                //     if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
+                                //         // 仮押さえ中
+                                //         classes.push('active');
+                                //     }
+                                // }
+
                                 baloonContent += this.getBaloonContent4staffs(reservationDocument);
                             }
+
+
 
                             propertiesBySeatCode[seatCode] = {
                                 classes: classes,

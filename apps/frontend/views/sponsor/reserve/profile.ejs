@@ -1,52 +1,97 @@
-<h1><%- __('h1.EnterProfile') %></h1>
-
-<%- include('./_reservationModel') %>
 
 <%- include('./_step') %>
 
-<% if (req.form) { %>
-<div class="alert alert-danger" role="alert">
-    <a href="javascript:void(0)" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-    <% Object.keys(req.form.getErrors()).forEach(function (key) { %>
-    <%- req.form.getErrors(key)[0] %><br>
-    <% }) %>
+<h1 class="pagetitle"><%- __('h1.EnterProfile') %></h1>
+<p class="guidetext">予約する方のお名前(カタカナ)とメールアドレスと電話番号を入力して次へボタンを押してください。</p>
+
+<div class="wrapper-2clm">
+
+    <div class="clm-right">
+        <%- include('./_reservationModel') %>
+    </div>
+
+    <div class="clm-left" data-token="">
+
+        <form method="post">
+
+            <table class="table table-profile">
+
+                <tbody>
+
+                    <tr>
+                        <th>お名前 (カタカナ)<span class="required">必須項目</span></th>
+                        <td>
+                            <div class="wrapper-names">
+                                <div class="wrapper-nameinput">
+                                    <label for="id_lastName"><%- __('Form.FieldName.lastName') %></label>
+                                    <input type="text" name="lastName" id="id_lastName" class="form-control" value="<%- lastName %>">
+                                </div>
+                                <div class="wrapper-nameinput">
+                                    <label for="id_firstName"><%- __('Form.FieldName.firstName') %></label>
+                                    <input type="text" name="firstName" id="id_firstName" class="form-control" value="<%- firstName %>">
+                                </div>
+                            </div>
+                            <p class="notice">※全角カタカナでご入力ください</p>
+                            <% if (req.form) { %>
+                            <p class="errmsg"><%- req.form.getErrors('lastName')[0] %></p>
+                            <p class="errmsg"><%- req.form.getErrors('firstName')[0] %></p>
+                            <% } %>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th><%- __('Form.FieldName.email') %><span class="required">必須項目</span></th>
+                        <td>
+                            <input type="text" name="email" id="id_email" class="form-control" value="<%- email %>">
+                            <p class="notice">※確認の為に、もう一度入力してください</p>
+                            <div class="wrapper-emailconfirm">
+                                <input type="text" name="emailConfirm" id="id_emailConfirm" class="form-control" value="<%- emailConfirm %>">
+                                <span>@</span>
+                                <input type="text" name="emailConfirmDomain" id="id_emailConfirmDomain" class="form-control" value="<%- emailConfirmDomain %>">
+                            </div>
+                            <p class="notice">※携帯メールでドメイン指定受信を利用している方解除の設定をお願いします</p>
+                            <% if (req.form) { %>
+                            <p class="errmsg"><%- req.form.getErrors('email')[0] %></p>
+                            <p class="errmsg"><%- req.form.getErrors('emailConfirm')[0] %></p>
+                            <p class="errmsg"><%- req.form.getErrors('emailConfirmDomain')[0] %></p>
+                            <% } %>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th><label for="id_tel"><%- __('Form.FieldName.tel') %></label><span class="required">必須項目</span></th>
+                        <td>
+                            <input type="text" name="tel" id="id_tel" class="form-control" value="<%- tel %>">
+                            <p class="notice">※半角数字、ハイフン「-」なしで入力して下さい</p>
+                            <% if (req.form) { %>
+                            <p class="errmsg"><%- req.form.getErrors('tel')[0] %></p>
+                            <% } %>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </form>
+
+    </div>
+
 </div>
-<% } %>
-
-<form method="post">
-    <div class="form-group">
-        <label for="id_lastName"><%- __('Form.FieldName.lastName') %></label>
-        <input type="text" name="lastName" id="id_lastName" class="form-control" value="<%- (lastName) ? lastName : '' %>">
-    </div>
-
-    <div class="form-group">
-        <label for="id_firstName"><%- __('Form.FieldName.firstName') %></label>
-        <input type="text" name="firstName" id="id_firstName" class="form-control" value="<%- (firstName) ? firstName : '' %>">
-    </div>
 
 
-    <div class="form-group">
-        <label for="id_tel"><%- __('Form.FieldName.tel') %></label>
-        <input type="text" name="tel" id="id_tel" class="form-control" value="<%- (tel) ? tel : '' %>">
-    </div>
 
-    <div class="form-group">
-        <label for="id_email"><%- __('Form.FieldName.email') %></label>
-        <input type="text" name="email" id="id_email" class="form-control" value="<%- (email) ? email : '' %>">
-    </div>
+<div class="btns2clm">
+    <a class="btn btn-lg btn-next" href="javascript:void(0);"><span><%- __('Button.Next') %></span></a>
+    <a class="btn btn-lg btn-back" href="<%- url('sponsor.reserve.tickets', {token: req.params.token}) %>"><span><%- __('Button.Back') %></span></a>
+</div>
 
 
-    <div class="form-group">
-        <label for="id_emailConfirm"><%- __('Form.FieldName.emailConfirm') %></label>
-        <input type="text" name="emailConfirm" id="id_emailConfirm" class="form-control" value="<%- (emailConfirm) ? emailConfirm : '' %>">
-    </div>
+<script>
+$(function(){
+    $('.btn-next').on('click', function(){
+        $('form').submit();
+    });
 
-
-    <div class="form-group">
-        <label for="id_emailConfirmDomain"><%- __('Form.FieldName.emailConfirmDomain') %></label>
-        <input type="text" name="emailConfirmDomain" id="id_emailConfirmDomain" class="form-control" value="<%- (emailConfirmDomain) ? emailConfirmDomain : '' %>">
-    </div>
-
-    <a class="btn btn-default btn-lg btn-block" href="<%- url('sponsor.reserve.tickets', {token: req.params.token}) %>"><%- __('Button.Back') %></a>
-    <input class="btn btn-primary btn-lg btn-block confirm-reservation" type="submit" value="<%- __('Button.Send') %>">
-</form>
+});
+</script>

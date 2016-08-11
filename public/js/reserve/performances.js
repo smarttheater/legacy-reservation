@@ -40,6 +40,8 @@ $(function(){
 
         filmIds.forEach(function(filmId) {
             var performancesOnFilm = performancesByFilm[filmId];
+            var sections = performancesOnFilm[0].film.sections.map((section) => {return section[documentFieldName];}); // 部門名
+            var genres = performancesOnFilm[0].film.sections.map((section) => {return section[documentFieldName];}); // ジャンル名
 
             html += 
                 '<div class="performance accordion_mobile_toggle">'+
@@ -47,10 +49,10 @@ $(function(){
                     '<div class="performance-title"><h3><span>'+performancesOnFilm[0].film[documentFieldName]+'</span></h3></div>'+
                     '<div class="performance-inner accordion_mobile_inner">'+
                         '<div class="performance-info">'+
-                            '<div class="desc">' + performancesOnFilm[0].film.sections.map((section) => {return section[documentFieldName];}).join(',') + '</div>'+
+                            '<div class="desc">' + sections.join(',') + '</div>'+
                             '<div class="genreslength">'+
                                 '<div class="genres">'+
-                                    performancesOnFilm[0].film.sections.map((section) => {return '<span>' + section[documentFieldName] + '</span>';}).join('') + 
+                                    '<span>' + genres.join('</span><span>') + '</span>' +
                                 '</div>'+
                                 '<span class="length">本編 102分</span>'+
                             '</div>'+

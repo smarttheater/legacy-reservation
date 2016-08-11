@@ -1,33 +1,45 @@
-<nav class="navbar navbar-inverse navbar-fixed-top">
+<%
+let routeName = '';
+if (req.hasOwnProperty('route')) {
+    routeName = req.route.name;
+}
+%>
+<header>
     <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">TIFF <%- __('Online Ticket Reservation') %></a>
+
+        <a href="/" class="header-logo"><img src="/images/common/logo.png" alt="TIFF"></a>
+
+        <div class="header-menu">
+
+            <% if (routeName.indexOf('mypage') >= 0 && sponsorUser.isAuthenticated()) { %>
+            <div class="menu-staff">
+                <p class="myname"><%= sponsorUser.get('name') %>様</p>
+                <div class="staff-btns">
+                    <a class="btn btn-logout" href="<%= url('sponsor.logout') %>"><span>Logout</span></a>
+                    <a class="btn btn-newticket" href="<%= url('sponsor.reserve.start') %>"><span>New Ticket</span></a>
+                </div>
+            </div>
+
+            <% } else if (routeName === 'sponsor.cancel') { %>
+                <a href="<%= url('sponsor.reserve.start') %>">チケットを手配する</a>
+
+            <% } else if (routeName.indexOf('mypage') < 0 && sponsorUser.isAuthenticated()) { %>
+            <div class="menu-user">
+                <p class="myname"><%= sponsorUser.get('name') %> 様</p>
+                <a href="<%= url('sponsor.cancel') %>">キャンセル</a> / <a href="<%= url('sponsor.logout') %>">ログアウト</a>
+            </div>
+
+            <% } %>
+
         </div>
-
-        <div id="navbar" class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-            </ul>
-
-            <% if (sponsorUser.isAuthenticated()) {%>
-            <a class="btn btn-default navbar-btn navbar-right" href="<%- url('sponsor.logout', {}) %>">Logout</a>
-            <% } %>
-
-            <ul class="nav navbar-nav navbar-right">
-            <!--
-                <li class="<%- (req.originalUrl === url('Home')) ? 'active' : '' %>"><a href="<%- url('Home') %>">TOP</a></li>
-            -->
-            </ul>
-
-            <% if (sponsorUser.isAuthenticated()) {%>
-            <p class="navbar-text navbar-right"><a href="<%- url('sponsor.mypage') %>" class="navbar-link"><%- sponsorUser.get('user_id') %> MyPage</a></p>
-            <% } %>
-
-        </div><!--/.nav-collapse -->
     </div>
-</nav>
+</header>
+
+
+
+
+
+
+
+
+

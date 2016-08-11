@@ -38,6 +38,21 @@ export default class SponsorReserveController extends ReserveBaseController {
                     }
                 });
 
+            // 続けて予約の場合
+            } else if (this.req.query.performance) {
+                // パフォーマンスFIX
+                this.processFixPerformance(reservationModel, this.req.query.performance, (err, reservationModel) => {
+                    if (err) {
+                        this.next(err);
+
+                    } else {
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
+                        });
+
+                    }
+                });
+
             } else {
                 // スケジュール選択へ
                 reservationModel.save((err) => {
@@ -60,7 +75,8 @@ export default class SponsorReserveController extends ReserveBaseController {
             // 外部関係者による予約数を取得
             Models.Reservation.count(
                 {
-                    sponsor: this.sponsorUser.get('_id')
+                    sponsor: this.sponsorUser.get('_id'),
+                    status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED]}
                 },
             (err, reservationsCount) => {
                 if (parseInt(this.sponsorUser.get('max_reservation_count')) <= reservationsCount) {
@@ -92,6 +108,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                     });
                 } else {
                     // 仮予約あればキャンセルする
+                    // TODO キャンセルのタイミングとカウントのタイミング
                     this.processCancelSeats(reservationModel, (err, reservationModel) => {
                         this.logger.debug('saving reservationModel... ', reservationModel);
                         reservationModel.save((err) => {
@@ -125,6 +142,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                 Models.Reservation.count(
                     {
                         sponsor: this.sponsorUser.get('_id'),
+                        status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED]},
                         seat_code: {
                             $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
                         }

@@ -1,23 +1,24 @@
 <%
-var routeName = '';
+let routeName = '';
 if (req.hasOwnProperty('route')) {
     routeName = req.route.name;
 }
+
+let currentLang = req.getLocale();
+let pageId = (routeName) ? 'page_'+routeName.replace(/\./g,'_') : '';
+let pageClassName = (routeName) ? 'page-'+routeName.replace(/\./g,' page-') : '';
+pageClassName = pageClassName + ' page-'+currentLang;
 %>
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="<%- currentLang %>">
 <head>
 <meta charset="utf-8">
 <title></title>
 <meta name="description" content="">
 <meta name="keywords" content="">
-<meta name="viewport" content="width=device-width,user-scalable=no,maximum-scale=1" />
+<meta name="viewport" content="width=device-width,user-scalable=no,maximum-scale=1">
 
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-<link href="/css/theme.css" rel="stylesheet">
+<link href="/css/tiff2016.css" rel="stylesheet">
 
 <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 <!-- Latest compiled and minified JavaScript -->
@@ -28,7 +29,8 @@ if (req.hasOwnProperty('route')) {
 
 </head>
 
-<body>
+<body id="<%- pageId %>" class="<%- pageClassName %>">
+<input type="hidden" name="locale" value="<%- req.getLocale() %>">
 
 <%- include('./_header') %>
 
@@ -37,7 +39,6 @@ if (req.hasOwnProperty('route')) {
 </div>
 
 <%- include('./_footer') %>
-
 <%- include('../_showSeatMap') %>
 
 </body>

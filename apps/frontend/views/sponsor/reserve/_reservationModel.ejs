@@ -1,43 +1,13 @@
-<div class="row">
-    <div class="col-md-2">
-        <img src="<%- reservationModel.performance.film.image %>" alt="" class="img-thumbnail" style="width: 100px; height: 100px;">
-    </div>
-
-    <div class="col-md-10">
-        <dl class="dl-horizontal">
-            <dt><%- __('Label.FilmName') %></dt>
-            <dd><%- reservationModel.performance.film[__('DocumentField.name')] %></dd>
-
-            <dt><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></dt>
-            <dd>
-                <%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ 
-                <%- reservationModel.performance.theater[__('DocumentField.name')] %> 
-                <%- reservationModel.performance.screen[__('DocumentField.name')] %>
-            </dd>
-
-            <dt><%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %></dt>
-            <dd>
-                <% if (reservationModel.seatCodes.length > 0) { %>
-
-                    <div class="row">
-                    <% reservationModel.seatCodes.forEach((seatCode, index) => { %>
-                        <% let reservation = reservationModel.getReservation(seatCode) %>
-                        <% if (index > 0 && index % 4 === 0) { %>
-                        </div>
-                        <div class="row">
-                        <% } %>
-
-                        <div class="col-xs-3">
-                            <a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a><br>
-                            <%- reservation[`ticket_type_${__('DocumentField.name')}`] %><br>
-                            <%- __('{{price}} yen', {price: reservation.ticket_type_charge}) %><br>
-                        </div>
-                    <% }) %>
-                    </div>
-
-                <% } %>
-
-            </dd>
-        </dl>
+<div class="reservationstatus row">
+    <h2 class="accordion_mobile_toggle">ご購入内容</h2>
+    <div class="reservationstatus-inner accordion_mobile_inner">
+        <p class="reservationstatus-image"><img src="<%- reservationModel.performance.film.image %>"></p>
+        <p class="reservationstatus-title"><%- reservationModel.performance.film[__('DocumentField.name')] %></p>
+        <hr>
+        <div class="reservationstatus-info">
+            <p class="info-date"><span><%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～</span></p>
+            <p class="info-screen"><span><%- reservationModel.performance.theater[__('DocumentField.name')] %> <br><%- reservationModel.performance.screen[__('DocumentField.name')] %>スクリーン2</span></p>
+        </div>
+        <p class="btn btn-block btn-showseat show-seat-position" data-screen-id="<%- reservationModel.performance.screen._id %>" data-seat-codes="<%- reservationModel.seatCodes.join(',') %>"><span>座席を表示</span></p>
     </div>
 </div>

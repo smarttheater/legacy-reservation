@@ -67,7 +67,8 @@
 		"Close": "Close",
 		"Login": "Login",
 		"Transfer": "Transfer",
-		"InformFriends": "Button.InformFriends"
+		"InformFriends": "Button.InformFriends",
+		"BackToSelectPerformance": "Button.BackToSelectPerformance"
 	},
 	"Form": {
 		"FieldName": {
@@ -80,7 +81,9 @@
 			"userId": "User Id",
 			"password": "Password",
 			"signature": "Signature",
-			"paymentMethod": "Payment Method"
+			"paymentMethod": "Payment Method",
+			"paymentNo": "Form.FieldName.paymentNo",
+			"last4DigitsOfTel": "Form.FieldName.last4DigitsOfTel"
 		}
 	},
 	"Message": {

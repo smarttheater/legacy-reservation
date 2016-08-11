@@ -5,7 +5,7 @@ if (req.hasOwnProperty('route')) {
 }
 %>
 <footer>
-    <% if (!routeName.indexOf('mypage')) { %>
+    <% if (routeName.indexOf('mypage') < 0) { %>
     <ul>
         <li><a href="http://2016.tiff-jp.net/ja/general/privacypolicy.html" target="_blank">プライバシーポリシー</a></li>
         <li><a href="" target="_blank">利用規約</a></li>

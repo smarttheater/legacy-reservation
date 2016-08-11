@@ -148,7 +148,7 @@ exports.default = (app) => {
     };
     // 外部関係者
     // TODO キャンセルするためだけのフォームページ
-    app.all('/sponsor/login', 'sponsor.login', sponsorBase, (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).login(); });
+    app.all('/sponsor/login', 'sponsor.mypage.login', sponsorBase, (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).login(); });
     app.all('/sponsor/logout', 'sponsor.logout', sponsorBase, (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).logout(); });
     app.all('/sponsor/mypage', 'sponsor.mypage', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorMyPageController_1.default(req, res, next)).index(); });
     app.get('/sponsor/reserve/start', 'sponsor.reserve.start', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).start(); });
@@ -158,6 +158,8 @@ exports.default = (app) => {
     app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).profile(); });
     app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).confirm(); });
     app.get('/sponsor/reserve/:paymentNo/complete', 'sponsor.reserve.complete', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).complete(); });
+    app.all('/sponsor/cancel', 'sponsor.cancel', sponsorBase, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).index(); });
+    app.post('/sponsor/cancel/executeByPaymentNo', 'sponsor.cancel.executeByPaymentNo', sponsorBase, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).executeByPaymentNo(); });
     app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', sponsorBase, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).execute(); });
     // TODO 当日窓口フロー
     // 当日の場合、スケジュール選択候補は、検索条件通り全て出す
