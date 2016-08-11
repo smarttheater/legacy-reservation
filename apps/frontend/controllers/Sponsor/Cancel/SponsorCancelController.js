@@ -78,6 +78,11 @@ class SponsorCancelController extends BaseController_1.default {
                 });
             }
             let promises = [];
+            let option = {
+                new: true,
+                // multi: true,
+                overwrite: true
+            };
             for (let reservationDocument of reservationDocuments) {
                 promises.push(new Promise((resolve, reject) => {
                     let update = {
@@ -89,11 +94,7 @@ class SponsorCancelController extends BaseController_1.default {
                         updated_at: Date.now()
                     };
                     this.logger.debug('updating reservations...update:', update);
-                    Models_1.default.Reservation.findByIdAndUpdate(reservationDocument.get('_id'), update, {
-                        new: true,
-                        // multi: true,
-                        overwrite: true
-                    }, (err, reservationDocument) => {
+                    Models_1.default.Reservation.findByIdAndUpdate(reservationDocument.get('_id'), update, option, (err, reservationDocument) => {
                         this.logger.debug('reservations updated.', err);
                         if (err) {
                             reject(err);
@@ -124,6 +125,8 @@ class SponsorCancelController extends BaseController_1.default {
         Models_1.default.Reservation.update({
             _id: reservationId,
             sponsor: this.sponsorUser.get('_id'),
+            purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR,
+            status: ReservationUtil_1.default.STATUS_RESERVED
         }, {
             status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
         }, (err, raw) => {

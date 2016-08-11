@@ -93,6 +93,11 @@ export default class SponsorCancelController extends BaseController {
                 }
 
                 let promises = [];
+                let option = {
+                    new: true,
+                    // multi: true,
+                    overwrite: true
+                };
                 for (let reservationDocument of reservationDocuments) {
                     promises.push(new Promise((resolve, reject) => {
                         let update = {
@@ -107,11 +112,7 @@ export default class SponsorCancelController extends BaseController {
                         Models.Reservation.findByIdAndUpdate(
                             reservationDocument.get('_id'),
                             update,
-                            {
-                                new: true,
-                                // multi: true,
-                                overwrite: true
-                            },
+                            option,
                             (err, reservationDocument) => {
                                 this.logger.debug('reservations updated.', err);
                                 if (err) {
@@ -150,6 +151,8 @@ export default class SponsorCancelController extends BaseController {
             {
                 _id: reservationId,
                 sponsor: this.sponsorUser.get('_id'),
+                purchaser_group: ReservationUtil.PURCHASER_GROUP_SPONSOR,
+                status: ReservationUtil.STATUS_RESERVED
             },
             {
                 status: ReservationUtil.STATUS_KEPT_BY_TIFF

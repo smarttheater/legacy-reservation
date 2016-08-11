@@ -1,103 +1,113 @@
-<h1><%- __('h1.MyPage') %></h1>
-
-<div class="row">
-    <a class="btn btn-lg btn-block btn-primary" href="<%- url('staff.reserve.start', {}) %>"><%- __('Button.TicketReservation') %></a>
-</div>
-
-<div class="row">
-    <form class="form-inline">
-        <div class="form-group">
-            <label for=""><%- __('Label.Day') %></label>
-            <select class="form-control" name="day">
-                <option value=""><%- __('Label.AllDay') %></option>
-                <option value="20161022">10/22</option>
-                <option value="20161023">10/23</option>
-                <option value="20161024">10/24</option>
-                <option value="20161025">10/25</option>
-                <option value="20161026">10/26</option>
-                <option value="20161027">10/27</option>
-                <option value="20161028">10/28</option>
-                <option value="20161029">10/29</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for=""><%- __('Label.StartTime') %></label>
-            <select class="form-control" name="start_time">
-                <option value="">---</option>
-                <option value="1000">10:00-</option>
-                <option value="1200">12:00-</option>
-                <option value="1300">13:00-</option>
-                <option value="1400">14:00-</option>
-                <option value="1500">15:00-</option>
-                <option value="1600">16:00-</option>
-                <option value="1700">17:00-</option>
-                <option value="1800">18:00-</option>
-                <option value="1900">19:00-</option>
-                <option value="2000">20:00-</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for=""><%- __('Label.FilmName') %></label>
-            <select class="form-control" name="film">
-                <option value="">---</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for=""><%- __('Label.Words') %></label>
-            <input type="text" class="form-control" name="words">
-        </div>
-
-        <a class="btn btn-primary search" href="javascript:void(0)"><%- __('Button.Search') %></a>
-    </form>
-</div>
-
-<div class="row">
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped reservations">
-            <thead>
-                <tr>
-                    <th>
-                        <div class="checkbox check-all">
-                            <label>
-                                <input type="checkbox" value="">
-                            </label>
+<div class="wrapper-searchform">
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>
+                    <%- __('Label.Day') %><br>
+                    <div class="form-group">
+                        <select class="form-control" name="day">
+                            <option value=""><%- __('Label.AllDay') %></option>
+                            <option value="20161022">10/22</option>
+                            <option value="20161023">10/23</option>
+                            <option value="20161024">10/24</option>
+                            <option value="20161025">10/25</option>
+                            <option value="20161026">10/26</option>
+                            <option value="20161027">10/27</option>
+                            <option value="20161028">10/28</option>
+                            <option value="20161029">10/29</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    Theater<br>
+                    <div class="form-group">
+                        <select class="form-control" name="theater">
+                            <option value="">---</option>
+                            <!-- TODO 検索候補 -->
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <%- __('Label.FilmName') %><br>
+                    <div class="form-group">
+                        <select class="form-control" name="film">
+                            <!-- TODO 検索候補 -->
+                            <option value="">---</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    Updater<br>
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="updated_user">
                         </div>
-                    </th>
-                    <th><%- __('Label.PaymentNo') %></th>
-                    <th><%- __('Label.FilmName') %></th>
-                    <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
-                    <th><%- __('Label.SeatCode') %></th>
-                    <th><%- __('Label.UpdateUser') %></th>
-                    <th><%- __('Label.WatcherName') %></th>
-                    <th><%- __('Label.Cancel') %></th>
-                    <th><%- __('Label.Print') %></th>
-                </tr>
-            </thead>
+                        <div class="form-group">
+                            <a class="btn search" href="javascript:void(0)"><span><%- __('Button.Search') %></span></a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-            <tbody>
-            </tbody>
-        </table>
-    </div>
+<p class="row">About <span class="total-count"></span> results</p>
 
-    <form class="form-inline">
+<div class="wrapper-reservations">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th><input type="checkbox" class="check-all"></th>
+                <th><%- __('Label.PaymentNo') %></th>
+                <th><%- __('Label.FilmName') %> / <%- __('Label.PerformanceTime') %> / <%- __('Label.PerformancePlace') %></th>
+                <th><%- __('Label.SeatCode') %></th>
+                <th><%- __('Label.UpdatedUser') %></th>
+                <th><%- __('Label.Distribution') %></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="reservations">
+
+        </tbody>
+    </table>
+</div>
+
+
+
+<div class="wrapper-controls">
+
+    <div class="form-inline">
         <div class="form-group">
-            <select class="form-control">
+            <select class="form-control" name="action">
                 <option value=""><%- __('Label.Actions') %></option>
                 <option value="cancel"><%- __('Label.Cancel') %></option>
                 <option value="print"><%- __('Label.Print') %></option>
             </select>
         </div>
-
-        <a class="btn btn-primary action-to-reservations"><%- __('Button.Apply') %></a>
-    </form>
-
-    <div class="text-center pager-section">
-
+        <div class="form-group">
+            <p class="btn action-to-reservations"><span><%- __('Label.Apply') %></span></p>
+        </div>
     </div>
+
+    <div class="navigation">
+    </div>
+
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
