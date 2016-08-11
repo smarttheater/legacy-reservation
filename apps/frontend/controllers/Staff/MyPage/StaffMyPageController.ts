@@ -6,34 +6,51 @@ import Models from '../../../../common/models/Models';
 
 export default class StaffMyPageController extends BaseController {
     public index(): void {
-        this.res.render('staff/mypage/index', {
-            layout: 'layouts/staff/layout',
+        Models.Theater.find({}, '_id name name_en', (err, theaterDocuments) => {
+            Models.Film.find({}, '_id name name_en', (err, filmDocuments) => {
+                this.res.render('staff/mypage/index', {
+                    layout: 'layouts/staff/layout',
+                    theaters: theaterDocuments,
+                    films: filmDocuments
+                });
+            });
         });
     }
 
     /**
-     * マイページ予約検索API
+     * マイページ予約検索
      */
     public search(): void {
         let limit = 2;
         let page = (this.req.query.page) ? this.req.query.page : 1;
         let day = (this.req.query.day) ? this.req.query.day : null;
         let startTime = (this.req.query.start_time) ? this.req.query.start_time : null;
+        let theater = (this.req.query.theater) ? this.req.query.theater : null;
         let film = (this.req.query.film) ? this.req.query.film : null;
-        let words = (this.req.query.words) ? this.req.query.words : null;
+        let updater = (this.req.query.updater) ? this.req.query.updater : null;
 
         // 検索条件を作成
         let conditions: Array<Object> = [];
 
-        conditions.push({staff: this.staffUser.get('_id')});
-        conditions.push({status: ReservationUtil.STATUS_RESERVED});
+        conditions.push(
+            {
+                staff: this.staffUser.get('_id'),
+                status: ReservationUtil.STATUS_RESERVED
+            }
+        );
 
         if (film) {
             conditions.push({film: film});
         }
+
+        if (theater) {
+            conditions.push({theater: theater});
+        }
+
         if (day) {
             conditions.push({performance_day: day});
         }
+
         if (startTime) {
             conditions.push({
                 performance_start_time: {
@@ -41,17 +58,15 @@ export default class StaffMyPageController extends BaseController {
                 }
             });
         }
-        if (words) {
+
+        if (updater) {
             conditions.push({
                 $or: [
                     {
-                        film_name: {$regex: `${words}`}
+                        staff_signature: {$regex: `${updater}`}
                     },
                     {
-                        staff_signature: {$regex: `${words}`}
-                    },
-                    {
-                        watcher_name: {$regex: `${words}`}
+                        watcher_name: {$regex: `${updater}`}
                     }
                 ]
             });
@@ -65,6 +80,13 @@ export default class StaffMyPageController extends BaseController {
                 $and: conditions
             },
             (err, count) => {
+                if (err) {
+                    return this.res.json({
+                        isSuccess: false,
+                        results: [],
+                        count: 0
+                    });
+                }
 
                 Models.Reservation.find(
                     {
@@ -77,11 +99,13 @@ export default class StaffMyPageController extends BaseController {
                 )
                 .skip(limit * (page - 1))
                 .limit(limit)
-                .populate('staff screen')
                 .exec((err, reservationDocuments) => {
-
                     if (err) {
-
+                        this.res.json({
+                            isSuccess: false,
+                            results: [],
+                            count: 0
+                        });
                     } else {
                         conditions['page'] = page;
 
@@ -97,6 +121,9 @@ export default class StaffMyPageController extends BaseController {
         );
     }
 
+    /**
+     * 配布先を更新する
+     */
     public updateWatcherName(): void {
         let reservationId = this.req.body.reservationId;
         let watcherName = this.req.body.watcherName;

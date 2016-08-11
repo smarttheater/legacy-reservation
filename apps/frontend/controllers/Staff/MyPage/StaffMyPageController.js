@@ -4,26 +4,38 @@ const ReservationUtil_1 = require('../../../../common/models/Reservation/Reserva
 const Models_1 = require('../../../../common/models/Models');
 class StaffMyPageController extends BaseController_1.default {
     index() {
-        this.res.render('staff/mypage/index', {
-            layout: 'layouts/staff/layout',
+        Models_1.default.Theater.find({}, '_id name name_en', (err, theaterDocuments) => {
+            Models_1.default.Film.find({}, '_id name name_en', (err, filmDocuments) => {
+                this.res.render('staff/mypage/index', {
+                    layout: 'layouts/staff/layout',
+                    theaters: theaterDocuments,
+                    films: filmDocuments
+                });
+            });
         });
     }
     /**
-     * マイページ予約検索API
+     * マイページ予約検索
      */
     search() {
         let limit = 2;
         let page = (this.req.query.page) ? this.req.query.page : 1;
         let day = (this.req.query.day) ? this.req.query.day : null;
         let startTime = (this.req.query.start_time) ? this.req.query.start_time : null;
+        let theater = (this.req.query.theater) ? this.req.query.theater : null;
         let film = (this.req.query.film) ? this.req.query.film : null;
-        let words = (this.req.query.words) ? this.req.query.words : null;
+        let updater = (this.req.query.updater) ? this.req.query.updater : null;
         // 検索条件を作成
         let conditions = [];
-        conditions.push({ staff: this.staffUser.get('_id') });
-        conditions.push({ status: ReservationUtil_1.default.STATUS_RESERVED });
+        conditions.push({
+            staff: this.staffUser.get('_id'),
+            status: ReservationUtil_1.default.STATUS_RESERVED
+        });
         if (film) {
             conditions.push({ film: film });
+        }
+        if (theater) {
+            conditions.push({ theater: theater });
         }
         if (day) {
             conditions.push({ performance_day: day });
@@ -35,17 +47,14 @@ class StaffMyPageController extends BaseController_1.default {
                 }
             });
         }
-        if (words) {
+        if (updater) {
             conditions.push({
                 $or: [
                     {
-                        film_name: { $regex: `${words}` }
+                        staff_signature: { $regex: `${updater}` }
                     },
                     {
-                        staff_signature: { $regex: `${words}` }
-                    },
-                    {
-                        watcher_name: { $regex: `${words}` }
+                        watcher_name: { $regex: `${updater}` }
                     }
                 ]
             });
@@ -54,6 +63,13 @@ class StaffMyPageController extends BaseController_1.default {
         Models_1.default.Reservation.count({
             $and: conditions
         }, (err, count) => {
+            if (err) {
+                return this.res.json({
+                    isSuccess: false,
+                    results: [],
+                    count: 0
+                });
+            }
             Models_1.default.Reservation.find({
                 $and: conditions
             }, {}, {
@@ -61,9 +77,13 @@ class StaffMyPageController extends BaseController_1.default {
             })
                 .skip(limit * (page - 1))
                 .limit(limit)
-                .populate('staff screen')
                 .exec((err, reservationDocuments) => {
                 if (err) {
+                    this.res.json({
+                        isSuccess: false,
+                        results: [],
+                        count: 0
+                    });
                 }
                 else {
                     conditions['page'] = page;
@@ -77,6 +97,9 @@ class StaffMyPageController extends BaseController_1.default {
             });
         });
     }
+    /**
+     * 配布先を更新する
+     */
     updateWatcherName() {
         let reservationId = this.req.body.reservationId;
         let watcherName = this.req.body.watcherName;

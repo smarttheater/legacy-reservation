@@ -20,7 +20,7 @@ $(function(){
                     + '' + reservationDocument.performance_day + ' ' + reservationDocument.performance_start_time + ' ～<br>'
                     + '' + reservationDocument.theater_name_en + ' ' + reservationDocument.screen_name_en + ''
                 + '</td>'
-                + '<td class="td-seat"><a href="javascript:void(0);" class="show-seat-position" data-screen-id="' + reservationDocument.screen + '" data-seat-codes="' + reservationDocument.seat_code + '">' + reservationDocument.seat_code + '</a></td>'
+                + '<td class="td-seat"><a href="javascript:void(0);" class="show-seat-position" data-screen-id="' + reservationDocument.screen.toString() + '" data-seat-codes="' + reservationDocument.seat_code + '">' + reservationDocument.seat_code + '</a></td>'
                 + '<td class="td-updater">' + reservationDocument.staff_signature + '</td>'
                 + '<td class="td-distribution form-inline">'
                     + '<div class="form-group">'
@@ -76,13 +76,13 @@ $(function(){
     }
 
     function showConditions() {
-        var formDatas = $('form').serializeArray();
+        var formDatas = $('.search-form').serializeArray();
         formDatas.forEach(function(formData, index){
             var name = formData.name;
             if (conditions.hasOwnProperty(name)) {
-                $(`input[name="${name}"], select[name="${name}"]`, $('form')).val(conditions[name]);
+                $(`input[name="${name}"], select[name="${name}"]`, $('.search-form')).val(conditions[name]);
             } else {
-                $(`input[name="${name}"], select[name="${name}"]`, $('form')).val('');
+                $(`input[name="${name}"], select[name="${name}"]`, $('.search-form')).val('');
             }
         });
     }
@@ -118,7 +118,7 @@ $(function(){
         conditions.page = '1';
 
         // 検索フォームの値を全て条件に追加
-        var formDatas = $('form').serializeArray();
+        var formDatas = $('.search-form').serializeArray();
         formDatas.forEach(function(formData, index){
             conditions[formData.name] = formData.value;
         });
