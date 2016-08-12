@@ -12,14 +12,14 @@
             <tr>
                 <th><%- __('Label.FilmName') %>
                     <p class="visible-mobile-block">
-                        <a class="btn btn-default btn-change btn-icon-back" href="<%- url('staff.reserve.seats', {token: reservationModel.token}) %>">
+                        <a class="btn btn-default btn-change btn-icon-back" href="<%- url('staff.reserve.performances', {token: reservationModel.token}) %>">
                             <span><%- __('Button.Change') %></span>
                         </a>
                     </p>
                 </th>
                 <td>
                     <p><%- reservationModel.performance.film[__('DocumentField.name')] %></p>
-                    <a class="btn btn-default btn-change btn-icon-back visible-pc" href="<%- url('staff.reserve.seats', {token: reservationModel.token}) %>">
+                    <a class="btn btn-default btn-change btn-icon-back visible-pc" href="<%- url('staff.reserve.performances', {token: reservationModel.token}) %>">
                         <span><%- __('Button.Change') %></span>
                     </a>
                 </td>
@@ -40,7 +40,7 @@
                 <th>
                     <%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %>
                     <p class="visible-mobile-block">
-                        <a class="btn btn-default btn-change btn-icon-back" href="<%- url('staff.reserve.tickets', {token: reservationModel.token}) %>"><span><%- __('Button.Change') %></span></a>
+                        <a class="btn btn-default btn-change btn-icon-back" href="<%- url('staff.reserve.seats', {token: reservationModel.token}) %>"><span><%- __('Button.Change') %></span></a>
                     </p>
                 </th>
                 <td>
@@ -50,10 +50,11 @@
                             <%- reservation.seat_code %> / 
                             <%- reservation[`ticket_type_${__('DocumentField.name')}`] %> <%- __('{{price}} yen', {price: reservation.ticket_type_charge}) %>
                             <%- (reservationModel.performance.is_mx4d) ? '[+200(MX4D)]' : '' %>
-                            <%- (reservation.seat_grade_additional_charge > 0) ? `[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_${__('DocumentField.name')}`]})]` : '' %>
+                            <%- (reservation.seat_grade_additional_charge > 0) ? `[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_${__('DocumentField.name')}`]})]` : '' %> / 
+                            <%- reservation.watcher_name %><br>
                         <% }) %>、
                     </p>
-                    <a class="btn btn-default btn-change btn-icon-back visible-pc" href="<%- url('customer.reserve.seats', {token: reservationModel.token}) %>">
+                    <a class="btn btn-default btn-change btn-icon-back visible-pc" href="<%- url('staff.reserve.seats', {token: reservationModel.token}) %>">
                         <span><%- __('Button.Change') %></span>
                     </a>
                 </td>
@@ -86,19 +87,22 @@
                     <p><%- staffUser.name %></p>
                 </td>
             </tr>
-
-
+            <tr>
+                <th><%- __('Label.DepartmentName') %></th>
+                <td>
+                    <p><%- staffUser.department_name %></p>
+                </td>
+            </tr>
+            <tr>
+                <th><%- __('Label.Signature') %></th>
+                <td>
+                    <p><%- staffUser.signature %></p>
+                </td>
+            </tr>
             <tr>
                 <th><%- __('Label.Email') %></th>
                 <td>
                     <p><%- staffUser.email %></p>
-                </td>
-            </tr>
-
-            <tr>
-                <th><%- __('Label.Tel') %></th>
-                <td>
-                    <p><%- staffUser.tel %></p>
                 </td>
             </tr>
 

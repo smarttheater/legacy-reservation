@@ -13,20 +13,20 @@ if (req.hasOwnProperty('route')) {
 
             <% if (routeName.indexOf('mypage') >= 0 && sponsorUser.isAuthenticated()) { %>
             <div class="menu-staff">
-                <p class="myname"><%= sponsorUser.get('name') %>様</p>
+                <p class="myname"><%= __('Mr{{name}}', {name: sponsorUser.get('name')}) %></p>
                 <div class="staff-btns">
-                    <a class="btn btn-logout" href="<%= url('sponsor.logout') %>"><span>Logout</span></a>
-                    <a class="btn btn-newticket" href="<%= url('sponsor.reserve.start') %>"><span>New Ticket</span></a>
+                    <a class="btn btn-logout" href="<%= url('sponsor.logout') %>"><span><%- __('Button.Logout') %></span></a>
+                    <a class="btn btn-newticket" href="<%= url('sponsor.reserve.start') %>"><span><%- __('Button.NewTicket') %></span></a>
                 </div>
             </div>
 
             <% } else if (routeName === 'sponsor.cancel') { %>
-                <a href="<%= url('sponsor.reserve.start') %>">チケットを手配する</a>
+                <a href="<%= url('sponsor.reserve.start') %>"><%- __('Button.NewTicket') %></a>
 
             <% } else if (routeName.indexOf('mypage') < 0 && sponsorUser.isAuthenticated()) { %>
             <div class="menu-user">
-                <p class="myname"><%= sponsorUser.get('name') %> 様</p>
-                <a href="<%= url('sponsor.cancel') %>">キャンセル</a> / <a href="<%= url('sponsor.logout') %>">ログアウト</a>
+                <p class="myname"><%= __('Mr{{name}}', {name: sponsorUser.get('name')}) %></p>
+                <a href="<%= url('sponsor.cancel') %>"><%- __('Button.Cancel') %></a> / <a href="<%= url('sponsor.logout') %>"><%- __('Button.Logout') %></a>
             </div>
 
             <% } %>
@@ -34,12 +34,3 @@ if (req.hasOwnProperty('route')) {
         </div>
     </div>
 </header>
-
-
-
-
-
-
-
-
-

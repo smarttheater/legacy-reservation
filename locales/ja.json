@@ -42,7 +42,15 @@
 		},
 		"PaymentMethod": "お支払い方法",
 		"Login": "Label.Login",
-		"TotalCharge": "Label.TotalCharge"
+		"TotalCharge": "合計金額",
+		"Day": "上映日",
+		"UpdatedUser": "更新者",
+		"Distribution": "配布先",
+		"Actions": "操作",
+		"Cancel": "キャンセル",
+		"Print": "印刷",
+		"Apply": "適用",
+		"CompleteCancelReservations": "予約をキャンセルしました"
 	},
 	"Button": {
 		"Send": "送信",
@@ -60,7 +68,9 @@
 		"Login": "ログイン",
 		"GoToPayment": "決済へ進む",
 		"InformFriends": "お友達に渡す",
-		"Close": "閉じる"
+		"Close": "閉じる",
+		"No": "いいえ",
+		"Yes": "はい"
 	},
 	"Form": {
 		"FieldName": {
@@ -71,7 +81,12 @@
 			"emailConfirm": "メールアドレス(確認)",
 			"emailConfirmDomain": "メールアドレス(確認)ドメイン",
 			"password": "パスワード",
-			"paymentMethod": "決済方法"
+			"paymentMethod": "決済方法",
+			"userId": "ユーザーID",
+			"signature": "署名",
+			"locale": "使用言語",
+			"paymentNo": "予約番号",
+			"last4DigitsOfTel": "電話番号下4桁"
 		}
 	},
 	"Message": {
@@ -103,5 +118,6 @@
 	"DocumentField": {
 		"name": "name"
 	},
-	"{{price}} yen": "{{price}} 円"
+	"{{price}} yen": "{{price}} 円",
+	"Mr{{name}}": "{{name}} 様"
 }

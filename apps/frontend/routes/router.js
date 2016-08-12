@@ -85,6 +85,8 @@ exports.default = (app) => {
             }
         }
         else {
+            // 言語設定
+            req.setLocale((staffUser.get('locale')) ? staffUser.get('locale') : 'en');
             next();
         }
     };
@@ -101,6 +103,8 @@ exports.default = (app) => {
             }
         }
         else {
+            // 言語設定
+            req.setLocale((sponsorUser.get('locale')) ? sponsorUser.get('locale') : 'en');
             next();
         }
     };
@@ -124,44 +128,40 @@ exports.default = (app) => {
     app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', authenticationMember, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).confirm(); });
     app.get('/member/reserve/:paymentNo/complete', 'member.reserve.complete', (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).complete(); });
     // TODO admin権限フロー
-    let staffBase = (req, res, next) => {
-        req.setLocale('en');
-        next();
-    };
     // 内部関係者
-    app.all('/staff/login', 'staff.mypage.login', staffBase, (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).login(); });
-    app.all('/staff/logout', 'staff.logout', staffBase, (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).logout(); });
-    app.all('/staff/mypage', 'staff.mypage', staffBase, authenticationStaff, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).index(); });
-    app.get('/staff/mypage/search', 'staff.mypage.search', staffBase, authenticationStaff, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).search(); });
-    app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', staffBase, authenticationStaff, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).updateWatcherName(); });
-    app.get('/staff/reserve/start', 'staff.reserve.start', staffBase, authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).start(); });
-    app.all('/staff/reserve/:token/performances', 'staff.reserve.performances', staffBase, authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).performances(); });
-    app.all('/staff/reserve/:token/seats', 'staff.reserve.seats', staffBase, authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).seats(); });
-    app.all('/staff/reserve/:token/tickets', 'staff.reserve.tickets', staffBase, authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).tickets(); });
-    app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', staffBase, authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).confirm(); });
-    app.get('/staff/reserve/:paymentNo/complete', 'staff.reserve.complete', staffBase, authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).complete(); });
-    app.post('/staff/cancel/execute', 'staff.cancel.execute', staffBase, authenticationStaff, (req, res, next) => { (new StaffCancelController_1.default(req, res, next)).execute(); });
+    app.all('/staff/login', 'staff.mypage.login', (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).login(); });
+    app.all('/staff/logout', 'staff.logout', (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).logout(); });
+    app.all('/staff/mypage', 'staff.mypage', authenticationStaff, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).index(); });
+    app.get('/staff/mypage/search', 'staff.mypage.search', authenticationStaff, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).search(); });
+    app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', authenticationStaff, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).updateWatcherName(); });
+    app.get('/staff/reserve/start', 'staff.reserve.start', authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).start(); });
+    app.all('/staff/reserve/:token/performances', 'staff.reserve.performances', authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).performances(); });
+    app.all('/staff/reserve/:token/seats', 'staff.reserve.seats', authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).seats(); });
+    app.all('/staff/reserve/:token/tickets', 'staff.reserve.tickets', authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).tickets(); });
+    app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).confirm(); });
+    app.get('/staff/reserve/:paymentNo/complete', 'staff.reserve.complete', authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).complete(); });
+    app.post('/staff/cancel/execute', 'staff.cancel.execute', authenticationStaff, (req, res, next) => { (new StaffCancelController_1.default(req, res, next)).execute(); });
     let sponsorBase = (req, res, next) => {
         req.setLocale('en');
         next();
     };
     // 外部関係者
     // TODO キャンセルするためだけのフォームページ
-    app.all('/sponsor/login', 'sponsor.mypage.login', sponsorBase, (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).login(); });
-    app.all('/sponsor/logout', 'sponsor.logout', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).logout(); });
-    app.all('/sponsor/mypage', 'sponsor.mypage', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorMyPageController_1.default(req, res, next)).index(); });
-    app.get('/sponsor/mypage/search', 'sponsor.mypage.search', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorMyPageController_1.default(req, res, next)).search(); });
-    app.get('/sponsor/reserve/start', 'sponsor.reserve.start', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).start(); });
+    app.all('/sponsor/login', 'sponsor.mypage.login', (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).login(); });
+    app.all('/sponsor/logout', 'sponsor.logout', authenticationSponsor, (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).logout(); });
+    app.all('/sponsor/mypage', 'sponsor.mypage', authenticationSponsor, (req, res, next) => { (new SponsorMyPageController_1.default(req, res, next)).index(); });
+    app.get('/sponsor/mypage/search', 'sponsor.mypage.search', authenticationSponsor, (req, res, next) => { (new SponsorMyPageController_1.default(req, res, next)).search(); });
+    app.get('/sponsor/reserve/start', 'sponsor.reserve.start', authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).start(); });
     app.all('/sponsor/reserve/:token/performances', 'sponsor.reserve.performances', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).performances(); });
-    app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).seats(); });
-    app.all('/sponsor/reserve/:token/tickets', 'sponsor.reserve.tickets', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).tickets(); });
-    app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).profile(); });
-    app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).confirm(); });
-    app.get('/sponsor/reserve/:paymentNo/complete', 'sponsor.reserve.complete', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).complete(); });
-    app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', sponsorBase, authenticationSponsor, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).execute(); });
+    app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).seats(); });
+    app.all('/sponsor/reserve/:token/tickets', 'sponsor.reserve.tickets', authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).tickets(); });
+    app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).profile(); });
+    app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).confirm(); });
+    app.get('/sponsor/reserve/:paymentNo/complete', 'sponsor.reserve.complete', authenticationSponsor, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).complete(); });
+    app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', authenticationSponsor, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).execute(); });
     // ↓ログイン不要
-    app.all('/sponsor/cancel', 'sponsor.cancel', sponsorBase, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).index(); });
-    app.post('/sponsor/cancel/executeByPaymentNo', 'sponsor.cancel.executeByPaymentNo', sponsorBase, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).executeByPaymentNo(); });
+    app.all('/sponsor/cancel', 'sponsor.cancel', (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).index(); });
+    app.post('/sponsor/cancel/executeByPaymentNo', 'sponsor.cancel.executeByPaymentNo', (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).executeByPaymentNo(); });
     // TODO 当日窓口フロー
     // 当日の場合、スケジュール選択候補は、検索条件通り全て出す
     // 検索条件の初期値を、上映日：当日にする

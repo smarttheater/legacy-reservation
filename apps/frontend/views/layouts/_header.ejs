@@ -10,17 +10,9 @@ if (req.hasOwnProperty('route')) {
         <a href="/" class="header-logo"><img src="/images/common/logo.png" alt="TIFF"></a>
 
         <div class="header-menu">
-
-            <% if (routeName === 'customer.reserve.terms') { %>
-            <ul class="menu-langs">
-                <li class="langs-ja"><a href="<%- url('language.update', {locale: 'ja'}) %>"><span class="visible-pc">Japanese</span><span class="visible-mobile">JA</span></a></li>
-                <li class="langs-en"><a href="<%- url('language.update', {locale: 'en'}) %>"><span class="visible-pc">English</span><span class="visible-mobile">EN</span></a></li>
-            </ul>
-            <% } %>
-
             <% if (mvtkUser.isAuthenticated()) { %>
             <div class="menu-user">
-                <p class="myname"><%= mvtkUser.memberInfoResult.kiinsiNm %> <%= mvtkUser.memberInfoResult.kiimmiNm %> 様</p>
+                <p class="myname"><%= __('Mr{{name}}', {name: mvtkUser.memberInfoResult.kiinsiNm + ' ' + mvtkUser.memberInfoResult.kiimmiNm}) %></p>
                 <a class="link-cancel" href="<%- url('customer.logout') %>">ログアウトして購入をキャンセル</a>
             </div>
             <% } %>

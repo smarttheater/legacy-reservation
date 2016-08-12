@@ -49,7 +49,11 @@
 		"TotalCharge": "Label.TotalCharge",
 		"UpdatedUser": "Label.UpdatedUser",
 		"Distribution": "Label.Distribution",
-		"Apply": "Label.Apply"
+		"Apply": "Label.Apply",
+		"DepartmentName": "Department Name",
+		"Signature": "Signature",
+		"PhoneNumber": "Phone Number",
+		"Name": "Name"
 	},
 	"Button": {
 		"Send": "Send",
@@ -72,7 +76,9 @@
 		"Login": "Login",
 		"Transfer": "Transfer",
 		"InformFriends": "Button.InformFriends",
-		"BackToSelectPerformance": "Button.BackToSelectPerformance"
+		"BackToSelectPerformance": "Button.BackToSelectPerformance",
+		"Logout": "Logout",
+		"NewTicket": "New Ticket"
 	},
 	"Form": {
 		"FieldName": {
@@ -116,5 +122,6 @@
 	"DocumentField": {
 		"name": "name_en"
 	},
-	"{{price}} yen": "{{price}} yen"
+	"{{price}} yen": "{{price}} yen",
+	"Mr{{name}}": "Mr. {{name}}"
 }
