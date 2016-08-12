@@ -12,7 +12,7 @@ let Schema = new mongoose.Schema({
     password_hash: String,
     name: String,
     performance: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Performance'
     },
     max_reservation_count: Number

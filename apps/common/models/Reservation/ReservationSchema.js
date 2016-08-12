@@ -9,7 +9,7 @@ let Schema = new mongoose.Schema({
     total_charge: Number,
     charge: Number,
     performance: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Performance'
     },
     status: String,
@@ -18,19 +18,19 @@ let Schema = new mongoose.Schema({
     performance_end_time: String,
     performance_is_mx4d: Boolean,
     theater: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Theater'
     },
     theater_name: String,
     theater_name_en: String,
     screen: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Screen'
     },
     screen_name: String,
     screen_name_en: String,
     film: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Film'
     },
     film_name: String,

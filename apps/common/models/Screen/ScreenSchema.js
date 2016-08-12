@@ -4,8 +4,9 @@ const mongoose = require('mongoose');
  * スクリーンスキーマ
  */
 let Schema = new mongoose.Schema({
+    _id: String,
     theater: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Theater'
     },
     name: String,

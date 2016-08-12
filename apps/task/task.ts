@@ -5,6 +5,10 @@ import log4js = require('log4js');
 import TestController from './controllers/Test/TestController';
 import PreTiffController from './controllers/PreTiff/PreTiffController';
 import StaffController from './controllers/Staff/StaffController';
+import PerformanceController from './controllers/Performance/PerformanceController';
+import TheaterController from './controllers/Theater/TheaterController';
+import FilmController from './controllers/Film/FilmController';
+import MemberController from './controllers/Member/MemberController';
 
 
 
@@ -81,6 +85,82 @@ program
         log4js.configure(logDefaultConfiguration);
 
         (new StaffController())[method]();
+    });
+
+program
+    .command('performance <method>')
+    .description('パフォーマンスタスク')
+    .action((method) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/Performance${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+        fs.mkdirsSync(logDir);
+        logDefaultConfiguration.appenders.push({
+            category: 'system',
+            type: 'dateFile',
+            filename: `${logDir}/system.log`,
+            pattern: '-yyyy-MM-dd',
+            backups: 3
+        });
+        logDefaultConfiguration.levels.system = "ALL";
+        log4js.configure(logDefaultConfiguration);
+
+        (new PerformanceController())[method]();
+    });
+
+program
+    .command('theater <method>')
+    .description('劇場タスク')
+    .action((method) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/Theater${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+        fs.mkdirsSync(logDir);
+        logDefaultConfiguration.appenders.push({
+            category: 'system',
+            type: 'dateFile',
+            filename: `${logDir}/system.log`,
+            pattern: '-yyyy-MM-dd',
+            backups: 3
+        });
+        logDefaultConfiguration.levels.system = "ALL";
+        log4js.configure(logDefaultConfiguration);
+
+        (new TheaterController())[method]();
+    });
+
+program
+    .command('film <method>')
+    .description('作品タスク')
+    .action((method) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/Film${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+        fs.mkdirsSync(logDir);
+        logDefaultConfiguration.appenders.push({
+            category: 'system',
+            type: 'dateFile',
+            filename: `${logDir}/system.log`,
+            pattern: '-yyyy-MM-dd',
+            backups: 3
+        });
+        logDefaultConfiguration.levels.system = "ALL";
+        log4js.configure(logDefaultConfiguration);
+
+        (new FilmController())[method]();
+    });
+
+program
+    .command('member <method>')
+    .description('メルマガ会員タスク')
+    .action((method) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/Member${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+        fs.mkdirsSync(logDir);
+        logDefaultConfiguration.appenders.push({
+            category: 'system',
+            type: 'dateFile',
+            filename: `${logDir}/system.log`,
+            pattern: '-yyyy-MM-dd',
+            backups: 3
+        });
+        logDefaultConfiguration.levels.system = "ALL";
+        log4js.configure(logDefaultConfiguration);
+
+        (new MemberController())[method]();
     });
 
 // program

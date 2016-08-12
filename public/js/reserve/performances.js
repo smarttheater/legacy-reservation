@@ -54,7 +54,7 @@ $(function(){
                                 '<div class="genres">'+
                                     '<span>' + genres.join('</span><span>') + '</span>' +
                                 '</div>'+
-                                '<span class="length">本編 102分</span>'+
+                                '<span class="length">本編 ' + performancesOnFilm[0].film.minutes + '分</span>'+
                             '</div>'+
                         '</div>'+
                         '<div class="performance-schedule">'

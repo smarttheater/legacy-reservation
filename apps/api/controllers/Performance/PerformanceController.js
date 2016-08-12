@@ -55,12 +55,12 @@ class PerformanceController extends BaseController_1.default {
                 let query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater' // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                 ).skip(limit * (page - 1)).limit(limit);
                 if (this.req.getLocale() === 'ja') {
-                    query.populate('film', 'name image sections.name genres.name') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                    query.populate('film', 'name image sections.name genres.name minutes') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                         .populate('screen', 'name') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                         .populate('theater', 'name'); // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                 }
                 else {
-                    query.populate('film', 'name_en image sections.name_en genres.name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                    query.populate('film', 'name_en image sections.name_en genres.name_en minutes') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                         .populate('screen', 'name_en') // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                         .populate('theater', 'name_en'); // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                 }

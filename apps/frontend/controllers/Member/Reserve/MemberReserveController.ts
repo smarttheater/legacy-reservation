@@ -32,9 +32,9 @@ export default class MemberReserveController extends ReserveBaseController {
         }
 
         // ログイン中であればプロセス開始
-        if (this.memberUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('member.reserve.start', {}));
-        }
+        // if (this.memberUser.isAuthenticated()) {
+        //     return this.res.redirect(this.router.build('member.reserve.start', {}));
+        // }
 
         if (this.req.method === 'POST') {
             memberReserveLoginForm(this.req, this.res, (err) => {
@@ -51,7 +51,9 @@ export default class MemberReserveController extends ReserveBaseController {
 
                             if (!member) {
                                 this.req.form.errors.push('ログイン番号またはパスワードに誤りがあります');
-                                this.res.render('member/reserve/terms');
+                                this.res.render('member/reserve/terms', {
+                                    layout: 'layouts/member/layout'
+                                });
                             } else {
                                 // 予約の有無を確認
                                 Models.Reservation.count(
@@ -75,14 +77,18 @@ export default class MemberReserveController extends ReserveBaseController {
                         }
                     );
                 } else {
-                    this.res.render('member/reserve/terms');
+                    this.res.render('member/reserve/terms', {
+                        layout: 'layouts/member/layout'
+                    });
                 }
             });
         } else {
             this.res.locals.userId = '';
             this.res.locals.password = '';
 
-            this.res.render('member/reserve/terms');
+            this.res.render('member/reserve/terms', {
+                layout: 'layouts/member/layout'
+            });
         }
     }
 
@@ -190,6 +196,7 @@ export default class MemberReserveController extends ReserveBaseController {
                 });
             } else {
                 this.res.render('member/reserve/tickets', {
+                    layout: 'layouts/member/layout',
                     reservationModel: reservationModel,
                 });
 
@@ -226,7 +233,8 @@ export default class MemberReserveController extends ReserveBaseController {
                         });
 
                     } else {
-                        this.res.render('customer/reserve/profile', {
+                        this.res.render('member/reserve/profile', {
+                            layout: 'layouts/member/layout',
                             reservationModel: reservationModel,
                         });
 
@@ -255,6 +263,7 @@ export default class MemberReserveController extends ReserveBaseController {
                 }
 
                 this.res.render('member/reserve/profile', {
+                    layout: 'layouts/member/layout',
                     reservationModel: reservationModel
                 });
 
@@ -329,6 +338,7 @@ export default class MemberReserveController extends ReserveBaseController {
 
             } else {
                 this.res.render('member/reserve/confirm', {
+                    layout: 'layouts/member/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -354,6 +364,7 @@ export default class MemberReserveController extends ReserveBaseController {
                 // delete this.req.session[MemberUser.AUTH_SESSION_NAME];
 
                 this.res.render('member/reserve/complete', {
+                    layout: 'layouts/member/layout',
                     reservationDocuments: reservationDocuments
                 });
 

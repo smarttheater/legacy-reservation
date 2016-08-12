@@ -3,6 +3,7 @@ class TicketTypeGroupUtil {
     static getAll() {
         return [
             {
+                _id: '001',
                 name: "オープニング",
                 name_en: "Opening",
                 types: [
@@ -30,6 +31,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '002',
                 name: "クロージング",
                 name_en: "Closing",
                 types: [
@@ -57,6 +59,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '003',
                 name: "特別招待作品",
                 name_en: "Special Invitation",
                 types: [
@@ -84,6 +87,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '004',
                 name: "パノラマ",
                 name_en: "Panorama",
                 types: [
@@ -111,6 +115,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '005',
                 name: "ワールドフォーカス",
                 name_en: "World Focus",
                 types: [
@@ -138,6 +143,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '006',
                 name: "東京グランプリ受賞作品",
                 name_en: "Tokyo Grand Prix",
                 types: [
@@ -165,6 +171,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '007',
                 name: "コンペティション",
                 name_en: "Competition",
                 types: [
@@ -192,6 +199,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '008',
                 name: "アジアの未来",
                 name_en: "Asia Future",
                 types: [
@@ -219,6 +227,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '009',
                 name: "日本映画スプラッシュ",
                 name_en: "Japanese Cinema Splash",
                 types: [
@@ -246,6 +255,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '010',
                 name: "CROSSCUT ASIA",
                 name_en: "Crosscut Asia",
                 types: [
@@ -273,6 +283,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '011',
                 name: "観客賞受賞作品",
                 name_en: "Audience Award",
                 types: [
@@ -300,6 +311,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '012',
                 name: "Japan Now",
                 name_en: "Japan Now",
                 types: [
@@ -327,6 +339,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '013',
                 name: "日本映画クラシックス",
                 name_en: "Japanese Classics",
                 types: [
@@ -354,6 +367,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '014',
                 name: "みなと上映会",
                 name_en: "Minato",
                 types: [
@@ -381,6 +395,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '015',
                 name: "日本映画監督協会新人賞",
                 name_en: "New Face Award",
                 types: [
@@ -408,6 +423,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '016',
                 name: "PFFグランプリ受賞作品上映",
                 name_en: "PFF Grand Prix",
                 types: [
@@ -435,6 +451,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '017',
                 name: "SKIPシティ国際Dシネマ映画祭上映作品",
                 name_en: "SKIP City",
                 types: [
@@ -462,6 +479,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '018',
                 name: "WOWOW映画工房200会記念",
                 name_en: "WOWOW",
                 types: [
@@ -489,6 +507,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '019',
                 name: "東京国際映画祭プレゼンツ歌舞伎座スペシャルナイト",
                 name_en: "Kabukiza Special Night",
                 types: [
@@ -516,6 +535,7 @@ class TicketTypeGroupUtil {
                 ]
             },
             {
+                _id: '020',
                 name: "日本学生映画祭",
                 name_en: "Japanese Students Film Festival",
                 types: [

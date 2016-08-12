@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
  * 作品スキーマ
  */
 let Schema = new mongoose.Schema({
+    _id: String,
     name: String,
     name_en: String,
     sections: [
@@ -23,10 +24,11 @@ let Schema = new mongoose.Schema({
         },
     ],
     ticket_type_group: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'TicketTypeGroup'
     },
     image: String,
+    minutes: Number,
     created_user: String,
     updated_user: String,
 }, {

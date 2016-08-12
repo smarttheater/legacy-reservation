@@ -4,11 +4,12 @@ import mongoose = require('mongoose');
  * 劇場スキーマ
  */
 let Schema = new mongoose.Schema({
+    _id: String,
     name: String,
     name_en: String,
     address: String,
-    tel_no: String,
-    fax_no: String,
+    tel: String,
+    fax: String,
     created_user: String,
     updated_user: String,
 },{

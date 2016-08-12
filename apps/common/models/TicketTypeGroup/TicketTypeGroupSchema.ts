@@ -4,6 +4,7 @@ import mongoose = require('mongoose');
  * 券種グループスキーマ
  */
 let Schema = new mongoose.Schema({
+    _id: String,
     name: String, // 券種グループ名
     name_en: String, // 券種グループ名(英語)
     types: [

@@ -4,16 +4,17 @@ const mongoose = require('mongoose');
  * パフォーマンススキーマ
  */
 let Schema = new mongoose.Schema({
+    _id: String,
     theater: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Theater'
     },
     screen: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Screen'
     },
     film: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Film'
     },
     day: String,

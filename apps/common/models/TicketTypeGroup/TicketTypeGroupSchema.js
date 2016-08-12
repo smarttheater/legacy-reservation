@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
  * 券種グループスキーマ
  */
 let Schema = new mongoose.Schema({
+    _id: String,
     name: String,
     name_en: String,
     types: [

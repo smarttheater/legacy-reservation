@@ -4,16 +4,17 @@ import mongoose = require('mongoose');
  * パフォーマンススキーマ
  */
 let Schema = new mongoose.Schema({
+    _id: String, // day + screen + start_time
     theater: { 
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Theater'
     },
     screen: { 
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Screen'
     },
     film: { 
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Film'
     },
     day: String, // 上映日

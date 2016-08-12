@@ -4,16 +4,10 @@ const Constants_1 = require('../../../common/Util/Constants');
 const Util_1 = require('../../../common/Util/Util');
 const Models_1 = require('../../../common/models/Models');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
-const PerformanceUtil_1 = require('../../../common/models/Performance/PerformanceUtil');
-const FilmUtil_1 = require('../../../common/models/Film/FilmUtil');
-const TicketTypeGroupUtil_1 = require('../../../common/models/TicketTypeGroup/TicketTypeGroupUtil');
-const ScreenUtil_1 = require('../../../common/models/Screen/ScreenUtil');
 const moment = require('moment');
 const conf = require('config');
 const mongodb = require('mongodb');
 const mongoose = require('mongoose');
-const PerformanceStatusesModel_1 = require('../../../common/models/PerformanceStatusesModel');
-const request = require('request');
 const sendgrid = require('sendgrid');
 const emailTemplates = require('email-templates');
 let MONGOLAB_URI = conf.get('mongolab_uri');
@@ -39,75 +33,6 @@ class TestController extends BaseController_1.default {
             process.exit(0);
         });
     }
-    /**
-     * 券種グループを初期化する
-     */
-    createTicketTypeGroups() {
-        mongoose.connect(MONGOLAB_URI, {});
-        this.logger.debug('removing all ticketTypeGroups...');
-        Models_1.default.TicketTypeGroup.remove({}, (err) => {
-            this.logger.debug('creating films...');
-            Models_1.default.TicketTypeGroup.create(TicketTypeGroupUtil_1.default.getAll(), (err, documents) => {
-                this.logger.debug('ticketTypeGroups created.');
-                mongoose.disconnect();
-                if (err) {
-                }
-                else {
-                    this.logger.debug('success!');
-                    process.exit(0);
-                }
-            });
-        });
-    }
-    /**
-     * 作品を初期化する
-     */
-    createFilms() {
-        mongoose.connect(MONGOLAB_URI, {});
-        Models_1.default.TicketTypeGroup.find({}, '_id', (err, ticketTypeGroupDocuments) => {
-            if (err) {
-                mongoose.disconnect();
-                this.logger.info('err:', err);
-                process.exit(0);
-            }
-            let genres = FilmUtil_1.default.getGenres();
-            let sections = FilmUtil_1.default.getSections();
-            let testNames = FilmUtil_1.default.getTestNames();
-            let length = testNames.length;
-            let films = [];
-            this.logger.info('ticketTypeGroupDocuments.length:', ticketTypeGroupDocuments.length);
-            for (let i = 0; i < length; i++) {
-                let no = i + 1;
-                let _sections = this.shuffle(sections);
-                let _genres = this.shuffle(genres);
-                let _ticketTypeGroupDocuments = this.shuffle(ticketTypeGroupDocuments);
-                let min = 60 + Math.floor(Math.random() * 120);
-                films.push({
-                    name: testNames[i].name,
-                    name_en: testNames[i].name_en,
-                    sections: _sections.slice(0, Math.floor(Math.random() * 5)),
-                    genres: _genres.slice(0, Math.floor(Math.random() * 5)),
-                    ticket_type_group: _ticketTypeGroupDocuments[0].get('_id'),
-                    created_user: 'system',
-                    updated_user: 'system',
-                });
-            }
-            this.logger.debug('removing all films...');
-            Models_1.default.Film.remove({}, (err) => {
-                this.logger.debug('creating films...');
-                Models_1.default.Film.create(films, (err, filmDocuments) => {
-                    this.logger.debug('films created.');
-                    mongoose.disconnect();
-                    if (err) {
-                    }
-                    else {
-                        this.logger.debug('success!');
-                        process.exit(0);
-                    }
-                });
-            });
-        });
-    }
     shuffle(array) {
         let m = array.length, t, i;
         // While there remain elements to shuffle…
@@ -121,140 +46,6 @@ class TestController extends BaseController_1.default {
         }
         return array;
     }
-    getSeats() {
-        let seats = [];
-        let letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
-        let grades = ScreenUtil_1.default.getSeatGrades();
-        for (let i = 0; i < 30; i++) {
-            let no = i + 1;
-            letters.forEach((letter) => {
-                let _grades = this.shuffle(grades);
-                seats.push({
-                    code: `${letter}-${no}`,
-                    grade: _grades[0]
-                });
-            });
-        }
-        return seats;
-    }
-    /**
-     * スクリーンを初期化する
-     */
-    createScreens() {
-        mongoose.connect(MONGOLAB_URI, {});
-        let theaters = [
-            '5750f5600b08d7700b973021',
-            '5775b0f0cd62cab416b4b361',
-            '5775b1bacd62cab416b4b363',
-        ];
-        let screens = [];
-        theaters.forEach((theater) => {
-            for (let i = 0; i < 10; i++) {
-                let no = i + 1;
-                screens.push({
-                    theater: theater,
-                    name: `スクリーン${no}`,
-                    name_en: `SCREEN${no}`,
-                    sections: [
-                        {
-                            code: 'SEC00',
-                            name: 'セクション00',
-                            name_en: 'Section00',
-                            seats: this.getSeats()
-                        }
-                    ],
-                    created_user: 'system',
-                    updated_user: 'system',
-                });
-            }
-        });
-        this.logger.debug('removing all screens...');
-        Models_1.default.Screen.remove({}, (err) => {
-            this.logger.debug('creating screens...');
-            Models_1.default.Screen.create(screens, (err, screenDocuments) => {
-                this.logger.debug('screens created.');
-                mongoose.disconnect();
-                if (err) {
-                }
-                else {
-                    this.logger.debug('success!');
-                    process.exit(0);
-                }
-            });
-        });
-    }
-    /**
-     * パフォーマンスを初期化する
-     */
-    createPerformances() {
-        mongoose.connect(MONGOLAB_URI, {});
-        let performances = [];
-        // 作品ごとのパフォーマンス数(最大3つになるように制御)
-        let performancesByFilm = {};
-        Models_1.default.Film.find({}, '_id', (err, filmDocuments) => {
-            Models_1.default.Screen.find({}, '_id theater', (err, screenDocuments) => {
-                let days = ['20161022', '20161023', '20161024', '20161025', '20161026', '20161027', '20161028'];
-                let starts = ['0900', '1200', '1500', '1800'];
-                let ends = ['1100', '1400', '1700', '2000'];
-                // スクリーンごとに4時間帯のスケジュールを登録する
-                screenDocuments.forEach((screen) => {
-                    this.logger.debug('performances length:', performances.length);
-                    days.forEach((day) => {
-                        starts.forEach((start, index) => {
-                            // 作品を選考する
-                            this.logger.debug('selecting film...');
-                            let _filmId;
-                            while (_filmId === undefined) {
-                                let _filmDocuments = this.shuffle(filmDocuments);
-                                let _film = _filmDocuments[0];
-                                if (performancesByFilm.hasOwnProperty(_film.get('_id'))) {
-                                    if (performancesByFilm[_film.get('_id')].length > 2) {
-                                        continue;
-                                    }
-                                    else {
-                                        performancesByFilm[_film.get('_id')].push('performance');
-                                        _filmId = _film.get('_id');
-                                    }
-                                }
-                                else {
-                                    performancesByFilm[_film.get('_id')] = [];
-                                    performancesByFilm[_film.get('_id')].push('performance');
-                                    _filmId = _film.get('_id');
-                                }
-                            }
-                            this.logger.debug('pushing performance...');
-                            performances.push({
-                                theater: screen.get('theater'),
-                                screen: screen.get('_id'),
-                                film: _filmId,
-                                day: day,
-                                start_time: start,
-                                end_time: ends[index],
-                                is_mx4d: this.shuffle([true, false, false, false])[0],
-                                created_user: 'system',
-                                updated_user: 'system'
-                            });
-                        });
-                    });
-                });
-                // 全削除して一気に作成
-                this.logger.debug('removing all performances...');
-                Models_1.default.Performance.remove({}, (err) => {
-                    this.logger.debug('creating performances...');
-                    Models_1.default.Performance.create(performances, (err, performanceDocuments) => {
-                        this.logger.debug('performances created.');
-                        mongoose.disconnect();
-                        if (err) {
-                        }
-                        else {
-                        }
-                        this.logger.debug('success!');
-                        process.exit(0);
-                    });
-                });
-            });
-        });
-    }
     /**
      * 予約を初期化する
      */
@@ -264,45 +55,6 @@ class TestController extends BaseController_1.default {
             this.logger.info('remove processed.', err);
             mongoose.disconnect();
             process.exit(0);
-        });
-    }
-    calculatePerformanceStatuses() {
-        mongoose.connect(MONGOLAB_URI, {});
-        Models_1.default.Performance.find({}, 'day start_time screen').populate('screen', 'sections')
-            .exec((err, performanceDocuments) => {
-            let promises = [];
-            let now = moment().format('YYYYMMDDHHmm');
-            let performanceStatusesModel = new PerformanceStatusesModel_1.default();
-            performanceDocuments.forEach((performanceDocument) => {
-                // パフォーマンスごとに空席割合を算出する
-                promises.push(new Promise((resolve, reject) => {
-                    Models_1.default.Reservation.count({
-                        performance: performanceDocument.get('_id')
-                    }, (err, reservationCount) => {
-                        if (err) {
-                        }
-                        else {
-                            console.log(reservationCount);
-                            let seatCount = performanceDocument.get('screen').get('sections')[0].seats.length;
-                            let start = performanceDocument.get('day') + performanceDocument.get('start_time');
-                            let status = PerformanceUtil_1.default.seatNum2status(reservationCount, seatCount, start, now);
-                            performanceStatusesModel.setStatus(performanceDocument.get('_id'), status);
-                        }
-                        resolve();
-                    });
-                }));
-            });
-            Promise.all(promises).then(() => {
-                performanceStatusesModel.save((err) => {
-                    this.logger.debug('success!');
-                    mongoose.disconnect();
-                    process.exit(0);
-                });
-            }, (err) => {
-                this.logger.debug('fail.');
-                mongoose.disconnect();
-                process.exit(0);
-            });
         });
     }
     /**
@@ -328,56 +80,6 @@ class TestController extends BaseController_1.default {
         else {
             process.exit(0);
         }
-    }
-    /**
-     * 作品画像を取得する
-     */
-    getFilmImages() {
-        mongoose.connect(MONGOLAB_URI, {});
-        Models_1.default.Film.find({}, 'name', (err, filmDocuments) => {
-            let next = (filmDocument) => {
-                let options = {
-                    url: `https://api.photozou.jp/rest/search_public.json?limit=1&keyword=${encodeURIComponent(filmDocument.get('name'))}`,
-                    json: true
-                };
-                console.log(options.url);
-                request.get(options, (error, response, body) => {
-                    if (!error && response.statusCode == 200) {
-                        if (body.stat === 'ok' && body.info.photo) {
-                            console.log(body.info.photo[0].image_url);
-                            let image = body.info.photo[0].image_url;
-                            // 画像情報更新
-                            Models_1.default.Film.update({
-                                _id: filmDocument.get('_id')
-                            }, {
-                                image: image
-                            }, (err) => {
-                                this.logger.debug('film udpated.');
-                                if (i === filmDocuments.length - 1) {
-                                    this.logger.debug('success!');
-                                    mongoose.disconnect();
-                                    process.exit(0);
-                                }
-                                else {
-                                    i++;
-                                    next(filmDocuments[i]);
-                                }
-                            });
-                        }
-                        else {
-                            i++;
-                            next(filmDocuments[i]);
-                        }
-                    }
-                    else {
-                        i++;
-                        next(filmDocuments[i]);
-                    }
-                });
-            };
-            let i = 0;
-            next(filmDocuments[i]);
-        });
     }
     /**
      * 予約完了メールを送信する
