@@ -4,6 +4,7 @@ import log4js = require('log4js');
 
 import TestController from './controllers/Test/TestController';
 import PreTiffController from './controllers/PreTiff/PreTiffController';
+import StaffController from './controllers/Staff/StaffController';
 
 
 
@@ -61,6 +62,25 @@ program
         log4js.configure(logDefaultConfiguration);
 
         (new PreTiffController())[method]();
+    });
+
+program
+    .command('staff <method>')
+    .description('内部関係者タスク')
+    .action((method) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/Staff${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+        fs.mkdirsSync(logDir);
+        logDefaultConfiguration.appenders.push({
+            category: 'system',
+            type: 'dateFile',
+            filename: `${logDir}/system.log`,
+            pattern: '-yyyy-MM-dd',
+            backups: 3
+        });
+        logDefaultConfiguration.levels.system = "ALL";
+        log4js.configure(logDefaultConfiguration);
+
+        (new StaffController())[method]();
     });
 
 // program

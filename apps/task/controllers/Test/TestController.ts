@@ -808,27 +808,6 @@ export default class TestController extends BaseController {
         });
     }
 
-    public createStaffs(): void {
-        mongoose.connect(MONGOLAB_URI, {});
-
-        let password_salt = Util.createToken();
-        Models.Staff.create(
-            {
-                user_id: 'motionpicture',
-                password_salt: password_salt,
-                password_hash: Util.createHash('password', password_salt),
-                name: 'モーションピクチャー',
-                email: 'ilovegadd@gmail.com',
-                tel: '09012345678',
-                department_name: '作品部'
-            },
-            () => {
-                mongoose.disconnect();
-                process.exit(0);
-            }
-        );
-    }
-
     public createSponsors(): void {
         mongoose.connect(MONGOLAB_URI, {});
 

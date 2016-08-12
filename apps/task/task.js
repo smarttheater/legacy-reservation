@@ -4,6 +4,7 @@ const fs = require('fs-extra');
 const log4js = require('log4js');
 const TestController_1 = require('./controllers/Test/TestController');
 const PreTiffController_1 = require('./controllers/PreTiff/PreTiffController');
+const StaffController_1 = require('./controllers/Staff/StaffController');
 let env = process.env.NODE_ENV || 'dev';
 let logDefaultConfiguration = {
     appenders: [
@@ -49,6 +50,23 @@ program
     logDefaultConfiguration.levels.system = "ALL";
     log4js.configure(logDefaultConfiguration);
     (new PreTiffController_1.default())[method]();
+});
+program
+    .command('staff <method>')
+    .description('内部関係者タスク')
+    .action((method) => {
+    let logDir = `${__dirname}/../../logs/${env}/task/Staff${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+    fs.mkdirsSync(logDir);
+    logDefaultConfiguration.appenders.push({
+        category: 'system',
+        type: 'dateFile',
+        filename: `${logDir}/system.log`,
+        pattern: '-yyyy-MM-dd',
+        backups: 3
+    });
+    logDefaultConfiguration.levels.system = "ALL";
+    log4js.configure(logDefaultConfiguration);
+    (new StaffController_1.default())[method]();
 });
 // program
 //   .command('*')

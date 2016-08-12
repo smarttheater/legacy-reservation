@@ -613,22 +613,6 @@ class TestController extends BaseController_1.default {
             });
         });
     }
-    createStaffs() {
-        mongoose.connect(MONGOLAB_URI, {});
-        let password_salt = Util_1.default.createToken();
-        Models_1.default.Staff.create({
-            user_id: 'motionpicture',
-            password_salt: password_salt,
-            password_hash: Util_1.default.createHash('password', password_salt),
-            name: 'モーションピクチャー',
-            email: 'ilovegadd@gmail.com',
-            tel: '09012345678',
-            department_name: '作品部'
-        }, () => {
-            mongoose.disconnect();
-            process.exit(0);
-        });
-    }
     createSponsors() {
         mongoose.connect(MONGOLAB_URI, {});
         let password_salt = Util_1.default.createToken();
