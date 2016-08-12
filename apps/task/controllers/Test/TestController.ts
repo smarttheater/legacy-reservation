@@ -848,4 +848,64 @@ export default class TestController extends BaseController {
             }
         );
     }
+
+    public createMemberReservations() {
+        mongoose.connect(MONGOLAB_URI, {});
+
+        Models.Performance.findOne().populate('screen').exec((err, performance) => {
+            let seats = performance.get('screen').sections[0].seats;
+
+            // 適当に座席を2つ選択
+            seats = this.shuffle(seats);
+
+            // 購入番号を発行
+            Models.Sequence.findOneAndUpdate(
+                {
+                    target: 'payment_no'
+                },
+                {
+                    $inc: {
+                        no: 1
+                    }
+                },
+                {
+                    new: true
+                },
+                (err, sequenceDocument) => {
+                    if (err) {
+                        mongoose.disconnect();
+                        process.exit(0);
+
+                    } else {
+                        let no: number = sequenceDocument.get('no');
+                        let paymentNo = `${no}${Util.getCheckDigit(no)}`;
+
+                        let newReservation1 = {
+                            performance: performance.get('_id'),
+                            seat_code: seats[0].code,
+                            payment_no: paymentNo,
+                            purchaser_group: ReservationUtil.PURCHASER_GROUP_MEMBER,
+                            status: ReservationUtil.STATUS_KEPT_BY_MEMBER,
+                            member: '57723c84e037e2bc26e2bcd0'
+                        }
+                        let newReservation2 = {
+                            performance: performance.get('_id'),
+                            seat_code: seats[1].code,
+                            payment_no: paymentNo,
+                            purchaser_group: ReservationUtil.PURCHASER_GROUP_MEMBER,
+                            status: ReservationUtil.STATUS_KEPT_BY_MEMBER,
+                            member: '57723c84e037e2bc26e2bcd0'
+                        }
+
+                        Models.Reservation.create(newReservation1, newReservation2, (err, reservation1, reservation2) => {
+                            this.logger.debug('reservations created.', err, reservation1, reservation2);
+
+                            mongoose.disconnect();
+                            process.exit(0);
+                        })
+                    }
+                }
+            );
+        });
+    }
 }

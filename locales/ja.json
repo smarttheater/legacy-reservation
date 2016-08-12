@@ -93,7 +93,8 @@
 		"UnexpectedError": "予期せぬエラー",
 		"UnavailableSeat": "Message.UnavailableSeat",
 		"SelectedSeatsUnavailable": "Message.SelectedSeatsUnavailable",
-		"Expired": "Message.Expired"
+		"Expired": "Message.Expired",
+		"NotFound": "Message.NotFound"
 	},
 	"h3": {
 		"SeatChoices": "座席情報",

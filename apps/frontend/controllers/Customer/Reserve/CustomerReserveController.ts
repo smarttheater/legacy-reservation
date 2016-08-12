@@ -262,10 +262,6 @@ export default class CustomerReserveController extends ReserveBaseController {
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
-            this.logger.debug('reservationModel is ', reservationModel.toLog());
-
-            this.res.locals.GMOUtil = GMOUtil;
-
             if (this.req.method === 'POST') {
                 let form = reserveProfileForm(this.req);
                 form(this.req, this.res, (err) => {
@@ -393,9 +389,7 @@ export default class CustomerReserveController extends ReserveBaseController {
 
             } else {
                 this.res.render('customer/reserve/confirm', {
-                    reservationModel: reservationModel,
-                    ReservationUtil: ReservationUtil,
-                    GMOUtil: GMOUtil
+                    reservationModel: reservationModel
                 });
 
             }

@@ -1,52 +1,6 @@
-<h1>購入者情報</h1>
+<%- include('../../common/reserve/_profile') %>
 
-<%- include('../../common/reserve/_reservationModel') %>
-
-<%- include('../../common/reserve/_step') %>
-
-<% if (req.form) { %>
-<div class="alert alert-danger" role="alert">
-    <a href="javascript:void(0)" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-    <% Object.keys(req.form.getErrors()).forEach(function (key) { %>
-    <%- req.form.getErrors(key)[0] %><br>
-    <% }) %>
+<div class="btns2clm">
+    <a class="btn btn-lg btn-next" href="javascript:void(0);"><span><%- __('Button.Next') %></span></a>
+    <a class="btn btn-lg btn-back" href="<%- url('member.reserve.tickets', {token: req.params.token}) %>"><span><%- __('Button.Back') %></span></a>
 </div>
-<% } %>
-
-<form method="post">
-    <div class="form-group">
-        <label for="id_lastName">せい</label>
-        <input type="text" name="lastName" id="id_lastName" class="form-control" value="<%- (lastName) ? lastName : '' %>">
-    </div>
-
-    <div class="form-group">
-        <label for="id_firstName">めい</label>
-        <input type="text" name="firstName" id="id_firstName" class="form-control" value="<%- (firstName) ? firstName : '' %>">
-    </div>
-
-
-    <div class="form-group">
-        <label for="id_tel">電話番号</label>
-        <input type="text" name="tel" id="id_tel" class="form-control" value="<%- (tel) ? tel : '' %>">
-    </div>
-
-    <div class="form-group">
-        <label for="id_email">メールアドレス</label>
-        <input type="text" name="email" id="id_email" class="form-control" value="<%- (email) ? email : '' %>">
-    </div>
-
-
-    <div class="form-group">
-        <label for="id_emailConfirm">メールアドレス(確認)</label>
-        <input type="text" name="emailConfirm" id="id_emailConfirm" class="form-control" value="<%- (emailConfirm) ? emailConfirm : '' %>">
-    </div>
-
-
-    <div class="form-group">
-        <label for="id_emailConfirmDomain">メールアドレスドメイン(確認)</label>
-        <input type="text" name="emailConfirmDomain" id="id_emailConfirmDomain" class="form-control" value="<%- (emailConfirmDomain) ? emailConfirmDomain : '' %>">
-    </div>
-
-    <a class="btn btn-default btn-lg btn-block" href="<%- url('member.reserve.tickets', {token: req.params.token}) %>">戻る</a>
-    <input class="btn btn-primary btn-lg btn-block confirm-reservation" type="submit" value="送信">
-</form>

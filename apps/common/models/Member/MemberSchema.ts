@@ -5,12 +5,7 @@ import mongoose = require('mongoose');
  */
 let Schema = new mongoose.Schema({
     user_id: String,
-    password: String,
-    performance: { 
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Performance'
-    },
-    seat_code: String,
+    password: String
 },{
     collection: 'members',
     timestamps: { 

@@ -37,7 +37,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
         Models.Reservation.find(
             {
                 payment_no: gmoResultModel.OrderID,
-                status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED]}
+                status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_KEPT_BY_MEMBER, ReservationUtil.STATUS_RESERVED]}
             },
             '_id total_charge purchaser_group',
             (err, reservationDocuments) => {
@@ -120,7 +120,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 Models.Reservation.find(
                     {
                         payment_no: gmoNotificationModel.OrderID,
-                        status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED]}
+                        status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_KEPT_BY_MEMBER, ReservationUtil.STATUS_RESERVED]}
                     },
                     '_id total_charge',
                     (err, reservationDocuments) => {

@@ -1,26 +1,59 @@
-<h1>規約</h1>
+<h1 class="pagetitle">規約</h1>
+<p class="guidetext">ご利用規約をご確認頂き、問題ないようでしたら「利用規約に同意して次へ」ボタンを押してください</p>
 
-<% if (req.form) { %>
-<div class="alert alert-danger" role="alert">
-    <a href="javascript:void(0)" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+<p class="termtext">
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit.<br>
+    Laborum sequi optio ullam ad nihil dolores eum, officiis assumenda delectus ea.<br>
+    Adipisci, laboriosam, illo! Fugiat officia quisquam, quasi ex et voluptate.<br>
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit.<br>
+    Nemo hic sit et facilis minima nulla tempora,<br>
+    quibusdam, quos esse obcaecati beatae officia ab,<br>
+    doloribus amet nisi. Voluptatibus corporis iusto veniam.<br>
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit.<br>
+    Placeat magni hic magnam ducimus ratione rem perferendis totam sed,<br>
+    aliquam veniam error quibusdam accusantium sit aspernatur facere eaque incidunt minus nesciunt.<br>
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit.<br>
+    Impedit dolore unde, tempora nemo illo id suscipit voluptatibus ipsam,<br>
+    qui officia, earum ullam labore exercitationem dicta cupiditate, ducimus explicabo animi quas!<br>
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit.<br>
+    Laborum sequi optio ullam ad nihil dolores eum, officiis assumenda delectus ea.<br>
+    Adipisci, laboriosam, illo! Fugiat officia quisquam, quasi ex et voluptate.<br>
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit.<br>
+    Nemo hic sit et facilis minima nulla tempora,<br>
+    quibusdam, quos esse obcaecati beatae officia ab,<br>
+    doloribus amet nisi. Voluptatibus corporis iusto veniam.<br>
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit.<br>
+    Placeat magni hic magnam ducimus ratione rem perferendis totam sed,<br>
+    aliquam veniam error quibusdam accusantium sit aspernatur facere eaque incidunt minus nesciunt.<br>
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit.<br>
+    Impedit dolore unde, tempora nemo illo id suscipit voluptatibus ipsam,<br>
+    qui officia, earum ullam labore exercitationem dicta cupiditate, ducimus explicabo animi quas!
+</p>
+
+<div class="loginform loginform-member">
+    <% if (req.form) { %>
     <% Object.keys(req.form.getErrors()).forEach(function (key) { %>
-    <%- req.form.getErrors(key)[0] %><br>
+    <p class="errmsg"><%- req.form.getErrors(key)[0] %></p>
     <% }) %>
-</div>
-<% } %>
+    <% } %>
 
-<div class="row">
     <form method="post">
-        <div class="form-group">
-            <label for="id_userId">ログイン番号</label>
+        <div class="form-group form-inline">
+            <labeL>ログイン番号</labeL>
             <input type="text" name="userId" id="id_userId" class="form-control" value="<%- userId %>">
         </div>
-
-        <div class="form-group">
-            <label for="id_password">パスワード</label>
+        <div class="form-group form-inline">
+            <label>パスワード</label>
             <input type="password" name="password" id="id_password" class="form-control" value="<%- password %>">
         </div>
-
-        <input type="submit" class="btn btn-primary btn-lg btn-block">
+        <a class="btn btn-big btn-login" href="javascript:void(0);"><span>ログイン</span></a>
     </form>
 </div>
+
+<script>
+$(function(){
+    $('.btn-login').on('click', function(){
+        $('form').submit();
+    });
+});
+</script>

@@ -1,15 +1,21 @@
 "use strict";
 const BaseController_1 = require('./BaseController');
 const Util_1 = require('../../common/Util/Util');
-const Models_1 = require('../../common/models/Models');
+const GMOUtil_1 = require('../../common/Util/GMO/GMOUtil');
 const ReservationUtil_1 = require('../../common/models/Reservation/ReservationUtil');
 const TicketTypeGroupUtil_1 = require('../../common/models/TicketTypeGroup/TicketTypeGroupUtil');
+const Models_1 = require('../../common/models/Models');
 const moment = require('moment');
 const fs = require('fs-extra');
 /**
  * 予約フローベースコントローラー
  */
 class ReserveBaseController extends BaseController_1.default {
+    constructor(req, res, next) {
+        super(req, res, next);
+        this.res.locals.GMOUtil = GMOUtil_1.default;
+        this.res.locals.ReservationUtil = ReservationUtil_1.default;
+    }
     /**
      * 予約フロー中の座席をキャンセルするプロセス
      *

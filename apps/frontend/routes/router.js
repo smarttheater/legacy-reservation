@@ -122,7 +122,6 @@ exports.default = (app) => {
     app.all('/member/reserve/:token/tickets', 'member.reserve.tickets', authenticationMember, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).tickets(); });
     app.all('/member/reserve/:token/profile', 'member.reserve.profile', authenticationMember, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).profile(); });
     app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', authenticationMember, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).confirm(); });
-    app.get('/member/reserve/:token/waitingSettlement', 'member.reserve.waitingSettlement', (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).waitingSettlement(); });
     app.get('/member/reserve/:paymentNo/complete', 'member.reserve.complete', (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).complete(); });
     // TODO admin権限フロー
     let staffBase = (req, res, next) => {

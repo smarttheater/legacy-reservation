@@ -179,7 +179,6 @@ class StaffReserveController extends ReserveBaseController_1.default {
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
-            this.logger.debug('reservationModel is ', reservationModel.toLog());
             if (this.req.method === 'POST') {
                 // 購入番号発行
                 this.createPaymentNo((err, paymentNo) => {

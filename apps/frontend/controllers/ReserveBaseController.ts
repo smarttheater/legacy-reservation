@@ -1,16 +1,26 @@
 import BaseController from './BaseController';
 import Util from '../../common/Util/Util';
-import Models from '../../common/models/Models';
+import GMOUtil from '../../common/Util/GMO/GMOUtil';
 import ReservationUtil from '../../common/models/Reservation/ReservationUtil';
 import TicketTypeGroupUtil from '../../common/models/TicketTypeGroup/TicketTypeGroupUtil';
+import Models from '../../common/models/Models';
 import ReservationModel from '../models/Reserve/ReservationModel';
 import moment = require('moment');
 import fs = require('fs-extra');
+import express = require('express');
 
 /**
  * 予約フローベースコントローラー
  */
 export default class ReserveBaseController extends BaseController {
+
+    constructor(req: express.Request, res: express.Response, next: express.NextFunction) {
+        super(req, res, next);
+
+        this.res.locals.GMOUtil = GMOUtil;
+        this.res.locals.ReservationUtil = ReservationUtil;
+    } 
+
     /**
      * 予約フロー中の座席をキャンセルするプロセス
      * 

@@ -303,8 +303,6 @@ export default class SponsorReserveController extends ReserveBaseController {
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
-            this.logger.debug('reservationModel is ', reservationModel.toLog());
-
             if (this.req.method === 'POST') {
                 let form = reserveProfileForm(this.req);
                 form(this.req, this.res, (err) => {
@@ -389,8 +387,6 @@ export default class SponsorReserveController extends ReserveBaseController {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
-
-            this.logger.debug('reservationModel is ', reservationModel.toLog());
 
             if (this.req.method === 'POST') {
                 // 購入番号発行

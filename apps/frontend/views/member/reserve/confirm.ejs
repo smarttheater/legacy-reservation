@@ -1,48 +1,125 @@
-<h1>予約内容確認</h1>
-
 <%- include('../../common/reserve/_step') %>
 
-<div class="row">
-    <h3>座席情報</h3>
-    <a class="btn btn-default" href="<%- url('member.reserve.tickets', {token: reservationModel.token}) %>">変更</a>
+<h1 class="pagetitle"><%- __('h1.ConfirmReservation') %></h1>
+<p class="guidetext">内容をご確認のうえ、「利用規約に同意して次へ」ボタンを押してください。</p>
 
-    <dl class="dl-horizontal">
-        <dt>作品名</dt>
-        <dd><%- reservationModel.performance.film.name %></dd>
+<div class="wrapper-confirm">
 
-        <dt>上映時間/場所</dt>
-        <dd><%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ <%- reservationModel.performance.theater.name %>　<%- reservationModel.performance.screen.name %></dd>
+    <h2>座席情報</h2>
+    <table class="table table-confirm">
+        <tbody>
 
-        <dt>座席/券種</dt>
+            <tr>
+                <th><%- __('Label.FilmName') %></th>
+                <td>
+                    <p><%- reservationModel.performance.film[__('DocumentField.name')] %></p>
+                </td>
+            </tr>
 
-        <dd>
-            <% reservationModel.seatCodes.forEach((seatCode) => { %>
-            <% let reservation = reservationModel.getReservation(seatCode) %>
-            <a class="show-seat-position" href="javascript:void(0);" data-screen-id="<%- reservationModel.performance.screen._id %>" data-seat-code="<%- reservation.seat_code %>"><%- reservation.seat_code %></a> <%- reservation.ticket_type_name %> <%- reservation.ticket_type_charge %>円、
-            <% }) %><br>
-            <strong>合計金額:<%- reservationModel.getTotalCharge() %>円</strong>
-        </dd>
+            <tr>
+                <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
+                <td>
+                    <p>
+                        <%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ 
+                        <%- reservationModel.performance.theater[__('DocumentField.name')] %> 
+                        <%- reservationModel.performance.screen[__('DocumentField.name')] %>
+                    </p>
+                </td>
+            </tr>
 
-    </dl>
+            <tr>
+                <th>
+                    <%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %>
+                </th>
+                <td>
+                    <p>
+                        <% reservationModel.seatCodes.forEach((seatCode) => { %>
+                            <% let reservation = reservationModel.getReservation(seatCode) %>
+                            <%- reservation.seat_code %> / 
+                            <%- reservation[`ticket_type_${__('DocumentField.name')}`] %> <%- __('{{price}} yen', {price: reservation.ticket_type_charge}) %>
+                            <%- (reservationModel.performance.is_mx4d) ? '[+200(MX4D)]' : '' %>
+                            <%- (reservation.seat_grade_additional_charge > 0) ? `[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_${__('DocumentField.name')}`]})]` : '' %>
+                        <% }) %>、
+                    </p>
+                 </td>
+            </tr>
+
+            <tr>
+                <th>
+                    <%- __('Label.TotalPrice') %>
+                </th>
+                <td>
+                    <p>
+                        <span class="price"><%- __('{{price}} yen', {price: reservationModel.getTotalCharge()}) %></span>
+                    </p>
+                </td>
+            </tr>
+            
+        </tbody>
+    </table>
 
 
-    <h3>予約者情報</h3>
-    <a class="btn btn-default" href="<%- url('member.reserve.profile', {token: reservationModel.token}) %>">変更</a>
+    <h2>
+        <%- __('h3.Profile') %>
+        <a class="btn btn-default btn-change btn-icon-back" href="<%- url('member.reserve.profile', {token: reservationModel.token}) %>">
+            <span><%- __('Button.Change') %></span>
+        </a>
+    </h2>
+    <table class="table table-confirm">
+        <tbody>
 
-    <dl class="dl-horizontal">
-        <dt>お名前</dt>
-        <dd><%- reservationModel.profile.last_name %> <%- reservationModel.profile.first_name %></dd>
-
-        <dt>メールアドレス</dt>
-        <dd class="text-danger"><%- reservationModel.profile.email %></dd>
-
-        <dt>電話番号</dt>
-        <dd><%- reservationModel.profile.tel %></dd>
-    </dl>
+            <tr>
+                <th><%- __('Label.FullName') %></th>
+                <td>
+                    <p><%- reservationModel.profile.last_name %> <%- reservationModel.profile.first_name %></p>
+                </td>
+            </tr>
 
 
-    <a class="btn btn-default btn-lg btn-block" href="<%- url('member.reserve.profile', {token: req.params.token}) %>">戻る</a>
-    <a class="btn btn-primary btn-lg btn-block confirm-reservation" href="javascript:void(0);">購入を確定</a>
+            <tr>
+                <th><%- __('Label.Email') %></th>
+                <td>
+                    <p><%- reservationModel.profile.email %></p>
+                </td>
+            </tr>
+
+            <tr>
+                <th><%- __('Label.Tel') %></th>
+                <td>
+                    <p><%- reservationModel.profile.tel %></p>
+                </td>
+            </tr>
+
+            <tr>
+                <th><%- __('Label.PaymentMethod') %></th>
+                <td>
+                    <p>
+                    <% if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) { %>
+                    <%- __('Label.PaymentMethodName.CREDIT') %>
+                    <% } else if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) {%>
+                    <%- __('Label.PaymentMethodName.CVS') %>
+                    <% } %>
+                    </p>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</div>
+
+<div class="wrapper-notice">
+    <h2>注意事項</h2>
+    <p>
+        ・チケットの払い戻し・交換・再発行はいたしません。<br>
+        ・東京都青少年の健全な育成に関する条例により18歳未満の方は23時から翌朝4時までの劇場への出入りは禁止となっております。<br>
+        保護者同伴の場合も同様です。<br>
+        ・携帯電話のドメイン指定受信をご利用の場合は「xxxxxxxxxx@xxx.xxx」をご指定ください。
+    </p>
+</div>
+
+<div class="btns2clm">
+    <a class="btn btn-lg btn-next confirm-reservation" href="javascript:void(0);"><span><%- __('Button.GoToPayment') %><span class="smalltext">(外部サイトへ移動します)</span></span></a>
+    <a class="btn btn-lg btn-back" href="<%- url('customer.reserve.profile', {token: req.params.token}) %>"><span><%- __('Button.Back') %></span></a>
 </div>
 
 <script>

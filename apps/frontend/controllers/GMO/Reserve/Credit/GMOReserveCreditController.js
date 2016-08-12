@@ -29,7 +29,7 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
         this.logger.info('finding reservations...payment_no:', gmoResultModel.OrderID);
         Models_1.default.Reservation.find({
             payment_no: gmoResultModel.OrderID,
-            status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_RESERVED] }
+            status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER, ReservationUtil_1.default.STATUS_RESERVED] }
         }, '_id total_charge purchaser_group', (err, reservationDocuments) => {
             this.logger.info('reservations found.', err, reservationDocuments.length);
             if (err)
@@ -99,7 +99,7 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                 this.logger.info('finding reservations...payment_no:', gmoNotificationModel.OrderID);
                 Models_1.default.Reservation.find({
                     payment_no: gmoNotificationModel.OrderID,
-                    status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_RESERVED] }
+                    status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER, ReservationUtil_1.default.STATUS_RESERVED] }
                 }, '_id total_charge', (err, reservationDocuments) => {
                     this.logger.info('reservations found.', err, reservationDocuments.length);
                     if (err)
