@@ -34,6 +34,7 @@ export default class StaffMyPageController extends BaseController {
 
         conditions.push(
             {
+                purchaser_group: ReservationUtil.PURCHASER_GROUP_STAFF,
                 staff: this.staffUser.get('_id'),
                 status: ReservationUtil.STATUS_RESERVED
             }

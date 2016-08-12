@@ -28,6 +28,7 @@ class StaffMyPageController extends BaseController_1.default {
         // 検索条件を作成
         let conditions = [];
         conditions.push({
+            purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
             staff: this.staffUser.get('_id'),
             status: ReservationUtil_1.default.STATUS_RESERVED
         });

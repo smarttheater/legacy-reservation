@@ -13,21 +13,14 @@ $(function(){
             + '<tr data-seat-code="' + reservation.seat_code + '" data-reservation-id="' + reservation._id + '">'
                 + '<th class="td-checkbox"><input type="checkbox" value=""></th>'
                 + '<td class="td-number">' + reservation.payment_no + '</td>'
+                + '<td class="td-tel">' + reservation.purchaser_tel + '</td>'
+                + '<td class="td-updater">' + reservation.purchaser_last_name + ' ' + reservation.purchaser_first_name + '</td>'
                 + '<td class="td-title">'
                     + reservation.film_name_en + '<br>'
                     + reservation.performance_day + ' ' + reservation.performance_start_time + ' ～<br>'
                     + reservation.theater_name_en + ' ' + reservation.screen_name_en + ''
                 + '</td>'
                 + '<td class="td-seat"><a href="javascript:void(0);" class="show-seat-position" data-screen-id="' + reservation.screen.toString() + '" data-seat-codes="' + reservation.seat_code + '">' + reservation.seat_code + '</a></td>'
-                + '<td class="td-updater">' + reservation.staff_signature + '</td>'
-                + '<td class="td-distribution form-inline">'
-                    + '<div class="form-group">'
-                        + '<input class="form-control" type="text" value="' + reservation.watcher_name + '">'
-                    + '</div>'
-                    + '<div class="form-group">'
-                        + '<p class="btn update-watcher-name"><span>Update</span></p>'
-                    + '</div>'
-                + '</td>'
                 + '<td class="td-actions">'
                     + '<p class="btn confirm-cancel"><span>Cancel</span></p>'
                     + '<p class="btn"><span>Print</span></p>'
@@ -167,34 +160,6 @@ $(function(){
                 $('.cancel-reservation-complete').modal();
             } else {
                 alert('Failed canceling.');
-            }
-        }).fail(function(jqxhr, textStatus, error) {
-        }).always(function() {
-        });
-    });
-
-    // 配布先更新
-    $(document).on('click', '.update-watcher-name', function(){
-        var reservationId = $(this).parent().parent().parent().attr('data-reservation-id');
-        var watcherName = $('input', $(this).parent().parent()).val();
-
-        $.ajax({
-            dataType: 'json',
-            url: $('input[name="urlUpdateWatcherName"]').val(),
-            type: 'POST',
-            data: {
-                reservationId: reservationId,
-                watcherName: watcherName,
-            },
-            beforeSend: function() {
-            }
-        }).done(function(data) {
-            if (data.isSuccess) {
-                // 再検索
-                search();
-
-            } else {
-                alert('Failed Updating.');
             }
         }).fail(function(jqxhr, textStatus, error) {
         }).always(function() {

@@ -119,31 +119,54 @@ class SponsorCancelController extends BaseController_1.default {
         });
     }
     execute() {
-        let reservationId = this.req.body.reservation_id;
-        // TIFF確保にステータス更新
-        this.logger.debug('canceling reservation...id:', reservationId);
-        Models_1.default.Reservation.update({
-            _id: reservationId,
-            sponsor: this.sponsorUser.get('_id'),
-            purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR,
-            status: ReservationUtil_1.default.STATUS_RESERVED
-        }, {
-            status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
-        }, (err, raw) => {
-            if (err) {
-                this.res.json({
-                    isSuccess: false,
-                    messaeg: this.req.__('Message.UnexpectedError'),
-                    reservationId: reservationId
-                });
+        // 予約IDリストをjson形式で受け取る
+        let reservationIds = JSON.parse(this.req.body.reservationIds);
+        if (Array.isArray(reservationIds)) {
+            let promises = [];
+            let updatedReservationIds = [];
+            for (let reservationId of reservationIds) {
+                promises.push(new Promise((resolve, reject) => {
+                    // TIFF確保にステータス更新
+                    this.logger.debug('canceling reservation...id:', reservationId);
+                    Models_1.default.Reservation.update({
+                        _id: reservationId,
+                        sponsor: this.sponsorUser.get('_id'),
+                        purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR,
+                        status: ReservationUtil_1.default.STATUS_RESERVED
+                    }, {
+                        // TODO 内部保留の所有者はadmin
+                        status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+                    }, (err, raw) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            updatedReservationIds.push(reservationId);
+                            resolve();
+                        }
+                    });
+                }));
             }
-            else {
+            Promise.all(promises).then(() => {
                 this.res.json({
                     isSuccess: true,
-                    reservationId: reservationId
+                    reservationIds: updatedReservationIds
                 });
-            }
-        });
+            }, (err) => {
+                this.res.json({
+                    isSuccess: false,
+                    message: err.message,
+                    reservationId: []
+                });
+            });
+        }
+        else {
+            this.res.json({
+                isSuccess: false,
+                message: this.req.__('Message.UnexpectedError'),
+                reservationId: []
+            });
+        }
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

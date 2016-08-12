@@ -1,5 +1,5 @@
 <div class="wrapper-searchform">
-    <form class="search-form">
+    <form class="search-form" action="<%- url('staff.mypage.search') %>">
     <table class="table">
         <tbody>
             <tr>
@@ -48,7 +48,7 @@
                             <input type="text" class="form-control" name="updater">
                         </div>
                         <div class="form-group">
-                            <a class="btn search" href="javascript:void(0)"><span><%- __('Button.Search') %></span></a>
+                            <a class="btn" href="javascript:void(0)"><span><%- __('Button.Search') %></span></a>
                         </div>
                     </div>
                 </td>
@@ -105,18 +105,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 <div class="modal fade cancel-reservation-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -157,15 +145,14 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <div class="text-center">searching...</div>
+                <div class="text-center"><%- __('Message.Searching') %></div>
             </div>
         </div>
     </div>
 </div>
 
-<input type="hidden" name="urlSearch" value="<%- url('staff.mypage.search', {}) %>">
-<input type="hidden" name="urlCancel" value="<%- url('staff.cancel.execute', {}) %>">
-<input type="hidden" name="urlUpdateWatcherName" value="<%- url('staff.mypage.updateWatcherName', {}) %>">
+<input type="hidden" name="urlCancel" value="<%- url('staff.cancel.execute') %>">
+<input type="hidden" name="urlUpdateWatcherName" value="<%- url('staff.mypage.updateWatcherName') %>">
 
 <script src="/js/staff/mypage.js"></script>
 

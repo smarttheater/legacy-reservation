@@ -201,8 +201,9 @@ export default (app: any) => {
     // 外部関係者
     // TODO キャンセルするためだけのフォームページ
     app.all('/sponsor/login', 'sponsor.mypage.login', sponsorBase, (req, res, next) => {(new SponsorAuthController(req, res, next)).login()});
-    app.all('/sponsor/logout', 'sponsor.logout', sponsorBase, (req, res, next) => {(new SponsorAuthController(req, res, next)).logout()});
+    app.all('/sponsor/logout', 'sponsor.logout', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorAuthController(req, res, next)).logout()});
     app.all('/sponsor/mypage', 'sponsor.mypage', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorMyPageController(req, res, next)).index()});
+    app.get('/sponsor/mypage/search', 'sponsor.mypage.search', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorMyPageController(req, res, next)).search()});
     app.get('/sponsor/reserve/start', 'sponsor.reserve.start', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).start()});
     app.all('/sponsor/reserve/:token/performances', 'sponsor.reserve.performances', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).performances()});
     app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).seats()});
@@ -210,9 +211,10 @@ export default (app: any) => {
     app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).profile()});
     app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).confirm()});
     app.get('/sponsor/reserve/:paymentNo/complete', 'sponsor.reserve.complete', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorReserveController(req, res, next)).complete()});
+    app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', sponsorBase, authenticationSponsor, (req, res, next) => {(new SponsorCancelController(req, res, next)).execute()});
+    // ↓ログイン不要
     app.all('/sponsor/cancel', 'sponsor.cancel', sponsorBase, (req, res, next) => {(new SponsorCancelController(req, res, next)).index()});
     app.post('/sponsor/cancel/executeByPaymentNo', 'sponsor.cancel.executeByPaymentNo', sponsorBase, (req, res, next) => {(new SponsorCancelController(req, res, next)).executeByPaymentNo()});
-    app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', sponsorBase, (req, res, next) => {(new SponsorCancelController(req, res, next)).execute()});
 
 
 
