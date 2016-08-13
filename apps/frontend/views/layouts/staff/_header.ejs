@@ -14,8 +14,8 @@ if (req.hasOwnProperty('route')) {
             <div class="menu-staff">
                 <p class="myname"><%= staffUser.get('department_name') %> <%= __('Mr{{name}}', {name: staffUser.get('name')}) %></p>
                 <div class="staff-btns">
-                    <a class="btn btn-logout" href="<%- url('staff.logout') %>"><span>Logout</span></a>
-                    <a class="btn btn-newticket" href="<%- url('staff.reserve.start') %>"><span>New Ticket</span></a>
+                    <a class="btn btn-logout" href="<%- url('staff.logout') %>"><span><%- __('Button.Logout') %></span></a>
+                    <a class="btn btn-newticket" href="<%- url('staff.reserve.start') %>"><span><%- __('Button.NewTicket') %></span></a>
                     <% if (staffUser.get('is_admin')) { %>
                     <a class="btn btn-release" href="release"><span>座席解放</span></a>
                     <% } %>

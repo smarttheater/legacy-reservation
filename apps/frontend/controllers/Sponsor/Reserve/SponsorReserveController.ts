@@ -72,58 +72,49 @@ export default class SponsorReserveController extends ReserveBaseController {
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
-            // 外部関係者による予約数を取得
-            Models.Reservation.count(
-                {
-                    sponsor: this.sponsorUser.get('_id'),
-                    status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED]}
-                },
-            (err, reservationsCount) => {
-                if (parseInt(this.sponsorUser.get('max_reservation_count')) <= reservationsCount) {
-                    return this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', {limit: this.sponsorUser.get('max_reservation_count')})));
-                }
+            // 仮予約あればキャンセルする
+            this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                reservationModel.save((err) => {
 
-                if (this.req.method === 'POST') {
-                    reservePerformanceForm(this.req, this.res, (err) => {
-                        if (this.req.form.isValid) {
-                            // パフォーマンスFIX
-                            this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
-                                if (err) {
-                                    this.next(err);
-                                } else {
+                    // 外部関係者による予約数を取得
+                    Models.Reservation.count(
+                        {
+                            sponsor: this.sponsorUser.get('_id'),
+                            status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED]}
+                        },
+                        (err, reservationsCount) => {
+                            if (parseInt(this.sponsorUser.get('max_reservation_count')) <= reservationsCount) {
+                                return this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', {limit: this.sponsorUser.get('max_reservation_count')})));
+                            }
 
-                                    this.logger.debug('saving reservationModel... ', reservationModel);
-                                    reservationModel.save((err) => {
-                                        this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
-                                    });
-
-                                }
-                            });
-
-                        } else {
-                            this.next(new Error(this.req.__('Message.UnexpectedError')));
-
+                            if (this.req.method === 'POST') {
+                                reservePerformanceForm(this.req, this.res, (err) => {
+                                    if (this.req.form.isValid) {
+                                        // パフォーマンスFIX
+                                        this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
+                                            if (err) {
+                                                this.next(new Error(this.req.__('Message.UnexpectedError')));
+                                            } else {
+                                                reservationModel.save((err) => {
+                                                    this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
+                                                });
+                                            }
+                                        });
+                                    } else {
+                                        this.next(new Error(this.req.__('Message.UnexpectedError')));
+                                    }
+                                });
+                            } else {
+                                this.res.render('sponsor/reserve/performances', {
+                                    layout: 'layouts/sponsor/layout',
+                                    FilmUtil: FilmUtil,
+                                    reservationsCount: reservationsCount
+                                });
+                            }
                         }
-
-                    });
-                } else {
-                    // 仮予約あればキャンセルする
-                    // TODO キャンセルのタイミングとカウントのタイミング
-                    this.processCancelSeats(reservationModel, (err, reservationModel) => {
-                        this.logger.debug('saving reservationModel... ', reservationModel);
-                        reservationModel.save((err) => {
-                            this.res.render('sponsor/reserve/performances', {
-                                layout: 'layouts/sponsor/layout',
-                                FilmUtil: FilmUtil,
-                                reservationsCount: reservationsCount
-                            });
-                        });
-                    });
-
-                }
-
+                    );
+                });
             });
-
         });
     }
 
@@ -185,16 +176,15 @@ export default class SponsorReserveController extends ReserveBaseController {
                                                     lockFile.unlock(lockPath, () => {
 
                                                         if (err) {
-                                                            let message = err.message;
-                                                            this.res.redirect(`${this.router.build('sponsor.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
-
+                                                            reservationModel.save((err) => {
+                                                                let message = this.req.__('Mesasge.SelectedSeatsUnavailable');
+                                                                this.res.redirect(`${this.router.build('sponsor.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+                                                            });
                                                         } else {
-                                                            this.logger.debug('saving reservationModel... ');
                                                             reservationModel.save((err) => {
                                                                 // 券種選択へ
                                                                 this.res.redirect(this.router.build('sponsor.reserve.tickets', {token: token}));
                                                             });
-
                                                         }
 
                                                     });

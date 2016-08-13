@@ -51,7 +51,7 @@ export default class PerformanceController extends BaseController {
         }
 
         // 作品条件を追加する
-        this.addFilmConditions(andConditions, section, genre, words, (err, andConditions) => {
+        this.addFilmConditions(andConditions, section, genre, words, (err, andConditions, filmsCount) => {
 
             let conditions = null;
             if (andConditions.length > 0) {
@@ -64,7 +64,7 @@ export default class PerformanceController extends BaseController {
             // 総数検索
             Models.Performance.count(
                 conditions,
-                (err, count) => {
+                (err, performancesCount) => {
 
                     let query = Models.Performance.find(
                         conditions,
@@ -108,14 +108,16 @@ export default class PerformanceController extends BaseController {
                                 this.res.json({
                                     isSuccess: false,
                                     results: [],
-                                    count: 0
+                                    performancesCount: 0,
+                                    filmsCount: filmsCount
                                 });
 
                             } else {
                                 this.res.json({
                                     isSuccess: true,
                                     results: results,
-                                    count: count
+                                    performancesCount: performancesCount,
+                                    filmsCount: filmsCount
                                 });
 
                             }
@@ -128,7 +130,7 @@ export default class PerformanceController extends BaseController {
         });
     }
 
-    private addFilmConditions(andConditions: Array<Object>, section: string, genre: string, words: string, cb: (err: Error, andConditions: Array<Object>) => void) {
+    private addFilmConditions(andConditions: Array<Object>, section: string, genre: string, words: string, cb: (err: Error, andConditions: Array<Object>, filmsCount: number) => void) {
 
         let filmAndConditions: Array<Object> = [];
         if (section) {
@@ -180,7 +182,12 @@ export default class PerformanceController extends BaseController {
                 {},
                 (err, filmDocuments) => {
                     if (err) {
-                        cb(err, andConditions);
+                        // 検索結果のない条件を追加
+                        andConditions.push({
+                            'film': null
+                        });
+
+                        cb(err, andConditions, 0);
                     } else {
                         let filmIds = filmDocuments.map((filmDocument) => {
                             return filmDocument.get('_id');
@@ -199,12 +206,15 @@ export default class PerformanceController extends BaseController {
                             });
                         }
 
-                        cb(null, andConditions);
+                        cb(null, andConditions, filmIds.length);
                     }
                 }
             )
         } else {
-            cb(null, andConditions);
+            // 全作品数を取得
+            Models.Film.count({}, (err, count) => {
+                cb(null, andConditions, count);
+            })
         }
     }
 }

@@ -42,7 +42,7 @@ class PerformanceController extends BaseController_1.default {
             });
         }
         // 作品条件を追加する
-        this.addFilmConditions(andConditions, section, genre, words, (err, andConditions) => {
+        this.addFilmConditions(andConditions, section, genre, words, (err, andConditions, filmsCount) => {
             let conditions = null;
             if (andConditions.length > 0) {
                 conditions = {
@@ -51,7 +51,7 @@ class PerformanceController extends BaseController_1.default {
             }
             this.logger.debug('conditions:', conditions);
             // 総数検索
-            Models_1.default.Performance.count(conditions, (err, count) => {
+            Models_1.default.Performance.count(conditions, (err, performancesCount) => {
                 let query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater' // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                 ).skip(limit * (page - 1)).limit(limit);
                 if (this.req.getLocale() === 'ja') {
@@ -86,14 +86,16 @@ class PerformanceController extends BaseController_1.default {
                             this.res.json({
                                 isSuccess: false,
                                 results: [],
-                                count: 0
+                                performancesCount: 0,
+                                filmsCount: filmsCount
                             });
                         }
                         else {
                             this.res.json({
                                 isSuccess: true,
                                 results: results,
-                                count: count
+                                performancesCount: performancesCount,
+                                filmsCount: filmsCount
                             });
                         }
                     });
@@ -139,7 +141,11 @@ class PerformanceController extends BaseController_1.default {
             };
             Models_1.default.Film.find(filmConditions, '_id', {}, (err, filmDocuments) => {
                 if (err) {
-                    cb(err, andConditions);
+                    // 検索結果のない条件を追加
+                    andConditions.push({
+                        'film': null
+                    });
+                    cb(err, andConditions, 0);
                 }
                 else {
                     let filmIds = filmDocuments.map((filmDocument) => {
@@ -158,12 +164,15 @@ class PerformanceController extends BaseController_1.default {
                             'film': null
                         });
                     }
-                    cb(null, andConditions);
+                    cb(null, andConditions, filmIds.length);
                 }
             });
         }
         else {
-            cb(null, andConditions);
+            // 全作品数を取得
+            Models_1.default.Film.count({}, (err, count) => {
+                cb(null, andConditions, count);
+            });
         }
     }
 }

@@ -126,6 +126,7 @@ $(function(){
 
                     showPerformances();
                     showConditions();
+                    $('.total-count').text(data.filmsCount);
 
                 } else {
                 }

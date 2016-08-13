@@ -38,6 +38,13 @@ class CustomerReserveController extends ReserveBaseController_1.default {
     start() {
         reservePerformanceForm_1.default(this.req, this.res, (err) => {
             if (this.req.form.isValid) {
+                // 言語も指定
+                if (this.req.form['locale']) {
+                    this.req.session['locale'] = this.req.form['locale'];
+                }
+                else {
+                    this.req.session['locale'] = 'ja';
+                }
                 // 予約トークンを発行
                 let token = Util_1.default.createToken();
                 let reservationModel = new ReservationModel_1.default();
@@ -119,14 +126,12 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                                                 lockFile.unlock(lockPath, () => {
                                                     // 仮予約に失敗した座席コードがあった場合
                                                     if (err) {
-                                                        this.logger.debug('saving reservationModel... ');
                                                         reservationModel.save((err) => {
-                                                            let message = this.req.__('Message.SelectedSeatsUnavailable');
+                                                            let message = this.req.__('Mesasge.SelectedSeatsUnavailable');
                                                             this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                                                         });
                                                     }
                                                     else {
-                                                        this.logger.debug('saving reservationModel... ');
                                                         reservationModel.save((err) => {
                                                             // 券種選択へ
                                                             this.res.redirect(this.router.build('customer.reserve.tickets', { token: token }));

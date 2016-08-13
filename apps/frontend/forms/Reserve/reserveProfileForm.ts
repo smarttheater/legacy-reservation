@@ -5,10 +5,12 @@ export default (req: express.Request) => {
     return form(
         form.field('lastName', req.__('Form.FieldName.lastName')).trim()
             .required('', req.__('Message.required{{fieldName}}', {fieldName: '%s'}))
-            .maxLength(15, req.__('Message.maxLength{{fieldName}}{{max}}', {fieldName: '%s', max: '15'})),
+            .maxLength(15, req.__('Message.maxLength{{fieldName}}{{max}}', {fieldName: '%s', max: '15'}))
+            .regex(/^[ァ-ロワヲンーa-z]*$/, req.__('Message.invalid{{fieldName}}', {fieldName: '%s'})),
         form.field('firstName', req.__('Form.FieldName.firstName')).trim()
             .required('', req.__('Message.required{{fieldName}}', {fieldName: '%s'}))
-            .maxLength(15, req.__('Message.maxLength{{fieldName}}{{max}}', {fieldName: '%s', max: '15'})),
+            .maxLength(15, req.__('Message.maxLength{{fieldName}}{{max}}', {fieldName: '%s', max: '15'}))
+            .regex(/^[ァ-ロワヲンーa-z]*$/, req.__('Message.invalid{{fieldName}}', {fieldName: '%s'})),
         form.field('tel', req.__('Form.FieldName.tel')).trim()
             .required('', req.__('Message.required{{fieldName}}', {fieldName: '%s'}))
             .regex(/^[0-9]{7,13}$/, req.__('Message.regexTelRange{{fieldName}}{{min}}{{max}}', {fieldName: '%s', min: '7', max: '13'})),

@@ -4,9 +4,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (req) => {
     return form(form.field('lastName', req.__('Form.FieldName.lastName')).trim()
         .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
-        .maxLength(15, req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: '15' })), form.field('firstName', req.__('Form.FieldName.firstName')).trim()
+        .maxLength(15, req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: '15' }))
+        .regex(/^[ァ-ロワヲンーa-z]*$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })), form.field('firstName', req.__('Form.FieldName.firstName')).trim()
         .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
-        .maxLength(15, req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: '15' })), form.field('tel', req.__('Form.FieldName.tel')).trim()
+        .maxLength(15, req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: '15' }))
+        .regex(/^[ァ-ロワヲンーa-z]*$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })), form.field('tel', req.__('Form.FieldName.tel')).trim()
         .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
         .regex(/^[0-9]{7,13}$/, req.__('Message.regexTelRange{{fieldName}}{{min}}{{max}}', { fieldName: '%s', min: '7', max: '13' })), form.field('email', req.__('Form.FieldName.email')).trim()
         .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))

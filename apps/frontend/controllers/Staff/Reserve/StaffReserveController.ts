@@ -104,16 +104,15 @@ export default class StaffReserveController extends ReserveBaseController {
                                 // 座席FIX
                                 this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                     if (err) {
-                                        let message = err.message;
-                                        this.res.redirect(`${this.router.build('staff.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
-
+                                        reservationModel.save((err) => {
+                                            let message = this.req.__('Mesasge.SelectedSeatsUnavailable');
+                                            this.res.redirect(`${this.router.build('staff.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+                                        });
                                     } else {
-                                        this.logger.debug('saving reservationModel... ', reservationModel);
                                         reservationModel.save((err) => {
                                             // 券種選択へ
                                             this.res.redirect(this.router.build('staff.reserve.tickets', {token: token}));
                                         });
-
                                     }
                                 });
                             });

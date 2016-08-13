@@ -9,7 +9,7 @@
 	"On that day": "On that day",
 	"h1": {
 		"Terms": "Terms",
-		"SelectPerformance": "Select a Performance",
+		"SelectPerformance": "Select a Schedule",
 		"SelectSeats": "Select Seats",
 		"SelectTickets": "Select Tickets",
 		"EnterProfile": "Enter Your Profile",
@@ -18,7 +18,7 @@
 		"CompleteTemporaryReservation": "Complete Temporary Reservation",
 		"MyPage": "MyPage",
 		"Login": "Login",
-		"AdmissionConfirm": "h1.AdmissionConfirm"
+		"AdmissionConfirm": "Admission Confirm"
 	},
 	"Label": {
 		"Agree": "Agree",
@@ -46,14 +46,17 @@
 		"CompleteCancelReservations": "Canceled reservations.",
 		"AvailableTicketsCountLeft": "Available tickets count left",
 		"Actions": "Actions",
-		"TotalCharge": "Label.TotalCharge",
-		"UpdatedUser": "Label.UpdatedUser",
-		"Distribution": "Label.Distribution",
-		"Apply": "Label.Apply",
+		"TotalCharge": "Total Charge",
+		"UpdatedUser": "Updater",
+		"Distribution": "Distribution",
+		"Apply": "Apply",
 		"DepartmentName": "Department Name",
 		"Signature": "Signature",
 		"PhoneNumber": "Phone Number",
-		"Name": "Name"
+		"Name": "Name",
+		"PurchaseContent": "Purchase Content",
+		"ShowSeats": "Show Seats",
+		"ResultsCount": "Results"
 	},
 	"Button": {
 		"Send": "Send",
@@ -75,8 +78,8 @@
 		"Close": "Close",
 		"Login": "Login",
 		"Transfer": "Transfer",
-		"InformFriends": "Button.InformFriends",
-		"BackToSelectPerformance": "Button.BackToSelectPerformance",
+		"InformFriends": "Send to friends",
+		"BackToSelectPerformance": "Select a Schedule Again",
 		"Logout": "Logout",
 		"NewTicket": "New Ticket"
 	},
@@ -92,8 +95,8 @@
 			"password": "Password",
 			"signature": "Signature",
 			"paymentMethod": "Payment Method",
-			"paymentNo": "Form.FieldName.paymentNo",
-			"last4DigitsOfTel": "Form.FieldName.last4DigitsOfTel"
+			"paymentNo": "Payment No",
+			"last4DigitsOfTel": "Last 4 Digits of Tel"
 		}
 	},
 	"Message": {
@@ -109,11 +112,11 @@
 		"Sent": "Sent.",
 		"FailedSending": "Failed sending.",
 		"Unsent": "Unsent.",
-		"PleaseReadBarcode": "Message.PleaseReadBarcode",
-		"seatsLimit{{limit}}": "Message.seatsLimit{{limit}}",
+		"PleaseReadBarcode": "Please read barcode",
+		"seatsLimit{{limit}}": "Max selection count is {{limit}}.",
 		"UnexpectedError": "Unexpected Error",
-		"InvalidSeatCode": "Message.InvalidSeatCode",
-		"Expired": "Message.Expired"
+		"InvalidSeatCode": "Invalid seat code",
+		"Expired": "Expired"
 	},
 	"h3": {
 		"SeatChoices": "Seat Choices",
@@ -123,5 +126,13 @@
 		"name": "name_en"
 	},
 	"{{price}} yen": "{{price}} yen",
-	"Mr{{name}}": "Mr. {{name}}"
+	"Mr{{name}}": "Mr. {{name}}",
+	"Steps": {
+		"SelectPerformance": "Schedule",
+		"SelectSeats": "Seats",
+		"SelectTickets": "Tickets",
+		"EditProfile": "Profile",
+		"Confirm": "Confirm",
+		"Complete": "Complete"
+	}
 }

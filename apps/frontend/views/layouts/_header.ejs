@@ -13,7 +13,7 @@ if (req.hasOwnProperty('route')) {
             <% if (mvtkUser.isAuthenticated()) { %>
             <div class="menu-user">
                 <p class="myname"><%= __('Mr{{name}}', {name: mvtkUser.memberInfoResult.kiinsiNm + ' ' + mvtkUser.memberInfoResult.kiimmiNm}) %></p>
-                <a class="link-cancel" href="<%- url('customer.logout') %>">ログアウトして購入をキャンセル</a>
+                <a class="link-cancel" href="<%- url('customer.logout') %>"><%- __('Button.LogoutAndCancel') %></a>
             </div>
             <% } %>
     
