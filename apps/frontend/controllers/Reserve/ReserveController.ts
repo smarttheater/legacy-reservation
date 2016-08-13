@@ -117,6 +117,8 @@ export default class ReserveController extends ReserveBaseController {
                     baloonContent +=  `<br>メルマガ当選者`;
                 } else if (group === ReservationUtil.PURCHASER_GROUP_CUSTOMER) {
                     baloonContent +=  '<br>一般';
+                } else if (group === ReservationUtil.PURCHASER_GROUP_WINDOW) {
+                    baloonContent +=  '<br>窓口';
                 }
 
                 break;

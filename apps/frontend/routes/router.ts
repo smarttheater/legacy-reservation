@@ -20,6 +20,11 @@ import SponsorMyPageController from '../controllers/Sponsor/MyPage/SponsorMyPage
 import SponsorReserveController from '../controllers/Sponsor/Reserve/SponsorReserveController';
 import SponsorCancelController from '../controllers/Sponsor/Cancel/SponsorCancelController';
 
+import WindowAuthController from '../controllers/Window/Auth/WindowAuthController';
+import WindowMyPageController from '../controllers/Window/MyPage/WindowMyPageController';
+import WindowReserveController from '../controllers/Window/Reserve/WindowReserveController';
+import WindowCancelController from '../controllers/Window/Cancel/WindowCancelController';
+
 import ErrorController from '../controllers/Error/ErrorController';
 import IndexController from '../controllers/Index/IndexController';
 
@@ -27,6 +32,7 @@ import MvtkUser from '../models/User/MvtkUser';
 import MemberUser from '../models/User/MemberUser';
 import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
+import WindowUser from '../models/User/WindowUser';
 
 /**
  * URLルーティング
@@ -137,6 +143,24 @@ export default (app: any) => {
         }
     }
 
+    let authenticationWindow = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        let windowUser = WindowUser.getInstance();
+        if (!windowUser.isAuthenticated()) {
+            if (req.xhr) {
+                res.json({
+                    message: 'login required.'
+                });
+            } else {
+                res.redirect(`/window/login?cb=${req.originalUrl}`);
+            }
+        } else {
+            // 言語設定
+            req.setLocale((windowUser.get('locale')) ? windowUser.get('locale') : 'ja');
+
+            next();
+        }
+    }
+
 
 
 
@@ -200,7 +224,6 @@ export default (app: any) => {
     }
 
     // 外部関係者
-    // TODO キャンセルするためだけのフォームページ
     app.all('/sponsor/login', 'sponsor.mypage.login', (req, res, next) => {(new SponsorAuthController(req, res, next)).login()});
     app.all('/sponsor/logout', 'sponsor.logout', authenticationSponsor, (req, res, next) => {(new SponsorAuthController(req, res, next)).logout()});
     app.all('/sponsor/mypage', 'sponsor.mypage', authenticationSponsor, (req, res, next) => {(new SponsorMyPageController(req, res, next)).index()});
@@ -221,10 +244,22 @@ export default (app: any) => {
 
 
 
-    // TODO 当日窓口フロー
-    // 当日の場合、スケジュール選択候補は、検索条件通り全て出す
-    // 検索条件の初期値を、上映日：当日にする
-    // 4席制限
+    // 当日窓口フロー
+    // TODO 当日の場合、スケジュール選択候補は、検索条件通り全て出す
+    // TODO 検索条件の初期値を、上映日：当日にする
+    app.all('/window/login', 'window.mypage.login', (req, res, next) => {(new WindowAuthController(req, res, next)).login()});
+    app.all('/window/logout', 'window.logout', (req, res, next) => {(new WindowAuthController(req, res, next)).logout()});
+    app.all('/window/mypage', 'window.mypage', authenticationWindow, (req, res, next) => {(new WindowMyPageController(req, res, next)).index()});
+    app.get('/window/mypage/search', 'window.mypage.search', authenticationWindow, (req, res, next) => {(new WindowMyPageController(req, res, next)).search()});
+    app.get('/window/reserve/start', 'window.reserve.start', authenticationWindow, (req, res, next) => {(new WindowReserveController(req, res, next)).start()});
+    app.all('/window/reserve/:token/performances', 'window.reserve.performances', authenticationWindow, (req, res, next) => {(new WindowReserveController(req, res, next)).performances()});
+    app.all('/window/reserve/:token/seats', 'window.reserve.seats', authenticationWindow, (req, res, next) => {(new WindowReserveController(req, res, next)).seats()});
+    app.all('/window/reserve/:token/tickets', 'window.reserve.tickets', authenticationWindow, (req, res, next) => {(new WindowReserveController(req, res, next)).tickets()});
+    app.all('/window/reserve/:token/profile', 'window.reserve.profile', authenticationWindow, (req, res, next) => {(new WindowReserveController(req, res, next)).profile()});
+    app.all('/window/reserve/:token/confirm', 'window.reserve.confirm', authenticationWindow, (req, res, next) => {(new WindowReserveController(req, res, next)).confirm()});
+    app.get('/window/reserve/:paymentNo/complete', 'window.reserve.complete', authenticationWindow, (req, res, next) => {(new WindowReserveController(req, res, next)).complete()});
+    app.post('/window/cancel/execute', 'window.cancel.execute', authenticationWindow, (req, res, next) => {(new WindowCancelController(req, res, next)).execute()});
+
 
 
 

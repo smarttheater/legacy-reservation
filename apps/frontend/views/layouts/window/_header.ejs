@@ -1,0 +1,24 @@
+<%
+let routeName = '';
+if (req.hasOwnProperty('route')) {
+    routeName = req.route.name;
+}
+%>
+<header>
+    <div class="container">
+
+        <a href="/" class="header-logo"><img src="/images/common/logo.png" alt="TIFF"></a>
+
+        <div class="header-menu">
+            <% if (routeName.indexOf('mypage') >= 0 && windowUser.isAuthenticated()) { %>
+            <div class="menu-staff">
+                <p class="myname"><%= __('Mr{{name}}', {name: windowUser.get('name')}) %></p>
+                <div class="staff-btns">
+                    <a class="btn btn-logout" href="<%- url('window.logout') %>"><span><%- __('Button.Logout') %></span></a>
+                    <a class="btn btn-newticket" href="<%- url('window.reserve.start') %>"><span><%- __('Button.NewTicket') %></span></a>
+                </div>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</header>

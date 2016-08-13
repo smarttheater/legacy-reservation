@@ -330,52 +330,17 @@ class TestController extends BaseController_1.default {
             process.exit(0);
         });
     }
-    createMemberReservations() {
+    createWindows() {
         mongoose.connect(MONGOLAB_URI, {});
-        Models_1.default.Performance.findOne().populate('screen').exec((err, performance) => {
-            let seats = performance.get('screen').sections[0].seats;
-            // 適当に座席を2つ選択
-            seats = this.shuffle(seats);
-            // 購入番号を発行
-            Models_1.default.Sequence.findOneAndUpdate({
-                target: 'payment_no'
-            }, {
-                $inc: {
-                    no: 1
-                }
-            }, {
-                new: true
-            }, (err, sequenceDocument) => {
-                if (err) {
-                    mongoose.disconnect();
-                    process.exit(0);
-                }
-                else {
-                    let no = sequenceDocument.get('no');
-                    let paymentNo = `${no}${Util_1.default.getCheckDigit(no)}`;
-                    let newReservation1 = {
-                        performance: performance.get('_id'),
-                        seat_code: seats[0].code,
-                        payment_no: paymentNo,
-                        purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_MEMBER,
-                        status: ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER,
-                        member: '57723c84e037e2bc26e2bcd0'
-                    };
-                    let newReservation2 = {
-                        performance: performance.get('_id'),
-                        seat_code: seats[1].code,
-                        payment_no: paymentNo,
-                        purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_MEMBER,
-                        status: ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER,
-                        member: '57723c84e037e2bc26e2bcd0'
-                    };
-                    Models_1.default.Reservation.create(newReservation1, newReservation2, (err, reservation1, reservation2) => {
-                        this.logger.debug('reservations created.', err, reservation1, reservation2);
-                        mongoose.disconnect();
-                        process.exit(0);
-                    });
-                }
-            });
+        let password_salt = Util_1.default.createToken();
+        Models_1.default.Window.create({
+            user_id: 'motionpicture',
+            password_salt: password_salt,
+            password_hash: Util_1.default.createHash('12345', password_salt),
+            name: 'モーションピクチャー'
+        }, () => {
+            mongoose.disconnect();
+            process.exit(0);
         });
     }
 }

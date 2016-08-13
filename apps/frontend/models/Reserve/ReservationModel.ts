@@ -189,7 +189,8 @@ export default class ReservationModel {
     public getChargeExceptTicketTypeBySeatCode(seatCode: string): number {
         let charge = 0;
 
-        if (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER) {
+        if (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER
+        || this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) {
             let reservation = this.getReservation(seatCode);
 
             // 座席グレード分加算

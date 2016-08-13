@@ -15,12 +15,17 @@ const SponsorAuthController_1 = require('../controllers/Sponsor/Auth/SponsorAuth
 const SponsorMyPageController_1 = require('../controllers/Sponsor/MyPage/SponsorMyPageController');
 const SponsorReserveController_1 = require('../controllers/Sponsor/Reserve/SponsorReserveController');
 const SponsorCancelController_1 = require('../controllers/Sponsor/Cancel/SponsorCancelController');
+const WindowAuthController_1 = require('../controllers/Window/Auth/WindowAuthController');
+const WindowMyPageController_1 = require('../controllers/Window/MyPage/WindowMyPageController');
+const WindowReserveController_1 = require('../controllers/Window/Reserve/WindowReserveController');
+const WindowCancelController_1 = require('../controllers/Window/Cancel/WindowCancelController');
 const ErrorController_1 = require('../controllers/Error/ErrorController');
 const IndexController_1 = require('../controllers/Index/IndexController');
 const MvtkUser_1 = require('../models/User/MvtkUser');
 const MemberUser_1 = require('../models/User/MemberUser');
 const StaffUser_1 = require('../models/User/StaffUser');
 const SponsorUser_1 = require('../models/User/SponsorUser');
+const WindowUser_1 = require('../models/User/WindowUser');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     let router = new NamedRoutes();
@@ -108,6 +113,24 @@ exports.default = (app) => {
             next();
         }
     };
+    let authenticationWindow = (req, res, next) => {
+        let windowUser = WindowUser_1.default.getInstance();
+        if (!windowUser.isAuthenticated()) {
+            if (req.xhr) {
+                res.json({
+                    message: 'login required.'
+                });
+            }
+            else {
+                res.redirect(`/window/login?cb=${req.originalUrl}`);
+            }
+        }
+        else {
+            // 言語設定
+            req.setLocale((windowUser.get('locale')) ? windowUser.get('locale') : 'ja');
+            next();
+        }
+    };
     // 一般
     app.all('/customer/reserve/performances', 'customer.reserve.performances', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).performances(); });
     app.post('/customer/reserve/start', 'customer.reserve.start', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).start(); });
@@ -146,7 +169,6 @@ exports.default = (app) => {
         next();
     };
     // 外部関係者
-    // TODO キャンセルするためだけのフォームページ
     app.all('/sponsor/login', 'sponsor.mypage.login', (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).login(); });
     app.all('/sponsor/logout', 'sponsor.logout', authenticationSponsor, (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).logout(); });
     app.all('/sponsor/mypage', 'sponsor.mypage', authenticationSponsor, (req, res, next) => { (new SponsorMyPageController_1.default(req, res, next)).index(); });
@@ -162,10 +184,21 @@ exports.default = (app) => {
     // ↓ログイン不要
     app.all('/sponsor/cancel', 'sponsor.cancel', (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).index(); });
     app.post('/sponsor/cancel/executeByPaymentNo', 'sponsor.cancel.executeByPaymentNo', (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).executeByPaymentNo(); });
-    // TODO 当日窓口フロー
-    // 当日の場合、スケジュール選択候補は、検索条件通り全て出す
-    // 検索条件の初期値を、上映日：当日にする
-    // 4席制限
+    // 当日窓口フロー
+    // TODO 当日の場合、スケジュール選択候補は、検索条件通り全て出す
+    // TODO 検索条件の初期値を、上映日：当日にする
+    app.all('/window/login', 'window.mypage.login', (req, res, next) => { (new WindowAuthController_1.default(req, res, next)).login(); });
+    app.all('/window/logout', 'window.logout', (req, res, next) => { (new WindowAuthController_1.default(req, res, next)).logout(); });
+    app.all('/window/mypage', 'window.mypage', authenticationWindow, (req, res, next) => { (new WindowMyPageController_1.default(req, res, next)).index(); });
+    app.get('/window/mypage/search', 'window.mypage.search', authenticationWindow, (req, res, next) => { (new WindowMyPageController_1.default(req, res, next)).search(); });
+    app.get('/window/reserve/start', 'window.reserve.start', authenticationWindow, (req, res, next) => { (new WindowReserveController_1.default(req, res, next)).start(); });
+    app.all('/window/reserve/:token/performances', 'window.reserve.performances', authenticationWindow, (req, res, next) => { (new WindowReserveController_1.default(req, res, next)).performances(); });
+    app.all('/window/reserve/:token/seats', 'window.reserve.seats', authenticationWindow, (req, res, next) => { (new WindowReserveController_1.default(req, res, next)).seats(); });
+    app.all('/window/reserve/:token/tickets', 'window.reserve.tickets', authenticationWindow, (req, res, next) => { (new WindowReserveController_1.default(req, res, next)).tickets(); });
+    app.all('/window/reserve/:token/profile', 'window.reserve.profile', authenticationWindow, (req, res, next) => { (new WindowReserveController_1.default(req, res, next)).profile(); });
+    app.all('/window/reserve/:token/confirm', 'window.reserve.confirm', authenticationWindow, (req, res, next) => { (new WindowReserveController_1.default(req, res, next)).confirm(); });
+    app.get('/window/reserve/:paymentNo/complete', 'window.reserve.complete', authenticationWindow, (req, res, next) => { (new WindowReserveController_1.default(req, res, next)).complete(); });
+    app.post('/window/cancel/execute', 'window.cancel.execute', authenticationWindow, (req, res, next) => { (new WindowCancelController_1.default(req, res, next)).execute(); });
     // TODO 電話窓口フロー
     app.get('/Error/NotFound', 'Error.NotFound', (req, res, next) => { (new ErrorController_1.default(req, res, next)).notFound(); });
     // 404

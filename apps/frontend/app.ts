@@ -13,6 +13,7 @@ import MvtkUser from './models/User/MvtkUser';
 import MemberUser from './models/User/MemberUser';
 import StaffUser from './models/User/StaffUser';
 import SponsorUser from './models/User/SponsorUser';
+import WindowUser from './models/User/WindowUser';
 import router from './routes/router';
 import conf = require('config');
 import mongoose = require('mongoose');
@@ -86,6 +87,10 @@ app.use((req, res, next) => {
     SponsorUser.deleteInstance();
     let sponsorUser = SponsorUser.getInstance();
     sponsorUser.initialize(req.session);
+
+    WindowUser.deleteInstance();
+    let windowUser = WindowUser.getInstance();
+    windowUser.initialize(req.session);
 
     next();
 });

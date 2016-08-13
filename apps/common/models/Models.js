@@ -15,6 +15,7 @@ const SponsorSchema_1 = require('../models/Sponsor/SponsorSchema');
 const StaffSchema_1 = require('../models/Staff/StaffSchema');
 const TheaterSchema_1 = require('../models/Theater/TheaterSchema');
 const TicketTypeGroupSchema_1 = require('../models/TicketTypeGroup/TicketTypeGroupSchema');
+const WindowSchema_1 = require('../models/Window/WindowSchema');
 let Authentication = mongoose.model('Authentication', AuthenticationSchema_1.default);
 let Film = mongoose.model('Film', FilmSchema_1.default);
 let Member = mongoose.model('Member', MemberSchema_1.default);
@@ -27,6 +28,7 @@ let Sponsor = mongoose.model('Sponsor', SponsorSchema_1.default);
 let Staff = mongoose.model('Staff', StaffSchema_1.default);
 let Theater = mongoose.model('Theater', TheaterSchema_1.default);
 let TicketTypeGroup = mongoose.model('TicketTypeGroup', TicketTypeGroupSchema_1.default);
+let Window = mongoose.model('Window', WindowSchema_1.default);
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
     Authentication: Authentication,
@@ -40,5 +42,6 @@ exports.default = {
     Sponsor: Sponsor,
     Staff: Staff,
     Theater: Theater,
-    TicketTypeGroup: TicketTypeGroup
+    TicketTypeGroup: TicketTypeGroup,
+    Window: Window
 };

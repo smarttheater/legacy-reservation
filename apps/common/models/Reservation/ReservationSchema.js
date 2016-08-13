@@ -74,6 +74,11 @@ let Schema = new mongoose.Schema({
         ref: 'Member'
     },
     member_user_id: String,
+    window: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Window'
+    },
+    window_user_id: String,
     gmo_shop_id: String,
     gmo_amount: String,
     gmo_tax: String,

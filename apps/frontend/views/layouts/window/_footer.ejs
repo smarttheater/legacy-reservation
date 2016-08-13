@@ -1,0 +1,16 @@
+<%
+let routeName = '';
+if (req.hasOwnProperty('route')) {
+    routeName = req.route.name;
+}
+%>
+<footer>
+    <% if (routeName.indexOf('mypage') < 0) { %>
+    <ul>
+        <li><a href="http://2016.tiff-jp.net/ja/general/privacypolicy.html" target="_blank">プライバシーポリシー</a></li>
+        <li><a href="" target="_blank">利用規約</a></li>
+        <li><a href="" target="_blank">お問合わせ</a></li>
+    </ul>
+    <% } %>
+    <div class="copyrights"><span>&copy; Tokyo International Film Festival All Rights Reserved.</span></div>
+</footer>

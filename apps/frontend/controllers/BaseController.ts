@@ -7,6 +7,7 @@ import MvtkUser from '../models/User/MvtkUser';
 import MemberUser from '../models/User/MemberUser';
 import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
+import WindowUser from '../models/User/WindowUser';
 import NamedRoutes = require('named-routes');
 
 /**
@@ -19,16 +20,15 @@ export default class BaseController
 {
     /** httpリクエストオブジェクト */
     public req: express.Request;
-
     /**httpレスポンスオブジェクト */
-
     public res: express.Response;
-
     /** 次に一致するルートメソッド */
     public next: express.NextFunction;
 
     /** ロガー */
     public logger: log4js.Logger;
+    /** ルーティング */
+    public router: Express.NamedRoutes;
 
     /** ムビチケユーザー */
     public mvtkUser: MvtkUser;
@@ -38,9 +38,8 @@ export default class BaseController
     public staffUser: StaffUser;
     /** 外部関係者ユーザー */
     public sponsorUser: SponsorUser;
-
-    /** ルーティング */
-    public router: Express.NamedRoutes;
+    /** 窓口ユーザー */
+    public windowUser: WindowUser;
 
     constructor(req: express.Request, res: express.Response, next: express.NextFunction) {
         this.req = req;
@@ -55,12 +54,14 @@ export default class BaseController
         this.memberUser = MemberUser.getInstance();
         this.staffUser = StaffUser.getInstance();
         this.sponsorUser = SponsorUser.getInstance();
+        this.windowUser = WindowUser.getInstance();
 
         // ユーザーインスタンスをテンプレート変数へ渡す
         this.res.locals.mvtkUser = this.mvtkUser;
         this.res.locals.memberUser = this.memberUser;
         this.res.locals.staffUser = this.staffUser;
         this.res.locals.sponsorUser = this.sponsorUser;
+        this.res.locals.windowUser = this.windowUser;
 
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;

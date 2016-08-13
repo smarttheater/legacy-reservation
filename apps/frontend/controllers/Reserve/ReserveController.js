@@ -86,6 +86,9 @@ class ReserveController extends ReserveBaseController_1.default {
                 else if (group === ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER) {
                     baloonContent += '<br>一般';
                 }
+                else if (group === ReservationUtil_1.default.PURCHASER_GROUP_WINDOW) {
+                    baloonContent += '<br>窓口';
+                }
                 break;
             case ReservationUtil_1.default.STATUS_TEMPORARY:
                 baloonContent += '<br>仮予約中...';

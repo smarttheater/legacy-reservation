@@ -15,6 +15,7 @@ import SponsorSchema from '../models/Sponsor/SponsorSchema';
 import StaffSchema from '../models/Staff/StaffSchema';
 import TheaterSchema from '../models/Theater/TheaterSchema';
 import TicketTypeGroupSchema from '../models/TicketTypeGroup/TicketTypeGroupSchema';
+import WindowSchema from '../models/Window/WindowSchema';
 
 let Authentication = mongoose.model('Authentication', AuthenticationSchema);
 let Film = mongoose.model('Film', FilmSchema);
@@ -28,6 +29,7 @@ let Sponsor = mongoose.model('Sponsor', SponsorSchema);
 let Staff = mongoose.model('Staff', StaffSchema);
 let Theater = mongoose.model('Theater', TheaterSchema);
 let TicketTypeGroup = mongoose.model('TicketTypeGroup', TicketTypeGroupSchema);
+let Window = mongoose.model('Window', WindowSchema);
 
 export default {
     Authentication,
@@ -41,5 +43,6 @@ export default {
     Sponsor,
     Staff,
     Theater,
-    TicketTypeGroup
+    TicketTypeGroup,
+    Window
 };
