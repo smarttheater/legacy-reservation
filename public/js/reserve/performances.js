@@ -4,7 +4,6 @@ String.prototype.splice = function(idx, str) { //※日時整形用(Stringのidx
 
 $(function(){
     var locale = $('input[name="locale"]').val();
-    var documentFieldName = (locale === 'ja') ? 'name' : 'name_en';
     var performances = [];
     var conditions = {
         page: '1'
@@ -16,7 +15,7 @@ $(function(){
         var filmIds = [];
         var performancesByFilm = {};
         performances.forEach(function(performance){
-            var filmId = performance.film._id;
+            var filmId = performance.film_id;
             if (filmIds.indexOf(filmId) < 0) {
                 filmIds.push(filmId);
                 performancesByFilm[filmId] = [];
@@ -40,21 +39,19 @@ $(function(){
 
         filmIds.forEach(function(filmId) {
             var performancesOnFilm = performancesByFilm[filmId];
-            var sections = performancesOnFilm[0].film.sections.map(function(section) {return section[documentFieldName];}); // 部門名
-            var genres = performancesOnFilm[0].film.genres.map(function(genre) {return genre[documentFieldName];}); // ジャンル名
 
             html += 
                 '<div class="performance accordion_mobile_toggle">'+
-                    '<div class="performance-image"><img src="'+performancesOnFilm[0].film.image+'"></div>'+///images/temp_performance_thumb.jpg"></div>'+
-                    '<div class="performance-title"><h3><span>'+performancesOnFilm[0].film[documentFieldName]+'</span></h3></div>'+
+                    '<div class="performance-image"><img src="'+performancesOnFilm[0].film_image+'"></div>'+///images/temp_performance_thumb.jpg"></div>'+
+                    '<div class="performance-title"><h3><span>'+performancesOnFilm[0].film_name+'</span></h3></div>'+
                     '<div class="performance-inner accordion_mobile_inner">'+
                         '<div class="performance-info">'+
-                            '<div class="desc">' + sections.join(',') + '</div>'+
+                            '<div class="desc">' + performancesOnFilm[0].film_sections.join(',') + '</div>'+
                             '<div class="genreslength">'+
                                 '<div class="genres">'+
-                                    '<span>' + genres.join('</span><span>') + '</span>' +
+                                    '<span>' + performancesOnFilm[0].film_genres.join('</span><span>') + '</span>' +
                                 '</div>'+
-                                '<span class="length">本編 ' + performancesOnFilm[0].film.minutes + '分</span>'+
+                                '<span class="length">本編 ' + performancesOnFilm[0].film_minutes + '分</span>'+
                             '</div>'+
                         '</div>'+
                         '<div class="performance-schedule">'
@@ -71,7 +68,7 @@ $(function(){
                                 '<div class="scheduleitem scheduleitem-'+NAMETABLE_STATUS[performance.seat_status]+' select-performance" data-performance-id="'+performance._id+'">'+
                                     '<div class="text">'+ 
                                         '<h3>'+performance.day+' '+performance.start_time+' - </h3>'+
-                                        '<p>'+performance.theater[documentFieldName]+performance.screen[documentFieldName]+'</p>'+
+                                        '<p>'+performance.theater_name+performance.screen_name+'</p>'+
                                     '</div>'+
                                     '<span class="status">'+performance.seat_status+'</span>'+
                                 '</div>'
