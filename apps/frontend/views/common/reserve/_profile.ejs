@@ -121,34 +121,26 @@
 
                     <% } %>
 
-                    <% if (reservationModel.purchaserGroup !== ReservationUtil.PURCHASER_GROUP_SPONSOR) { %>
+
+
+
+
+
+
+
+                    <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER) { %>
                         <tr>
                             <th>お支払い方法<span class="required">必須項目</span></th>
                             <td>
                                 <div class="wrapper-payment form-inline">
-                                    <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER) { %>
-                                        <label for="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" class="form-group payment payment-credit">
-                                            <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CREDIT %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CREDIT) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CREDIT') %>
-                                        </label>
-                                        <label for="radio_<%- GMOUtil.PAY_TYPE_CVS %>" class="form-group payment payment-cvs">
-                                            <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CVS %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CVS %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CVS) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CVS') %>
-                                        </label>
-                                    <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
-                                        <label for="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" class="form-group payment payment-credit">
-                                            <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CREDIT %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CREDIT) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CREDIT') %>
-                                        </label>
-                                        <label for="radio_<%- GMOUtil.PAY_TYPE_CVS %>" class="form-group payment payment-cash">
-                                            <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CVS %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CVS %>"><%- __('Label.PaymentMethodName.CASH') %>
-                                        </label>
-                                    <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL) { %>
-                                        <label for="radio_<%- GMOUtil.PAY_TYPE_CVS %>" class="form-group payment payment-cvs">
-                                            <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CVS %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CVS %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CVS) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CVS') %>
-                                        </label>
-                                    <% } %>
+                                    <label for="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" class="form-group payment payment-credit">
+                                        <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CREDIT %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CREDIT) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CREDIT') %>
+                                    </label>
+                                    <label for="radio_<%- GMOUtil.PAY_TYPE_CVS %>" class="form-group payment payment-cvs">
+                                        <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CVS %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CVS %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CVS) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CVS') %>
+                                    </label>
                                 </div>
 
-                                <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER
-                                    || reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL) { %>
                                 <p class="notice">
                                     <span class="notice-cvs">
                                         ※コンビニ決済の支払期限は、ご注文完了日を含めて3日間です。<br>
@@ -157,14 +149,61 @@
                                         ※コンビニ決済が可能なコンビニはファミリーマートのみとなります。
                                     </span>
                                 </p>
-                                <% } %>
 
                                 <% if (req.form) { %>
                                 <p class="errmsg"><%- req.form.getErrors('paymentMethod')[0] %></p>
                                 <% } %>
                             </td>
                         </tr>
+
+                    <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
+                        <tr>
+                            <th>お支払い方法<span class="required">必須項目</span></th>
+                            <td>
+                                <div class="wrapper-payment form-inline">
+                                    <label for="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" class="form-group payment payment-credit">
+                                        <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CREDIT %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CREDIT) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CREDIT') %>
+                                    </label>
+                                    <label for="radio_<%- GMOUtil.PAY_TYPE_CASH %>" class="form-group payment payment-cash">
+                                        <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CASH %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CASH %>"><%- __('Label.PaymentMethodName.CASH') %>
+                                    </label>
+                                </div>
+
+                                <% if (req.form) { %>
+                                <p class="errmsg"><%- req.form.getErrors('paymentMethod')[0] %></p>
+                                <% } %>
+                            </td>
+                        </tr>
+
+                    <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL) { %>
+                        <tr>
+                            <th>お支払い方法<span class="required">必須項目</span></th>
+                            <td>
+                                <div class="wrapper-payment form-inline">
+                                    <label for="radio_<%- GMOUtil.PAY_TYPE_CVS %>" class="form-group payment payment-cvs">
+                                        <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CVS %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CVS %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CVS) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CVS') %>
+                                    </label>
+                                </div>
+
+                                <p class="notice">
+                                    <span class="notice-cvs">
+                                        ※コンビニ決済の支払期限は、ご注文完了日を含めて3日間です。<br>
+                                        ※コンビニ決済の場合、手数料としてご購入1件につき300円がかかります。<br>
+                                        手数料はお支払いいただく料金に含まれます。<br>
+                                        ※コンビニ決済が可能なコンビニはファミリーマートのみとなります。
+                                    </span>
+                                </p>
+
+                                <% if (req.form) { %>
+                                <p class="errmsg"><%- req.form.getErrors('paymentMethod')[0] %></p>
+                                <% } %>
+                            </td>
+                        </tr>
+
+                    <% } else { %>
+
                     <% } %>
+
 
                 </tbody>
 

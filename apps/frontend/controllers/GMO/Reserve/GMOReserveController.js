@@ -45,6 +45,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
                         let md5hash = crypto.createHash('md5');
                         md5hash.update(`${this.res.locals.shopId}${this.res.locals.orderID}${this.res.locals.amount}${this.res.locals.shopPassword}${this.res.locals.dateTime}`, 'utf8');
                         this.res.locals.shopPassString = md5hash.digest('hex');
+                        // TODO 一瞬htmlにパスワードなど埋め込まれるが、これでよいのか吟味する
                         this.logger.info('redirecting to GMO payment...orderID:', this.res.locals.orderID);
                         this.res.render('gmo/reserve/start', {
                             layout: false

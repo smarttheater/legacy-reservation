@@ -43,7 +43,7 @@ exports.default = (app) => {
     app.get('/reserve/:reservationId/barcode', 'reserve.barcode', (req, res, next) => { (new ReserveController_1.default(req, res, next)).barcode(); });
     app.get('/reserve/:reservationId/qrcode', 'reserve.qrcode', (req, res, next) => { (new ReserveController_1.default(req, res, next)).qrcode(); });
     // GMOプロセス
-    app.get('/GMO/reserve/:token/start', 'gmo.reserve.start', (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).start(); });
+    app.post('/GMO/reserve/:token/start', 'gmo.reserve.start', (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).start(); });
     app.post('/GMO/reserve/result', 'gmo.reserve.result', (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).result(); });
     app.all('/GMO/reserve/notify', 'gmo.reserve.notify', (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).notify(); });
     app.all('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).cancel(); });
@@ -208,8 +208,6 @@ exports.default = (app) => {
     app.all('/sponsor/cancel', 'sponsor.cancel', (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).index(); });
     app.post('/sponsor/cancel/executeByPaymentNo', 'sponsor.cancel.executeByPaymentNo', (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).executeByPaymentNo(); });
     // 当日窓口フロー
-    // TODO 当日の場合、スケジュール選択候補は、検索条件通り全て出す
-    // TODO 検索条件の初期値を、上映日：当日にする
     app.all('/window/login', 'window.mypage.login', (req, res, next) => { (new WindowAuthController_1.default(req, res, next)).login(); });
     app.all('/window/logout', 'window.logout', (req, res, next) => { (new WindowAuthController_1.default(req, res, next)).logout(); });
     app.all('/window/mypage', 'window.mypage', authenticationWindow, (req, res, next) => { (new WindowMyPageController_1.default(req, res, next)).index(); });

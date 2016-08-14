@@ -110,7 +110,6 @@
 		"PleaseSelectSeat": "Please select seats.",
 		"Sending": "Sending...",
 		"Sent": "Sent.",
-		"FailedSending": "Failed sending.",
 		"Unsent": "Unsent.",
 		"PleaseReadBarcode": "Please read barcode",
 		"seatsLimit{{limit}}": "Max selection count is {{limit}}.",

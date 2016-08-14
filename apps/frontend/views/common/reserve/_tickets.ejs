@@ -41,7 +41,7 @@
                             <% }) %>
                         </select>
 
-                        <% if (reservationModel.purchaserGroup === '04') { %>
+                        <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) { %>
                         <input type="text" name="watcherName" class="form-control" placeholder="<%- __('Label.PleaseEnterWatcherName') %>" value="<%- (reservation.hasOwnProperty('watcher_name')) ? reservation.watcher_name : '' %>">
                         <% } %>
                     </td>

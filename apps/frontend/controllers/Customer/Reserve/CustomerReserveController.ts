@@ -296,8 +296,8 @@ export default class CustomerReserveController extends ReserveBaseController {
 
             } else {
                 let email = this.mvtkUser.memberInfoResult.kiinMladdr;
-                this.res.locals.lastName = this.mvtkUser.memberInfoResult.kiinsiNm;
-                this.res.locals.firstName = this.mvtkUser.memberInfoResult.kiimmiNm;
+                this.res.locals.lastName = this.mvtkUser.memberInfoResult.kiinsiKnnm;
+                this.res.locals.firstName = this.mvtkUser.memberInfoResult.kiimmiKnnm;
                 this.res.locals.tel = `${this.mvtkUser.memberInfoResult.kiinshgikykNo}${this.mvtkUser.memberInfoResult.kiinshnikykNo}${this.mvtkUser.memberInfoResult.kiinknyshNo}`;
                 this.res.locals.email = email;
                 this.res.locals.emailConfirm = email.substr(0, email.indexOf('@'));
@@ -381,7 +381,7 @@ export default class CustomerReserveController extends ReserveBaseController {
                             Promise.all(promises).then(() => {
                                 reservationModel.save((err) => {
                                     this.logger.info('starting GMO payment...');
-                                    this.res.redirect(this.router.build('gmo.reserve.start', {token: token}));
+                                    this.res.redirect(307, this.router.build('gmo.reserve.start', {token: token}));
                                 });
                             }, (err) => {
                                 let message = err.message;

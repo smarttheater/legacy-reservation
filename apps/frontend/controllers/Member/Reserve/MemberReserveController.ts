@@ -326,7 +326,7 @@ export default class MemberReserveController extends ReserveBaseController {
                             Promise.all(promises).then(() => {
                                 reservationModel.save((err) => {
                                     this.logger.info('starting GMO payment...');
-                                    this.res.redirect(this.router.build('gmo.reserve.start', {token: token}));
+                                    this.res.redirect(307, this.router.build('gmo.reserve.start', {token: token}));
                                 });
                             }, (err) => {
                                 let message = err.message;
