@@ -305,6 +305,36 @@ class TestController extends BaseController_1.default {
                     }
                 });
             }));
+            promises.push(new Promise((resolve, reject) => {
+                db.collection('window').createIndex({
+                    user_id: 1,
+                }, {
+                    unique: true
+                }, (err) => {
+                    this.logger.debug('index created.', err);
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve();
+                    }
+                });
+            }));
+            promises.push(new Promise((resolve, reject) => {
+                db.collection('tel_staffs').createIndex({
+                    user_id: 1,
+                }, {
+                    unique: true
+                }, (err) => {
+                    this.logger.debug('index created.', err);
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve();
+                    }
+                });
+            }));
             Promise.all(promises).then(() => {
                 this.logger.debug('success!');
                 db.close();
@@ -337,7 +367,20 @@ class TestController extends BaseController_1.default {
             user_id: 'motionpicture',
             password_salt: password_salt,
             password_hash: Util_1.default.createHash('12345', password_salt),
-            name: 'モーションピクチャー'
+            name: '当日窓口モーションピクチャー'
+        }, () => {
+            mongoose.disconnect();
+            process.exit(0);
+        });
+    }
+    createTelStaffs() {
+        mongoose.connect(MONGOLAB_URI, {});
+        let password_salt = Util_1.default.createToken();
+        Models_1.default.TelStaff.create({
+            user_id: 'motionpicture',
+            password_salt: password_salt,
+            password_hash: Util_1.default.createHash('12345', password_salt),
+            name: '電話窓口モーションピクチャー'
         }, () => {
             mongoose.disconnect();
             process.exit(0);

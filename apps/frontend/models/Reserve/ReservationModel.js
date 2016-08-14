@@ -102,7 +102,8 @@ class ReservationModel {
     getChargeExceptTicketTypeBySeatCode(seatCode) {
         let charge = 0;
         if (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER
-            || this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_WINDOW) {
+            || this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_WINDOW
+            || this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_TEL) {
             let reservation = this.getReservation(seatCode);
             // 座席グレード分加算
             if (reservation.seat_grade_additional_charge > 0) {

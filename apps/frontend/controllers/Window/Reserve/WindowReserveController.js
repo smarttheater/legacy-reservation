@@ -166,6 +166,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
             }
             else {
                 this.res.render('window/reserve/tickets', {
+                    layout: 'layouts/window/layout',
                     reservationModel: reservationModel,
                 });
             }
@@ -198,6 +199,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
                     }
                     else {
                         this.res.render('window/reserve/profile', {
+                            layout: 'layouts/window/layout',
                             reservationModel: reservationModel
                         });
                     }
@@ -210,6 +212,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
                     this.res.locals.paymentMethod = reservationModel.paymentMethod;
                 }
                 this.res.render('window/reserve/profile', {
+                    layout: 'layouts/window/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -284,6 +287,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
             }
             else {
                 this.res.render('window/reserve/confirm', {
+                    layout: 'layouts/window/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -304,6 +308,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
             if (reservationDocuments.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             this.res.render('window/reserve/complete', {
+                layout: 'layouts/window/layout',
                 reservationDocuments: reservationDocuments
             });
         });

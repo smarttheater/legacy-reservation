@@ -8,8 +8,8 @@ export default class ReservationUtil {
     public static STATUS_GMO_PROCESSING = 'GMO_PROCESSING';
     /** 決済待ち */
     public static STATUS_WAITING_SETTLEMENT = 'WAITING_SETTLEMENT';
-    /**  窓口清算待ち */
-    public static STATUS_WAITING_SETTLEMENT_WINDOW = 'WAITING_SETTLEMENT_WINDOW';
+    /**  ペイデザイン決済待ち */
+    public static STATUS_WAITING_SETTLEMENT_PAY_DESIGN = 'WAITING_SETTLEMENT_PAY_DESIGN';
     /** 関係者席保留 */
     public static STATUS_KEPT_BY_TIFF = 'KEPT_BY_TIFF';
     /** メルマガ会員保留 */

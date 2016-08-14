@@ -1,0 +1,28 @@
+<%
+let routeName = '';
+if (req.hasOwnProperty('route')) {
+    routeName = req.route.name;
+}
+%>
+<header>
+    <div class="container">
+
+        <a href="/" class="header-logo"><img src="/images/common/logo.png" alt="TIFF"></a>
+
+        <div class="header-menu">
+            <% if (telStaffUser.isAuthenticated()) { %>
+            <div class="menu-staff">
+                <p class="myname"><%= __('Mr{{name}}', {name: telStaffUser.get('name')}) %></p>
+                <div class="staff-btns">
+                    <a class="btn btn-logout" href="<%- url('tel.logout') %>"><span><%- __('Button.Logout') %></span></a>
+                    <% if (routeName.indexOf('mypage') < 0) { %>
+                    <a class="btn" href="<%- url('tel.mypage') %>"><span>チケット照会</span></a>
+                    <% } else { %>
+                    <a class="btn btn-newticket" href="<%- url('tel.reserve.start') %>"><span><%- __('Button.NewTicket') %></span></a>
+                    <% } %>
+                </div>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</header>

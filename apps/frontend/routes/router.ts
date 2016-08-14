@@ -25,6 +25,11 @@ import WindowMyPageController from '../controllers/Window/MyPage/WindowMyPageCon
 import WindowReserveController from '../controllers/Window/Reserve/WindowReserveController';
 import WindowCancelController from '../controllers/Window/Cancel/WindowCancelController';
 
+import TelAuthController from '../controllers/Tel/Auth/TelAuthController';
+import TelMyPageController from '../controllers/Tel/MyPage/TelMyPageController';
+import TelReserveController from '../controllers/Tel/Reserve/TelReserveController';
+import TelCancelController from '../controllers/Tel/Cancel/TelCancelController';
+
 import ErrorController from '../controllers/Error/ErrorController';
 import IndexController from '../controllers/Index/IndexController';
 
@@ -33,6 +38,7 @@ import MemberUser from '../models/User/MemberUser';
 import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
 import WindowUser from '../models/User/WindowUser';
+import TelStaffUser from '../models/User/TelStaffUser';
 
 /**
  * URLルーティング
@@ -161,6 +167,24 @@ export default (app: any) => {
         }
     }
 
+    let authenticationTelStaff = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        let telStaffUser = TelStaffUser.getInstance();
+        if (!telStaffUser.isAuthenticated()) {
+            if (req.xhr) {
+                res.json({
+                    message: 'login required.'
+                });
+            } else {
+                res.redirect(`/tel/login?cb=${req.originalUrl}`);
+            }
+        } else {
+            // 言語設定
+            req.setLocale((telStaffUser.get('locale')) ? telStaffUser.get('locale') : 'ja');
+
+            next();
+        }
+    }
+
 
 
 
@@ -263,7 +287,19 @@ export default (app: any) => {
 
 
 
-    // TODO 電話窓口フロー
+    // 電話窓口フロー
+    app.all('/tel/login', 'tel.mypage.login', (req, res, next) => {(new TelAuthController(req, res, next)).login()});
+    app.all('/tel/logout', 'tel.logout', (req, res, next) => {(new TelAuthController(req, res, next)).logout()});
+    app.all('/tel/mypage', 'tel.mypage', authenticationTelStaff, (req, res, next) => {(new TelMyPageController(req, res, next)).index()});
+    app.get('/tel/mypage/search', 'tel.mypage.search', authenticationTelStaff, (req, res, next) => {(new TelMyPageController(req, res, next)).search()});
+    app.get('/tel/reserve/start', 'tel.reserve.start', authenticationTelStaff, (req, res, next) => {(new TelReserveController(req, res, next)).start()});
+    app.all('/tel/reserve/:token/performances', 'tel.reserve.performances', authenticationTelStaff, (req, res, next) => {(new TelReserveController(req, res, next)).performances()});
+    app.all('/tel/reserve/:token/seats', 'tel.reserve.seats', authenticationTelStaff, (req, res, next) => {(new TelReserveController(req, res, next)).seats()});
+    app.all('/tel/reserve/:token/tickets', 'tel.reserve.tickets', authenticationTelStaff, (req, res, next) => {(new TelReserveController(req, res, next)).tickets()});
+    app.all('/tel/reserve/:token/profile', 'tel.reserve.profile', authenticationTelStaff, (req, res, next) => {(new TelReserveController(req, res, next)).profile()});
+    app.all('/tel/reserve/:token/confirm', 'tel.reserve.confirm', authenticationTelStaff, (req, res, next) => {(new TelReserveController(req, res, next)).confirm()});
+    app.get('/tel/reserve/:paymentNo/complete', 'tel.reserve.complete', authenticationTelStaff, (req, res, next) => {(new TelReserveController(req, res, next)).complete()});
+    app.post('/tel/cancel/execute', 'tel.cancel.execute', authenticationTelStaff, (req, res, next) => {(new TelCancelController(req, res, next)).execute()});
 
 
 

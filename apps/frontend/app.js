@@ -14,6 +14,7 @@ const MemberUser_1 = require('./models/User/MemberUser');
 const StaffUser_1 = require('./models/User/StaffUser');
 const SponsorUser_1 = require('./models/User/SponsorUser');
 const WindowUser_1 = require('./models/User/WindowUser');
+const TelStaffUser_1 = require('./models/User/TelStaffUser');
 const router_1 = require('./routes/router');
 const conf = require('config');
 const mongoose = require('mongoose');
@@ -71,6 +72,9 @@ app.use((req, res, next) => {
     WindowUser_1.default.deleteInstance();
     let windowUser = WindowUser_1.default.getInstance();
     windowUser.initialize(req.session);
+    TelStaffUser_1.default.deleteInstance();
+    let telStaffUser = TelStaffUser_1.default.getInstance();
+    telStaffUser.initialize(req.session);
     next();
 });
 mvtkService.initialize(conf.get('mvtk_wcf_endpoint'), conf.get('mvtk_wcf2_endpoint'));

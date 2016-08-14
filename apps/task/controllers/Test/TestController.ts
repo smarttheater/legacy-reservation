@@ -406,6 +406,44 @@ export default class TestController extends BaseController {
                 );
             }));
 
+            promises.push(new Promise((resolve, reject) => {
+                db.collection('window').createIndex(
+                    {
+                        user_id: 1,
+                    },
+                    {
+                        unique: true
+                    },
+                    (err) => {
+                        this.logger.debug('index created.', err);
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    }
+                );
+            }));
+
+            promises.push(new Promise((resolve, reject) => {
+                db.collection('tel_staffs').createIndex(
+                    {
+                        user_id: 1,
+                    },
+                    {
+                        unique: true
+                    },
+                    (err) => {
+                        this.logger.debug('index created.', err);
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    }
+                );
+            }));
+
 
 
             Promise.all(promises).then(() => {
@@ -450,7 +488,25 @@ export default class TestController extends BaseController {
                 user_id: 'motionpicture',
                 password_salt: password_salt,
                 password_hash: Util.createHash('12345', password_salt),
-                name: 'モーションピクチャー'
+                name: '当日窓口モーションピクチャー'
+            },
+            () => {
+                mongoose.disconnect();
+                process.exit(0);
+            }
+        );
+    }
+
+    public createTelStaffs(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
+        let password_salt = Util.createToken();
+        Models.TelStaff.create(
+            {
+                user_id: 'motionpicture',
+                password_salt: password_salt,
+                password_hash: Util.createHash('12345', password_salt),
+                name: '電話窓口モーションピクチャー'
             },
             () => {
                 mongoose.disconnect();

@@ -13,6 +13,7 @@ const ScreenSchema_1 = require('../models/Screen/ScreenSchema');
 const SequenceSchema_1 = require('../models/Sequence/SequenceSchema');
 const SponsorSchema_1 = require('../models/Sponsor/SponsorSchema');
 const StaffSchema_1 = require('../models/Staff/StaffSchema');
+const TelStaffSchema_1 = require('../models/TelStaff/TelStaffSchema');
 const TheaterSchema_1 = require('../models/Theater/TheaterSchema');
 const TicketTypeGroupSchema_1 = require('../models/TicketTypeGroup/TicketTypeGroupSchema');
 const WindowSchema_1 = require('../models/Window/WindowSchema');
@@ -26,6 +27,7 @@ let Screen = mongoose.model('Screen', ScreenSchema_1.default);
 let Sequence = mongoose.model('Sequence', SequenceSchema_1.default);
 let Sponsor = mongoose.model('Sponsor', SponsorSchema_1.default);
 let Staff = mongoose.model('Staff', StaffSchema_1.default);
+let TelStaff = mongoose.model('TelStaff', TelStaffSchema_1.default);
 let Theater = mongoose.model('Theater', TheaterSchema_1.default);
 let TicketTypeGroup = mongoose.model('TicketTypeGroup', TicketTypeGroupSchema_1.default);
 let Window = mongoose.model('Window', WindowSchema_1.default);
@@ -41,6 +43,7 @@ exports.default = {
     Sequence: Sequence,
     Sponsor: Sponsor,
     Staff: Staff,
+    TelStaff: TelStaff,
     Theater: Theater,
     TicketTypeGroup: TicketTypeGroup,
     Window: Window

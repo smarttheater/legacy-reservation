@@ -19,6 +19,10 @@ const WindowAuthController_1 = require('../controllers/Window/Auth/WindowAuthCon
 const WindowMyPageController_1 = require('../controllers/Window/MyPage/WindowMyPageController');
 const WindowReserveController_1 = require('../controllers/Window/Reserve/WindowReserveController');
 const WindowCancelController_1 = require('../controllers/Window/Cancel/WindowCancelController');
+const TelAuthController_1 = require('../controllers/Tel/Auth/TelAuthController');
+const TelMyPageController_1 = require('../controllers/Tel/MyPage/TelMyPageController');
+const TelReserveController_1 = require('../controllers/Tel/Reserve/TelReserveController');
+const TelCancelController_1 = require('../controllers/Tel/Cancel/TelCancelController');
 const ErrorController_1 = require('../controllers/Error/ErrorController');
 const IndexController_1 = require('../controllers/Index/IndexController');
 const MvtkUser_1 = require('../models/User/MvtkUser');
@@ -26,6 +30,7 @@ const MemberUser_1 = require('../models/User/MemberUser');
 const StaffUser_1 = require('../models/User/StaffUser');
 const SponsorUser_1 = require('../models/User/SponsorUser');
 const WindowUser_1 = require('../models/User/WindowUser');
+const TelStaffUser_1 = require('../models/User/TelStaffUser');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     let router = new NamedRoutes();
@@ -131,6 +136,24 @@ exports.default = (app) => {
             next();
         }
     };
+    let authenticationTelStaff = (req, res, next) => {
+        let telStaffUser = TelStaffUser_1.default.getInstance();
+        if (!telStaffUser.isAuthenticated()) {
+            if (req.xhr) {
+                res.json({
+                    message: 'login required.'
+                });
+            }
+            else {
+                res.redirect(`/tel/login?cb=${req.originalUrl}`);
+            }
+        }
+        else {
+            // 言語設定
+            req.setLocale((telStaffUser.get('locale')) ? telStaffUser.get('locale') : 'ja');
+            next();
+        }
+    };
     // 一般
     app.all('/customer/reserve/performances', 'customer.reserve.performances', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).performances(); });
     app.post('/customer/reserve/start', 'customer.reserve.start', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).start(); });
@@ -199,7 +222,19 @@ exports.default = (app) => {
     app.all('/window/reserve/:token/confirm', 'window.reserve.confirm', authenticationWindow, (req, res, next) => { (new WindowReserveController_1.default(req, res, next)).confirm(); });
     app.get('/window/reserve/:paymentNo/complete', 'window.reserve.complete', authenticationWindow, (req, res, next) => { (new WindowReserveController_1.default(req, res, next)).complete(); });
     app.post('/window/cancel/execute', 'window.cancel.execute', authenticationWindow, (req, res, next) => { (new WindowCancelController_1.default(req, res, next)).execute(); });
-    // TODO 電話窓口フロー
+    // 電話窓口フロー
+    app.all('/tel/login', 'tel.mypage.login', (req, res, next) => { (new TelAuthController_1.default(req, res, next)).login(); });
+    app.all('/tel/logout', 'tel.logout', (req, res, next) => { (new TelAuthController_1.default(req, res, next)).logout(); });
+    app.all('/tel/mypage', 'tel.mypage', authenticationTelStaff, (req, res, next) => { (new TelMyPageController_1.default(req, res, next)).index(); });
+    app.get('/tel/mypage/search', 'tel.mypage.search', authenticationTelStaff, (req, res, next) => { (new TelMyPageController_1.default(req, res, next)).search(); });
+    app.get('/tel/reserve/start', 'tel.reserve.start', authenticationTelStaff, (req, res, next) => { (new TelReserveController_1.default(req, res, next)).start(); });
+    app.all('/tel/reserve/:token/performances', 'tel.reserve.performances', authenticationTelStaff, (req, res, next) => { (new TelReserveController_1.default(req, res, next)).performances(); });
+    app.all('/tel/reserve/:token/seats', 'tel.reserve.seats', authenticationTelStaff, (req, res, next) => { (new TelReserveController_1.default(req, res, next)).seats(); });
+    app.all('/tel/reserve/:token/tickets', 'tel.reserve.tickets', authenticationTelStaff, (req, res, next) => { (new TelReserveController_1.default(req, res, next)).tickets(); });
+    app.all('/tel/reserve/:token/profile', 'tel.reserve.profile', authenticationTelStaff, (req, res, next) => { (new TelReserveController_1.default(req, res, next)).profile(); });
+    app.all('/tel/reserve/:token/confirm', 'tel.reserve.confirm', authenticationTelStaff, (req, res, next) => { (new TelReserveController_1.default(req, res, next)).confirm(); });
+    app.get('/tel/reserve/:paymentNo/complete', 'tel.reserve.complete', authenticationTelStaff, (req, res, next) => { (new TelReserveController_1.default(req, res, next)).complete(); });
+    app.post('/tel/cancel/execute', 'tel.cancel.execute', authenticationTelStaff, (req, res, next) => { (new TelCancelController_1.default(req, res, next)).execute(); });
     app.get('/Error/NotFound', 'Error.NotFound', (req, res, next) => { (new ErrorController_1.default(req, res, next)).notFound(); });
     // 404
     app.use((req, res, next) => {

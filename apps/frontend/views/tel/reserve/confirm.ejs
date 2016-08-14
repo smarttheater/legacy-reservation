@@ -1,0 +1,146 @@
+<%- include('../../common/reserve/_step') %>
+
+<h1 class="pagetitle"><%- __('h1.ConfirmReservation') %></h1>
+<p class="guidetext">内容をご確認のうえ、「利用規約に同意して次へ」ボタンを押してください。</p>
+
+<div class="wrapper-confirm">
+
+    <h2>座席情報</h2>
+    <table class="table table-confirm">
+        <tbody>
+            <tr>
+                <th>コンビニ決済用ＩＤ</th>
+                <td><%- reservationModel.paymentNo %></td>
+            </tr>
+
+            <tr>
+                <th><%- __('Label.FilmName') %>
+                    <p class="visible-mobile-block">
+                        <a class="btn btn-default btn-change btn-icon-back" href="<%- url('tel.reserve.performances', {token: reservationModel.token}) %>">
+                            <span><%- __('Button.Change') %></span>
+                        </a>
+                    </p>
+                </th>
+                <td>
+                    <p><%- reservationModel.performance.film[__('DocumentField.name')] %></p>
+                    <a class="btn btn-default btn-change btn-icon-back visible-pc" href="<%- url('tel.reserve.performances', {token: reservationModel.token}) %>">
+                        <span><%- __('Button.Change') %></span>
+                    </a>
+                </td>
+            </tr>
+
+            <tr>
+                <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
+                <td>
+                    <p>
+                        <%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ 
+                        <%- reservationModel.performance.theater[__('DocumentField.name')] %> 
+                        <%- reservationModel.performance.screen[__('DocumentField.name')] %>
+                    </p>
+                </td>
+            </tr>
+
+            <tr>
+                <th>
+                    <%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %>
+                    <p class="visible-mobile-block">
+                        <a class="btn btn-default btn-change btn-icon-back" href="<%- url('tel.reserve.seats', {token: reservationModel.token}) %>"><span><%- __('Button.Change') %></span></a>
+                    </p>
+                </th>
+                <td>
+                    <p>
+                        <% reservationModel.seatCodes.forEach((seatCode) => { %>
+                            <% let reservation = reservationModel.getReservation(seatCode) %>
+                            <%- reservation.seat_code %> / 
+                            <%- reservation[`ticket_type_${__('DocumentField.name')}`] %> <%- __('{{price}} yen', {price: reservation.ticket_type_charge}) %>
+                            <%- (reservationModel.performance.is_mx4d) ? '[+200(MX4D)]' : '' %>
+                            <%- (reservation.seat_grade_additional_charge > 0) ? `[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_${__('DocumentField.name')}`]})]` : '' %>
+                        <% }) %>、
+                    </p>
+                    <a class="btn btn-default btn-change btn-icon-back visible-pc" href="<%- url('tel.reserve.seats', {token: reservationModel.token}) %>">
+                        <span><%- __('Button.Change') %></span>
+                    </a>
+                </td>
+            </tr>
+
+            <tr>
+                <th>
+                    <%- __('Label.TotalPrice') %>
+                </th>
+                <td>
+                    <p>
+                        <span class="price"><%- __('{{price}} yen', {price: reservationModel.getTotalCharge()}) %></span>
+                    </p>
+                </td>
+            </tr>
+            
+        </tbody>
+    </table>
+
+
+    <h2>
+        <%- __('h3.Profile') %>
+        <a class="btn btn-default btn-change btn-icon-back" href="<%- url('tel.reserve.profile', {token: reservationModel.token}) %>">
+            <span><%- __('Button.Change') %></span>
+        </a>
+    </h2>
+    <table class="table table-confirm">
+        <tbody>
+            <tr>
+                <th><%- __('Label.FullName') %></th>
+                <td>
+                    <p><%- reservationModel.profile.last_name %> <%- reservationModel.profile.first_name %></p>
+                </td>
+            </tr>
+
+            <tr>
+                <th><%- __('Label.Tel') %></th>
+                <td>
+                    <p><%- reservationModel.profile.tel %></p>
+                </td>
+            </tr>
+
+            <tr>
+                <th><%- __('Label.PaymentMethod') %></th>
+                <td>
+                    <p>
+                    <% if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) { %>
+                    <%- __('Label.PaymentMethodName.CREDIT') %>
+                    <% } else if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) {%>
+                    <%- __('Label.PaymentMethodName.CVS') %>
+                    <% } else if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CASH) {%>
+                    <%- __('Label.PaymentMethodName.CASH') %>
+                    <% } %>
+                    </p>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</div>
+
+<div class="wrapper-notice">
+    <h2>注意事項</h2>
+    <p>
+        ・チケットの払い戻し・交換・再発行はいたしません。<br>
+        ・東京都青少年の健全な育成に関する条例により18歳未満の方は23時から翌朝4時までの劇場への出入りは禁止となっております。<br>
+        保護者同伴の場合も同様です。<br>
+        ・携帯電話のドメイン指定受信をご利用の場合は「xxxxxxxxxx@xxx.xxx」をご指定ください。
+    </p>
+</div>
+
+<div class="btns2clm">
+    <a class="btn btn-lg btn-next" href="javascript:void(0);"><span><%- __('Button.Next') %></span></a>
+    <a class="btn btn-lg btn-back" href="<%- url('tel.reserve.profile', {token: req.params.token}) %>"><span><%- __('Button.Back') %></span></a>
+</div>
+
+<script>
+$(function(){
+    $('.btn-next').on('click', function(){
+        var form = $('<form/>', {'method': 'post'}); // location.hrefにpostする
+        form.appendTo(document.body);
+        form.submit();
+    });
+
+});
+</script>

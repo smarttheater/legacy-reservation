@@ -190,7 +190,9 @@ export default class ReservationModel {
         let charge = 0;
 
         if (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER
-        || this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) {
+         || this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW
+         || this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL
+        ) {
             let reservation = this.getReservation(seatCode);
 
             // 座席グレード分加算

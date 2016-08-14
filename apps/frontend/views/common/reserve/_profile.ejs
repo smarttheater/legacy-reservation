@@ -30,6 +30,43 @@
                         <input type="hidden" name="emailConfirm" value="test">
                         <input type="hidden" name="emailConfirmDomain" value="localhost.net">
 
+                    <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL) { %>
+                        <input type="hidden" name="email" value="test@localhost.net">
+                        <input type="hidden" name="emailConfirm" value="test">
+                        <input type="hidden" name="emailConfirmDomain" value="localhost.net">
+
+                        <tr>
+                            <th>お名前 (カタカナ)<span class="required">必須項目</span></th>
+                            <td>
+                                <div class="wrapper-names">
+                                    <div class="wrapper-nameinput">
+                                        <label for="id_lastName"><%- __('Form.FieldName.lastName') %></label>
+                                        <input type="text" name="lastName" id="id_lastName" class="form-control" value="<%- lastName %>">
+                                    </div>
+                                    <div class="wrapper-nameinput">
+                                        <label for="id_firstName"><%- __('Form.FieldName.firstName') %></label>
+                                        <input type="text" name="firstName" id="id_firstName" class="form-control" value="<%- firstName %>">
+                                    </div>
+                                </div>
+                                <p class="notice">※全角カタカナでご入力ください</p>
+                                <% if (req.form) { %>
+                                <p class="errmsg"><%- req.form.getErrors('lastName')[0] %></p>
+                                <p class="errmsg"><%- req.form.getErrors('firstName')[0] %></p>
+                                <% } %>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th><label for="id_tel"><%- __('Form.FieldName.tel') %></label><span class="required">必須項目</span></th>
+                            <td>
+                                <input type="text" name="tel" id="id_tel" class="form-control" value="<%- tel %>">
+                                <p class="notice">※半角数字、ハイフン「-」なしで入力して下さい</p>
+                                <% if (req.form) { %>
+                                <p class="errmsg"><%- req.form.getErrors('tel')[0] %></p>
+                                <% } %>
+                            </td>
+                        </tr>
+
                     <% } else { %>
                         <tr>
                             <th>お名前 (カタカナ)<span class="required">必須項目</span></th>
@@ -89,24 +126,29 @@
                             <th>お支払い方法<span class="required">必須項目</span></th>
                             <td>
                                 <div class="wrapper-payment form-inline">
-                                    <label for="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" class="form-group payment payment-credit">
-                                        <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CREDIT %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CREDIT) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CREDIT') %>
-                                    </label>
-
                                     <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER) { %>
-                                    <label for="radio_<%- GMOUtil.PAY_TYPE_CVS %>" class="form-group payment payment-cvs">
-                                        <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CVS %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CVS %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CVS) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CVS') %>
-                                    </label>
-                                    <% } %>
-
-                                    <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
-                                    <label for="radio_<%- GMOUtil.PAY_TYPE_CVS %>" class="form-group payment payment-cash">
-                                        <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CVS %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CVS %>"><%- __('Label.PaymentMethodName.CASH') %>
-                                    </label>
+                                        <label for="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" class="form-group payment payment-credit">
+                                            <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CREDIT %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CREDIT) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CREDIT') %>
+                                        </label>
+                                        <label for="radio_<%- GMOUtil.PAY_TYPE_CVS %>" class="form-group payment payment-cvs">
+                                            <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CVS %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CVS %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CVS) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CVS') %>
+                                        </label>
+                                    <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
+                                        <label for="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" class="form-group payment payment-credit">
+                                            <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CREDIT %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CREDIT) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CREDIT') %>
+                                        </label>
+                                        <label for="radio_<%- GMOUtil.PAY_TYPE_CVS %>" class="form-group payment payment-cash">
+                                            <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CVS %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CVS %>"><%- __('Label.PaymentMethodName.CASH') %>
+                                        </label>
+                                    <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL) { %>
+                                        <label for="radio_<%- GMOUtil.PAY_TYPE_CVS %>" class="form-group payment payment-cvs">
+                                            <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CVS %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CVS %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CVS) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CVS') %>
+                                        </label>
                                     <% } %>
                                 </div>
 
-                                <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER) { %>
+                                <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER
+                                    || reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL) { %>
                                 <p class="notice">
                                     <span class="notice-cvs">
                                         ※コンビニ決済の支払期限は、ご注文完了日を含めて3日間です。<br>

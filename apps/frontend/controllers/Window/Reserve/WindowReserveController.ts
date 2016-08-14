@@ -10,7 +10,6 @@ import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
-import lockFile = require('lockfile');
 
 export default class WindowReserveController extends ReserveBaseController {
     public static RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数
@@ -192,6 +191,7 @@ export default class WindowReserveController extends ReserveBaseController {
                 });
             } else {
                 this.res.render('window/reserve/tickets', {
+                    layout: 'layouts/window/layout',
                     reservationModel: reservationModel,
                 });
 
@@ -229,6 +229,7 @@ export default class WindowReserveController extends ReserveBaseController {
 
                     } else {
                         this.res.render('window/reserve/profile', {
+                            layout: 'layouts/window/layout',
                             reservationModel: reservationModel
                         });
 
@@ -245,6 +246,7 @@ export default class WindowReserveController extends ReserveBaseController {
                 }
 
                 this.res.render('window/reserve/profile', {
+                    layout: 'layouts/window/layout',
                     reservationModel: reservationModel
                 });
 
@@ -339,6 +341,7 @@ export default class WindowReserveController extends ReserveBaseController {
 
             } else {
                 this.res.render('window/reserve/confirm', {
+                    layout: 'layouts/window/layout',
                     reservationModel: reservationModel
                 });
 
@@ -362,6 +365,7 @@ export default class WindowReserveController extends ReserveBaseController {
                 if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
                 this.res.render('window/reserve/complete', {
+                    layout: 'layouts/window/layout',
                     reservationDocuments: reservationDocuments
                 });
 

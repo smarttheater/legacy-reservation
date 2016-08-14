@@ -8,6 +8,7 @@ import MemberUser from '../models/User/MemberUser';
 import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
 import WindowUser from '../models/User/WindowUser';
+import TelStaffUser from '../models/User/TelStaffUser';
 import NamedRoutes = require('named-routes');
 
 /**
@@ -40,6 +41,8 @@ export default class BaseController
     public sponsorUser: SponsorUser;
     /** 窓口ユーザー */
     public windowUser: WindowUser;
+    /** 電話窓口ユーザー */
+    public telStaffUser: TelStaffUser;
 
     constructor(req: express.Request, res: express.Response, next: express.NextFunction) {
         this.req = req;
@@ -55,6 +58,7 @@ export default class BaseController
         this.staffUser = StaffUser.getInstance();
         this.sponsorUser = SponsorUser.getInstance();
         this.windowUser = WindowUser.getInstance();
+        this.telStaffUser = TelStaffUser.getInstance();
 
         // ユーザーインスタンスをテンプレート変数へ渡す
         this.res.locals.mvtkUser = this.mvtkUser;
@@ -62,6 +66,7 @@ export default class BaseController
         this.res.locals.staffUser = this.staffUser;
         this.res.locals.sponsorUser = this.sponsorUser;
         this.res.locals.windowUser = this.windowUser;
+        this.res.locals.telStaffUser = this.telStaffUser;
 
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;

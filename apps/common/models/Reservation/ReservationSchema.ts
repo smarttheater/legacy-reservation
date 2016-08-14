@@ -97,6 +97,12 @@ let Schema = new mongoose.Schema({
     },
     window_user_id: String,
 
+    tel_staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'TelStaff'
+    },
+    tel_staff_user_id: String,
+
     gmo_shop_id: String,
     gmo_amount: String,
     gmo_tax: String,

@@ -13,6 +13,7 @@ import ScreenSchema from '../models/Screen/ScreenSchema';
 import SequenceSchema from '../models/Sequence/SequenceSchema';
 import SponsorSchema from '../models/Sponsor/SponsorSchema';
 import StaffSchema from '../models/Staff/StaffSchema';
+import TelStaffSchema from '../models/TelStaff/TelStaffSchema';
 import TheaterSchema from '../models/Theater/TheaterSchema';
 import TicketTypeGroupSchema from '../models/TicketTypeGroup/TicketTypeGroupSchema';
 import WindowSchema from '../models/Window/WindowSchema';
@@ -27,6 +28,7 @@ let Screen = mongoose.model('Screen', ScreenSchema);
 let Sequence = mongoose.model('Sequence', SequenceSchema);
 let Sponsor = mongoose.model('Sponsor', SponsorSchema);
 let Staff = mongoose.model('Staff', StaffSchema);
+let TelStaff = mongoose.model('TelStaff', TelStaffSchema);
 let Theater = mongoose.model('Theater', TheaterSchema);
 let TicketTypeGroup = mongoose.model('TicketTypeGroup', TicketTypeGroupSchema);
 let Window = mongoose.model('Window', WindowSchema);
@@ -42,6 +44,7 @@ export default {
     Sequence,
     Sponsor,
     Staff,
+    TelStaff,
     Theater,
     TicketTypeGroup,
     Window
