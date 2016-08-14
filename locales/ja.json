@@ -56,7 +56,9 @@
 		"Name": "お名前",
 		"ResultsCount": "検索結果数",
 		"ShowSeats": "座席を表示",
-		"PurchaseContent": "ご購入内容"
+		"PurchaseContent": "ご購入内容",
+		"DepartmentName": "Label.DepartmentName",
+		"Signature": "Label.Signature"
 	},
 	"Button": {
 		"Send": "送信",

@@ -60,5 +60,6 @@ ReservationUtil.PURCHASER_GROUP_TEL = '05';
 /** 窓口 */
 ReservationUtil.PURCHASER_GROUP_WINDOW = '06';
 ReservationUtil.CHARGE_MX4D = 1200;
+ReservationUtil.CHARGE_CVS = 150;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = ReservationUtil;

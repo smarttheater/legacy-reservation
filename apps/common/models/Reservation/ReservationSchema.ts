@@ -81,7 +81,6 @@ let Schema = new mongoose.Schema({
     staff_user_id: String,
     staff_name: String,
     staff_email: String,
-    staff_department_name: String,
     staff_tel: String,
     staff_signature: String,
 

@@ -1,6 +1,7 @@
 "use strict";
 const Util_1 = require('../../../common/Util/Util');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
+const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
 /**
  * 予約情報モデル
  *
@@ -88,14 +89,7 @@ class ReservationModel {
         let reservation = this.getReservation(seatCode);
         if (reservation.ticket_type_charge) {
             charge += reservation.ticket_type_charge;
-            // 座席グレード分加算
-            if (reservation.seat_grade_additional_charge > 0) {
-                charge += reservation.seat_grade_additional_charge;
-            }
-            // MX4D分加算
-            if (this.performance.is_mx4d) {
-                charge += ReservationUtil_1.default.CHARGE_MX4D;
-            }
+            charge += this.getChargeExceptTicketTypeBySeatCode(seatCode);
         }
         return charge;
     }
@@ -112,6 +106,10 @@ class ReservationModel {
             // MX4D分加算
             if (this.performance.is_mx4d) {
                 charge += ReservationUtil_1.default.CHARGE_MX4D;
+            }
+            // コンビニ手数料加算
+            if (this.paymentMethod === GMOUtil_1.default.PAY_TYPE_CVS) {
+                charge += ReservationUtil_1.default.CHARGE_CVS;
             }
         }
         return charge;

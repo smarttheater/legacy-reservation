@@ -27,7 +27,7 @@ export default class ReserveController extends ReserveBaseController {
             // 予約リストを取得
             let fields = 'seat_code status';
             if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
-                fields = 'seat_code status purchaser_group staff staff_name staff_department_name sponsor sponsor_name member member_email';
+                fields = 'seat_code status purchaser_group staff staff_name sponsor sponsor_name member member_email';
             }
 
             Models.Reservation.find(
@@ -65,16 +65,6 @@ export default class ReserveController extends ReserveBaseController {
 
                             // 内部関係者用
                             if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
-                                // TODO TIFF確保中をどうする？
-                                // if (reservationDocument.get('status') === ReservationUtil.STATUS_KEPT_BY_TIFF) {
-                                //     classes = ['select-seat'];
-
-                                //     if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
-                                //         // 仮押さえ中
-                                //         classes.push('active');
-                                //     }
-                                // }
-
                                 baloonContent += this.getBaloonContent4staffs(reservationDocument);
                             }
 
@@ -110,7 +100,7 @@ export default class ReserveController extends ReserveBaseController {
         switch (status) {
             case ReservationUtil.STATUS_RESERVED:
                 if (group === ReservationUtil.PURCHASER_GROUP_STAFF) {
-                    baloonContent +=  `<br>内部関係者${reservationDocument.get('staff_department_name')}<br>${reservationDocument.get('staff_name')}`;
+                    baloonContent +=  `<br>内部関係者${reservationDocument.get('staff_name')}`;
                 } else if (group === ReservationUtil.PURCHASER_GROUP_SPONSOR) {
                     baloonContent +=  `<br>外部関係者${reservationDocument.get('sponsor_name')}`;
                 } else if (group === ReservationUtil.PURCHASER_GROUP_MEMBER) {

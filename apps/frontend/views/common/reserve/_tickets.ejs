@@ -30,8 +30,13 @@
                                 <% } %>
                             >
                                 <%- ticketType[__('DocumentField.name')] %> <%- __('{{price}} yen', {price: ticketType.charge}) %>
-                                <%- (reservationModel.performance.is_mx4d) ? '[+200(MX4D)]' : '' %>
-                                <%- (reservation.seat_grade_additional_charge > 0) ? `[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_${__('DocumentField.name')}`]})]` : '' %>
+
+                                <% if (reservationModel.purchaserGroup !== ReservationUtil.PURCHASER_GROUP_SPONSOR
+                                    && reservationModel.purchaserGroup !== ReservationUtil.PURCHASER_GROUP_STAFF) { %>
+                                    <%- (reservationModel.performance.is_mx4d) ? '[+200(MX4D)]' : '' %>
+                                    <%- (reservation.seat_grade_additional_charge > 0) ? `[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_${__('DocumentField.name')}`]})]` : '' %>
+                                <% } %>
+
                             </option>
                             <% }) %>
                         </select>

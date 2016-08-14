@@ -12,7 +12,6 @@ let Schema = new mongoose.Schema({
     password_hash: String,
     name: String,
     email: String,
-    department_name: String,
     is_admin: Boolean // 管理者かどうか
 }, {
     collection: 'staffs',

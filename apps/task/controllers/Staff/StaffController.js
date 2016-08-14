@@ -12,79 +12,68 @@ class StaffController extends BaseController_1.default {
             let staffs = [
                 {
                     user_id: 'admin',
-                    name: 'Admin',
+                    name: '管理アカウント',
                     email: 'yamazaki@motionpicture.jp',
-                    department_name: '管理アカウント',
                     is_admin: true
                 },
                 {
                     user_id: 'hataguchi',
-                    name: 'akito hataguchi',
+                    name: '制作部 akito hataguchi',
                     email: 'hataguchi@motionpicture.jp',
-                    department_name: '制作部',
                     is_admin: false
                 },
                 {
                     user_id: 'shun',
-                    name: 'Shun Kato',
+                    name: '制作部 Shun Kato',
                     email: 'shun@motionpicture.jp',
-                    department_name: '制作部',
                     is_admin: false
                 },
                 {
                     user_id: 'yoko',
-                    name: '横山詳平',
+                    name: '制作部 横山詳平',
                     email: 'yoko@motionpicture.jp',
-                    department_name: '制作部',
                     is_admin: false
                 },
                 {
                     user_id: 'kato',
-                    name: '加藤智也',
+                    name: '進行管理部 加藤智也',
                     email: 'kato@motionpicture.jp',
-                    department_name: '進行管理部',
                     is_admin: false
                 },
                 {
                     user_id: 'yamane',
-                    name: '山根高之',
+                    name: '取締役 山根高之',
                     email: 'yamane@motionpicture.jp',
-                    department_name: '取締役',
                     is_admin: false
                 },
                 {
                     user_id: 'nishihata',
-                    name: '西畑伸一',
+                    name: '制作部 西畑伸一',
                     email: 'nishihata@motionpicture.jp',
-                    department_name: '制作部',
                     is_admin: false
                 },
                 {
                     user_id: 'tsubota',
-                    name: '坪田竜一',
+                    name: '進行管理部 坪田竜一',
                     email: 'tsubota@motionpicture.jp',
-                    department_name: '進行管理部',
                     is_admin: false
                 },
                 {
                     user_id: 'umematsu',
-                    name: '梅松康博',
+                    name: '営業部 梅松康博',
                     email: 'umematsu@motionpicture.jp',
-                    department_name: '営業部',
                     is_admin: false
                 },
                 {
                     user_id: 'meguro',
-                    name: '目黒茂治',
+                    name: '進行管理部 目黒茂治',
                     email: 'meguro@motionpicture.jp',
-                    department_name: '進行管理部',
                     is_admin: false
                 },
                 {
                     user_id: 'yamazaki',
-                    name: 'Tetsu Yamazaki',
+                    name: '制作部 Tetsu Yamazaki',
                     email: 'yamazaki@motionpicture.jp',
-                    department_name: '制作部',
                     is_admin: false
                 }
             ];

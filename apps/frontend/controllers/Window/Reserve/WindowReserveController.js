@@ -129,6 +129,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
+            reservationModel.paymentMethod = null;
             if (this.req.method === 'POST') {
                 reserveTicketForm_1.default(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {

@@ -1,6 +1,7 @@
 import Util from '../../../common/Util/Util';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import mvtkService = require('@motionpicture/mvtk-service');
+import GMOUtil from '../../../common/Util/GMO/GMOUtil';
 
 /**
  * 予約情報モデル
@@ -167,20 +168,7 @@ export default class ReservationModel {
         let reservation = this.getReservation(seatCode);
         if (reservation.ticket_type_charge) {
             charge += reservation.ticket_type_charge;
-
-            // 座席グレード分加算
-            if (reservation.seat_grade_additional_charge > 0) {
-                charge += reservation.seat_grade_additional_charge;
-            }
-
-            // MX4D分加算
-            if (this.performance.is_mx4d) {
-                charge += ReservationUtil.CHARGE_MX4D;
-            }
-
-            // TODO コンビニ手数料加算
-            // if () {
-            // }
+            charge += this.getChargeExceptTicketTypeBySeatCode(seatCode);
         }
 
         return charge;
@@ -203,6 +191,11 @@ export default class ReservationModel {
             // MX4D分加算
             if (this.performance.is_mx4d) {
                 charge += ReservationUtil.CHARGE_MX4D;
+            }
+
+            // コンビニ手数料加算
+            if (this.paymentMethod === GMOUtil.PAY_TYPE_CVS) {
+                charge += ReservationUtil.CHARGE_CVS;
             }
         }
 

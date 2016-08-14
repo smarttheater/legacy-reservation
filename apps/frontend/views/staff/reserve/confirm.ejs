@@ -49,10 +49,9 @@
                             <% let reservation = reservationModel.getReservation(seatCode) %>
                             <%- reservation.seat_code %> / 
                             <%- reservation[`ticket_type_${__('DocumentField.name')}`] %> <%- __('{{price}} yen', {price: reservation.ticket_type_charge}) %>
-                            <%- (reservationModel.performance.is_mx4d) ? '[+200(MX4D)]' : '' %>
-                            <%- (reservation.seat_grade_additional_charge > 0) ? `[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_${__('DocumentField.name')}`]})]` : '' %> / 
-                            <%- reservation.watcher_name %><br>
-                        <% }) %>、
+                            <%- reservation.watcher_name %>
+                            <br>
+                        <% }) %>
                     </p>
                     <a class="btn btn-default btn-change btn-icon-back visible-pc" href="<%- url('staff.reserve.seats', {token: reservationModel.token}) %>">
                         <span><%- __('Button.Change') %></span>
@@ -82,15 +81,9 @@
         <tbody>
 
             <tr>
-                <th><%- __('Label.FullName') %></th>
-                <td>
-                    <p><%- staffUser.name %></p>
-                </td>
-            </tr>
-            <tr>
                 <th><%- __('Label.DepartmentName') %></th>
                 <td>
-                    <p><%- staffUser.department_name %></p>
+                    <p><%- staffUser.name %></p>
                 </td>
             </tr>
             <tr>

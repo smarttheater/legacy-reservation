@@ -31,6 +31,7 @@ export default class ReservationUtil {
     public static PURCHASER_GROUP_WINDOW = '06';
 
     public static CHARGE_MX4D = 1200;
+    public static CHARGE_CVS = 150;
 
     /**
      * create barcode from reservation infos.

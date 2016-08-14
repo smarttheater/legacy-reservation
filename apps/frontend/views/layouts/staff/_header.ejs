@@ -12,7 +12,7 @@ if (req.hasOwnProperty('route')) {
         <div class="header-menu">
             <% if (routeName.indexOf('mypage') >= 0 && staffUser.isAuthenticated()) { %>
             <div class="menu-staff">
-                <p class="myname"><%= staffUser.get('department_name') %> <%= __('Mr{{name}}', {name: staffUser.get('name')}) %></p>
+                <p class="myname"><%= __('Mr{{name}}', {name: staffUser.get('name')}) %></p>
                 <div class="staff-btns">
                     <a class="btn btn-logout" href="<%- url('staff.logout') %>"><span><%- __('Button.Logout') %></span></a>
                     <a class="btn btn-newticket" href="<%- url('staff.reserve.start') %>"><span><%- __('Button.NewTicket') %></span></a>

@@ -203,7 +203,6 @@ class StaffReserveController extends ReserveBaseController_1.default {
                                     reservationDocument4update['staff_user_id'] = this.staffUser.get('user_id');
                                     reservationDocument4update['staff_name'] = this.staffUser.get('name');
                                     reservationDocument4update['staff_email'] = this.staffUser.get('email');
-                                    reservationDocument4update['staff_department_name'] = this.staffUser.get('department_name');
                                     reservationDocument4update['staff_tel'] = this.staffUser.get('tel');
                                     reservationDocument4update['staff_signature'] = this.staffUser.get('signature');
                                     this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);

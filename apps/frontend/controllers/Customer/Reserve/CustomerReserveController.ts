@@ -206,6 +206,8 @@ export default class CustomerReserveController extends ReserveBaseController {
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
+            reservationModel.paymentMethod = null;
+
             if (this.req.method === 'POST') {
                 reserveTicketForm(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
