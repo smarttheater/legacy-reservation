@@ -4,14 +4,9 @@ const ReservationUtil_1 = require('../../../../common/models/Reservation/Reserva
 const Models_1 = require('../../../../common/models/Models');
 class WindowMyPageController extends BaseController_1.default {
     index() {
-        Models_1.default.Theater.find({}, '_id name name_en', (err, theaterDocuments) => {
-            Models_1.default.Film.find({}, '_id name name_en', (err, filmDocuments) => {
-                this.res.render('window/mypage/index', {
-                    layout: 'layouts/window/layout',
-                    theaters: theaterDocuments,
-                    films: filmDocuments
-                });
-            });
+        this.res.render('window/mypage/index', {
+            layout: 'layouts/window/layout',
+            ReservationUtil: ReservationUtil_1.default
         });
     }
     /**
@@ -20,42 +15,37 @@ class WindowMyPageController extends BaseController_1.default {
     search() {
         let limit = 2;
         let page = (this.req.query.page) ? this.req.query.page : 1;
+        let purchaserGroups = (this.req.query.purchaser_groups) ? this.req.query.purchaser_groups.split(',') : null;
         let day = (this.req.query.day) ? this.req.query.day : null;
-        let startTime = (this.req.query.start_time) ? this.req.query.start_time : null;
-        let theater = (this.req.query.theater) ? this.req.query.theater : null;
-        let film = (this.req.query.film) ? this.req.query.film : null;
-        let updater = (this.req.query.updater) ? this.req.query.updater : null;
+        let email = (this.req.query.email) ? this.req.query.email : null;
+        let tel = (this.req.query.tel) ? this.req.query.tel : null;
+        let purchaser_name = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
         // 検索条件を作成
         let conditions = [];
+        // 内部関係者以外がデフォルト
         conditions.push({
-            purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_WINDOW,
-            window: this.windowUser.get('_id'),
+            purchaser_group: { $ne: ReservationUtil_1.default.PURCHASER_GROUP_STAFF },
             status: ReservationUtil_1.default.STATUS_RESERVED
         });
-        if (film) {
-            conditions.push({ film: film });
-        }
-        if (theater) {
-            conditions.push({ theater: theater });
+        if (purchaserGroups) {
+            conditions.push({ purchaser_group: { $in: purchaserGroups } });
         }
         if (day) {
-            conditions.push({ performance_day: day });
         }
-        if (startTime) {
-            conditions.push({
-                performance_start_time: {
-                    $gte: startTime,
-                }
-            });
+        if (email) {
+            conditions.push({ purchaser_email: { $regex: `${email}` } });
         }
-        if (updater) {
+        if (tel) {
+            conditions.push({ purchaser_tel: { $regex: `${tel}` } });
+        }
+        if (purchaser_name) {
             conditions.push({
                 $or: [
                     {
-                        staff_signature: { $regex: `${updater}` }
+                        purchaser_last_name: { $regex: `${purchaser_name}` }
                     },
                     {
-                        watcher_name: { $regex: `${updater}` }
+                        purchaser_first_name: { $regex: `${purchaser_name}` }
                     }
                 ]
             });
@@ -78,7 +68,7 @@ class WindowMyPageController extends BaseController_1.default {
             })
                 .skip(limit * (page - 1))
                 .limit(limit)
-                .exec((err, reservationDocuments) => {
+                .exec((err, reservations) => {
                 if (err) {
                     this.res.json({
                         isSuccess: false,
@@ -91,52 +81,11 @@ class WindowMyPageController extends BaseController_1.default {
                     this.res.json({
                         isSuccess: true,
                         // conditions: conditions,
-                        results: reservationDocuments,
+                        results: reservations,
                         count: count
                     });
                 }
             });
-        });
-    }
-    /**
-     * 配布先を更新する
-     */
-    updateWatcherName() {
-        let reservationId = this.req.body.reservationId;
-        let watcherName = this.req.body.watcherName;
-        this.logger.debug('updating watcher_name... id:', reservationId);
-        Models_1.default.Reservation.findOneAndUpdate({
-            staff: this.staffUser.get('_id'),
-            status: ReservationUtil_1.default.STATUS_RESERVED,
-            _id: reservationId,
-        }, {
-            watcher_name: watcherName,
-            watcher_name_updated_at: Date.now(),
-            staff_signature: this.staffUser.get('signature'),
-        }, {
-            new: true
-        }, (err, reservationDocument) => {
-            this.logger.debug('updated watcher_name. reservationDocument:', reservationDocument);
-            if (err) {
-                return this.res.json({
-                    isSuccess: false,
-                    message: this.req.__('message.UnexpectedError'),
-                    reservationId: null
-                });
-            }
-            if (!reservationDocument) {
-                this.res.json({
-                    isSuccess: false,
-                    message: this.req.__('message.NotFound'),
-                    reservationId: null
-                });
-            }
-            else {
-                this.res.json({
-                    isSuccess: true,
-                    reservation: reservationDocument.toObject()
-                });
-            }
         });
     }
 }

@@ -198,6 +198,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                                 promises.push(new Promise((resolve, reject) => {
                                     // 予約完了
                                     reservationDocument4update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
+                                    reservationDocument4update['purchased_at'] = Date.now();
                                     reservationDocument4update['staff'] = this.staffUser.get('_id');
                                     reservationDocument4update['staff_user_id'] = this.staffUser.get('user_id');
                                     reservationDocument4update['staff_name'] = this.staffUser.get('name');

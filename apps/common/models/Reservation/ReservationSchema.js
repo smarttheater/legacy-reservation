@@ -40,6 +40,7 @@ let Schema = new mongoose.Schema({
     purchaser_first_name: String,
     purchaser_email: String,
     purchaser_tel: String,
+    purchased_at: Date,
     payment_method: String,
     seat_code: String,
     seat_grade_name: String,

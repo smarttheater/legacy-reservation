@@ -240,6 +240,7 @@ class ReserveBaseController extends BaseController_1.default {
     processFixReservations(paymentNo, reservationIds, update, cb) {
         let promises = [];
         update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
+        update['purchased_at'] = Date.now();
         update['updated_user'] = 'ReserveBaseController';
         // 予約完了ステータスへ変更
         for (let reservationId of reservationIds) {

@@ -8,28 +8,22 @@ export default class WindowCancelController extends BaseController {
         let reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
             let promises = [];
-            let updatedReservationIds = [];
+            let canceledReservationIds = [];
 
             for (let reservationId of reservationIds) {
                 promises.push(new Promise((resolve, reject) => {
-                    // TIFF確保にステータス更新
-                    this.logger.debug('canceling reservation...id:', reservationId);
-                    Models.Reservation.update(
+                    // 予約削除
+                    Models.Reservation.remove(
                         {
                             _id: reservationId,
-                            staff: this.staffUser.get('_id'),
-                            purchaser_group: ReservationUtil.PURCHASER_GROUP_STAFF,
+                            purchaser_group: {$ne: ReservationUtil.PURCHASER_GROUP_STAFF}, // 念のため、内部は除外
                             status: ReservationUtil.STATUS_RESERVED
                         },
-                        {
-                            // TODO 内部保留の所有者はadmin
-                            status: ReservationUtil.STATUS_KEPT_BY_TIFF
-                        },
-                        (err, raw) => {
+                        (err) => {
                             if (err) {
                                 reject(err);
                             } else {
-                                updatedReservationIds.push(reservationId);
+                                canceledReservationIds.push(reservationId);
                                 resolve();
                             }
                         }
@@ -40,7 +34,7 @@ export default class WindowCancelController extends BaseController {
             Promise.all(promises).then(() => {
                 this.res.json({
                     isSuccess: true,
-                    reservationIds: updatedReservationIds
+                    reservationIds: canceledReservationIds
                 });
             }, (err) => {
                 this.res.json({

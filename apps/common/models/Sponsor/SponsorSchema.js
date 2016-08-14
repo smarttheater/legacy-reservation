@@ -11,6 +11,7 @@ let Schema = new mongoose.Schema({
     password_salt: String,
     password_hash: String,
     name: String,
+    email: String,
     performance: {
         type: String,
         ref: 'Performance'

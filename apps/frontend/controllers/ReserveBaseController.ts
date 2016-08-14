@@ -312,6 +312,7 @@ export default class ReserveBaseController extends BaseController {
         let promises = [];
 
         update['status'] = ReservationUtil.STATUS_RESERVED;
+        update['purchased_at'] = Date.now();
         update['updated_user'] = 'ReserveBaseController';
 
         // 予約完了ステータスへ変更

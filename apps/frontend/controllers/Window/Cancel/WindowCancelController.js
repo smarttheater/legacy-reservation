@@ -8,25 +8,20 @@ class WindowCancelController extends BaseController_1.default {
         let reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
             let promises = [];
-            let updatedReservationIds = [];
+            let canceledReservationIds = [];
             for (let reservationId of reservationIds) {
                 promises.push(new Promise((resolve, reject) => {
-                    // TIFF確保にステータス更新
-                    this.logger.debug('canceling reservation...id:', reservationId);
-                    Models_1.default.Reservation.update({
+                    // 予約削除
+                    Models_1.default.Reservation.remove({
                         _id: reservationId,
-                        staff: this.staffUser.get('_id'),
-                        purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
+                        purchaser_group: { $ne: ReservationUtil_1.default.PURCHASER_GROUP_STAFF },
                         status: ReservationUtil_1.default.STATUS_RESERVED
-                    }, {
-                        // TODO 内部保留の所有者はadmin
-                        status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
-                    }, (err, raw) => {
+                    }, (err) => {
                         if (err) {
                             reject(err);
                         }
                         else {
-                            updatedReservationIds.push(reservationId);
+                            canceledReservationIds.push(reservationId);
                             resolve();
                         }
                     });
@@ -35,7 +30,7 @@ class WindowCancelController extends BaseController_1.default {
             Promise.all(promises).then(() => {
                 this.res.json({
                     isSuccess: true,
-                    reservationIds: updatedReservationIds
+                    reservationIds: canceledReservationIds
                 });
             }, (err) => {
                 this.res.json({

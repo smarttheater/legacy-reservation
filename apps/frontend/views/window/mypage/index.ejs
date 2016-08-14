@@ -1,51 +1,52 @@
+<input type="hidden" name="purchaser_group_name_<%- ReservationUtil.PURCHASER_GROUP_CUSTOMER %>" value="一般">
+<input type="hidden" name="purchaser_group_name_<%- ReservationUtil.PURCHASER_GROUP_TEL %>" value="一般">
+<input type="hidden" name="purchaser_group_name_<%- ReservationUtil.PURCHASER_GROUP_WINDOW %>" value="一般">
+<input type="hidden" name="purchaser_group_name_<%- ReservationUtil.PURCHASER_GROUP_SPONSOR %>" value="外部関係者">
+<input type="hidden" name="purchaser_group_name_<%- ReservationUtil.PURCHASER_GROUP_MEMBER %>" value="先行予約">
+
 <div class="wrapper-searchform">
     <form class="search-form" action="<%- url('window.mypage.search') %>">
     <table class="table">
         <tbody>
             <tr>
                 <td>
-                    <%- __('Label.Day') %><br>
+                    予約区分<br>
+                    <div class="form-group">
+                        <select class="form-control" name="purchaser_groups">
+                            <option value="">---</option>
+                            <option value="<%- ReservationUtil.PURCHASER_GROUP_CUSTOMER %>,<%- ReservationUtil.PURCHASER_GROUP_TEL %>,<%- ReservationUtil.PURCHASER_GROUP_WINDOW %>">一般</option>
+                            <option value="<%- ReservationUtil.PURCHASER_GROUP_SPONSOR %>">外部関係者</option>
+                            <option value="<%- ReservationUtil.PURCHASER_GROUP_MEMBER %>">先行予約</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    予約日<br>
                     <div class="form-group">
                         <select class="form-control" name="day">
-                            <option value=""><%- __('Label.AllDay') %></option>
-                            <option value="20161022">10/22</option>
-                            <option value="20161023">10/23</option>
-                            <option value="20161024">10/24</option>
-                            <option value="20161025">10/25</option>
-                            <option value="20161026">10/26</option>
-                            <option value="20161027">10/27</option>
-                            <option value="20161028">10/28</option>
-                            <option value="20161029">10/29</option>
-                        </select>
-                    </div>
-                </td>
-                <td>
-                    Theater<br>
-                    <div class="form-group">
-                        <select class="form-control" name="theater">
                             <option value="">---</option>
-                            <% for (let theater of theaters) { %>
-                            <option value="<%= theater._id %>"><%= theater.name_en %></option>
-                            <% } %>
+                            <option value="20160813">8/13</option>
+                            <option value="20160814">8/14</option>
                         </select>
                     </div>
                 </td>
                 <td>
-                    <%- __('Label.FilmName') %><br>
+                    メールアドレス<br>
                     <div class="form-group">
-                        <select class="form-control" name="film">
-                            <option value="">---</option>
-                            <% for (let film of films) { %>
-                            <option value="<%= film._id %>"><%= film.name_en %></option>
-                            <% } %>
-                        </select>
+                        <input type="text" class="form-control" name="email">
                     </div>
                 </td>
                 <td>
-                    <%- __('Label.UpdatedUser') %><br>
+                    電話番号<br>
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="tel">
+                    </div>
+                </td>
+                <td>
+                    氏名<br>
                     <div class="form-inline">
                         <div class="form-group">
-                            <input type="text" class="form-control" name="updater">
+                            <input type="text" class="form-control" name="purchaser_name">
                         </div>
                         <div class="form-group">
                             <a class="btn" href="javascript:void(0)"><span><%- __('Button.Search') %></span></a>
@@ -66,10 +67,13 @@
             <tr>
                 <th><input type="checkbox" class="check-all"></th>
                 <th><%- __('Label.PaymentNo') %></th>
+                <th>予約区分</th>
+                <th>予約日時</th>
+                <th><%- __('Label.Email') %></th>
+                <th><%- __('Label.Tel') %></th>
+                <th>氏名</th>
                 <th><%- __('Label.FilmName') %> / <%- __('Label.PerformanceTime') %> / <%- __('Label.PerformancePlace') %></th>
                 <th><%- __('Label.SeatCode') %></th>
-                <th><%- __('Label.UpdatedUser') %></th>
-                <th><%- __('Label.Distribution') %></th>
                 <th></th>
             </tr>
         </thead>

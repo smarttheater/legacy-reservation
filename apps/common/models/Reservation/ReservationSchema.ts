@@ -47,6 +47,8 @@ let Schema = new mongoose.Schema({
     purchaser_email: String,
     purchaser_tel: String,
 
+    purchased_at: Date, // 購入確定日時
+
     payment_method: String, // 決済方法
 
     seat_code: String,

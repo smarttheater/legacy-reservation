@@ -344,6 +344,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                                 promises.push(new Promise((resolve, reject) => {
                                     // 予約完了
                                     reservationDocument4update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
+                                    reservationDocument4update['purchased_at'] = Date.now();
                                     reservationDocument4update['sponsor'] = this.sponsorUser.get('_id');
                                     reservationDocument4update['sponsor_user_id'] = this.sponsorUser.get('user_id');
                                     reservationDocument4update['sponsor_name'] = this.sponsorUser.get('name');
