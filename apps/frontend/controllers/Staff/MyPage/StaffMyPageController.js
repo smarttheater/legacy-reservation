@@ -18,7 +18,7 @@ class StaffMyPageController extends BaseController_1.default {
      * マイページ予約検索
      */
     search() {
-        let limit = 2;
+        let limit = (this.req.query.limit) ? this.req.query.limit : 10;
         let page = (this.req.query.page) ? this.req.query.page : 1;
         let day = (this.req.query.day) ? this.req.query.day : null;
         let startTime = (this.req.query.start_time) ? this.req.query.start_time : null;

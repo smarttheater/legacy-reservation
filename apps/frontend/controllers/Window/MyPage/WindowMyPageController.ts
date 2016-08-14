@@ -2,6 +2,7 @@ import BaseController from '../../BaseController';
 import Util from '../../../../common/Util/Util';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import Models from '../../../../common/models/Models';
+import moment = require('moment');
 
 export default class WindowMyPageController extends BaseController {
     public index(): void {
@@ -15,11 +16,11 @@ export default class WindowMyPageController extends BaseController {
      * マイページ予約検索
      */
     public search(): void {
-        let limit = 2;
+        let limit = (this.req.query.limit) ? this.req.query.limit : 10;
         let page = (this.req.query.page) ? this.req.query.page : 1;
 
         let purchaserGroups = (this.req.query.purchaser_groups) ? this.req.query.purchaser_groups.split(',') : null;
-        let day = (this.req.query.day) ? this.req.query.day : null;
+        let purchasedDay = (this.req.query.purchased_day) ? this.req.query.purchased_day : null;
         let email = (this.req.query.email) ? this.req.query.email : null;
         let tel = (this.req.query.tel) ? this.req.query.tel : null;
         let purchaser_name = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
@@ -39,8 +40,16 @@ export default class WindowMyPageController extends BaseController {
             conditions.push({purchaser_group: {$in: purchaserGroups}});
         }
 
-        if (day) { // TODO 予約確定日時が必要か？
-            // conditions.push({theater: theater});
+        // 購入日条件
+        if (purchasedDay) {
+            conditions.push(
+                {
+                    purchased_at: {
+                        $gte: moment(`${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T00:00:00+9:00`),
+                        $lte: moment(`${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T23:59:59+9:00`)
+                    }
+                }
+            );
         }
 
         if (email) {

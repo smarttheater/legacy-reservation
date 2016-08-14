@@ -6,6 +6,8 @@
 
 <div class="wrapper-searchform">
     <form class="search-form" action="<%- url('tel.mypage.search') %>">
+    <input type="hidden" name="limit" value="2">
+
     <table class="table">
         <tbody>
             <tr>
@@ -23,10 +25,12 @@
                 <td>
                     予約日<br>
                     <div class="form-group">
-                        <select class="form-control" name="day">
+                        <select class="form-control" name="purchased_day">
                             <option value="">---</option>
-                            <option value="20160813">8/13</option>
-                            <option value="20160814">8/14</option>
+                            <% for (let i=0; i<30; i++) { %>
+                            <% let _moment =  moment().add(-i, 'days') %>
+                            <option value="<%- _moment.format('YYYYMMDD') %>"><%- _moment.format('MM/DD') %></option>
+                            <% } %>
                         </select>
                     </div>
                 </td>

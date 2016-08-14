@@ -12,7 +12,7 @@ class SponsorMyPageController extends BaseController_1.default {
      * マイページ予約検索
      */
     search() {
-        let limit = 2;
+        let limit = (this.req.query.limit) ? this.req.query.limit : 10;
         let page = (this.req.query.page) ? this.req.query.page : 1;
         let tel = (this.req.query.tel) ? this.req.query.tel : null;
         let purchaser_name = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;

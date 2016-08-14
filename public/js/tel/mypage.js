@@ -2,6 +2,7 @@ $(function(){
     // 予約番号ごとにまとめた予約ドキュメントリスト
     var reservations = [];
     var conditions = {
+        limit: $('.search-form input[name="limit"]').val(),
         page: '1'
     };
 
@@ -9,12 +10,14 @@ $(function(){
         var html = '';
 
         reservations.forEach(function(reservation) {
+            let purchasedAt = (reservation.purchased_at) ? (new Date(reservation.purchased_at)).toLocaleString('ja'): '';
+
             html += ''
             + '<tr data-seat-code="' + reservation.seat_code + '" data-reservation-id="' + reservation._id + '">'
                 + '<th class="td-checkbox"><input type="checkbox" value=""></th>'
                 + '<td class="td-number">' + reservation.payment_no + '</td>'
                 + '<td class="">' + $('input[name="purchaser_group_name_' + reservation.purchaser_group + '"]').val() + '</td>'
-                + '<td class="">' + reservation.purchased_at + '</td>'
+                + '<td class="">' + purchasedAt + '</td>'
                 + '<td class="">' + reservation.purchaser_email + '</td>'
                 + '<td class="">' + reservation.purchaser_tel + '</td>'
                 + '<td class="">' + reservation.purchaser_last_name + ' ' + reservation.purchaser_first_name + '</td>'
@@ -37,30 +40,32 @@ $(function(){
     /**
      * ページャーを表示する
      * 
-     * @param {number} count ページあたりの件数
+     * @param {number} count 全件数
      */
     function showPager(count) {
         var html = '';
+        var page = parseInt(conditions.page);
+        var limit = parseInt(conditions.limit);
 
-        if (conditions.page > 1) {
+        if (page > 1) {
             html += ''
             + '<span><a href="javascript:void(0)" class="change-page" data-page="1">&lt;</a></span>'
             + '<span><a href="javascript:void(0)" class="change-page" data-page="1">最初</a></span>'
             ;
         }
 
-        pages = Math.ceil(count / 2);
+        pages = Math.ceil(count / parseInt(limit));
 
         for (var i=0; i<pages; i++) {
             var _page = i + 1;
-            if (parseInt(conditions.page) === i + 1) {
+            if (parseInt(page) === i + 1) {
                 html += '<span>' + _page + '</span>';
             } else {
                 html += '<span><a href="javascript:void(0)" class="change-page" data-page="' + _page + '">' + _page + '</a></span>';
             }
         }
 
-        if (parseInt(conditions.page) < pages) {
+        if (parseInt(page) < pages) {
             html += ''
             + '<span><a href="javascript:void(0)" class="change-page" data-page="' + pages + '">最後</a></span>'
             + '<span><a href="javascript:void(0)" class="change-page" data-page="' + pages + '">&gt;</a></span>';

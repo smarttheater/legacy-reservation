@@ -2,6 +2,7 @@
 const BaseController_1 = require('../../BaseController');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const Models_1 = require('../../../../common/models/Models');
+const moment = require('moment');
 class WindowMyPageController extends BaseController_1.default {
     index() {
         this.res.render('window/mypage/index', {
@@ -13,10 +14,10 @@ class WindowMyPageController extends BaseController_1.default {
      * マイページ予約検索
      */
     search() {
-        let limit = 2;
+        let limit = (this.req.query.limit) ? this.req.query.limit : 10;
         let page = (this.req.query.page) ? this.req.query.page : 1;
         let purchaserGroups = (this.req.query.purchaser_groups) ? this.req.query.purchaser_groups.split(',') : null;
-        let day = (this.req.query.day) ? this.req.query.day : null;
+        let purchasedDay = (this.req.query.purchased_day) ? this.req.query.purchased_day : null;
         let email = (this.req.query.email) ? this.req.query.email : null;
         let tel = (this.req.query.tel) ? this.req.query.tel : null;
         let purchaser_name = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
@@ -30,7 +31,14 @@ class WindowMyPageController extends BaseController_1.default {
         if (purchaserGroups) {
             conditions.push({ purchaser_group: { $in: purchaserGroups } });
         }
-        if (day) {
+        // 購入日条件
+        if (purchasedDay) {
+            conditions.push({
+                purchased_at: {
+                    $gte: moment(`${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T00:00:00+9:00`),
+                    $lte: moment(`${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T23:59:59+9:00`)
+                }
+            });
         }
         if (email) {
             conditions.push({ purchaser_email: { $regex: `${email}` } });
