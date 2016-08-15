@@ -12,6 +12,10 @@ const ReservationUtil_1 = require('../../../../common/models/Reservation/Reserva
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
 const moment = require('moment');
 class MemberReserveController extends ReserveBaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.layout = 'layouts/member/layout';
+    }
     /**
      * 規約
      */
@@ -40,9 +44,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         if (!member) {
                             this.req.form.errors.push('ログイン番号またはパスワードに誤りがあります');
-                            this.res.render('member/reserve/terms', {
-                                layout: 'layouts/member/layout'
-                            });
+                            this.res.render('member/reserve/terms');
                         }
                         else {
                             // 予約の有無を確認
@@ -64,18 +66,14 @@ class MemberReserveController extends ReserveBaseController_1.default {
                     });
                 }
                 else {
-                    this.res.render('member/reserve/terms', {
-                        layout: 'layouts/member/layout'
-                    });
+                    this.res.render('member/reserve/terms');
                 }
             });
         }
         else {
             this.res.locals.userId = '';
             this.res.locals.password = '';
-            this.res.render('member/reserve/terms', {
-                layout: 'layouts/member/layout'
-            });
+            this.res.render('member/reserve/terms');
         }
     }
     start() {
@@ -167,7 +165,6 @@ class MemberReserveController extends ReserveBaseController_1.default {
             }
             else {
                 this.res.render('member/reserve/tickets', {
-                    layout: 'layouts/member/layout',
                     reservationModel: reservationModel,
                 });
             }
@@ -200,7 +197,6 @@ class MemberReserveController extends ReserveBaseController_1.default {
                     }
                     else {
                         this.res.render('member/reserve/profile', {
-                            layout: 'layouts/member/layout',
                             reservationModel: reservationModel,
                         });
                     }
@@ -225,7 +221,6 @@ class MemberReserveController extends ReserveBaseController_1.default {
                     this.res.locals.emailConfirmDomain = email.substr(email.indexOf('@') + 1);
                 }
                 this.res.render('member/reserve/profile', {
-                    layout: 'layouts/member/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -255,7 +250,6 @@ class MemberReserveController extends ReserveBaseController_1.default {
             }
             else {
                 this.res.render('member/reserve/confirm', {
-                    layout: 'layouts/member/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -278,7 +272,6 @@ class MemberReserveController extends ReserveBaseController_1.default {
             // TODO force to logout??
             // delete this.req.session[MemberUser.AUTH_SESSION_NAME];
             this.res.render('member/reserve/complete', {
-                layout: 'layouts/member/layout',
                 reservationDocuments: reservationDocuments
             });
         });

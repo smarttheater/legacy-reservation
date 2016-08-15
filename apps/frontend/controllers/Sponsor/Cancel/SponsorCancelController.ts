@@ -5,6 +5,8 @@ import ReservationUtil from '../../../../common/models/Reservation/ReservationUt
 import sponsorCancelForm from '../../../forms/sponsor/sponsorCancelForm';
 
 export default class SponsorCancelController extends BaseController {
+    public layout = 'layouts/sponsor/layout';
+
     /**
      * チケットキャンセル
      */
@@ -57,9 +59,7 @@ export default class SponsorCancelController extends BaseController {
             this.res.locals.paymentNo = '';
             this.res.locals.last4DigitsOfTel = '';
 
-            this.res.render('sponsor/cancel', {
-                layout: 'layouts/sponsor/layout'
-            });
+            this.res.render('sponsor/cancel');
 
         }
     }

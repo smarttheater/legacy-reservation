@@ -11,6 +11,10 @@ const ReservationUtil_1 = require('../../../../common/models/Reservation/Reserva
 const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
 class TelReserveController extends ReserveBaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.layout = 'layouts/tel/layout';
+    }
     start() {
         // 予約トークンを発行
         let token = Util_1.default.createToken();
@@ -63,7 +67,6 @@ class TelReserveController extends ReserveBaseController_1.default {
                     this.logger.debug('saving reservationModel... ', reservationModel);
                     reservationModel.save((err) => {
                         this.res.render('tel/reserve/performances', {
-                            layout: 'layouts/tel/layout',
                             FilmUtil: FilmUtil_1.default
                         });
                     });
@@ -119,7 +122,6 @@ class TelReserveController extends ReserveBaseController_1.default {
             }
             else {
                 this.res.render('tel/reserve/seats', {
-                    layout: 'layouts/tel/layout',
                     reservationModel: reservationModel,
                     limit: limit
                 });
@@ -172,7 +174,6 @@ class TelReserveController extends ReserveBaseController_1.default {
             }
             else {
                 this.res.render('tel/reserve/tickets', {
-                    layout: 'layouts/tel/layout',
                     reservationModel: reservationModel,
                 });
             }
@@ -205,7 +206,6 @@ class TelReserveController extends ReserveBaseController_1.default {
                     }
                     else {
                         this.res.render('tel/reserve/profile', {
-                            layout: 'layouts/tel/layout',
                             reservationModel: reservationModel
                         });
                     }
@@ -223,7 +223,6 @@ class TelReserveController extends ReserveBaseController_1.default {
                     this.res.locals.tel = reservationModel.profile.tel;
                 }
                 this.res.render('tel/reserve/profile', {
-                    layout: 'layouts/tel/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -268,7 +267,6 @@ class TelReserveController extends ReserveBaseController_1.default {
             }
             else {
                 this.res.render('tel/reserve/confirm', {
-                    layout: 'layouts/tel/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -289,7 +287,6 @@ class TelReserveController extends ReserveBaseController_1.default {
             if (reservationDocuments.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             this.res.render('tel/reserve/complete', {
-                layout: 'layouts/tel/layout',
                 reservationDocuments: reservationDocuments
             });
         });

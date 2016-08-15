@@ -4,9 +4,12 @@ const ReservationUtil_1 = require('../../../../common/models/Reservation/Reserva
 const Models_1 = require('../../../../common/models/Models');
 const moment = require('moment');
 class TelMyPageController extends BaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.layout = 'layouts/tel/layout';
+    }
     index() {
         this.res.render('tel/mypage/index', {
-            layout: 'layouts/tel/layout',
             ReservationUtil: ReservationUtil_1.default
         });
     }

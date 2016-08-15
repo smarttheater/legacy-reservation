@@ -9,6 +9,10 @@ const ReservationUtil_1 = require('../../../../common/models/Reservation/Reserva
 const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
 class StaffReserveController extends ReserveBaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.layout = 'layouts/staff/layout';
+    }
     start() {
         // 予約トークンを発行
         let token = Util_1.default.createToken();
@@ -56,7 +60,6 @@ class StaffReserveController extends ReserveBaseController_1.default {
                     this.logger.debug('saving reservationModel... ', reservationModel);
                     reservationModel.save((err) => {
                         this.res.render('staff/reserve/performances', {
-                            layout: 'layouts/staff/layout',
                             FilmUtil: FilmUtil_1.default
                         });
                     });
@@ -112,7 +115,6 @@ class StaffReserveController extends ReserveBaseController_1.default {
             }
             else {
                 this.res.render('staff/reserve/seats', {
-                    layout: 'layouts/staff/layout',
                     reservationModel: reservationModel,
                     limit: limit
                 });
@@ -165,7 +167,6 @@ class StaffReserveController extends ReserveBaseController_1.default {
             }
             else {
                 this.res.render('staff/reserve/tickets', {
-                    layout: 'layouts/staff/layout',
                     reservationModel: reservationModel,
                 });
             }
@@ -204,7 +205,6 @@ class StaffReserveController extends ReserveBaseController_1.default {
             }
             else {
                 this.res.render('staff/reserve/confirm', {
-                    layout: 'layouts/staff/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -222,7 +222,6 @@ class StaffReserveController extends ReserveBaseController_1.default {
             if (reservationDocuments.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             this.res.render('staff/reserve/complete', {
-                layout: 'layouts/staff/layout',
                 reservationDocuments: reservationDocuments
             });
         });

@@ -5,10 +5,10 @@ import ReservationUtil from '../../../../common/models/Reservation/ReservationUt
 import Models from '../../../../common/models/Models';
 
 export default class SponsorMyPageController extends BaseController {
+    public layout = 'layouts/sponsor/layout';
+
     public index(): void {
-        this.res.render('sponsor/mypage/index', {
-            layout: 'layouts/sponsor/layout'
-        });
+        this.res.render('sponsor/mypage/index');
     }
 
     /**

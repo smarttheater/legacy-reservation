@@ -5,6 +5,8 @@ import Util from '../../../../common/Util/Util';
 import Models from '../../../../common/models/Models';
 
 export default class StaffAuthController extends BaseController {
+    public layout = 'layouts/staff/layout';
+
     /**
      * TODO 一般とadminの2種類の権限
      */
@@ -29,16 +31,12 @@ export default class StaffAuthController extends BaseController {
 
                             if (!staffDocument) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
-                                this.res.render('staff/auth/login', {
-                                    layout: 'layouts/staff/layout'
-                                });
+                                this.res.render('staff/auth/login');
                             } else {
                                 // パスワードチェック
                                 if (staffDocument.get('password_hash') !== Util.createHash(this.req.form['password'], staffDocument.get('password_salt'))) {
                                     this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
-                                    this.res.render('staff/auth/login', {
-                                        layout: 'layouts/staff/layout'
-                                    });
+                                    this.res.render('staff/auth/login');
 
                                 } else {
                                     // ログイン
@@ -57,9 +55,7 @@ export default class StaffAuthController extends BaseController {
                     );
 
                 } else {
-                    this.res.render('staff/auth/login', {
-                        layout: 'layouts/staff/layout'
-                    });
+                    this.res.render('staff/auth/login');
 
                 }
 
@@ -70,9 +66,7 @@ export default class StaffAuthController extends BaseController {
             this.res.locals.signature = '';
             this.res.locals.locale = 'ja';
 
-            this.res.render('staff/auth/login', {
-                layout: 'layouts/staff/layout'
-            });
+            this.res.render('staff/auth/login');
 
         }
 

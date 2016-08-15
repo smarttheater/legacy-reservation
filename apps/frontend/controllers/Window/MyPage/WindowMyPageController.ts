@@ -5,9 +5,10 @@ import Models from '../../../../common/models/Models';
 import moment = require('moment');
 
 export default class WindowMyPageController extends BaseController {
+    public layout = 'layouts/window/layout';
+
     public index(): void {
         this.res.render('window/mypage/index', {
-            layout: 'layouts/window/layout',
             ReservationUtil: ReservationUtil
         });
     }

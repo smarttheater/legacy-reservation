@@ -12,6 +12,8 @@ import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 
 export default class WindowReserveController extends ReserveBaseController {
+    public layout = 'layouts/window/layout';
+
     public static RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数
 
     public start(): void {
@@ -66,7 +68,6 @@ export default class WindowReserveController extends ReserveBaseController {
                     this.logger.debug('saving reservationModel... ', reservationModel);
                     reservationModel.save((err) => {
                         this.res.render('window/reserve/performances', {
-                            layout: 'layouts/window/layout',
                             FilmUtil: FilmUtil
                         });
                     });
@@ -131,7 +132,6 @@ export default class WindowReserveController extends ReserveBaseController {
             } else {
 
                 this.res.render('window/reserve/seats', {
-                    layout: 'layouts/window/layout',
                     reservationModel: reservationModel,
                     limit: limit
                 });
@@ -193,7 +193,6 @@ export default class WindowReserveController extends ReserveBaseController {
                 });
             } else {
                 this.res.render('window/reserve/tickets', {
-                    layout: 'layouts/window/layout',
                     reservationModel: reservationModel,
                 });
 
@@ -231,7 +230,6 @@ export default class WindowReserveController extends ReserveBaseController {
 
                     } else {
                         this.res.render('window/reserve/profile', {
-                            layout: 'layouts/window/layout',
                             reservationModel: reservationModel
                         });
 
@@ -248,7 +246,6 @@ export default class WindowReserveController extends ReserveBaseController {
                 }
 
                 this.res.render('window/reserve/profile', {
-                    layout: 'layouts/window/layout',
                     reservationModel: reservationModel
                 });
 
@@ -287,7 +284,6 @@ export default class WindowReserveController extends ReserveBaseController {
                 });
             } else {
                 this.res.render('window/reserve/confirm', {
-                    layout: 'layouts/window/layout',
                     reservationModel: reservationModel
                 });
 
@@ -311,7 +307,6 @@ export default class WindowReserveController extends ReserveBaseController {
                 if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
                 this.res.render('window/reserve/complete', {
-                    layout: 'layouts/window/layout',
                     reservationDocuments: reservationDocuments
                 });
 

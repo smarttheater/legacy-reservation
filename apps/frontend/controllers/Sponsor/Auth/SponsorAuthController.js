@@ -5,6 +5,10 @@ const sponsorLoginForm_1 = require('../../../forms/Sponsor/sponsorLoginForm');
 const Util_1 = require('../../../../common/Util/Util');
 const Models_1 = require('../../../../common/models/Models');
 class SponsorAuthController extends BaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.layout = 'layouts/sponsor/layout';
+    }
     /**
      * sponsor login
      */
@@ -25,17 +29,13 @@ class SponsorAuthController extends BaseController_1.default {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         if (!sponsorDocument) {
                             this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                            this.res.render('sponsor/auth/login', {
-                                layout: 'layouts/sponsor/layout'
-                            });
+                            this.res.render('sponsor/auth/login');
                         }
                         else {
                             // パスワードチェック
                             if (sponsorDocument.get('password_hash') !== Util_1.default.createHash(this.req.form['password'], sponsorDocument.get('password_salt'))) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                                this.res.render('sponsor/auth/login', {
-                                    layout: 'layouts/sponsor/layout'
-                                });
+                                this.res.render('sponsor/auth/login');
                             }
                             else {
                                 // ログイン
@@ -49,18 +49,14 @@ class SponsorAuthController extends BaseController_1.default {
                     });
                 }
                 else {
-                    this.res.render('sponsor/auth/login', {
-                        layout: 'layouts/sponsor/layout'
-                    });
+                    this.res.render('sponsor/auth/login');
                 }
             });
         }
         else {
             this.res.locals.userId = '';
             this.res.locals.password = '';
-            this.res.render('sponsor/auth/login', {
-                layout: 'layouts/sponsor/layout'
-            });
+            this.res.render('sponsor/auth/login');
         }
     }
     logout() {

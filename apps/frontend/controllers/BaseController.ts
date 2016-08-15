@@ -44,6 +44,8 @@ export default class BaseController
     /** 電話窓口ユーザー */
     public telStaffUser: TelStaffUser;
 
+    public layout;
+
     constructor(req: express.Request, res: express.Response, next: express.NextFunction) {
         this.req = req;
         this.res = res;
@@ -71,5 +73,25 @@ export default class BaseController
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;
         this.res.locals.util = util;
+
+
+        // レイアウト指定があれば変更
+        let _render = this.res.render;
+        this.res.render = (view, options?, cb?) => {
+            if (this.layout) {
+                if (typeof options === 'undefined') {
+                    options = {}
+                } else if (typeof options === 'function') {
+                    cb = options;
+                    options = {}
+                }
+
+                if (!options.hasOwnProperty('layout')) {
+                    options['layout'] = this.layout;
+                }
+            }
+
+            _render(view, options, cb);
+        };
     }
 }

@@ -12,6 +12,10 @@ const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
 const lockFile = require('lockfile');
 class SponsorReserveController extends ReserveBaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.layout = 'layouts/sponsor/layout';
+    }
     start() {
         // 予約トークンを発行
         let token = Util_1.default.createToken();
@@ -96,7 +100,6 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                         }
                         else {
                             this.res.render('sponsor/reserve/performances', {
-                                layout: 'layouts/sponsor/layout',
                                 FilmUtil: FilmUtil_1.default,
                                 reservationsCount: reservationsCount
                             });
@@ -180,7 +183,6 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                         else {
                             lockFile.unlock(lockPath, (err) => {
                                 this.res.render('sponsor/reserve/seats', {
-                                    layout: 'layouts/sponsor/layout',
                                     reservationModel: reservationModel,
                                     limit: limit,
                                     reservableCount: reservableCount
@@ -237,7 +239,6 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             }
             else {
                 this.res.render('sponsor/reserve/tickets', {
-                    layout: 'layouts/sponsor/layout',
                     reservationModel: reservationModel,
                 });
             }
@@ -277,7 +278,6 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                     }
                     else {
                         this.res.render('sponsor/reserve/profile', {
-                            layout: 'layouts/sponsor/layout',
                             reservationModel: reservationModel,
                         });
                     }
@@ -311,7 +311,6 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                     this.res.locals.emailConfirmDomain = email.substr(email.indexOf('@') + 1);
                 }
                 this.res.render('sponsor/reserve/profile', {
-                    layout: 'layouts/sponsor/layout',
                     reservationModel: reservationModel,
                 });
             }
@@ -350,7 +349,6 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             }
             else {
                 this.res.render('sponsor/reserve/confirm', {
-                    layout: 'layouts/sponsor/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -368,7 +366,6 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             if (reservationDocuments.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             this.res.render('sponsor/reserve/complete', {
-                layout: 'layouts/sponsor/layout',
                 reservationDocuments: reservationDocuments
             });
         });

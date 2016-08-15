@@ -12,6 +12,8 @@ import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 
 export default class TelReserveController extends ReserveBaseController {
+    public layout = 'layouts/tel/layout';
+
     public static RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数
 
     public start(): void {
@@ -72,7 +74,6 @@ export default class TelReserveController extends ReserveBaseController {
                     this.logger.debug('saving reservationModel... ', reservationModel);
                     reservationModel.save((err) => {
                         this.res.render('tel/reserve/performances', {
-                            layout: 'layouts/tel/layout',
                             FilmUtil: FilmUtil
                         });
                     });
@@ -137,7 +138,6 @@ export default class TelReserveController extends ReserveBaseController {
             } else {
 
                 this.res.render('tel/reserve/seats', {
-                    layout: 'layouts/tel/layout',
                     reservationModel: reservationModel,
                     limit: limit
                 });
@@ -199,7 +199,6 @@ export default class TelReserveController extends ReserveBaseController {
                 });
             } else {
                 this.res.render('tel/reserve/tickets', {
-                    layout: 'layouts/tel/layout',
                     reservationModel: reservationModel,
                 });
 
@@ -237,7 +236,6 @@ export default class TelReserveController extends ReserveBaseController {
 
                     } else {
                         this.res.render('tel/reserve/profile', {
-                            layout: 'layouts/tel/layout',
                             reservationModel: reservationModel
                         });
 
@@ -259,7 +257,6 @@ export default class TelReserveController extends ReserveBaseController {
                 }
 
                 this.res.render('tel/reserve/profile', {
-                    layout: 'layouts/tel/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -307,7 +304,6 @@ export default class TelReserveController extends ReserveBaseController {
                 });
             } else {
                 this.res.render('tel/reserve/confirm', {
-                    layout: 'layouts/tel/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -330,7 +326,6 @@ export default class TelReserveController extends ReserveBaseController {
                 if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
                 this.res.render('tel/reserve/complete', {
-                    layout: 'layouts/tel/layout',
                     reservationDocuments: reservationDocuments
                 });
 

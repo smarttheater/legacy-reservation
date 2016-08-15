@@ -5,9 +5,10 @@ import Models from '../../../../common/models/Models';
 import moment = require('moment');
 
 export default class TelMyPageController extends BaseController {
+    public layout = 'layouts/tel/layout';
+
     public index(): void {
         this.res.render('tel/mypage/index', {
-            layout: 'layouts/tel/layout',
             ReservationUtil: ReservationUtil
         });
     }

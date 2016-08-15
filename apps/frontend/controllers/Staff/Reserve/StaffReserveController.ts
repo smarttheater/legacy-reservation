@@ -11,6 +11,8 @@ import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 
 export default class StaffReserveController extends ReserveBaseController {
+    public layout = 'layouts/staff/layout';
+
     public start(): void {
         // 予約トークンを発行
         let token = Util.createToken();
@@ -63,7 +65,6 @@ export default class StaffReserveController extends ReserveBaseController {
                     this.logger.debug('saving reservationModel... ', reservationModel);
                     reservationModel.save((err) => {
                         this.res.render('staff/reserve/performances', {
-                            layout: 'layouts/staff/layout',
                             FilmUtil: FilmUtil
                         });
                     });
@@ -128,7 +129,6 @@ export default class StaffReserveController extends ReserveBaseController {
             } else {
 
                 this.res.render('staff/reserve/seats', {
-                    layout: 'layouts/staff/layout',
                     reservationModel: reservationModel,
                     limit: limit
                 });
@@ -190,7 +190,6 @@ export default class StaffReserveController extends ReserveBaseController {
                 });
             } else {
                 this.res.render('staff/reserve/tickets', {
-                    layout: 'layouts/staff/layout',
                     reservationModel: reservationModel,
                 });
 
@@ -229,7 +228,6 @@ export default class StaffReserveController extends ReserveBaseController {
                 });
             } else {
                 this.res.render('staff/reserve/confirm', {
-                    layout: 'layouts/staff/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -249,7 +247,6 @@ export default class StaffReserveController extends ReserveBaseController {
                 if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
                 this.res.render('staff/reserve/complete', {
-                    layout: 'layouts/staff/layout',
                     reservationDocuments: reservationDocuments
                 });
             }

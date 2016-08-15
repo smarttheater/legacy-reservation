@@ -13,6 +13,8 @@ import ReservationModel from '../../../models/Reserve/ReservationModel';
 import lockFile = require('lockfile');
 
 export default class SponsorReserveController extends ReserveBaseController {
+    public layout = 'layouts/sponsor/layout';
+
     public start(): void {
         // 予約トークンを発行
         let token = Util.createToken();
@@ -106,7 +108,6 @@ export default class SponsorReserveController extends ReserveBaseController {
                                 });
                             } else {
                                 this.res.render('sponsor/reserve/performances', {
-                                    layout: 'layouts/sponsor/layout',
                                     FilmUtil: FilmUtil,
                                     reservationsCount: reservationsCount
                                 });
@@ -207,7 +208,6 @@ export default class SponsorReserveController extends ReserveBaseController {
 
                                 lockFile.unlock(lockPath, (err) => {
                                     this.res.render('sponsor/reserve/seats', {
-                                        layout: 'layouts/sponsor/layout',
                                         reservationModel: reservationModel,
                                         limit: limit,
                                         reservableCount: reservableCount
@@ -274,7 +274,6 @@ export default class SponsorReserveController extends ReserveBaseController {
                 });
             } else {
                 this.res.render('sponsor/reserve/tickets', {
-                    layout: 'layouts/sponsor/layout',
                     reservationModel: reservationModel,
                 });
 
@@ -320,7 +319,6 @@ export default class SponsorReserveController extends ReserveBaseController {
 
                     } else {
                         this.res.render('sponsor/reserve/profile', {
-                            layout: 'layouts/sponsor/layout',
                             reservationModel: reservationModel,
                         });
 
@@ -359,7 +357,6 @@ export default class SponsorReserveController extends ReserveBaseController {
                 }
 
                 this.res.render('sponsor/reserve/profile', {
-                    layout: 'layouts/sponsor/layout',
                     reservationModel: reservationModel,
                 });
 
@@ -398,7 +395,6 @@ export default class SponsorReserveController extends ReserveBaseController {
                 });
             } else {
                 this.res.render('sponsor/reserve/confirm', {
-                    layout: 'layouts/sponsor/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -418,7 +414,6 @@ export default class SponsorReserveController extends ReserveBaseController {
                 if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
                 this.res.render('sponsor/reserve/complete', {
-                    layout: 'layouts/sponsor/layout',
                     reservationDocuments: reservationDocuments
                 });
             }

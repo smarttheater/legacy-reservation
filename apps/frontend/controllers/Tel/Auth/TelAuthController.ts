@@ -5,6 +5,8 @@ import Util from '../../../../common/Util/Util';
 import Models from '../../../../common/models/Models';
 
 export default class TelAuthController extends BaseController {
+    public layout = 'layouts/tel/layout';
+
     /**
      * 窓口担当者ログイン
      */
@@ -28,16 +30,12 @@ export default class TelAuthController extends BaseController {
 
                             if (!tel) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
-                                this.res.render('tel/auth/login', {
-                                    layout: 'layouts/tel/layout'
-                                });
+                                this.res.render('tel/auth/login');
                             } else {
                                 // パスワードチェック
                                 if (tel.get('password_hash') !== Util.createHash(this.req.form['password'], tel.get('password_salt'))) {
                                     this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
-                                    this.res.render('tel/auth/login', {
-                                        layout: 'layouts/tel/layout'
-                                    });
+                                    this.res.render('tel/auth/login');
 
                                 } else {
                                     // ログイン
@@ -53,9 +51,7 @@ export default class TelAuthController extends BaseController {
                     );
 
                 } else {
-                    this.res.render('tel/auth/login', {
-                        layout: 'layouts/tel/layout'
-                    });
+                    this.res.render('tel/auth/login');
 
                 }
 
@@ -64,9 +60,7 @@ export default class TelAuthController extends BaseController {
             this.res.locals.userId = '';
             this.res.locals.password = '';
 
-            this.res.render('tel/auth/login', {
-                layout: 'layouts/tel/layout'
-            });
+            this.res.render('tel/auth/login');
 
         }
 

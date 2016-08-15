@@ -4,6 +4,10 @@ const Models_1 = require('../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const sponsorCancelForm_1 = require('../../../forms/sponsor/sponsorCancelForm');
 class SponsorCancelController extends BaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.layout = 'layouts/sponsor/layout';
+    }
     /**
      * チケットキャンセル
      */
@@ -49,9 +53,7 @@ class SponsorCancelController extends BaseController_1.default {
         else {
             this.res.locals.paymentNo = '';
             this.res.locals.last4DigitsOfTel = '';
-            this.res.render('sponsor/cancel', {
-                layout: 'layouts/sponsor/layout'
-            });
+            this.res.render('sponsor/cancel');
         }
     }
     /**

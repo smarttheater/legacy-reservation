@@ -3,10 +3,12 @@ const BaseController_1 = require('../../BaseController');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const Models_1 = require('../../../../common/models/Models');
 class SponsorMyPageController extends BaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.layout = 'layouts/sponsor/layout';
+    }
     index() {
-        this.res.render('sponsor/mypage/index', {
-            layout: 'layouts/sponsor/layout'
-        });
+        this.res.render('sponsor/mypage/index');
     }
     /**
      * マイページ予約検索

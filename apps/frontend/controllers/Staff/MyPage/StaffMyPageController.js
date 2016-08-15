@@ -3,13 +3,16 @@ const BaseController_1 = require('../../BaseController');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const Models_1 = require('../../../../common/models/Models');
 class StaffMyPageController extends BaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.layout = 'layouts/staff/layout';
+    }
     index() {
-        Models_1.default.Theater.find({}, '_id name name_en', (err, theaterDocuments) => {
-            Models_1.default.Film.find({}, '_id name name_en', (err, filmDocuments) => {
+        Models_1.default.Theater.find({}, '_id name name_en', (err, theaters) => {
+            Models_1.default.Film.find({}, '_id name name_en', (err, films) => {
                 this.res.render('staff/mypage/index', {
-                    layout: 'layouts/staff/layout',
-                    theaters: theaterDocuments,
-                    films: filmDocuments
+                    theaters: theaters,
+                    films: films
                 });
             });
         });

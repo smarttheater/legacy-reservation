@@ -14,6 +14,8 @@ import ReservationModel from '../../../models/Reserve/ReservationModel';
 import moment = require('moment');
 
 export default class MemberReserveController extends ReserveBaseController {
+    public layout = 'layouts/member/layout';
+
     /** 予約開始日時 */
     private static RESERVE_START_DATETIME = '2016-10-22T00:00:00+09:00';
     /** 予約終了日時 */
@@ -51,9 +53,7 @@ export default class MemberReserveController extends ReserveBaseController {
 
                             if (!member) {
                                 this.req.form.errors.push('ログイン番号またはパスワードに誤りがあります');
-                                this.res.render('member/reserve/terms', {
-                                    layout: 'layouts/member/layout'
-                                });
+                                this.res.render('member/reserve/terms');
                             } else {
                                 // 予約の有無を確認
                                 Models.Reservation.count(
@@ -77,18 +77,14 @@ export default class MemberReserveController extends ReserveBaseController {
                         }
                     );
                 } else {
-                    this.res.render('member/reserve/terms', {
-                        layout: 'layouts/member/layout'
-                    });
+                    this.res.render('member/reserve/terms');
                 }
             });
         } else {
             this.res.locals.userId = '';
             this.res.locals.password = '';
 
-            this.res.render('member/reserve/terms', {
-                layout: 'layouts/member/layout'
-            });
+            this.res.render('member/reserve/terms');
         }
     }
 
@@ -196,7 +192,6 @@ export default class MemberReserveController extends ReserveBaseController {
                 });
             } else {
                 this.res.render('member/reserve/tickets', {
-                    layout: 'layouts/member/layout',
                     reservationModel: reservationModel,
                 });
 
@@ -234,7 +229,6 @@ export default class MemberReserveController extends ReserveBaseController {
 
                     } else {
                         this.res.render('member/reserve/profile', {
-                            layout: 'layouts/member/layout',
                             reservationModel: reservationModel,
                         });
 
@@ -263,7 +257,6 @@ export default class MemberReserveController extends ReserveBaseController {
                 }
 
                 this.res.render('member/reserve/profile', {
-                    layout: 'layouts/member/layout',
                     reservationModel: reservationModel
                 });
 
@@ -294,7 +287,6 @@ export default class MemberReserveController extends ReserveBaseController {
                 });
             } else {
                 this.res.render('member/reserve/confirm', {
-                    layout: 'layouts/member/layout',
                     reservationModel: reservationModel
                 });
             }
@@ -320,7 +312,6 @@ export default class MemberReserveController extends ReserveBaseController {
                 // delete this.req.session[MemberUser.AUTH_SESSION_NAME];
 
                 this.res.render('member/reserve/complete', {
-                    layout: 'layouts/member/layout',
                     reservationDocuments: reservationDocuments
                 });
 

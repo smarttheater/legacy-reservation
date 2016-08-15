@@ -5,6 +5,10 @@ const windowLoginForm_1 = require('../../../forms/window/windowLoginForm');
 const Util_1 = require('../../../../common/Util/Util');
 const Models_1 = require('../../../../common/models/Models');
 class WindowAuthController extends BaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.layout = 'layouts/window/layout';
+    }
     /**
      * 窓口担当者ログイン
      */
@@ -24,17 +28,13 @@ class WindowAuthController extends BaseController_1.default {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         if (!window) {
                             this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                            this.res.render('window/auth/login', {
-                                layout: 'layouts/window/layout'
-                            });
+                            this.res.render('window/auth/login');
                         }
                         else {
                             // パスワードチェック
                             if (window.get('password_hash') !== Util_1.default.createHash(this.req.form['password'], window.get('password_salt'))) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                                this.res.render('window/auth/login', {
-                                    layout: 'layouts/window/layout'
-                                });
+                                this.res.render('window/auth/login');
                             }
                             else {
                                 // ログイン
@@ -47,18 +47,14 @@ class WindowAuthController extends BaseController_1.default {
                     });
                 }
                 else {
-                    this.res.render('window/auth/login', {
-                        layout: 'layouts/window/layout'
-                    });
+                    this.res.render('window/auth/login');
                 }
             });
         }
         else {
             this.res.locals.userId = '';
             this.res.locals.password = '';
-            this.res.render('window/auth/login', {
-                layout: 'layouts/window/layout'
-            });
+            this.res.render('window/auth/login');
         }
     }
     logout() {

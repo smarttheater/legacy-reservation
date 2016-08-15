@@ -5,6 +5,10 @@ const staffLoginForm_1 = require('../../../forms/Staff/staffLoginForm');
 const Util_1 = require('../../../../common/Util/Util');
 const Models_1 = require('../../../../common/models/Models');
 class StaffAuthController extends BaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.layout = 'layouts/staff/layout';
+    }
     /**
      * TODO 一般とadminの2種類の権限
      */
@@ -25,17 +29,13 @@ class StaffAuthController extends BaseController_1.default {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         if (!staffDocument) {
                             this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                            this.res.render('staff/auth/login', {
-                                layout: 'layouts/staff/layout'
-                            });
+                            this.res.render('staff/auth/login');
                         }
                         else {
                             // パスワードチェック
                             if (staffDocument.get('password_hash') !== Util_1.default.createHash(this.req.form['password'], staffDocument.get('password_salt'))) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                                this.res.render('staff/auth/login', {
-                                    layout: 'layouts/staff/layout'
-                                });
+                                this.res.render('staff/auth/login');
                             }
                             else {
                                 // ログイン
@@ -50,9 +50,7 @@ class StaffAuthController extends BaseController_1.default {
                     });
                 }
                 else {
-                    this.res.render('staff/auth/login', {
-                        layout: 'layouts/staff/layout'
-                    });
+                    this.res.render('staff/auth/login');
                 }
             });
         }
@@ -61,9 +59,7 @@ class StaffAuthController extends BaseController_1.default {
             this.res.locals.password = '';
             this.res.locals.signature = '';
             this.res.locals.locale = 'ja';
-            this.res.render('staff/auth/login', {
-                layout: 'layouts/staff/layout'
-            });
+            this.res.render('staff/auth/login');
         }
     }
     logout() {

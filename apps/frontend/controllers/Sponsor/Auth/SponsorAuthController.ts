@@ -5,6 +5,8 @@ import Util from '../../../../common/Util/Util';
 import Models from '../../../../common/models/Models';
 
 export default class SponsorAuthController extends BaseController {
+    public layout = 'layouts/sponsor/layout';
+
     /**
      * sponsor login
      */
@@ -29,16 +31,12 @@ export default class SponsorAuthController extends BaseController {
 
                             if (!sponsorDocument) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
-                                this.res.render('sponsor/auth/login', {
-                                    layout: 'layouts/sponsor/layout'
-                                });
+                                this.res.render('sponsor/auth/login');
                             } else {
                                 // パスワードチェック
                                 if (sponsorDocument.get('password_hash') !== Util.createHash(this.req.form['password'], sponsorDocument.get('password_salt'))) {
                                     this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
-                                    this.res.render('sponsor/auth/login', {
-                                        layout: 'layouts/sponsor/layout'
-                                    });
+                                    this.res.render('sponsor/auth/login');
 
                                 } else {
                                     // ログイン
@@ -55,9 +53,7 @@ export default class SponsorAuthController extends BaseController {
                     );
 
                 } else {
-                    this.res.render('sponsor/auth/login', {
-                        layout: 'layouts/sponsor/layout'
-                    });
+                    this.res.render('sponsor/auth/login');
 
                 }
 
@@ -66,9 +62,7 @@ export default class SponsorAuthController extends BaseController {
             this.res.locals.userId = '';
             this.res.locals.password = '';
 
-            this.res.render('sponsor/auth/login', {
-                layout: 'layouts/sponsor/layout'
-            });
+            this.res.render('sponsor/auth/login');
 
         }
 

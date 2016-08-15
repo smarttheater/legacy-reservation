@@ -5,6 +5,10 @@ const telLoginForm_1 = require('../../../forms/tel/telLoginForm');
 const Util_1 = require('../../../../common/Util/Util');
 const Models_1 = require('../../../../common/models/Models');
 class TelAuthController extends BaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.layout = 'layouts/tel/layout';
+    }
     /**
      * 窓口担当者ログイン
      */
@@ -24,17 +28,13 @@ class TelAuthController extends BaseController_1.default {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         if (!tel) {
                             this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                            this.res.render('tel/auth/login', {
-                                layout: 'layouts/tel/layout'
-                            });
+                            this.res.render('tel/auth/login');
                         }
                         else {
                             // パスワードチェック
                             if (tel.get('password_hash') !== Util_1.default.createHash(this.req.form['password'], tel.get('password_salt'))) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                                this.res.render('tel/auth/login', {
-                                    layout: 'layouts/tel/layout'
-                                });
+                                this.res.render('tel/auth/login');
                             }
                             else {
                                 // ログイン
@@ -47,18 +47,14 @@ class TelAuthController extends BaseController_1.default {
                     });
                 }
                 else {
-                    this.res.render('tel/auth/login', {
-                        layout: 'layouts/tel/layout'
-                    });
+                    this.res.render('tel/auth/login');
                 }
             });
         }
         else {
             this.res.locals.userId = '';
             this.res.locals.password = '';
-            this.res.render('tel/auth/login', {
-                layout: 'layouts/tel/layout'
-            });
+            this.res.render('tel/auth/login');
         }
     }
     logout() {

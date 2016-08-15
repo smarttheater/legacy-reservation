@@ -4,9 +4,12 @@ const ReservationUtil_1 = require('../../../../common/models/Reservation/Reserva
 const Models_1 = require('../../../../common/models/Models');
 const moment = require('moment');
 class WindowMyPageController extends BaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.layout = 'layouts/window/layout';
+    }
     index() {
         this.res.render('window/mypage/index', {
-            layout: 'layouts/window/layout',
             ReservationUtil: ReservationUtil_1.default
         });
     }

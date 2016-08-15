@@ -5,13 +5,14 @@ import ReservationUtil from '../../../../common/models/Reservation/ReservationUt
 import Models from '../../../../common/models/Models';
 
 export default class StaffMyPageController extends BaseController {
+    public layout = 'layouts/staff/layout';
+
     public index(): void {
-        Models.Theater.find({}, '_id name name_en', (err, theaterDocuments) => {
-            Models.Film.find({}, '_id name name_en', (err, filmDocuments) => {
+        Models.Theater.find({}, '_id name name_en', (err, theaters) => {
+            Models.Film.find({}, '_id name name_en', (err, films) => {
                 this.res.render('staff/mypage/index', {
-                    layout: 'layouts/staff/layout',
-                    theaters: theaterDocuments,
-                    films: filmDocuments
+                    theaters: theaters,
+                    films: films
                 });
             });
         });
