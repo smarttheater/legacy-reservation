@@ -23,29 +23,25 @@ class ReserveBaseController extends BaseController_1.default {
      */
     processCancelSeats(reservationModel, cb) {
         let seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
-        let promises = [];
+        if (seatCodesInSession.length === 0) {
+            return cb(null, reservationModel);
+        }
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
         // 仮予約を空席ステータスに戻す
-        seatCodesInSession.forEach((seatCodeInSession) => {
-            promises.push(new Promise((resolve, reject) => {
-                this.logger.debug('removing reservation... seat_code:', seatCodeInSession);
-                Models_1.default.Reservation.remove({
-                    performance: reservationModel.performance._id,
-                    seat_code: seatCodeInSession,
-                    status: ReservationUtil_1.default.STATUS_TEMPORARY
-                }, (err) => {
-                    // 失敗したとしても時間経過で消えるので放置
-                    if (err) {
-                    }
-                    resolve();
-                });
-            }));
-        });
-        Promise.all(promises).then(() => {
-            cb(null, reservationModel);
+        this.logger.debug('removing reservations... seatCodes:', seatCodesInSession);
+        Models_1.default.Reservation.remove({
+            performance: reservationModel.performance._id,
+            seat_code: { $in: seatCodesInSession },
+            status: ReservationUtil_1.default.STATUS_TEMPORARY
         }, (err) => {
-            cb(err, reservationModel);
+            // 失敗したとしても時間経過で消えるので放置
+            if (err) {
+                cb(err, reservationModel);
+            }
+            else {
+                cb(null, reservationModel);
+            }
         });
     }
     /**
@@ -104,9 +100,7 @@ class ReserveBaseController extends BaseController_1.default {
                             }
                             break;
                         default:
-                            // 一般の場合
-                            // 当日窓口、電話予約の場合は、一般と同様の券種
-                            // TODO 電話予約の場合は、手数料が1席につき150円(コンビニ分)
+                            // 一般、当日窓口、電話予約の場合
                             reservationModel.ticketTypes = [];
                             for (let ticketType of ticketTypeGroupDocument.get('types')) {
                                 switch (ticketType.get('code')) {
@@ -231,49 +225,126 @@ class ReserveBaseController extends BaseController_1.default {
         });
     }
     /**
+     * 予約情報を確定してDBに保存するプロセス
+     */
+    processConfirm(reservationModel, cb) {
+        // 購入番号発行
+        let next = (reservationModel) => {
+            // 予約プロセス固有のログファイルをセット
+            this.setProcessLogger(reservationModel.paymentNo, () => {
+                this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
+                let commonUpdate = {};
+                switch (reservationModel.purchaserGroup) {
+                    case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
+                        commonUpdate['mvtk_kiin_cd'] = this.mvtkUser.memberInfoResult.kiinCd;
+                        break;
+                    case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
+                        commonUpdate['member'] = this.memberUser.get('_id');
+                        commonUpdate['member_user_id'] = this.memberUser.get('user_id');
+                        break;
+                    case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
+                        commonUpdate['sponsor'] = this.sponsorUser.get('_id');
+                        commonUpdate['sponsor_user_id'] = this.sponsorUser.get('user_id');
+                        commonUpdate['sponsor_name'] = this.sponsorUser.get('name');
+                        break;
+                    case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
+                        commonUpdate['staff'] = this.staffUser.get('_id');
+                        commonUpdate['staff_user_id'] = this.staffUser.get('user_id');
+                        commonUpdate['staff_name'] = this.staffUser.get('name');
+                        commonUpdate['staff_email'] = this.staffUser.get('email');
+                        commonUpdate['staff_tel'] = this.staffUser.get('tel');
+                        commonUpdate['staff_signature'] = this.staffUser.get('signature');
+                        break;
+                    case ReservationUtil_1.default.PURCHASER_GROUP_TEL:
+                        commonUpdate['status'] = ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN;
+                        commonUpdate['tel_staff'] = this.telStaffUser.get('_id');
+                        commonUpdate['tel_staff_user_id'] = this.telStaffUser.get('user_id');
+                        break;
+                    case ReservationUtil_1.default.PURCHASER_GROUP_WINDOW:
+                        commonUpdate['window'] = this.windowUser.get('_id');
+                        commonUpdate['window_user_id'] = this.windowUser.get('user_id');
+                        break;
+                    default:
+                        cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+                        break;
+                }
+                // いったん全情報をDBに保存
+                let promises = [];
+                let reservationDocuments4update = reservationModel.toReservationDocuments();
+                for (let reservationDocument4update of reservationDocuments4update) {
+                    reservationDocument4update = Object.assign(reservationDocument4update, commonUpdate);
+                    promises.push(new Promise((resolve, reject) => {
+                        this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
+                        Models_1.default.Reservation.update({
+                            _id: reservationDocument4update['_id']
+                        }, reservationDocument4update, (err, raw) => {
+                            this.logger.info('reservation updated.', err, raw);
+                            if (err) {
+                                reject(new Error(this.req.__('Message.UnexpectedError')));
+                            }
+                            else {
+                                resolve();
+                            }
+                        });
+                    }));
+                }
+                ;
+                Promise.all(promises).then(() => {
+                    cb(null, reservationModel);
+                }, (err) => {
+                    cb(err, reservationModel);
+                });
+            });
+        };
+        if (reservationModel.paymentNo) {
+            next(reservationModel);
+        }
+        else {
+            this.createPaymentNo((err, paymentNo) => {
+                if (err) {
+                    cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+                }
+                else {
+                    reservationModel.paymentNo = paymentNo;
+                    next(reservationModel);
+                }
+            });
+        }
+    }
+    /**
      * 購入番号から全ての予約を完了にする
      *
      * @param {string} paymentNo 購入番号
-     * @param {Array<string>} reservationIds 予約IDリスト
      * @param {Object} update 追加更新パラメータ
      */
-    processFixReservations(paymentNo, reservationIds, update, cb) {
-        let promises = [];
+    processFixReservations(paymentNo, update, cb) {
         update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
         update['purchased_at'] = Date.now();
         update['updated_user'] = 'ReserveBaseController';
         // 予約完了ステータスへ変更
-        for (let reservationId of reservationIds) {
-            promises.push(new Promise((resolve, reject) => {
-                this.logger.info('updating reservation by id...', reservationId, update);
-                Models_1.default.Reservation.update({
-                    _id: reservationId
-                }, update, (err, raw) => {
-                    this.logger.info('reservation updated.', err, raw);
+        this.logger.info('updating reservations by paymentNo...', paymentNo, update);
+        Models_1.default.Reservation.update({
+            payment_no: paymentNo
+        }, update, {
+            multi: true
+        }, (err, raw) => {
+            this.logger.info('reservations updated.', err, raw);
+            if (err) {
+                cb(new Error('any reservations not updated.'));
+            }
+            else {
+                // 完了メールキューがあれば何も更新しないし、なければ追加する
+                this.logger.info('creating reservationEmailCue...');
+                Models_1.default.ReservationEmailCue.create({
+                    payment_no: paymentNo,
+                    is_sent: false
+                }, (err, cueDocument) => {
+                    this.logger.info('reservationEmailCue created.', err, cueDocument);
                     if (err) {
-                        reject(err);
                     }
-                    else {
-                        resolve();
-                    }
+                    cb(null);
                 });
-            }));
-        }
-        ;
-        Promise.all(promises).then(() => {
-            // 完了メールキューがあれば何も更新しないし、なければ追加する
-            this.logger.info('creating reservationEmailCue...');
-            Models_1.default.ReservationEmailCue.create({
-                payment_no: paymentNo,
-                is_sent: false
-            }, (err, cueDocument) => {
-                this.logger.info('reservationEmailCue created.', err, cueDocument);
-                if (err) {
-                }
-                cb(null);
-            });
-        }, (err) => {
-            cb(new Error('some reservations not updated.'));
+            }
         });
     }
     /**

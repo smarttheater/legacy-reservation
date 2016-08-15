@@ -219,8 +219,8 @@ export default class ReservationModel {
     /**
      * 予約ドキュメントへ変換
      */
-    public toReservationDocuments(): Array<Object> {
-        let documents: Array<Object> = [];
+    public toReservationDocuments() {
+        let documents = [];
         let totalCharge = this.getTotalCharge();
 
 
@@ -261,23 +261,20 @@ export default class ReservationModel {
                     film_name: this.performance.film.name,
                     film_name_en: this.performance.film.name_en,
 
-                    purchaser_last_name: (this.profile) ? this.profile.last_name : null,
-                    purchaser_first_name: (this.profile) ? this.profile.first_name : null,
-                    purchaser_email: (this.profile) ? this.profile.email : null,
-                    purchaser_tel: (this.profile) ? this.profile.tel : null,
+                    purchaser_last_name: (this.profile) ? this.profile.last_name : undefined,
+                    purchaser_first_name: (this.profile) ? this.profile.first_name : undefined,
+                    purchaser_email: (this.profile) ? this.profile.email : undefined,
+                    purchaser_tel: (this.profile) ? this.profile.tel : undefined,
 
-                    payment_method: (this.paymentMethod) ? this.paymentMethod : null,
+                    payment_method: (this.paymentMethod) ? this.paymentMethod : undefined,
 
                     ticket_type_code: reservation.ticket_type_code,
                     ticket_type_name: reservation.ticket_type_name,
                     ticket_type_name_en: reservation.ticket_type_name_en,
                     ticket_type_charge: reservation.ticket_type_charge,
 
-                    watcher_name: reservation.watcher_name,
-                    watcher_name_updated_at: Date.now(),
-
-                    // member: (this.member) ? this.member._id : null,
-                    // member_user_id: (this.member) ? this.member.user_id : null,
+                    watcher_name: (reservation.watcher_name) ? reservation.watcher_name : undefined,
+                    watcher_name_updated_at: (reservation.watcher_name) ? Date.now() : undefined,
 
                     updated_user: 'ReservationModel'
                 }
@@ -285,23 +282,6 @@ export default class ReservationModel {
         });
 
         return documents;
-    }
-
-    /**
-     * ログ用の形式にする
-     */
-    public toLog(): Object {
-        let log = {
-            token: this.token,
-            paymentNo: this.paymentNo,
-            performance: this.performance,
-            seatCodes: this.seatCodes,
-            profile: this.profile,
-            paymentMethod: this.paymentMethod,
-            purchaserGroup: this.purchaserGroup
-        };
-
-        return log;
     }
 }
 

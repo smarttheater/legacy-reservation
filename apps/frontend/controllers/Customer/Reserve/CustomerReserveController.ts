@@ -246,7 +246,6 @@ export default class CustomerReserveController extends ReserveBaseController {
                         this.res.redirect(this.router.build('customer.reserve.tickets', {token: token}));
 
                     }
-
                 });
             } else {
                 this.res.render('customer/reserve/tickets', {
@@ -337,60 +336,17 @@ export default class CustomerReserveController extends ReserveBaseController {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                // 購入番号発行
-                this.createPaymentNo((err, paymentNo) => {
+                this.processConfirm(reservationModel, (err, reservationModel) => {
                     if (err) {
-                        let message = this.req.__('Message.UnexpectedError');
+                        let message = err.message;
                         this.res.redirect(`${this.router.build('customer.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
-
                     } else {
-                        reservationModel.paymentNo = paymentNo;
-
-                        // 予約プロセス固有のログファイルをセット
-                        this.setProcessLogger(reservationModel.paymentNo, () => {
-                            this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
-
-                            // いったん全情報をDBに保存
-                            let promises = [];
-                            let reservationDocuments4update = reservationModel.toReservationDocuments();
-                            for (let reservationDocument4update of reservationDocuments4update) {
-                                reservationDocument4update['mvtk_kiin_cd'] = this.mvtkUser.memberInfoResult.kiinCd;
-
-                                promises.push(new Promise((resolve, reject) => {
-                                    this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
-                                    Models.Reservation.update(
-                                        {
-                                            _id: reservationDocument4update['_id'],
-                                            status: ReservationUtil.STATUS_TEMPORARY
-                                        },
-                                        reservationDocument4update,
-                                        (err, raw) => {
-                                            this.logger.info('reservation updated.', err, raw);
-                                            if (err) {
-                                                reject(new Error(this.req.__('Message.UnexpectedError')));
-                                            } else {
-                                                resolve();
-                                            }
-
-                                        }
-                                    );
-
-                                }));
-                            };
-
-                            Promise.all(promises).then(() => {
-                                reservationModel.save((err) => {
-                                    this.logger.info('starting GMO payment...');
-                                    this.res.redirect(307, this.router.build('gmo.reserve.start', {token: token}));
-                                });
-                            }, (err) => {
-                                let message = err.message;
-                                this.res.redirect(`${this.router.build('customer.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
-                            });
+                        reservationModel.save((err) => {
+                            this.logger.info('starting GMO payment...');
+                            this.res.redirect(307, this.router.build('gmo.reserve.start', {token: token}));
                         });
                     }
                 });
-
             } else {
                 this.res.render('customer/reserve/confirm', {
                     reservationModel: reservationModel

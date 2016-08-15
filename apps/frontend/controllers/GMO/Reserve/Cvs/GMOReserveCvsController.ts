@@ -1,13 +1,10 @@
 import ReserveBaseController from '../../../ReserveBaseController';
-import Util from '../../../../../common/Util/Util';
 import GMOUtil from '../../../../../common/Util/GMO/GMOUtil';
 import Models from '../../../../../common/models/Models';
 import ReservationUtil from '../../../../../common/models/Reservation/ReservationUtil';
-import ReservationModel from '../../../../models/Reserve/ReservationModel';
 import GMOResultModel from '../../../../models/Reserve/GMOResultModel';
 import GMONotificationModel from '../../../../models/Reserve/GMONotificationModel';
 import GMONotificationResponseModel from '../../../../models/Reserve/GMONotificationResponseModel';
-import mongoose = require('mongoose');
 import crypto = require('crypto');
 import conf = require('config');
 
@@ -32,18 +29,17 @@ export default class GMOReserveCvsController extends ReserveBaseController {
         this.logger.info('finding reservations...payment_no:', gmoResultModel.OrderID);
         Models.Reservation.find(
             {
-                payment_no: gmoResultModel.OrderID,
-                status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_WAITING_SETTLEMENT]}
+                payment_no: gmoResultModel.OrderID
             },
             '_id total_charge purchaser_group',
-            (err, reservationDocuments) => {
-                this.logger.info('reservations found.', err, reservationDocuments.length);
+            (err, reservations) => {
+                this.logger.info('reservations found.', err, reservations.length);
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                if (reservations.length === 0) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                 // 利用金額の整合性
-                this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
-                if (parseInt(gmoResultModel.Amount) !== reservationDocuments[0].get('total_charge')) {
+                this.logger.info('Amount must be ', reservations[0].get('total_charge'));
+                if (parseInt(gmoResultModel.Amount) !== reservations[0].get('total_charge')) {
                     return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 }
 
@@ -59,11 +55,8 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                 }
 
 
-                let reservationIds = reservationDocuments.map((reservationDocument) => {
-                    return reservationDocument.get('_id');
-                });
                 this.logger.info('processChangeStatus2waitingSettlement processing...update:', update);
-                this.processChangeStatus2waitingSettlement(reservationIds, update, (err) => {
+                this.processChangeStatus2waitingSettlement(gmoResultModel.OrderID, update, (err) => {
                     this.logger.info('processChangeStatus2waitingSettlement processed.', err);
                     // 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
                     if (err) return this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
@@ -71,7 +64,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                     this.logger.info('redirecting to waitingSettlement...');
 
                     // 購入者区分による振り分け
-                    let group = reservationDocuments[0].get('purchaser_group');
+                    let group = reservations[0].get('purchaser_group');
                     switch (group) {
                         case ReservationUtil.PURCHASER_GROUP_MEMBER:
                             this.res.redirect(this.router.build('member.reserve.waitingSettlement', {paymentNo: gmoResultModel.OrderID}));
@@ -105,8 +98,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                 this.logger.info('finding reservations...payment_no:', gmoNotificationModel.OrderID);
                 Models.Reservation.find(
                     {
-                        payment_no: gmoNotificationModel.OrderID,
-                        status: ReservationUtil.STATUS_WAITING_SETTLEMENT
+                        payment_no: gmoNotificationModel.OrderID
                     },
                     '_id total_charge',
                     (err, reservationDocuments) => {
@@ -121,11 +113,8 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                         }
 
 
-                        let reservationIds = reservationDocuments.map((reservationDocument) => {
-                            return reservationDocument.get('_id');
-                        });
                         this.logger.info('processFixReservations processing... update:', update);
-                        this.processFixReservations(paymentNo, reservationIds, update, (err) => {
+                        this.processFixReservations(paymentNo, update, (err) => {
                             this.logger.info('processFixReservations processed.', err);
                             if (err) {
                                 // AccessPassが************なので、売上取消要求は行えない
@@ -158,27 +147,23 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                 this.logger.info('finding reservations...payment_no:', gmoNotificationModel.OrderID);
                 Models.Reservation.find(
                     {
-                        payment_no: gmoNotificationModel.OrderID,
-                        status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_WAITING_SETTLEMENT]}
+                        payment_no: gmoNotificationModel.OrderID
                     },
                     '_id total_charge',
-                    (err, reservationDocuments) => {
-                        this.logger.info('reservations found.', err, reservationDocuments.length);
+                    (err, reservations) => {
+                        this.logger.info('reservations found.', err, reservations.length);
                         if (err) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
-                        if (reservationDocuments.length === 0) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        if (reservations.length === 0) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                         // 利用金額の整合性
-                        this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
-                        if (parseInt(gmoNotificationModel.Amount) !== reservationDocuments[0].get('total_charge')) {
+                        this.logger.info('Amount must be ', reservations[0].get('total_charge'));
+                        if (parseInt(gmoNotificationModel.Amount) !== reservations[0].get('total_charge')) {
                             return this.res.send(GMONotificationResponseModel.RecvRes_NG);
                         }
 
 
-                        let reservationIds = reservationDocuments.map((reservationDocument) => {
-                            return reservationDocument.get('_id');
-                        });
                         this.logger.info('processChangeStatus2waitingSettlement processing... update:', update);
-                        this.processChangeStatus2waitingSettlement(reservationIds, update, (err) => {
+                        this.processChangeStatus2waitingSettlement(gmoNotificationModel.OrderID, update, (err) => {
                             this.logger.info('processChangeStatus2waitingSettlement processed.', err);
                             if (err) {
                                 this.logger.info('sending response RecvRes_NG...');
@@ -202,55 +187,41 @@ export default class GMOReserveCvsController extends ReserveBaseController {
             case GMOUtil.STATUS_CVS_EXPIRED: // 期限切れ
             case GMOUtil.STATUS_CVS_CANCEL: // 支払い停止
                 // 空席に戻す
-                let promises = [];
-
                 this.logger.info('finding reservations...payment_no:', gmoNotificationModel.OrderID);
                 Models.Reservation.find(
                     {
-                        payment_no: gmoNotificationModel.OrderID,
-                        status: ReservationUtil.STATUS_WAITING_SETTLEMENT
+                        payment_no: gmoNotificationModel.OrderID
                     },
                     '_id total_charge',
-                    (err, reservationDocuments) => {
-                        this.logger.info('reservations found.', err, reservationDocuments.length);
+                    (err, reservations) => {
+                        this.logger.info('reservations found.', err, reservations.length);
                         if (err) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
-                        if (reservationDocuments.length === 0) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        if (reservations.length === 0) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                         // 利用金額の整合性
-                        this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
-                        if (parseInt(gmoNotificationModel.Amount) !== reservationDocuments[0].get('total_charge')) {
+                        this.logger.info('Amount must be ', reservations[0].get('total_charge'));
+                        if (parseInt(gmoNotificationModel.Amount) !== reservations[0].get('total_charge')) {
                             this.logger.info('sending response RecvRes_NG...');
                             return this.res.send(GMONotificationResponseModel.RecvRes_NG);
                         }
 
 
-                        for (let reservationDocument of reservationDocuments) {
-                            promises.push(new Promise((resolve, reject) => {
-
-                                this.logger.info('removing reservations...update:', update);
-                                Models.Reservation.remove(
-                                    {
-                                        _id: reservationDocument.get('_id')
-                                    },
-                                    (err) => {
-                                        this.logger.info('reservation removed.', err);
-                                        if (err) {
-                                            reject(new Error(this.req.__('Message.UnexpectedError')));
-                                        } else {
-                                            resolve();
-                                        }
-                                    }
-                                );
-                            }));
-                        };
-
-                        Promise.all(promises).then(() => {
-                            this.logger.info('sending response RecvRes_OK...');
-                            this.res.send(GMONotificationResponseModel.RecvRes_OK);
-                        }, (err) => {
-                            this.logger.info('sending response RecvRes_NG...');
-                            this.res.send(GMONotificationResponseModel.RecvRes_NG);
-                        });
+                        this.logger.info('removing reservations...payment_no:', gmoNotificationModel.OrderID);
+                        Models.Reservation.remove(
+                            {
+                                payment_no: gmoNotificationModel.OrderID
+                            },
+                            (err) => {
+                                this.logger.info('reservation removed.', err);
+                                if (err) {
+                                    this.logger.info('sending response RecvRes_NG...');
+                                    this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                                } else {
+                                    this.logger.info('sending response RecvRes_OK...');
+                                    this.res.send(GMONotificationResponseModel.RecvRes_OK);
+                                }
+                            }
+                        );
                     }
                 );
 
@@ -270,38 +241,28 @@ export default class GMOReserveCvsController extends ReserveBaseController {
      * @param {string[]} reservationIds 予約IDリスト
      * @param {Object} update 追加更新パラメータ
      */
-    protected processChangeStatus2waitingSettlement(reservationIds: Array<string>, update: Object, cb: (err: Error) => void): void {
-        let promises = [];
+    protected processChangeStatus2waitingSettlement(paymentNo: string, update: Object, cb: (err: Error) => void): void {
         update['status'] = ReservationUtil.STATUS_WAITING_SETTLEMENT;
         update['updated_user'] = 'GMOReserveCsvController';
 
         // 決済待ちステータスへ変更
-        for (let reservationId of reservationIds) {
-            promises.push(new Promise((resolve, reject) => {
-
-                this.logger.info('updating reservations...update:', update);
-                Models.Reservation.update(
-                    {
-                        _id: reservationId
-                    },
-                    update,
-                    (err, raw) => {
-                        this.logger.info('reservation updated.', err, raw);
-
-                        if (err) {
-                            reject(new Error(this.req.__('Message.UnexpectedError')));
-                        } else {
-                            resolve();
-                        }
-                    }
-                );
-            }));
-        };
-
-        Promise.all(promises).then(() => {
-            cb(null);
-        }, (err) => {
-            cb(new Error('any reservations not updated.'));
-        });
+        this.logger.info('updating reservations by paymentNo...', paymentNo, update);
+        Models.Reservation.update(
+            {
+                payment_no: paymentNo
+            },
+            update,
+            {
+                multi: true
+            },
+            (err, raw) => {
+                this.logger.info('reservations updated.', err, raw);
+                if (err) {
+                    cb(new Error('any reservations not updated.'));
+                } else {
+                    cb(null);
+                }
+            }
+        );
     }
 }

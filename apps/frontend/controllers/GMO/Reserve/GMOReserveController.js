@@ -21,7 +21,6 @@ class GMOReserveController extends ReserveBaseController_1.default {
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
-            this.logger.debug('reservationModel is ', reservationModel.toLog());
             // 予約情報セッション削除
             this.logger.debug('removing reservationModel... ', reservationModel);
             reservationModel.remove(() => {
@@ -148,22 +147,21 @@ class GMOReserveController extends ReserveBaseController_1.default {
             this.logger.info('start process GMOReserveController.cancel.');
             this.logger.info('finding reservations...');
             Models_1.default.Reservation.find({
-                payment_no: paymentNo,
-                status: ReservationUtil_1.default.STATUS_TEMPORARY
-            }).exec((err, reservationDocuments) => {
-                this.logger.info('reservations found.', err, reservationDocuments);
+                payment_no: paymentNo
+            }).exec((err, reservations) => {
+                this.logger.info('reservations found.', err, reservations);
                 if (err)
                     return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                if (reservationDocuments.length === 0)
+                if (reservations.length === 0)
                     return this.next(new Error(this.req.__('Message.NotFound')));
                 // ログイン中ユーザーの決済かどうかチェック
-                let purchaserGroup = reservationDocuments[0].get('purchaser_group');
+                let purchaserGroup = reservations[0].get('purchaser_group');
                 switch (purchaserGroup) {
                     case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
                         if (!this.mvtkUser.isAuthenticated()) {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         }
-                        else if (this.mvtkUser.memberInfoResult.kiinCd !== reservationDocuments[0].get('mvtk_kiin_cd')) {
+                        else if (this.mvtkUser.memberInfoResult.kiinCd !== reservations[0].get('mvtk_kiin_cd')) {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         }
                         break;
@@ -171,7 +169,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
                         if (!this.memberUser.isAuthenticated()) {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         }
-                        else if (this.memberUser.get('_id') !== reservationDocuments[0].get('member').toString()) {
+                        else if (this.memberUser.get('_id') !== reservations[0].get('member').toString()) {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         }
                         break;
@@ -179,11 +177,11 @@ class GMOReserveController extends ReserveBaseController_1.default {
                         break;
                 }
                 // キャンセル
-                for (let reservationDocument of reservationDocuments) {
+                for (let reservation of reservations) {
                     promises.push(new Promise((resolve, reject) => {
                         this.logger.info('removing reservation...');
                         Models_1.default.Reservation.remove({
-                            _id: reservationDocument.get('_id'),
+                            _id: reservation.get('_id'),
                             status: ReservationUtil_1.default.STATUS_TEMPORARY
                         }, (err) => {
                             this.logger.info('reservation removed.', err);

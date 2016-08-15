@@ -228,60 +228,24 @@ class WindowReserveController extends ReserveBaseController_1.default {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
-                // 購入番号発行
-                this.createPaymentNo((err, paymentNo) => {
+                this.processConfirm(reservationModel, (err, reservationModel) => {
                     if (err) {
-                        let message = this.req.__('Message.UnexpectedError');
+                        let message = err.message;
                         this.res.redirect(`${this.router.build('window.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
                     }
                     else {
-                        reservationModel.paymentNo = paymentNo;
-                        // 予約プロセス固有のログファイルをセット
-                        this.setProcessLogger(reservationModel.paymentNo, () => {
-                            this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
-                            let promises = [];
-                            let reservationDocuments4update = reservationModel.toReservationDocuments();
-                            for (let reservationDocument4update of reservationDocuments4update) {
-                                promises.push(new Promise((resolve, reject) => {
-                                    // 予約完了
-                                    reservationDocument4update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
-                                    reservationDocument4update['purchased_at'] = Date.now();
-                                    reservationDocument4update['window'] = this.windowUser.get('_id');
-                                    reservationDocument4update['window_user_id'] = this.windowUser.get('user_id');
-                                    this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
-                                    Models_1.default.Reservation.update({
-                                        _id: reservationDocument4update['_id'],
-                                        status: ReservationUtil_1.default.STATUS_TEMPORARY
-                                    }, reservationDocument4update, (err, raw) => {
-                                        this.logger.info('reservation updated.', err, raw);
-                                        if (err) {
-                                            reject(new Error(this.req.__('Message.UnexpectedError')));
-                                        }
-                                        else {
-                                            resolve();
-                                        }
-                                    });
-                                }));
-                            }
-                            ;
-                            Promise.all(promises).then(() => {
-                                this.logger.info('creating reservationEmailCue...');
-                                Models_1.default.ReservationEmailCue.create({
-                                    payment_no: reservationModel.paymentNo,
-                                    is_sent: false
-                                }, (err, reservationEmailCueDocument) => {
-                                    this.logger.info('reservationEmailCue created.', err, reservationEmailCueDocument);
-                                    if (err) {
-                                    }
-                                    reservationModel.remove((err) => {
-                                        this.logger.info('redirecting to complete...');
-                                        this.res.redirect(this.router.build('window.reserve.complete', { paymentNo: reservationModel.paymentNo }));
-                                    });
-                                });
-                            }, (err) => {
+                        // 予約確定
+                        this.processFixReservations(reservationModel.paymentNo, {}, (err) => {
+                            if (err) {
                                 let message = err.message;
                                 this.res.redirect(`${this.router.build('window.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
-                            });
+                            }
+                            else {
+                                reservationModel.remove((err) => {
+                                    this.logger.info('redirecting to complete...');
+                                    this.res.redirect(this.router.build('window.reserve.complete', { paymentNo: reservationModel.paymentNo }));
+                                });
+                            }
                         });
                     }
                 });

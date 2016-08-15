@@ -154,6 +154,7 @@ exports.default = (app) => {
             next();
         }
     };
+    // TODO ムビチケ会員登録
     // 一般
     app.all('/customer/reserve/performances', 'customer.reserve.performances', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).performances(); });
     app.post('/customer/reserve/start', 'customer.reserve.start', (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).start(); });
@@ -187,6 +188,7 @@ exports.default = (app) => {
     app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).confirm(); });
     app.get('/staff/reserve/:paymentNo/complete', 'staff.reserve.complete', authenticationStaff, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).complete(); });
     app.post('/staff/cancel/execute', 'staff.cancel.execute', authenticationStaff, (req, res, next) => { (new StaffCancelController_1.default(req, res, next)).execute(); });
+    // TODO 座席開放
     let sponsorBase = (req, res, next) => {
         req.setLocale('en');
         next();

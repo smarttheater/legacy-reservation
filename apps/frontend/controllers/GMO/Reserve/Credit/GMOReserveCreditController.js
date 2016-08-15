@@ -28,17 +28,16 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
         // 内容の整合性チェック
         this.logger.info('finding reservations...payment_no:', gmoResultModel.OrderID);
         Models_1.default.Reservation.find({
-            payment_no: gmoResultModel.OrderID,
-            status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER, ReservationUtil_1.default.STATUS_RESERVED] }
-        }, '_id total_charge purchaser_group', (err, reservationDocuments) => {
-            this.logger.info('reservations found.', err, reservationDocuments.length);
+            payment_no: gmoResultModel.OrderID
+        }, '_id total_charge purchaser_group', (err, reservations) => {
+            this.logger.info('reservations found.', err, reservations.length);
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
-            if (reservationDocuments.length === 0)
+            if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
             // 利用金額の整合性
-            this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
-            if (parseInt(gmoResultModel.Amount) !== reservationDocuments[0].get('total_charge')) {
+            this.logger.info('Amount must be ', reservations[0].get('total_charge'));
+            if (parseInt(gmoResultModel.Amount) !== reservations[0].get('total_charge')) {
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
             }
             // チェック文字列
@@ -50,18 +49,15 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
             if (checkString !== gmoResultModel.CheckString) {
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
             }
-            let reservationIds = reservationDocuments.map((reservationDocument) => {
-                return reservationDocument.get('_id');
-            });
             this.logger.info('processFixReservations processing... update:', update);
-            this.processFixReservations(gmoResultModel.OrderID, reservationIds, update, (err) => {
+            this.processFixReservations(gmoResultModel.OrderID, update, (err) => {
                 this.logger.info('processFixReservations processed.', err);
                 // 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
                 if (err)
                     return this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
                 this.logger.info('redirecting to complete...');
                 // 購入者区分による振り分け
-                let group = reservationDocuments[0].get('purchaser_group');
+                let group = reservations[0].get('purchaser_group');
                 switch (group) {
                     case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
                         this.res.redirect(this.router.build('member.reserve.complete', { paymentNo: gmoResultModel.OrderID }));
@@ -98,24 +94,20 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                 // 内容の整合性チェック
                 this.logger.info('finding reservations...payment_no:', gmoNotificationModel.OrderID);
                 Models_1.default.Reservation.find({
-                    payment_no: gmoNotificationModel.OrderID,
-                    status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER, ReservationUtil_1.default.STATUS_RESERVED] }
-                }, '_id total_charge', (err, reservationDocuments) => {
-                    this.logger.info('reservations found.', err, reservationDocuments.length);
+                    payment_no: gmoNotificationModel.OrderID
+                }, '_id total_charge', (err, reservations) => {
+                    this.logger.info('reservations found.', err, reservations.length);
                     if (err)
                         return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
-                    if (reservationDocuments.length === 0)
+                    if (reservations.length === 0)
                         return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     // 利用金額の整合性
-                    this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
-                    if (parseInt(gmoNotificationModel.Amount) !== reservationDocuments[0].get('total_charge')) {
+                    this.logger.info('Amount must be ', reservations[0].get('total_charge'));
+                    if (parseInt(gmoNotificationModel.Amount) !== reservations[0].get('total_charge')) {
                         return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     }
-                    let reservationIds = reservationDocuments.map((reservationDocument) => {
-                        return reservationDocument.get('_id');
-                    });
                     this.logger.info('processFixReservations processing... update:', update);
-                    this.processFixReservations(paymentNo, reservationIds, update, (err) => {
+                    this.processFixReservations(paymentNo, update, (err) => {
                         this.logger.info('processFixReservations processed.', err);
                         if (err) {
                             // AccessPassが************なので、売上取消要求は行えない

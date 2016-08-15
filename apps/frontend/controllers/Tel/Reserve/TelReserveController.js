@@ -238,43 +238,32 @@ class TelReserveController extends ReserveBaseController_1.default {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
-                // 予約プロセス固有のログファイルをセット(購入番号は最初に発行済み)
-                this.setProcessLogger(reservationModel.paymentNo, () => {
-                    this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
-                    let promises = [];
-                    let reservationDocuments4update = reservationModel.toReservationDocuments();
-                    for (let reservationDocument4update of reservationDocuments4update) {
-                        promises.push(new Promise((resolve, reject) => {
-                            // 予約完了
-                            reservationDocument4update['status'] = ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN;
-                            reservationDocument4update['purchased_at'] = Date.now();
-                            reservationDocument4update['tel_staff'] = this.telStaffUser.get('_id');
-                            reservationDocument4update['tel_staff_user_id'] = this.telStaffUser.get('user_id');
-                            this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
-                            Models_1.default.Reservation.update({
-                                _id: reservationDocument4update['_id'],
-                                status: ReservationUtil_1.default.STATUS_TEMPORARY
-                            }, reservationDocument4update, (err, raw) => {
-                                this.logger.info('reservation updated.', err, raw);
-                                if (err) {
-                                    reject(new Error(this.req.__('Message.UnexpectedError')));
-                                }
-                                else {
-                                    resolve();
-                                }
-                            });
-                        }));
-                    }
-                    ;
-                    Promise.all(promises).then(() => {
-                        reservationModel.remove((err) => {
-                            this.logger.info('redirecting to complete...');
-                            this.res.redirect(this.router.build('tel.reserve.complete', { paymentNo: reservationModel.paymentNo }));
-                        });
-                    }, (err) => {
+                this.processConfirm(reservationModel, (err, reservationModel) => {
+                    if (err) {
                         let message = err.message;
                         this.res.redirect(`${this.router.build('tel.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
-                    });
+                    }
+                    else {
+                        // 予約確定
+                        Models_1.default.Reservation.update({
+                            payment_no: reservationModel.paymentNo
+                        }, {
+                            status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN
+                        }, {
+                            multi: true
+                        }, (err, raw) => {
+                            if (err) {
+                                let message = err.message;
+                                this.res.redirect(`${this.router.build('tel.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
+                            }
+                            else {
+                                reservationModel.remove((err) => {
+                                    this.logger.info('redirecting to complete...');
+                                    this.res.redirect(this.router.build('tel.reserve.complete', { paymentNo: reservationModel.paymentNo }));
+                                });
+                            }
+                        });
+                    }
                 });
             }
             else {

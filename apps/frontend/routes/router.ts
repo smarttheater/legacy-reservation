@@ -187,7 +187,7 @@ export default (app: any) => {
 
 
 
-
+    // TODO ムビチケ会員登録
 
 
     // 一般
@@ -195,7 +195,6 @@ export default (app: any) => {
     app.post('/customer/reserve/start', 'customer.reserve.start', (req, res, next) => {(new CustomerReserveController(req, res, next)).start()});
     app.all('/customer/login', 'customer.reserve.terms', (req, res, next) => {(new CustomerAuthController(req, res, next)).login()});
     app.all('/customer/logout', 'customer.logout', authenticationCustomer, (req, res, next) => {(new CustomerAuthController(req, res, next)).logout()});
-
     app.get('/customer/reserve/:token/login', 'customer.reserve.login', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).login()});
     app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).seats()});
     app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).tickets()});
@@ -240,7 +239,7 @@ export default (app: any) => {
     app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).confirm()});
     app.get('/staff/reserve/:paymentNo/complete', 'staff.reserve.complete', authenticationStaff, (req, res, next) => {(new StaffReserveController(req, res, next)).complete()});
     app.post('/staff/cancel/execute', 'staff.cancel.execute', authenticationStaff, (req, res, next) => {(new StaffCancelController(req, res, next)).execute()});
-
+    // TODO 座席開放
 
     let sponsorBase = (req: express.Request, res: express.Response, next: express.NextFunction) => {
         req.setLocale('en');
