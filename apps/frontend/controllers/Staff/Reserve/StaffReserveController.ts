@@ -204,7 +204,7 @@ export default class StaffReserveController extends ReserveBaseController {
             {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
-                staff: this.staffUser.get('_id')
+                staff: this.req.staffUser.get('_id')
             },
             (err, reservationDocuments) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));

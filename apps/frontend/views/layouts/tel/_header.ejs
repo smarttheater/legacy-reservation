@@ -10,9 +10,9 @@ if (req.hasOwnProperty('route')) {
         <a href="/" class="header-logo"><img src="/images/common/logo.png" alt="TIFF"></a>
 
         <div class="header-menu">
-            <% if (telStaffUser.isAuthenticated()) { %>
+            <% if (req.telStaffUser.isAuthenticated()) { %>
             <div class="menu-staff">
-                <p class="myname"><%= __('Mr{{name}}', {name: telStaffUser.get('name')}) %></p>
+                <p class="myname"><%= __('Mr{{name}}', {name: req.telStaffUser.get('name')}) %></p>
                 <div class="staff-btns">
                     <a class="btn btn-logout" href="<%- url('tel.logout') %>"><span><%- __('Button.Logout') %></span></a>
                     <% if (routeName.indexOf('mypage') < 0) { %>

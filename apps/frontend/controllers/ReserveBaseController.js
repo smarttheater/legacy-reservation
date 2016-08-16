@@ -191,10 +191,10 @@ class ReserveBaseController extends BaseController_1.default {
                         performance: reservationModel.performance._id,
                         seat_code: seatCode,
                         status: ReservationUtil_1.default.STATUS_TEMPORARY,
-                        mvtk_kiin_cd: (purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER) ? this.mvtkUser.memberInfoResult.kiinCd : undefined,
-                        staff: (purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) ? this.staffUser.get('_id') : undefined,
-                        sponsor: (purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR) ? this.sponsorUser.get('_id') : undefined,
-                        member: (purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_MEMBER) ? this.memberUser.get('_id') : undefined,
+                        mvtk_kiin_cd: (purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER) ? this.req.mvtkUser.get('memberInfoResult').kiinCd : undefined,
+                        staff: (purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) ? this.req.staffUser.get('_id') : undefined,
+                        sponsor: (purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR) ? this.req.sponsorUser.get('_id') : undefined,
+                        member: (purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_MEMBER) ? this.req.memberUser.get('_id') : undefined,
                     };
                     // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
                     this.logger.debug('creating reservation... seat_code:', seatCode);
@@ -280,13 +280,13 @@ class ReserveBaseController extends BaseController_1.default {
                 // TODO 電話の場合強制的にコンビニ
                 // TODO 内部と外部の場合、決済方法は空
                 // TODO ユーザーセッションにプローフィール格納
-                // this.sponsorUser.profile = {
+                // this.req.sponsorUser.profile = {
                 //     last_name: this.req.form['lastName'],
                 //     first_name: this.req.form['firstName'],
                 //     email: this.req.form['email'],
                 //     tel: this.req.form['tel']
                 // };
-                // this.req.session[SponsorUser.AUTH_SESSION_NAME] = this.sponsorUser;
+                // this.req.session[SponsorUser.AUTH_SESSION_NAME] = this.req.sponsorUser;
                 cb(null, reservationModel);
             }
             else {
@@ -306,33 +306,33 @@ class ReserveBaseController extends BaseController_1.default {
                 let commonUpdate = {};
                 switch (reservationModel.purchaserGroup) {
                     case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
-                        commonUpdate['mvtk_kiin_cd'] = this.mvtkUser.memberInfoResult.kiinCd;
+                        commonUpdate['mvtk_kiin_cd'] = this.req.mvtkUser.get('memberInfoResult').kiinCd;
                         break;
                     case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
-                        commonUpdate['member'] = this.memberUser.get('_id');
-                        commonUpdate['member_user_id'] = this.memberUser.get('user_id');
+                        commonUpdate['member'] = this.req.memberUser.get('_id');
+                        commonUpdate['member_user_id'] = this.req.memberUser.get('user_id');
                         break;
                     case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
-                        commonUpdate['sponsor'] = this.sponsorUser.get('_id');
-                        commonUpdate['sponsor_user_id'] = this.sponsorUser.get('user_id');
-                        commonUpdate['sponsor_name'] = this.sponsorUser.get('name');
+                        commonUpdate['sponsor'] = this.req.sponsorUser.get('_id');
+                        commonUpdate['sponsor_user_id'] = this.req.sponsorUser.get('user_id');
+                        commonUpdate['sponsor_name'] = this.req.sponsorUser.get('name');
                         break;
                     case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
-                        commonUpdate['staff'] = this.staffUser.get('_id');
-                        commonUpdate['staff_user_id'] = this.staffUser.get('user_id');
-                        commonUpdate['staff_name'] = this.staffUser.get('name');
-                        commonUpdate['staff_email'] = this.staffUser.get('email');
-                        commonUpdate['staff_tel'] = this.staffUser.get('tel');
-                        commonUpdate['staff_signature'] = this.staffUser.get('signature');
+                        commonUpdate['staff'] = this.req.staffUser.get('_id');
+                        commonUpdate['staff_user_id'] = this.req.staffUser.get('user_id');
+                        commonUpdate['staff_name'] = this.req.staffUser.get('name');
+                        commonUpdate['staff_email'] = this.req.staffUser.get('email');
+                        commonUpdate['staff_tel'] = this.req.staffUser.get('tel');
+                        commonUpdate['staff_signature'] = this.req.staffUser.get('signature');
                         break;
                     case ReservationUtil_1.default.PURCHASER_GROUP_TEL:
                         commonUpdate['status'] = ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN;
-                        commonUpdate['tel_staff'] = this.telStaffUser.get('_id');
-                        commonUpdate['tel_staff_user_id'] = this.telStaffUser.get('user_id');
+                        commonUpdate['tel_staff'] = this.req.telStaffUser.get('_id');
+                        commonUpdate['tel_staff_user_id'] = this.req.telStaffUser.get('user_id');
                         break;
                     case ReservationUtil_1.default.PURCHASER_GROUP_WINDOW:
-                        commonUpdate['window'] = this.windowUser.get('_id');
-                        commonUpdate['window_user_id'] = this.windowUser.get('user_id');
+                        commonUpdate['window'] = this.req.windowUser.get('_id');
+                        commonUpdate['window_user_id'] = this.req.windowUser.get('user_id');
                         break;
                     default:
                         cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);

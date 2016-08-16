@@ -26,9 +26,9 @@ class SponsorReserveController extends ReserveBaseController_1.default {
         this.logger.debug('saving reservationModel... ', reservationModel);
         reservationModel.save((err) => {
             // パフォーマンス指定or無指定どちらか判断
-            if (this.sponsorUser.get('performance')) {
+            if (this.req.sponsorUser.get('performance')) {
                 // パフォーマンスFIX
-                this.processFixPerformance(reservationModel, this.sponsorUser.get('performance'), (err, reservationModel) => {
+                this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'), (err, reservationModel) => {
                     if (err) {
                         this.next(err);
                     }
@@ -73,11 +73,11 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                 reservationModel.save((err) => {
                     // 外部関係者による予約数を取得
                     Models_1.default.Reservation.count({
-                        sponsor: this.sponsorUser.get('_id'),
+                        sponsor: this.req.sponsorUser.get('_id'),
                         status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_RESERVED] }
                     }, (err, reservationsCount) => {
-                        if (parseInt(this.sponsorUser.get('max_reservation_count')) <= reservationsCount) {
-                            return this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', { limit: this.sponsorUser.get('max_reservation_count') })));
+                        if (parseInt(this.req.sponsorUser.get('max_reservation_count')) <= reservationsCount) {
+                            return this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', { limit: this.req.sponsorUser.get('max_reservation_count') })));
                         }
                         if (this.req.method === 'POST') {
                             reservePerformanceForm_1.default(this.req, this.res, (err) => {
@@ -119,17 +119,17 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
             // 外部関係者による予約数を取得
-            let lockPath = `${__dirname}/../../../../../lock/SponsorFixSeats${this.sponsorUser.get('_id')}.lock`;
+            let lockPath = `${__dirname}/../../../../../lock/SponsorFixSeats${this.req.sponsorUser.get('_id')}.lock`;
             lockFile.lock(lockPath, { wait: 5000 }, (err) => {
                 Models_1.default.Reservation.count({
-                    sponsor: this.sponsorUser.get('_id'),
+                    sponsor: this.req.sponsorUser.get('_id'),
                     status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_RESERVED] },
                     seat_code: {
                         $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
                     }
                 }, (err, reservationsCount) => {
                     // 一度に確保できる座席数は、残り可能枚数と、10の小さい方
-                    let reservableCount = parseInt(this.sponsorUser.get('max_reservation_count')) - reservationsCount;
+                    let reservableCount = parseInt(this.req.sponsorUser.get('max_reservation_count')) - reservationsCount;
                     let limit = Math.min(10, reservableCount);
                     // すでに枚数制限に達している場合
                     if (limit <= 0) {
@@ -303,7 +303,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_RESERVED,
-            sponsor: this.sponsorUser.get('_id')
+            sponsor: this.req.sponsorUser.get('_id')
         }, (err, reservationDocuments) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));

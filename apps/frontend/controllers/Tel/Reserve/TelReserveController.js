@@ -248,7 +248,7 @@ class TelReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN,
-            tel_staff: this.telStaffUser.get('_id')
+            tel_staff: this.req.telStaffUser.get('_id')
         }, (err, reservationDocuments) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));

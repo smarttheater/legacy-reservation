@@ -13,7 +13,7 @@ class StaffAuthController extends BaseController_1.default {
      * TODO 一般とadminの2種類の権限
      */
     login() {
-        if (this.staffUser.isAuthenticated()) {
+        if (this.req.staffUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('staff.reserve.performances', {}));
         }
         if (this.req.method === 'POST') {

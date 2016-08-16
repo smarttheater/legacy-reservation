@@ -6,37 +6,25 @@ import mvtkService = require('@motionpicture/mvtk-service');
  * ムビチケユーザークラス
  */
 export default class MvtkUser extends BaseUser {
-    private static instance;
+    public static AUTH_SESSION_NAME = 'TIFFFrontendMvtkAuth';
 
-    public static getInstance(): MvtkUser {
-        if (MvtkUser.instance === undefined) {
-            MvtkUser.instance = new MvtkUser();
+    public static parse(session: Express.Session): MvtkUser {
+        let user = new MvtkUser();
+
+        // セッション値からオブジェクトにセット
+        if (session.hasOwnProperty(MvtkUser.AUTH_SESSION_NAME)) {
+            for (let propertyName in session[MvtkUser.AUTH_SESSION_NAME]) {
+                user[propertyName] = session[MvtkUser.AUTH_SESSION_NAME][propertyName];
+            }
         }
 
-        return MvtkUser.instance;
+        return user;
     }
-
-    public static deleteInstance(): void {
-        delete MvtkUser.instance;
-    }
-
-    public static AUTH_SESSION_NAME = 'TIFFFrontendMvtkAuth';
 
     /**
      * 会員情報詳細
      */
     public memberInfoResult: mvtkService.services.MemberInfo.models.MemberInfoResult;
-
-    public initialize(session: Express.Session): void {
-        let sessionName = MvtkUser.AUTH_SESSION_NAME;
-
-        // セッション値からオブジェクトにセット
-        if (session.hasOwnProperty(sessionName)) {
-            for (let propertyName in session[sessionName]) {
-                this[propertyName] = session[sessionName][propertyName];
-            }
-        }
-    }
 
     /**
      * サインイン中かどうか

@@ -13,7 +13,7 @@ class WindowAuthController extends BaseController_1.default {
      * 窓口担当者ログイン
      */
     login() {
-        if (this.windowUser.isAuthenticated()) {
+        if (this.req.windowUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('window.mypage'));
         }
         if (this.req.method === 'POST') {

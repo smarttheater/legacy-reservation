@@ -9,13 +9,6 @@ const multer = require('multer');
 const logger_1 = require('./middlewares/logger');
 const benchmarks_1 = require('./middlewares/benchmarks');
 const session_1 = require('./middlewares/session');
-const MvtkUser_1 = require('./models/User/MvtkUser');
-const MemberUser_1 = require('./models/User/MemberUser');
-const StaffUser_1 = require('./models/User/StaffUser');
-const SponsorUser_1 = require('./models/User/SponsorUser');
-const WindowUser_1 = require('./models/User/WindowUser');
-const TelStaffUser_1 = require('./models/User/TelStaffUser');
-const router_1 = require('./routes/router');
 const conf = require('config');
 const mongoose = require('mongoose');
 const i18n = require('i18n');
@@ -54,31 +47,24 @@ app.use((req, res, next) => {
     }
     next();
 });
-// ユーザー認証
-app.use((req, res, next) => {
-    // リクエスト毎にユーザーインスタンスを再生成する
-    MvtkUser_1.default.deleteInstance();
-    let mvtkUser = MvtkUser_1.default.getInstance();
-    mvtkUser.initialize(req.session);
-    MemberUser_1.default.deleteInstance();
-    let memberUser = MemberUser_1.default.getInstance();
-    memberUser.initialize(req.session);
-    StaffUser_1.default.deleteInstance();
-    let staffUser = StaffUser_1.default.getInstance();
-    staffUser.initialize(req.session);
-    SponsorUser_1.default.deleteInstance();
-    let sponsorUser = SponsorUser_1.default.getInstance();
-    sponsorUser.initialize(req.session);
-    WindowUser_1.default.deleteInstance();
-    let windowUser = WindowUser_1.default.getInstance();
-    windowUser.initialize(req.session);
-    TelStaffUser_1.default.deleteInstance();
-    let telStaffUser = TelStaffUser_1.default.getInstance();
-    telStaffUser.initialize(req.session);
-    next();
-});
 mvtkService.initialize(conf.get('mvtk_wcf_endpoint'), conf.get('mvtk_wcf2_endpoint'));
 // ルーティング
+const NamedRoutes = require('named-routes');
+const member_1 = require('./routes/member');
+const sponsor_1 = require('./routes/sponsor');
+const staff_1 = require('./routes/staff');
+const tel_1 = require('./routes/tel');
+const window_1 = require('./routes/window');
+const router_1 = require('./routes/router');
+let namedRoutes = new NamedRoutes();
+namedRoutes.extendExpress(app);
+namedRoutes.registerAppHelpers(app);
+// ルーティング登録の順序に注意！
+member_1.default(app);
+sponsor_1.default(app);
+staff_1.default(app);
+tel_1.default(app);
+window_1.default(app);
 router_1.default(app);
 let MONGOLAB_URI = conf.get('mongolab_uri');
 mongoose.connect(MONGOLAB_URI, {});

@@ -6,7 +6,7 @@
 <p class="guidetext">以下より鑑賞作品の上映スケジュールを選択してください。</p>
 
 <% if (isSponsor) { %>
-<p class="remainingtickets">取得可能残り:<strong><%= parseInt(sponsorUser.get('max_reservation_count')) - reservationsCount %>枚</strong></p>
+<p class="remainingtickets">取得可能残り:<strong><%= parseInt(req.sponsorUser.get('max_reservation_count')) - reservationsCount %>枚</strong></p>
 <% } %>
 
 <div class="performancesearchform">

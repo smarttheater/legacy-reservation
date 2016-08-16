@@ -17,7 +17,7 @@ export default class StaffCancelController extends BaseController {
                     Models.Reservation.update(
                         {
                             _id: reservationId,
-                            staff: this.staffUser.get('_id'),
+                            staff: this.req.staffUser.get('_id'),
                             purchaser_group: ReservationUtil.PURCHASER_GROUP_STAFF,
                             status: ReservationUtil.STATUS_RESERVED
                         },

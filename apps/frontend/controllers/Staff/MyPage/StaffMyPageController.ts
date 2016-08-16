@@ -36,7 +36,7 @@ export default class StaffMyPageController extends BaseController {
         conditions.push(
             {
                 purchaser_group: ReservationUtil.PURCHASER_GROUP_STAFF,
-                staff: this.staffUser.get('_id'),
+                staff: this.req.staffUser.get('_id'),
                 status: ReservationUtil.STATUS_RESERVED
             }
         );
@@ -133,14 +133,14 @@ export default class StaffMyPageController extends BaseController {
         this.logger.debug('updating watcher_name... id:', reservationId);
         Models.Reservation.findOneAndUpdate(
             {
-                staff: this.staffUser.get('_id'),
+                staff: this.req.staffUser.get('_id'),
                 status: ReservationUtil.STATUS_RESERVED,
                 _id: reservationId,
             },
             {
                 watcher_name: watcherName,
                 watcher_name_updated_at: Date.now(),
-                staff_signature: this.staffUser.get('signature'),
+                staff_signature: this.req.staffUser.get('signature'),
             },
             {
                 new: true

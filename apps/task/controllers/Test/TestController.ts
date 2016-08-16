@@ -197,9 +197,13 @@ export default class TestController extends BaseController {
 
 
                                     if (!to) {
-                                        mongoose.disconnect();
-                                        process.exit(0);
-                                        return;
+                                        // 送信済みフラグを立てる
+                                        cueDocument.set('is_sent', true);
+                                        cueDocument.save((err, res) => {
+                                            i++;
+                                            next(i);
+
+                                        });
 
                                     }
 

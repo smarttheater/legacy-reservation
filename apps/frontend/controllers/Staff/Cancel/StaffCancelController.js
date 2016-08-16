@@ -15,7 +15,7 @@ class StaffCancelController extends BaseController_1.default {
                     this.logger.debug('canceling reservation...id:', reservationId);
                     Models_1.default.Reservation.update({
                         _id: reservationId,
-                        staff: this.staffUser.get('_id'),
+                        staff: this.req.staffUser.get('_id'),
                         purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
                         status: ReservationUtil_1.default.STATUS_RESERVED
                     }, {

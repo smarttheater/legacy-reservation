@@ -11,9 +11,9 @@ if (req.hasOwnProperty('route')) {
 
         <div class="header-menu">
 
-            <% if (routeName.indexOf('mypage') >= 0 && sponsorUser.isAuthenticated()) { %>
+            <% if (routeName.indexOf('mypage') >= 0 && req.sponsorUser.isAuthenticated()) { %>
             <div class="menu-staff">
-                <p class="myname"><%= __('Mr{{name}}', {name: sponsorUser.get('name')}) %></p>
+                <p class="myname"><%= __('Mr{{name}}', {name: req.sponsorUser.get('name')}) %></p>
                 <div class="staff-btns">
                     <a class="btn btn-logout" href="<%= url('sponsor.logout') %>"><span><%- __('Button.Logout') %></span></a>
                     <a class="btn btn-newticket" href="<%= url('sponsor.reserve.start') %>"><span><%- __('Button.NewTicket') %></span></a>
@@ -23,9 +23,9 @@ if (req.hasOwnProperty('route')) {
             <% } else if (routeName === 'sponsor.cancel') { %>
                 <a href="<%= url('sponsor.reserve.start') %>"><%- __('Button.NewTicket') %></a>
 
-            <% } else if (routeName.indexOf('mypage') < 0 && sponsorUser.isAuthenticated()) { %>
+            <% } else if (routeName.indexOf('mypage') < 0 && req.sponsorUser.isAuthenticated()) { %>
             <div class="menu-user">
-                <p class="myname"><%= __('Mr{{name}}', {name: sponsorUser.get('name')}) %></p>
+                <p class="myname"><%= __('Mr{{name}}', {name: req.sponsorUser.get('name')}) %></p>
                 <a href="<%= url('sponsor.cancel') %>"><%- __('Button.Cancel') %></a> / <a href="<%= url('sponsor.logout') %>"><%- __('Button.Logout') %></a>
             </div>
 

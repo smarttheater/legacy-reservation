@@ -4,23 +4,15 @@ const BaseUser_1 = require('./BaseUser');
  * ムビチケユーザークラス
  */
 class MvtkUser extends BaseUser_1.default {
-    static getInstance() {
-        if (MvtkUser.instance === undefined) {
-            MvtkUser.instance = new MvtkUser();
-        }
-        return MvtkUser.instance;
-    }
-    static deleteInstance() {
-        delete MvtkUser.instance;
-    }
-    initialize(session) {
-        let sessionName = MvtkUser.AUTH_SESSION_NAME;
+    static parse(session) {
+        let user = new MvtkUser();
         // セッション値からオブジェクトにセット
-        if (session.hasOwnProperty(sessionName)) {
-            for (let propertyName in session[sessionName]) {
-                this[propertyName] = session[sessionName][propertyName];
+        if (session.hasOwnProperty(MvtkUser.AUTH_SESSION_NAME)) {
+            for (let propertyName in session[MvtkUser.AUTH_SESSION_NAME]) {
+                user[propertyName] = session[MvtkUser.AUTH_SESSION_NAME][propertyName];
             }
         }
+        return user;
     }
     /**
      * サインイン中かどうか

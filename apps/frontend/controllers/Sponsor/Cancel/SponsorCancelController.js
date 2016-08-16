@@ -132,7 +132,7 @@ class SponsorCancelController extends BaseController_1.default {
                     this.logger.debug('canceling reservation...id:', reservationId);
                     Models_1.default.Reservation.update({
                         _id: reservationId,
-                        sponsor: this.sponsorUser.get('_id'),
+                        sponsor: this.req.sponsorUser.get('_id'),
                         purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR,
                         status: ReservationUtil_1.default.STATUS_RESERVED
                     }, {

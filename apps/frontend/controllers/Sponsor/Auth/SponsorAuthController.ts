@@ -11,7 +11,7 @@ export default class SponsorAuthController extends BaseController {
      * sponsor login
      */
     public login(): void {
-        if (this.sponsorUser.isAuthenticated()) {
+        if (this.req.sponsorUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
         }
 

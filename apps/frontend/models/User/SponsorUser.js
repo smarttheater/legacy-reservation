@@ -4,23 +4,15 @@ const BaseUser_1 = require('./BaseUser');
  * 外部関係者ユーザークラス
  */
 class SponsorUser extends BaseUser_1.default {
-    static getInstance() {
-        if (SponsorUser.instance === undefined) {
-            SponsorUser.instance = new SponsorUser();
-        }
-        return SponsorUser.instance;
-    }
-    static deleteInstance() {
-        delete SponsorUser.instance;
-    }
-    initialize(session) {
-        let sessionName = SponsorUser.AUTH_SESSION_NAME;
+    static parse(session) {
+        let user = new SponsorUser();
         // セッション値からオブジェクトにセット
-        if (session.hasOwnProperty(sessionName)) {
-            for (let propertyName in session[sessionName]) {
-                this[propertyName] = session[sessionName][propertyName];
+        if (session.hasOwnProperty(SponsorUser.AUTH_SESSION_NAME)) {
+            for (let propertyName in session[SponsorUser.AUTH_SESSION_NAME]) {
+                user[propertyName] = session[SponsorUser.AUTH_SESSION_NAME][propertyName];
             }
         }
+        return user;
     }
 }
 SponsorUser.AUTH_SESSION_NAME = 'TIFFFrontendSponsorAuth';

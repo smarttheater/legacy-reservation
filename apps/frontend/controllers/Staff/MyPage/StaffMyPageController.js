@@ -32,7 +32,7 @@ class StaffMyPageController extends BaseController_1.default {
         let conditions = [];
         conditions.push({
             purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
-            staff: this.staffUser.get('_id'),
+            staff: this.req.staffUser.get('_id'),
             status: ReservationUtil_1.default.STATUS_RESERVED
         });
         if (film) {
@@ -109,13 +109,13 @@ class StaffMyPageController extends BaseController_1.default {
         let watcherName = this.req.body.watcherName;
         this.logger.debug('updating watcher_name... id:', reservationId);
         Models_1.default.Reservation.findOneAndUpdate({
-            staff: this.staffUser.get('_id'),
+            staff: this.req.staffUser.get('_id'),
             status: ReservationUtil_1.default.STATUS_RESERVED,
             _id: reservationId,
         }, {
             watcher_name: watcherName,
             watcher_name_updated_at: Date.now(),
-            staff_signature: this.staffUser.get('signature'),
+            staff_signature: this.req.staffUser.get('signature'),
         }, {
             new: true
         }, (err, reservationDocument) => {

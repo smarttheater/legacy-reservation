@@ -26,7 +26,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
             }
         }
         // ログイン中であればプロセス開始
-        // if (this.memberUser.isAuthenticated()) {
+        // if (this.req.memberUser.isAuthenticated()) {
         //     return this.res.redirect(this.router.build('member.reserve.start', {}));
         // }
         if (this.req.method === 'POST') {
@@ -76,9 +76,9 @@ class MemberReserveController extends ReserveBaseController_1.default {
     }
     start() {
         // 予約状況を確認
-        this.logger.debug('checking reservation status... member:', this.memberUser.get('_id'));
+        this.logger.debug('checking reservation status... member:', this.req.memberUser.get('_id'));
         Models_1.default.Reservation.find({
-            member: this.memberUser.get('_id'),
+            member: this.req.memberUser.get('_id'),
             purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_MEMBER,
             status: ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER
         }, 'performance seat_code status', (err, reservations) => {
@@ -224,7 +224,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_RESERVED,
-            member: this.memberUser.get('_id')
+            member: this.req.memberUser.get('_id')
         }, (err, reservationDocuments) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));

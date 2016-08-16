@@ -255,7 +255,7 @@ export default class WindowReserveController extends ReserveBaseController {
             {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
-                window: this.windowUser.get('_id')
+                window: this.req.windowUser.get('_id')
             },
             (err, reservationDocuments) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));

@@ -10,7 +10,7 @@ export default class CustomerAuthController extends BaseController {
     public login(): void {
         let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('Home');
 
-        if (this.mvtkUser.isAuthenticated()) {
+        if (this.req.mvtkUser.isAuthenticated()) {
             return this.res.redirect(cb);
         }
 
@@ -38,8 +38,8 @@ export default class CustomerAuthController extends BaseController {
                                     };
 
                                     // セッションにクッキー文字列をセット
-                                    this.mvtkUser.memberInfoResult = memberInfoResult;
-                                    this.req.session[MvtkUser.AUTH_SESSION_NAME] = this.mvtkUser;
+                                    this.req.mvtkUser['memberInfoResult'] = memberInfoResult;
+                                    this.req.session[MvtkUser.AUTH_SESSION_NAME] = this.req.mvtkUser;
                                     this.res.redirect(cb);
 
                                 });

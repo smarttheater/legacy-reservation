@@ -5,30 +5,18 @@ import BaseUser from './BaseUser';
  * 電話窓口ユーザークラス
  */
 export default class TelStaffUser extends BaseUser {
-    private static instance;
-
-    public static getInstance(): TelStaffUser {
-        if (TelStaffUser.instance === undefined) {
-            TelStaffUser.instance = new TelStaffUser();
-        }
-
-        return TelStaffUser.instance;
-    }
-
-    public static deleteInstance(): void {
-        delete TelStaffUser.instance;
-    }
-
     public static AUTH_SESSION_NAME = 'TIFFFrontendTelStaffAuth';
 
-    public initialize(session: Express.Session): void {
-        let sessionName = TelStaffUser.AUTH_SESSION_NAME;
+    public static parse(session: Express.Session): TelStaffUser {
+        let user = new TelStaffUser();
 
         // セッション値からオブジェクトにセット
-        if (session.hasOwnProperty(sessionName)) {
-            for (let propertyName in session[sessionName]) {
-                this[propertyName] = session[sessionName][propertyName];
+        if (session.hasOwnProperty(TelStaffUser.AUTH_SESSION_NAME)) {
+            for (let propertyName in session[TelStaffUser.AUTH_SESSION_NAME]) {
+                user[propertyName] = session[TelStaffUser.AUTH_SESSION_NAME][propertyName];
             }
         }
+
+        return user;
     }
 }

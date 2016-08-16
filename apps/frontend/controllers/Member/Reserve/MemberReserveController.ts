@@ -30,7 +30,7 @@ export default class MemberReserveController extends ReserveBaseController {
         }
 
         // ログイン中であればプロセス開始
-        // if (this.memberUser.isAuthenticated()) {
+        // if (this.req.memberUser.isAuthenticated()) {
         //     return this.res.redirect(this.router.build('member.reserve.start', {}));
         // }
 
@@ -86,10 +86,10 @@ export default class MemberReserveController extends ReserveBaseController {
 
     public start(): void {
         // 予約状況を確認
-        this.logger.debug('checking reservation status... member:', this.memberUser.get('_id'));
+        this.logger.debug('checking reservation status... member:', this.req.memberUser.get('_id'));
         Models.Reservation.find(
             {
-                member: this.memberUser.get('_id'),
+                member: this.req.memberUser.get('_id'),
                 purchaser_group: ReservationUtil.PURCHASER_GROUP_MEMBER,
                 status: ReservationUtil.STATUS_KEPT_BY_MEMBER
             },
@@ -243,7 +243,7 @@ export default class MemberReserveController extends ReserveBaseController {
             {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
-                member: this.memberUser.get('_id')
+                member: this.req.memberUser.get('_id')
             },
             (err, reservationDocuments) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));

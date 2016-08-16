@@ -9,13 +9,6 @@ import multer = require('multer');
 import logger from './middlewares/logger';
 import benchmarks from './middlewares/benchmarks';
 import session from './middlewares/session';
-import MvtkUser from './models/User/MvtkUser';
-import MemberUser from './models/User/MemberUser';
-import StaffUser from './models/User/StaffUser';
-import SponsorUser from './models/User/SponsorUser';
-import WindowUser from './models/User/WindowUser';
-import TelStaffUser from './models/User/TelStaffUser';
-import router from './routes/router';
 import conf = require('config');
 import mongoose = require('mongoose');
 import i18n = require('i18n');
@@ -70,42 +63,32 @@ app.use((req, res, next) => {
 
 
 
-// ユーザー認証
-app.use((req, res, next) => {
-    // リクエスト毎にユーザーインスタンスを再生成する
-    MvtkUser.deleteInstance();
-    let mvtkUser = MvtkUser.getInstance();
-    mvtkUser.initialize(req.session);
-
-    MemberUser.deleteInstance();
-    let memberUser = MemberUser.getInstance();
-    memberUser.initialize(req.session);
-
-    StaffUser.deleteInstance();
-    let staffUser = StaffUser.getInstance();
-    staffUser.initialize(req.session);
-
-    SponsorUser.deleteInstance();
-    let sponsorUser = SponsorUser.getInstance();
-    sponsorUser.initialize(req.session);
-
-    WindowUser.deleteInstance();
-    let windowUser = WindowUser.getInstance();
-    windowUser.initialize(req.session);
-
-    TelStaffUser.deleteInstance();
-    let telStaffUser = TelStaffUser.getInstance();
-    telStaffUser.initialize(req.session);
-
-    next();
-});
-
 mvtkService.initialize(conf.get<string>('mvtk_wcf_endpoint'), conf.get<string>('mvtk_wcf2_endpoint'));
 
 
 
 // ルーティング
+import NamedRoutes = require('named-routes');
+import memberRouter from './routes/member';
+import sponsorRouter from './routes/sponsor';
+import staffRouter from './routes/staff';
+import telRouter from './routes/tel';
+import windowRouter from './routes/window';
+import router from './routes/router';
+
+let namedRoutes = new NamedRoutes();
+namedRoutes.extendExpress(app);
+namedRoutes.registerAppHelpers(app);
+
+// ルーティング登録の順序に注意！
+memberRouter(app);
+sponsorRouter(app);
+staffRouter(app);
+telRouter(app);
+windowRouter(app);
 router(app);
+
+
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 

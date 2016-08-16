@@ -4,23 +4,15 @@ const BaseUser_1 = require('./BaseUser');
  * 電話窓口ユーザークラス
  */
 class TelStaffUser extends BaseUser_1.default {
-    static getInstance() {
-        if (TelStaffUser.instance === undefined) {
-            TelStaffUser.instance = new TelStaffUser();
-        }
-        return TelStaffUser.instance;
-    }
-    static deleteInstance() {
-        delete TelStaffUser.instance;
-    }
-    initialize(session) {
-        let sessionName = TelStaffUser.AUTH_SESSION_NAME;
+    static parse(session) {
+        let user = new TelStaffUser();
         // セッション値からオブジェクトにセット
-        if (session.hasOwnProperty(sessionName)) {
-            for (let propertyName in session[sessionName]) {
-                this[propertyName] = session[sessionName][propertyName];
+        if (session.hasOwnProperty(TelStaffUser.AUTH_SESSION_NAME)) {
+            for (let propertyName in session[TelStaffUser.AUTH_SESSION_NAME]) {
+                user[propertyName] = session[TelStaffUser.AUTH_SESSION_NAME][propertyName];
             }
         }
+        return user;
     }
 }
 TelStaffUser.AUTH_SESSION_NAME = 'TIFFFrontendTelStaffAuth';

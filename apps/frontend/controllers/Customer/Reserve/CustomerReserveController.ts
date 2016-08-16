@@ -36,7 +36,7 @@ export default class CustomerReserveController extends ReserveBaseController {
      * ポータルからパフォーマンスと言語指定で遷移してくる
      */
     public start(): void {
-        if (!this.mvtkUser.isAuthenticated()) {
+        if (!this.req.mvtkUser.isAuthenticated()) {
             return this.res.redirect(`${this.router.build('customer.reserve.terms')}?cb=${encodeURIComponent(this.req.originalUrl)}`);
         }
 
@@ -54,10 +54,10 @@ export default class CustomerReserveController extends ReserveBaseController {
         let reservationModel = new ReservationModel();
         reservationModel.token = token;
         reservationModel.purchaserGroup = ReservationUtil.PURCHASER_GROUP_CUSTOMER;
-        reservationModel.purchaserLastName = this.mvtkUser.memberInfoResult.kiinsiKnnm;
-        reservationModel.purchaserFirstName = this.mvtkUser.memberInfoResult.kiimmiKnnm;
-        reservationModel.purchaserTel = `${this.mvtkUser.memberInfoResult.kiinshgikykNo}${this.mvtkUser.memberInfoResult.kiinshnikykNo}${this.mvtkUser.memberInfoResult.kiinknyshNo}`;
-        reservationModel.purchaserEmail = this.mvtkUser.memberInfoResult.kiinMladdr;
+        reservationModel.purchaserLastName = this.req.mvtkUser.get('memberInfoResult').kiinsiKnnm;
+        reservationModel.purchaserFirstName = this.req.mvtkUser.get('memberInfoResult').kiimmiKnnm;
+        reservationModel.purchaserTel = `${this.req.mvtkUser.get('memberInfoResult').kiinshgikykNo}${this.req.mvtkUser.get('memberInfoResult').kiinshnikykNo}${this.req.mvtkUser.get('memberInfoResult').kiinknyshNo}`;
+        reservationModel.purchaserEmail = this.req.mvtkUser.get('memberInfoResult').kiinMladdr;
 
         // パフォーマンスFIX
         this.processFixPerformance(reservationModel, performanceId, (err, reservationModel) => {
@@ -80,12 +80,12 @@ export default class CustomerReserveController extends ReserveBaseController {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             // 1アカウント1パフォーマンスごとに枚数制限
-            let lockPath = `${__dirname}/../../../../../lock/CustomerFixSeats${this.mvtkUser.memberInfoResult.kiinCd}${reservationModel.performance._id}.lock`;
+            let lockPath = `${__dirname}/../../../../../lock/CustomerFixSeats${this.req.mvtkUser.get('memberInfoResult').kiinCd}${reservationModel.performance._id}.lock`;
             lockFile.lock(lockPath, {wait: 5000}, (err) => {
 
                 Models.Reservation.count(
                     {
-                        mvtk_kiin_cd: this.mvtkUser.memberInfoResult.kiinCd,
+                        mvtk_kiin_cd: this.req.mvtkUser.get('memberInfoResult').kiinCd,
                         performance: reservationModel.performance._id,
                         seat_code: {
                             $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
@@ -280,7 +280,7 @@ export default class CustomerReserveController extends ReserveBaseController {
             {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
-                mvtk_kiin_cd: this.mvtkUser.memberInfoResult.kiinCd
+                mvtk_kiin_cd: this.req.mvtkUser.get('memberInfoResult').kiinCd
             },
             (err, reservationDocuments) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -303,7 +303,7 @@ export default class CustomerReserveController extends ReserveBaseController {
             {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
-                mvtk_kiin_cd: this.mvtkUser.memberInfoResult.kiinCd
+                mvtk_kiin_cd: this.req.mvtkUser.get('memberInfoResult').kiinCd
             },
             (err, reservationDocuments) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));

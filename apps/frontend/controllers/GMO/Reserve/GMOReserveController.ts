@@ -210,10 +210,10 @@ export default class GMOReserveController extends ReserveBaseController {
                 let purchaserGroup = reservations[0].get('purchaser_group');
                 switch (purchaserGroup) {
                     case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-                        if (!this.mvtkUser.isAuthenticated()) {
+                        if (!this.req.mvtkUser.isAuthenticated()) {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
-                        } else if (this.mvtkUser.memberInfoResult.kiinCd !== reservations[0].get('mvtk_kiin_cd')) {
+                        } else if (this.req.mvtkUser.get('memberInfoResult').kiinCd !== reservations[0].get('mvtk_kiin_cd')) {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                         }
@@ -221,10 +221,10 @@ export default class GMOReserveController extends ReserveBaseController {
                         break;
 
                     case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                        if (!this.memberUser.isAuthenticated()) {
+                        if (!this.req.memberUser.isAuthenticated()) {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
-                        } else if (this.memberUser.get('_id') !== reservations[0].get('member').toString()) {
+                        } else if (this.req.memberUser.get('_id') !== reservations[0].get('member').toString()) {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                         }

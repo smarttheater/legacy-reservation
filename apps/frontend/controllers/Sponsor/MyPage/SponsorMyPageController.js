@@ -22,7 +22,7 @@ class SponsorMyPageController extends BaseController_1.default {
         let conditions = [];
         conditions.push({
             purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR,
-            sponsor: this.sponsorUser.get('_id'),
+            sponsor: this.req.sponsorUser.get('_id'),
             status: ReservationUtil_1.default.STATUS_RESERVED
         });
         if (tel) {

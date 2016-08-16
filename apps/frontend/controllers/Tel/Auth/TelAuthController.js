@@ -13,7 +13,7 @@ class TelAuthController extends BaseController_1.default {
      * 窓口担当者ログイン
      */
     login() {
-        if (this.telStaffUser.isAuthenticated()) {
+        if (this.req.telStaffUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('tel.mypage'));
         }
         if (this.req.method === 'POST') {

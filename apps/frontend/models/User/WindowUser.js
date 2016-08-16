@@ -4,23 +4,15 @@ const BaseUser_1 = require('./BaseUser');
  * 窓口ユーザークラス
  */
 class WindowUser extends BaseUser_1.default {
-    static getInstance() {
-        if (WindowUser.instance === undefined) {
-            WindowUser.instance = new WindowUser();
-        }
-        return WindowUser.instance;
-    }
-    static deleteInstance() {
-        delete WindowUser.instance;
-    }
-    initialize(session) {
-        let sessionName = WindowUser.AUTH_SESSION_NAME;
+    static parse(session) {
+        let user = new WindowUser();
         // セッション値からオブジェクトにセット
-        if (session.hasOwnProperty(sessionName)) {
-            for (let propertyName in session[sessionName]) {
-                this[propertyName] = session[sessionName][propertyName];
+        if (session.hasOwnProperty(WindowUser.AUTH_SESSION_NAME)) {
+            for (let propertyName in session[WindowUser.AUTH_SESSION_NAME]) {
+                user[propertyName] = session[WindowUser.AUTH_SESSION_NAME][propertyName];
             }
         }
+        return user;
     }
 }
 WindowUser.AUTH_SESSION_NAME = 'TIFFFrontendWindowAuth';

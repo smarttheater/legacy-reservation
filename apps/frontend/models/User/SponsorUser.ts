@@ -5,21 +5,20 @@ import BaseUser from './BaseUser';
  * 外部関係者ユーザークラス
  */
 export default class SponsorUser extends BaseUser {
-    private static instance;
+    public static AUTH_SESSION_NAME = 'TIFFFrontendSponsorAuth';
 
-    public static getInstance(): SponsorUser {
-        if (SponsorUser.instance === undefined) {
-            SponsorUser.instance = new SponsorUser();
+    public static parse(session: Express.Session): SponsorUser {
+        let user = new SponsorUser();
+
+        // セッション値からオブジェクトにセット
+        if (session.hasOwnProperty(SponsorUser.AUTH_SESSION_NAME)) {
+            for (let propertyName in session[SponsorUser.AUTH_SESSION_NAME]) {
+                user[propertyName] = session[SponsorUser.AUTH_SESSION_NAME][propertyName];
+            }
         }
 
-        return SponsorUser.instance;
+        return user;
     }
-
-    public static deleteInstance(): void {
-        delete SponsorUser.instance;
-    }
-
-    public static AUTH_SESSION_NAME = 'TIFFFrontendSponsorAuth';
 
     /** 購入フロー中のプロフィール */
     public profile: {
@@ -28,15 +27,4 @@ export default class SponsorUser extends BaseUser {
         tel: string,
         email: string
     };
-
-    public initialize(session: Express.Session): void {
-        let sessionName = SponsorUser.AUTH_SESSION_NAME;
-
-        // セッション値からオブジェクトにセット
-        if (session.hasOwnProperty(sessionName)) {
-            for (let propertyName in session[sessionName]) {
-                this[propertyName] = session[sessionName][propertyName];
-            }
-        }
-    }
 }

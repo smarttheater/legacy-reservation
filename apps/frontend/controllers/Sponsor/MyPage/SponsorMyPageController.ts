@@ -26,7 +26,7 @@ export default class SponsorMyPageController extends BaseController {
         conditions.push(
             {
                 purchaser_group: ReservationUtil.PURCHASER_GROUP_SPONSOR,
-                sponsor: this.sponsorUser.get('_id'),
+                sponsor: this.req.sponsorUser.get('_id'),
                 status: ReservationUtil.STATUS_RESERVED
             }
         );

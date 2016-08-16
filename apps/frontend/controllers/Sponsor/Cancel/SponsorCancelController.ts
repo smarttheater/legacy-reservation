@@ -156,7 +156,7 @@ export default class SponsorCancelController extends BaseController {
                     Models.Reservation.update(
                         {
                             _id: reservationId,
-                            sponsor: this.sponsorUser.get('_id'),
+                            sponsor: this.req.sponsorUser.get('_id'),
                             purchaser_group: ReservationUtil.PURCHASER_GROUP_SPONSOR,
                             status: ReservationUtil.STATUS_RESERVED
                         },

@@ -55,21 +55,6 @@ export default class BaseController
         this.router = this.req.app.namedRoutes;
 
 
-        this.mvtkUser = MvtkUser.getInstance();
-        this.memberUser = MemberUser.getInstance();
-        this.staffUser = StaffUser.getInstance();
-        this.sponsorUser = SponsorUser.getInstance();
-        this.windowUser = WindowUser.getInstance();
-        this.telStaffUser = TelStaffUser.getInstance();
-
-        // ユーザーインスタンスをテンプレート変数へ渡す
-        this.res.locals.mvtkUser = this.mvtkUser;
-        this.res.locals.memberUser = this.memberUser;
-        this.res.locals.staffUser = this.staffUser;
-        this.res.locals.sponsorUser = this.sponsorUser;
-        this.res.locals.windowUser = this.windowUser;
-        this.res.locals.telStaffUser = this.telStaffUser;
-
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;
         this.res.locals.util = util;

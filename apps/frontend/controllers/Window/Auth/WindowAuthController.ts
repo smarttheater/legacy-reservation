@@ -11,7 +11,7 @@ export default class WindowAuthController extends BaseController {
      * 窓口担当者ログイン
      */
     public login(): void {
-        if (this.windowUser.isAuthenticated()) {
+        if (this.req.windowUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('window.mypage'));
         }
 

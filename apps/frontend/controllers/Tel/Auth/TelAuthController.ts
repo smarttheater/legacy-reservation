@@ -11,7 +11,7 @@ export default class TelAuthController extends BaseController {
      * 窓口担当者ログイン
      */
     public login(): void {
-        if (this.telStaffUser.isAuthenticated()) {
+        if (this.req.telStaffUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('tel.mypage'));
         }
 

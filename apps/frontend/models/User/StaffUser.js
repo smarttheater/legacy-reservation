@@ -4,23 +4,15 @@ const BaseUser_1 = require('./BaseUser');
  * 内部関係者ユーザークラス
  */
 class StaffUser extends BaseUser_1.default {
-    static getInstance() {
-        if (StaffUser.instance === undefined) {
-            StaffUser.instance = new StaffUser();
-        }
-        return StaffUser.instance;
-    }
-    static deleteInstance() {
-        delete StaffUser.instance;
-    }
-    initialize(session) {
-        let sessionName = StaffUser.AUTH_SESSION_NAME;
+    static parse(session) {
+        let user = new StaffUser();
         // セッション値からオブジェクトにセット
-        if (session.hasOwnProperty(sessionName)) {
-            for (let propertyName in session[sessionName]) {
-                this[propertyName] = session[sessionName][propertyName];
+        if (session.hasOwnProperty(StaffUser.AUTH_SESSION_NAME)) {
+            for (let propertyName in session[StaffUser.AUTH_SESSION_NAME]) {
+                user[propertyName] = session[StaffUser.AUTH_SESSION_NAME][propertyName];
             }
         }
+        return user;
     }
 }
 StaffUser.AUTH_SESSION_NAME = 'TIFFFrontendStaffAuth';
