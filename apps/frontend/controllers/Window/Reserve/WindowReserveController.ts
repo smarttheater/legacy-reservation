@@ -4,8 +4,6 @@ import Util from '../../../../common/Util/Util';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
-import reserveTicketForm from '../../../forms/Reserve/reserveTicketForm';
-import reserveProfileForm from '../../../forms/Reserve/reserveProfileForm';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
@@ -22,6 +20,10 @@ export default class WindowReserveController extends ReserveBaseController {
         let reservationModel = new ReservationModel();
         reservationModel.token = token;
         reservationModel.purchaserGroup = ReservationUtil.PURCHASER_GROUP_WINDOW
+        reservationModel.purchaserLastName = '';
+        reservationModel.purchaserFirstName = '';
+        reservationModel.purchaserTel = '';
+        reservationModel.purchaserEmail = '';
 
         // スケジュール選択へ
         this.logger.debug('saving reservationModel... ', reservationModel);
@@ -152,52 +154,20 @@ export default class WindowReserveController extends ReserveBaseController {
             reservationModel.paymentMethod = null;
 
             if (this.req.method === 'POST') {
-                reserveTicketForm(this.req, this.res, (err) => {
-                    if (this.req.form.isValid) {
-                        // 座席選択情報を保存して座席選択へ
-                        let choices = JSON.parse(this.req.form['choices']);
-
-                        if (Array.isArray(choices)) {
-                            choices.forEach((choice) => {
-                                let reservation = reservationModel.getReservation(choice.seat_code);
-
-                                let ticketType = reservationModel.ticketTypes.find((ticketType) => {
-                                    return (ticketType.code === choice.ticket_type_code);
-                                });
-                                if (!ticketType) {
-                                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                }
-
-                                reservation.ticket_type_code = ticketType.code;
-                                reservation.ticket_type_name = ticketType.name;
-                                reservation.ticket_type_name_en = ticketType.name_en;
-                                reservation.ticket_type_charge = ticketType.charge;;
-
-                                reservationModel.setReservation(reservation._id, reservation);
-                            });
-
-                            this.logger.debug('saving reservationModel... ');
-                            reservationModel.save((err) => {
-                                this.res.redirect(this.router.build('window.reserve.profile', {token: token}));
-                            });
-
-                        } else {
-                            this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        }
-
-                    } else {
+                this.processFixTickets(reservationModel, (err, reservationModel) => {
+                    if (err) {
                         this.res.redirect(this.router.build('window.reserve.tickets', {token: token}));
-
+                    } else {
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('window.reserve.profile', {token: token}));
+                        });
                     }
-
                 });
             } else {
                 this.res.render('window/reserve/tickets', {
                     reservationModel: reservationModel,
                 });
-
             }
-
         });
     }
 
@@ -210,47 +180,32 @@ export default class WindowReserveController extends ReserveBaseController {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                let form = reserveProfileForm(this.req);
-                form(this.req, this.res, (err) => {
-                    if (this.req.form.isValid) {
-                        // 購入者情報を保存して座席選択へ
-                        // reservationModel.profile = {
-                        //     last_name: this.req.form['lastName'],
-                        //     first_name: this.req.form['firstName'],
-                        //     email: this.req.form['email'],
-                        //     tel: this.req.form['tel']
-                        // };
-
-                        reservationModel.paymentMethod = this.req.form['paymentMethod'];
-
-                        this.logger.debug('saving reservationModel... ');
-                        reservationModel.save((err) => {
-                            this.res.redirect(this.router.build('window.reserve.confirm', {token: token}));
-                        });
-
-                    } else {
+                this.processFixProfile(reservationModel, (err, reservationModel) => {
+                    if (err) {
                         this.res.render('window/reserve/profile', {
                             reservationModel: reservationModel
                         });
-
+                    } else {
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('window.reserve.confirm', {token: token}));
+                        });
                     }
-
                 });
-
             } else {
-                this.res.locals.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
-
                 // セッションに情報があれば、フォーム初期値設定
-                if (reservationModel.paymentMethod) {
-                    this.res.locals.paymentMethod = reservationModel.paymentMethod;
-                }
+                let email = reservationModel.purchaserEmail;
+                this.res.locals.lastName = (reservationModel.purchaserLastName) ? reservationModel.purchaserLastName : '';
+                this.res.locals.firstName = (reservationModel.purchaserFirstName) ? reservationModel.purchaserFirstName : '';
+                this.res.locals.tel = (reservationModel.purchaserTel) ? reservationModel.purchaserTel : '';
+                this.res.locals.email = (email) ? email : '';
+                this.res.locals.emailConfirm = (email) ? email.substr(0, email.indexOf('@')) : '';
+                this.res.locals.emailConfirmDomain = (email) ? email.substr(email.indexOf('@') + 1) : '';
+                this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
 
                 this.res.render('window/reserve/profile', {
                     reservationModel: reservationModel
                 });
-
             }
-
         });
     }
 

@@ -1,11 +1,8 @@
 "use strict";
 const ReserveBaseController_1 = require('../../ReserveBaseController');
-const SponsorUser_1 = require('../../../models/User/SponsorUser');
 const Util_1 = require('../../../../common/Util/Util');
 const reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerformanceForm');
 const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
-const reserveTicketForm_1 = require('../../../forms/Reserve/reserveTicketForm');
-const reserveProfileForm_1 = require('../../../forms/Reserve/reserveProfileForm');
 const Models_1 = require('../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
@@ -22,6 +19,10 @@ class SponsorReserveController extends ReserveBaseController_1.default {
         let reservationModel = new ReservationModel_1.default();
         reservationModel.token = token;
         reservationModel.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR;
+        reservationModel.purchaserLastName = '';
+        reservationModel.purchaserFirstName = '';
+        reservationModel.purchaserTel = '';
+        reservationModel.purchaserEmail = '';
         this.logger.debug('saving reservationModel... ', reservationModel);
         reservationModel.save((err) => {
             // パフォーマンス指定or無指定どちらか判断
@@ -203,37 +204,14 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
-                reserveTicketForm_1.default(this.req, this.res, (err) => {
-                    if (this.req.form.isValid) {
-                        // 座席選択情報を保存して座席選択へ
-                        let choices = JSON.parse(this.req.form['choices']);
-                        if (Array.isArray(choices)) {
-                            choices.forEach((choice) => {
-                                let reservation = reservationModel.getReservation(choice.seat_code);
-                                let ticketType = reservationModel.ticketTypes.find((ticketType) => {
-                                    return (ticketType.code === choice.ticket_type_code);
-                                });
-                                if (!ticketType) {
-                                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                }
-                                reservation.ticket_type_code = ticketType.code;
-                                reservation.ticket_type_name = ticketType.name;
-                                reservation.ticket_type_name_en = ticketType.name_en;
-                                reservation.ticket_type_charge = ticketType.charge;
-                                ;
-                                reservationModel.setReservation(reservation._id, reservation);
-                            });
-                            this.logger.debug('saving reservationModel... ', reservationModel);
-                            reservationModel.save((err) => {
-                                this.res.redirect(this.router.build('sponsor.reserve.profile', { token: token }));
-                            });
-                        }
-                        else {
-                            this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        }
+                this.processFixTickets(reservationModel, (err, reservationModel) => {
+                    if (err) {
+                        this.res.redirect(this.router.build('sponsor.reserve.tickets', { token: token }));
                     }
                     else {
-                        this.res.redirect(this.router.build('sponsor.reserve.tickets', { token: token }));
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('sponsor.reserve.profile', { token: token }));
+                        });
                     }
                 });
             }
@@ -253,63 +231,29 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
-                let form = reserveProfileForm_1.default(this.req);
-                form(this.req, this.res, (err) => {
-                    if (this.req.form.isValid) {
-                        // 購入者情報を保存して座席選択へ
-                        reservationModel.profile = {
-                            last_name: this.req.form['lastName'],
-                            first_name: this.req.form['firstName'],
-                            email: this.req.form['email'],
-                            tel: this.req.form['tel'],
-                        };
-                        this.logger.debug('saving reservationModel... ', reservationModel);
-                        reservationModel.save((err) => {
-                            // ユーザーセッションにプローフィール格納
-                            this.sponsorUser.profile = {
-                                last_name: this.req.form['lastName'],
-                                first_name: this.req.form['firstName'],
-                                email: this.req.form['email'],
-                                tel: this.req.form['tel']
-                            };
-                            this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME] = this.sponsorUser;
-                            this.res.redirect(this.router.build('sponsor.reserve.confirm', { token: token }));
+                this.processFixProfile(reservationModel, (err, reservationModel) => {
+                    if (err) {
+                        this.res.render('sponsor/reserve/profile', {
+                            reservationModel: reservationModel
                         });
                     }
                     else {
-                        this.res.render('sponsor/reserve/profile', {
-                            reservationModel: reservationModel,
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('sponsor.reserve.confirm', { token: token }));
                         });
                     }
                 });
             }
             else {
-                this.res.locals.lastName = '';
-                this.res.locals.firstName = '';
-                this.res.locals.tel = '';
-                this.res.locals.email = '';
-                this.res.locals.emailConfirm = '';
-                this.res.locals.emailConfirmDomain = '';
-                // ユーザーセッションに情報があれば、フォーム初期値設定
-                if (this.sponsorUser.profile) {
-                    let email = this.sponsorUser.profile.email;
-                    this.res.locals.lastName = this.sponsorUser.profile.last_name;
-                    this.res.locals.firstName = this.sponsorUser.profile.first_name;
-                    this.res.locals.tel = this.sponsorUser.profile.tel;
-                    this.res.locals.email = email;
-                    this.res.locals.emailConfirm = email.substr(0, email.indexOf('@'));
-                    this.res.locals.emailConfirmDomain = email.substr(email.indexOf('@') + 1);
-                }
                 // セッションに情報があれば、フォーム初期値設定
-                if (reservationModel.profile) {
-                    let email = reservationModel.profile.email;
-                    this.res.locals.lastName = reservationModel.profile.last_name;
-                    this.res.locals.firstName = reservationModel.profile.first_name;
-                    this.res.locals.tel = reservationModel.profile.tel;
-                    this.res.locals.email = email;
-                    this.res.locals.emailConfirm = email.substr(0, email.indexOf('@'));
-                    this.res.locals.emailConfirmDomain = email.substr(email.indexOf('@') + 1);
-                }
+                let email = reservationModel.purchaserEmail;
+                this.res.locals.lastName = (reservationModel.purchaserLastName) ? reservationModel.purchaserLastName : '';
+                this.res.locals.firstName = (reservationModel.purchaserFirstName) ? reservationModel.purchaserFirstName : '';
+                this.res.locals.tel = (reservationModel.purchaserTel) ? reservationModel.purchaserTel : '';
+                this.res.locals.email = (email) ? email : '';
+                this.res.locals.emailConfirm = (email) ? email.substr(0, email.indexOf('@')) : '';
+                this.res.locals.emailConfirmDomain = (email) ? email.substr(email.indexOf('@') + 1) : '';
+                this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : '';
                 this.res.render('sponsor/reserve/profile', {
                     reservationModel: reservationModel,
                 });

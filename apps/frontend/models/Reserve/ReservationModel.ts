@@ -66,14 +66,14 @@ export default class ReservationModel {
     /** 予約座席コードリスト */
     public seatCodes: Array<string>;
 
-    /** プロフィール */
-    public profile: {
-        last_name: string,
-        first_name: string,
-        email: string,
-        tel: string,
-    };
-
+    /** 購入者セイ */
+    public purchaserLastName: string;
+    /** 購入者メイ */
+    public purchaserFirstName: string;
+    /** 購入者メールアドレス */
+    public purchaserEmail: string;
+    /** 購入者電話番号 */
+    public purchaserTel: string;
     /** 決済方法 */
     public paymentMethod: string;
 
@@ -261,11 +261,10 @@ export default class ReservationModel {
                     film_name: this.performance.film.name,
                     film_name_en: this.performance.film.name_en,
 
-                    purchaser_last_name: (this.profile) ? this.profile.last_name : undefined,
-                    purchaser_first_name: (this.profile) ? this.profile.first_name : undefined,
-                    purchaser_email: (this.profile) ? this.profile.email : undefined,
-                    purchaser_tel: (this.profile) ? this.profile.tel : undefined,
-
+                    purchaser_last_name: (this.purchaserLastName) ? this.purchaserLastName : undefined,
+                    purchaser_first_name: (this.purchaserFirstName) ? this.purchaserFirstName : undefined,
+                    purchaser_email: (this.purchaserEmail) ? this.purchaserEmail : undefined,
+                    purchaser_tel: (this.purchaserTel) ? this.purchaserTel : undefined,
                     payment_method: (this.paymentMethod) ? this.paymentMethod : undefined,
 
                     ticket_type_code: reservation.ticket_type_code,

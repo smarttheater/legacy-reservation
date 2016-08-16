@@ -8,6 +8,8 @@ import ReservationModel from '../models/Reserve/ReservationModel';
 import moment = require('moment');
 import fs = require('fs-extra');
 import express = require('express');
+import reserveTicketForm from '../forms/Reserve/reserveTicketForm';
+import reserveProfileForm from '../forms/Reserve/reserveProfileForm';
 
 /**
  * 予約フローベースコントローラー
@@ -286,6 +288,80 @@ export default class ReserveBaseController extends BaseController {
         }, (err) => {
             cb(err, reservationModel);
 
+        });
+    }
+
+    /**
+     * 券種FIXプロセス
+     */
+    public processFixTickets(reservationModel: ReservationModel, cb: (err: Error, reservationModel: ReservationModel) => void): void {
+        reserveTicketForm(this.req, this.res, (err) => {
+            if (this.req.form.isValid) {
+                // 座席選択情報を保存して座席選択へ
+                let choices = JSON.parse(this.req.form['choices']);
+
+                if (Array.isArray(choices)) {
+                    choices.forEach((choice) => {
+                        let ticketType = reservationModel.ticketTypes.find((ticketType) => {
+                            return (ticketType.code === choice.ticket_type_code);
+                        });
+                        if (!ticketType) {
+                            return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+                        }
+
+                        let reservation = reservationModel.getReservation(choice.seat_code);
+                        reservation.ticket_type_code = ticketType.code;
+                        reservation.ticket_type_name = ticketType.name;
+                        reservation.ticket_type_name_en = ticketType.name_en;
+                        reservation.ticket_type_charge = ticketType.charge;
+                        reservation.watcher_name = choice.watcher_name;
+
+                        reservationModel.setReservation(reservation._id, reservation);
+                    });
+
+                    cb(null, reservationModel);
+                } else {
+                    cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+                }
+            } else {
+                cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            }
+        });
+    }
+
+    /**
+     * 券種FIXプロセス
+     */
+    public processFixProfile(reservationModel: ReservationModel, cb: (err: Error, reservationModel: ReservationModel) => void): void {
+        let form = reserveProfileForm(this.req);
+        form(this.req, this.res, (err) => {
+            if (err) return cb(new Error('Message.UnexpectedError'), reservationModel);
+
+            if (this.req.form.isValid) {
+                // 購入者情報を保存して座席選択へ
+                reservationModel.purchaserLastName = this.req.form['lastName'];
+                reservationModel.purchaserFirstName = this.req.form['firstName'];
+                reservationModel.purchaserEmail = this.req.form['email'];
+                reservationModel.purchaserTel = this.req.form['tel'];
+                reservationModel.paymentMethod = this.req.form['paymentMethod'];
+
+                // TODO メルマガの場合強制的にクレジット
+                // TODO 電話の場合強制的にコンビニ
+                // TODO 内部と外部の場合、決済方法は空
+
+                // TODO ユーザーセッションにプローフィール格納
+                // this.sponsorUser.profile = {
+                //     last_name: this.req.form['lastName'],
+                //     first_name: this.req.form['firstName'],
+                //     email: this.req.form['email'],
+                //     tel: this.req.form['tel']
+                // };
+                // this.req.session[SponsorUser.AUTH_SESSION_NAME] = this.sponsorUser;
+
+                cb(null, reservationModel);
+            } else {
+                cb(new Error('Message.Invalid'), reservationModel);
+            }
         });
     }
 

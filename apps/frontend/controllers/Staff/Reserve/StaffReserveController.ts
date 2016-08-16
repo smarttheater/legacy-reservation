@@ -3,8 +3,6 @@ import StaffUser from '../../../models/User/StaffUser';
 import Util from '../../../../common/Util/Util';
 import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
-import reserveTicketForm from '../../../forms/Reserve/reserveTicketForm';
-
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
@@ -147,54 +145,20 @@ export default class StaffReserveController extends ReserveBaseController {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                reserveTicketForm(this.req, this.res, (err) => {
-                    if (this.req.form.isValid) {
-
-                        // 座席選択情報を保存して座席選択へ
-                        let choices = JSON.parse(this.req.form['choices']);
-
-                        if (Array.isArray(choices)) {
-                            choices.forEach((choice) => {
-                                let reservation = reservationModel.getReservation(choice.seat_code);
-
-                                let ticketType = reservationModel.ticketTypes.find((ticketType) => {
-                                    return (ticketType.code === choice.ticket_type_code);
-                                });
-                                if (!ticketType) {
-                                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                }
-
-                                reservation.ticket_type_code = ticketType.code;
-                                reservation.ticket_type_name = ticketType.name;
-                                reservation.ticket_type_name_en = ticketType.name_en;
-                                reservation.ticket_type_charge = ticketType.charge;;
-                                reservation.watcher_name = choice.watcher_name;
-
-                                reservationModel.setReservation(reservation._id, reservation);
-                            });
-
-                            this.logger.debug('saving reservationModel... ', reservationModel);
-                            reservationModel.save((err) => {
-                                this.res.redirect(this.router.build('staff.reserve.confirm', {token: token}));
-                            });
-
-                        } else {
-                            this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        }
-
-                    } else {
+                this.processFixTickets(reservationModel, (err, reservationModel) => {
+                    if (err) {
                         this.res.redirect(this.router.build('staff.reserve.tickets', {token: token}));
-
+                    } else {
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('staff.reserve.confirm', {token: token}));
+                        });
                     }
-
                 });
             } else {
                 this.res.render('staff/reserve/tickets', {
                     reservationModel: reservationModel,
                 });
-
             }
-
         });
     }
 
