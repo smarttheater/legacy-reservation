@@ -1,6 +1,5 @@
 declare namespace Express {
     export interface Request {
-        mvtkUser?: MvtkUser;
         memberUser?: MemberUser;
         sponsorUser?: SponsorUser;
         staffUser?: StaffUser;
@@ -13,8 +12,6 @@ declare namespace Express {
         public get(key: string): any;
     }
 
-    export class MvtkUser extends BaseUser {
-    }
     export class MemberUser extends BaseUser {
     }
     export class SponsorUser extends BaseUser {

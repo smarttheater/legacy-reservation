@@ -1,6 +1,5 @@
 import Util from '../../../common/Util/Util';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
-import mvtkService = require('@motionpicture/mvtk-service');
 import GMOUtil from '../../../common/Util/GMO/GMOUtil';
 
 /**

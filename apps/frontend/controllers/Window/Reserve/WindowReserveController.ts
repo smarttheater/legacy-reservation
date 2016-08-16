@@ -1,5 +1,4 @@
 import ReserveBaseController from '../../ReserveBaseController';
-import MvtkUser from '../../../models/User/MvtkUser';
 import Util from '../../../../common/Util/Util';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';

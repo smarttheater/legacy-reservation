@@ -30,34 +30,10 @@
     qui officia, earum ullam labore exercitationem dicta cupiditate, ducimus explicabo animi quas!
 </p>
 
-<div class="loginform loginform-mvtk">
-    <h2><img src="/images/mvtk/logo.gif" alt=""><%- __('Label.Login') %></h2>
-    <p class="guidetext">本サービスでチケットをご購入いただく際はムビチケログインが必須となります。</p>
-
-    <% if (req.form) { %>
-    <div class="alert alert-danger" role="alert">
-        <a href="javascript:void(0)" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-        <% req.form.errors.forEach(function (error) { %>
-        <%- error %><br>
-        <% }) %>
-    </div>
-    <% } %>
-
+<div class="loginform loginform-member">
     <form method="post">
-        <div class="form-group form-inline">
-            <labeL><%- __('Form.FieldName.email') %></labeL>
-            <input type="text" name="email" id="id_email" class="form-control" value="<%- email %>">
-        </div>
-        <div class="form-group form-inline">
-            <label for="id_password"><%- __('Form.FieldName.password') %></label>
-            <input type="password" name="password" id="id_password" class="form-control" value="<%- password %>">
-        </div>
-        <a class="btn btn-big btn-login" href="javascript:void(0);"><span>利用規約に同意してログイン</span></a>
+        <a class="btn btn-big btn-login" href="javascript:void(0);"><span>利用規約に同意する</span></a>
     </form>
-    <hr>
-    <p class="guidetext">ムビチケ非会員の方はご利用規約に同意した上で以下よりムビチケ会員登録してください。</p>
-    <a class="btn btn-big" href="https://www.movieticket.jp/Account/Terms" target="_blank"><span>会員登録 (無料)</span></a>
-    <a class="link-about" href="http://www.movieticket.jp/Global/ForBeginner/" target="_blank">ムビチケとは？</a>
 </div>
 
 <script>

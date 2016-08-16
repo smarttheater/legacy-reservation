@@ -6,7 +6,6 @@
     "start": "node ./index.js"
   },
   "dependencies": {
-    "@motionpicture/mvtk-service": "^1.0.8",
     "azure-storage": "^0.10.0",
     "body-parser": "^1.15.2",
     "bwip-js": "^1.0.5",

@@ -12,7 +12,6 @@ import session from './middlewares/session';
 import conf = require('config');
 import mongoose = require('mongoose');
 import i18n = require('i18n');
-import mvtkService = require('@motionpicture/mvtk-service');
 
 let app = express();
 
@@ -63,7 +62,6 @@ app.use((req, res, next) => {
 
 
 
-mvtkService.initialize(conf.get<string>('mvtk_wcf_endpoint'), conf.get<string>('mvtk_wcf2_endpoint'));
 
 
 

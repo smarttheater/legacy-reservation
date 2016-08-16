@@ -10,12 +10,6 @@ if (req.hasOwnProperty('route')) {
         <a href="/" class="header-logo"><img src="/images/common/logo.png" alt="TIFF"></a>
 
         <div class="header-menu">
-            <% if (req.mvtkUser.isAuthenticated()) { %>
-            <div class="menu-user">
-                <p class="myname"><%= __('Mr{{name}}', {name: req.mvtkUser.memberInfoResult.kiinsiNm + ' ' + req.mvtkUser.memberInfoResult.kiimmiNm}) %></p>
-                <a class="link-cancel" href="<%- url('customer.logout') %>"><%- __('Button.LogoutAndCancel') %></a>
-            </div>
-            <% } %>
     
         </div>
     </div>

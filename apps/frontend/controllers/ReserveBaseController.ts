@@ -246,7 +246,6 @@ export default class ReserveBaseController extends BaseController {
                         performance: reservationModel.performance._id,
                         seat_code: seatCode,
                         status: ReservationUtil.STATUS_TEMPORARY,
-                        mvtk_kiin_cd: (purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER) ? this.req.mvtkUser.get('memberInfoResult').kiinCd : undefined,
                         staff: (purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) ? this.req.staffUser.get('_id') : undefined,
                         sponsor: (purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR) ? this.req.sponsorUser.get('_id') : undefined,
                         member: (purchaserGroup === ReservationUtil.PURCHASER_GROUP_MEMBER) ? this.req.memberUser.get('_id') : undefined,
@@ -378,7 +377,6 @@ export default class ReserveBaseController extends BaseController {
                 let commonUpdate = {};
                 switch (reservationModel.purchaserGroup) {
                     case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-                        commonUpdate['mvtk_kiin_cd'] = this.req.mvtkUser.get('memberInfoResult').kiinCd;
                         break;
 
                     case ReservationUtil.PURCHASER_GROUP_MEMBER:

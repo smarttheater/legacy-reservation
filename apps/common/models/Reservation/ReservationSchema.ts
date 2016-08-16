@@ -64,8 +64,6 @@ let Schema = new mongoose.Schema({
     watcher_name: String, // 配布先
     watcher_name_updated_at: Date, // 配布先更新日時 default: Date.now
 
-    mvtk_kiin_cd: String, // ムビチケ会員ID
-
     sponsor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Sponsor'

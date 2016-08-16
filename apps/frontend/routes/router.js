@@ -3,15 +3,12 @@ const AdmissionController_1 = require('../controllers/Admission/AdmissionControl
 const GMOReserveController_1 = require('../controllers/GMO/Reserve/GMOReserveController');
 const ReserveController_1 = require('../controllers/Reserve/ReserveController');
 const LanguageController_1 = require('../controllers/Language/LanguageController');
-const CustomerAuthController_1 = require('../controllers/Customer/Auth/CustomerAuthController');
 const CustomerReserveController_1 = require('../controllers/Customer/Reserve/CustomerReserveController');
 const ErrorController_1 = require('../controllers/Error/ErrorController');
 const IndexController_1 = require('../controllers/Index/IndexController');
-const MvtkUser_1 = require('../models/User/MvtkUser');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     let base = (req, res, next) => {
-        req.mvtkUser = MvtkUser_1.default.parse(req.session);
         next();
     };
     app.get('/', 'Home', base, (req, res, next) => { (new IndexController_1.default(req, res, next)).index(); });
@@ -28,33 +25,17 @@ exports.default = (app) => {
     // admission
     app.get('/admission/performances', 'admission.performances', base, (req, res, next) => { (new AdmissionController_1.default(req, res, next)).performances(); });
     app.get('/admission/performance/:id/confirm', 'admission.confirm', base, (req, res, next) => { (new AdmissionController_1.default(req, res, next)).confirm(); });
-    let authenticationCustomer = (req, res, next) => {
-        if (!req.mvtkUser.isAuthenticated()) {
-            if (req.xhr) {
-                res.json({
-                    message: 'login required.'
-                });
-            }
-            else {
-                res.redirect(`/customer/login?cb=${req.originalUrl}`);
-            }
-        }
-        else {
-            next();
-        }
-    };
     // TODO ムビチケ会員登録
     // 一般
     app.all('/customer/reserve/performances', 'customer.reserve.performances', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).performances(); });
     app.get('/customer/reserve/start', 'customer.reserve.start', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).start(); });
-    app.all('/customer/login', 'customer.reserve.terms', base, (req, res, next) => { (new CustomerAuthController_1.default(req, res, next)).login(); });
-    app.all('/customer/logout', 'customer.logout', base, authenticationCustomer, (req, res, next) => { (new CustomerAuthController_1.default(req, res, next)).logout(); });
-    app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', base, authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).seats(); });
-    app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', base, authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).tickets(); });
-    app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', base, authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).profile(); });
-    app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', base, authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).confirm(); });
-    app.get('/customer/reserve/:paymentNo/waitingSettlement', 'customer.reserve.waitingSettlement', base, authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).waitingSettlement(); });
-    app.get('/customer/reserve/:paymentNo/complete', 'customer.reserve.complete', base, authenticationCustomer, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).complete(); });
+    app.all('/customer/reserve/:token/terms', 'customer.reserve.terms', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).terms(); });
+    app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).seats(); });
+    app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).tickets(); });
+    app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).profile(); });
+    app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).confirm(); });
+    app.get('/customer/reserve/:paymentNo/waitingSettlement', 'customer.reserve.waitingSettlement', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).waitingSettlement(); });
+    app.get('/customer/reserve/:paymentNo/complete', 'customer.reserve.complete', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).complete(); });
     app.get('/Error/NotFound', 'Error.NotFound', base, (req, res, next) => { (new ErrorController_1.default(req, res, next)).notFound(); });
     // 404
     app.use((req, res, next) => {

@@ -12,7 +12,6 @@ const session_1 = require('./middlewares/session');
 const conf = require('config');
 const mongoose = require('mongoose');
 const i18n = require('i18n');
-const mvtkService = require('@motionpicture/mvtk-service');
 let app = express();
 app.use(partials()); // レイアウト&パーシャルサポート
 app.use(useragent.express()); // ユーザーエージェント
@@ -47,7 +46,6 @@ app.use((req, res, next) => {
     }
     next();
 });
-mvtkService.initialize(conf.get('mvtk_wcf_endpoint'), conf.get('mvtk_wcf2_endpoint'));
 // ルーティング
 const NamedRoutes = require('named-routes');
 const member_1 = require('./routes/member');

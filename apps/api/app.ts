@@ -16,7 +16,6 @@ import passport = require('passport');
 import passportHttpBearer = require('passport-http-bearer');
 let BearerStrategy = passportHttpBearer.Strategy;
 import Models from '../common/models/Models';
-import mvtkService = require('@motionpicture/mvtk-service');
 
 passport.use(new BearerStrategy(
     (token, cb) => {
@@ -76,7 +75,6 @@ i18n.configure({
 app.use(i18n.init);
 
 
-mvtkService.initialize(conf.get<string>('mvtk_wcf_endpoint'), conf.get<string>('mvtk_wcf2_endpoint'));
 
 
 // ルーティング

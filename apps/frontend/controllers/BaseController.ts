@@ -3,7 +3,6 @@ import log4js = require('log4js');
 import moment = require('moment');
 import util = require('util');
 
-import MvtkUser from '../models/User/MvtkUser';
 import MemberUser from '../models/User/MemberUser';
 import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
@@ -31,8 +30,6 @@ export default class BaseController
     /** ルーティング */
     public router: Express.NamedRoutes;
 
-    /** ムビチケユーザー */
-    public mvtkUser: MvtkUser;
     /** メルマガ会員先行ユーザー */
     public memberUser: MemberUser;
     /** 内部関係者ユーザー */

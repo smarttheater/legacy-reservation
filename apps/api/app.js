@@ -15,7 +15,6 @@ const passport = require('passport');
 const passportHttpBearer = require('passport-http-bearer');
 let BearerStrategy = passportHttpBearer.Strategy;
 const Models_1 = require('../common/models/Models');
-const mvtkService = require('@motionpicture/mvtk-service');
 passport.use(new BearerStrategy((token, cb) => {
     Models_1.default.Authentication.findOne({
         token: token
@@ -53,7 +52,6 @@ i18n.configure({
 });
 // i18n の設定を有効化
 app.use(i18n.init);
-mvtkService.initialize(conf.get('mvtk_wcf_endpoint'), conf.get('mvtk_wcf2_endpoint'));
 // ルーティング
 router_1.default(app);
 let MONGOLAB_URI = conf.get('mongolab_uri');

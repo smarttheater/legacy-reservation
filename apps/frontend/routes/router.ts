@@ -5,13 +5,11 @@ import GMOReserveController from  '../controllers/GMO/Reserve/GMOReserveControll
 import ReserveController from '../controllers/Reserve/ReserveController';
 import LanguageController from '../controllers/Language/LanguageController';
 
-import CustomerAuthController from '../controllers/Customer/Auth/CustomerAuthController';
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
 
 import ErrorController from '../controllers/Error/ErrorController';
 import IndexController from '../controllers/Index/IndexController';
 
-import MvtkUser from '../models/User/MvtkUser';
 
 /**
  * URLルーティング
@@ -26,7 +24,6 @@ import MvtkUser from '../models/User/MvtkUser';
  */
 export default (app: any) => {
     let base = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-        req.mvtkUser = MvtkUser.parse(req.session);
         next();
     }
 
@@ -55,20 +52,6 @@ export default (app: any) => {
 
 
 
-    let authenticationCustomer = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-        if (!req.mvtkUser.isAuthenticated()) {
-            if (req.xhr) {
-                res.json({
-                    message: 'login required.'
-                });
-            } else {
-                res.redirect(`/customer/login?cb=${req.originalUrl}`);
-            }
-        } else {
-            next();
-        }
-    }
-
 
 
 
@@ -78,14 +61,13 @@ export default (app: any) => {
     // 一般
     app.all('/customer/reserve/performances', 'customer.reserve.performances', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).performances()});
     app.get('/customer/reserve/start', 'customer.reserve.start', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).start()});
-    app.all('/customer/login', 'customer.reserve.terms', base, (req, res, next) => {(new CustomerAuthController(req, res, next)).login()});
-    app.all('/customer/logout', 'customer.logout', base, authenticationCustomer, (req, res, next) => {(new CustomerAuthController(req, res, next)).logout()});
-    app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', base, authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).seats()});
-    app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', base, authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).tickets()});
-    app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', base, authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).profile()});
-    app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', base, authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).confirm()});
-    app.get('/customer/reserve/:paymentNo/waitingSettlement', 'customer.reserve.waitingSettlement', base, authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).waitingSettlement()});
-    app.get('/customer/reserve/:paymentNo/complete', 'customer.reserve.complete', base, authenticationCustomer, (req, res, next) => {(new CustomerReserveController(req, res, next)).complete()});
+    app.all('/customer/reserve/:token/terms', 'customer.reserve.terms', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).terms()});
+    app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).seats()});
+    app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).tickets()});
+    app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).profile()});
+    app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).confirm()});
+    app.get('/customer/reserve/:paymentNo/waitingSettlement', 'customer.reserve.waitingSettlement', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).waitingSettlement()});
+    app.get('/customer/reserve/:paymentNo/complete', 'customer.reserve.complete', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).complete()});
 
 
 
