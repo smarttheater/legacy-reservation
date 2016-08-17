@@ -128,12 +128,12 @@ export default class ReservationController extends BaseController {
             }).limit(10).exec((err, reservations) => {
                 if (err) {
                     this.res.json({
-                        isSuccess: false,
+                        success: false,
                         reservations: []
                     });
                 } else {
                     this.res.json({
-                        isSuccess: true,
+                        success: true,
                         reservations: reservations
                     });
                 }
@@ -152,12 +152,12 @@ export default class ReservationController extends BaseController {
             (err, reservation) => {
                 if (err) {
                     this.res.json({
-                        isSuccess: false,
+                        success: false,
                         reservation: null
                     });
                 } else {
                     this.res.json({
-                        isSuccess: true,
+                        success: true,
                         reservation: reservation
                     });
                 }

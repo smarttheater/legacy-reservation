@@ -22,14 +22,14 @@ export default class AuthController extends BaseController {
                 (err, authentication) => {
                     if (err) {
                         this.res.json({
-                            isSuccess: false,
-                            accessToken: null,
+                            success: false,
+                            access_token: null,
                             mvtk_kiin_cd: null
                         });
                     } else {
                         this.res.json({
-                            isSuccess: true,
-                            accessToken: authentication.get('token'),
+                            success: true,
+                            access_token: authentication.get('token'),
                             mvtk_kiin_cd: authentication.get('mvtk_kiin_cd') // テスト用会員コード
                         });
                     }
