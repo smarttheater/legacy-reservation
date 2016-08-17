@@ -38,8 +38,9 @@ let Schema = new mongoose.Schema({
         type: String,
         ref: 'Film'
     },
-    film_name:String,
-    film_name_en:String,
+    film_name: String,
+    film_name_en: String,
+    film_image: String,
 
     purchaser_group: String, // 購入者区分
     purchaser_last_name: String,

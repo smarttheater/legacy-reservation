@@ -259,6 +259,7 @@ export default class ReservationModel {
                     film: this.performance.film._id,
                     film_name: this.performance.film.name,
                     film_name_en: this.performance.film.name_en,
+                    film_image: this.performance.film.image,
 
                     purchaser_last_name: (this.purchaserLastName) ? this.purchaserLastName : undefined,
                     purchaser_first_name: (this.purchaserFirstName) ? this.purchaserFirstName : undefined,

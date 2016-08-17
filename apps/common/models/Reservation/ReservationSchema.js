@@ -35,6 +35,7 @@ let Schema = new mongoose.Schema({
     },
     film_name: String,
     film_name_en: String,
+    film_image: String,
     purchaser_group: String,
     purchaser_last_name: String,
     purchaser_first_name: String,

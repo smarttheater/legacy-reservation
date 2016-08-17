@@ -23,10 +23,10 @@ exports.default = (app) => {
         next();
     };
     // メルマガ先行
-    app.all('/member/reserve/terms', 'member.reserve.terms', (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).terms(); });
-    app.get('/member/reserve/start', 'member.reserve.start', (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).start(); });
-    app.all('/member/reserve/:token/tickets', 'member.reserve.tickets', authentication, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).tickets(); });
-    app.all('/member/reserve/:token/profile', 'member.reserve.profile', authentication, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).profile(); });
-    app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', authentication, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).confirm(); });
-    app.get('/member/reserve/:paymentNo/complete', 'member.reserve.complete', (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).complete(); });
+    app.all('/member/reserve/terms', 'member.reserve.terms', base, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).terms(); });
+    app.get('/member/reserve/start', 'member.reserve.start', base, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).start(); });
+    app.all('/member/reserve/:token/tickets', 'member.reserve.tickets', base, authentication, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).tickets(); });
+    app.all('/member/reserve/:token/profile', 'member.reserve.profile', base, authentication, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).profile(); });
+    app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', base, authentication, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).confirm(); });
+    app.get('/member/reserve/:paymentNo/complete', 'member.reserve.complete', base, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).complete(); });
 };
