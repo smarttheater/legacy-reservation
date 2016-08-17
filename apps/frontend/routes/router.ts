@@ -55,8 +55,6 @@ export default (app: any) => {
 
 
 
-    // TODO ムビチケ会員登録
-
 
     // 一般
     app.all('/customer/reserve/performances', 'customer.reserve.performances', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).performances()});

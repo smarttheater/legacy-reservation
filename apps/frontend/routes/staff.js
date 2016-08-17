@@ -38,6 +38,7 @@ exports.default = (app) => {
     app.all('/staff/reserve/:token/performances', 'staff.reserve.performances', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).performances(); });
     app.all('/staff/reserve/:token/seats', 'staff.reserve.seats', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).seats(); });
     app.all('/staff/reserve/:token/tickets', 'staff.reserve.tickets', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).tickets(); });
+    app.all('/staff/reserve/:token/profile', 'staff.reserve.profile', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).profile(); });
     app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).confirm(); });
     app.get('/staff/reserve/:paymentNo/complete', 'staff.reserve.complete', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).complete(); });
     app.post('/staff/cancel/execute', 'staff.cancel.execute', base, authentication, (req, res, next) => { (new StaffCancelController_1.default(req, res, next)).execute(); });

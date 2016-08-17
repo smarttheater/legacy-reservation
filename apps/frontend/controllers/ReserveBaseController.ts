@@ -24,6 +24,57 @@ export default class ReserveBaseController extends BaseController {
     } 
 
     /**
+     * 購入者情報を初期化する
+     */
+    protected initializePurchaser(reservationModel: ReservationModel): ReservationModel {
+        let group = reservationModel.purchaserGroup;
+        switch (group) {
+            case ReservationUtil.PURCHASER_GROUP_STAFF:
+                reservationModel.purchaserLastName = 'ナイブ';
+                reservationModel.purchaserFirstName = 'カンケイシャ';
+                reservationModel.purchaserTel = '0362263025';
+                reservationModel.purchaserEmail = this.req.staffUser.get('email');
+
+                break;
+
+            case ReservationUtil.PURCHASER_GROUP_TEL:
+                reservationModel.purchaserLastName = '';
+                reservationModel.purchaserFirstName = '';
+                reservationModel.purchaserTel = '';
+                reservationModel.purchaserEmail = 'tiff@localhost.net';
+
+                break;
+
+            case ReservationUtil.PURCHASER_GROUP_WINDOW:
+                reservationModel.purchaserLastName = 'マドグチ';
+                reservationModel.purchaserFirstName = 'タントウシャ';
+                reservationModel.purchaserTel = '0362263025';
+                reservationModel.purchaserEmail = 'tiff@localhost.net';
+
+                break;
+
+            default:
+                let purchaser = this.findPurchaser();
+                if (purchaser) {
+                    reservationModel.purchaserLastName = purchaser.lastName;
+                    reservationModel.purchaserFirstName = purchaser.firstName;
+                    reservationModel.purchaserTel = purchaser.tel;
+                    reservationModel.purchaserEmail = purchaser.email;
+                } else {
+                    reservationModel.purchaserLastName = '';
+                    reservationModel.purchaserFirstName = '';
+                    reservationModel.purchaserTel = '';
+                    reservationModel.purchaserEmail = '';
+                }
+
+                break;
+
+        }
+
+        return reservationModel;
+    }
+
+    /**
      * 予約フロー中の座席をキャンセルするプロセス
      * 
      * @param {ReservationModel} reservationModel
@@ -344,18 +395,28 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.purchaserTel = this.req.form['tel'];
                 reservationModel.paymentMethod = this.req.form['paymentMethod'];
 
-                // TODO メルマガの場合強制的にクレジット
-                // TODO 電話の場合強制的にコンビニ
-                // TODO 内部と外部の場合、決済方法は空
+                // 主体によっては、決済方法を強制的に固定で
+                let group = reservationModel.purchaserGroup;
+                switch (group) {
+                    case ReservationUtil.PURCHASER_GROUP_SPONSOR:
+                    case ReservationUtil.PURCHASER_GROUP_STAFF:
+                        reservationModel.paymentMethod = '';
+                        break;
 
-                // TODO ユーザーセッションにプローフィール格納
-                // this.req.sponsorUser.profile = {
-                //     last_name: this.req.form['lastName'],
-                //     first_name: this.req.form['firstName'],
-                //     email: this.req.form['email'],
-                //     tel: this.req.form['tel']
-                // };
-                // this.req.session[SponsorUser.AUTH_SESSION_NAME] = this.req.sponsorUser;
+                    case ReservationUtil.PURCHASER_GROUP_TEL:
+                        reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CVS;
+                        break;
+
+                    case ReservationUtil.PURCHASER_GROUP_MEMBER:
+                        reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
+                        break;
+
+                    default:
+                        break;
+                }
+
+                // セッションに購入者情報格納
+                this.savePurchaser(this.req.form['lastName'], this.req.form['firstName'], this.req.form['tel'], this.req.form['email']);
 
                 cb(null, reservationModel);
             } else {
@@ -558,5 +619,29 @@ export default class ReserveBaseController extends BaseController {
                 }
             }
         );
+    }
+
+    /**
+     * 購入者情報をセッションに保管する
+     */
+    public savePurchaser(lastName: string, firstName: string, tel: string, email: string) {
+        this.req.session['purchaser'] = {
+            lastName: lastName,
+            firstName: firstName,
+            tel: tel,
+            email: email
+        }
+    }
+
+    /**
+     * 購入者情報をセッションから探す
+     */
+    public findPurchaser(): {
+        lastName: string,
+        firstName: string,
+        tel: string,
+        email: string
+    } {
+        return (this.req.session['purchaser']) ? this.req.session['purchaser'] : undefined;
     }
 }

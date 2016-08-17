@@ -23,17 +23,17 @@
                 <tbody>
 
                     <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
-                        <input type="hidden" name="lastName" value="マドグチ">
-                        <input type="hidden" name="firstName" value="タントウシャ">
-                        <input type="hidden" name="tel" value="09012345678">
-                        <input type="hidden" name="email" value="test@localhost.net">
-                        <input type="hidden" name="emailConfirm" value="test">
-                        <input type="hidden" name="emailConfirmDomain" value="localhost.net">
+                        <input type="hidden" name="lastName" value="<%- lastName %>">
+                        <input type="hidden" name="firstName" value="<%- firstName %>">
+                        <input type="hidden" name="tel" value="<%- tel %>">
+                        <input type="hidden" name="email" value="<%- email %>">
+                        <input type="hidden" name="emailConfirm" value="<%- emailConfirm %>">
+                        <input type="hidden" name="emailConfirmDomain" value="<%- emailConfirmDomain %>">
 
                     <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL) { %>
-                        <input type="hidden" name="email" value="test@localhost.net">
-                        <input type="hidden" name="emailConfirm" value="test">
-                        <input type="hidden" name="emailConfirmDomain" value="localhost.net">
+                        <input type="hidden" name="email" value="<%- email %>">
+                        <input type="hidden" name="emailConfirm" value="<%- emailConfirm %>">
+                        <input type="hidden" name="emailConfirmDomain" value="<%- emailConfirmDomain %>">
 
                         <tr>
                             <th>お名前 (カタカナ)<span class="required">必須項目</span></th>

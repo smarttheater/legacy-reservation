@@ -19,10 +19,7 @@ export default class WindowReserveController extends ReserveBaseController {
         let reservationModel = new ReservationModel();
         reservationModel.token = token;
         reservationModel.purchaserGroup = ReservationUtil.PURCHASER_GROUP_WINDOW
-        reservationModel.purchaserLastName = '';
-        reservationModel.purchaserFirstName = '';
-        reservationModel.purchaserTel = '';
-        reservationModel.purchaserEmail = '';
+        reservationModel = this.initializePurchaser(reservationModel);
 
         // スケジュール選択へ
         this.logger.debug('saving reservationModel... ', reservationModel);
@@ -193,9 +190,9 @@ export default class WindowReserveController extends ReserveBaseController {
             } else {
                 // セッションに情報があれば、フォーム初期値設定
                 let email = reservationModel.purchaserEmail;
-                this.res.locals.lastName = (reservationModel.purchaserLastName) ? reservationModel.purchaserLastName : '';
-                this.res.locals.firstName = (reservationModel.purchaserFirstName) ? reservationModel.purchaserFirstName : '';
-                this.res.locals.tel = (reservationModel.purchaserTel) ? reservationModel.purchaserTel : '';
+                this.res.locals.lastName = reservationModel.purchaserLastName;
+                this.res.locals.firstName = reservationModel.purchaserFirstName;
+                this.res.locals.tel = reservationModel.purchaserTel;
                 this.res.locals.email = (email) ? email : '';
                 this.res.locals.emailConfirm = (email) ? email.substr(0, email.indexOf('@')) : '';
                 this.res.locals.emailConfirmDomain = (email) ? email.substr(email.indexOf('@') + 1) : '';

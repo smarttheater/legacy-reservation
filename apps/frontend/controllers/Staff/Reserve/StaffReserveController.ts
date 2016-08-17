@@ -17,6 +17,7 @@ export default class StaffReserveController extends ReserveBaseController {
         let reservationModel = new ReservationModel();
         reservationModel.token = token;
         reservationModel.purchaserGroup = ReservationUtil.PURCHASER_GROUP_STAFF
+        reservationModel = this.initializePurchaser(reservationModel);
 
         // スケジュール選択へ
         this.logger.debug('saving reservationModel... ', reservationModel);
@@ -150,7 +151,7 @@ export default class StaffReserveController extends ReserveBaseController {
                         this.res.redirect(this.router.build('staff.reserve.tickets', {token: token}));
                     } else {
                         reservationModel.save((err) => {
-                            this.res.redirect(this.router.build('staff.reserve.confirm', {token: token}));
+                            this.res.redirect(this.router.build('staff.reserve.profile', {token: token}));
                         });
                     }
                 });
@@ -159,6 +160,18 @@ export default class StaffReserveController extends ReserveBaseController {
                     reservationModel: reservationModel,
                 });
             }
+        });
+    }
+
+    /**
+     * 購入者情報
+     */
+    public profile(): void {
+        let token = this.req.params.token;
+        ReservationModel.find(token, (err, reservationModel) => {
+            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+
+            this.res.redirect(this.router.build('staff.reserve.confirm', {token: token}));
         });
     }
 

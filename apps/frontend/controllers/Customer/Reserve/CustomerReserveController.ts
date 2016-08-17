@@ -49,10 +49,20 @@ export default class CustomerReserveController extends ReserveBaseController {
         let reservationModel = new ReservationModel();
         reservationModel.token = token;
         reservationModel.purchaserGroup = ReservationUtil.PURCHASER_GROUP_CUSTOMER;
-        reservationModel.purchaserLastName = '';
-        reservationModel.purchaserFirstName = '';
-        reservationModel.purchaserTel = '';
-        reservationModel.purchaserEmail = '';
+        reservationModel = this.initializePurchaser(reservationModel);
+
+        let purchaser = this.findPurchaser();
+        if (purchaser) {
+            reservationModel.purchaserLastName = purchaser.lastName;
+            reservationModel.purchaserFirstName = purchaser.firstName;
+            reservationModel.purchaserTel = purchaser.tel;
+            reservationModel.purchaserEmail = purchaser.email;
+        } else {
+            reservationModel.purchaserLastName = '';
+            reservationModel.purchaserFirstName = '';
+            reservationModel.purchaserTel = '';
+            reservationModel.purchaserEmail = '';
+        }
 
         // パフォーマンスFIX
         this.processFixPerformance(reservationModel, performanceId, (err, reservationModel) => {
@@ -238,9 +248,9 @@ export default class CustomerReserveController extends ReserveBaseController {
             } else {
                 // セッションに情報があれば、フォーム初期値設定
                 let email = reservationModel.purchaserEmail;
-                this.res.locals.lastName = (reservationModel.purchaserLastName) ? reservationModel.purchaserLastName : '';
-                this.res.locals.firstName = (reservationModel.purchaserFirstName) ? reservationModel.purchaserFirstName : '';
-                this.res.locals.tel = (reservationModel.purchaserTel) ? reservationModel.purchaserTel : '';
+                this.res.locals.lastName = reservationModel.purchaserLastName;
+                this.res.locals.firstName = reservationModel.purchaserFirstName;
+                this.res.locals.tel = reservationModel.purchaserTel;
                 this.res.locals.email = (email) ? email : '';
                 this.res.locals.emailConfirm = (email) ? email.substr(0, email.indexOf('@')) : '';
                 this.res.locals.emailConfirmDomain = (email) ? email.substr(email.indexOf('@') + 1) : '';

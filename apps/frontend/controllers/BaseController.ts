@@ -30,18 +30,8 @@ export default class BaseController
     /** ルーティング */
     public router: Express.NamedRoutes;
 
-    /** メルマガ会員先行ユーザー */
-    public memberUser: MemberUser;
-    /** 内部関係者ユーザー */
-    public staffUser: StaffUser;
-    /** 外部関係者ユーザー */
-    public sponsorUser: SponsorUser;
-    /** 窓口ユーザー */
-    public windowUser: WindowUser;
-    /** 電話窓口ユーザー */
-    public telStaffUser: TelStaffUser;
-
-    public layout;
+    /** レイアウトファイル */
+    public layout: string;
 
     constructor(req: express.Request, res: express.Response, next: express.NextFunction) {
         this.req = req;
