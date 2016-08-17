@@ -120,24 +120,25 @@ export default class ReservationController extends BaseController {
     }
 
     public findByMvtkUser(): void {
+        // ひとまずデモ段階では、一般予約を10件返す
         Models.Reservation.find(
             {
-                mvtk_kiin_cd: this.req.user.mvtk_kiin_cd,
+                purchaser_group: ReservationUtil.PURCHASER_GROUP_CUSTOMER,
                 status: ReservationUtil.STATUS_RESERVED
-            },
-            (err, reservationDocuments) => {
+            }).limit(10).exec((err, reservations) => {
                 if (err) {
-
+                    this.res.json({
+                        isSuccess: false,
+                        reservations: []
+                    });
                 } else {
                     this.res.json({
                         isSuccess: true,
-                        reservations: reservationDocuments
+                        reservations: reservations
                     });
                 }
-
             }
         );
-
     }
 
     public findById(): void {
@@ -146,21 +147,21 @@ export default class ReservationController extends BaseController {
         Models.Reservation.findOne(
             {
                 _id: id,
-                mvtk_kiin_cd: this.req.user.mvtk_kiin_cd,
                 status: ReservationUtil.STATUS_RESERVED
             },
-            (err, reservationDocument) => {
+            (err, reservation) => {
                 if (err) {
-
+                    this.res.json({
+                        isSuccess: false,
+                        reservation: null
+                    });
                 } else {
                     this.res.json({
                         isSuccess: true,
-                        reservation: reservationDocument
+                        reservation: reservation
                     });
                 }
-
             }
         );
-
     }
 }
