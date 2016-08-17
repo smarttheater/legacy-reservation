@@ -15,10 +15,10 @@ class AdmissionController extends BaseController_1.default {
         Models_1.default.Reservation.find({
             performance: performanceId,
             status: ReservationUtil_1.default.STATUS_RESERVED
-        }).exec((err, reservationDocuments) => {
+        }).exec((err, reservations) => {
             let reservationsById = {};
-            for (let reservationDocument of reservationDocuments) {
-                reservationsById[reservationDocument.get('_id')] = reservationDocument;
+            for (let reservation of reservations) {
+                reservationsById[reservation.get('_id')] = reservation;
             }
             this.res.render('admission/confirm', {
                 layout: 'layouts/admission/layout',

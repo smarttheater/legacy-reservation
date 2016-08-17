@@ -23,10 +23,10 @@ export default class AdmissionController extends BaseController {
                 performance: performanceId,
                 status: ReservationUtil.STATUS_RESERVED
             }
-        ).exec((err, reservationDocuments) => {
+        ).exec((err, reservations) => {
             let reservationsById = {};
-            for (let reservationDocument of reservationDocuments) {
-                reservationsById[reservationDocument.get('_id')] = reservationDocument;
+            for (let reservation of reservations) {
+                reservationsById[reservation.get('_id')] = reservation;
             }
 
             this.res.render('admission/confirm', {

@@ -14,14 +14,14 @@ class ReservationController extends BaseController_1.default {
         Models_1.default.Reservation.findOne({
             _id: id,
             status: ReservationUtil_1.default.STATUS_RESERVED
-        }, (err, reservationDocument) => {
+        }, (err, reservation) => {
             if (err) {
                 return this.res.json({
                     isSuccess: false,
                     message: this.req.__('Message.UnexpectedError')
                 });
             }
-            if (!reservationDocument) {
+            if (!reservation) {
                 this.res.json({
                     isSuccess: false,
                     message: this.req.__('Message.NotFound')
@@ -29,13 +29,12 @@ class ReservationController extends BaseController_1.default {
             }
             else {
                 if (to) {
-                    let qrcodeBuffer = ReservationUtil_1.default.createQRCode(reservationDocument.get('_id').toString());
+                    let qrcodeBuffer = ReservationUtil_1.default.createQRCode(reservation.get('_id').toString());
                     this.res.render('email/resevation', {
                         layout: false,
-                        reservationDocuments: [reservationDocument],
+                        reservationDocuments: [reservation],
                         qrcode: qrcodeBuffer
                     }, (err, html) => {
-                        console.log(err, html);
                         if (err) {
                             this.res.json({
                                 isSuccess: false
@@ -49,7 +48,7 @@ class ReservationController extends BaseController_1.default {
                                 subject: `[TIFF][${process.env.NODE_ENV}] 予約情報`,
                                 html: html
                             });
-                            let reservationId = reservationDocument.get('_id').toString();
+                            let reservationId = reservation.get('_id').toString();
                             email.addFile({
                                 filename: `QR_${reservationId}.png`,
                                 contentType: 'image/png',

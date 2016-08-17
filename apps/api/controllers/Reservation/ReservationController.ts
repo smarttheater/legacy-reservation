@@ -17,7 +17,7 @@ export default class ReservationController extends BaseController {
                 _id: id,
                 status: ReservationUtil.STATUS_RESERVED
             },
-            (err, reservationDocument) => {
+            (err, reservation) => {
                 if (err) {
                     return this.res.json({
                         isSuccess: false,
@@ -25,7 +25,7 @@ export default class ReservationController extends BaseController {
                     });
                 }
 
-                if (!reservationDocument) {
+                if (!reservation) {
                     this.res.json({
                         isSuccess: false,
                         message: this.req.__('Message.NotFound')
@@ -33,14 +33,13 @@ export default class ReservationController extends BaseController {
 
                 } else {
                     if (to) {
-                        let qrcodeBuffer = ReservationUtil.createQRCode(reservationDocument.get('_id').toString());
+                        let qrcodeBuffer = ReservationUtil.createQRCode(reservation.get('_id').toString());
 
                         this.res.render('email/resevation', {
                             layout: false,
-                            reservationDocuments: [reservationDocument],
+                            reservationDocuments: [reservation],
                             qrcode: qrcodeBuffer
                         }, (err, html) => {
-                            console.log(err, html);
                             if (err) {
                                 this.res.json({
                                     isSuccess: false
@@ -55,7 +54,7 @@ export default class ReservationController extends BaseController {
                                     html: html
                                 });
 
-                                let reservationId = reservationDocument.get('_id').toString();
+                                let reservationId = reservation.get('_id').toString();
 
                                 email.addFile({
                                     filename: `QR_${reservationId}.png`,

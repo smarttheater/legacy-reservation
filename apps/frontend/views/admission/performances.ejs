@@ -73,7 +73,7 @@ function showPerformances() {
     // 作品ごとに整形
     var performancesByFilm = {};
     performances.forEach(function(performanceDocument){
-        var filmId = performanceDocument.film._id;
+        var filmId = performanceDocument.film_id;
         if (!performancesByFilm.hasOwnProperty(filmId)) {
             performancesByFilm[filmId] = [];
         }
@@ -90,7 +90,7 @@ function showPerformances() {
         var performancesOnFilm = performancesByFilm[filmId];
 
         html += `
-        <h3>${performancesOnFilm[0].film['<%- __('DocumentField.name') %>']}</h3>
+        <h3>${performancesOnFilm[0]['film_<%- __('DocumentField.name') %>']}</h3>
         <div class="row">
 `;
 
@@ -107,7 +107,7 @@ function showPerformances() {
                 <a href="/admission/performance/${performance._id}/confirm">
                 ${performance.day}<br>
 
-                ${performance.theater['<%- __('DocumentField.name') %>']} ${performance.screen['<%- __('DocumentField.name') %>']}<br>
+                ${performance['theater_<%- __('DocumentField.name') %>']} ${performance['screen_<%- __('DocumentField.name') %>']}<br>
 
                 ${performance.start_time}-${performance.end_time}<br>
                 ${performance.seat_status}
