@@ -42,15 +42,15 @@ class PerformanceController extends BaseController_1.default {
             });
         }
         // 作品条件を追加する
-        this.addFilmConditions(andConditions, section, genre, words, (err, andConditions, filmsCount) => {
+        this.addFilmConditions(andConditions, section, genre, words, (err, andConditions) => {
             let conditions = null;
             if (andConditions.length > 0) {
                 conditions = {
                     $and: andConditions
                 };
             }
-            // 総数検索
-            Models_1.default.Performance.count(conditions, (err, performancesCount) => {
+            // 作品件数取得
+            Models_1.default.Performance.distinct('film', conditions, (err, filmIds) => {
                 if (err) {
                     return this.res.json({
                         isSuccess: false,
@@ -59,27 +59,8 @@ class PerformanceController extends BaseController_1.default {
                         filmsCount: 0
                     });
                 }
-                // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
-                let query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater').skip(limit * (page - 1)).limit(limit);
-                if (this.req.getLocale() === 'ja') {
-                    query.populate('film', 'name image sections.name genres.name minutes')
-                        .populate('screen', 'name')
-                        .populate('theater', 'name');
-                }
-                else {
-                    query.populate('film', 'name_en image sections.name_en genres.name_en minutes')
-                        .populate('screen', 'name_en')
-                        .populate('theater', 'name_en');
-                }
-                // 上映日、開始時刻
-                // TODO 作品名昇順を追加？
-                query.setOptions({
-                    sort: {
-                        day: 1,
-                        start_time: 1,
-                    },
-                });
-                query.exec((err, performances) => {
+                // 総数検索
+                Models_1.default.Performance.count(conditions, (err, performancesCount) => {
                     if (err) {
                         return this.res.json({
                             isSuccess: false,
@@ -88,31 +69,61 @@ class PerformanceController extends BaseController_1.default {
                             filmsCount: 0
                         });
                     }
-                    // 空席情報を追加
-                    let DocumentFieldName = this.req.__('DocumentField.name');
-                    PerformanceStatusesModel_1.default.find((err, performanceStatusesModel) => {
-                        let results = performances.map((performance) => {
-                            return {
-                                _id: performance.get('_id'),
-                                day: performance.get('day'),
-                                start_time: performance.get('start_time'),
-                                end_time: performance.get('end_time'),
-                                seat_status: performanceStatusesModel.getStatus(performance.get('_id')),
-                                theater_name: performance.get('theater').get(DocumentFieldName),
-                                screen_name: performance.get('screen').get(DocumentFieldName),
-                                film_id: performance.get('film').get('_id'),
-                                film_name: performance.get('film').get(DocumentFieldName),
-                                film_sections: performance.get('film').get('sections').map((section) => { return section[DocumentFieldName]; }),
-                                film_genres: performance.get('film').get('genres').map((genre) => { return genre[DocumentFieldName]; }),
-                                film_minutes: performance.get('film').get('minutes'),
-                                film_image: performance.get('film').get('image')
-                            };
-                        });
-                        this.res.json({
-                            isSuccess: true,
-                            results: results,
-                            performancesCount: performancesCount,
-                            filmsCount: filmsCount
+                    // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
+                    let query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater').skip(limit * (page - 1)).limit(limit);
+                    if (this.req.getLocale() === 'ja') {
+                        query.populate('film', 'name image sections.name genres.name minutes')
+                            .populate('screen', 'name')
+                            .populate('theater', 'name');
+                    }
+                    else {
+                        query.populate('film', 'name_en image sections.name_en genres.name_en minutes')
+                            .populate('screen', 'name_en')
+                            .populate('theater', 'name_en');
+                    }
+                    // 上映日、開始時刻
+                    // TODO 作品名昇順を追加？
+                    query.setOptions({
+                        sort: {
+                            day: 1,
+                            start_time: 1,
+                        },
+                    });
+                    query.exec((err, performances) => {
+                        if (err) {
+                            return this.res.json({
+                                isSuccess: false,
+                                results: [],
+                                performancesCount: 0,
+                                filmsCount: 0
+                            });
+                        }
+                        // 空席情報を追加
+                        let DocumentFieldName = this.req.__('DocumentField.name');
+                        PerformanceStatusesModel_1.default.find((err, performanceStatusesModel) => {
+                            let results = performances.map((performance) => {
+                                return {
+                                    _id: performance.get('_id'),
+                                    day: performance.get('day'),
+                                    start_time: performance.get('start_time'),
+                                    end_time: performance.get('end_time'),
+                                    seat_status: performanceStatusesModel.getStatus(performance.get('_id')),
+                                    theater_name: performance.get('theater').get(DocumentFieldName),
+                                    screen_name: performance.get('screen').get(DocumentFieldName),
+                                    film_id: performance.get('film').get('_id'),
+                                    film_name: performance.get('film').get(DocumentFieldName),
+                                    film_sections: performance.get('film').get('sections').map((section) => { return section[DocumentFieldName]; }),
+                                    film_genres: performance.get('film').get('genres').map((genre) => { return genre[DocumentFieldName]; }),
+                                    film_minutes: performance.get('film').get('minutes'),
+                                    film_image: performance.get('film').get('image')
+                                };
+                            });
+                            this.res.json({
+                                isSuccess: true,
+                                results: results,
+                                performancesCount: performancesCount,
+                                filmsCount: filmIds.length
+                            });
                         });
                     });
                 });
@@ -155,18 +166,18 @@ class PerformanceController extends BaseController_1.default {
             let filmConditions = {
                 $and: filmAndConditions
             };
-            Models_1.default.Film.find(filmConditions, '_id', {}, (err, filmDocuments) => {
+            Models_1.default.Film.distinct('_id', filmConditions, (err, filmIds) => {
                 if (err) {
                     // 検索結果のない条件を追加
                     andConditions.push({
                         'film': null
                     });
-                    cb(err, andConditions, 0);
+                    cb(err, andConditions);
                 }
                 else {
-                    let filmIds = filmDocuments.map((filmDocument) => {
-                        return filmDocument.get('_id');
-                    });
+                    // let filmIds = films.map((filmDocument) => {
+                    //     return filmDocument.get('_id');
+                    // });
                     if (filmIds.length > 0) {
                         andConditions.push({
                             'film': {
@@ -180,15 +191,13 @@ class PerformanceController extends BaseController_1.default {
                             'film': null
                         });
                     }
-                    cb(null, andConditions, filmIds.length);
+                    cb(null, andConditions);
                 }
             });
         }
         else {
             // 全作品数を取得
-            Models_1.default.Film.count({}, (err, count) => {
-                cb(null, andConditions, count);
-            });
+            cb(null, andConditions);
         }
     }
 }

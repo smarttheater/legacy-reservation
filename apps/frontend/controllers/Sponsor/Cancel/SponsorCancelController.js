@@ -12,6 +12,11 @@ class SponsorCancelController extends BaseController_1.default {
      * チケットキャンセル
      */
     index() {
+        if (this.req.sponsorUser.isAuthenticated()) {
+        }
+        else {
+            this.req.setLocale('ja');
+        }
         if (this.req.method === 'POST') {
             let form = sponsorCancelForm_1.default(this.req);
             form(this.req, this.res, (err) => {

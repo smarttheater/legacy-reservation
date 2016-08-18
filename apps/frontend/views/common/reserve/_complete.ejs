@@ -5,8 +5,8 @@
 <h1 class="pagetitle"><%- __('h1.CompleteReservation') %></h1>
 <p class="guidetext">
     ご購入ありがとうございました。<br>
-    当日は下記のバーコードを印刷、またはスマートフォンで表示して入場してください。<br>
-    また予約者情報入力でご入力頂いたメールアドレスにもバーコード付きメールを送信しておりますので、<br>
+    当日は下記のQRコードを印刷、またはスマートフォンで表示して入場してください。<br>
+    また予約者情報入力でご入力頂いたメールアドレスにもQRコード付きメールを送信しておりますので、<br>
     そちらをご提示頂いてもご入場頂けます。
 </p>
 
@@ -49,9 +49,13 @@
                             <div class="cell-codeimg">
                                 <img class="codeimg-barcode" src="<%- url('reserve.qrcode', {reservationId: reservation._id}) %>">
                             </div>
+
+                            <% if (reservation.purchaser_group !== ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
                             <div class="cell-btn cell-mail">
                                 <a class="btn btn-default btn-icon-mail send-mail" href="javascript:void(0)" data-reservation-id="<%- reservation._id %>" data-url="/api/<%- req.getLocale() %>/reservation/email"><span><%- __('Button.InformFriends') %></span></a>
                             </div>
+                            <% } %>
+
                             <div class="cell-btn cell-showseat">
                                 <a class="btn btn-showseat show-seat-position" href="javascript:void(0)" data-screen-id="<%- reservation.screen %>" data-seat-codes="<%- reservation.seat_code %>"><span><%- __('Label.ShowSeats') %></span></a>
                             </div>
@@ -78,9 +82,7 @@ let seatCodes = reservationDocuments.map((reservationDocument) => {return reserv
             <p class="btn-circle-close" data-dismiss="modal"></p>
             <div class="modal-body">
                 <h2>メールアドレスを入力して<br class="visible-mobile-block">送信ボタンを押してください。</h2>
-                <!--
-                <p class="errmsg">正しい形式のメールアドレスを入力してください。</p>
-                -->
+                <p class="errmsg"></p>
                 <div class="form-group form-inline">
                     <input type="email" name="email" id="id_email" class="form-control">
                     <p class="btn btn-submit form-control execute-transfer"><%- __('Button.Send') %></p>

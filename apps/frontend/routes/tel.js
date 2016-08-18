@@ -24,6 +24,8 @@ exports.default = (app) => {
         }
     };
     let base = (req, res, next) => {
+        // 基本的に日本語
+        req.setLocale('ja');
         req.telStaffUser = TelStaffUser_1.default.parse(req.session);
         next();
     };

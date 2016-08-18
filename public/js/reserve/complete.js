@@ -6,6 +6,7 @@ $(function(){
         url4transfering = $(this).attr('data-url');
         reservationID4transfering = $(this).attr('data-reservation-id');
 
+        $('.transfering .errmsg').text('');
         $('.transfering input[name="email"]').val('');
         $('.transfering').modal();
     });
@@ -13,6 +14,7 @@ $(function(){
     $(document).on('click', '.execute-transfer', function(){
         var to = $('.transfering input[name="email"]').val();
         if (!to) {
+            $('.transfering .errmsg').text('メールアドレスを入力してください');
             return;
         }
 

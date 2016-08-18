@@ -125,145 +125,142 @@ export default class ReserveBaseController extends BaseController {
         .populate('film', 'name name_en ticket_type_group image') // 必要な項目だけ指定すること
         .populate('screen', 'name name_en sections') // 必要な項目だけ指定すること
         .populate('theater', 'name name_en') // 必要な項目だけ指定すること
-        .exec((err, performanceDocument) => {
+        .exec((err, performance) => {
+            if (err) return cb(err, reservationModel);
+            if (!performance) return cb(new Error('Message.NotFound'), reservationModel);
 
-            if (err) {
-                cb(err, reservationModel);
-            } else {
 
-                // 内部以外は、上映開始20分過ぎていたらはじく
-                if (reservationModel.purchaserGroup !== ReservationUtil.PURCHASER_GROUP_STAFF) {
-                    let now = moment().add(-20, 'minutes');
-                    if (performanceDocument.get('day') === now.format('YYYYMMDD')) {
-                        if (performanceDocument.get('start') < now.format('HHmm')) {
-                            return cb(new Error('You cannot reserve this performance.'), reservationModel);
-
-                        }
-
-                    } else if (performanceDocument.get('day') < now.format('YYYYMMDD')) {
+            // 内部以外は、上映開始20分過ぎていたらはじく
+            if (reservationModel.purchaserGroup !== ReservationUtil.PURCHASER_GROUP_STAFF) {
+                let now = moment().add(-20, 'minutes');
+                if (performance.get('day') === now.format('YYYYMMDD')) {
+                    if (performance.get('start') < now.format('HHmm')) {
                         return cb(new Error('You cannot reserve this performance.'), reservationModel);
 
                     }
 
+                } else if (performance.get('day') < now.format('YYYYMMDD')) {
+                    return cb(new Error('You cannot reserve this performance.'), reservationModel);
+
                 }
 
+            }
 
 
-                // 券種取得
-                Models.TicketTypeGroup.findOne(
-                    {
-                        _id: performanceDocument.get('film').get('ticket_type_group')
-                    },
-                    (err, ticketTypeGroupDocument) => {
-                        reservationModel.seatCodes = [];
+
+            // 券種取得
+            Models.TicketTypeGroup.findOne(
+                {
+                    _id: performance.get('film').get('ticket_type_group')
+                },
+                (err, ticketTypeGroupDocument) => {
+                    reservationModel.seatCodes = [];
 
 
-                        // 券種リストは、予約する主体によって異なる
-                        // 内部関係者の場合
-                        let group = reservationModel.purchaserGroup;
-                        switch (group) {
-                            case ReservationUtil.PURCHASER_GROUP_STAFF:
-                                reservationModel.ticketTypes = TicketTypeGroupUtil.getOne4staff();
-                                break;
+                    // 券種リストは、予約する主体によって異なる
+                    // 内部関係者の場合
+                    let group = reservationModel.purchaserGroup;
+                    switch (group) {
+                        case ReservationUtil.PURCHASER_GROUP_STAFF:
+                            reservationModel.ticketTypes = TicketTypeGroupUtil.getOne4staff();
+                            break;
 
-                            case ReservationUtil.PURCHASER_GROUP_SPONSOR:
-                                reservationModel.ticketTypes = TicketTypeGroupUtil.getOne4sponsor();
-                                break;
+                        case ReservationUtil.PURCHASER_GROUP_SPONSOR:
+                            reservationModel.ticketTypes = TicketTypeGroupUtil.getOne4sponsor();
+                            break;
 
-                            case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                                // メルマガ当選者の場合、一般だけ
-                                reservationModel.ticketTypes = [];
+                        case ReservationUtil.PURCHASER_GROUP_MEMBER:
+                            // メルマガ当選者の場合、一般だけ
+                            reservationModel.ticketTypes = [];
 
-                                for (let ticketType of ticketTypeGroupDocument.get('types')) {
-                                    if (ticketType.get('code') === TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS) {
-                                        reservationModel.ticketTypes.push(ticketType);
-                                    }
+                            for (let ticketType of ticketTypeGroupDocument.get('types')) {
+                                if (ticketType.get('code') === TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS) {
+                                    reservationModel.ticketTypes.push(ticketType);
                                 }
+                            }
 
-                                break;
+                            break;
 
-                            default:
-                                // 一般、当日窓口、電話予約の場合
-                                reservationModel.ticketTypes = [];
+                        default:
+                            // 一般、当日窓口、電話予約の場合
+                            reservationModel.ticketTypes = [];
 
-                                for (let ticketType of ticketTypeGroupDocument.get('types')) {
-                                    switch (ticketType.get('code')) {
-                                        // 学生当日は、当日だけ
-                                        case TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY:
-                                            if (moment().format('YYYYMMDD') === performanceDocument.get('day')) {
-                                                reservationModel.ticketTypes.push(ticketType);
-                                            }
-
-                                            break;
-
-                                        case TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS:
-                                            if (moment().format('YYYYMMDD') !== performanceDocument.get('day')) {
-                                                reservationModel.ticketTypes.push(ticketType);
-                                            }
-
-                                            break;
-
-                                        default:
+                            for (let ticketType of ticketTypeGroupDocument.get('types')) {
+                                switch (ticketType.get('code')) {
+                                    // 学生当日は、当日だけ
+                                    case TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY:
+                                        if (moment().format('YYYYMMDD') === performance.get('day')) {
                                             reservationModel.ticketTypes.push(ticketType);
+                                        }
 
-                                            break;
-                                    }
+                                        break;
+
+                                    case TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS:
+                                        if (moment().format('YYYYMMDD') !== performance.get('day')) {
+                                            reservationModel.ticketTypes.push(ticketType);
+                                        }
+
+                                        break;
+
+                                    default:
+                                        reservationModel.ticketTypes.push(ticketType);
+
+                                        break;
                                 }
+                            }
 
-                                break;
+                            break;
+
+                    }
+
+
+
+
+
+                    // パフォーマンス情報を保管
+                    reservationModel.performance = {
+                        _id: performance.get('_id'),
+                        day: performance.get('day'),
+                        start_time: performance.get('start_time'),
+                        end_time: performance.get('end_time'),
+                        is_mx4d: performance.get('is_mx4d'),
+                        theater: {
+                            _id: performance.get('theater').get('_id'),
+                            name: performance.get('theater').get('name'),
+                            name_en: performance.get('theater').get('name_en'),
+                        },
+                        screen: {
+                            _id: performance.get('screen').get('_id'),
+                            name: performance.get('screen').get('name'),
+                            name_en: performance.get('screen').get('name_en'),
+                            sections: performance.get('screen').get('sections'),
+                        },
+                        film: {
+                            _id: performance.get('film').get('_id'),
+                            name: performance.get('film').get('name'),
+                            name_en: performance.get('film').get('name_en'),
+                            image: performance.get('film').get('image')
+                        }
+                    };
+
+
+
+                    // スクリーン座席表HTMLを保管(apiで取得)
+                    // TODO ひとまず固定だが、最終的にはパフォーマンスに応じて適切なスクリーンを入れる
+                    fs.readFile(`${__dirname}/../../common/views/screens/map.ejs`, 'utf8', (err, data) => {
+                        if (err) {
+                            cb(err, reservationModel);
+
+                        } else {
+                            reservationModel.screenHtml = data;
+
+                            cb(null, reservationModel);
 
                         }
 
-
-
-
-
-                        // パフォーマンス情報を保管
-                        reservationModel.performance = {
-                            _id: performanceDocument.get('_id'),
-                            day: performanceDocument.get('day'),
-                            start_time: performanceDocument.get('start_time'),
-                            end_time: performanceDocument.get('end_time'),
-                            is_mx4d: performanceDocument.get('is_mx4d'),
-                            theater: {
-                                _id: performanceDocument.get('theater').get('_id'),
-                                name: performanceDocument.get('theater').get('name'),
-                                name_en: performanceDocument.get('theater').get('name_en'),
-                            },
-                            screen: {
-                                _id: performanceDocument.get('screen').get('_id'),
-                                name: performanceDocument.get('screen').get('name'),
-                                name_en: performanceDocument.get('screen').get('name_en'),
-                                sections: performanceDocument.get('screen').get('sections'),
-                            },
-                            film: {
-                                _id: performanceDocument.get('film').get('_id'),
-                                name: performanceDocument.get('film').get('name'),
-                                name_en: performanceDocument.get('film').get('name_en'),
-                                image: performanceDocument.get('film').get('image')
-                            }
-                        };
-
-
-
-                        // スクリーン座席表HTMLを保管(apiで取得)
-                        // TODO ひとまず固定だが、最終的にはパフォーマンスに応じて適切なスクリーンを入れる
-                        fs.readFile(`${__dirname}/../../common/views/screens/map.ejs`, 'utf8', (err, data) => {
-                            if (err) {
-                                cb(err, reservationModel);
-
-                            } else {
-                                reservationModel.screenHtml = data;
-
-                                cb(null, reservationModel);
-
-                            }
-
-                        });
-                    }
-                );
-
-            }
+                    });
+                }
+            );
         });
     }
 
@@ -333,6 +330,15 @@ export default class ReserveBaseController extends BaseController {
         });
 
         Promise.all(promises).then(() => {
+            // 座席コードのソート(文字列順に)
+            reservationModel.seatCodes.sort((a, b) => {
+                if (a < b) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            });
+
             cb(null, reservationModel);
 
         }, (err) => {

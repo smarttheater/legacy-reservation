@@ -40,7 +40,9 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                 // パフォーマンスFIX
                 this.processFixPerformance(reservationModel, this.req.query.performance, (err, reservationModel) => {
                     if (err) {
-                        this.next(err);
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('sponsor.reserve.performances', { token: token }));
+                        });
                     }
                     else {
                         reservationModel.save((err) => {
@@ -74,7 +76,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                         status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_RESERVED] }
                     }, (err, reservationsCount) => {
                         if (parseInt(this.req.sponsorUser.get('max_reservation_count')) <= reservationsCount) {
-                            return this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', { limit: this.req.sponsorUser.get('max_reservation_count') })));
+                            return this.next(new Error(this.req.__('Message.NoMoreReservation')));
                         }
                         if (this.req.method === 'POST') {
                             reservePerformanceForm_1.default(this.req, this.res, (err) => {

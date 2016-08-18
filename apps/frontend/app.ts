@@ -43,7 +43,7 @@ app.use(express.static(path.join(__dirname, '/../../public')));
 // i18n を利用する設定
 i18n.configure({
     locales: ['en', 'ja'],
-    defaultLocale: 'en',
+    defaultLocale: 'ja',
     directory: __dirname + '/../../locales',
     objectNotation: true
 });

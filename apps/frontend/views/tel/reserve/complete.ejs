@@ -8,6 +8,10 @@
 <table class="table table-waitingSettlement">
     <tbody>
         <tr>
+            <th>コンビニ決済用ＩＤ</th>
+            <td><%- reservationDocuments[0].get('payment_no') %></td>
+        </tr>
+        <tr>
             <th><%- __('Label.FilmName') %></th>
             <td><%- reservationDocuments[0].get(`film_${__('DocumentField.name')}`) %></td>
         </tr>

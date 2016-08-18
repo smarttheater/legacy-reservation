@@ -19,12 +19,25 @@ export default class StaffReserveController extends ReserveBaseController {
         reservationModel.purchaserGroup = ReservationUtil.PURCHASER_GROUP_STAFF
         reservationModel = this.initializePurchaser(reservationModel);
 
-        // スケジュール選択へ
-        this.logger.debug('saving reservationModel... ', reservationModel);
-        reservationModel.save((err) => {
-            this.res.redirect(this.router.build('staff.reserve.performances', {token: token}));
-        });
-
+        if (this.req.query.performance) {
+            // パフォーマンスFIX
+            this.processFixPerformance(reservationModel, this.req.query.performance, (err, reservationModel) => {
+                if (err) {
+                    reservationModel.save((err) => {
+                        this.res.redirect(this.router.build('staff.reserve.performances', {token: token}));
+                    });
+                } else {
+                    reservationModel.save((err) => {
+                        this.res.redirect(this.router.build('staff.reserve.seats', {token: token}));
+                    });
+                }
+            });
+        } else {
+            // スケジュール選択へ
+            reservationModel.save((err) => {
+                this.res.redirect(this.router.build('staff.reserve.performances', {token: token}));
+            });
+        }
     }
 
     /**

@@ -40,7 +40,7 @@ class SponsorAuthController extends BaseController_1.default {
                             else {
                                 // ログイン
                                 this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME] = sponsorDocument.toObject();
-                                this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME]['locale'] = this.req.form['locale'];
+                                this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
                                 // if exist parameter cb, redirect to cb.
                                 let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');
                                 this.res.redirect(cb);

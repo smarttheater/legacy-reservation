@@ -1,5 +1,5 @@
-<h1 class="pagetitle">規約</h1>
-<p class="guidetext">ご利用規約をご確認頂き、問題ないようでしたら「利用規約に同意して次へ」ボタンを押してください</p>
+<h1 class="pagetitle"><%- __('h1.Terms') %></h1>
+<p class="guidetext">利用規約をご確認頂き、問題ないようでしたら「利用規約に同意して次へ」ボタンを押してください</p>
 
 <p class="termtext">
     Lorem ipsum dolor sit amet, consectetur adipisicing elit.<br>
@@ -32,8 +32,8 @@
 
 <div class="loginform loginform-member">
     <% if (req.form) { %>
-    <% Object.keys(req.form.getErrors()).forEach(function (key) { %>
-    <p class="errmsg"><%- req.form.getErrors(key)[0] %></p>
+    <% req.form.errors.forEach(function (error) { %>
+    <p class="errmsg"><%- error %></p>
     <% }) %>
     <% } %>
 

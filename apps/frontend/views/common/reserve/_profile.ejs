@@ -5,7 +5,7 @@
 <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
 <p class="guidetext">お支払い方法を選択して次へボタンを押してください。</p>
 <% } else { %>
-<p class="guidetext">予約する方のお名前(カタカナ)とメールアドレスと電話番号を入力して次へボタンを押してください。</p>
+<p class="guidetext">必要情報を入力して次へボタンを押してください。</p>
 <% } %>
 
 <div class="wrapper-2clm">
@@ -144,11 +144,30 @@
                                 <p class="notice">
                                     <span class="notice-cvs">
                                         ※コンビニ決済の支払期限は、ご注文完了日を含めて3日間です。<br>
-                                        ※コンビニ決済の場合、手数料としてご購入1件につき300円がかかります。<br>
+                                        ※コンビニ決済の場合、手数料としてご購入1席につき150円がかかります。<br>
                                         手数料はお支払いいただく料金に含まれます。<br>
                                         ※コンビニ決済が可能なコンビニはファミリーマートのみとなります。
                                     </span>
                                 </p>
+
+                                <% if (req.form) { %>
+                                <p class="errmsg"><%- req.form.getErrors('paymentMethod')[0] %></p>
+                                <% } %>
+                            </td>
+                        </tr>
+
+                    <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_MEMBER) { %>
+                        <tr>
+                            <th>お支払い方法<span class="required">必須項目</span></th>
+                            <td>
+                                <div class="wrapper-payment form-inline">
+                                    <label for="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" class="form-group payment payment-credit">
+                                        <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CREDIT %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CREDIT) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CREDIT') %>
+                                    </label>
+                                    <label for="radio_<%- GMOUtil.PAY_TYPE_CASH %>" class="form-group payment payment-cash">
+                                        <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CASH %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CASH %>"><%- __('Label.PaymentMethodName.CASH') %>
+                                    </label>
+                                </div>
 
                                 <% if (req.form) { %>
                                 <p class="errmsg"><%- req.form.getErrors('paymentMethod')[0] %></p>
@@ -188,7 +207,7 @@
                                 <p class="notice">
                                     <span class="notice-cvs">
                                         ※コンビニ決済の支払期限は、ご注文完了日を含めて3日間です。<br>
-                                        ※コンビニ決済の場合、手数料としてご購入1件につき300円がかかります。<br>
+                                        ※コンビニ決済の場合、手数料としてご購入1席につき150円がかかります。<br>
                                         手数料はお支払いいただく料金に含まれます。<br>
                                         ※コンビニ決済が可能なコンビニはファミリーマートのみとなります。
                                     </span>

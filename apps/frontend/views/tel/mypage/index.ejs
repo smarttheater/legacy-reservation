@@ -1,6 +1,6 @@
 <input type="hidden" name="purchaser_group_name_<%- ReservationUtil.PURCHASER_GROUP_CUSTOMER %>" value="一般">
-<input type="hidden" name="purchaser_group_name_<%- ReservationUtil.PURCHASER_GROUP_TEL %>" value="一般">
-<input type="hidden" name="purchaser_group_name_<%- ReservationUtil.PURCHASER_GROUP_WINDOW %>" value="一般">
+<input type="hidden" name="purchaser_group_name_<%- ReservationUtil.PURCHASER_GROUP_TEL %>" value="電話">
+<input type="hidden" name="purchaser_group_name_<%- ReservationUtil.PURCHASER_GROUP_WINDOW %>" value="当日">
 <input type="hidden" name="purchaser_group_name_<%- ReservationUtil.PURCHASER_GROUP_SPONSOR %>" value="外部関係者">
 <input type="hidden" name="purchaser_group_name_<%- ReservationUtil.PURCHASER_GROUP_MEMBER %>" value="先行予約">
 
@@ -16,9 +16,11 @@
                     <div class="form-group">
                         <select class="form-control" name="purchaser_groups">
                             <option value="">---</option>
-                            <option value="<%- ReservationUtil.PURCHASER_GROUP_CUSTOMER %>,<%- ReservationUtil.PURCHASER_GROUP_TEL %>,<%- ReservationUtil.PURCHASER_GROUP_WINDOW %>">一般</option>
+                            <option value="<%- ReservationUtil.PURCHASER_GROUP_CUSTOMER %>">一般</option>
                             <option value="<%- ReservationUtil.PURCHASER_GROUP_SPONSOR %>">外部関係者</option>
                             <option value="<%- ReservationUtil.PURCHASER_GROUP_MEMBER %>">先行予約</option>
+                            <option value="<%- ReservationUtil.PURCHASER_GROUP_TEL %>">電話</option>
+                            <option value="<%- ReservationUtil.PURCHASER_GROUP_WINDOW %>">当日</option>
                         </select>
                     </div>
                 </td>
@@ -47,7 +49,7 @@
                     </div>
                 </td>
                 <td>
-                    氏名<br>
+                    氏名(カタカナ)<br>
                     <div class="form-inline">
                         <div class="form-group">
                             <input type="text" class="form-control" name="purchaser_name">

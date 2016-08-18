@@ -8,13 +8,13 @@
 	"Telephone Support": "電話対応",
 	"On that day": "当日",
 	"h1": {
-		"Terms": "規約",
+		"Terms": "利用規約",
 		"SelectPerformance": "スケジュール選択",
 		"SelectSeats": "座席選択",
 		"SelectTickets": "券種選択",
 		"EnterProfile": "購入者情報入力",
-		"ConfirmReservation": "予約情報確認",
-		"CompleteReservation": "予約完了",
+		"ConfirmReservation": "購入内容確認",
+		"CompleteReservation": "購入完了",
 		"CompleteTemporaryReservation": "仮予約完了",
 		"MyPage": "マイページ",
 		"AdmissionConfirm": "入場確認",
@@ -83,7 +83,8 @@
 		"Logout": "ログアウト",
 		"BackToSelectPerformance": "スケジュール選択へ戻る",
 		"NewTicket": "チケット予約",
-		"LogoutAndCancel": "ログアウトして予約をキャンセル"
+		"LogoutAndCancel": "ログアウトして予約をキャンセル",
+		"MyPage": "マイページ"
 	},
 	"Form": {
 		"FieldName": {
@@ -97,7 +98,7 @@
 			"paymentMethod": "決済方法",
 			"userId": "ユーザー番号",
 			"signature": "署名",
-			"locale": "使用言語",
+			"language": "使用言語",
 			"paymentNo": "予約番号",
 			"last4DigitsOfTel": "電話番号下4桁"
 		}
@@ -114,13 +115,14 @@
 		"Sending": "送信しています...",
 		"Sent": "送信しました",
 		"Unsent": "送信できませんでした",
-		"PleaseReadBarcode": "バーコードを読み取ってください",
-		"seatsLimit{{limit}}": "座席指定数の上限は{{limit}}です",
+		"PleaseReadBarcode": "QRコードを読み取ってください",
+		"seatsLimit{{limit}}": "選択出来る座席は{{limit}}席までとなります",
 		"UnexpectedError": "予期せぬエラー",
 		"UnavailableSeat": "指定できない座席です",
 		"SelectedSeatsUnavailable": "選択された座席は指定できません",
 		"Expired": "期限切れです",
-		"NotFound": "見つかりません"
+		"NotFound": "見つかりません",
+		"NoMoreReservation": "既に選択出来る座席の上限に達しています"
 	},
 	"h3": {
 		"SeatChoices": "座席情報",
@@ -138,8 +140,8 @@
 		"SelectPerformance": "スケジュール選択",
 		"SelectSeats": "座席選択",
 		"SelectTickets": "券種選択",
-		"EditProfile": "予約者情報入力",
-		"Confirm": "予約内容確認",
-		"Complete": "予約完了"
+		"EditProfile": "購入者情報入力",
+		"Confirm": "購入内容確認",
+		"Complete": "購入完了"
 	}
 }

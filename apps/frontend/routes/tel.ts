@@ -26,6 +26,8 @@ export default (app: any) => {
     }
 
     let base = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        // 基本的に日本語
+        req.setLocale('ja');
         req.telStaffUser = TelStaffUser.parse(req.session);
         next();
     }

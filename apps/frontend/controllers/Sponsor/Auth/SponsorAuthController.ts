@@ -41,7 +41,7 @@ export default class SponsorAuthController extends BaseController {
                                 } else {
                                     // ログイン
                                     this.req.session[SponsorUser.AUTH_SESSION_NAME] = sponsorDocument.toObject();
-                                    this.req.session[SponsorUser.AUTH_SESSION_NAME]['locale'] = this.req.form['locale'];
+                                    this.req.session[SponsorUser.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
 
                                     // if exist parameter cb, redirect to cb.
                                     let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');

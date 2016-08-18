@@ -42,7 +42,7 @@ export default class StaffAuthController extends BaseController {
                                     // ログイン
                                     this.req.session[StaffUser.AUTH_SESSION_NAME] = staffDocument.toObject();
                                     this.req.session[StaffUser.AUTH_SESSION_NAME]['signature'] = this.req.form['signature'];
-                                    this.req.session[StaffUser.AUTH_SESSION_NAME]['locale'] = this.req.form['locale'];
+                                    this.req.session[StaffUser.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
 
                                     // if exist parameter cb, redirect to cb.
                                     let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('staff.mypage');
@@ -64,7 +64,6 @@ export default class StaffAuthController extends BaseController {
             this.res.locals.userId = '';
             this.res.locals.password = '';
             this.res.locals.signature = '';
-            this.res.locals.locale = 'ja';
 
             this.res.render('staff/auth/login');
 

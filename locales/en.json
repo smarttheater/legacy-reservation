@@ -81,7 +81,8 @@
 		"InformFriends": "Send to friends",
 		"BackToSelectPerformance": "Select a Schedule Again",
 		"Logout": "Logout",
-		"NewTicket": "New Ticket"
+		"NewTicket": "New Ticket",
+		"MyPage": "My Page"
 	},
 	"Form": {
 		"FieldName": {
@@ -96,7 +97,8 @@
 			"signature": "Signature",
 			"paymentMethod": "Payment Method",
 			"paymentNo": "Payment No",
-			"last4DigitsOfTel": "Last 4 Digits of Tel"
+			"last4DigitsOfTel": "Last 4 Digits of Tel",
+			"language": "Language"
 		}
 	},
 	"Message": {
@@ -115,7 +117,8 @@
 		"seatsLimit{{limit}}": "Max selection count is {{limit}}.",
 		"UnexpectedError": "Unexpected Error",
 		"InvalidSeatCode": "Invalid seat code",
-		"Expired": "Expired"
+		"Expired": "Expired",
+		"NoMoreReservation": "No more reservation."
 	},
 	"h3": {
 		"SeatChoices": "Seat Choices",

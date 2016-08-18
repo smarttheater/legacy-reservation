@@ -33,10 +33,11 @@ $(function(){
             total += parseInt($(this).attr('data-seat-extra-charge'));
         });
 
+        // 数字をコンマ区切りに
         if (locale === 'ja') {
-            $('.price').text(total + '円');
+            $('.price').text(total.toString().replace(/(\d)(?=(\d{3})+$)/g , '$1,') + '円');
         } else {
-            $('.price').text(total + 'yen');
+            $('.price').text(total.toString().replace(/(\d)(?=(\d{3})+$)/g , '$1,') + 'yen');
         }
     }
 

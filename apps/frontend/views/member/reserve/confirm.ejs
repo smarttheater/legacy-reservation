@@ -1,7 +1,7 @@
 <%- include('../../common/reserve/_step') %>
 
 <h1 class="pagetitle"><%- __('h1.ConfirmReservation') %></h1>
-<p class="guidetext">内容をご確認のうえ、「利用規約に同意して次へ」ボタンを押してください。</p>
+<p class="guidetext">内容をご確認のうえ、「決済へ進む」ボタンを押してください。</p>
 
 <div class="wrapper-confirm">
 
@@ -50,7 +50,7 @@
                 </th>
                 <td>
                     <p>
-                        <span class="price"><%- __('{{price}} yen', {price: reservationModel.getTotalCharge()}) %></span>
+                        <span class="price"><%- __('{{price}} yen', {price: numeral(reservationModel.getTotalCharge()).format('0,0')}) %></span>
                     </p>
                 </td>
             </tr>

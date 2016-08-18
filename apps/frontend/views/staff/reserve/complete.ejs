@@ -1,5 +1,6 @@
 <%- include('../../common/reserve/_complete') %>
 
-<div class="center">
+<div class="btns2clm">
     <a class="btn btn-lg btn-next" href="<%- url('staff.mypage') %>"><span><%- __('Button.BackToMyPage') %></span></a>
+    <a class="btn btn-lg btn-next" href="<%= url('staff.reserve.start') %>?performance=<%= reservationDocuments[0].performance %>"><span>同じ上映回で追加予約する</span></a>
 </div>

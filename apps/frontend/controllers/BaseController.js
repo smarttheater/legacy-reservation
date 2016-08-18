@@ -2,6 +2,7 @@
 const log4js = require('log4js');
 const moment = require('moment');
 const util = require('util');
+const numeral = require('numeral');
 /**
  * ベースコントローラー
  *
@@ -18,6 +19,7 @@ class BaseController {
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;
         this.res.locals.util = util;
+        this.res.locals.numeral = numeral;
         // レイアウト指定があれば変更
         let _render = this.res.render;
         this.res.render = (view, options, cb) => {

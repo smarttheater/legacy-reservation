@@ -570,12 +570,19 @@ class TicketTypeGroupUtil {
     static getOne4staff() {
         return [
             {
+                code: TicketTypeGroupUtil.TICKET_TYPE_CODE_FREE,
+                name: '無料',
+                name_en: 'Free',
+                charge: 0,
+                is_on_the_day: false
+            },
+            {
                 code: TicketTypeGroupUtil.TICKET_TYPE_CODE_NOT_FOR_SALE,
-                name: '非売品',
+                name: 'Not for sale',
                 name_en: 'Not for Sale',
                 charge: 0,
                 is_on_the_day: false
-            }
+            },
         ];
     }
     /**
@@ -585,7 +592,7 @@ class TicketTypeGroupUtil {
         return [
             {
                 code: TicketTypeGroupUtil.TICKET_TYPE_CODE_NOT_FOR_SALE,
-                name: '非売品',
+                name: 'Not for sale',
                 name_en: 'Not for Sale',
                 charge: 0,
                 is_on_the_day: false
@@ -596,6 +603,7 @@ class TicketTypeGroupUtil {
 TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS = '01';
 TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS = '02';
 TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY = '03';
+TicketTypeGroupUtil.TICKET_TYPE_CODE_FREE = '00';
 TicketTypeGroupUtil.TICKET_TYPE_CODE_NOT_FOR_SALE = '99';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = TicketTypeGroupUtil;

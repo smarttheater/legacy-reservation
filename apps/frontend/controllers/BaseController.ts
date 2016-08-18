@@ -2,13 +2,14 @@ import express = require('express');
 import log4js = require('log4js');
 import moment = require('moment');
 import util = require('util');
+import NamedRoutes = require('named-routes');
+import numeral = require('numeral');
 
 import MemberUser from '../models/User/MemberUser';
 import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
 import WindowUser from '../models/User/WindowUser';
 import TelStaffUser from '../models/User/TelStaffUser';
-import NamedRoutes = require('named-routes');
 
 /**
  * ベースコントローラー
@@ -45,6 +46,7 @@ export default class BaseController
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;
         this.res.locals.util = util;
+        this.res.locals.numeral = numeral;
 
 
         // レイアウト指定があれば変更

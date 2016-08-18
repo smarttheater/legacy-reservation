@@ -22,13 +22,9 @@ class MemberReserveController extends ReserveBaseController_1.default {
         if (process.env.NODE_ENV === 'prod') {
             let now = moment();
             if (now < moment(Constants_1.default.RESERVE_START_DATETIME) || moment(Constants_1.default.RESERVE_END_DATETIME) < now) {
-                return this.next(new Error('expired.'));
+                return this.next(new Error('Message.Expired'));
             }
         }
-        // ログイン中であればプロセス開始
-        // if (this.req.memberUser.isAuthenticated()) {
-        //     return this.res.redirect(this.router.build('member.reserve.start', {}));
-        // }
         if (this.req.method === 'POST') {
             memberReserveLoginForm_1.default(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
@@ -53,12 +49,15 @@ class MemberReserveController extends ReserveBaseController_1.default {
                             }, (err, count) => {
                                 if (err)
                                     return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                if (count === 0)
-                                    return this.next(new Error(this.req.__('Message.NotFound')));
-                                // ログイン
-                                this.logger.debug('logining...member:', member);
-                                this.req.session[MemberUser_1.default.AUTH_SESSION_NAME] = member.toObject();
-                                this.res.redirect(this.router.build('member.reserve.start', {}));
+                                if (count === 0) {
+                                    this.req.form.errors.push('既に購入済みです');
+                                    this.res.render('member/reserve/terms');
+                                }
+                                else {
+                                    // ログイン
+                                    this.req.session[MemberUser_1.default.AUTH_SESSION_NAME] = member.toObject();
+                                    this.res.redirect(this.router.build('member.reserve.start', {}));
+                                }
                             });
                         }
                     });

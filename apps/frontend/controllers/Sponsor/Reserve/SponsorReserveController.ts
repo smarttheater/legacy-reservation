@@ -42,8 +42,9 @@ export default class SponsorReserveController extends ReserveBaseController {
                 // パフォーマンスFIX
                 this.processFixPerformance(reservationModel, this.req.query.performance, (err, reservationModel) => {
                     if (err) {
-                        this.next(err);
-
+                        reservationModel.save((err) => {
+                            this.res.redirect(this.router.build('sponsor.reserve.performances', {token: token}));
+                        });
                     } else {
                         reservationModel.save((err) => {
                             this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
@@ -51,13 +52,11 @@ export default class SponsorReserveController extends ReserveBaseController {
 
                     }
                 });
-
             } else {
                 // スケジュール選択へ
                 reservationModel.save((err) => {
                     this.res.redirect(this.router.build('sponsor.reserve.performances', {token: token}));
                 });
-
             }
         });
 
@@ -83,7 +82,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                         },
                         (err, reservationsCount) => {
                             if (parseInt(this.req.sponsorUser.get('max_reservation_count')) <= reservationsCount) {
-                                return this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', {limit: this.req.sponsorUser.get('max_reservation_count')})));
+                                return this.next(new Error(this.req.__('Message.NoMoreReservation')));
                             }
 
                             if (this.req.method === 'POST') {

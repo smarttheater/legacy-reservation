@@ -33,6 +33,7 @@
     "multer": "registry:dt/multer#0.0.0+20160726135055",
     "named-routes": "file:./definitions/named-routes.d.ts",
     "node": "registry:dt/node#6.0.0+20160815222444",
+    "numeraljs": "registry:dt/numeraljs#0.0.0+20160316155526",
     "passport": "registry:dt/passport#0.2.0+20160720063208",
     "passport-http-bearer": "registry:dt/passport-http-bearer#1.0.1+20160316155526",
     "qr-image": "file:./definitions/qr-image.d.ts",
