@@ -12,6 +12,7 @@ import session from './middlewares/session';
 import conf = require('config');
 import mongoose = require('mongoose');
 import i18n = require('i18n');
+import log4js = require('log4js');
 
 let app = express();
 
@@ -20,6 +21,15 @@ app.use(useragent.express()); // ユーザーエージェント
 app.use(logger); // ロガー
 app.use(benchmarks); // ベンチマーク的な
 app.use(session); // セッション
+
+// ペイデザイン連携のため
+// TODO 後で消す
+app.use((req, res, next) => {
+    let logger = log4js.getLogger('system');
+    logger.debug('req:', req);
+    logger.debug('req.body:', req.body);
+    next();
+});
 
 // view engine setup
 app.set('views', `${__dirname}/views`);

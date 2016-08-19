@@ -12,12 +12,21 @@ const session_1 = require('./middlewares/session');
 const conf = require('config');
 const mongoose = require('mongoose');
 const i18n = require('i18n');
+const log4js = require('log4js');
 let app = express();
 app.use(partials()); // レイアウト&パーシャルサポート
 app.use(useragent.express()); // ユーザーエージェント
 app.use(logger_1.default); // ロガー
 app.use(benchmarks_1.default); // ベンチマーク的な
 app.use(session_1.default); // セッション
+// ペイデザイン連携のため
+// TODO 後で消す
+app.use((req, res, next) => {
+    let logger = log4js.getLogger('system');
+    logger.debug('req:', req);
+    logger.debug('req.body:', req.body);
+    next();
+});
 // view engine setup
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
