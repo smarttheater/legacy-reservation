@@ -21,12 +21,12 @@ export default class StaffReserveController extends ReserveBaseController implem
             if (reservationModel.performance) {
                 reservationModel.save((err) => {
                     let cb = this.router.build('staff.reserve.seats', {token: reservationModel.token});
-                    this.res.redirect(`${this.router.build('sponsor.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
+                    this.res.redirect(`${this.router.build('staff.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
                 });
             } else {
                 reservationModel.save((err) => {
                     let cb = this.router.build('staff.reserve.performances', {token: reservationModel.token});
-                    this.res.redirect(`${this.router.build('sponsor.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
+                    this.res.redirect(`${this.router.build('staff.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
                 });
             }
         });
