@@ -32,6 +32,9 @@ class ReservationUtil {
             type: 'png'
         });
     }
+    static start2string(day, startTime) {
+        return `${day.substr(0, 4)}/${day.substr(4, 2)}/${day.substr(6)} ${startTime.substr(0, 2)}:${startTime.substr(2)}`;
+    }
 }
 /** 仮予約 */
 ReservationUtil.STATUS_TEMPORARY = 'TEMPORARY';

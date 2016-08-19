@@ -144,6 +144,13 @@ export default class ReservationModel {
     }
 
     /**
+     * 開始日時を文字列で返す
+     */
+    public getStartDateTimeString(): string {
+        return ReservationUtil.start2string(this.performance.day, this.performance.start_time);
+    }
+
+    /**
      * 合計金額を算出する
      */
     public getTotalCharge(): number {

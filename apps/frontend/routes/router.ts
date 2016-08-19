@@ -43,6 +43,9 @@ export default (app: any) => {
     app.all('/GMO/reserve/notify', 'gmo.reserve.notify', base, (req, res, next) => {(new GMOReserveController(req, res, next)).notify()});
     app.all('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', base, (req, res, next) => {(new GMOReserveController(req, res, next)).cancel()});
 
+    // ペイデザインプロセス
+    app.all('/PayDesign/reserve/notify', 'paydesign.reserve.notify', base, (req, res, next) => {(new GMOReserveController(req, res, next)).notify()});
+    app.all('/PayDesign/reserve/:paymentNo/cancel', 'paydesign.reserve.cancel', base, (req, res, next) => {(new GMOReserveController(req, res, next)).cancel()});
 
 
     // admission

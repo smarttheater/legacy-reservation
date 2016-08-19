@@ -68,4 +68,8 @@ export default class ReservationUtil {
             type: 'png'
         });
     }
+
+    public static start2string(day: string, startTime: string): string {
+        return `${day.substr(0, 4)}/${day.substr(4, 2)}/${day.substr(6)} ${startTime.substr(0, 2)}:${startTime.substr(2)}`;
+    }
 }

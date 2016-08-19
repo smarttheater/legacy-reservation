@@ -19,7 +19,7 @@
                 <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
                 <td>
                     <p>
-                        <%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ 
+                        <%- reservationModel.getStartDateTimeString() %> ～ 
                         <%- reservationModel.performance.theater[__('DocumentField.name')] %> 
                         <%- reservationModel.performance.screen[__('DocumentField.name')] %>
                     </p>

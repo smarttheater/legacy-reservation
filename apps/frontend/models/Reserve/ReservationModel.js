@@ -70,6 +70,12 @@ class ReservationModel {
         return `TIFFReservation_${token}`;
     }
     /**
+     * 開始日時を文字列で返す
+     */
+    getStartDateTimeString() {
+        return ReservationUtil_1.default.start2string(this.performance.day, this.performance.start_time);
+    }
+    /**
      * 合計金額を算出する
      */
     getTotalCharge() {

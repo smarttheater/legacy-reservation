@@ -6,7 +6,7 @@
 <p class="guidetext">
     ご購入ありがとうございました。<br>
     当日は下記のQRコードを印刷、またはスマートフォンで表示して入場してください。<br>
-    また予約者情報入力でご入力頂いたメールアドレスにもQRコード付きメールを送信しておりますので、<br>
+    また購入者情報入力でご入力頂いたメールアドレスにもQRコード付きメールを送信しておりますので、<br>
     そちらをご提示頂いてもご入場頂けます。
 </p>
 
@@ -24,7 +24,7 @@
         <tr>
             <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
             <td>
-                <%- reservationDocuments[0].performance_day %> <%- reservationDocuments[0].performance_start_time %> ～ 
+                <%- ReservationUtil.start2string(reservationDocuments[0].performance_day, reservationDocuments[0].performance_start_time) %> ～ 
                 <%- reservationDocuments[0].get(`theater_${__('DocumentField.name')}`) %> 
                 <%- reservationDocuments[0].get(`screen_${__('DocumentField.name')}`) %>
             </td>
