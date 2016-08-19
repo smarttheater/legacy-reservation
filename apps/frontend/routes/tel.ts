@@ -39,6 +39,7 @@ export default (app: any) => {
     app.all('/tel/mypage', 'tel.mypage', base, authentication, (req, res, next) => {(new TelMyPageController(req, res, next)).index()});
     app.get('/tel/mypage/search', 'tel.mypage.search', base, authentication, (req, res, next) => {(new TelMyPageController(req, res, next)).search()});
     app.get('/tel/reserve/start', 'tel.reserve.start', base, authentication, (req, res, next) => {(new TelReserveController(req, res, next)).start()});
+    app.all('/tel/reserve/:token/terms', 'tel.reserve.terms', base, authentication, (req, res, next) => {(new TelReserveController(req, res, next)).terms()});
     app.all('/tel/reserve/:token/performances', 'tel.reserve.performances', base, authentication, (req, res, next) => {(new TelReserveController(req, res, next)).performances()});
     app.all('/tel/reserve/:token/seats', 'tel.reserve.seats', base, authentication, (req, res, next) => {(new TelReserveController(req, res, next)).seats()});
     app.all('/tel/reserve/:token/tickets', 'tel.reserve.tickets', base, authentication, (req, res, next) => {(new TelReserveController(req, res, next)).tickets()});

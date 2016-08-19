@@ -36,6 +36,7 @@ export default (app: any) => {
     app.all('/sponsor/mypage', 'sponsor.mypage', base, authentication, (req, res, next) => {(new SponsorMyPageController(req, res, next)).index()});
     app.get('/sponsor/mypage/search', 'sponsor.mypage.search', base, authentication, (req, res, next) => {(new SponsorMyPageController(req, res, next)).search()});
     app.get('/sponsor/reserve/start', 'sponsor.reserve.start', base, authentication, (req, res, next) => {(new SponsorReserveController(req, res, next)).start()});
+    app.all('/sponsor/reserve/:token/terms', 'sponsor.reserve.terms', base, authentication, (req, res, next) => {(new SponsorReserveController(req, res, next)).terms()});
     app.all('/sponsor/reserve/:token/performances', 'sponsor.reserve.performances', base, authentication, (req, res, next) => {(new SponsorReserveController(req, res, next)).performances()});
     app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', base, authentication, (req, res, next) => {(new SponsorReserveController(req, res, next)).seats()});
     app.all('/sponsor/reserve/:token/tickets', 'sponsor.reserve.tickets', base, authentication, (req, res, next) => {(new SponsorReserveController(req, res, next)).tickets()});

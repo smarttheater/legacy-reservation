@@ -14,19 +14,29 @@ export default class WindowReserveController extends ReserveBaseController {
     public static RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数
 
     public start(): void {
-        // 予約トークンを発行
-        let token = Util.createToken();
-        let reservationModel = new ReservationModel();
-        reservationModel.token = token;
-        reservationModel.purchaserGroup = ReservationUtil.PURCHASER_GROUP_WINDOW
-        reservationModel = this.initializePurchaser(reservationModel);
+        this.processStart(ReservationUtil.PURCHASER_GROUP_WINDOW, (err, reservationModel) => {
+            if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
 
-        // スケジュール選択へ
-        this.logger.debug('saving reservationModel... ', reservationModel);
-        reservationModel.save((err) => {
-            this.res.redirect(this.router.build('window.reserve.performances', {token: token}));
+            if (reservationModel.performance) {
+                reservationModel.save((err) => {
+                    let cb = this.router.build('window.reserve.seats', {token: reservationModel.token});
+                    this.res.redirect(`${this.router.build('window.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
+                });
+            } else {
+                reservationModel.save((err) => {
+                    let cb = this.router.build('window.reserve.performances', {token: reservationModel.token});
+                    this.res.redirect(`${this.router.build('window.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
+                });
+            }
         });
+    }
 
+    /**
+     * 規約(スキップ)
+     */
+    public terms(): void {
+        let cb = (this.req.query.cb) ? this.req.query.cb : '/';
+        this.res.redirect(cb);
     }
 
     /**
@@ -252,6 +262,12 @@ export default class WindowReserveController extends ReserveBaseController {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
                 window: this.req.windowUser.get('_id')
+            },
+            null,
+            {
+                sort : {
+                    seat_code: 1
+                }
             },
             (err, reservationDocuments) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));

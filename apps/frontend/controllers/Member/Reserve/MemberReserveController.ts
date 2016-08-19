@@ -62,7 +62,7 @@ export default class MemberReserveController extends ReserveBaseController {
                                         } else {
                                             // ログイン
                                             this.req.session[MemberUser.AUTH_SESSION_NAME] = member.toObject();
-                                            this.res.redirect(this.router.build('member.reserve.start', {}));
+                                            this.res.redirect(this.router.build('member.reserve.start'));
                                         }
                                     }
                                 );
@@ -83,7 +83,6 @@ export default class MemberReserveController extends ReserveBaseController {
 
     public start(): void {
         // 予約状況を確認
-        this.logger.debug('checking reservation status... member:', this.req.memberUser.get('_id'));
         Models.Reservation.find(
             {
                 member: this.req.memberUser.get('_id'),
@@ -95,45 +94,42 @@ export default class MemberReserveController extends ReserveBaseController {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 if (reservations.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
-                // 予約トークンを発行
-                let token = Util.createToken();
-                let reservationModel = new ReservationModel();
-                reservationModel.token = token;
-                reservationModel.purchaserGroup = ReservationUtil.PURCHASER_GROUP_MEMBER;
-                reservationModel = this.initializePurchaser(reservationModel);
+                this.processStart(ReservationUtil.PURCHASER_GROUP_MEMBER, (err, reservationModel) => {
+                    if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
 
-                // パフォーマンスFIX
-                this.processFixPerformance(reservationModel, reservations[0].get('performance').toString(), (err, reservationModel) => {
-                    if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    if (reservationModel.performance) {
+                    } else {
+                        // パフォーマンスFIX
+                        this.processFixPerformance(reservationModel, reservations[0].get('performance').toString(), (err, reservationModel) => {
+                            if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
-                    // 座席FIX
-                    for (let reservation of reservations) {
-                        let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
-                            return (seat.code === reservation.get('seat_code'));
-                        });
+                            // 座席FIX
+                            for (let reservation of reservations) {
+                                let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
+                                    return (seat.code === reservation.get('seat_code'));
+                                });
 
-                        reservationModel.seatCodes.push(reservation.get('seat_code'));
-                        reservationModel.setReservation(reservation.get('seat_code'), {
-                            _id: reservation.get('_id'),
-                            status: reservation.get('status'),
-                            seat_code: reservation.get('seat_code'),
-                            seat_grade_name: seatInfo.grade.name,
-                            seat_grade_name_en: seatInfo.grade.name_en,
-                            seat_grade_additional_charge: seatInfo.grade.additional_charge
+                                reservationModel.seatCodes.push(reservation.get('seat_code'));
+                                reservationModel.setReservation(reservation.get('seat_code'), {
+                                    _id: reservation.get('_id'),
+                                    status: reservation.get('status'),
+                                    seat_code: reservation.get('seat_code'),
+                                    seat_grade_name: seatInfo.grade.name,
+                                    seat_grade_name_en: seatInfo.grade.name_en,
+                                    seat_grade_additional_charge: seatInfo.grade.additional_charge
+                                });
+                            }
+
+
+                            // パフォーマンスと座席指定した状態で券種選択へ
+                            reservationModel.save((err) => {
+                                this.res.redirect(this.router.build('member.reserve.tickets', {token: reservationModel.token}));
+                            });
                         });
                     }
-
-
-                    // パフォーマンスと座席指定した状態で券種選択へ
-                    this.logger.debug('saving reservationModel... ', reservationModel);
-                    reservationModel.save((err) => {
-                        this.res.redirect(this.router.build('member.reserve.tickets', {token: token}));
-                    });
-
                 });
             }
         );
-
     }
 
     /**
@@ -238,6 +234,12 @@ export default class MemberReserveController extends ReserveBaseController {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
                 member: this.req.memberUser.get('_id')
+            },
+            null,
+            {
+                sort : {
+                    seat_code: 1
+                }
             },
             (err, reservationDocuments) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));

@@ -1,6 +1,5 @@
 "use strict";
 const ReserveBaseController_1 = require('../../ReserveBaseController');
-const Util_1 = require('../../../../common/Util/Util');
 const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
 const reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerformanceForm');
 const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
@@ -14,17 +13,29 @@ class WindowReserveController extends ReserveBaseController_1.default {
         this.layout = 'layouts/window/layout';
     }
     start() {
-        // 予約トークンを発行
-        let token = Util_1.default.createToken();
-        let reservationModel = new ReservationModel_1.default();
-        reservationModel.token = token;
-        reservationModel.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_WINDOW;
-        reservationModel = this.initializePurchaser(reservationModel);
-        // スケジュール選択へ
-        this.logger.debug('saving reservationModel... ', reservationModel);
-        reservationModel.save((err) => {
-            this.res.redirect(this.router.build('window.reserve.performances', { token: token }));
+        this.processStart(ReservationUtil_1.default.PURCHASER_GROUP_WINDOW, (err, reservationModel) => {
+            if (err)
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+            if (reservationModel.performance) {
+                reservationModel.save((err) => {
+                    let cb = this.router.build('window.reserve.seats', { token: reservationModel.token });
+                    this.res.redirect(`${this.router.build('window.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                });
+            }
+            else {
+                reservationModel.save((err) => {
+                    let cb = this.router.build('window.reserve.performances', { token: reservationModel.token });
+                    this.res.redirect(`${this.router.build('window.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                });
+            }
         });
+    }
+    /**
+     * 規約(スキップ)
+     */
+    terms() {
+        let cb = (this.req.query.cb) ? this.req.query.cb : '/';
+        this.res.redirect(cb);
     }
     /**
      * スケジュール選択
@@ -235,6 +246,10 @@ class WindowReserveController extends ReserveBaseController_1.default {
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_RESERVED,
             window: this.req.windowUser.get('_id')
+        }, null, {
+            sort: {
+                seat_code: 1
+            }
         }, (err, reservationDocuments) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));

@@ -1,6 +1,5 @@
 "use strict";
 const ReserveBaseController_1 = require('../../ReserveBaseController');
-const Util_1 = require('../../../../common/Util/Util');
 const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
 const reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerformanceForm');
 const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
@@ -14,22 +13,35 @@ class TelReserveController extends ReserveBaseController_1.default {
         this.layout = 'layouts/tel/layout';
     }
     start() {
-        // 予約トークンを発行
-        let token = Util_1.default.createToken();
-        let reservationModel = new ReservationModel_1.default();
-        reservationModel.token = token;
-        reservationModel.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_TEL;
-        reservationModel = this.initializePurchaser(reservationModel);
-        // 購入番号発行(確認画面でペイデザイン川にコピーする際に必要になるので、事前に発行しておく)
-        this.createPaymentNo((err, paymentNo) => {
+        this.processStart(ReservationUtil_1.default.PURCHASER_GROUP_TEL, (err, reservationModel) => {
             if (err)
-                return this.next(new Error(this.req.__('Message.UnexpectedError')));
-            reservationModel.paymentNo = paymentNo;
-            // スケジュール選択へ
-            reservationModel.save((err) => {
-                this.res.redirect(this.router.build('tel.reserve.performances', { token: token }));
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+            // 購入番号発行(確認画面でペイデザイン川にコピーする際に必要になるので、事前に発行しておく)
+            this.createPaymentNo((err, paymentNo) => {
+                if (err)
+                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                reservationModel.paymentNo = paymentNo;
+                if (reservationModel.performance) {
+                    reservationModel.save((err) => {
+                        let cb = this.router.build('tel.reserve.seats', { token: reservationModel.token });
+                        this.res.redirect(`${this.router.build('tel.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                    });
+                }
+                else {
+                    reservationModel.save((err) => {
+                        let cb = this.router.build('tel.reserve.performances', { token: reservationModel.token });
+                        this.res.redirect(`${this.router.build('tel.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                    });
+                }
             });
         });
+    }
+    /**
+     * 規約(スキップ)
+     */
+    terms() {
+        let cb = (this.req.query.cb) ? this.req.query.cb : '/';
+        this.res.redirect(cb);
     }
     /**
      * スケジュール選択
@@ -246,6 +258,10 @@ class TelReserveController extends ReserveBaseController_1.default {
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN,
             tel_staff: this.req.telStaffUser.get('_id')
+        }, null, {
+            sort: {
+                seat_code: 1
+            }
         }, (err, reservationDocuments) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));

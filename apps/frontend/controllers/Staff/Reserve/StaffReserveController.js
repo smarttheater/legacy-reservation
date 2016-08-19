@@ -1,6 +1,5 @@
 "use strict";
 const ReserveBaseController_1 = require('../../ReserveBaseController');
-const Util_1 = require('../../../../common/Util/Util');
 const reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerformanceForm');
 const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
 const Models_1 = require('../../../../common/models/Models');
@@ -13,33 +12,29 @@ class StaffReserveController extends ReserveBaseController_1.default {
         this.layout = 'layouts/staff/layout';
     }
     start() {
-        // 予約トークンを発行
-        let token = Util_1.default.createToken();
-        let reservationModel = new ReservationModel_1.default();
-        reservationModel.token = token;
-        reservationModel.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_STAFF;
-        reservationModel = this.initializePurchaser(reservationModel);
-        if (this.req.query.performance) {
-            // パフォーマンスFIX
-            this.processFixPerformance(reservationModel, this.req.query.performance, (err, reservationModel) => {
-                if (err) {
-                    reservationModel.save((err) => {
-                        this.res.redirect(this.router.build('staff.reserve.performances', { token: token }));
-                    });
-                }
-                else {
-                    reservationModel.save((err) => {
-                        this.res.redirect(this.router.build('staff.reserve.seats', { token: token }));
-                    });
-                }
-            });
-        }
-        else {
-            // スケジュール選択へ
-            reservationModel.save((err) => {
-                this.res.redirect(this.router.build('staff.reserve.performances', { token: token }));
-            });
-        }
+        this.processStart(ReservationUtil_1.default.PURCHASER_GROUP_STAFF, (err, reservationModel) => {
+            if (err)
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+            if (reservationModel.performance) {
+                reservationModel.save((err) => {
+                    let cb = this.router.build('staff.reserve.seats', { token: reservationModel.token });
+                    this.res.redirect(`${this.router.build('sponsor.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                });
+            }
+            else {
+                reservationModel.save((err) => {
+                    let cb = this.router.build('staff.reserve.performances', { token: reservationModel.token });
+                    this.res.redirect(`${this.router.build('sponsor.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                });
+            }
+        });
+    }
+    /**
+     * 規約(スキップ)
+     */
+    terms() {
+        let cb = (this.req.query.cb) ? this.req.query.cb : '/';
+        this.res.redirect(cb);
     }
     /**
      * スケジュール選択
@@ -219,6 +214,10 @@ class StaffReserveController extends ReserveBaseController_1.default {
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_RESERVED,
             staff: this.req.staffUser.get('_id')
+        }, null, {
+            sort: {
+                seat_code: 1
+            }
         }, (err, reservationDocuments) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));

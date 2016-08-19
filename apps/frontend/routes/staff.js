@@ -35,6 +35,7 @@ exports.default = (app) => {
     app.get('/staff/mypage/search', 'staff.mypage.search', base, authentication, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).search(); });
     app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', base, authentication, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).updateWatcherName(); });
     app.get('/staff/reserve/start', 'staff.reserve.start', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).start(); });
+    app.all('/staff/reserve/:token/terms', 'staff.reserve.terms', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).terms(); });
     app.all('/staff/reserve/:token/performances', 'staff.reserve.performances', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).performances(); });
     app.all('/staff/reserve/:token/seats', 'staff.reserve.seats', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).seats(); });
     app.all('/staff/reserve/:token/tickets', 'staff.reserve.tickets', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).tickets(); });

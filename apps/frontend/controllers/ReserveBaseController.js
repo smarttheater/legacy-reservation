@@ -5,6 +5,7 @@ const GMOUtil_1 = require('../../common/Util/GMO/GMOUtil');
 const ReservationUtil_1 = require('../../common/models/Reservation/ReservationUtil');
 const TicketTypeGroupUtil_1 = require('../../common/models/TicketTypeGroup/TicketTypeGroupUtil');
 const Models_1 = require('../../common/models/Models');
+const ReservationModel_1 = require('../models/Reserve/ReservationModel');
 const moment = require('moment');
 const fs = require('fs-extra');
 const reserveTicketForm_1 = require('../forms/Reserve/reserveTicketForm');
@@ -17,6 +18,55 @@ class ReserveBaseController extends BaseController_1.default {
         super(req, res, next);
         this.res.locals.GMOUtil = GMOUtil_1.default;
         this.res.locals.ReservationUtil = ReservationUtil_1.default;
+    }
+    /**
+     * 購入開始プロセス
+     *
+     * @param {string} purchaserGroup 購入者区分
+     */
+    processStart(purchaserGroup, cb) {
+        // パフォーマンス未指定であればパフォーマンス選択へ
+        // パフォーマンス指定であれば座席へ
+        // 言語も指定
+        if (this.req.query.locale) {
+            this.req.session['locale'] = this.req.query.locale;
+        }
+        else {
+            this.req.session['locale'] = 'ja';
+        }
+        let performanceId = this.req.query.performance;
+        // 予約トークンを発行
+        let token = Util_1.default.createToken();
+        let reservationModel = new ReservationModel_1.default();
+        reservationModel.token = token;
+        reservationModel.purchaserGroup = purchaserGroup;
+        reservationModel = this.initializePurchaser(reservationModel);
+        // パフォーマンスFIX
+        if (purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser.get('performance')) {
+            // パフォーマンスFIX
+            this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'), (err, reservationModel) => {
+                if (err) {
+                    cb(err, reservationModel);
+                }
+                else {
+                    cb(null, reservationModel);
+                }
+            });
+        }
+        else if (performanceId) {
+            // パフォーマンスFIX
+            this.processFixPerformance(reservationModel, performanceId, (err, reservationModel) => {
+                if (err) {
+                    cb(err, reservationModel);
+                }
+                else {
+                    cb(null, reservationModel);
+                }
+            });
+        }
+        else {
+            cb(null, reservationModel);
+        }
     }
     /**
      * 購入者情報を初期化する

@@ -39,6 +39,7 @@ export default (app: any) => {
     app.all('/window/mypage', 'window.mypage', base, authentication, (req, res, next) => {(new WindowMyPageController(req, res, next)).index()});
     app.get('/window/mypage/search', 'window.mypage.search', base, authentication, (req, res, next) => {(new WindowMyPageController(req, res, next)).search()});
     app.get('/window/reserve/start', 'window.reserve.start', base, authentication, (req, res, next) => {(new WindowReserveController(req, res, next)).start()});
+    app.all('/window/reserve/:token/terms', 'window.reserve.terms', base, authentication, (req, res, next) => {(new WindowReserveController(req, res, next)).terms()});
     app.all('/window/reserve/:token/performances', 'window.reserve.performances', base, authentication, (req, res, next) => {(new WindowReserveController(req, res, next)).performances()});
     app.all('/window/reserve/:token/seats', 'window.reserve.seats', base, authentication, (req, res, next) => {(new WindowReserveController(req, res, next)).seats()});
     app.all('/window/reserve/:token/tickets', 'window.reserve.tickets', base, authentication, (req, res, next) => {(new WindowReserveController(req, res, next)).tickets()});

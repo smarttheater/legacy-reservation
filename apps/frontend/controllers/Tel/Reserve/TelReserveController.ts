@@ -14,24 +14,36 @@ export default class TelReserveController extends ReserveBaseController {
     public static RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数
 
     public start(): void {
-        // 予約トークンを発行
-        let token = Util.createToken();
-        let reservationModel = new ReservationModel();
-        reservationModel.token = token;
-        reservationModel.purchaserGroup = ReservationUtil.PURCHASER_GROUP_TEL
-        reservationModel = this.initializePurchaser(reservationModel);
+        this.processStart(ReservationUtil.PURCHASER_GROUP_TEL, (err, reservationModel) => {
+            if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
+                
+            // 購入番号発行(確認画面でペイデザイン川にコピーする際に必要になるので、事前に発行しておく)
+            this.createPaymentNo((err, paymentNo) => {
+                if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
-        // 購入番号発行(確認画面でペイデザイン川にコピーする際に必要になるので、事前に発行しておく)
-        this.createPaymentNo((err, paymentNo) => {
-            if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                reservationModel.paymentNo = paymentNo;
 
-            reservationModel.paymentNo = paymentNo;
-
-            // スケジュール選択へ
-            reservationModel.save((err) => {
-                this.res.redirect(this.router.build('tel.reserve.performances', {token: token}));
+                if (reservationModel.performance) {
+                    reservationModel.save((err) => {
+                        let cb = this.router.build('tel.reserve.seats', {token: reservationModel.token});
+                        this.res.redirect(`${this.router.build('tel.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
+                    });
+                } else {
+                    reservationModel.save((err) => {
+                        let cb = this.router.build('tel.reserve.performances', {token: reservationModel.token});
+                        this.res.redirect(`${this.router.build('tel.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
+                    });
+                }
             });
         });
+    }
+
+    /**
+     * 規約(スキップ)
+     */
+    public terms(): void {
+        let cb = (this.req.query.cb) ? this.req.query.cb : '/';
+        this.res.redirect(cb);
     }
 
     /**
@@ -267,6 +279,12 @@ export default class TelReserveController extends ReserveBaseController {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN,
                 tel_staff: this.req.telStaffUser.get('_id')
+            },
+            null,
+            {
+                sort : {
+                    seat_code: 1
+                }
             },
             (err, reservationDocuments) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));

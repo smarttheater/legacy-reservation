@@ -13,53 +13,29 @@ export default class SponsorReserveController extends ReserveBaseController {
     public layout = 'layouts/sponsor/layout';
 
     public start(): void {
-        // 予約トークンを発行
-        let token = Util.createToken();
-        let reservationModel = new ReservationModel();
-        reservationModel.token = token;
-        reservationModel.purchaserGroup = ReservationUtil.PURCHASER_GROUP_SPONSOR;
-        reservationModel = this.initializePurchaser(reservationModel);
+        this.processStart(ReservationUtil.PURCHASER_GROUP_SPONSOR, (err, reservationModel) => {
+            if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
 
-        this.logger.debug('saving reservationModel... ', reservationModel);
-        reservationModel.save((err) => {
-            // パフォーマンス指定or無指定どちらか判断
-            if (this.req.sponsorUser.get('performance')) {
-                // パフォーマンスFIX
-                this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'), (err, reservationModel) => {
-                    if (err) {
-                        this.next(err);
-
-                    } else {
-                        reservationModel.save((err) => {
-                            this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
-                        });
-
-                    }
-                });
-
-            // 続けて予約の場合
-            } else if (this.req.query.performance) {
-                // パフォーマンスFIX
-                this.processFixPerformance(reservationModel, this.req.query.performance, (err, reservationModel) => {
-                    if (err) {
-                        reservationModel.save((err) => {
-                            this.res.redirect(this.router.build('sponsor.reserve.performances', {token: token}));
-                        });
-                    } else {
-                        reservationModel.save((err) => {
-                            this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
-                        });
-
-                    }
+            if (reservationModel.performance) {
+                reservationModel.save((err) => {
+                    let cb = this.router.build('sponsor.reserve.seats', {token: reservationModel.token});
+                    this.res.redirect(`${this.router.build('sponsor.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
                 });
             } else {
-                // スケジュール選択へ
                 reservationModel.save((err) => {
-                    this.res.redirect(this.router.build('sponsor.reserve.performances', {token: token}));
+                    let cb = this.router.build('sponsor.reserve.performances', {token: reservationModel.token});
+                    this.res.redirect(`${this.router.build('sponsor.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
                 });
             }
         });
+    }
 
+    /**
+     * 規約(スキップ)
+     */
+    public terms(): void {
+        let cb = (this.req.query.cb) ? this.req.query.cb : '/';
+        this.res.redirect(cb);
     }
 
     /**
@@ -325,6 +301,12 @@ export default class SponsorReserveController extends ReserveBaseController {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
                 sponsor: this.req.sponsorUser.get('_id')
+            },
+            null,
+            {
+                sort : {
+                    seat_code: 1
+                }
             },
             (err, reservationDocuments) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));

@@ -1,6 +1,5 @@
 "use strict";
 const ReserveBaseController_1 = require('../../ReserveBaseController');
-const Util_1 = require('../../../../common/Util/Util');
 const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
 const reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerformanceForm');
 const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
@@ -17,7 +16,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         if (this.req.method === 'POST') {
             reservePerformanceForm_1.default(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
-                    this.res.redirect(this.router.build('customer.reserve.start') + `?performance_id=${this.req.form['performanceId']}`);
+                    this.res.redirect(this.router.build('customer.reserve.start') + `?performance=${this.req.form['performanceId']}`);
                 }
                 else {
                     this.res.render('customer/reserve/performances');
@@ -34,42 +33,17 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      * ポータルからパフォーマンスと言語指定で遷移してくる
      */
     start() {
-        // 言語も指定
-        if (this.req.query.locale) {
-            this.req.session['locale'] = this.req.query.locale;
-        }
-        else {
-            this.req.session['locale'] = 'ja';
-        }
-        let performanceId = this.req.query.performance_id;
-        // 予約トークンを発行
-        let token = Util_1.default.createToken();
-        let reservationModel = new ReservationModel_1.default();
-        reservationModel.token = token;
-        reservationModel.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER;
-        reservationModel = this.initializePurchaser(reservationModel);
-        let purchaser = this.findPurchaser();
-        if (purchaser) {
-            reservationModel.purchaserLastName = purchaser.lastName;
-            reservationModel.purchaserFirstName = purchaser.firstName;
-            reservationModel.purchaserTel = purchaser.tel;
-            reservationModel.purchaserEmail = purchaser.email;
-        }
-        else {
-            reservationModel.purchaserLastName = '';
-            reservationModel.purchaserFirstName = '';
-            reservationModel.purchaserTel = '';
-            reservationModel.purchaserEmail = '';
-        }
-        // パフォーマンスFIX
-        this.processFixPerformance(reservationModel, performanceId, (err, reservationModel) => {
-            if (err) {
+        this.processStart(ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER, (err, reservationModel) => {
+            if (err)
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
+            if (reservationModel.performance) {
+                reservationModel.save((err) => {
+                    this.res.redirect(this.router.build('customer.reserve.terms', { token: reservationModel.token }));
+                });
             }
             else {
-                reservationModel.save((err) => {
-                    this.res.redirect(this.router.build('customer.reserve.terms', { token: token }));
-                });
+                // 今回は必ずパフォーマンス指定で遷移してくるはず
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
             }
         });
     }
@@ -277,6 +251,10 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT
+        }, null, {
+            sort: {
+                seat_code: 1
+            }
         }, (err, reservationDocuments) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -295,6 +273,10 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_RESERVED
+        }, null, {
+            sort: {
+                seat_code: 1
+            }
         }, (err, reservationDocuments) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));

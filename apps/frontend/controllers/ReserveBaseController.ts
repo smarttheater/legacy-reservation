@@ -24,6 +24,57 @@ export default class ReserveBaseController extends BaseController {
     } 
 
     /**
+     * 購入開始プロセス
+     * 
+     * @param {string} purchaserGroup 購入者区分
+     */
+    protected processStart(purchaserGroup: string, cb: (err: Error, reservationModel: ReservationModel) => void): void {
+        // パフォーマンス未指定であればパフォーマンス選択へ
+        // パフォーマンス指定であれば座席へ
+
+        // 言語も指定
+        if (this.req.query.locale) {
+            this.req.session['locale'] = this.req.query.locale;
+        } else {
+            this.req.session['locale'] = 'ja';
+        }
+
+        let performanceId = this.req.query.performance;
+
+        // 予約トークンを発行
+        let token = Util.createToken();
+        let reservationModel = new ReservationModel();
+        reservationModel.token = token;
+        reservationModel.purchaserGroup = purchaserGroup;
+        reservationModel = this.initializePurchaser(reservationModel);
+
+        // パフォーマンスFIX
+        if (purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser.get('performance')) {
+            // パフォーマンスFIX
+            this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'), (err, reservationModel) => {
+                if (err) {
+                    cb(err, reservationModel);
+                } else {
+                    cb(null, reservationModel);
+                }
+            });
+
+        // パフォーマンス指定遷移の場合
+        } else if (performanceId) {
+            // パフォーマンスFIX
+            this.processFixPerformance(reservationModel, performanceId, (err, reservationModel) => {
+                if (err) {
+                    cb(err, reservationModel);
+                } else {
+                    cb(null, reservationModel);
+                }
+            });
+        } else {
+            cb(null, reservationModel);
+        }
+    }
+
+    /**
      * 購入者情報を初期化する
      */
     protected initializePurchaser(reservationModel: ReservationModel): ReservationModel {

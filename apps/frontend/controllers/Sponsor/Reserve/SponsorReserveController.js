@@ -1,6 +1,5 @@
 "use strict";
 const ReserveBaseController_1 = require('../../ReserveBaseController');
-const Util_1 = require('../../../../common/Util/Util');
 const reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerformanceForm');
 const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
 const Models_1 = require('../../../../common/models/Models');
@@ -14,50 +13,29 @@ class SponsorReserveController extends ReserveBaseController_1.default {
         this.layout = 'layouts/sponsor/layout';
     }
     start() {
-        // 予約トークンを発行
-        let token = Util_1.default.createToken();
-        let reservationModel = new ReservationModel_1.default();
-        reservationModel.token = token;
-        reservationModel.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR;
-        reservationModel = this.initializePurchaser(reservationModel);
-        this.logger.debug('saving reservationModel... ', reservationModel);
-        reservationModel.save((err) => {
-            // パフォーマンス指定or無指定どちらか判断
-            if (this.req.sponsorUser.get('performance')) {
-                // パフォーマンスFIX
-                this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'), (err, reservationModel) => {
-                    if (err) {
-                        this.next(err);
-                    }
-                    else {
-                        reservationModel.save((err) => {
-                            this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
-                        });
-                    }
-                });
-            }
-            else if (this.req.query.performance) {
-                // パフォーマンスFIX
-                this.processFixPerformance(reservationModel, this.req.query.performance, (err, reservationModel) => {
-                    if (err) {
-                        reservationModel.save((err) => {
-                            this.res.redirect(this.router.build('sponsor.reserve.performances', { token: token }));
-                        });
-                    }
-                    else {
-                        reservationModel.save((err) => {
-                            this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
-                        });
-                    }
+        this.processStart(ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR, (err, reservationModel) => {
+            if (err)
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+            if (reservationModel.performance) {
+                reservationModel.save((err) => {
+                    let cb = this.router.build('sponsor.reserve.seats', { token: reservationModel.token });
+                    this.res.redirect(`${this.router.build('sponsor.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
                 });
             }
             else {
-                // スケジュール選択へ
                 reservationModel.save((err) => {
-                    this.res.redirect(this.router.build('sponsor.reserve.performances', { token: token }));
+                    let cb = this.router.build('sponsor.reserve.performances', { token: reservationModel.token });
+                    this.res.redirect(`${this.router.build('sponsor.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
                 });
             }
         });
+    }
+    /**
+     * 規約(スキップ)
+     */
+    terms() {
+        let cb = (this.req.query.cb) ? this.req.query.cb : '/';
+        this.res.redirect(cb);
     }
     /**
      * スケジュール選択
@@ -303,6 +281,10 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_RESERVED,
             sponsor: this.req.sponsorUser.get('_id')
+        }, null, {
+            sort: {
+                seat_code: 1
+            }
         }, (err, reservationDocuments) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
