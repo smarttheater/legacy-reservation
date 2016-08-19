@@ -2,6 +2,7 @@ import express = require('express');
 
 import AdmissionController from '../controllers/Admission/AdmissionController';
 import GMOReserveController from  '../controllers/GMO/Reserve/GMOReserveController';
+import PayDesignReserveController from  '../controllers/PayDesign/Reserve/PayDesignReserveController';
 import ReserveController from '../controllers/Reserve/ReserveController';
 import LanguageController from '../controllers/Language/LanguageController';
 
@@ -44,8 +45,8 @@ export default (app: any) => {
     app.all('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', base, (req, res, next) => {(new GMOReserveController(req, res, next)).cancel()});
 
     // ペイデザインプロセス
-    app.all('/PayDesign/reserve/notify', 'paydesign.reserve.notify', base, (req, res, next) => {(new GMOReserveController(req, res, next)).notify()});
-    app.all('/PayDesign/reserve/:paymentNo/cancel', 'paydesign.reserve.cancel', base, (req, res, next) => {(new GMOReserveController(req, res, next)).cancel()});
+    app.all('/PayDesign/reserve/notify', 'paydesign.reserve.notify', base, (req, res, next) => {(new PayDesignReserveController(req, res, next)).notify()});
+    app.all('/PayDesign/reserve/cancel', 'paydesign.reserve.cancel', base, (req, res, next) => {(new PayDesignReserveController(req, res, next)).cancel()});
 
 
     // admission

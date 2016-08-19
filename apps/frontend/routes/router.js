@@ -1,6 +1,7 @@
 "use strict";
 const AdmissionController_1 = require('../controllers/Admission/AdmissionController');
 const GMOReserveController_1 = require('../controllers/GMO/Reserve/GMOReserveController');
+const PayDesignReserveController_1 = require('../controllers/PayDesign/Reserve/PayDesignReserveController');
 const ReserveController_1 = require('../controllers/Reserve/ReserveController');
 const LanguageController_1 = require('../controllers/Language/LanguageController');
 const CustomerReserveController_1 = require('../controllers/Customer/Reserve/CustomerReserveController');
@@ -23,8 +24,8 @@ exports.default = (app) => {
     app.all('/GMO/reserve/notify', 'gmo.reserve.notify', base, (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).notify(); });
     app.all('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', base, (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).cancel(); });
     // ペイデザインプロセス
-    app.all('/PayDesign/reserve/notify', 'paydesign.reserve.notify', base, (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).notify(); });
-    app.all('/PayDesign/reserve/:paymentNo/cancel', 'paydesign.reserve.cancel', base, (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).cancel(); });
+    app.all('/PayDesign/reserve/notify', 'paydesign.reserve.notify', base, (req, res, next) => { (new PayDesignReserveController_1.default(req, res, next)).notify(); });
+    app.all('/PayDesign/reserve/cancel', 'paydesign.reserve.cancel', base, (req, res, next) => { (new PayDesignReserveController_1.default(req, res, next)).cancel(); });
     // admission
     app.get('/admission/performances', 'admission.performances', base, (req, res, next) => { (new AdmissionController_1.default(req, res, next)).performances(); });
     app.get('/admission/performance/:id/confirm', 'admission.confirm', base, (req, res, next) => { (new AdmissionController_1.default(req, res, next)).confirm(); });
