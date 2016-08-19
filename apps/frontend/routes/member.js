@@ -1,4 +1,5 @@
 "use strict";
+const MemberAuthController_1 = require('../controllers/Member/Auth/MemberAuthController');
 const MemberReserveController_1 = require('../controllers/Member/Reserve/MemberReserveController');
 const MemberUser_1 = require('../models/User/MemberUser');
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -11,7 +12,7 @@ exports.default = (app) => {
                 });
             }
             else {
-                res.redirect('/member/reserve/terms');
+                res.redirect('/member/login');
             }
         }
         else {
@@ -23,7 +24,7 @@ exports.default = (app) => {
         next();
     };
     // メルマガ先行
-    app.all('/member/reserve/terms', 'member.reserve.terms', base, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).terms(); });
+    app.all('/member/login', 'member.reserve.terms', base, (req, res, next) => { (new MemberAuthController_1.default(req, res, next)).login(); });
     app.get('/member/reserve/start', 'member.reserve.start', base, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).start(); });
     app.all('/member/reserve/:token/tickets', 'member.reserve.tickets', base, authentication, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).tickets(); });
     app.all('/member/reserve/:token/profile', 'member.reserve.profile', base, authentication, (req, res, next) => { (new MemberReserveController_1.default(req, res, next)).profile(); });

@@ -7,14 +7,16 @@ import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
+import ReserveControllerInterface from '../../ReserveControllerInterface';
 
-export default class TelReserveController extends ReserveBaseController {
+export default class TelReserveController extends ReserveBaseController implements ReserveControllerInterface {
+    public purchaserGroup = ReservationUtil.PURCHASER_GROUP_TEL;
     public layout = 'layouts/tel/layout';
 
     public static RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数
 
     public start(): void {
-        this.processStart(ReservationUtil.PURCHASER_GROUP_TEL, (err, reservationModel) => {
+        this.processStart((err, reservationModel) => {
             if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
                 
             // 購入番号発行(確認画面でペイデザイン川にコピーする際に必要になるので、事前に発行しておく)
@@ -101,7 +103,7 @@ export default class TelReserveController extends ReserveBaseController {
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
-            let limit = 4;
+            let limit = TelReserveController.RESERVATION_LIMIT_PER_PERFORMANCE;
 
             if (this.req.method === 'POST') {
                 reserveSeatForm(this.req, this.res, (err) => {

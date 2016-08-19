@@ -12,7 +12,7 @@ export default class StaffAuthController extends BaseController {
      */
     public login(): void {
         if (this.req.staffUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('staff.reserve.performances', {}));
+            return this.res.redirect(this.router.build('staff.mypage'));
         }
 
         if (this.req.method === 'POST') {

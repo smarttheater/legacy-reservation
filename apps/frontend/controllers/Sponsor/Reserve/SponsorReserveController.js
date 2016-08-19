@@ -10,10 +10,11 @@ const lockFile = require('lockfile');
 class SponsorReserveController extends ReserveBaseController_1.default {
     constructor(...args) {
         super(...args);
+        this.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR;
         this.layout = 'layouts/sponsor/layout';
     }
     start() {
-        this.processStart(ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR, (err, reservationModel) => {
+        this.processStart((err, reservationModel) => {
             if (err)
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
             if (reservationModel.performance) {
@@ -107,7 +108,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                 }, (err, reservationsCount) => {
                     // 一度に確保できる座席数は、残り可能枚数と、10の小さい方
                     let reservableCount = parseInt(this.req.sponsorUser.get('max_reservation_count')) - reservationsCount;
-                    let limit = Math.min(10, reservableCount);
+                    let limit = Math.min(SponsorReserveController.RESERVATION_LIMIT_PER_PERFORMANCE, reservableCount);
                     // すでに枚数制限に達している場合
                     if (limit <= 0) {
                         lockFile.unlock(lockPath, (err) => {
@@ -296,5 +297,6 @@ class SponsorReserveController extends ReserveBaseController_1.default {
         });
     }
 }
+SponsorReserveController.RESERVATION_LIMIT_PER_PERFORMANCE = 10; // パフォーマンスあたりの最大座席確保枚数
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = SponsorReserveController;

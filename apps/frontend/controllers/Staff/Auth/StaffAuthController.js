@@ -14,7 +14,7 @@ class StaffAuthController extends BaseController_1.default {
      */
     login() {
         if (this.req.staffUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('staff.reserve.performances', {}));
+            return this.res.redirect(this.router.build('staff.mypage'));
         }
         if (this.req.method === 'POST') {
             let form = staffLoginForm_1.default(this.req);

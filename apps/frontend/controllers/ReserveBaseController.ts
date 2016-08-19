@@ -15,7 +15,6 @@ import reserveProfileForm from '../forms/Reserve/reserveProfileForm';
  * 予約フローベースコントローラー
  */
 export default class ReserveBaseController extends BaseController {
-
     constructor(req: express.Request, res: express.Response, next: express.NextFunction) {
         super(req, res, next);
 
@@ -23,12 +22,15 @@ export default class ReserveBaseController extends BaseController {
         this.res.locals.ReservationUtil = ReservationUtil;
     } 
 
+    /** 購入者区分 */
+    public purchaserGroup: string;
+
     /**
      * 購入開始プロセス
      * 
      * @param {string} purchaserGroup 購入者区分
      */
-    protected processStart(purchaserGroup: string, cb: (err: Error, reservationModel: ReservationModel) => void): void {
+    protected processStart(cb: (err: Error, reservationModel: ReservationModel) => void): void {
         // パフォーマンス未指定であればパフォーマンス選択へ
         // パフォーマンス指定であれば座席へ
 
@@ -45,11 +47,11 @@ export default class ReserveBaseController extends BaseController {
         let token = Util.createToken();
         let reservationModel = new ReservationModel();
         reservationModel.token = token;
-        reservationModel.purchaserGroup = purchaserGroup;
+        reservationModel.purchaserGroup = this.purchaserGroup;
         reservationModel = this.initializePurchaser(reservationModel);
 
         // パフォーマンスFIX
-        if (purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser.get('performance')) {
+        if (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser.get('performance')) {
             // パフォーマンスFIX
             this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'), (err, reservationModel) => {
                 if (err) {
@@ -78,8 +80,7 @@ export default class ReserveBaseController extends BaseController {
      * 購入者情報を初期化する
      */
     protected initializePurchaser(reservationModel: ReservationModel): ReservationModel {
-        let group = reservationModel.purchaserGroup;
-        switch (group) {
+        switch (this.purchaserGroup) {
             case ReservationUtil.PURCHASER_GROUP_STAFF:
                 reservationModel.purchaserLastName = 'ナイブ';
                 reservationModel.purchaserFirstName = 'カンケイシャ';
@@ -182,7 +183,7 @@ export default class ReserveBaseController extends BaseController {
 
 
             // 内部以外は、上映開始20分過ぎていたらはじく
-            if (reservationModel.purchaserGroup !== ReservationUtil.PURCHASER_GROUP_STAFF) {
+            if (this.purchaserGroup !== ReservationUtil.PURCHASER_GROUP_STAFF) {
                 let now = moment().add(-20, 'minutes');
                 if (performance.get('day') === now.format('YYYYMMDD')) {
                     if (performance.get('start') < now.format('HHmm')) {
@@ -210,8 +211,7 @@ export default class ReserveBaseController extends BaseController {
 
                     // 券種リストは、予約する主体によって異なる
                     // 内部関係者の場合
-                    let group = reservationModel.purchaserGroup;
-                    switch (group) {
+                    switch (this.purchaserGroup) {
                         case ReservationUtil.PURCHASER_GROUP_STAFF:
                             reservationModel.ticketTypes = TicketTypeGroupUtil.getOne4staff();
                             break;
@@ -324,7 +324,6 @@ export default class ReserveBaseController extends BaseController {
      */
     protected processFixSeats(reservationModel: ReservationModel, seatCodes: Array<string>, cb: (err: Error, reservationModel: ReservationModel) => void) {
         let promises = [];
-        let purchaserGroup = reservationModel.purchaserGroup;
 
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
@@ -345,9 +344,9 @@ export default class ReserveBaseController extends BaseController {
                         performance: reservationModel.performance._id,
                         seat_code: seatCode,
                         status: ReservationUtil.STATUS_TEMPORARY,
-                        staff: (purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) ? this.req.staffUser.get('_id') : undefined,
-                        sponsor: (purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR) ? this.req.sponsorUser.get('_id') : undefined,
-                        member: (purchaserGroup === ReservationUtil.PURCHASER_GROUP_MEMBER) ? this.req.memberUser.get('_id') : undefined,
+                        staff: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) ? this.req.staffUser.get('_id') : undefined,
+                        sponsor: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR) ? this.req.sponsorUser.get('_id') : undefined,
+                        member: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_MEMBER) ? this.req.memberUser.get('_id') : undefined,
                     };
 
                     // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
@@ -453,8 +452,7 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.paymentMethod = this.req.form['paymentMethod'];
 
                 // 主体によっては、決済方法を強制的に固定で
-                let group = reservationModel.purchaserGroup;
-                switch (group) {
+                switch (this.purchaserGroup) {
                     case ReservationUtil.PURCHASER_GROUP_SPONSOR:
                     case ReservationUtil.PURCHASER_GROUP_STAFF:
                         reservationModel.paymentMethod = '';
@@ -493,7 +491,7 @@ export default class ReserveBaseController extends BaseController {
                 this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
 
                 let commonUpdate = {};
-                switch (reservationModel.purchaserGroup) {
+                switch (this.purchaserGroup) {
                     case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
                         break;
 

@@ -14,7 +14,7 @@ class SponsorAuthController extends BaseController_1.default {
      */
     login() {
         if (this.req.sponsorUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('sponsor.reserve.start'));
+            return this.res.redirect(this.router.build('sponsor.reserve.performances', {}));
         }
         if (this.req.method === 'POST') {
             let form = sponsorLoginForm_1.default(this.req);

@@ -10,10 +10,11 @@ const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
 class WindowReserveController extends ReserveBaseController_1.default {
     constructor(...args) {
         super(...args);
+        this.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_WINDOW;
         this.layout = 'layouts/window/layout';
     }
     start() {
-        this.processStart(ReservationUtil_1.default.PURCHASER_GROUP_WINDOW, (err, reservationModel) => {
+        this.processStart((err, reservationModel) => {
             if (err)
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
             if (reservationModel.performance) {
@@ -87,7 +88,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
-            let limit = 4;
+            let limit = WindowReserveController.RESERVATION_LIMIT_PER_PERFORMANCE;
             if (this.req.method === 'POST') {
                 reserveSeatForm_1.default(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {

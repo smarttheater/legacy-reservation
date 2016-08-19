@@ -8,12 +8,15 @@ import ReservationUtil from '../../../../common/models/Reservation/ReservationUt
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import lockFile = require('lockfile');
+import ReserveControllerInterface from '../../ReserveControllerInterface';
 
-export default class SponsorReserveController extends ReserveBaseController {
+export default class SponsorReserveController extends ReserveBaseController implements ReserveControllerInterface {
+    public purchaserGroup = ReservationUtil.PURCHASER_GROUP_SPONSOR;
     public layout = 'layouts/sponsor/layout';
+    public static RESERVATION_LIMIT_PER_PERFORMANCE = 10; // パフォーマンスあたりの最大座席確保枚数
 
     public start(): void {
-        this.processStart(ReservationUtil.PURCHASER_GROUP_SPONSOR, (err, reservationModel) => {
+        this.processStart((err, reservationModel) => {
             if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
 
             if (reservationModel.performance) {
@@ -114,7 +117,7 @@ export default class SponsorReserveController extends ReserveBaseController {
                     (err, reservationsCount) => {
                         // 一度に確保できる座席数は、残り可能枚数と、10の小さい方
                         let reservableCount = parseInt(this.req.sponsorUser.get('max_reservation_count')) - reservationsCount;
-                        let limit = Math.min(10, reservableCount);
+                        let limit = Math.min(SponsorReserveController.RESERVATION_LIMIT_PER_PERFORMANCE, reservableCount);
 
                         // すでに枚数制限に達している場合
                         if (limit <= 0) {

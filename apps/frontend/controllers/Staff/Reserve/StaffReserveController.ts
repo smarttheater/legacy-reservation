@@ -7,12 +7,15 @@ import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
+import ReserveControllerInterface from '../../ReserveControllerInterface';
 
-export default class StaffReserveController extends ReserveBaseController {
+export default class StaffReserveController extends ReserveBaseController implements ReserveControllerInterface {
+    public purchaserGroup = ReservationUtil.PURCHASER_GROUP_STAFF;
     public layout = 'layouts/staff/layout';
+    public static RESERVATION_LIMIT_PER_PERFORMANCE = 10; // パフォーマンスあたりの最大座席確保枚数
 
     public start(): void {
-        this.processStart(ReservationUtil.PURCHASER_GROUP_STAFF, (err, reservationModel) => {
+        this.processStart((err, reservationModel) => {
             if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
 
             if (reservationModel.performance) {
@@ -92,7 +95,7 @@ export default class StaffReserveController extends ReserveBaseController {
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
-            let limit = 10;
+            let limit = StaffReserveController.RESERVATION_LIMIT_PER_PERFORMANCE;
 
             if (this.req.method === 'POST') {
                 reserveSeatForm(this.req, this.res, (err) => {
@@ -174,7 +177,7 @@ export default class StaffReserveController extends ReserveBaseController {
     }
 
     /**
-     * 購入者情報
+     * 購入者情報(スキップ)
      */
     public profile(): void {
         let token = this.req.params.token;

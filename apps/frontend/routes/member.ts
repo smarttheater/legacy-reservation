@@ -1,5 +1,6 @@
 import express = require('express');
 
+import MemberAuthController from '../controllers/Member/Auth/MemberAuthController';
 import MemberReserveController from '../controllers/Member/Reserve/MemberReserveController';
 
 import MemberUser from '../models/User/MemberUser';
@@ -12,7 +13,7 @@ export default (app: any) => {
                     message: 'login required.'
                 });
             } else {
-                res.redirect('/member/reserve/terms');
+                res.redirect('/member/login');
             }
         } else {
             next();
@@ -26,7 +27,7 @@ export default (app: any) => {
 
 
     // メルマガ先行
-    app.all('/member/reserve/terms', 'member.reserve.terms', base, (req, res, next) => {(new MemberReserveController(req, res, next)).terms()});
+    app.all('/member/login', 'member.reserve.terms', base, (req, res, next) => {(new MemberAuthController(req, res, next)).login()});
     app.get('/member/reserve/start', 'member.reserve.start', base, (req, res, next) => {(new MemberReserveController(req, res, next)).start()});
     app.all('/member/reserve/:token/tickets', 'member.reserve.tickets', base, authentication, (req, res, next) => {(new MemberReserveController(req, res, next)).tickets()});
     app.all('/member/reserve/:token/profile', 'member.reserve.profile', base, authentication, (req, res, next) => {(new MemberReserveController(req, res, next)).profile()});

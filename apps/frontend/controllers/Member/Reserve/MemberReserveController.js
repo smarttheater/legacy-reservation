@@ -1,89 +1,27 @@
 "use strict";
 const ReserveBaseController_1 = require('../../ReserveBaseController');
-const MemberUser_1 = require('../../../models/User/MemberUser');
-const Constants_1 = require('../../../../common/Util/Constants');
 const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
-const memberReserveLoginForm_1 = require('../../../forms/Member/Reserve/memberReserveLoginForm');
 const Models_1 = require('../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
-const moment = require('moment');
 class MemberReserveController extends ReserveBaseController_1.default {
     constructor(...args) {
         super(...args);
+        this.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_MEMBER;
         this.layout = 'layouts/member/layout';
-    }
-    /**
-     * 規約
-     */
-    terms() {
-        // 期限指定
-        if (process.env.NODE_ENV === 'prod') {
-            let now = moment();
-            if (now < moment(Constants_1.default.RESERVE_START_DATETIME) || moment(Constants_1.default.RESERVE_END_DATETIME) < now) {
-                return this.next(new Error('Message.Expired'));
-            }
-        }
-        if (this.req.method === 'POST') {
-            memberReserveLoginForm_1.default(this.req, this.res, (err) => {
-                if (this.req.form.isValid) {
-                    // ユーザー認証
-                    this.logger.debug('finding member... user_id:', this.req.form['userId']);
-                    Models_1.default.Member.findOne({
-                        user_id: this.req.form['userId'],
-                        password: this.req.form['password'],
-                    }, (err, member) => {
-                        if (err)
-                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        if (!member) {
-                            this.req.form.errors.push('ログイン番号またはパスワードに誤りがあります');
-                            this.res.render('member/reserve/terms');
-                        }
-                        else {
-                            // 予約の有無を確認
-                            Models_1.default.Reservation.count({
-                                member: member.get('_id'),
-                                purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_MEMBER,
-                                status: ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER
-                            }, (err, count) => {
-                                if (err)
-                                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                if (count === 0) {
-                                    this.req.form.errors.push('既に購入済みです');
-                                    this.res.render('member/reserve/terms');
-                                }
-                                else {
-                                    // ログイン
-                                    this.req.session[MemberUser_1.default.AUTH_SESSION_NAME] = member.toObject();
-                                    this.res.redirect(this.router.build('member.reserve.start'));
-                                }
-                            });
-                        }
-                    });
-                }
-                else {
-                    this.res.render('member/reserve/terms');
-                }
-            });
-        }
-        else {
-            this.res.locals.userId = '';
-            this.res.locals.password = '';
-            this.res.render('member/reserve/terms');
-        }
     }
     start() {
         // 予約状況を確認
         Models_1.default.Reservation.find({
             member: this.req.memberUser.get('_id'),
-            purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_MEMBER,
+            purchaser_group: this.purchaserGroup,
             status: ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER
         }, 'performance seat_code status', (err, reservations) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
-            this.processStart(ReservationUtil_1.default.PURCHASER_GROUP_MEMBER, (err, reservationModel) => {
+            this.processStart((err, reservationModel) => {
                 if (err)
                     this.next(new Error(this.req.__('Message.UnexpectedError')));
                 if (reservationModel.performance) {
@@ -116,6 +54,15 @@ class MemberReserveController extends ReserveBaseController_1.default {
                 }
             });
         });
+    }
+    terms() {
+        this.next(new Error('Message.NotFound'));
+    }
+    performances() {
+        this.next(new Error('Message.NotFound'));
+    }
+    seats() {
+        this.next(new Error('Message.NotFound'));
     }
     /**
      * 券種選択
@@ -229,8 +176,6 @@ class MemberReserveController extends ReserveBaseController_1.default {
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
             if (reservationDocuments.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
-            // TODO force to logout??
-            // delete this.req.session[MemberUser.AUTH_SESSION_NAME];
             this.res.render('member/reserve/complete', {
                 reservationDocuments: reservationDocuments
             });

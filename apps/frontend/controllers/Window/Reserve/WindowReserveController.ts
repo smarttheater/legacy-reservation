@@ -7,14 +7,16 @@ import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
+import ReserveControllerInterface from '../../ReserveControllerInterface';
 
-export default class WindowReserveController extends ReserveBaseController {
+export default class WindowReserveController extends ReserveBaseController implements ReserveControllerInterface {
+    public purchaserGroup = ReservationUtil.PURCHASER_GROUP_WINDOW;
     public layout = 'layouts/window/layout';
 
     public static RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数
 
     public start(): void {
-        this.processStart(ReservationUtil.PURCHASER_GROUP_WINDOW, (err, reservationModel) => {
+        this.processStart((err, reservationModel) => {
             if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
 
             if (reservationModel.performance) {
@@ -94,7 +96,7 @@ export default class WindowReserveController extends ReserveBaseController {
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
-            let limit = 4;
+            let limit = WindowReserveController.RESERVATION_LIMIT_PER_PERFORMANCE;
 
             if (this.req.method === 'POST') {
                 reserveSeatForm(this.req, this.res, (err) => {

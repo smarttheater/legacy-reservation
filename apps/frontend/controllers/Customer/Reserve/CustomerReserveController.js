@@ -9,6 +9,10 @@ const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
 const lockFile = require('lockfile');
 class CustomerReserveController extends ReserveBaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER;
+    }
     /**
      * スケジュール選択(本番では存在しない、実際はポータル側のページ)
      */
@@ -33,7 +37,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      * ポータルからパフォーマンスと言語指定で遷移してくる
      */
     start() {
-        this.processStart(ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER, (err, reservationModel) => {
+        this.processStart((err, reservationModel) => {
             if (err)
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
             if (reservationModel.performance) {

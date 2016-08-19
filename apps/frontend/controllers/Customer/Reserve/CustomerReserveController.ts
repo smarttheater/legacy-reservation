@@ -8,8 +8,10 @@ import ReservationUtil from '../../../../common/models/Reservation/ReservationUt
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import lockFile = require('lockfile');
+import ReserveControllerInterface from '../../ReserveControllerInterface';
 
-export default class CustomerReserveController extends ReserveBaseController {
+export default class CustomerReserveController extends ReserveBaseController implements ReserveControllerInterface {
+    public purchaserGroup = ReservationUtil.PURCHASER_GROUP_CUSTOMER;
     public static RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数
 
     /**
@@ -35,7 +37,7 @@ export default class CustomerReserveController extends ReserveBaseController {
      * ポータルからパフォーマンスと言語指定で遷移してくる
      */
     public start(): void {
-        this.processStart(ReservationUtil.PURCHASER_GROUP_CUSTOMER, (err, reservationModel) => {
+        this.processStart((err, reservationModel) => {
             if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
 
             if (reservationModel.performance) {

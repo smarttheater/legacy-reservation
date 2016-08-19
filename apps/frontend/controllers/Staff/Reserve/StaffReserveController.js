@@ -9,10 +9,11 @@ const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
 class StaffReserveController extends ReserveBaseController_1.default {
     constructor(...args) {
         super(...args);
+        this.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_STAFF;
         this.layout = 'layouts/staff/layout';
     }
     start() {
-        this.processStart(ReservationUtil_1.default.PURCHASER_GROUP_STAFF, (err, reservationModel) => {
+        this.processStart((err, reservationModel) => {
             if (err)
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
             if (reservationModel.performance) {
@@ -86,7 +87,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
-            let limit = 10;
+            let limit = StaffReserveController.RESERVATION_LIMIT_PER_PERFORMANCE;
             if (this.req.method === 'POST') {
                 reserveSeatForm_1.default(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
@@ -160,7 +161,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
         });
     }
     /**
-     * 購入者情報
+     * 購入者情報(スキップ)
      */
     profile() {
         let token = this.req.params.token;
@@ -229,5 +230,6 @@ class StaffReserveController extends ReserveBaseController_1.default {
         });
     }
 }
+StaffReserveController.RESERVATION_LIMIT_PER_PERFORMANCE = 10; // パフォーマンスあたりの最大座席確保枚数
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = StaffReserveController;

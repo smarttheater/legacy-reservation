@@ -3,13 +3,14 @@ import MemberUser from '../../../models/User/MemberUser';
 import Constants from '../../../../common/Util/Constants';
 import Util from '../../../../common/Util/Util';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
-import memberReserveLoginForm from '../../../forms/Member/Reserve/memberReserveLoginForm';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import moment = require('moment');
+import ReserveControllerInterface from '../../ReserveControllerInterface';
 
-export default class MemberReserveController extends ReserveBaseController {
+export default class MemberReserveController extends ReserveBaseController implements ReserveControllerInterface {
+    public purchaserGroup = ReservationUtil.PURCHASER_GROUP_MEMBER;
     public layout = 'layouts/member/layout';
 
     /** 予約開始日時 */
@@ -17,76 +18,12 @@ export default class MemberReserveController extends ReserveBaseController {
     /** 予約終了日時 */
     private static RESERVE_END_DATETIME = '2016-10-24T23:59:59+09:00';
 
-    /**
-     * 規約
-     */
-    public terms(): void {
-        // 期限指定
-        if (process.env.NODE_ENV === 'prod') {
-            let now = moment();
-            if (now < moment(Constants.RESERVE_START_DATETIME) || moment(Constants.RESERVE_END_DATETIME) < now) {
-                return this.next(new Error('Message.Expired'));
-            }
-        }
-
-        if (this.req.method === 'POST') {
-            memberReserveLoginForm(this.req, this.res, (err) => {
-                if (this.req.form.isValid) {
-                    // ユーザー認証
-                    this.logger.debug('finding member... user_id:', this.req.form['userId']);
-                    Models.Member.findOne(
-                        {
-                            user_id: this.req.form['userId'],
-                            password: this.req.form['password'],
-                        },
-                        (err, member) => {
-                            if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
-                            if (!member) {
-                                this.req.form.errors.push('ログイン番号またはパスワードに誤りがあります');
-                                this.res.render('member/reserve/terms');
-                            } else {
-                                // 予約の有無を確認
-                                Models.Reservation.count(
-                                    {
-                                        member: member.get('_id'),
-                                        purchaser_group: ReservationUtil.PURCHASER_GROUP_MEMBER,
-                                        status: ReservationUtil.STATUS_KEPT_BY_MEMBER
-                                    },
-                                    (err, count) => {
-                                        if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
-                                        if (count === 0) {
-                                            this.req.form.errors.push('既に購入済みです');
-                                            this.res.render('member/reserve/terms');
-                                        } else {
-                                            // ログイン
-                                            this.req.session[MemberUser.AUTH_SESSION_NAME] = member.toObject();
-                                            this.res.redirect(this.router.build('member.reserve.start'));
-                                        }
-                                    }
-                                );
-                            }
-                        }
-                    );
-                } else {
-                    this.res.render('member/reserve/terms');
-                }
-            });
-        } else {
-            this.res.locals.userId = '';
-            this.res.locals.password = '';
-
-            this.res.render('member/reserve/terms');
-        }
-    }
-
     public start(): void {
         // 予約状況を確認
         Models.Reservation.find(
             {
                 member: this.req.memberUser.get('_id'),
-                purchaser_group: ReservationUtil.PURCHASER_GROUP_MEMBER,
+                purchaser_group: this.purchaserGroup,
                 status: ReservationUtil.STATUS_KEPT_BY_MEMBER
             },
             'performance seat_code status',
@@ -94,7 +31,7 @@ export default class MemberReserveController extends ReserveBaseController {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 if (reservations.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
-                this.processStart(ReservationUtil.PURCHASER_GROUP_MEMBER, (err, reservationModel) => {
+                this.processStart((err, reservationModel) => {
                     if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                     if (reservationModel.performance) {
@@ -130,6 +67,18 @@ export default class MemberReserveController extends ReserveBaseController {
                 });
             }
         );
+    }
+
+    public terms(): void {
+        this.next(new Error('Message.NotFound'));
+    }
+
+    public performances(): void {
+        this.next(new Error('Message.NotFound'));
+    }
+
+    public seats(): void {
+        this.next(new Error('Message.NotFound'));
     }
 
     /**
@@ -245,13 +194,9 @@ export default class MemberReserveController extends ReserveBaseController {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
-                // TODO force to logout??
-                // delete this.req.session[MemberUser.AUTH_SESSION_NAME];
-
                 this.res.render('member/reserve/complete', {
                     reservationDocuments: reservationDocuments
                 });
-
             }
         );
     }
