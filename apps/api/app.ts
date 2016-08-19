@@ -24,16 +24,16 @@ passport.use(new BearerStrategy(
             {
                 token: token
             },
-            (err, authenticationDocument) => {
+            (err, authentication) => {
                 if (err) {
                     return cb(err);
                 }
 
-                if (!authenticationDocument) {
+                if (!authentication) {
                     return cb(null, false);
                 }
 
-                return cb(null, authenticationDocument);
+                return cb(null, authentication);
             }
         );
     }

@@ -18,14 +18,14 @@ const Models_1 = require('../common/models/Models');
 passport.use(new BearerStrategy((token, cb) => {
     Models_1.default.Authentication.findOne({
         token: token
-    }, (err, authenticationDocument) => {
+    }, (err, authentication) => {
         if (err) {
             return cb(err);
         }
-        if (!authenticationDocument) {
+        if (!authentication) {
             return cb(null, false);
         }
-        return cb(null, authenticationDocument);
+        return cb(null, authentication);
     });
 }));
 let app = express();
