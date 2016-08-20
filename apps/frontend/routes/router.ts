@@ -50,7 +50,7 @@ export default (app: any) => {
 
 
     // admission
-    app.get('/admission/performances', 'admission.performances', base, (req, res, next) => {(new AdmissionController(req, res, next)).performances()});
+    app.all('/admission/performances', 'admission.performances', base, (req, res, next) => {(new AdmissionController(req, res, next)).performances()});
     app.get('/admission/performance/:id/confirm', 'admission.confirm', base, (req, res, next) => {(new AdmissionController(req, res, next)).confirm()});
     
 

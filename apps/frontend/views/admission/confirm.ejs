@@ -2,32 +2,21 @@
 let resevation = reservationsById[Object.keys(reservationsById)[0]];
 %>
 
-<h1><%- __('h1.AdmissionConfirm') %></h1>
+<h1 class="pagetitle"><%- __('h1.AdmissionConfirm') %></h1>
 
-<div class="row">
-    <dl class="dl-horizontal">
-        <dt><%- __('Label.FilmName') %></dt>
-        <dd>
-            <%- resevation[`film_${__('DocumentField.name')}`] %>
-        </dd>
-
-        <dt><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></dt>
-        <dd>
-            <%- resevation.performance_day %> <%- resevation.performance_start_time %> ～ 
-            <%- resevation[`theater_${__('DocumentField.name')}`] %> 
-            <%- resevation[`screen_${__('DocumentField.name')}`] %>
-        </dd>
-    </dl>
+<div class="performancedata row">
+    <h2><%- resevation[`film_${__('DocumentField.name')}`] %></h2>
+    <span class="when"><%- resevation.performance_day %> <%- resevation.performance_start_time %> ～ </span>
+    <span class="where"><%- resevation[`theater_${__('DocumentField.name')}`] %>  <%- resevation[`screen_${__('DocumentField.name')}`] %></span>
 </div>
 
-<div class="row">
-    <p class="text-primary text-center process"><%- __('Message.PleaseReadBarcode') %></p>
+<p class="text-primary text-center process row"><%- __('Message.PleaseReadBarcode') %></p>
+
+<div class="result">
+
 </div>
 
-<div class="row result">
-</div>
-
-<div class="row results">
+<div class="results">
     <div class="table-responsive">
         <table class="table table-bordered">
             <tbody>
@@ -37,194 +26,8 @@ let resevation = reservationsById[Object.keys(reservationsById)[0]];
     </div>
 </div>
 
-<script>
-var reservationsById = <%- JSON.stringify(reservationsById) %>;
-var reservationIds = Object.keys(reservationsById);
-var enteredReservationIds = [];
-var confirmingReservationIds = [];
-var confirmedReservationIds = [];
+<script src="/js/admission/confirm.js"></script>
 
-$(function(){
-    function check(reservationId) {
-        console.log(reservationId);
-
-        if (!reservationId) {
-            return false;
-        }
-
-        var result = '';
-
-        // reservation exist. OK
-        if (reservationIds.indexOf(reservationId) >= 0) {
-            // $('.audio-yes').get(0).play();
-            var audio = new Audio('/audio/yes01.mp3');
-            audio.load();
-            audio.play();
-
-            // already confirmed.
-            if (confirmedReservationIds.indexOf(reservationId) >= 0) {
-                result = `${_reservation.seat_code} [${_reservation.ticket_type_name}] 入場済み`;
-            } else {
-                var _reservation = reservationsById[reservationId];
-                result = `
-${_reservation.seat_code} [${_reservation.ticket_type_name}] OK
-        `;
-
-                // add to list for admission.
-                if (confirmingReservationIds.indexOf(reservationId) < 0) {
-                    enteredReservationIds.push(reservationId);
-                    confirmingReservationIds.push(reservationId);
-
-                    updateResults();
-                }
-
-            }
-
-            console.log('confirmingReservationIds:', confirmingReservationIds);
-
-
-            if (_reservation.ticket_type === '03') {
-                $('.result').html(`
-<div class="alert alert-info" role="alert">
-    <span class="glyphicon glyphicon glyphicon-ok" aria-hidden="true"></span>
-    <span class="sr-only">Error:</span>
-    ${result}
-</div>
-
-`);
-
-            } else if (_reservation.ticket_type === '02') {
-                $('.result').html(`
-<div class="alert alert-warning" role="alert">
-    <span class="glyphicon glyphicon glyphicon-ok" aria-hidden="true"></span>
-    <span class="sr-only">Error:</span>
-    ${result}
-</div>
-
-`);
-            } else {
-                $('.result').html(`
-<div class="alert alert-success" role="alert">
-    <span class="glyphicon glyphicon glyphicon-ok" aria-hidden="true"></span>
-    <span class="sr-only">Error:</span>
-    ${result}
-</div>
-
-`);
-
-            }
-
-        // NG
-        } else {
-            // $('.audio-no').get(0).play();
-            var audio = new Audio('/audio/no01.mp3');
-            audio.load();
-            audio.play();
-
-            result = `NG`;
-
-        $('.result').html(`
-<div class="alert alert-danger" role="alert">
-    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-    <span class="sr-only">Error:</span>
-    NG
-</div>
-
-`);
-
-        }
-
-    }
-
-    /**
-    * add admission log.
-    */
-    function addAdmission() {
-        if (confirmingReservationIds.length < 1) {
-            setTimeout(function(){
-                addAdmission();
-            },2000);
-
-        } else {
-            var reservationId = confirmingReservationIds[0];
-            console.log('being admitted...reservationId', reservationId);
-            $.ajax({
-                dataType: 'json',
-                url: '/api/admission/create',
-                type: 'POST',
-                data: {
-                    reservationId: reservationId
-                },
-                beforeSend: function() {
-                }
-            }).done(function(data) {
-                if (data.isSuccess) {
-                    console.log('admitted. reservationId', reservationId);
-                    confirmingReservationIds.splice(confirmingReservationIds.indexOf(reservationId), 1);
-                    confirmedReservationIds.push(reservationId);
-
-                }
-
-            }).fail(function(jqxhr, textStatus, error) {
-
-            }).always(function() {
-                updateResults();
-                addAdmission();
-
-            });
-
-        }
-
-    }
-
-    function updateResults() {
-        var html = ''
-
-        for (var i = enteredReservationIds.length - 1; i >= 0; i--) {
-            var _reservation = reservationsById[enteredReservationIds[i]];
-
-            html += `
-<tr>
-    <td>${_reservation._id}</td>
-    <td>${_reservation.ticket_type_name}</td>
-    <td>${(confirmedReservationIds.indexOf(_reservation._id) >= 0) ? '入場済み' : '入場中...'}</td>
-</tr>
-`;
-        }
-
-        $('.results tbody').html(html);
-    }
-
-    addAdmission();
-
-
-
-
-    // handle events by barcode reader.
-    var chars = [];
-    $(window).keypress(function(e) {
-        if (chars.length === 0) {
-            $('.process').text('<%- __('Message.Searching') %>');
-            $('.result').html('');
-        }
-
-        // ASCIIとEnterのみ。なくても良いが。
-        if (e.charCode || e.keyCode === 13 ) {
-
-            if (e.keyCode === 13){
-                var reservationId = chars.join('');
-                chars = [];
-
-                $('.process').text('<%- __('Message.PleaseReadBarcode') %>');
-                check(reservationId);
-            } else {
-                chars.push(String.fromCharCode(e.charCode));
-            }
-        }
-
-    });
-
-    // for debug
-    // check('57787fc92852ab1007fff0fe');
-});
-</script>
+<input type="hidden" name="reservationsById" value="<%= JSON.stringify(reservationsById) %>">
+<input type="hidden" name="messageSearching" value="<%- __('Message.Searching') %>">
+<input type="hidden" name="messagePleaseReadBarcode" value="<%- __('Message.PleaseReadBarcode') %>">

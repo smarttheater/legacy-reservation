@@ -9,10 +9,18 @@ import moment = require('moment');
 
 export default class AdmissionController extends BaseController {
     public performances(): void {
-        this.res.render('admission/performances', {
-            layout: 'layouts/admission/layout',
-            FilmUtil: FilmUtil
-        });
+        if (this.req.method === 'POST') {
+            if (this.req.body.performanceId) {
+                this.res.redirect(this.router.build('admission.confirm', {id: this.req.body.performanceId}));
+            } else {
+                this.res.redirect(this.router.build('admission.performances'));
+            }
+        } else {
+            this.res.render('admission/performances', {
+                layout: 'layouts/admission/layout',
+                FilmUtil: FilmUtil
+            });
+        }
     }
 
     public confirm(): void {

@@ -11,9 +11,9 @@ $(function(){
 
         reservations.forEach(function(reservation) {
             var startDatetime = reservation.performance_day.substr(0, 4)
-                      + '/' + reservation.performance_day.substr(4, 2)
-                      + '/' + reservation.performance_day.substr(6)
-                      + ' ' + reservation.performance_start_time.substr(0, 2) + ':' + reservation.performance_start_time.substr(2);
+                        + '/' + reservation.performance_day.substr(4, 2)
+                        + '/' + reservation.performance_day.substr(6)
+                        + ' ' + reservation.performance_start_time.substr(0, 2) + ':' + reservation.performance_start_time.substr(2);
             html += ''
             + '<tr data-seat-code="' + reservation.seat_code + '"'
                + ' data-reservation-id="' + reservation._id + '"'
@@ -29,7 +29,7 @@ $(function(){
                 + '<td class="td-updater">' + reservation.purchaser_last_name + ' ' + reservation.purchaser_first_name + '</td>'
                 + '<td class="td-title">'
                     + reservation.film_name_en + '<br>'
-                    + reservation.performance_day + ' ' + reservation.performance_start_time + ' ～<br>'
+                    + startDatetime + '-<br>'
                     + reservation.theater_name_en + ' ' + reservation.screen_name_en + ''
                 + '</td>'
                 + '<td class="td-seat"><a href="javascript:void(0);" class="show-seat-position" data-screen-id="' + reservation.screen.toString() + '" data-seat-codes="' + reservation.seat_code + '">' + reservation.seat_code + '</a></td>'

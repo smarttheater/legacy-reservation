@@ -116,37 +116,37 @@
 
 
 
-<div class="modal fade cancel-reservation-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal modal-cancel fade cancel-reservation-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            </div>
+            <p class="btn-circle-close" data-dismiss="modal"></p>
 
             <div class="modal-body">
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal"><%- __('Button.No') %></button>
-                <button type="button" class="btn btn-primary execute-cancel"><%- __('Button.Yes') %></button>
+                <h2><%- __('Label.ConfirmCancel') %></h2>
+                <table class="table table-reservation-confirm">
+                </table>
+                <p class="text message"><%- __('Message.AreYouSureCancel') %></p>
+                <div class="btns2clm">
+                    <p class="btn btn-lg btn-next btn-exec execute-cancel" data-url=""><span><%- __('Button.Yes') %></span></p>
+                    <p class="btn btn-lg btn-back" data-dismiss="modal"><span><span><%- __('Button.No') %></span></p>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade cancel-reservation-complete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal modal-cancel fade cancel-reservation-complete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            </div>
+            <p class="btn-circle-close" data-dismiss="modal"></p>
 
             <div class="modal-body">
-                <%- __('Label.CompleteCancelReservations') %>
+                <h2><%- __('Label.CompleteCancel') %></h2>
+                <%- __('Message.CompleteCancel') %>
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal"><%- __('Button.Close') %></button>
+                <p class="btn btn-close" data-dismiss="modal"><span><%- __('Button.Close') %></span></p>
             </div>
         </div>
     </div>

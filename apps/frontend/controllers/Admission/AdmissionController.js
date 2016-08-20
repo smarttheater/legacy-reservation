@@ -5,10 +5,20 @@ const ReservationUtil_1 = require('../../../common/models/Reservation/Reservatio
 const FilmUtil_1 = require('../../../common/models/Film/FilmUtil');
 class AdmissionController extends BaseController_1.default {
     performances() {
-        this.res.render('admission/performances', {
-            layout: 'layouts/admission/layout',
-            FilmUtil: FilmUtil_1.default
-        });
+        if (this.req.method === 'POST') {
+            if (this.req.body.performanceId) {
+                this.res.redirect(this.router.build('admission.confirm', { id: this.req.body.performanceId }));
+            }
+            else {
+                this.res.redirect(this.router.build('admission.performances'));
+            }
+        }
+        else {
+            this.res.render('admission/performances', {
+                layout: 'layouts/admission/layout',
+                FilmUtil: FilmUtil_1.default
+            });
+        }
     }
     confirm() {
         let performanceId = this.req.params.id;

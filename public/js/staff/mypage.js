@@ -11,9 +11,9 @@ $(function(){
 
         reservations.forEach(function(reservation) {
             var startDatetime = reservation.performance_day.substr(0, 4)
-                      + '/' + reservation.performance_day.substr(4, 2)
-                      + '/' + reservation.performance_day.substr(6)
-                      + ' ' + reservation.performance_start_time.substr(0, 2) + ':' + reservation.performance_start_time.substr(2);
+                        + '/' + reservation.performance_day.substr(4, 2)
+                        + '/' + reservation.performance_day.substr(6)
+                        + ' ' + reservation.performance_start_time.substr(0, 2) + ':' + reservation.performance_start_time.substr(2);
             html += ''
             + '<tr data-seat-code="' + reservation.seat_code + '"'
                + ' data-reservation-id="' + reservation._id + '"'
