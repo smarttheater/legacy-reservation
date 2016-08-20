@@ -125,6 +125,8 @@ $(function(){
             conditions[formData.name] = formData.value;
         });
 
+        $('.initial-message').hide();
+
         search();
     });
 

@@ -22,7 +22,7 @@ var ScreenSeatStatusesMap = (function () {
         this.getBgImage(this.target.find('.screen-inner')).on('load', function () {
             _this.loadHandler();
         });
-        $(window).on('resize', function () {
+        $(window).on('resize show.bs.modal', function () {
             if (_this.resizeTimer) {
                 clearTimeout(_this.resizeTimer);
             }
@@ -147,7 +147,7 @@ var ScreenSeatStatusesMap = (function () {
         var parent = this.target.parent();
         var inner = this.target.find('.screen-inner');
         var ratio = parent.width() / inner.width();
-        var zoom = 2;
+        var zoom = 2.5;
         var top = (this.target.height() / 2) - (y * zoom);
         var left = (parent.width() / 2) - (x * zoom);
         inner.addClass('transition');
@@ -160,12 +160,16 @@ var ScreenSeatStatusesMap = (function () {
         this.target.find('.zoom-btn').addClass('active');
     };
     ScreenSeatStatusesMap.prototype.resize = function () {
+        var self = this;
         var parent = this.target.parent();
         var inner = this.target.find('.screen-inner');
-        if (this.isDeviceType('sp')) {
-            var balloon = $('.balloon');
-            balloon.removeClass('active');
-            var ratio = parent.width() / inner.width();
+        var ratio = parent.width() / inner.width();
+        if(ratio < 0){ //モーダル呼び出しで埋め込まれた瞬間だとwidthが無いのでリサイズ処理を延期
+            return setTimeout(function(){
+                self.resize();
+            },200);
+        }
+        if(1 >= ratio){
             inner.css({
                 top: 0,
                 left: 0,
@@ -173,17 +177,21 @@ var ScreenSeatStatusesMap = (function () {
                 transform: 'scale(' + ratio + ')'
             });
             this.target.height(inner.height() * ratio);
-            this.target.find('.zoom-btn').removeClass('active');
-        }
-        else {
+        }else{
             inner.css({
                 top: 0,
                 left: 0,
                 transform: 'none'
             });
             this.target.height(inner.height());
-            this.target.find('.zoom-btn').removeClass('active');
         }
+
+        if (this.isDeviceType('sp')) {
+            var balloon = $('.balloon');
+            balloon.removeClass('active');
+        }
+        this.target.find('.zoom-btn').removeClass('active');
+
         this.state = ScreenSeatStatusesMap.STATE_DEFAULT;
     };
     ScreenSeatStatusesMap.prototype.isDeviceType = function (type) {
