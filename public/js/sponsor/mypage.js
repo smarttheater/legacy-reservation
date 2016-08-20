@@ -10,8 +10,19 @@ $(function(){
         var html = '';
 
         reservations.forEach(function(reservation) {
+            var startDatetime = reservation.performance_day.substr(0, 4)
+                      + '/' + reservation.performance_day.substr(4, 2)
+                      + '/' + reservation.performance_day.substr(6)
+                      + ' ' + reservation.performance_start_time.substr(0, 2) + ':' + reservation.performance_start_time.substr(2);
             html += ''
-            + '<tr data-seat-code="' + reservation.seat_code + '" data-reservation-id="' + reservation._id + '">'
+            + '<tr data-seat-code="' + reservation.seat_code + '"'
+               + ' data-reservation-id="' + reservation._id + '"'
+               + ' data-payment-no="' + reservation.payment_no + '"'
+               + ' data-film-name="' + reservation.film_name_en + '"'
+               + ' data-performance-start-datetime="' + startDatetime + '"'
+               + ' data-theater-name="' + reservation.theater_name_en + '"'
+               + ' data-screen-name="' + reservation.screen_name_en + '"'
+               + '>'
                 + '<th class="td-checkbox"><input type="checkbox" value=""></th>'
                 + '<td class="td-number">' + reservation.payment_no + '</td>'
                 + '<td class="td-tel">' + reservation.purchaser_tel + '</td>'
@@ -134,12 +145,20 @@ $(function(){
 
     // キャンセル確認
     $(document).on('click', '.confirm-cancel', function(){
-        var reservationId = $(this).parent().parent().attr('data-reservation-id');
-        var seatCode = $(this).parent().parent().attr('data-seat-code');
+        var reservationNode = $(this).parent().parent();
 
-        reservationsIds4cancel = [reservationId];
+        reservationsIds4cancel = [reservationNode.attr('data-reservation-id')];
 
-        $('.cancel-reservation-confirm .modal-body').html('Are you sure you cancel \'' + seatCode + '\'?');
+        var body = '<tr><th>予約番号:</th><td>' + reservationNode.attr('data-payment-no') + '</td></tr>'
+                 + '<tr><th>タイトル:</th><td>' + reservationNode.attr('data-film-name') + '</td></tr>'
+                 + '<tr><th>上映時間/場所:</th><td>'
+                     + reservationNode.attr('data-performance-start-datetime') + '-'
+                     + ' ' + reservationNode.attr('data-theater-name')
+                     + ' ' + reservationNode.attr('data-screen-name')
+                 + '</td></tr>'
+                 + '<tr><th>座席</th><td>' + reservationNode.attr('data-seat-code') + '</td></tr>';
+        $('.cancel-reservation-confirm .table-reservation-confirm').html(body);
+        $('.cancel-reservation-confirm .message').html('Are you sure you cancel?');
         $('.cancel-reservation-confirm').modal();
     });
 
@@ -192,7 +211,8 @@ $(function(){
                 alert('Select reservations.');
             } else {
                 // 確認モーダル表示
-                $('.cancel-reservation-confirm .modal-body').html('Are you sure you cancel \'' + _seatCodes.join('、') + '\'?');
+                $('.cancel-reservation-confirm .table-reservation-confirm').html('');
+                $('.cancel-reservation-confirm .message').html('Are you sure you cancel \'' + _seatCodes.join('、') + '\'?');
                 $('.cancel-reservation-confirm').modal();
             }
 

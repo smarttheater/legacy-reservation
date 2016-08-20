@@ -74,15 +74,16 @@ export default (app: any) => {
 
 
 
-    app.get('/Error/NotFound', 'Error.NotFound', base, (req, res, next) => {(new ErrorController(req, res, next)).notFound()});
+    app.get('/error/notFound', 'error.notFound', base, (req, res, next) => {(new ErrorController(req, res, next)).notFound()});
 
     // 404
     app.use((req, res, next) => {
-        return res.redirect('/Error/NotFound');
+        return res.redirect('/error/notFound');
     });
 
     // error handlers
     app.use((err: any, req, res, next) => {
+        req.route.name = 'error.error';
         (new ErrorController(req, res, next)).index(err);
     });
 }
