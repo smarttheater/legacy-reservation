@@ -5,6 +5,7 @@ const reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerforma
 const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
 const Models_1 = require('../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
+const ScreenUtil_1 = require('../../../../common/models/Screen/ScreenUtil');
 const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
 const lockFile = require('lockfile');
@@ -255,17 +256,16 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT
-        }, null, {
-            sort: {
-                seat_code: 1
-            }
-        }, (err, reservationDocuments) => {
+        }, null, (err, reservations) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
-            if (reservationDocuments.length === 0)
+            if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
+            reservations.sort((a, b) => {
+                return ScreenUtil_1.default.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+            });
             this.res.render('customer/reserve/waitingSettlement', {
-                reservationDocuments: reservationDocuments
+                reservationDocuments: reservations
             });
         });
     }
@@ -277,17 +277,16 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_RESERVED
-        }, null, {
-            sort: {
-                seat_code: 1
-            }
-        }, (err, reservationDocuments) => {
+        }, (err, reservations) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
-            if (reservationDocuments.length === 0)
+            if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
+            reservations.sort((a, b) => {
+                return ScreenUtil_1.default.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+            });
             this.res.render('customer/reserve/complete', {
-                reservationDocuments: reservationDocuments
+                reservationDocuments: reservations
             });
         });
     }

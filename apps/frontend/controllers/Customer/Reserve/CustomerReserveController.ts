@@ -5,6 +5,7 @@ import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceFor
 import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
+import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import lockFile = require('lockfile');
@@ -281,19 +282,17 @@ export default class CustomerReserveController extends ReserveBaseController imp
                 status: ReservationUtil.STATUS_WAITING_SETTLEMENT
             },
             null,
-            {
-                sort : {
-                    seat_code: 1
-                }
-            },
-            (err, reservationDocuments) => {
+            (err, reservations) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
+                if (reservations.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
-                this.res.render('customer/reserve/waitingSettlement', {
-                    reservationDocuments: reservationDocuments
+                reservations.sort((a, b) => {
+                    return ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
                 });
 
+                this.res.render('customer/reserve/waitingSettlement', {
+                    reservationDocuments: reservations
+                });
             }
         );
     }
@@ -308,20 +307,17 @@ export default class CustomerReserveController extends ReserveBaseController imp
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED
             },
-            null,
-            {
-                sort : {
-                    seat_code: 1
-                }
-            },
-            (err, reservationDocuments) => {
+            (err, reservations) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
+                if (reservations.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
-                this.res.render('customer/reserve/complete', {
-                    reservationDocuments: reservationDocuments
+                reservations.sort((a, b) => {
+                    return ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
                 });
 
+                this.res.render('customer/reserve/complete', {
+                    reservationDocuments: reservations
+                });
             }
         );
     }

@@ -13,7 +13,7 @@ export default (req: express.Request) => {
             .regex(/^[ァ-ロワヲンーa-z]*$/, req.__('Message.invalid{{fieldName}}', {fieldName: '%s'})),
         form.field('tel', req.__('Form.FieldName.tel')).trim()
             .required('', req.__('Message.required{{fieldName}}', {fieldName: '%s'}))
-            .regex(/^[0-9]{7,13}$/, req.__('Message.regexTelRange{{fieldName}}{{min}}{{max}}', {fieldName: '%s', min: '7', max: '13'})),
+            .regex(/^[0-9]{7,13}$/, req.__('Message.regexTel')),
         form.field('email', req.__('Form.FieldName.email')).trim()
             .required('', req.__('Message.required{{fieldName}}', {fieldName: '%s'}))
             .isEmail(req.__('Message.invalid{{fieldName}}', {fieldName: '%s'}))

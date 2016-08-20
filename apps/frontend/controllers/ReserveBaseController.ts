@@ -2,6 +2,7 @@ import BaseController from './BaseController';
 import Util from '../../common/Util/Util';
 import GMOUtil from '../../common/Util/GMO/GMOUtil';
 import ReservationUtil from '../../common/models/Reservation/ReservationUtil';
+import ScreenUtil from '../../common/models/Screen/ScreenUtil';
 import TicketTypeGroupUtil from '../../common/models/TicketTypeGroup/TicketTypeGroupUtil';
 import Models from '../../common/models/Models';
 import ReservationModel from '../models/Reserve/ReservationModel';
@@ -381,19 +382,11 @@ export default class ReserveBaseController extends BaseController {
 
         Promise.all(promises).then(() => {
             // 座席コードのソート(文字列順に)
-            reservationModel.seatCodes.sort((a, b) => {
-                if (a < b) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            });
+            reservationModel.seatCodes.sort(ScreenUtil.sortBySeatCode);
 
             cb(null, reservationModel);
-
         }, (err) => {
             cb(err, reservationModel);
-
         });
     }
 

@@ -5,6 +5,7 @@ import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceFor
 import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
+import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import lockFile = require('lockfile');
@@ -305,18 +306,16 @@ export default class SponsorReserveController extends ReserveBaseController impl
                 status: ReservationUtil.STATUS_RESERVED,
                 sponsor: this.req.sponsorUser.get('_id')
             },
-            null,
-            {
-                sort : {
-                    seat_code: 1
-                }
-            },
-            (err, reservationDocuments) => {
+            (err, reservations) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
+                if (reservations.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
+
+                reservations.sort((a, b) => {
+                    return ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                });
 
                 this.res.render('sponsor/reserve/complete', {
-                    reservationDocuments: reservationDocuments
+                    reservationDocuments: reservations
                 });
             }
         );

@@ -22,9 +22,11 @@ app.use(session_1.default); // セッション
 // ペイデザイン連携のため
 // TODO 後で消す
 app.use((req, res, next) => {
-    let logger = log4js.getLogger('system');
-    logger.debug('req:', req);
-    logger.debug('req.body:', req.body);
+    if (req.originalUrl === '/PayDesign/reserve/notify') {
+        let logger = log4js.getLogger('system');
+        logger.debug('req:', req);
+        logger.debug('req.body:', req.body);
+    }
     next();
 });
 // view engine setup

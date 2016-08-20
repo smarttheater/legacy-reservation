@@ -3,6 +3,7 @@ const BaseController_1 = require('./BaseController');
 const Util_1 = require('../../common/Util/Util');
 const GMOUtil_1 = require('../../common/Util/GMO/GMOUtil');
 const ReservationUtil_1 = require('../../common/models/Reservation/ReservationUtil');
+const ScreenUtil_1 = require('../../common/models/Screen/ScreenUtil');
 const TicketTypeGroupUtil_1 = require('../../common/models/TicketTypeGroup/TicketTypeGroupUtil');
 const Models_1 = require('../../common/models/Models');
 const ReservationModel_1 = require('../models/Reserve/ReservationModel');
@@ -309,14 +310,7 @@ class ReserveBaseController extends BaseController_1.default {
         });
         Promise.all(promises).then(() => {
             // 座席コードのソート(文字列順に)
-            reservationModel.seatCodes.sort((a, b) => {
-                if (a < b) {
-                    return -1;
-                }
-                else {
-                    return 1;
-                }
-            });
+            reservationModel.seatCodes.sort(ScreenUtil_1.default.sortBySeatCode);
             cb(null, reservationModel);
         }, (err) => {
             cb(err, reservationModel);

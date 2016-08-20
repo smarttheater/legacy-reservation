@@ -10,7 +10,7 @@ exports.default = (req) => {
         .maxLength(15, req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: '15' }))
         .regex(/^[ァ-ロワヲンーa-z]*$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })), form.field('tel', req.__('Form.FieldName.tel')).trim()
         .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
-        .regex(/^[0-9]{7,13}$/, req.__('Message.regexTelRange{{fieldName}}{{min}}{{max}}', { fieldName: '%s', min: '7', max: '13' })), form.field('email', req.__('Form.FieldName.email')).trim()
+        .regex(/^[0-9]{7,13}$/, req.__('Message.regexTel')), form.field('email', req.__('Form.FieldName.email')).trim()
         .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
         .isEmail(req.__('Message.invalid{{fieldName}}', { fieldName: '%s' }))
         .custom((value, source, callback) => {

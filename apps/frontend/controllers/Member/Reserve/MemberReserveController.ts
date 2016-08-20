@@ -5,6 +5,7 @@ import Util from '../../../../common/Util/Util';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
+import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import moment = require('moment');
 import ReserveControllerInterface from '../../ReserveControllerInterface';
@@ -184,18 +185,16 @@ export default class MemberReserveController extends ReserveBaseController imple
                 status: ReservationUtil.STATUS_RESERVED,
                 member: this.req.memberUser.get('_id')
             },
-            null,
-            {
-                sort : {
-                    seat_code: 1
-                }
-            },
-            (err, reservationDocuments) => {
+            (err, reservations) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                if (reservationDocuments.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
+                if (reservations.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
+
+                reservations.sort((a, b) => {
+                    return ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                });
 
                 this.res.render('member/reserve/complete', {
-                    reservationDocuments: reservationDocuments
+                    reservationDocuments: reservations
                 });
             }
         );
