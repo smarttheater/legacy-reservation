@@ -24,7 +24,7 @@
         <tr>
             <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
             <td>
-                <%- ReservationUtil.start2string(reservationDocuments[0].performance_day, reservationDocuments[0].performance_start_time) %> ～ 
+                <%- reservationDocuments[0].get('performance_start_str') %> ～ 
                 <%- reservationDocuments[0].get(`theater_${__('DocumentField.name')}`) %> 
                 <%- reservationDocuments[0].get(`screen_${__('DocumentField.name')}`) %>
             </td>

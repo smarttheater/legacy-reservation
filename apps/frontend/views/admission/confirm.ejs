@@ -1,13 +1,9 @@
-<%
-let resevation = reservationsById[Object.keys(reservationsById)[0]];
-%>
-
 <h1 class="pagetitle"><%- __('h1.AdmissionConfirm') %></h1>
 
 <div class="performancedata row">
-    <h2><%- resevation[`film_${__('DocumentField.name')}`] %></h2>
-    <span class="when"><%- resevation.performance_day %> <%- resevation.performance_start_time %> ～ </span>
-    <span class="where"><%- resevation[`theater_${__('DocumentField.name')}`] %>  <%- resevation[`screen_${__('DocumentField.name')}`] %></span>
+    <h2><%- performance.get('film').get('name') %></h2>
+    <span class="when"><%- performance.get('start_str') %>～</span>
+    <span class="where"><%- performance.get('theater').get(`${__('DocumentField.name')}`) %>  <%- performance.get('screen').get(`${__('DocumentField.name')}`) %></span>
 </div>
 
 <p class="text-primary text-center process row"><%- __('Message.PleaseReadBarcode') %></p>

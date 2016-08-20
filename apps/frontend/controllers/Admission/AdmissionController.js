@@ -4,6 +4,10 @@ const Models_1 = require('../../../common/models/Models');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const FilmUtil_1 = require('../../../common/models/Film/FilmUtil');
 class AdmissionController extends BaseController_1.default {
+    constructor(...args) {
+        super(...args);
+        this.layout = 'layouts/admission/layout';
+    }
     performances() {
         if (this.req.method === 'POST') {
             if (this.req.body.performanceId) {
@@ -15,24 +19,33 @@ class AdmissionController extends BaseController_1.default {
         }
         else {
             this.res.render('admission/performances', {
-                layout: 'layouts/admission/layout',
                 FilmUtil: FilmUtil_1.default
             });
         }
     }
     confirm() {
-        let performanceId = this.req.params.id;
-        Models_1.default.Reservation.find({
-            performance: performanceId,
-            status: ReservationUtil_1.default.STATUS_RESERVED
-        }).exec((err, reservations) => {
-            let reservationsById = {};
-            for (let reservation of reservations) {
-                reservationsById[reservation.get('_id')] = reservation;
-            }
-            this.res.render('admission/confirm', {
-                layout: 'layouts/admission/layout',
-                reservationsById: reservationsById
+        Models_1.default.Performance.findById(this.req.params.id)
+            .populate('film', 'name name_en')
+            .populate('screen', 'name name_en')
+            .populate('theater', 'name name_en')
+            .exec((err, performance) => {
+            if (err)
+                this.next(new Error('Message.UnexpectedError'));
+            Models_1.default.Reservation.find({
+                performance: performance.get('_id'),
+                status: ReservationUtil_1.default.STATUS_RESERVED
+            }, 'status seat_code ticket_type_code ticket_type_name ticket_type_charge')
+                .exec((err, reservations) => {
+                if (err)
+                    this.next(new Error('Message.UnexpectedError'));
+                let reservationsById = {};
+                for (let reservation of reservations) {
+                    reservationsById[reservation.get('_id')] = reservation;
+                }
+                this.res.render('admission/confirm', {
+                    performance: performance,
+                    reservationsById: reservationsById
+                });
             });
         });
     }

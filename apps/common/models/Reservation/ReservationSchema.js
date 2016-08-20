@@ -109,6 +109,10 @@ let Schema = new mongoose.Schema({
         updatedAt: 'updated_at'
     }
 });
+// 開始文字列を表示形式で取得できるように
+Schema.virtual('performance_start_str').get(function () {
+    return `${this.performance_day.substr(0, 4)}/${this.performance_day.substr(4, 2)}/${this.performance_day.substr(6)} ${this.performance_start_time.substr(0, 2)}:${this.performance_start_time.substr(2)}`;
+});
 Schema.index({
     performance: 1,
     seat_code: 1

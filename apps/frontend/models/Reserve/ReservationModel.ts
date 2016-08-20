@@ -21,6 +21,7 @@ export default class ReservationModel {
         day: string,
         start_time: string,
         end_time: string,
+        start_str: string,
         is_mx4d: boolean, // MX4D上映かどうか
         theater: {
             _id: string,
@@ -141,13 +142,6 @@ export default class ReservationModel {
      */
     private static getRedisKey(token): string {
         return `TIFFReservation_${token}`;
-    }
-
-    /**
-     * 開始日時を文字列で返す
-     */
-    public getStartDateTimeString(): string {
-        return ReservationUtil.start2string(this.performance.day, this.performance.start_time);
     }
 
     /**

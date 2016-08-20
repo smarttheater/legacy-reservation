@@ -31,4 +31,9 @@ let Schema = new mongoose.Schema({
     }
 });
 
+// 開始文字列を表示形式で取得できるように
+Schema.virtual('start_str').get(function() {
+    return `${this.day.substr(0, 4)}/${this.day.substr(4, 2)}/${this.day.substr(6)} ${this.start_time.substr(0, 2)}:${this.start_time.substr(2)}`;
+});
+
 export default Schema;

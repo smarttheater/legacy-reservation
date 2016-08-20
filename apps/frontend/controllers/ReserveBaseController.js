@@ -156,7 +156,7 @@ class ReserveBaseController extends BaseController_1.default {
             if (err)
                 return cb(err, reservationModel);
             if (!performance)
-                return cb(new Error('Message.NotFound'), reservationModel);
+                return cb(new Error(this.req.__('Message.NotFound')), reservationModel);
             // 内部以外は、上映開始20分過ぎていたらはじく
             if (this.purchaserGroup !== ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
                 let now = moment().add(-20, 'minutes');
@@ -221,6 +221,7 @@ class ReserveBaseController extends BaseController_1.default {
                     day: performance.get('day'),
                     start_time: performance.get('start_time'),
                     end_time: performance.get('end_time'),
+                    start_str: performance.get('start_str'),
                     is_mx4d: performance.get('is_mx4d'),
                     theater: {
                         _id: performance.get('theater').get('_id'),
@@ -358,7 +359,7 @@ class ReserveBaseController extends BaseController_1.default {
         let form = reserveProfileForm_1.default(this.req);
         form(this.req, this.res, (err) => {
             if (err)
-                return cb(new Error('Message.UnexpectedError'), reservationModel);
+                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
             if (this.req.form.isValid) {
                 // 購入者情報を保存して座席選択へ
                 reservationModel.purchaserLastName = this.req.form['lastName'];
@@ -386,7 +387,7 @@ class ReserveBaseController extends BaseController_1.default {
                 cb(null, reservationModel);
             }
             else {
-                cb(new Error('Message.Invalid'), reservationModel);
+                cb(new Error(this.req.__('Message.Invalid')), reservationModel);
             }
         });
     }
