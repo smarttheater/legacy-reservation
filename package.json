@@ -44,7 +44,8 @@
     "serve-favicon": "^2.3.0",
     "siege": "^0.2.0",
     "sprintf": "^0.1.5",
-    "uniqid": "^3.0.0"
+    "uniqid": "^3.0.0",
+    "validator": "^5.5.0"
   },
   "main": "index.js",
   "devDependencies": {},

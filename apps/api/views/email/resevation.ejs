@@ -18,30 +18,30 @@
             <tr>
                 <th><%- __('Label.FilmName') %></th>
                 <td>
-                    <%- reservationDocuments[0].get('film_name_ja') %><br>
-                    <%- reservationDocuments[0].get('film_name_en') %>
+                    <%- reservations[0].get('film_name_ja') %><br>
+                    <%- reservations[0].get('film_name_en') %>
                 <td>
             </tr>
 
             <tr>
                 <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
                 <td>
-                    <%- reservationDocuments[0].get('start_str') %>～ 
-                    <%- reservationDocuments[0].get('theater_name_ja') %> 
-                    <%- reservationDocuments[0].get('theater_name_en') %> 
-                    <%- reservationDocuments[0].get('screen_name_ja') %> 
-                    <%- reservationDocuments[0].get('screen_name_en') %> 
+                    <%- reservations[0].get('start_str') %>～ 
+                    <%- reservations[0].get('theater_name_ja') %> 
+                    <%- reservations[0].get('theater_name_en') %> 
+                    <%- reservations[0].get('screen_name_ja') %> 
+                    <%- reservations[0].get('screen_name_en') %> 
                 <td>
             </tr>
 
             <tr>
                 <th><%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %></th>
                 <td>
-                    <% reservationDocuments.forEach((reservationDocument, index) => { %>
-                        <%- reservationDocument.seat_code %>、
-                        <%- reservationDocument.get('ticket_type_name_ja') %>、
-                        <%- reservationDocument.get('ticket_type_name_en') %>、
-                        <%- __('{{price}} yen', {price: reservationDocument.ticket_type_charge}) %><br>
+                    <% reservations.forEach((reservation, index) => { %>
+                        <%- reservation.seat_code %>、
+                        <%- reservation.get('ticket_type_name_ja') %>、
+                        <%- reservation.get('ticket_type_name_en') %>、
+                        <%- __('{{price}} yen', {price: reservation.ticket_type_charge}) %><br>
                     <% }) %>
                 <td>
             </tr>

@@ -8,7 +8,7 @@ $(function(){
 
         $('.transfering .errmsg').text('');
         $('.transfering input[name="email"]').val('');
-        $('.transfering').modal();
+        $('.transfering').modal('show');
     });
 
     $(document).on('click', '.execute-transfer', function(){
@@ -33,16 +33,21 @@ $(function(){
                 $('.loading').modal();
             }
         }).done(function(data) {
-            $('.loading .modal-body .text-center').hide();
 
-            if (data.isSuccess) {
+            if (data.success) {
+                $('.loading .modal-body .text-center').hide();
                 $('.loading .modal-body .text-center.sent').show();
+                $('.loading').modal();
             } else {
-                $('.loading .modal-body .text-center.unsent').show();
+                $('.loading').modal('hide');
+
+                // TODO 動き調整
+                setTimeout(function() {
+                    $('.transfering .errmsg').text(data.message);
+                    $('.transfering').modal();
+                }, 500);
+                // $('.loading .modal-body .text-center.unsent').show();
             }
-
-            $('.loading').modal();
-
         }).fail(function(jqxhr, textStatus, error) {
 
         }).always(function(data) {
