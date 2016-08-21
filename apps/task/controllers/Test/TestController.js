@@ -90,28 +90,28 @@ class TestController extends BaseController_1.default {
         this.logger.info('finding reservationEmailCues...');
         Models_1.default.ReservationEmailCue.find({
             is_sent: false
-        }).limit(10).exec((err, cueDocuments) => {
-            this.logger.info('reservationEmailCues found.', err, cueDocuments);
+        }).limit(10).exec((err, cues) => {
+            this.logger.info('reservationEmailCues found.', err, cues);
             if (err) {
                 mongoose.disconnect();
                 process.exit(0);
                 return;
             }
-            if (cueDocuments.length === 0) {
+            if (cues.length === 0) {
                 mongoose.disconnect();
                 process.exit(0);
                 return;
             }
             let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
             let next = (i) => {
-                if (i === cueDocuments.length) {
+                if (i === cues.length) {
                     mongoose.disconnect();
                     process.exit(0);
                     return;
                 }
-                let cueDocument = cueDocuments[i];
+                let cue = cues[i];
                 // 予約ロガーを取得
-                Util_1.default.getReservationLogger(cueDocument.get('payment_no'), (err, logger) => {
+                Util_1.default.getReservationLogger(cue.get('payment_no'), (err, logger) => {
                     if (err) {
                     }
                     else {
@@ -119,92 +119,103 @@ class TestController extends BaseController_1.default {
                     }
                     // 送信
                     Models_1.default.Reservation.find({
-                        payment_no: cueDocument.get('payment_no'),
+                        payment_no: cue.get('payment_no'),
                         status: ReservationUtil_1.default.STATUS_RESERVED
-                    }, (err, reservationDocuments) => {
+                    }, (err, reservations) => {
+                        this.logger.info('reservations for email found.', err, reservations.length);
                         if (err) {
                             i++;
                             next(i);
                         }
                         else {
-                            if (reservationDocuments.length === 0) {
+                            if (reservations.length === 0) {
                                 // 送信済みフラグを立てる
-                                cueDocument.set('is_sent', true);
-                                cueDocument.save((err, res) => {
+                                this.logger.info('setting is_sent to true...');
+                                cue.set('is_sent', true);
+                                cue.save((err, res) => {
+                                    this.logger.info('cue saved.');
                                     i++;
                                     next(i);
                                 });
                             }
                             else {
                                 let to = '';
-                                let purchaserGroup = reservationDocuments[0].get('purchaser_group');
+                                let purchaserGroup = reservations[0].get('purchaser_group');
                                 switch (purchaserGroup) {
                                     case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
                                     case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
                                     case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
-                                        to = reservationDocuments[0].get('purchaser_email');
+                                        to = reservations[0].get('purchaser_email');
                                         break;
                                     case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
-                                        to = reservationDocuments[0].get('staff_email');
+                                        to = reservations[0].get('staff_email');
                                         break;
                                     default:
                                         break;
                                 }
+                                this.logger.info('to is', to);
                                 if (!to) {
                                     // 送信済みフラグを立てる
-                                    cueDocument.set('is_sent', true);
-                                    cueDocument.save((err, res) => {
+                                    this.logger.info('setting is_sent to true...');
+                                    cue.set('is_sent', true);
+                                    cue.save((err, res) => {
+                                        this.logger.info('cue saved.');
                                         i++;
                                         next(i);
                                     });
                                 }
-                                let EmailTemplate = emailTemplates.EmailTemplate;
-                                var path = require('path');
-                                let dir = `${__dirname}/../../views/email/reserveComplete`;
-                                let template = new EmailTemplate(dir);
-                                let locals = {
-                                    reservationDocuments: reservationDocuments
-                                };
-                                template.render(locals, (err, result) => {
-                                    if (err) {
-                                        i++;
-                                        next(i);
-                                    }
-                                    else {
-                                        let email = new _sendgrid.Email({
-                                            to: to,
-                                            from: 'noreply@devtiffwebapp.azurewebsites.net',
-                                            subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
-                                            html: result.html
-                                        });
-                                        // add barcodes
-                                        for (let reservationDocument of reservationDocuments) {
-                                            let reservationId = reservationDocument.get('_id').toString();
-                                            email.addFile({
-                                                filename: `QR_${reservationId}.png`,
-                                                contentType: 'image/png',
-                                                cid: `qrcode_${reservationId}`,
-                                                content: ReservationUtil_1.default.createQRCode(reservationId)
-                                            });
+                                else {
+                                    let EmailTemplate = emailTemplates.EmailTemplate;
+                                    var path = require('path');
+                                    let dir = `${__dirname}/../../views/email/reserveComplete`;
+                                    let template = new EmailTemplate(dir);
+                                    let locals = {
+                                        reservationDocuments: reservations
+                                    };
+                                    template.render(locals, (err, result) => {
+                                        this.logger.info('email template rendered.', err, result);
+                                        if (err) {
+                                            i++;
+                                            next(i);
                                         }
-                                        this.logger.info('sending an email...email:', email);
-                                        _sendgrid.send(email, (err, json) => {
-                                            this.logger.info('an email sent.', err, json);
-                                            if (err) {
-                                                i++;
-                                                next(i);
-                                            }
-                                            else {
-                                                // 送信済みフラグを立てる
-                                                cueDocument.set('is_sent', true);
-                                                cueDocument.save((err, res) => {
-                                                    i++;
-                                                    next(i);
+                                        else {
+                                            let email = new _sendgrid.Email({
+                                                to: to,
+                                                from: 'noreply@devtiffwebapp.azurewebsites.net',
+                                                subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
+                                                html: result.html
+                                            });
+                                            // add barcodes
+                                            for (let reservation of reservations) {
+                                                let reservationId = reservation.get('_id').toString();
+                                                email.addFile({
+                                                    filename: `QR_${reservationId}.png`,
+                                                    contentType: 'image/png',
+                                                    cid: `qrcode_${reservationId}`,
+                                                    content: ReservationUtil_1.default.createQRCode(reservationId)
                                                 });
                                             }
-                                        });
-                                    }
-                                });
+                                            this.logger.info('sending an email...email:', email);
+                                            _sendgrid.send(email, (err, json) => {
+                                                this.logger.info('an email sent.', err, json);
+                                                if (err) {
+                                                    i++;
+                                                    next(i);
+                                                }
+                                                else {
+                                                    // 送信済みフラグを立てる
+                                                    this.logger.info('setting is_sent to true...');
+                                                    cue.set('is_sent', true);
+                                                    cue.save((err, res) => {
+                                                        this.logger.info('cue saved.');
+                                                        i++;
+                                                        next(i);
+                                                    });
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
                             }
                         }
                     });
