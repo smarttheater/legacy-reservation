@@ -186,8 +186,8 @@ export default class ReservationController extends BaseController {
                                                     to: to,
                                                     from: 'noreply@devtiffwebapp.azurewebsites.net',
                                                     subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
-                                                    // html: result.html
-                                                    text: result.text
+                                                    html: result.html
+                                                    // text: result.text
                                                 });
 
 

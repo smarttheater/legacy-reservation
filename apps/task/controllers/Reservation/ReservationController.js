@@ -160,8 +160,7 @@ class ReservationController extends BaseController_1.default {
                                                 to: to,
                                                 from: 'noreply@devtiffwebapp.azurewebsites.net',
                                                 subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
-                                                // html: result.html
-                                                text: result.text
+                                                html: result.html
                                             });
                                             // add barcodes
                                             for (let reservation of reservations) {
