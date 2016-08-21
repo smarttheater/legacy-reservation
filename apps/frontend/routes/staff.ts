@@ -53,9 +53,5 @@ export default (app: any) => {
     app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', base, authentication, (req, res, next) => {(new StaffReserveController(req, res, next)).confirm()});
     app.get('/staff/reserve/:paymentNo/complete', 'staff.reserve.complete', base, authentication, (req, res, next) => {(new StaffReserveController(req, res, next)).complete()});
     app.post('/staff/cancel/execute', 'staff.cancel.execute', base, authentication, (req, res, next) => {(new StaffCancelController(req, res, next)).execute()});
-
-
-    // TODO 座席開放
-
-
+    app.all('/staff/mypage/release', 'staff.mypage.release', base, authentication, (req, res, next) => {(new StaffMyPageController(req, res, next)).release()});
 }

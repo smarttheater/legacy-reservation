@@ -10,19 +10,19 @@ if (req.hasOwnProperty('route')) {
         <a href="/" class="header-logo"><img src="/images/common/logo.png" alt="TIFF"></a>
 
         <div class="header-menu">
-            <% if (routeName.indexOf('mypage') >= 0 && req.staffUser.isAuthenticated()) { %>
+            <% if (routeName === 'staff.mypage' && req.staffUser.isAuthenticated()) { %>
             <div class="menu-staff">
                 <p class="myname"><%= req.staffUser.get('name') %> <%= __('Mr{{name}}', {name: req.staffUser.get('signature')}) %></p>
                 <div class="staff-btns">
                     <a class="btn btn-logout" href="<%- url('staff.logout') %>"><span><%- __('Button.Logout') %></span></a>
                     <a class="btn btn-newticket" href="<%- url('staff.reserve.start') %>"><span><%- __('Button.NewTicket') %></span></a>
                     <% if (req.staffUser.get('is_admin')) { %>
-                    <a class="btn btn-release" href="release"><span>座席解放</span></a>
+                    <a class="btn btn-release" href="<%- url('staff.mypage.release') %>"><span>座席解放</span></a>
                     <% } %>
                 </div>
             </div>
 
-            <% } else if (routeName.indexOf('mypage') < 0 && req.staffUser.isAuthenticated()) { %>
+            <% } else if (routeName !== 'staff.mypage' && req.staffUser.isAuthenticated()) { %>
             <div class="menu-staff">
                 <p class="myname"><%= req.staffUser.get('name') %> <%= __('Mr{{name}}', {name: req.staffUser.get('signature')}) %></p>
                 <a href="<%= url('staff.mypage') %>"><%- __('Button.MyPage') %></a> / <a href="<%= url('staff.logout') %>"><%- __('Button.Logout') %></a>

@@ -33,13 +33,23 @@ export default class StaffMyPageController extends BaseController {
         // 検索条件を作成
         let conditions: Array<Object> = [];
 
-        conditions.push(
-            {
-                purchaser_group: ReservationUtil.PURCHASER_GROUP_STAFF,
-                staff: this.req.staffUser.get('_id'),
-                status: ReservationUtil.STATUS_RESERVED
-            }
-        );
+        if (this.req.staffUser.get('is_admin')) {
+            conditions.push(
+                {
+                    purchaser_group: ReservationUtil.PURCHASER_GROUP_STAFF,
+                    staff_user_id: 'admin',
+                    status: {$in: [ReservationUtil.STATUS_RESERVED, ReservationUtil.STATUS_KEPT_BY_TIFF]}
+                }
+            );
+        } else {
+            conditions.push(
+                {
+                    purchaser_group: ReservationUtil.PURCHASER_GROUP_STAFF,
+                    staff: this.req.staffUser.get('_id'),
+                    status: ReservationUtil.STATUS_RESERVED
+                }
+            );
+        }
 
         if (film) {
             conditions.push({film: film});
@@ -151,7 +161,7 @@ export default class StaffMyPageController extends BaseController {
                 if (err) {
                     return this.res.json({
                         isSuccess: false,
-                        message: this.req.__('message.UnexpectedError'),
+                        message: this.req.__('Message.UnexpectedError'),
                         reservationId: null
                     });
                 }
@@ -159,7 +169,7 @@ export default class StaffMyPageController extends BaseController {
                 if (!reservationDocument) {
                     this.res.json({
                         isSuccess: false,
-                        message: this.req.__('message.NotFound'),
+                        message: this.req.__('Message.NotFound'),
                         reservationId: null
                     });
                 } else {
@@ -170,5 +180,67 @@ export default class StaffMyPageController extends BaseController {
                 }
             }
         );
+    }
+
+    /**
+     * 座席開放
+     */
+    public release(): void {
+        if (this.req.method === 'POST') {
+            let day = this.req.body.day;
+            if (!day) {
+                this.res.json({
+                    success: false,
+                    message: this.req.__('Message.UnexpectedError')
+                });
+
+                return;
+            }
+
+            Models.Reservation.remove(
+                {
+                    performance_day: day,
+                    status: ReservationUtil.STATUS_KEPT_BY_TIFF
+                },
+                (err) => {
+                    if (err) {
+                        this.res.json({
+                            success: false,
+                            message: this.req.__('Message.UnexpectedError')
+                        });
+                    } else {
+                        this.res.json({
+                            success: true,
+                            message: null
+                        });
+                    }
+                }
+            );
+        } else {
+            // 開放座席情報取得
+            Models.Reservation.find(
+                {
+                    status: ReservationUtil.STATUS_KEPT_BY_TIFF
+                },
+                'status seat_code performance_day',
+                (err, reservations) => {
+                    if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+
+                    // 日付ごとに
+                    let reservationsByDay = {};
+                    for (let reservation of reservations) {
+                        if (!reservationsByDay.hasOwnProperty(reservation.get('performance_day'))) {
+                            reservationsByDay[reservation.get('performance_day')] = [];
+                        }
+
+                        reservationsByDay[reservation.get('performance_day')].push(reservation);
+                    }
+
+                    this.res.render('staff/mypage/release', {
+                        reservationsByDay: reservationsByDay
+                    });
+                }
+            );
+        }
     }
 }

@@ -18,7 +18,8 @@
 		"CompleteTemporaryReservation": "仮予約完了",
 		"MyPage": "マイページ",
 		"AdmissionConfirm": "入場確認",
-		"Login": "ログイン"
+		"Login": "ログイン",
+		"ReleaseSeats": "h1.ReleaseSeats"
 	},
 	"Label": {
 		"Agree": "同意する",
@@ -86,7 +87,8 @@
 		"BackToSelectPerformance": "スケジュール選択へ戻る",
 		"NewTicket": "チケット予約",
 		"LogoutAndCancel": "ログアウトして予約をキャンセル",
-		"MyPage": "マイページ"
+		"MyPage": "マイページ",
+		"Release": "Button.Release"
 	},
 	"Form": {
 		"FieldName": {

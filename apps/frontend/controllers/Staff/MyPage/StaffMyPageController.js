@@ -30,11 +30,20 @@ class StaffMyPageController extends BaseController_1.default {
         let updater = (this.req.query.updater) ? this.req.query.updater : null;
         // 検索条件を作成
         let conditions = [];
-        conditions.push({
-            purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
-            staff: this.req.staffUser.get('_id'),
-            status: ReservationUtil_1.default.STATUS_RESERVED
-        });
+        if (this.req.staffUser.get('is_admin')) {
+            conditions.push({
+                purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
+                staff_user_id: 'admin',
+                status: { $in: [ReservationUtil_1.default.STATUS_RESERVED, ReservationUtil_1.default.STATUS_KEPT_BY_TIFF] }
+            });
+        }
+        else {
+            conditions.push({
+                purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
+                staff: this.req.staffUser.get('_id'),
+                status: ReservationUtil_1.default.STATUS_RESERVED
+            });
+        }
         if (film) {
             conditions.push({ film: film });
         }
@@ -123,14 +132,14 @@ class StaffMyPageController extends BaseController_1.default {
             if (err) {
                 return this.res.json({
                     isSuccess: false,
-                    message: this.req.__('message.UnexpectedError'),
+                    message: this.req.__('Message.UnexpectedError'),
                     reservationId: null
                 });
             }
             if (!reservationDocument) {
                 this.res.json({
                     isSuccess: false,
-                    message: this.req.__('message.NotFound'),
+                    message: this.req.__('Message.NotFound'),
                     reservationId: null
                 });
             }
@@ -141,6 +150,58 @@ class StaffMyPageController extends BaseController_1.default {
                 });
             }
         });
+    }
+    /**
+     * 座席開放
+     */
+    release() {
+        if (this.req.method === 'POST') {
+            let day = this.req.body.day;
+            if (!day) {
+                this.res.json({
+                    success: false,
+                    message: this.req.__('Message.UnexpectedError')
+                });
+                return;
+            }
+            Models_1.default.Reservation.remove({
+                performance_day: day,
+                status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+            }, (err) => {
+                if (err) {
+                    this.res.json({
+                        success: false,
+                        message: this.req.__('Message.UnexpectedError')
+                    });
+                }
+                else {
+                    this.res.json({
+                        success: true,
+                        message: null
+                    });
+                }
+            });
+        }
+        else {
+            // 開放座席情報取得
+            Models_1.default.Reservation.find({
+                status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+            }, 'status seat_code performance_day', (err, reservations) => {
+                if (err)
+                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                // 日付ごとに
+                let reservationsByDay = {};
+                for (let reservation of reservations) {
+                    if (!reservationsByDay.hasOwnProperty(reservation.get('performance_day'))) {
+                        reservationsByDay[reservation.get('performance_day')] = [];
+                    }
+                    reservationsByDay[reservation.get('performance_day')].push(reservation);
+                }
+                this.res.render('staff/mypage/release', {
+                    reservationsByDay: reservationsByDay
+                });
+            });
+        }
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

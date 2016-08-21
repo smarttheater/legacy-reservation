@@ -168,7 +168,8 @@ export default class SponsorCancelController extends BaseController {
                         },
                         {
                             // TODO 内部保留の所有者はadmin
-                            status: ReservationUtil.STATUS_KEPT_BY_TIFF
+                            status: ReservationUtil.STATUS_KEPT_BY_TIFF,
+                            staff_user_id: 'admin'
                         },
                         (err, raw) => {
                             if (err) {
