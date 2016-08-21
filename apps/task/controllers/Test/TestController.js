@@ -90,7 +90,7 @@ class TestController extends BaseController_1.default {
         this.logger.info('finding reservationEmailCues...');
         Models_1.default.ReservationEmailCue.find({
             is_sent: false
-        }).limit(10).exec((err, cues) => {
+        }).limit(1).exec((err, cues) => {
             this.logger.info('reservationEmailCues found.', err, cues);
             if (err) {
                 mongoose.disconnect();
@@ -166,14 +166,14 @@ class TestController extends BaseController_1.default {
                                 }
                                 else {
                                     let EmailTemplate = emailTemplates.EmailTemplate;
-                                    var path = require('path');
                                     let dir = `${__dirname}/../../views/email/reserveComplete`;
                                     let template = new EmailTemplate(dir);
                                     let locals = {
-                                        reservationDocuments: reservations
+                                        reservations: reservations
                                     };
+                                    this.logger.info('rendering template...dir:', dir);
                                     template.render(locals, (err, result) => {
-                                        this.logger.info('email template rendered.', err, result);
+                                        this.logger.info('email template rendered.', err);
                                         if (err) {
                                             i++;
                                             next(i);
@@ -183,7 +183,8 @@ class TestController extends BaseController_1.default {
                                                 to: to,
                                                 from: 'noreply@devtiffwebapp.azurewebsites.net',
                                                 subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
-                                                html: result.html
+                                                // html: result.html
+                                                text: result.text
                                             });
                                             // add barcodes
                                             for (let reservation of reservations) {
