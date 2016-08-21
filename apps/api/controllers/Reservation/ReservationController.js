@@ -98,6 +98,27 @@ class ReservationController extends BaseController_1.default {
             }
         });
     }
+    /**
+     * 入場グラグをたてる
+     */
+    enter() {
+        Models_1.default.Reservation.update({
+            _id: this.req.params.id
+        }, {
+            entered: true
+        }, (err, raw) => {
+            if (err) {
+                this.res.json({
+                    success: false
+                });
+            }
+            else {
+                this.res.json({
+                    success: true
+                });
+            }
+        });
+    }
     findByMvtkUser() {
         // ひとまずデモ段階では、一般予約を10件返す
         Models_1.default.Reservation.find({

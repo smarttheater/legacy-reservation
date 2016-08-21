@@ -101,6 +101,11 @@ let Schema = new mongoose.Schema({
     },
     tel_staff_user_id: String,
 
+    entered: { // 入場フラグ
+        type: Boolean,
+        default: false
+    },
+
     gmo_shop_id: String,
     gmo_amount: String,
     gmo_tax: String,

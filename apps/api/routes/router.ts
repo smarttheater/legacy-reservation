@@ -3,7 +3,6 @@ import express = require('express');
 import passport = require('passport');
 
 import AuthController from '../controllers/Auth/AuthController';
-import AdmissionController from '../controllers/Admission/AdmissionController';
 import PerformanceController from '../controllers/Performance/PerformanceController';
 import ReservationController from '../controllers/Reservation/ReservationController';
 import ScreenController from '../controllers/Screen/ScreenController';
@@ -28,14 +27,6 @@ export default (app: any) => {
 
 
 
-    app.post('/api/login', 'login', (req, res, next) => {(new AuthController(req, res, next)).login()});
-
-    // 要認証サービス
-    app.all('/api/reservations', 'reservations', passport.authenticate('bearer', {session: false}), (req, res, next) => {(new ReservationController(req, res, next)).findByMvtkUser()});
-    app.all('/api/reservation/:id', 'reservation', passport.authenticate('bearer', {session: false}), (req, res, next) => {(new ReservationController(req, res, next)).findById()});
-
-
-
     // search performances
     app.get('/api/:locale/performance/search', 'performance.search', (req, res, next) => {(new PerformanceController(req, res, next)).search()});
 
@@ -45,8 +36,20 @@ export default (app: any) => {
     // show screen html
     app.get('/api/screen/:id/show', 'screen.show', (req, res, next) => {(new ScreenController(req, res, next)).show()});
 
-    // create new admission
-    app.post('/api/admission/create', 'admission.add', (req, res, next) => {(new AdmissionController(req, res, next)).create()});
+
+
+
+
+
+    app.post('/api/login', 'login', (req, res, next) => {(new AuthController(req, res, next)).login()});
+
+    // 要認証サービス
+    app.all('/api/reservations', 'reservations', passport.authenticate('bearer', {session: false}), (req, res, next) => {(new ReservationController(req, res, next)).findByMvtkUser()});
+    app.all('/api/reservation/:id', 'reservation', passport.authenticate('bearer', {session: false}), (req, res, next) => {(new ReservationController(req, res, next)).findById()});
+
+    // enter
+    app.post('/api/reservation/:id/enter', 'reservation.enter', (req, res, next) => {(new ReservationController(req, res, next)).enter()});
+
 
 
     // 404

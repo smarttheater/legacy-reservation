@@ -21,10 +21,10 @@ $(function(){
 
             // already confirmed.
             if (confirmedReservationIds.indexOf(reservationId) >= 0) {
-                result = _reservation.seat_code+' ['+_reservation.ticket_type_name+'] 入場済み';
+                result = _reservation.seat_code+' ['+_reservation.ticket_type_name_ja+'] 入場済み';
             } else {
                 var _reservation = reservationsById[reservationId];
-                result = _reservation.seat_code+' ['+_reservation.ticket_type_name+'] OK';
+                result = _reservation.seat_code+' ['+_reservation.ticket_type_name_ja+'] OK';
 
                 // add to list for admission.
                 if (confirmingReservationIds.indexOf(reservationId) < 0) {
@@ -93,16 +93,14 @@ $(function(){
             var reservationId = confirmingReservationIds[0];
             $.ajax({
                 dataType: 'json',
-                url: '/api/admission/create',
+                url: '/api/reservation/' + reservationId + '/enter',
                 type: 'POST',
-                data: {
-                    reservationId: reservationId
-                },
+                data: {},
                 beforeSend: function() {
                 }
             }).done(function(data) {
-                if (data.isSuccess) {
-                    console.log('admitted. reservationId', reservationId);
+                if (data.success) {
+                    console.log('entered. reservationId', reservationId);
                     confirmingReservationIds.splice(confirmingReservationIds.indexOf(reservationId), 1);
                     confirmedReservationIds.push(reservationId);
                 }
@@ -126,7 +124,7 @@ $(function(){
             html += 
                 '<tr>'+
                     '<td>'+_reservation._id+'</td>'+
-                    '<td>'+_reservation.ticket_type_name+'</td>'+
+                    '<td>'+_reservation.ticket_type_name_ja+'</td>'+
                     '<td>'+((confirmedReservationIds.indexOf(_reservation._id) >= 0) ? "入場済み" : "入場中...")+'</td>'+
                 '</tr>'
             ;
@@ -166,5 +164,5 @@ $(function(){
     });
 
     // for debug
-    // check('57787fc92852ab1007fff0fe');
+    // check('57b911a5b5d8f7180aeea8ed');
 });

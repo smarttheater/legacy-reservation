@@ -84,6 +84,10 @@ let Schema = new mongoose.Schema({
         ref: 'TelStaff'
     },
     tel_staff_user_id: String,
+    entered: {
+        type: Boolean,
+        default: false
+    },
     gmo_shop_id: String,
     gmo_amount: String,
     gmo_tax: String,
