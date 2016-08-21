@@ -15,24 +15,6 @@ import PerformanceStatusesModel from '../../../common/models/PerformanceStatuses
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
 export default class PerformanceController extends BaseController {
-    private shuffle(array) {
-        let m = array.length, t, i;
-
-        // While there remain elements to shuffle…
-        while (m) {
-
-            // Pick a remaining element…
-            i = Math.floor(Math.random() * m--);
-
-            // And swap it with the current element.
-            t = array[m];
-            array[m] = array[i];
-            array[i] = t;
-        }
-
-        return array;
-    }
-
     /**
      * パフォーマンスを初期化する
      */
@@ -112,60 +94,64 @@ export default class PerformanceController extends BaseController {
         });
     }
 
-    public calculateStatuses() {
+    /**
+     * 空席ステータスを更新する
+     */
+    public updateStatuses() {
         mongoose.connect(MONGOLAB_URI, {});
 
+        this.logger.info('finding performances...');
         Models.Performance.find(
             {},
             'day start_time screen'
         ).populate('screen', 'sections')
-        .exec((err, performanceDocuments) => {
+        .exec((err, performances) => {
+            this.logger.info('performances found.', err);
+            if (err) {
+                mongoose.disconnect();
+                process.exit(0);
+                return;
+            }
+
             let promises = [];
             let now = moment().format('YYYYMMDDHHmm');
             let performanceStatusesModel = new PerformanceStatusesModel();
 
-            performanceDocuments.forEach((performanceDocument) => {
+            performances.forEach((performance) => {
                 // パフォーマンスごとに空席割合を算出する
                 promises.push(new Promise((resolve, reject) => {
                     Models.Reservation.count(
                         {
-                            performance: performanceDocument.get('_id')
-                        }
-                        ,(err, reservationCount) => {
+                            performance: performance.get('_id')
+                        },
+                        (err, reservationCount) => {
                             if (err) {
-
+                                // エラーしても無視して次のタスクにまかせる
+                                // reject(err);
+                                performanceStatusesModel.setStatus(performance.get('_id').toString(), '?');
                             } else {
-                                console.log(reservationCount);
-
-                                let seatCount = performanceDocument.get('screen').get('sections')[0].seats.length;
-                                let start = performanceDocument.get('day') + performanceDocument.get('start_time');
+                                let seatCount = performance.get('screen').get('sections')[0].seats.length;
+                                let start = performance.get('day') + performance.get('start_time');
                                 let status = PerformanceUtil.seatNum2status(reservationCount, seatCount, start, now);
-                                performanceStatusesModel.setStatus(performanceDocument.get('_id'), status);
-
+                                performanceStatusesModel.setStatus(performance.get('_id').toString(), status);
                             }
 
                             resolve();
-
                         }
                     );
-
                 }));
-
             });
 
-
             Promise.all(promises).then(() => {
+                this.logger.info('promises completed.');
                 performanceStatusesModel.save((err) => {
-                    this.logger.debug('success!');
                     mongoose.disconnect();
                     process.exit(0);
                 });
-
             }, (err) => {
-                this.logger.debug('fail.');
+                this.logger.error('promises completed.', err);
                 mongoose.disconnect();
                 process.exit(0);
-
             });
         });
     }

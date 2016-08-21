@@ -9,6 +9,7 @@ import PerformanceController from './controllers/Performance/PerformanceControll
 import TheaterController from './controllers/Theater/TheaterController';
 import FilmController from './controllers/Film/FilmController';
 import MemberController from './controllers/Member/MemberController';
+import ReservationController from './controllers/Reservation/ReservationController';
 
 
 
@@ -161,6 +162,25 @@ program
         log4js.configure(logDefaultConfiguration);
 
         (new MemberController())[method]();
+    });
+
+program
+    .command('reservation <method>')
+    .description('予約関連タスク')
+    .action((method) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/Reservation${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+        fs.mkdirsSync(logDir);
+        logDefaultConfiguration.appenders.push({
+            category: 'system',
+            type: 'dateFile',
+            filename: `${logDir}/system.log`,
+            pattern: '-yyyy-MM-dd',
+            backups: 3
+        });
+        logDefaultConfiguration.levels.system = "ALL";
+        log4js.configure(logDefaultConfiguration);
+
+        (new ReservationController())[method]();
     });
 
 // program
