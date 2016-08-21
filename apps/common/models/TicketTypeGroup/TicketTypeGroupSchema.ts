@@ -5,14 +5,18 @@ import mongoose = require('mongoose');
  */
 let Schema = new mongoose.Schema({
     _id: String,
-    name: String, // 券種グループ名
-    name_en: String, // 券種グループ名(英語)
+    name: {
+        ja: String, // 券種グループ名
+        en: String, // 券種グループ名(英語)
+    },
     types: [
          {
              _id: false,
             code: String,
-            name: String, // 券種名
-            name_en: String, // 券種名(英語)
+            name: {
+                ja: String, // 券種名
+                en: String // 券種名(英語)
+            },
             charge: Number, // 料金
             is_on_the_day: Boolean // 当日だけフラグ
         },

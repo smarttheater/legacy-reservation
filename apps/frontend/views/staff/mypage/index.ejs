@@ -27,7 +27,7 @@
                         <select class="form-control" name="theater">
                             <option value="">---</option>
                             <% for (let theater of theaters) { %>
-                            <option value="<%= theater._id %>"><%= theater.name_en %></option>
+                            <option value="<%= theater._id %>"><%= theater.name[locale] %></option>
                             <% } %>
                         </select>
                     </div>
@@ -38,7 +38,7 @@
                         <select class="form-control" name="film">
                             <option value="">---</option>
                             <% for (let film of films) { %>
-                            <option value="<%= film._id %>"><%= film.name_en %></option>
+                            <option value="<%= film._id %>"><%= film.name[locale] %></option>
                             <% } %>
                         </select>
                     </div>

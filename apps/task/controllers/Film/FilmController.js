@@ -34,7 +34,6 @@ class FilmController extends BaseController_1.default {
                 mongoose.disconnect();
                 process.exit(0);
             }
-            let genres = FilmUtil_1.default.getGenres();
             let sections = FilmUtil_1.default.getSections();
             let testNames = FilmUtil_1.default.getTestNames();
             let length = testNames.length;
@@ -44,19 +43,15 @@ class FilmController extends BaseController_1.default {
                 let no = i + 1;
                 let _id = ('000000' + no).slice(-6);
                 let _sections = this.shuffle(sections);
-                let _genres = this.shuffle(genres);
                 let _ticketTypeGroupDocuments = this.shuffle(ticketTypeGroupDocuments);
                 let minutes = 60 + Math.floor(Math.random() * 120);
                 films.push({
                     _id: _id,
                     name: testNames[i].name,
-                    name_en: testNames[i].name_en,
                     sections: _sections.slice(0, Math.floor(Math.random() * 5)),
-                    genres: _genres.slice(0, Math.floor(Math.random() * 5)),
                     ticket_type_group: _ticketTypeGroupDocuments[0].get('_id'),
                     minutes: minutes,
-                    created_user: 'system',
-                    updated_user: 'system',
+                    is_mx4d: this.shuffle([true, false, false, false])[0]
                 });
             }
             this.logger.debug('removing all films...');

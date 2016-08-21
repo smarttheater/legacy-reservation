@@ -5,13 +5,10 @@ const mongoose = require('mongoose');
  */
 let Schema = new mongoose.Schema({
     _id: String,
-    name: String,
-    name_en: String,
-    address: String,
-    tel: String,
-    fax: String,
-    created_user: String,
-    updated_user: String,
+    name: {
+        ja: String,
+        en: String
+    }
 }, {
     collection: 'theaters',
     timestamps: {

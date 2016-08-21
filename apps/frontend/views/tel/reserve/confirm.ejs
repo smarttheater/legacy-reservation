@@ -22,7 +22,7 @@
                     </p>
                 </th>
                 <td>
-                    <p><%- reservationModel.performance.film[__('DocumentField.name')] %></p>
+                    <p><%- reservationModel.performance.film.name[locale] %></p>
                     <a class="btn btn-default btn-change btn-icon-back visible-pc" href="<%- url('tel.reserve.performances', {token: reservationModel.token}) %>">
                         <span><%- __('Button.Change') %></span>
                     </a>
@@ -34,8 +34,8 @@
                 <td>
                     <p>
                         <%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ 
-                        <%- reservationModel.performance.theater[__('DocumentField.name')] %> 
-                        <%- reservationModel.performance.screen[__('DocumentField.name')] %>
+                        <%- reservationModel.performance.theater.name[locale] %> 
+                        <%- reservationModel.performance.screen.name[locale] %>
                     </p>
                 </td>
             </tr>
@@ -52,9 +52,9 @@
                         <% reservationModel.seatCodes.forEach((seatCode) => { %>
                             <% let reservation = reservationModel.getReservation(seatCode) %>
                             <%- reservation.seat_code %> / 
-                            <%- reservation[`ticket_type_${__('DocumentField.name')}`] %> <%- __('{{price}} yen', {price: reservation.ticket_type_charge}) %>
-                            <%- (reservationModel.performance.is_mx4d) ? '[+200(MX4D)]' : '' %>
-                            <%- (reservation.seat_grade_additional_charge > 0) ? `[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_${__('DocumentField.name')}`]})]` : '' %>
+                            <%- reservation[`ticket_type_name_${locale}`] %> <%- __('{{price}} yen', {price: reservation.ticket_type_charge}) %>
+                            <%- (reservationModel.performance.film.is_mx4d) ? `[+${ReservationUtil.CHARGE_MX4D}(MX4D)]` : '' %>
+                            <%- (reservation.seat_grade_additional_charge > 0) ? `[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_name_${locale}`]})]` : '' %>
                             <%- (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? `[+${ReservationUtil.CHARGE_CVS}(${__('Label.PaymentMethodName.CVS')})]` : '' %>
                             <br>
                         <% }) %>

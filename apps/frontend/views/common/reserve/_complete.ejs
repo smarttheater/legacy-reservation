@@ -19,14 +19,14 @@
         </tr>
         <tr>
             <th><%- __('Label.FilmName') %></th>
-            <td><%- reservationDocuments[0].get(`film_${__('DocumentField.name')}`) %></td>
+            <td><%- reservationDocuments[0].get(`film_name_${locale}`) %></td>
         </tr>
         <tr>
             <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
             <td>
                 <%- reservationDocuments[0].get('performance_start_str') %> ～ 
-                <%- reservationDocuments[0].get(`theater_${__('DocumentField.name')}`) %> 
-                <%- reservationDocuments[0].get(`screen_${__('DocumentField.name')}`) %>
+                <%- reservationDocuments[0].get(`theater_name_${locale}`) %> 
+                <%- reservationDocuments[0].get(`screen_name_${locale}`) %>
             </td>
         </tr>
     </thead>
@@ -52,7 +52,7 @@
 
                             <% if (reservation.purchaser_group !== ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
                             <div class="cell-btn cell-mail">
-                                <a class="btn btn-default btn-icon-mail send-mail" href="javascript:void(0)" data-reservation-id="<%- reservation._id %>" data-url="/api/<%- req.getLocale() %>/reservation/email"><span><%- __('Button.InformFriends') %></span></a>
+                                <a class="btn btn-default btn-icon-mail send-mail" href="javascript:void(0)" data-reservation-id="<%- reservation._id %>" data-url="/api/<%- locale %>/reservation/email"><span><%- __('Button.InformFriends') %></span></a>
                             </div>
                             <% } %>
 

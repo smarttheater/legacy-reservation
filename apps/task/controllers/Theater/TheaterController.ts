@@ -20,24 +20,17 @@ export default class TheaterController extends BaseController {
         let theaters = [
             {
                 _id: '000001',
-                name: 'TOHOシネマズ 六本木ヒルズ',
-                name_en: 'TOHO CINEMAS Roppongi Hills',
-                address: '東京都港区六本木6-10-2 六本木ヒルズけやき坂コンプレックス内',
-                tel: '05068685024',
-                fax: '05068685024',
-                created_user: 'system',
-                updated_user: 'system',
+                name: {
+                    ja: 'TOHOシネマズ 六本木ヒルズ',
+                    en: 'TOHO CINEMAS Roppongi Hills'
+                }
             },
             {
-                // _id: '5775b0f0cd62cab416b4b361',
                 _id: '000002',
-                name: 'EX THEATER 六本木',
-                name_en: 'EX THEATER ROPPONGI',
-                address: '東京都港区西麻布1-2-9',
-                tel: '0364062222',
-                fax: '0364062222',
-                created_user: 'system',
-                updated_user: 'system',
+                name: {
+                    ja: 'EX THEATER 六本木',
+                    en: 'EX THEATER ROPPONGI'
+                }
             }
         ];
 
@@ -94,18 +87,20 @@ export default class TheaterController extends BaseController {
                 screens.push({
                     _id: theater + no,
                     theater: theater,
-                    name: `スクリーン${no}`,
-                    name_en: `SCREEN${no}`,
+                    name: {
+                        ja: `スクリーン${no}`,
+                        en: `SCREEN${no}`
+                    },
                     sections: [
                         {
                             code: 'SEC00',
-                            name: 'セクション00',
-                            name_en: 'Section00',
+                            name: {
+                                ja: 'セクション00',
+                                en: 'Section00',
+                            },
                             seats: this.getSeats()
                         }
-                    ],
-                    created_user: 'system',
-                    updated_user: 'system',
+                    ]
                 });
             }
         });

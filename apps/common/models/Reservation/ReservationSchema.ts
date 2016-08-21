@@ -18,29 +18,29 @@ let Schema = new mongoose.Schema({
     performance_day: String,
     performance_start_time: String,
     performance_end_time: String,
-    performance_is_mx4d: Boolean,
 
     theater: {
         type: String,
         ref: 'Theater'
     },
-    theater_name: String,
+    theater_name_ja: String,
     theater_name_en: String,
 
     screen: {
         type: String,
         ref: 'Screen'
     },
-    screen_name: String,
+    screen_name_ja: String,
     screen_name_en: String,
 
     film: {
         type: String,
         ref: 'Film'
     },
-    film_name: String,
+    film_name_ja: String,
     film_name_en: String,
     film_image: String,
+    film_is_mx4d: Boolean,
 
     purchaser_group: String, // 購入者区分
     purchaser_last_name: String,
@@ -53,12 +53,12 @@ let Schema = new mongoose.Schema({
     payment_method: String, // 決済方法
 
     seat_code: String,
-    seat_grade_name: String,
+    seat_grade_name_ja: String,
     seat_grade_name_en: String,
     seat_grade_additional_charge: Number,
 
     ticket_type_code: String,
-    ticket_type_name: String,
+    ticket_type_name_ja: String,
     ticket_type_name_en: String,
     ticket_type_charge: Number,
 

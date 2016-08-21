@@ -52,8 +52,8 @@ export default class MemberReserveController extends ReserveBaseController imple
                                     _id: reservation.get('_id'),
                                     status: reservation.get('status'),
                                     seat_code: reservation.get('seat_code'),
-                                    seat_grade_name: seatInfo.grade.name,
-                                    seat_grade_name_en: seatInfo.grade.name_en,
+                                    seat_grade_name_ja: seatInfo.grade.name.ja,
+                                    seat_grade_name_en: seatInfo.grade.name.en,
                                     seat_grade_additional_charge: seatInfo.grade.additional_charge
                                 });
                             }

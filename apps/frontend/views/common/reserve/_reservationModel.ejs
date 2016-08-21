@@ -2,11 +2,11 @@
     <h2 class="accordion_mobile_toggle"><%- __('Label.PurchaseContent') %></h2>
     <div class="reservationstatus-inner accordion_mobile_inner">
         <p class="reservationstatus-image"><img src="<%- reservationModel.performance.film.image %>"></p>
-        <p class="reservationstatus-title"><%- reservationModel.performance.film[__('DocumentField.name')] %></p>
+        <p class="reservationstatus-title"><%- reservationModel.performance.film.name[locale] %></p>
         <hr>
         <div class="reservationstatus-info">
             <p class="info-date"><span><%- reservationModel.performance.start_str %> ～</span></p>
-            <p class="info-screen"><span><%- reservationModel.performance.theater[__('DocumentField.name')] %> <br><%- reservationModel.performance.screen[__('DocumentField.name')] %></span></p>
+            <p class="info-screen"><span><%- reservationModel.performance.theater.name[locale] %> <br><%- reservationModel.performance.screen.name[locale] %></span></p>
         </div>
         <p class="btn btn-block btn-showseat show-seat-position" data-screen-id="<%- reservationModel.performance.screen._id %>" data-seat-codes="<%- reservationModel.seatCodes.join(',') %>"><span><%- __('Label.ShowSeats') %></span></p>
     </div>

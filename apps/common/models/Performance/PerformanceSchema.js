@@ -19,10 +19,7 @@ let Schema = new mongoose.Schema({
     },
     day: String,
     start_time: String,
-    end_time: String,
-    is_mx4d: Boolean,
-    created_user: String,
-    updated_user: String,
+    end_time: String // 上映終了時刻
 }, {
     collection: 'performances',
     timestamps: {

@@ -52,27 +52,23 @@ export default class MemberController extends BaseController {
     public createReservations() {
         let film = {
             "_id": "999999",
-            "name": "メルマガ会員先行予約用の作品",
-            "name_en": "Film for Email Members",
+            "name": {
+                "ja": "メルマガ会員先行予約用の作品",
+                "en": "Film for Email Members",
+            },
             "ticket_type_group": "001",
             "minutes": 99,
-            "created_user": "system",
-            "updated_user": "system",
-            "genres": [
-                {
-                    "code": "01",
-                    "name": "ヒューマンドラマ",
-                    "name_en": "Human Drama"
-                }
-            ],
             "sections": [
                 {
-                    code: "01",
-                    name: "オープニング",
-                    name_en: "Opening"
+                    "code": "01",
+                    "name": {
+                        "ja": "オープニング",
+                        "en": "Opening"
+                    }
                 }
             ],
-            "image": "http://art33.photozou.jp/pub/794/3019794/photo/239721730.jpg"
+            "image": "http://art33.photozou.jp/pub/794/3019794/photo/239721730.jpg",
+            "is_mx4d": false
         };
 
         let performance = {
@@ -82,10 +78,7 @@ export default class MemberController extends BaseController {
             "film": "999999",
             "day": "20161022",
             "start_time": "0600",
-            "end_time": "0800",
-            "is_mx4d": false,
-            "created_user": "system",
-            "updated_user": "system",
+            "end_time": "0800"
         };
 
         let promises = [];

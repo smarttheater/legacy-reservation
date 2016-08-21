@@ -49,7 +49,6 @@ $(function(){
                             '<div class="desc">' + performancesOnFilm[0].film_sections.join(',') + '</div>'+
                             '<div class="genreslength">'+
                                 '<div class="genres">'+
-                                    '<span>' + performancesOnFilm[0].film_genres.join('</span><span>') + '</span>' +
                                 '</div>'+
                                 '<span class="length">本編 ' + performancesOnFilm[0].film_minutes + '分</span>'+
                             '</div>'+

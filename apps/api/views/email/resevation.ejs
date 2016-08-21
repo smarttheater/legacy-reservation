@@ -17,15 +17,20 @@
         <tbody>
             <tr>
                 <th><%- __('Label.FilmName') %></th>
-                <td><%- reservationDocuments[0][`film_${__('DocumentField.name')}`] %><td>
+                <td>
+                    <%- reservationDocuments[0].get('film_name_ja') %><br>
+                    <%- reservationDocuments[0].get('film_name_en') %>
+                <td>
             </tr>
 
             <tr>
                 <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
                 <td>
-                    <%- reservationDocuments[0].performance_day %> <%- reservationDocuments[0].performance_start_time %> ～ 
-                    <%- reservationDocuments[0][`theater_${__('DocumentField.name')}`] %> 
-                    <%- reservationDocuments[0][`screen${__('DocumentField.name')}`] %>
+                    <%- reservationDocuments[0].get('start_str') %>～ 
+                    <%- reservationDocuments[0].get('theater_name_ja') %> 
+                    <%- reservationDocuments[0].get('theater_name_en') %> 
+                    <%- reservationDocuments[0].get('screen_name_ja') %> 
+                    <%- reservationDocuments[0].get('screen_name_en') %> 
                 <td>
             </tr>
 
@@ -34,7 +39,8 @@
                 <td>
                     <% reservationDocuments.forEach((reservationDocument, index) => { %>
                         <%- reservationDocument.seat_code %>、
-                        <%- reservationDocument[`ticket_type_${__('DocumentField.name')}`] %>、
+                        <%- reservationDocument.get('ticket_type_name_ja') %>、
+                        <%- reservationDocument.get('ticket_type_name_en') %>、
                         <%- __('{{price}} yen', {price: reservationDocument.ticket_type_charge}) %><br>
                     <% }) %>
                 <td>

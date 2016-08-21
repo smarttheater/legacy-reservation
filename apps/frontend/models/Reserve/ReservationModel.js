@@ -104,7 +104,7 @@ class ReservationModel {
                 charge += reservation.seat_grade_additional_charge;
             }
             // MX4D分加算
-            if (this.performance.is_mx4d) {
+            if (this.performance.film.is_mx4d) {
                 charge += ReservationUtil_1.default.CHARGE_MX4D;
             }
             // コンビニ手数料加算
@@ -138,7 +138,7 @@ class ReservationModel {
                 // TODO 金額系の税込みと消費税と両方
                 _id: reservation._id,
                 seat_code: seatCode,
-                seat_grade_name: reservation.seat_grade_name,
+                seat_grade_name_ja: reservation.seat_grade_name_ja,
                 seat_grade_name_en: reservation.seat_grade_name_en,
                 seat_grade_additional_charge: reservation.seat_grade_additional_charge,
                 total_charge: totalCharge,
@@ -149,24 +149,24 @@ class ReservationModel {
                 performance_day: this.performance.day,
                 performance_start_time: this.performance.start_time,
                 performance_end_time: this.performance.end_time,
-                performance_is_mx4d: this.performance.is_mx4d,
                 theater: this.performance.theater._id,
-                theater_name: this.performance.theater.name,
-                theater_name_en: this.performance.theater.name_en,
+                theater_name_ja: this.performance.theater.name.ja,
+                theater_name_en: this.performance.theater.name.en,
                 screen: this.performance.screen._id,
-                screen_name: this.performance.screen.name,
-                screen_name_en: this.performance.screen.name_en,
+                screen_name_ja: this.performance.screen.name.ja,
+                screen_name_en: this.performance.screen.name.en,
                 film: this.performance.film._id,
-                film_name: this.performance.film.name,
-                film_name_en: this.performance.film.name_en,
+                film_name_ja: this.performance.film.name.ja,
+                film_name_en: this.performance.film.name.en,
                 film_image: this.performance.film.image,
+                film_is_mx4d: this.performance.film.is_mx4d,
                 purchaser_last_name: (this.purchaserLastName) ? this.purchaserLastName : undefined,
                 purchaser_first_name: (this.purchaserFirstName) ? this.purchaserFirstName : undefined,
                 purchaser_email: (this.purchaserEmail) ? this.purchaserEmail : undefined,
                 purchaser_tel: (this.purchaserTel) ? this.purchaserTel : undefined,
                 payment_method: (this.paymentMethod) ? this.paymentMethod : undefined,
                 ticket_type_code: reservation.ticket_type_code,
-                ticket_type_name: reservation.ticket_type_name,
+                ticket_type_name_ja: reservation.ticket_type_name_ja,
                 ticket_type_name_en: reservation.ticket_type_name_en,
                 ticket_type_charge: reservation.ticket_type_charge,
                 watcher_name: (reservation.watcher_name) ? reservation.watcher_name : undefined,

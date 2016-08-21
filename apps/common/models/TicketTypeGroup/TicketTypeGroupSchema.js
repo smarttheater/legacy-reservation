@@ -5,14 +5,18 @@ const mongoose = require('mongoose');
  */
 let Schema = new mongoose.Schema({
     _id: String,
-    name: String,
-    name_en: String,
+    name: {
+        ja: String,
+        en: String,
+    },
     types: [
         {
             _id: false,
             code: String,
-            name: String,
-            name_en: String,
+            name: {
+                ja: String,
+                en: String // 券種名(英語)
+            },
             charge: Number,
             is_on_the_day: Boolean // 当日だけフラグ
         },

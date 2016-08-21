@@ -22,22 +22,27 @@ export default class ReservationModel {
         start_time: string,
         end_time: string,
         start_str: string,
-        is_mx4d: boolean, // MX4D上映かどうか
         theater: {
             _id: string,
-            name: string,
-            name_en: string,
+            name: {
+                ja: string,
+                en: string
+            }
         },
         screen: {
             _id: string,
-            name: string,
-            name_en: string,
+            name: {
+                ja: string,
+                en: string
+            },
             sections: Array<{
                 seats: Array<{
                     code: string, // 座席コード
                     grade: {
-                        name: string, // 座席レベル名
-                        name_en: string, // 座席レベル名(英語)
+                        name: {
+                            ja: string,
+                            en: string
+                        },
                         additional_charge: number // 追加料金
                     }
                 }>
@@ -45,17 +50,22 @@ export default class ReservationModel {
         },
         film: {
             _id: string,
-            name: string,
-            name_en: string,
-            image: string
+            name: {
+                ja: string,
+                en: string
+            },
+            image: string,
+            is_mx4d: boolean, // MX4D上映かどうか
         },
     };
 
     /** 券種リスト */
     public ticketTypes: Array<{
         code: string,
-        name: string, // 券種名
-        name_en: string, // 券種名(英語)
+        name: {
+            ja: string,
+            en: string
+        },
         charge: number, // 料金
         is_on_the_day: boolean // 当日だけフラグ
     }>;
@@ -189,7 +199,7 @@ export default class ReservationModel {
             }
 
             // MX4D分加算
-            if (this.performance.is_mx4d) {
+            if (this.performance.film.is_mx4d) {
                 charge += ReservationUtil.CHARGE_MX4D;
             }
 
@@ -234,7 +244,7 @@ export default class ReservationModel {
                     _id: reservation._id,
 
                     seat_code: seatCode,
-                    seat_grade_name: reservation.seat_grade_name,
+                    seat_grade_name_ja: reservation.seat_grade_name_ja,
                     seat_grade_name_en: reservation.seat_grade_name_en,
                     seat_grade_additional_charge: reservation.seat_grade_additional_charge,
 
@@ -247,20 +257,20 @@ export default class ReservationModel {
                     performance_day: this.performance.day,
                     performance_start_time: this.performance.start_time,
                     performance_end_time: this.performance.end_time,
-                    performance_is_mx4d: this.performance.is_mx4d,
 
                     theater: this.performance.theater._id,
-                    theater_name: this.performance.theater.name,
-                    theater_name_en: this.performance.theater.name_en,
+                    theater_name_ja: this.performance.theater.name.ja,
+                    theater_name_en: this.performance.theater.name.en,
 
                     screen: this.performance.screen._id,
-                    screen_name: this.performance.screen.name,
-                    screen_name_en: this.performance.screen.name_en,
+                    screen_name_ja: this.performance.screen.name.ja,
+                    screen_name_en: this.performance.screen.name.en,
 
                     film: this.performance.film._id,
-                    film_name: this.performance.film.name,
-                    film_name_en: this.performance.film.name_en,
+                    film_name_ja: this.performance.film.name.ja,
+                    film_name_en: this.performance.film.name.en,
                     film_image: this.performance.film.image,
+                    film_is_mx4d: this.performance.film.is_mx4d,
 
                     purchaser_last_name: (this.purchaserLastName) ? this.purchaserLastName : undefined,
                     purchaser_first_name: (this.purchaserFirstName) ? this.purchaserFirstName : undefined,
@@ -269,7 +279,7 @@ export default class ReservationModel {
                     payment_method: (this.paymentMethod) ? this.paymentMethod : undefined,
 
                     ticket_type_code: reservation.ticket_type_code,
-                    ticket_type_name: reservation.ticket_type_name,
+                    ticket_type_name_ja: reservation.ticket_type_name_ja,
                     ticket_type_name_en: reservation.ticket_type_name_en,
                     ticket_type_charge: reservation.ticket_type_charge,
 
@@ -289,12 +299,12 @@ interface Reservation {
     _id: string;
     status: string;
     seat_code: string,
-    seat_grade_name: string,
+    seat_grade_name_ja: string,
     seat_grade_name_en: string,
     seat_grade_additional_charge: number,
 
     ticket_type_code?: string,
-    ticket_type_name?: string,
+    ticket_type_name_ja?: string,
     ticket_type_name_en?: string,
     ticket_type_charge?: number,
 

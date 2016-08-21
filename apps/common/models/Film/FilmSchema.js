@@ -5,22 +5,18 @@ const mongoose = require('mongoose');
  */
 let Schema = new mongoose.Schema({
     _id: String,
-    name: String,
-    name_en: String,
+    name: {
+        ja: String,
+        en: String
+    },
     sections: [
         {
             _id: false,
             code: String,
-            name: String,
-            name_en: String,
-        },
-    ],
-    genres: [
-        {
-            _id: false,
-            code: String,
-            name: String,
-            name_en: String,
+            name: {
+                ja: String,
+                en: String
+            }
         },
     ],
     ticket_type_group: {
@@ -29,8 +25,7 @@ let Schema = new mongoose.Schema({
     },
     image: String,
     minutes: Number,
-    created_user: String,
-    updated_user: String,
+    is_mx4d: Boolean // MX4D上映かどうか
 }, {
     collection: 'films',
     timestamps: {

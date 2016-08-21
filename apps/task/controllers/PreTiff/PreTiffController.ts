@@ -56,7 +56,6 @@ export default class PreTiffController extends BaseController {
                 process.exit(0);
             }
 
-            let genres = FilmUtil.getGenres();
             let sections = FilmUtil.getSections();
             let testNames = FilmUtil.getTestNames();
             let length = 1;
@@ -66,20 +65,13 @@ export default class PreTiffController extends BaseController {
             for (let i = 0; i < length; i++) {
                 let no = i + 1;
                 let _sections = this.shuffle(sections);
-                let _genres = this.shuffle(genres);
                 let _ticketTypeGroupDocuments = this.shuffle(ticketTypeGroupDocuments);
                 let min = 60 + Math.floor(Math.random() * 120);
 
                 films.push({
                     name: testNames[i].name,
-                    name_en: testNames[i].name_en,
-                    director: `テスト監督名前${no}`,
-                    director_en: `Test Director Name ${no}`,
-                    actor: `テスト俳優名前${no}`,
-                    actor_en: `Test Actor Name ${no}`,
-                    film_min: min,
+                    minutes: min,
                     sections: _sections.slice(0, Math.floor(Math.random() * 5)),
-                    genres: _genres.slice(0, Math.floor(Math.random() * 5)),
                     ticket_type_group: _ticketTypeGroupDocuments[0].get('_id'),
                     created_user: 'system',
                     updated_user: 'system',

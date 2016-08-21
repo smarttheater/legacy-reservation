@@ -129,14 +129,12 @@
 		"PleaseSearch": "検索をおこなってください",
 		"ConfirmCancel": "Message.ConfirmCancel",
 		"AreYouSureCancel": "Message.AreYouSureCancel",
-		"CompleteCancel": "Message.CompleteCancel"
+		"CompleteCancel": "Message.CompleteCancel",
+		"Invalid": "Message.Invalid"
 	},
 	"h3": {
 		"SeatChoices": "座席情報",
 		"Profile": "購入者情報"
-	},
-	"DocumentField": {
-		"name": "name"
 	},
 	"{{price}} yen": "{{price}} 円",
 	"Mr{{name}}": "{{name}} 様",

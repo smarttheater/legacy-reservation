@@ -49,7 +49,6 @@ export default class FilmController extends BaseController {
                 process.exit(0);
             }
 
-            let genres = FilmUtil.getGenres();
             let sections = FilmUtil.getSections();
             let testNames = FilmUtil.getTestNames();
             let length = testNames.length;
@@ -60,20 +59,16 @@ export default class FilmController extends BaseController {
                 let no = i + 1;
                 let _id = ('000000' + no).slice(-6);
                 let _sections = this.shuffle(sections);
-                let _genres = this.shuffle(genres);
                 let _ticketTypeGroupDocuments = this.shuffle(ticketTypeGroupDocuments);
                 let minutes = 60 + Math.floor(Math.random() * 120);
 
                 films.push({
                     _id: _id,
                     name: testNames[i].name,
-                    name_en: testNames[i].name_en,
                     sections: _sections.slice(0, Math.floor(Math.random() * 5)),
-                    genres: _genres.slice(0, Math.floor(Math.random() * 5)),
                     ticket_type_group: _ticketTypeGroupDocuments[0].get('_id'),
                     minutes: minutes,
-                    created_user: 'system',
-                    updated_user: 'system',
+                    is_mx4d: this.shuffle([true, false, false, false])[0]
                 });
             }
 

@@ -63,10 +63,7 @@ class PerformanceController extends BaseController_1.default {
                                 film: _filmId,
                                 day: day,
                                 start_time: start,
-                                end_time: ends[index],
-                                is_mx4d: this.shuffle([true, false, false, false])[0],
-                                created_user: 'system',
-                                updated_user: 'system'
+                                end_time: ends[index]
                             });
                         });
                     });

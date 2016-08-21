@@ -9,29 +9,33 @@ let Schema = new mongoose.Schema({
         type: String,
         ref: 'Theater'
     },
-    name: String,
-    name_en: String,
+    name: {
+        ja: String,
+        en: String
+    },
     sections: [
         {
             _id: false,
             code: String,
-            name: String,
-            name_en: String,
+            name: {
+                ja: String,
+                en: String,
+            },
             seats: [
                 {
                     _id: false,
                     code: String,
                     grade: {
-                        name: String,
-                        name_en: String,
+                        name: {
+                            ja: String,
+                            en: String,
+                        },
                         additional_charge: Number // 追加料金
                     }
                 },
             ]
         },
-    ],
-    created_user: String,
-    updated_user: String,
+    ]
 }, {
     collection: 'screens',
     timestamps: {

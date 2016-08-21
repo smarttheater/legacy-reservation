@@ -164,9 +164,6 @@
                                     <label for="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" class="form-group payment payment-credit">
                                         <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CREDIT %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CREDIT %>"<% if (paymentMethod === GMOUtil.PAY_TYPE_CREDIT) { %> checked="checked"<% } %>><%- __('Label.PaymentMethodName.CREDIT') %>
                                     </label>
-                                    <label for="radio_<%- GMOUtil.PAY_TYPE_CASH %>" class="form-group payment payment-cash">
-                                        <input type="radio" id="radio_<%- GMOUtil.PAY_TYPE_CASH %>" name="paymentMethod" class="form-control" value="<%- GMOUtil.PAY_TYPE_CASH %>"><%- __('Label.PaymentMethodName.CASH') %>
-                                    </label>
                                 </div>
 
                                 <% if (req.form) { %>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="<%- req.getLocale() %>">
+<html lang="<%- locale %>">
 <head>
 <meta name="title" content="TIFF" />
 <title>TIFF</title>
@@ -18,7 +18,7 @@
 <input type="hidden" name="CancelURL" value="<%- 'https://' + req.headers.host + url('gmo.reserve.cancel', {paymentNo: orderID}) %>"><br>
 <!-- カード決済画面を表示してから決済を行うまでの経過時間の上限で、設定単位は秒 -->
 <input type="hidden" name="SessionTimeout" value="300"><br>
-<input type="hidden" name="Lang" value="<%- req.getLocale() %>"><br>
+<input type="hidden" name="Lang" value="<%- locale %>"><br>
 
 <input type="hidden" name="UseCredit" value="<%- useCredit %>"><br>
 <input type="hidden" name="UseCvs" value="<%- useCvs %>"><br>
@@ -42,7 +42,7 @@ ShopPassString：<%- shopPassString %><br>
 RetURL<%- 'https://' + req.headers.host + url('gmo.reserve.result') %><br>
 CancelURL<%- 'https://' + req.headers.host + url('gmo.reserve.cancel', {paymentNo: orderID}) %><br>
 SessionTimeout300<br>
-Lang<%- req.getLocale() %><br>
+Lang<%- locale %><br>
 UseCredit:<%- useCredit %><br>
 UseCvs:<%- useCvs %><br>
 JobCd:CAPTURE<br>

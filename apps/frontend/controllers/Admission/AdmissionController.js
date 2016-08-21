@@ -25,16 +25,16 @@ class AdmissionController extends BaseController_1.default {
     }
     confirm() {
         Models_1.default.Performance.findById(this.req.params.id)
-            .populate('film', 'name name_en')
-            .populate('screen', 'name name_en')
-            .populate('theater', 'name name_en')
+            .populate('film', 'name')
+            .populate('screen', 'name')
+            .populate('theater', 'name')
             .exec((err, performance) => {
             if (err)
                 this.next(new Error('Message.UnexpectedError'));
             Models_1.default.Reservation.find({
                 performance: performance.get('_id'),
                 status: ReservationUtil_1.default.STATUS_RESERVED
-            }, 'status seat_code ticket_type_code ticket_type_name ticket_type_charge')
+            }, 'status seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en ticket_type_charge')
                 .exec((err, reservations) => {
                 if (err)
                     this.next(new Error('Message.UnexpectedError'));

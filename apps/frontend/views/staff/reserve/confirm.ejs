@@ -18,7 +18,7 @@
                     </p>
                 </th>
                 <td>
-                    <p><%- reservationModel.performance.film[__('DocumentField.name')] %></p>
+                    <p><%- reservationModel.performance.film.name[locale] %></p>
                     <a class="btn btn-default btn-change btn-icon-back visible-pc" href="<%- url('staff.reserve.performances', {token: reservationModel.token}) %>">
                         <span><%- __('Button.Change') %></span>
                     </a>
@@ -30,8 +30,8 @@
                 <td>
                     <p>
                         <%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ 
-                        <%- reservationModel.performance.theater[__('DocumentField.name')] %> 
-                        <%- reservationModel.performance.screen[__('DocumentField.name')] %>
+                        <%- reservationModel.performance.theater.name[locale] %> 
+                        <%- reservationModel.performance.screen.name[locale] %>
                     </p>
                 </td>
             </tr>
@@ -48,7 +48,7 @@
                         <% reservationModel.seatCodes.forEach((seatCode) => { %>
                             <% let reservation = reservationModel.getReservation(seatCode) %>
                             <%- reservation.seat_code %> / 
-                            <%- reservation[`ticket_type_${__('DocumentField.name')}`] %> <%- __('{{price}} yen', {price: reservation.ticket_type_charge}) %>
+                            <%- reservation[`ticket_type_name_${locale}`] %> <%- __('{{price}} yen', {price: reservation.ticket_type_charge}) %>
                             <%- reservation.watcher_name %>
                             <br>
                         <% }) %>

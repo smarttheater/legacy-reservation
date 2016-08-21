@@ -8,8 +8,8 @@ class StaffMyPageController extends BaseController_1.default {
         this.layout = 'layouts/staff/layout';
     }
     index() {
-        Models_1.default.Theater.find({}, '_id name name_en', (err, theaters) => {
-            Models_1.default.Film.find({}, '_id name name_en', (err, films) => {
+        Models_1.default.Theater.find({}, 'name', (err, theaters) => {
+            Models_1.default.Film.find({}, 'name', (err, films) => {
                 this.res.render('staff/mypage/index', {
                     theaters: theaters,
                     films: films

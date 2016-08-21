@@ -11,14 +11,14 @@
     <tbody>
         <tr>
             <th><%- __('Label.FilmName') %></th>
-            <td><%- reservationDocuments[0].get(`film_${__('DocumentField.name')}`) %></td>
+            <td><%- reservationDocuments[0].get(`film_name_${locale}`) %></td>
         </tr>
         <tr>
             <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
             <td>
                 <%- reservationDocuments[0].performance_day %> <%- reservationDocuments[0].performance_start_time %> ～ 
-                <%- reservationDocuments[0].get(`theater_${__('DocumentField.name')}`) %> 
-                <%- reservationDocuments[0].get(`screen_${__('DocumentField.name')}`) %>
+                <%- reservationDocuments[0].get(`theater_name_${locale}`) %> 
+                <%- reservationDocuments[0].get(`screen_name_${locale}`) %>
             </td>
         </tr>
         <tr>

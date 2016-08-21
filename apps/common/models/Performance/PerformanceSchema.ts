@@ -19,10 +19,7 @@ let Schema = new mongoose.Schema({
     },
     day: String, // 上映日
     start_time: String, // 上映開始時刻
-    end_time: String, // 上映終了時刻
-    is_mx4d: Boolean, // MX4D上映かどうか
-    created_user:String,
-    updated_user: String,
+    end_time: String // 上映終了時刻
 },{
     collection: 'performances',
     timestamps: { 

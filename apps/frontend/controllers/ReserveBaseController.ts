@@ -175,9 +175,9 @@ export default class ReserveBaseController extends BaseController {
             },
             'day start_time end_time is_mx4d film screen theater' // 必要な項目だけ指定すること
         )
-        .populate('film', 'name name_en ticket_type_group image') // 必要な項目だけ指定すること
-        .populate('screen', 'name name_en sections') // 必要な項目だけ指定すること
-        .populate('theater', 'name name_en') // 必要な項目だけ指定すること
+        .populate('film', 'name ticket_type_group image') // 必要な項目だけ指定すること
+        .populate('screen', 'name sections') // 必要な項目だけ指定すること
+        .populate('theater', 'name') // 必要な項目だけ指定すること
         .exec((err, performance) => {
             if (err) return cb(err, reservationModel);
             if (!performance) return cb(new Error(this.req.__('Message.NotFound')), reservationModel);
@@ -276,23 +276,20 @@ export default class ReserveBaseController extends BaseController {
                         start_time: performance.get('start_time'),
                         end_time: performance.get('end_time'),
                         start_str: performance.get('start_str'),
-                        is_mx4d: performance.get('is_mx4d'),
                         theater: {
                             _id: performance.get('theater').get('_id'),
-                            name: performance.get('theater').get('name'),
-                            name_en: performance.get('theater').get('name_en'),
+                            name: performance.get('theater').get('name')
                         },
                         screen: {
                             _id: performance.get('screen').get('_id'),
                             name: performance.get('screen').get('name'),
-                            name_en: performance.get('screen').get('name_en'),
                             sections: performance.get('screen').get('sections'),
                         },
                         film: {
                             _id: performance.get('film').get('_id'),
                             name: performance.get('film').get('name'),
-                            name_en: performance.get('film').get('name_en'),
-                            image: performance.get('film').get('image')
+                            image: performance.get('film').get('image'),
+                            is_mx4d: performance.get('film').get('is_mx4d'),
                         }
                     };
 
@@ -367,8 +364,8 @@ export default class ReserveBaseController extends BaseController {
                                     _id: reservationDocument.get('_id'),
                                     status: reservationDocument.get('status'),
                                     seat_code: reservationDocument.get('seat_code'),
-                                    seat_grade_name: seatInfo.grade.name,
-                                    seat_grade_name_en: seatInfo.grade.name_en,
+                                    seat_grade_name_ja: seatInfo.grade.name.ja,
+                                    seat_grade_name_en: seatInfo.grade.name.en,
                                     seat_grade_additional_charge: seatInfo.grade.additional_charge,
                                 });
 
@@ -411,8 +408,8 @@ export default class ReserveBaseController extends BaseController {
 
                         let reservation = reservationModel.getReservation(choice.seat_code);
                         reservation.ticket_type_code = ticketType.code;
-                        reservation.ticket_type_name = ticketType.name;
-                        reservation.ticket_type_name_en = ticketType.name_en;
+                        reservation.ticket_type_name_ja = ticketType.name.ja;
+                        reservation.ticket_type_name_en = ticketType.name.en;
                         reservation.ticket_type_charge = ticketType.charge;
                         reservation.watcher_name = choice.watcher_name;
 

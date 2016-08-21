@@ -4,27 +4,35 @@ class TicketTypeGroupUtil {
         return [
             {
                 _id: '001',
-                name: "オープニング",
-                name_en: "Opening",
+                name: {
+                    ja: "オープニング",
+                    en: "Opening",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 2000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 1500,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 1500,
                         is_on_the_day: true
                     }
@@ -32,27 +40,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '002',
-                name: "クロージング",
-                name_en: "Closing",
+                name: {
+                    ja: "クロージング",
+                    en: "Closing",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 2000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 1500,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 1500,
                         is_on_the_day: true
                     }
@@ -60,27 +76,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '003',
-                name: "特別招待作品",
-                name_en: "Special Invitation",
+                name: {
+                    ja: "特別招待作品",
+                    en: "Special Invitation",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 2000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 1500,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 1500,
                         is_on_the_day: true
                     }
@@ -88,27 +112,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '004',
-                name: "パノラマ",
-                name_en: "Panorama",
+                name: {
+                    ja: "パノラマ",
+                    en: "Panorama",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1500,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -116,27 +148,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '005',
-                name: "ワールドフォーカス",
-                name_en: "World Focus",
+                name: {
+                    ja: "ワールドフォーカス",
+                    en: "World Focus",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1500,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -144,27 +184,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '006',
-                name: "東京グランプリ受賞作品",
-                name_en: "Tokyo Grand Prix",
+                name: {
+                    ja: "東京グランプリ受賞作品",
+                    en: "Tokyo Grand Prix",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1300,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -172,27 +220,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '007',
-                name: "コンペティション",
-                name_en: "Competition",
+                name: {
+                    ja: "コンペティション",
+                    en: "Competition",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1300,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -200,27 +256,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '008',
-                name: "アジアの未来",
-                name_en: "Asia Future",
+                name: {
+                    ja: "アジアの未来",
+                    en: "Asia Future",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1300,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -228,27 +292,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '009',
-                name: "日本映画スプラッシュ",
-                name_en: "Japanese Cinema Splash",
+                name: {
+                    ja: "日本映画スプラッシュ",
+                    en: "Japanese Cinema Splash",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1300,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -256,27 +328,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '010',
-                name: "CROSSCUT ASIA",
-                name_en: "Crosscut Asia",
+                name: {
+                    ja: "CROSSCUT ASIA",
+                    en: "Crosscut Asia",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1300,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -284,27 +364,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '011',
-                name: "観客賞受賞作品",
-                name_en: "Audience Award",
+                name: {
+                    ja: "観客賞受賞作品",
+                    en: "Audience Award",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1300,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -312,27 +400,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '012',
-                name: "Japan Now",
-                name_en: "Japan Now",
+                name: {
+                    ja: "Japan Now",
+                    en: "Japan Now",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1800,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 1500,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -340,27 +436,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '013',
-                name: "日本映画クラシックス",
-                name_en: "Japanese Classics",
+                name: {
+                    ja: "日本映画クラシックス",
+                    en: "Japanese Classics",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 500,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -368,27 +472,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '014',
-                name: "みなと上映会",
-                name_en: "Minato",
+                name: {
+                    ja: "みなと上映会",
+                    en: "Minato",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 500,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -396,27 +508,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '015',
-                name: "日本映画監督協会新人賞",
-                name_en: "New Face Award",
+                name: {
+                    ja: "日本映画監督協会新人賞",
+                    en: "New Face Award",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 500,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -424,27 +544,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '016',
-                name: "PFFグランプリ受賞作品上映",
-                name_en: "PFF Grand Prix",
+                name: {
+                    ja: "PFFグランプリ受賞作品上映",
+                    en: "PFF Grand Prix",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 500,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -452,27 +580,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '017',
-                name: "SKIPシティ国際Dシネマ映画祭上映作品",
-                name_en: "SKIP City",
+                name: {
+                    ja: "SKIPシティ国際Dシネマ映画祭上映作品",
+                    en: "SKIP City",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 500,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -480,27 +616,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '018',
-                name: "WOWOW映画工房200会記念",
-                name_en: "WOWOW",
+                name: {
+                    ja: "WOWOW映画工房200会記念",
+                    en: "WOWOW",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 4500,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 4500,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 4500,
                         is_on_the_day: true
                     }
@@ -508,27 +652,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '019',
-                name: "東京国際映画祭プレゼンツ歌舞伎座スペシャルナイト",
-                name_en: "Kabukiza Special Night",
+                name: {
+                    ja: "東京国際映画祭プレゼンツ歌舞伎座スペシャルナイト",
+                    en: "Kabukiza Special Night",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 10000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 10000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 10000,
                         is_on_the_day: true
                     }
@@ -536,27 +688,35 @@ class TicketTypeGroupUtil {
             },
             {
                 _id: '020',
-                name: "日本学生映画祭",
-                name_en: "Japanese Students Film Festival",
+                name: {
+                    ja: "日本学生映画祭",
+                    en: "Japanese Students Film Festival",
+                },
                 types: [
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS,
-                        name: '一般',
-                        name_en: 'Adults',
+                        name: {
+                            ja: '一般',
+                            en: 'Adults'
+                        },
                         charge: 1000,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS,
-                        name: '学生',
-                        name_en: 'Students',
+                        name: {
+                            ja: '学生',
+                            en: 'Students'
+                        },
                         charge: 500,
                         is_on_the_day: false
                     },
                     {
                         code: TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY,
-                        name: '学生当日',
-                        name_en: 'Students on the day',
+                        name: {
+                            ja: '学生当日',
+                            en: 'Students on the day'
+                        },
                         charge: 500,
                         is_on_the_day: true
                     }
@@ -571,15 +731,19 @@ class TicketTypeGroupUtil {
         return [
             {
                 code: TicketTypeGroupUtil.TICKET_TYPE_CODE_FREE,
-                name: '無料',
-                name_en: 'Free',
+                name: {
+                    ja: '無料',
+                    en: 'Free'
+                },
                 charge: 0,
                 is_on_the_day: false
             },
             {
                 code: TicketTypeGroupUtil.TICKET_TYPE_CODE_NOT_FOR_SALE,
-                name: 'Not for sale',
-                name_en: 'Not for Sale',
+                name: {
+                    ja: 'Not for sale',
+                    en: 'Not for Sale'
+                },
                 charge: 0,
                 is_on_the_day: false
             },
@@ -592,8 +756,10 @@ class TicketTypeGroupUtil {
         return [
             {
                 code: TicketTypeGroupUtil.TICKET_TYPE_CODE_NOT_FOR_SALE,
-                name: 'Not for sale',
-                name_en: 'Not for Sale',
+                name: {
+                    ja: 'Not for sale',
+                    en: 'Not for Sale'
+                },
                 charge: 0,
                 is_on_the_day: false
             }

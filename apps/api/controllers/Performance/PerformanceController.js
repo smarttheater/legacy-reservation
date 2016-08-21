@@ -12,7 +12,6 @@ class PerformanceController extends BaseController_1.default {
         let page = (this.req.query.page) ? this.req.query.page : 1;
         let day = (this.req.query.day) ? this.req.query.day : null; // 上映日
         let section = (this.req.query.section) ? this.req.query.section : null; // 部門
-        let genre = (this.req.query.genre) ? this.req.query.genre : null; // ジャンル
         let words = (this.req.query.words) ? this.req.query.words : null; // フリーワード
         let startFrom = (this.req.query.start_from) ? this.req.query.start_from : null; // この時間以降開始のパフォーマンスに絞る(timestamp)
         // 検索条件を作成
@@ -42,7 +41,7 @@ class PerformanceController extends BaseController_1.default {
             });
         }
         // 作品条件を追加する
-        this.addFilmConditions(andConditions, section, genre, words, (err, andConditions) => {
+        this.addFilmConditions(andConditions, section, words, (err, andConditions) => {
             let conditions = null;
             if (andConditions.length > 0) {
                 conditions = {
@@ -72,14 +71,14 @@ class PerformanceController extends BaseController_1.default {
                     // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
                     let query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater').skip(limit * (page - 1)).limit(limit);
                     if (this.req.getLocale() === 'ja') {
-                        query.populate('film', 'name image sections.name genres.name minutes')
-                            .populate('screen', 'name')
-                            .populate('theater', 'name');
+                        query.populate('film', 'name.ja image sections.name.ja minutes')
+                            .populate('screen', 'name.ja')
+                            .populate('theater', 'name.ja');
                     }
                     else {
-                        query.populate('film', 'name_en image sections.name_en genres.name_en minutes')
-                            .populate('screen', 'name_en')
-                            .populate('theater', 'name_en');
+                        query.populate('film', 'name.en image sections.name.en minutes')
+                            .populate('screen', 'name.en')
+                            .populate('theater', 'name.en');
                     }
                     // 上映日、開始時刻
                     // TODO 作品名昇順を追加？
@@ -99,7 +98,6 @@ class PerformanceController extends BaseController_1.default {
                             });
                         }
                         // 空席情報を追加
-                        let DocumentFieldName = this.req.__('DocumentField.name');
                         PerformanceStatusesModel_1.default.find((err, performanceStatusesModel) => {
                             let results = performances.map((performance) => {
                                 return {
@@ -108,12 +106,11 @@ class PerformanceController extends BaseController_1.default {
                                     start_time: performance.get('start_time'),
                                     end_time: performance.get('end_time'),
                                     seat_status: performanceStatusesModel.getStatus(performance.get('_id')),
-                                    theater_name: performance.get('theater').get(DocumentFieldName),
-                                    screen_name: performance.get('screen').get(DocumentFieldName),
+                                    theater_name: performance.get('theater').get('name')[this.req.getLocale()],
+                                    screen_name: performance.get('screen').get('name')[this.req.getLocale()],
                                     film_id: performance.get('film').get('_id'),
-                                    film_name: performance.get('film').get(DocumentFieldName),
-                                    film_sections: performance.get('film').get('sections').map((section) => { return section[DocumentFieldName]; }),
-                                    film_genres: performance.get('film').get('genres').map((genre) => { return genre[DocumentFieldName]; }),
+                                    film_name: performance.get('film').get('name')[this.req.getLocale()],
+                                    film_sections: performance.get('film').get('sections').map((section) => { return section['name'][this.req.getLocale()]; }),
                                     film_minutes: performance.get('film').get('minutes'),
                                     film_image: performance.get('film').get('image')
                                 };
@@ -130,18 +127,12 @@ class PerformanceController extends BaseController_1.default {
             });
         });
     }
-    addFilmConditions(andConditions, section, genre, words, cb) {
+    addFilmConditions(andConditions, section, words, cb) {
         let filmAndConditions = [];
         if (section) {
             // 部門条件の追加
             filmAndConditions.push({
                 'sections.code': { $in: [section] }
-            });
-        }
-        if (genre) {
-            // ジャンル条件の追加
-            filmAndConditions.push({
-                'genres.code': { $in: [genre] }
             });
         }
         // フリーワードの検索対象はタイトル(日英両方)
@@ -153,9 +144,9 @@ class PerformanceController extends BaseController_1.default {
             let orConditions = [];
             for (let regex of regexes) {
                 orConditions.push({
-                    'name': { $regex: `${regex}` }
+                    'name.ja': { $regex: `${regex}` }
                 }, {
-                    'name_en': { $regex: `${regex}` }
+                    'name.en': { $regex: `${regex}` }
                 });
             }
             filmAndConditions.push({

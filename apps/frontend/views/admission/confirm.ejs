@@ -1,9 +1,9 @@
 <h1 class="pagetitle"><%- __('h1.AdmissionConfirm') %></h1>
 
 <div class="performancedata row">
-    <h2><%- performance.get('film').get('name') %></h2>
+    <h2><%- performance.get('film').get('name')[locale] %></h2>
     <span class="when"><%- performance.get('start_str') %>～</span>
-    <span class="where"><%- performance.get('theater').get(`${__('DocumentField.name')}`) %>  <%- performance.get('screen').get(`${__('DocumentField.name')}`) %></span>
+    <span class="where"><%- performance.get('theater').get('name')[locale] %>  <%- performance.get('screen').get('name')[locale] %></span>
 </div>
 
 <p class="text-primary text-center process row"><%- __('Message.PleaseReadBarcode') %></p>

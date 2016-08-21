@@ -15,7 +15,6 @@ export default class PerformanceController extends BaseController {
 
         let day = (this.req.query.day) ? this.req.query.day : null; // 上映日
         let section = (this.req.query.section) ? this.req.query.section : null; // 部門
-        let genre = (this.req.query.genre) ? this.req.query.genre : null; // ジャンル
         let words = (this.req.query.words) ? this.req.query.words : null; // フリーワード
         let startFrom = (this.req.query.start_from) ? this.req.query.start_from : null; // この時間以降開始のパフォーマンスに絞る(timestamp)
 
@@ -51,7 +50,7 @@ export default class PerformanceController extends BaseController {
         }
 
         // 作品条件を追加する
-        this.addFilmConditions(andConditions, section, genre, words, (err, andConditions) => {
+        this.addFilmConditions(andConditions, section, words, (err, andConditions) => {
             let conditions = null;
             if (andConditions.length > 0) {
                 conditions = {
@@ -90,13 +89,13 @@ export default class PerformanceController extends BaseController {
                         ).skip(limit * (page - 1)).limit(limit);
 
                         if (this.req.getLocale() === 'ja') {
-                            query.populate('film', 'name image sections.name genres.name minutes')
-                                .populate('screen', 'name')
-                            　 .populate('theater', 'name')
+                            query.populate('film', 'name.ja image sections.name.ja minutes')
+                                 .populate('screen', 'name.ja')
+                            　   .populate('theater', 'name.ja')
                         } else {
-                            query.populate('film', 'name_en image sections.name_en genres.name_en minutes')
-                                .populate('screen', 'name_en')
-                                .populate('theater', 'name_en')
+                            query.populate('film', 'name.en image sections.name.en minutes')
+                                 .populate('screen', 'name.en')
+                                 .populate('theater', 'name.en')
                         }
 
                         // 上映日、開始時刻
@@ -105,7 +104,7 @@ export default class PerformanceController extends BaseController {
                             sort : {
                                 day: 1,
                                 start_time: 1,
-                                // 'film.name_en': 1
+                                // 'film.name.en': 1
                             },
                         });
 
@@ -121,7 +120,6 @@ export default class PerformanceController extends BaseController {
                             }
 
                             // 空席情報を追加
-                            let DocumentFieldName = this.req.__('DocumentField.name');
                             PerformanceStatusesModel.find((err, performanceStatusesModel) => {
                                 let results = performances.map((performance) => {
                                     return {
@@ -130,12 +128,11 @@ export default class PerformanceController extends BaseController {
                                         start_time: performance.get('start_time'),
                                         end_time: performance.get('end_time'),
                                         seat_status: performanceStatusesModel.getStatus(performance.get('_id')),
-                                        theater_name: performance.get('theater').get(DocumentFieldName),
-                                        screen_name: performance.get('screen').get(DocumentFieldName),
+                                        theater_name: performance.get('theater').get('name')[this.req.getLocale()],
+                                        screen_name: performance.get('screen').get('name')[this.req.getLocale()],
                                         film_id: performance.get('film').get('_id'),
-                                        film_name: performance.get('film').get(DocumentFieldName),
-                                        film_sections: performance.get('film').get('sections').map((section) => {return section[DocumentFieldName];}),
-                                        film_genres: performance.get('film').get('genres').map((genre) => {return genre[DocumentFieldName];}),
+                                        film_name: performance.get('film').get('name')[this.req.getLocale()],
+                                        film_sections: performance.get('film').get('sections').map((section) => {return section['name'][this.req.getLocale()];}),
                                         film_minutes: performance.get('film').get('minutes'),
                                         film_image: performance.get('film').get('image')
                                     };
@@ -155,20 +152,13 @@ export default class PerformanceController extends BaseController {
         });
     }
 
-    private addFilmConditions(andConditions: Array<Object>, section: string, genre: string, words: string, cb: (err: Error, andConditions: Array<Object>) => void) {
+    private addFilmConditions(andConditions: Array<Object>, section: string, words: string, cb: (err: Error, andConditions: Array<Object>) => void) {
 
         let filmAndConditions: Array<Object> = [];
         if (section) {
             // 部門条件の追加
             filmAndConditions.push({
                 'sections.code': {$in: [section]}
-            });
-        }
-
-        if (genre) {
-            // ジャンル条件の追加
-            filmAndConditions.push({
-                'genres.code': {$in: [genre]}
             });
         }
 
@@ -183,10 +173,10 @@ export default class PerformanceController extends BaseController {
             for (let regex of regexes) {
                 orConditions.push(
                     {
-                        'name': {$regex: `${regex}`}
+                        'name.ja': {$regex: `${regex}`}
                     },
                     {
-                        'name_en': {$regex: `${regex}`}
+                        'name.en': {$regex: `${regex}`}
                     }
                 );
             }

@@ -56,7 +56,9 @@
 		"Name": "Name",
 		"PurchaseContent": "Purchase Content",
 		"ShowSeats": "Show Seats",
-		"ResultsCount": "Results"
+		"ResultsCount": "Results",
+		"ConfirmCancel": "Label.ConfirmCancel",
+		"CompleteCancel": "Label.CompleteCancel"
 	},
 	"Button": {
 		"Send": "Send",
@@ -118,14 +120,13 @@
 		"UnexpectedError": "Unexpected Error",
 		"InvalidSeatCode": "Invalid seat code",
 		"Expired": "Expired",
-		"NoMoreReservation": "No more reservation."
+		"NoMoreReservation": "No more reservation.",
+		"AreYouSureCancel": "Message.AreYouSureCancel",
+		"CompleteCancel": "Message.CompleteCancel"
 	},
 	"h3": {
 		"SeatChoices": "Seat Choices",
 		"Profile": "Profile"
-	},
-	"DocumentField": {
-		"name": "name_en"
 	},
 	"{{price}} yen": "{{price}} yen",
 	"Mr{{name}}": "Mr. {{name}}",
@@ -136,5 +137,8 @@
 		"EditProfile": "Profile",
 		"Confirm": "Confirm",
 		"Complete": "Complete"
+	},
+	"Mesasge": {
+		"SelectedSeatsUnavailable": "Mesasge.SelectedSeatsUnavailable"
 	}
 }
