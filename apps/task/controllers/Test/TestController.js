@@ -90,7 +90,7 @@ class TestController extends BaseController_1.default {
         this.logger.info('finding reservationEmailCues...');
         Models_1.default.ReservationEmailCue.find({
             is_sent: false
-        }).limit(1).exec((err, cues) => {
+        }).limit(10).exec((err, cues) => {
             this.logger.info('reservationEmailCues found.', err, cues);
             if (err) {
                 mongoose.disconnect();
@@ -166,7 +166,9 @@ class TestController extends BaseController_1.default {
                                 }
                                 else {
                                     let EmailTemplate = emailTemplates.EmailTemplate;
-                                    let dir = `${__dirname}/../../views/email/reserveComplete`;
+                                    // __dirnameを使うとテンプレートを取得できないので注意
+                                    // http://stackoverflow.com/questions/38173996/azure-and-node-js-dirname
+                                    let dir = `${process.cwd()}/apps/task/views/email/reserveComplete`;
                                     let template = new EmailTemplate(dir);
                                     let locals = {
                                         reservations: reservations
