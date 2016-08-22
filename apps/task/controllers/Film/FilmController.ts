@@ -11,10 +11,55 @@ import moment = require('moment');
 import conf = require('config');
 import mongoose = require('mongoose');
 import request = require('request');
+import fs = require('fs-extra');
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
 export default class FilmController extends BaseController {
+    public createTicketTypeGroupsFromJson(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
+        fs.readFile(`${process.cwd()}/data/ticketTypeGroups.json`, 'utf8', (err, data) => {
+            if (err) throw err;
+            let groups = JSON.parse(data);
+
+            this.logger.info('removing all groups...');
+            Models.TicketTypeGroup.remove({}, (err) => {
+                this.logger.debug('creating groups...');
+                Models.TicketTypeGroup.create(
+                    groups,
+                    (err) => {
+                        this.logger.info('groups created.', err);
+                        mongoose.disconnect();
+                        process.exit(0);
+                    }
+                );
+            });
+        });
+    }
+
+    public createFromJson(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
+        fs.readFile(`${process.cwd()}/data/films.json`, 'utf8', (err, data) => {
+            if (err) throw err;
+            let films = JSON.parse(data);
+
+            this.logger.info('removing all films...');
+            Models.Film.remove({}, (err) => {
+                this.logger.debug('creating films...');
+                Models.Film.create(
+                    films,
+                    (err) => {
+                        this.logger.info('films created.', err);
+                        mongoose.disconnect();
+                        process.exit(0);
+                    }
+                );
+            });
+        });
+    }
+
     /**
      * 券種グループを初期化する
      */
@@ -100,7 +145,7 @@ export default class FilmController extends BaseController {
 
             let next = (filmDocument) => {
                 let options = {
-                    url: `https://api.photozou.jp/rest/search_public.json?limit=1&keyword=${encodeURIComponent(filmDocument.get('name'))}`,
+                    url: `https://api.photozou.jp/rest/search_public.json?limit=1&keyword=${encodeURIComponent(filmDocument.get('name').ja)}`,
                     json: true
                 };
 

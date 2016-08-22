@@ -8,7 +8,7 @@ export default class TicketTypeGroupUtil {
     public static getAll() {
         return [
             {
-                _id: '001',
+                _id: '01',
                 name: {
                     ja: "オープニング",
                     en: "Opening",
@@ -44,7 +44,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '002',
+                _id: '02',
                 name: {
                     ja: "クロージング",
                     en: "Closing",
@@ -80,7 +80,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '003',
+                _id: '03',
                 name: {
                     ja: "特別招待作品",
                     en: "Special Invitation",
@@ -116,7 +116,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '004',
+                _id: '04',
                 name: {
                     ja: "パノラマ",
                     en: "Panorama",
@@ -152,7 +152,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '005',
+                _id: '05',
                 name: {
                     ja: "ワールドフォーカス",
                     en: "World Focus",
@@ -188,7 +188,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '006',
+                _id: '06',
                 name: {
                     ja: "東京グランプリ受賞作品",
                     en: "Tokyo Grand Prix",
@@ -224,7 +224,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '007',
+                _id: '07',
                 name: {
                     ja: "コンペティション",
                     en: "Competition",
@@ -260,7 +260,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '008',
+                _id: '08',
                 name: {
                     ja: "アジアの未来",
                     en: "Asia Future",
@@ -296,7 +296,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '009',
+                _id: '09',
                 name: {
                     ja: "日本映画スプラッシュ",
                     en: "Japanese Cinema Splash",
@@ -332,7 +332,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '010',
+                _id: '10',
                 name: {
                     ja: "CROSSCUT ASIA",
                     en: "Crosscut Asia",
@@ -368,7 +368,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '011',
+                _id: '11',
                 name: {
                     ja: "観客賞受賞作品",
                     en: "Audience Award",
@@ -404,7 +404,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '012',
+                _id: '12',
                 name: {
                     ja: "Japan Now",
                     en: "Japan Now",
@@ -440,7 +440,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '013',
+                _id: '13',
                 name: {
                     ja: "日本映画クラシックス",
                     en: "Japanese Classics",
@@ -476,7 +476,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '014',
+                _id: '14',
                 name: {
                     ja: "みなと上映会",
                     en: "Minato",
@@ -512,7 +512,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '015',
+                _id: '15',
                 name: {
                     ja: "日本映画監督協会新人賞",
                     en: "New Face Award",
@@ -548,7 +548,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '016',
+                _id: '16',
                 name: {
                     ja: "PFFグランプリ受賞作品上映",
                     en: "PFF Grand Prix",
@@ -584,7 +584,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '017',
+                _id: '17',
                 name: {
                     ja: "SKIPシティ国際Dシネマ映画祭上映作品",
                     en: "SKIP City",
@@ -620,7 +620,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '018',
+                _id: '18',
                 name: {
                     ja: "WOWOW映画工房200会記念",
                     en: "WOWOW",
@@ -656,7 +656,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '019',
+                _id: '19',
                 name: {
                     ja: "東京国際映画祭プレゼンツ歌舞伎座スペシャルナイト",
                     en: "Kabukiza Special Night",
@@ -692,7 +692,7 @@ export default class TicketTypeGroupUtil {
                 ]
             },
             {
-                _id: '020',
+                _id: '20',
                 name: {
                     ja: "日本学生映画祭",
                     en: "Japanese Students Film Festival",

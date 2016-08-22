@@ -18,10 +18,10 @@ class PerformanceController extends BaseController_1.default {
         let performancesByFilm = {};
         Models_1.default.Film.find({}, '_id', (err, films) => {
             Models_1.default.Screen.find({}, '_id theater', (err, screens) => {
-                let days = ['20161022', '20161023', '20161024', '20161025', '20161026', '20161027', '20161028'];
-                let starts = ['0900', '1200', '1800'];
-                let ends = ['1100', '1400', '2000'];
-                // スクリーンごとに4時間帯のスケジュールを登録する
+                let days = ['20161025', '20161026', '20161027', '20161028', '20161029', '20161030', '20161031', '20161101', '20161102', '20161103'];
+                let starts = ['0900', '1200', '1800', '2100', '2500'];
+                let ends = ['1100', '1400', '2000', '2300', '2700'];
+                // スクリーンごとに5時間帯のスケジュールを登録する
                 screens.forEach((screen) => {
                     days.forEach((day) => {
                         starts.forEach((start, index) => {

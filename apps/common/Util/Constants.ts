@@ -2,6 +2,11 @@
  * 定数クラス
  */
 export default class Constants {
+    /** イベント開始日時 */
+    public static EVENT_START_DATETIME = '2016-10-25T00:00:00+09:00';
+    /** イベント終了日時 */
+    public static EVENT_END_DATETIME = '2016-11-03T23:59:59+09:00';
+
     /** メルマガ先行予約開始日時 */
     public static MEMBER_RESERVATION_START_DATETIME = '2016-10-22T00:00:00+09:00';
     /** メルマガ先行予約終了日時 */

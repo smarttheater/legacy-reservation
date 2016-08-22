@@ -28,11 +28,11 @@ export default class PerformanceController extends BaseController {
 
         Models.Film.find({}, '_id', (err, films) => {
             Models.Screen.find({}, '_id theater', (err, screens) => {
-                let days = ['20161022', '20161023', '20161024', '20161025', '20161026', '20161027', '20161028'];
-                let starts = ['0900', '1200', '1800'];
-                let ends = ['1100', '1400', '2000'];
+                let days = ['20161025', '20161026', '20161027', '20161028', '20161029', '20161030', '20161031', '20161101', '20161102', '20161103'];
+                let starts = ['0900', '1200', '1800', '2100', '2500'];
+                let ends = ['1100', '1400', '2000', '2300', '2700'];
 
-                // スクリーンごとに4時間帯のスケジュールを登録する
+                // スクリーンごとに5時間帯のスケジュールを登録する
                 screens.forEach((screen) => {
                     days.forEach((day) => {
                         starts.forEach((start, index) => {

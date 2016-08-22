@@ -10,10 +10,33 @@ import ScreenUtil from '../../../common/models/Screen/ScreenUtil';
 import moment = require('moment');
 import conf = require('config');
 import mongoose = require('mongoose');
+import fs = require('fs-extra');
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
 export default class TheaterController extends BaseController {
+    public createScreensFromJson() : void {
+        mongoose.connect(MONGOLAB_URI, {});
+
+        fs.readFile(`${process.cwd()}/data/screens.json`, 'utf8', (err, data) => {
+            if (err) throw err;
+            let screens = JSON.parse(data);
+
+            this.logger.info('removing all screens...');
+            Models.Screen.remove({}, (err) => {
+                this.logger.debug('creating screens...');
+                Models.Screen.create(
+                    screens,
+                    (err) => {
+                        this.logger.info('screens created.', err);
+                        mongoose.disconnect();
+                        process.exit(0);
+                    }
+                );
+            });
+        });
+    }
+
     public createAll(): void {
         mongoose.connect(MONGOLAB_URI, {});
 

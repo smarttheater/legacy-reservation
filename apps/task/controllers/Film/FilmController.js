@@ -6,8 +6,43 @@ const TicketTypeGroupUtil_1 = require('../../../common/models/TicketTypeGroup/Ti
 const conf = require('config');
 const mongoose = require('mongoose');
 const request = require('request');
+const fs = require('fs-extra');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class FilmController extends BaseController_1.default {
+    createTicketTypeGroupsFromJson() {
+        mongoose.connect(MONGOLAB_URI, {});
+        fs.readFile(`${process.cwd()}/data/ticketTypeGroups.json`, 'utf8', (err, data) => {
+            if (err)
+                throw err;
+            let groups = JSON.parse(data);
+            this.logger.info('removing all groups...');
+            Models_1.default.TicketTypeGroup.remove({}, (err) => {
+                this.logger.debug('creating groups...');
+                Models_1.default.TicketTypeGroup.create(groups, (err) => {
+                    this.logger.info('groups created.', err);
+                    mongoose.disconnect();
+                    process.exit(0);
+                });
+            });
+        });
+    }
+    createFromJson() {
+        mongoose.connect(MONGOLAB_URI, {});
+        fs.readFile(`${process.cwd()}/data/films.json`, 'utf8', (err, data) => {
+            if (err)
+                throw err;
+            let films = JSON.parse(data);
+            this.logger.info('removing all films...');
+            Models_1.default.Film.remove({}, (err) => {
+                this.logger.debug('creating films...');
+                Models_1.default.Film.create(films, (err) => {
+                    this.logger.info('films created.', err);
+                    mongoose.disconnect();
+                    process.exit(0);
+                });
+            });
+        });
+    }
     /**
      * 券種グループを初期化する
      */
@@ -73,7 +108,7 @@ class FilmController extends BaseController_1.default {
         Models_1.default.Film.find({}, 'name', (err, filmDocuments) => {
             let next = (filmDocument) => {
                 let options = {
-                    url: `https://api.photozou.jp/rest/search_public.json?limit=1&keyword=${encodeURIComponent(filmDocument.get('name'))}`,
+                    url: `https://api.photozou.jp/rest/search_public.json?limit=1&keyword=${encodeURIComponent(filmDocument.get('name').ja)}`,
                     json: true
                 };
                 console.log(options.url);

@@ -28,15 +28,22 @@
         <div class="form-group">
             <select class="form-control" name="day">
                 <option value=""><%- __('Label.AllDay') %></option>
-                <% let day = moment().format('YYYYMMDD'); %>
-                <option value="20161022"<% if (isWindow && day === '20161022') { %> selected="selected"<% } %>>10/22</option>
-                <option value="20161023"<% if (isWindow && day === '20161023') { %> selected="selected"<% } %>>10/23</option>
-                <option value="20161024"<% if (isWindow && day === '20161024') { %> selected="selected"<% } %>>10/24</option>
-                <option value="20161025"<% if (isWindow && day === '20161025') { %> selected="selected"<% } %>>10/25</option>
-                <option value="20161026"<% if (isWindow && day === '20161026') { %> selected="selected"<% } %>>10/26</option>
-                <option value="20161027"<% if (isWindow && day === '20161027') { %> selected="selected"<% } %>>10/27</option>
-                <option value="20161028"<% if (isWindow && day === '20161028') { %> selected="selected"<% } %>>10/28</option>
-                <option value="20161029"<% if (isWindow && day === '20161029') { %> selected="selected"<% } %>>10/29</option>
+                <%
+                let now = moment();
+                let start = moment(Constants.EVENT_START_DATETIME);
+                let end = moment(Constants.EVENT_END_DATETIME);
+                let options = '';
+                while (start < end) {
+                    options += `<option value="${start.format('YYYYMMDD')}"`;
+                    if (isWindow && now.format('YYYYMMDD') === start.format('YYYYMMDD')) {
+                        options += ' selected="selected"';
+                    }
+                    options += `>${start.format('MM/DD')}</option>`;
+                    start = start.add(+1, 'days');
+                    continue;
+                }
+                %>
+                <%- options %>
             </select>
         </div>
 

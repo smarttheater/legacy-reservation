@@ -10,6 +10,7 @@ import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
 import WindowUser from '../models/User/WindowUser';
 import TelStaffUser from '../models/User/TelStaffUser';
+import Constants from '../../common/Util/Constants';
 
 /**
  * ベースコントローラー
@@ -47,6 +48,7 @@ export default class BaseController
         this.res.locals.moment = moment;
         this.res.locals.util = util;
         this.res.locals.numeral = numeral;
+        this.res.locals.Constants = Constants;
 
 
         // レイアウト指定があれば変更
