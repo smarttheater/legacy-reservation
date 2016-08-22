@@ -20,17 +20,26 @@
             </select>
         </div>
 
+<!--
         <div class="form-group">
             <select class="form-control" name="theater">
                 <option value="">上映劇場</option>
-                <option value="01">TOHOシネマズ六本木</option>
+                <% for (let theater of theaters) { %>
+                <option value="<%- theater.get('_id') %>"><%- theater.get('name')[locale] %></option>
+                <% } %>
             </select>
         </div>
+-->
 
         <div class="form-group">
             <select class="form-control" name="screen">
                 <option value="">上映スクリーン</option>
-                <option value="01">SCREEN7</option>
+                <% for (let theaterId in screensByTheater) { %>
+                    <% theater = theaters.find((theater) => {return (theater.get('_id') === theaterId);}) %>
+                    <% for (let screen of screensByTheater[theaterId]) { %>
+                    <option value="<%- screen.get('_id') %>"><%- theater.get('name')[locale] %> <%- screen.get('name')[locale] %></option>
+                    <% } %>
+                <% } %>
             </select>
         </div>
 

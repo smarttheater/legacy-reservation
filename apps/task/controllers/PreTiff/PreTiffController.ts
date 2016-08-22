@@ -312,13 +312,13 @@ export default class PreTiffController extends BaseController {
             {
                 "ticket_type_charge": 2000,
                 "ticket_type_name_en": "Adults",
-                "ticket_type_name": "一般",
+                "ticket_type_name_ja": "一般",
                 "ticket_type_code": "01"
             },
             {
                 "ticket_type_charge": 1500,
                 "ticket_type_name_en": "Students",
-                "ticket_type_name": "学生",
+                "ticket_type_name_ja": "学生",
                 "ticket_type_code": "02"
             }
         ];
@@ -334,15 +334,15 @@ export default class PreTiffController extends BaseController {
             "purchaser_last_name": "テツ",
             "film_image": "http://livedoor.4.blogimg.jp/jin115/imgs/0/d/0d48af82.jpg",
             "film_name_en": "SHIN GODZILLA / JAPANESE",
-            "film_name": "シン・ゴジラ",
+            "film_name_ja": "シン・ゴジラ",
             "film": "000001",
+            "film_is_mx4d": false,
             "screen_name_en": "SCREEN01",
-            "screen_name": "スクリーン01",
+            "screen_name_ja": "スクリーン01",
             "screen": "00000101",
             "theater_name_en": "TOHO CINEMAS Roppongi Hills",
-            "theater_name": "TOHOシネマズ 六本木ヒルズ",
+            "theater_name_ja": "TOHOシネマズ 六本木ヒルズ",
             "theater": "000001",
-            "performance_is_mx4d": false,
             "performance_end_time": "1500",
             "performance_start_time": "1700",
             "performance_day": "20160905",

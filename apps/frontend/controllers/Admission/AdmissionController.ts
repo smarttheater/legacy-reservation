@@ -18,9 +18,33 @@ export default class AdmissionController extends BaseController {
                 this.res.redirect(this.router.build('admission.performances'));
             }
         } else {
-            this.res.render('admission/performances', {
-                FilmUtil: FilmUtil
-            });
+            // 劇場とスクリーンを取得
+            Models.Theater.find(
+                {},
+                'name',
+                (err, theaters) => {
+                    Models.Screen.find(
+                        {},
+                        'name theater',
+                        (err, screens) => {
+                            let screensByTheater = {};
+                            for (let screen of screens) {
+                                if (!screensByTheater.hasOwnProperty(screen.get('theater'))) {
+                                    screensByTheater[screen.get('theater')] = [];
+                                }
+
+                                screensByTheater[screen.get('theater')].push(screen);
+                            }
+
+                            this.res.render('admission/performances', {
+                                FilmUtil: FilmUtil,
+                                theaters: theaters,
+                                screensByTheater: screensByTheater
+                            });
+                        }
+                    );
+                }
+            );
         }
     }
 

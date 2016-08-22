@@ -14,11 +14,23 @@ class PerformanceController extends BaseController_1.default {
         let section = (this.req.query.section) ? this.req.query.section : null; // 部門
         let words = (this.req.query.words) ? this.req.query.words : null; // フリーワード
         let startFrom = (this.req.query.start_from) ? this.req.query.start_from : null; // この時間以降開始のパフォーマンスに絞る(timestamp)
+        let theater = (this.req.query.theater) ? this.req.query.theater : null; // 劇場
+        let screen = (this.req.query.screen) ? this.req.query.screen : null; // スクリーン
         // 検索条件を作成
         let andConditions = [];
         if (day) {
             andConditions.push({
-                'day': day
+                day: day
+            });
+        }
+        if (theater) {
+            andConditions.push({
+                theater: theater
+            });
+        }
+        if (screen) {
+            andConditions.push({
+                screen: screen
             });
         }
         if (startFrom) {
@@ -27,13 +39,13 @@ class PerformanceController extends BaseController_1.default {
             andConditions.push({
                 $or: [
                     {
-                        'day': now.format('YYYYMMDD'),
-                        'start_time': {
+                        day: now.format('YYYYMMDD'),
+                        start_time: {
                             $gte: now.format('HHmm')
                         }
                     },
                     {
-                        'day': {
+                        day: {
                             $gte: tomorrow.format('YYYYMMDD')
                         }
                     }

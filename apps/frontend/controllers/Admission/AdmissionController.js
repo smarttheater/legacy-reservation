@@ -18,8 +18,22 @@ class AdmissionController extends BaseController_1.default {
             }
         }
         else {
-            this.res.render('admission/performances', {
-                FilmUtil: FilmUtil_1.default
+            // 劇場とスクリーンを取得
+            Models_1.default.Theater.find({}, 'name', (err, theaters) => {
+                Models_1.default.Screen.find({}, 'name theater', (err, screens) => {
+                    let screensByTheater = {};
+                    for (let screen of screens) {
+                        if (!screensByTheater.hasOwnProperty(screen.get('theater'))) {
+                            screensByTheater[screen.get('theater')] = [];
+                        }
+                        screensByTheater[screen.get('theater')].push(screen);
+                    }
+                    this.res.render('admission/performances', {
+                        FilmUtil: FilmUtil_1.default,
+                        theaters: theaters,
+                        screensByTheater: screensByTheater
+                    });
+                });
             });
         }
     }
