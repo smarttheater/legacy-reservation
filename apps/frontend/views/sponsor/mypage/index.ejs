@@ -86,7 +86,7 @@
                 <h2><%- __('Label.ConfirmCancel') %></h2>
                 <table class="table table-reservation-confirm">
                 </table>
-                <p class="text message"><%- __('Message.AreYouSureCancel') %></p>
+                <p class="text-center message"></p>
                 <div class="btns2clm">
                     <p class="btn btn-lg btn-next btn-exec execute-cancel" data-url=""><span><%- __('Button.Yes') %></span></p>
                     <p class="btn btn-lg btn-back" data-dismiss="modal"><span><span><%- __('Button.No') %></span></p>
@@ -124,5 +124,7 @@
 </div>
 
 <input type="hidden" name="urlCancel" value="<%- url('sponsor.cancel.execute') %>">
+<input type="hidden" name="messageAreYouSureCancel" value="<%- __('Message.AreYouSureCancel') %>">
+<input type="hidden" name="messageConfirmCancelSelectedTickets" value="<%- __('Message.ConfirmCancelSelectedTickets') %>">
 
 <script src="/js/sponsor/mypage.js"></script>

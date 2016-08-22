@@ -165,7 +165,7 @@ $(function(){
                  + '</td></tr>'
                  + '<tr><th>座席</th><td>' + reservationNode.attr('data-seat-code') + '</td></tr>';
         $('.cancel-reservation-confirm .table-reservation-confirm').html(body);
-        $('.cancel-reservation-confirm .message').html('Are you sure you cancel?');
+        $('.cancel-reservation-confirm .message').html($('input[name="messageAreYouSureCancel"]').val());
         $('.cancel-reservation-confirm').modal();
     });
 
@@ -247,7 +247,7 @@ $(function(){
             } else {
                 // 確認モーダル表示
                 $('.cancel-reservation-confirm .table-reservation-confirm').html('');
-                $('.cancel-reservation-confirm .message').html('Are you sure you cancel \'' + _seatCodes.join('、') + '\'?');
+                $('.cancel-reservation-confirm .message').html($('input[name="messageConfirmCancelSelectedTickets"]').val());
                 $('.cancel-reservation-confirm').modal();
             }
 
