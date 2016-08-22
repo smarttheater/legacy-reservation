@@ -27,7 +27,6 @@ exports.default = (app) => {
         req.staffUser = StaffUser_1.default.parse(req.session);
         next();
     };
-    // TODO admin権限フロー
     // 内部関係者
     app.all('/staff/login', 'staff.mypage.login', base, (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).login(); });
     app.all('/staff/logout', 'staff.logout', base, (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).logout(); });

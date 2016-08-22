@@ -33,8 +33,6 @@ export default (app: any) => {
 
 
 
-    // TODO admin権限フロー
-
 
 
 

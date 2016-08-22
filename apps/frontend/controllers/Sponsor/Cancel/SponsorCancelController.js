@@ -97,6 +97,8 @@ class SponsorCancelController extends BaseController_1.default {
                         performance: reservationDocument.get('performance'),
                         seat_code: reservationDocument.get('seat_code'),
                         status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF,
+                        staff: null,
+                        staff_user_id: 'admin',
                         created_at: reservationDocument.get('created_at'),
                         updated_at: Date.now()
                     };
@@ -141,9 +143,11 @@ class SponsorCancelController extends BaseController_1.default {
                         purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR,
                         status: ReservationUtil_1.default.STATUS_RESERVED
                     }, {
-                        // TODO 内部保留の所有者はadmin
+                        // 内部保留の所有者はadmin
                         status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF,
-                        staff_user_id: 'admin'
+                        staff: null,
+                        staff_user_id: 'admin',
+                        sponsor: null
                     }, (err, raw) => {
                         if (err) {
                             reject(err);

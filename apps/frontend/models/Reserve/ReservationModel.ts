@@ -59,6 +59,9 @@ export default class ReservationModel {
         },
     };
 
+    /** 決済方法選択肢 */
+    public paymentMethodChoices: Array<string>;
+
     /** 券種リスト */
     public ticketTypes: Array<{
         code: string,
@@ -98,7 +101,7 @@ export default class ReservationModel {
     public save(cb: (err: Error) => void, ttl?: number) {
         let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
-        let _ttl = (ttl) ? ttl : 3600;
+        let _ttl = (ttl) ? ttl : 1800; // 30分有効 TODO 調整(仮押さえが削除される時間より長めにとること)
         client.setex(key, _ttl, JSON.stringify(this), (err, reply) => {
             client.quit();
             cb(err);

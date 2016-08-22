@@ -8,7 +8,7 @@ export default class StaffAuthController extends BaseController {
     public layout = 'layouts/staff/layout';
 
     /**
-     * TODO 一般とadminの2種類の権限
+     * 内部関係者ログイン
      */
     public login(): void {
         if (this.req.staffUser.isAuthenticated()) {

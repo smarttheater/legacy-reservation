@@ -127,12 +127,13 @@
 		"Expired": "期限切れです",
 		"NotFound": "見つかりません",
 		"NoMoreReservation": "既に選択出来る座席の上限に達しています",
-		"regexTel": "半角英数、ハイフン「-」なしで7桁以上13桁以内で入力してください",
+		"regexTel": "半角数字、ハイフン「-」なしで7桁以上13桁以内で入力してください",
 		"PleaseSearch": "検索をおこなってください",
 		"ConfirmCancel": "Message.ConfirmCancel",
 		"AreYouSureCancel": "Message.AreYouSureCancel",
 		"CompleteCancel": "Message.CompleteCancel",
-		"Invalid": "Message.Invalid"
+		"Invalid": "Message.Invalid",
+		"InvalidSeatCode": "Message.InvalidSeatCode"
 	},
 	"h3": {
 		"SeatChoices": "座席情報",

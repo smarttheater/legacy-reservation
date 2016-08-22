@@ -10,7 +10,7 @@ class StaffAuthController extends BaseController_1.default {
         this.layout = 'layouts/staff/layout';
     }
     /**
-     * TODO 一般とadminの2種類の権限
+     * 内部関係者ログイン
      */
     login() {
         if (this.req.staffUser.isAuthenticated()) {

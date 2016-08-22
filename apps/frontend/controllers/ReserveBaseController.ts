@@ -49,7 +49,7 @@ export default class ReserveBaseController extends BaseController {
         let reservationModel = new ReservationModel();
         reservationModel.token = token;
         reservationModel.purchaserGroup = this.purchaserGroup;
-        reservationModel = this.initializePurchaser(reservationModel);
+        reservationModel = this.initializePayment(reservationModel);
 
         // パフォーマンスFIX
         if (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser.get('performance')) {
@@ -78,36 +78,14 @@ export default class ReserveBaseController extends BaseController {
     }
 
     /**
-     * 購入者情報を初期化する
+     * 購入情報を初期化する
      */
-    protected initializePurchaser(reservationModel: ReservationModel): ReservationModel {
+    protected initializePayment(reservationModel: ReservationModel): ReservationModel {
+        let purchaser;
+
         switch (this.purchaserGroup) {
-            case ReservationUtil.PURCHASER_GROUP_STAFF:
-                reservationModel.purchaserLastName = 'ナイブ';
-                reservationModel.purchaserFirstName = 'カンケイシャ';
-                reservationModel.purchaserTel = '0362263025';
-                reservationModel.purchaserEmail = this.req.staffUser.get('email');
-
-                break;
-
-            case ReservationUtil.PURCHASER_GROUP_TEL:
-                reservationModel.purchaserLastName = '';
-                reservationModel.purchaserFirstName = '';
-                reservationModel.purchaserTel = '';
-                reservationModel.purchaserEmail = 'tiff@localhost.net';
-
-                break;
-
-            case ReservationUtil.PURCHASER_GROUP_WINDOW:
-                reservationModel.purchaserLastName = 'マドグチ';
-                reservationModel.purchaserFirstName = 'タントウシャ';
-                reservationModel.purchaserTel = '0362263025';
-                reservationModel.purchaserEmail = 'tiff@localhost.net';
-
-                break;
-
-            default:
-                let purchaser = this.findPurchaser();
+            case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
+                purchaser = this.findPurchaser();
                 if (purchaser) {
                     reservationModel.purchaserLastName = purchaser.lastName;
                     reservationModel.purchaserFirstName = purchaser.firstName;
@@ -120,8 +98,69 @@ export default class ReserveBaseController extends BaseController {
                     reservationModel.purchaserEmail = '';
                 }
 
+                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT, GMOUtil.PAY_TYPE_CVS];
                 break;
 
+            case ReservationUtil.PURCHASER_GROUP_MEMBER:
+                purchaser = this.findPurchaser();
+                if (purchaser) {
+                    reservationModel.purchaserLastName = purchaser.lastName;
+                    reservationModel.purchaserFirstName = purchaser.firstName;
+                    reservationModel.purchaserTel = purchaser.tel;
+                    reservationModel.purchaserEmail = purchaser.email;
+                } else {
+                    reservationModel.purchaserLastName = '';
+                    reservationModel.purchaserFirstName = '';
+                    reservationModel.purchaserTel = '';
+                    reservationModel.purchaserEmail = '';
+                }
+
+                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
+                break;
+
+            case ReservationUtil.PURCHASER_GROUP_STAFF:
+                reservationModel.purchaserLastName = 'ナイブ';
+                reservationModel.purchaserFirstName = 'カンケイシャ';
+                reservationModel.purchaserTel = '0362263025';
+                reservationModel.purchaserEmail = this.req.staffUser.get('email');
+
+                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
+                break;
+
+            case ReservationUtil.PURCHASER_GROUP_TEL:
+                reservationModel.purchaserLastName = '';
+                reservationModel.purchaserFirstName = '';
+                reservationModel.purchaserTel = '';
+                reservationModel.purchaserEmail = 'tiff@localhost.net';
+
+                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CVS];
+                break;
+
+            case ReservationUtil.PURCHASER_GROUP_WINDOW:
+                reservationModel.purchaserLastName = 'マドグチ';
+                reservationModel.purchaserFirstName = 'タントウシャ';
+                reservationModel.purchaserTel = '0362263025';
+                reservationModel.purchaserEmail = 'tiff@localhost.net';
+
+                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT, GMOUtil.PAY_TYPE_CASH];
+                break;
+
+            default:
+                purchaser = this.findPurchaser();
+                if (purchaser) {
+                    reservationModel.purchaserLastName = purchaser.lastName;
+                    reservationModel.purchaserFirstName = purchaser.firstName;
+                    reservationModel.purchaserTel = purchaser.tel;
+                    reservationModel.purchaserEmail = purchaser.email;
+                } else {
+                    reservationModel.purchaserLastName = '';
+                    reservationModel.purchaserFirstName = '';
+                    reservationModel.purchaserTel = '';
+                    reservationModel.purchaserEmail = '';
+                }
+
+                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
+                break;
         }
 
         return reservationModel;
@@ -530,22 +569,22 @@ export default class ReserveBaseController extends BaseController {
 
                     promises.push(new Promise((resolve, reject) => {
                         this.logger.info('updating reservation all infos..._id:', reservationDocument4update['_id']);
-                        Models.Reservation.update(
+                        Models.Reservation.findOneAndUpdate(
                             {
                                 _id: reservationDocument4update['_id']
                             },
                             reservationDocument4update,
-                            (err, raw) => {
-                                this.logger.info('reservation updated.', err, raw);
-                                if (err) {
-                                    reject(new Error(this.req.__('Message.UnexpectedError')));
-                                } else {
-                                    resolve();
-                                }
+                            {
+                                new: true
+                            },
+                            (err, reservation) => {
+                                this.logger.info('reservation updated.', err, reservation);
+                                if (err) return reject(new Error(this.req.__('Message.UnexpectedError')));
+                                if (!reservation) return reject(new Error(this.req.__('Message.UnexpectedError')));
 
+                                resolve();
                             }
                         );
-
                     }));
                 };
 

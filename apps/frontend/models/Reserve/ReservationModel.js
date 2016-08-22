@@ -17,7 +17,7 @@ class ReservationModel {
     save(cb, ttl) {
         let client = Util_1.default.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
-        let _ttl = (ttl) ? ttl : 3600;
+        let _ttl = (ttl) ? ttl : 1800; // 30分有効 TODO 調整(仮押さえが削除される時間より長めにとること)
         client.setex(key, _ttl, JSON.stringify(this), (err, reply) => {
             client.quit();
             cb(err);
