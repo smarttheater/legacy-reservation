@@ -1,5 +1,6 @@
 import BaseController from './BaseController';
 import Util from '../../common/Util/Util';
+import Constants from '../../common/Util/Constants';
 import GMOUtil from '../../common/Util/GMO/GMOUtil';
 import ReservationUtil from '../../common/models/Reservation/ReservationUtil';
 import ScreenUtil from '../../common/models/Screen/ScreenUtil';
@@ -98,7 +99,13 @@ export default class ReserveBaseController extends BaseController {
                     reservationModel.purchaserEmail = '';
                 }
 
-                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT, GMOUtil.PAY_TYPE_CVS];
+                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
+
+                // コンビニ決済は5日前まで
+                if (moment() < moment(Constants.CVS_RESERVATION_END_DATETIME)) {
+                    reservationModel.paymentMethodChoices.push(GMOUtil.PAY_TYPE_CVS);
+                }
+
                 break;
 
             case ReservationUtil.PURCHASER_GROUP_MEMBER:
@@ -133,7 +140,13 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.purchaserTel = '';
                 reservationModel.purchaserEmail = 'tiff@localhost.net';
 
-                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CVS];
+                reservationModel.paymentMethodChoices = [];
+
+                // コンビニ決済は5日前まで
+                if (moment() < moment(Constants.CVS_RESERVATION_END_DATETIME)) {
+                    reservationModel.paymentMethodChoices.push(GMOUtil.PAY_TYPE_CVS);
+                }
+
                 break;
 
             case ReservationUtil.PURCHASER_GROUP_WINDOW:
@@ -333,6 +346,11 @@ export default class ReserveBaseController extends BaseController {
                     };
 
 
+                    // 座席グレードリスト抽出
+                    reservationModel.seatGradeCodesInScreen = [];
+                    // for (performance.get('screen').get('sections')[0].seats) {
+
+                    // }
 
                     // スクリーン座席表HTMLを保管(apiで取得)
                     // TODO ひとまず固定だが、最終的にはパフォーマンスに応じて適切なスクリーンを入れる

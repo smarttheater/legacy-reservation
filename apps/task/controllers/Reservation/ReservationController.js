@@ -16,19 +16,22 @@ class ReservationController extends BaseController_1.default {
      */
     removeTmps() {
         mongoose.connect(MONGOLAB_URI, {});
-        this.logger.info('updating temporary reservations...');
+        // 念のため、仮予約有効期間より5分長めにしておく
+        let seconds = Constants_1.default.TEMPORARY_RESERVATION_VALID_PERIOD_SECONDS + 300;
+        this.logger.info('removing temporary reservations...');
         Models_1.default.Reservation.remove({
             status: ReservationUtil_1.default.STATUS_TEMPORARY,
             updated_at: {
-                $lt: moment().add(-10, 'minutes').toISOString()
-            },
+                $lt: moment().add(-seconds, 'seconds').toISOString()
+            }
         }, (err) => {
-            mongoose.disconnect();
+            this.logger.info('temporary reservations removed.', err);
             // 失敗しても、次のタスクにまかせる(気にしない)
             if (err) {
             }
             else {
             }
+            mongoose.disconnect();
             process.exit(0);
         });
     }
@@ -36,8 +39,7 @@ class ReservationController extends BaseController_1.default {
      * 固定日時を経過したら、空席ステータスにするバッチ
      */
     releaseSeatsKeptByMembers() {
-        let now = moment();
-        if (moment(Constants_1.default.RESERVE_END_DATETIME) < now) {
+        if (moment(Constants_1.default.MEMBER_RESERVATION_END_DATETIME) < moment()) {
             mongoose.connect(MONGOLAB_URI, {});
             this.logger.info('releasing reservations kept by members...');
             Models_1.default.Reservation.remove({

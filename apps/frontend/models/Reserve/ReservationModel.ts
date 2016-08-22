@@ -1,4 +1,5 @@
 import Util from '../../../common/Util/Util';
+import Constants from '../../../common/Util/Constants';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import GMOUtil from '../../../common/Util/GMO/GMOUtil';
 
@@ -73,6 +74,12 @@ export default class ReservationModel {
         is_on_the_day: boolean // 当日だけフラグ
     }>;
 
+    /** スクリーン内の座席グレードリスト */
+    public seatGradeCodesInScreen: Array<string>;
+
+
+
+
     /** スクリーンの座席表HTML */
     public screenHtml: string;
 
@@ -101,7 +108,7 @@ export default class ReservationModel {
     public save(cb: (err: Error) => void, ttl?: number) {
         let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
-        let _ttl = (ttl) ? ttl : 1800; // 30分有効 TODO 調整(仮押さえが削除される時間より長めにとること)
+        let _ttl = (ttl) ? ttl : Constants.TEMPORARY_RESERVATION_VALID_PERIOD_SECONDS;
         client.setex(key, _ttl, JSON.stringify(this), (err, reply) => {
             client.quit();
             cb(err);

@@ -14,11 +14,6 @@ export default class MemberReserveController extends ReserveBaseController imple
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_MEMBER;
     public layout = 'layouts/member/layout';
 
-    /** 予約開始日時 */
-    private static RESERVE_START_DATETIME = '2016-10-22T00:00:00+09:00';
-    /** 予約終了日時 */
-    private static RESERVE_END_DATETIME = '2016-10-24T23:59:59+09:00';
-
     public start(): void {
         // 予約状況を確認
         Models.Reservation.find(

@@ -19,7 +19,7 @@ export default class MemberAuthController extends BaseController {
         // 期限指定
         if (process.env.NODE_ENV === 'prod') {
             let now = moment();
-            if (now < moment(Constants.RESERVE_START_DATETIME) || moment(Constants.RESERVE_END_DATETIME) < now) {
+            if (now < moment(Constants.MEMBER_RESERVATION_START_DATETIME) || moment(Constants.MEMBER_RESERVATION_END_DATETIME) < now) {
                 return this.next(new Error('Message.Expired'));
             }
         }

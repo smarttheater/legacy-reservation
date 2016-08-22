@@ -1,6 +1,7 @@
 "use strict";
 const BaseController_1 = require('./BaseController');
 const Util_1 = require('../../common/Util/Util');
+const Constants_1 = require('../../common/Util/Constants');
 const GMOUtil_1 = require('../../common/Util/GMO/GMOUtil');
 const ReservationUtil_1 = require('../../common/models/Reservation/ReservationUtil');
 const ScreenUtil_1 = require('../../common/models/Screen/ScreenUtil');
@@ -89,7 +90,11 @@ class ReserveBaseController extends BaseController_1.default {
                     reservationModel.purchaserTel = '';
                     reservationModel.purchaserEmail = '';
                 }
-                reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CREDIT, GMOUtil_1.default.PAY_TYPE_CVS];
+                reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CREDIT];
+                // コンビニ決済は5日前まで
+                if (moment() < moment(Constants_1.default.CVS_RESERVATION_END_DATETIME)) {
+                    reservationModel.paymentMethodChoices.push(GMOUtil_1.default.PAY_TYPE_CVS);
+                }
                 break;
             case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
                 purchaser = this.findPurchaser();
@@ -119,7 +124,11 @@ class ReserveBaseController extends BaseController_1.default {
                 reservationModel.purchaserFirstName = '';
                 reservationModel.purchaserTel = '';
                 reservationModel.purchaserEmail = 'tiff@localhost.net';
-                reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CVS];
+                reservationModel.paymentMethodChoices = [];
+                // コンビニ決済は5日前まで
+                if (moment() < moment(Constants_1.default.CVS_RESERVATION_END_DATETIME)) {
+                    reservationModel.paymentMethodChoices.push(GMOUtil_1.default.PAY_TYPE_CVS);
+                }
                 break;
             case ReservationUtil_1.default.PURCHASER_GROUP_WINDOW:
                 reservationModel.purchaserLastName = 'マドグチ';
@@ -275,6 +284,10 @@ class ReserveBaseController extends BaseController_1.default {
                         is_mx4d: performance.get('film').get('is_mx4d'),
                     }
                 };
+                // 座席グレードリスト抽出
+                reservationModel.seatGradeCodesInScreen = [];
+                // for (performance.get('screen').get('sections')[0].seats) {
+                // }
                 // スクリーン座席表HTMLを保管(apiで取得)
                 // TODO ひとまず固定だが、最終的にはパフォーマンスに応じて適切なスクリーンを入れる
                 fs.readFile(`${__dirname}/../../common/views/screens/map.ejs`, 'utf8', (err, data) => {

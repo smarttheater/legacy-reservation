@@ -1,7 +1,17 @@
 export default class ScreenUtil {
+    /** ノーマルシート */
+    public static SEAT_GRADE_CODE_NORMAL = '00';
+    /** プレミアボックスシート */
+    public static SEAT_GRADE_CODE_PREMIERE_BOX = '01';
+    /** プレミアラグジュアリーシート */
+    public static SEAT_GRADE_CODE_PREMIERE_LUXURY = '02';
+    /** フロントリクライニングシート */
+    public static SEAT_GRADE_CODE_RECLINING = '03';
+
     public static getSeatGrades() {
         return [
             {
+                code: ScreenUtil.SEAT_GRADE_CODE_NORMAL,
                 name: {
                     ja: 'ノーマルシート',
                     en: 'Normal Seat',
@@ -9,6 +19,7 @@ export default class ScreenUtil {
                 additional_charge: 0
             },
             {
+                code: ScreenUtil.SEAT_GRADE_CODE_PREMIERE_BOX,
                 name: {
                     ja: 'プレミアボックスシート',
                     en: 'Premiere Box Seat',
@@ -16,9 +27,18 @@ export default class ScreenUtil {
                 additional_charge: 1000
             },
             {
+                code: ScreenUtil.SEAT_GRADE_CODE_PREMIERE_LUXURY,
                 name: {
                     ja: 'プレミアラグジュアリーシート',
                     en: 'Premiere Luxury Seat',
+                },
+                additional_charge: 3000
+            },
+            {
+                code: ScreenUtil.SEAT_GRADE_CODE_RECLINING,
+                name: {
+                    ja: 'フロントリクライニングシート',
+                    en: 'Front Reclining Seat',
                 },
                 additional_charge: 3000
             }

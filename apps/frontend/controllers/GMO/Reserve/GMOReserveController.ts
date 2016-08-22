@@ -45,10 +45,6 @@ export default class GMOReserveController extends ReserveBaseController {
                         this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
                         this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
 
-                        // TODO コンビニ決済は5日前の24時までなので、日付確定
-                        if (parseInt(moment().format('YYYYMMDD')) < 20161018) {
-                        }
-
                         // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
                         let md5hash = crypto.createHash('md5');
                         md5hash.update(`${this.res.locals.shopId}${this.res.locals.orderID}${this.res.locals.amount}${this.res.locals.shopPassword}${this.res.locals.dateTime}`, 'utf8');

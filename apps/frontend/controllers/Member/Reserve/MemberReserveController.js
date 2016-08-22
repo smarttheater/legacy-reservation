@@ -182,9 +182,5 @@ class MemberReserveController extends ReserveBaseController_1.default {
         });
     }
 }
-/** 予約開始日時 */
-MemberReserveController.RESERVE_START_DATETIME = '2016-10-22T00:00:00+09:00';
-/** 予約終了日時 */
-MemberReserveController.RESERVE_END_DATETIME = '2016-10-24T23:59:59+09:00';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = MemberReserveController;
