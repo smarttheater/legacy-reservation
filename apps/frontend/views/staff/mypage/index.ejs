@@ -15,7 +15,7 @@
                             let start = moment(Constants.EVENT_START_DATETIME);
                             let end = moment(Constants.EVENT_END_DATETIME);
                             let options = '';
-                            while (start < end) {
+                            while (start.format('YYYYMMDD') <= end.format('YYYYMMDD')) {
                                 options += `<option value="${start.format('YYYYMMDD')}">${start.format('MM/DD')}</option>`;
                                 start = start.add(+1, 'days');
                                 continue;
