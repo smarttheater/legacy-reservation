@@ -14,7 +14,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
     start() {
         // 予約状況を確認
         Models_1.default.Reservation.find({
-            member: this.req.memberUser.get('_id'),
+            member_user_id: this.req.memberUser.get('user_id'),
             purchaser_group: this.purchaserGroup,
             status: ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER
         }, 'performance seat_code status', (err, reservations) => {

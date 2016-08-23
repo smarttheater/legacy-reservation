@@ -18,7 +18,7 @@ export default class MemberReserveController extends ReserveBaseController imple
         // 予約状況を確認
         Models.Reservation.find(
             {
-                member: this.req.memberUser.get('_id'),
+                member_user_id: this.req.memberUser.get('user_id'),
                 purchaser_group: this.purchaserGroup,
                 status: ReservationUtil.STATUS_KEPT_BY_MEMBER
             },

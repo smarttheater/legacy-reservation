@@ -5,7 +5,8 @@ const mongoose = require('mongoose');
  */
 let Schema = new mongoose.Schema({
     user_id: String,
-    password: String
+    password_salt: String,
+    password_hash: String
 }, {
     collection: 'members',
     timestamps: {
