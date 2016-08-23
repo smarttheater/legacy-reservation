@@ -193,9 +193,9 @@ class ReserveBaseController extends BaseController_1.default {
         this.logger.debug('searching performance... id:', perfomanceId);
         Models_1.default.Performance.findOne({
             _id: perfomanceId
-        }, 'day start_time end_time is_mx4d film screen theater' // 必要な項目だけ指定すること
+        }, 'day start_time end_time film screen theater' // 必要な項目だけ指定すること
         )
-            .populate('film', 'name ticket_type_group image') // 必要な項目だけ指定すること
+            .populate('film', 'name ticket_type_group image is_mx4d') // 必要な項目だけ指定すること
             .populate('screen', 'name sections') // 必要な項目だけ指定すること
             .populate('theater', 'name') // 必要な項目だけ指定すること
             .exec((err, performance) => {
