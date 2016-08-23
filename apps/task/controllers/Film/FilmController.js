@@ -9,7 +9,7 @@ let MONGOLAB_URI = conf.get('mongolab_uri');
 class FilmController extends BaseController_1.default {
     createTicketTypeGroupsFromJson() {
         mongoose.connect(MONGOLAB_URI, {});
-        fs.readFile(`${process.cwd()}/data/ticketTypeGroups.json`, 'utf8', (err, data) => {
+        fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/ticketTypeGroups.json`, 'utf8', (err, data) => {
             if (err)
                 throw err;
             let groups = JSON.parse(data);
@@ -26,7 +26,7 @@ class FilmController extends BaseController_1.default {
     }
     createFromJson() {
         mongoose.connect(MONGOLAB_URI, {});
-        fs.readFile(`${process.cwd()}/data/films.json`, 'utf8', (err, data) => {
+        fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/films.json`, 'utf8', (err, data) => {
             if (err)
                 throw err;
             let films = JSON.parse(data);

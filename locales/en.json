@@ -122,7 +122,8 @@
 		"Expired": "Expired",
 		"NoMoreReservation": "No more reservation.",
 		"AreYouSureCancel": "Message.AreYouSureCancel",
-		"CompleteCancel": "Message.CompleteCancel"
+		"CompleteCancel": "Message.CompleteCancel",
+		"OutOfTerm": "Message.OutOfTerm"
 	},
 	"h3": {
 		"SeatChoices": "Seat Choices",

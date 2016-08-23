@@ -237,4 +237,17 @@ export default class ReservationController extends BaseController {
             next(i);
         });
     }
+
+    /**
+     * 予約を初期化する
+     */
+    public reset(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
+        Models.Reservation.remove({}, (err) => {
+            this.logger.info('remove processed.', err);
+            mongoose.disconnect();
+            process.exit(0);
+        });
+    }
 }

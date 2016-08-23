@@ -18,7 +18,7 @@ export default class TheaterController extends BaseController {
     public createScreensFromJson() : void {
         mongoose.connect(MONGOLAB_URI, {});
 
-        fs.readFile(`${process.cwd()}/data/screens.json`, 'utf8', (err, data) => {
+        fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/screens.json`, 'utf8', (err, data) => {
             if (err) throw err;
             let screens = JSON.parse(data);
 
@@ -40,7 +40,7 @@ export default class TheaterController extends BaseController {
     public createFromJson(): void {
         mongoose.connect(MONGOLAB_URI, {});
 
-        fs.readFile(`${process.cwd()}/data/theaters.json`, 'utf8', (err, data) => {
+        fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/theaters.json`, 'utf8', (err, data) => {
             if (err) throw err;
             let theaters = JSON.parse(data);
 

@@ -42,7 +42,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
     public start(): void {
         // 期限指定
         if (moment() < moment(conf.get<string>('datetimes.reservation_start_customers_first'))) {
-            return this.next(new Error('Message.OutOfTerm'));
+            return this.next(new Error(this.req.__('Message.OutOfTerm')));
         }
 
         this.processStart((err, reservationModel) => {

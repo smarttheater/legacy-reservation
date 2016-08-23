@@ -134,7 +134,8 @@
 		"CompleteCancel": "キャンセルが完了しました",
 		"Invalid": "無効です",
 		"InvalidSeatCode": "選択された座席番号が無効です",
-		"ConfirmCancelSelectedTickets": "選択したチケットをキャンセルします"
+		"ConfirmCancelSelectedTickets": "選択したチケットをキャンセルします",
+		"OutOfTerm": "期間外です"
 	},
 	"h3": {
 		"SeatChoices": "座席情報",

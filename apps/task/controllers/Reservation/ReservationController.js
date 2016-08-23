@@ -204,6 +204,17 @@ class ReservationController extends BaseController_1.default {
             next(i);
         });
     }
+    /**
+     * 予約を初期化する
+     */
+    reset() {
+        mongoose.connect(MONGOLAB_URI, {});
+        Models_1.default.Reservation.remove({}, (err) => {
+            this.logger.info('remove processed.', err);
+            mongoose.disconnect();
+            process.exit(0);
+        });
+    }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = ReservationController;

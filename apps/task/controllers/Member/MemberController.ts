@@ -18,7 +18,7 @@ export default class MemberController extends BaseController {
     public createFromJson() {
         mongoose.connect(MONGOLAB_URI, {});
 
-        fs.readFile(`${process.cwd()}/data/members.json`, 'utf8', (err, data) => {
+        fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/members.json`, 'utf8', (err, data) => {
             if (err) throw err;
             let members = JSON.parse(data);
 
@@ -71,22 +71,27 @@ export default class MemberController extends BaseController {
         };
 
         let performance = {
-            "_id": "20161025000001070600",
+            "_id": `${moment(conf.get<string>('datetimes.event_start')).format('YYYYMMDD')}000001070600`,
             "theater": "000001",
             "screen": "00000107",
             "film": "999999",
-            "day": "20161025",
-            "start_time": "0600",
-            "end_time": "0800"
+            "day": moment(conf.get<string>('datetimes.event_start')).format('YYYYMMDD'),
+            "start_time": "0800",
+            "end_time": "0900"
         };
 
         let promises = [];
 
         Models.Film.create(film, (err) => {
             Models.Performance.create(performance, (err) => {
-                fs.readFile(`${process.cwd()}/data/memberReservations.json`, 'utf8', (err, data) => {
+                fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/memberReservations.json`, 'utf8', (err, data) => {
                     if (err) throw err;
                     let reservations = JSON.parse(data);
+
+                    reservations = reservations.map((reservation) => {
+                        reservation.performance = performance._id;
+                        return reservation;
+                    });
 
                     this.logger.debug('creating reservations...');
                     Models.Reservation.create(

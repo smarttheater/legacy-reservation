@@ -12,7 +12,7 @@ export default class StaffController extends BaseController {
     public createFromJson(): void {
         mongoose.connect(MONGOLAB_URI, {});
 
-        fs.readFile(`${process.cwd()}/data/staffs.json`, 'utf8', (err, data) => {
+        fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/staffs.json`, 'utf8', (err, data) => {
             if (err) throw err;
             let staffs = JSON.parse(data);
 

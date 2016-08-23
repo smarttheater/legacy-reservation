@@ -1,0 +1,12 @@
+[
+    {
+        "user_id": "window01",
+        "password": "window01",
+        "name": "当日窓口スタッフ01"
+    },
+    {
+        "user_id": "window02",
+        "password": "window02",
+        "name": "当日窓口スタッフ02"
+    }
+]

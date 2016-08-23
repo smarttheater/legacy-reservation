@@ -8,7 +8,7 @@ let MONGOLAB_URI = conf.get('mongolab_uri');
 class TheaterController extends BaseController_1.default {
     createScreensFromJson() {
         mongoose.connect(MONGOLAB_URI, {});
-        fs.readFile(`${process.cwd()}/data/screens.json`, 'utf8', (err, data) => {
+        fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/screens.json`, 'utf8', (err, data) => {
             if (err)
                 throw err;
             let screens = JSON.parse(data);
@@ -25,7 +25,7 @@ class TheaterController extends BaseController_1.default {
     }
     createFromJson() {
         mongoose.connect(MONGOLAB_URI, {});
-        fs.readFile(`${process.cwd()}/data/theaters.json`, 'utf8', (err, data) => {
+        fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/theaters.json`, 'utf8', (err, data) => {
             if (err)
                 throw err;
             let theaters = JSON.parse(data);

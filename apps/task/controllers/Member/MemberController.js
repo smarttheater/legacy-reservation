@@ -2,6 +2,7 @@
 const BaseController_1 = require('../BaseController');
 const Util_1 = require('../../../common/Util/Util');
 const Models_1 = require('../../../common/models/Models');
+const moment = require('moment');
 const conf = require('config');
 const mongoose = require('mongoose');
 const fs = require('fs-extra');
@@ -9,7 +10,7 @@ let MONGOLAB_URI = conf.get('mongolab_uri');
 class MemberController extends BaseController_1.default {
     createFromJson() {
         mongoose.connect(MONGOLAB_URI, {});
-        fs.readFile(`${process.cwd()}/data/members.json`, 'utf8', (err, data) => {
+        fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/members.json`, 'utf8', (err, data) => {
             if (err)
                 throw err;
             let members = JSON.parse(data);
@@ -56,21 +57,25 @@ class MemberController extends BaseController_1.default {
             "is_mx4d": false
         };
         let performance = {
-            "_id": "20161025000001070600",
+            "_id": `${moment(conf.get('datetimes.event_start')).format('YYYYMMDD')}000001070600`,
             "theater": "000001",
             "screen": "00000107",
             "film": "999999",
-            "day": "20161025",
-            "start_time": "0600",
-            "end_time": "0800"
+            "day": moment(conf.get('datetimes.event_start')).format('YYYYMMDD'),
+            "start_time": "0800",
+            "end_time": "0900"
         };
         let promises = [];
         Models_1.default.Film.create(film, (err) => {
             Models_1.default.Performance.create(performance, (err) => {
-                fs.readFile(`${process.cwd()}/data/memberReservations.json`, 'utf8', (err, data) => {
+                fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/memberReservations.json`, 'utf8', (err, data) => {
                     if (err)
                         throw err;
                     let reservations = JSON.parse(data);
+                    reservations = reservations.map((reservation) => {
+                        reservation.performance = performance._id;
+                        return reservation;
+                    });
                     this.logger.debug('creating reservations...');
                     Models_1.default.Reservation.create(reservations, (err) => {
                         this.logger.info('reservations created.', err);

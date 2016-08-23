@@ -9,17 +9,6 @@ const mongoose = require('mongoose');
 const fs = require('fs-extra');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class TestController extends BaseController_1.default {
-    /**
-     * 予約を初期化する
-     */
-    resetReservations() {
-        mongoose.connect(MONGOLAB_URI, {});
-        Models_1.default.Reservation.remove({}, (err) => {
-            this.logger.info('remove processed.', err);
-            mongoose.disconnect();
-            process.exit(0);
-        });
-    }
     upsertReservation() {
         mongoose.connect(MONGOLAB_URI, {});
         let promises = [];
@@ -154,24 +143,9 @@ class TestController extends BaseController_1.default {
             });
         });
     }
-    createSponsors() {
-        mongoose.connect(MONGOLAB_URI, {});
-        let password_salt = Util_1.default.createToken();
-        Models_1.default.Sponsor.create({
-            user_id: 'motionpicture',
-            password_salt: password_salt,
-            password_hash: Util_1.default.createHash('password', password_salt),
-            name: 'モーションピクチャーというスポンサー',
-            max_reservation_count: 50,
-            performance: '57a3d45ddfada98420a623b2'
-        }, () => {
-            mongoose.disconnect();
-            process.exit(0);
-        });
-    }
     createWindows() {
         mongoose.connect(MONGOLAB_URI, {});
-        fs.readFile(`${process.cwd()}/data/windows.json`, 'utf8', (err, data) => {
+        fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/windows.json`, 'utf8', (err, data) => {
             if (err)
                 throw err;
             let windows = JSON.parse(data);
@@ -196,7 +170,7 @@ class TestController extends BaseController_1.default {
     }
     createTelStaffs() {
         mongoose.connect(MONGOLAB_URI, {});
-        fs.readFile(`${process.cwd()}/data/telStaffs.json`, 'utf8', (err, data) => {
+        fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/telStaffs.json`, 'utf8', (err, data) => {
             if (err)
                 throw err;
             let telStaffs = JSON.parse(data);

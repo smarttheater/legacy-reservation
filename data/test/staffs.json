@@ -1,0 +1,30 @@
+[
+    {
+        "user_id": "admin",
+        "password": "admin",
+        "name": "管理者",
+        "email": "tiff_mp@motionpicture.jp",
+        "is_admin": true
+    },
+    {
+        "user_id": "staff01",
+        "password": "staff01",
+        "name": "作品部",
+        "email": "tiff_mp@motionpicture.jp",
+        "is_admin": false
+    },
+    {
+        "user_id": "staff02",
+        "password": "staff02",
+        "name": "営業部",
+        "email": "tiff_mp@motionpicture.jp",
+        "is_admin": false
+    },
+    {
+        "user_id": "staff03",
+        "password": "staff03",
+        "name": "2次販売分",
+        "email": "tiff_mp@motionpicture.jp",
+        "is_admin": false
+    }
+]

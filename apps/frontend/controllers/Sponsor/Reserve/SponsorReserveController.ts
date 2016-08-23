@@ -22,7 +22,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
     public start(): void {
         // 期限指定
         if (moment() < moment(conf.get<string>('datetimes.reservation_start_sponsors'))) {
-            return this.next(new Error('Message.OutOfTerm'));
+            return this.next(new Error(this.req.__('Message.OutOfTerm')));
         }
 
         this.processStart((err, reservationModel) => {

@@ -12,7 +12,7 @@ export default class SponsorController extends BaseController {
     public createFromJson(): void {
         mongoose.connect(MONGOLAB_URI, {});
 
-        fs.readFile(`${process.cwd()}/data/sponsors.json`, 'utf8', (err, data) => {
+        fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/sponsors.json`, 'utf8', (err, data) => {
             if (err) throw err;
             let sponsors = JSON.parse(data);
 
