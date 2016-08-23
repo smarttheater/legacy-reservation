@@ -6,6 +6,7 @@ const ReservationUtil_1 = require('../../../common/models/Reservation/Reservatio
 const conf = require('config');
 const mongodb = require('mongodb');
 const mongoose = require('mongoose');
+const fs = require('fs-extra');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class TestController extends BaseController_1.default {
     /**
@@ -170,28 +171,52 @@ class TestController extends BaseController_1.default {
     }
     createWindows() {
         mongoose.connect(MONGOLAB_URI, {});
-        let password_salt = Util_1.default.createToken();
-        Models_1.default.Window.create({
-            user_id: 'motionpicture',
-            password_salt: password_salt,
-            password_hash: Util_1.default.createHash('12345', password_salt),
-            name: '当日窓口モーションピクチャー'
-        }, () => {
-            mongoose.disconnect();
-            process.exit(0);
+        fs.readFile(`${process.cwd()}/data/windows.json`, 'utf8', (err, data) => {
+            if (err)
+                throw err;
+            let windows = JSON.parse(data);
+            // パスワードハッシュ化
+            windows = windows.map((window) => {
+                let password_salt = Util_1.default.createToken();
+                window['password_salt'] = password_salt;
+                window['password_hash'] = Util_1.default.createHash(window.password, password_salt);
+                delete window['password'];
+                return window;
+            });
+            this.logger.info('removing all windows...');
+            Models_1.default.Window.remove({}, (err) => {
+                this.logger.debug('creating windows...');
+                Models_1.default.Window.create(windows, (err) => {
+                    this.logger.info('windows created.', err);
+                    mongoose.disconnect();
+                    process.exit(0);
+                });
+            });
         });
     }
     createTelStaffs() {
         mongoose.connect(MONGOLAB_URI, {});
-        let password_salt = Util_1.default.createToken();
-        Models_1.default.TelStaff.create({
-            user_id: 'motionpicture',
-            password_salt: password_salt,
-            password_hash: Util_1.default.createHash('12345', password_salt),
-            name: '電話窓口モーションピクチャー'
-        }, () => {
-            mongoose.disconnect();
-            process.exit(0);
+        fs.readFile(`${process.cwd()}/data/telStaffs.json`, 'utf8', (err, data) => {
+            if (err)
+                throw err;
+            let telStaffs = JSON.parse(data);
+            // パスワードハッシュ化
+            telStaffs = telStaffs.map((telStaff) => {
+                let password_salt = Util_1.default.createToken();
+                telStaff['password_salt'] = password_salt;
+                telStaff['password_hash'] = Util_1.default.createHash(telStaff.password, password_salt);
+                delete telStaff['password'];
+                return telStaff;
+            });
+            this.logger.info('removing all telStaffs...');
+            Models_1.default.TelStaff.remove({}, (err) => {
+                this.logger.debug('creating telStaffs...');
+                Models_1.default.TelStaff.create(telStaffs, (err) => {
+                    this.logger.info('telStaffs created.', err);
+                    mongoose.disconnect();
+                    process.exit(0);
+                });
+            });
         });
     }
 }

@@ -8,6 +8,7 @@ import moment = require('moment');
 import memberReserveLoginForm from '../../../forms/Member/Reserve/memberReserveLoginForm';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import MemberUser from '../../../models/User/MemberUser';
+import conf = require('config');
 
 export default class MemberAuthController extends BaseController {
     public layout = 'layouts/member/layout';
@@ -17,11 +18,9 @@ export default class MemberAuthController extends BaseController {
      */
     public login(): void {
         // 期限指定
-        if (process.env.NODE_ENV === 'prod') {
-            let now = moment();
-            if (now < moment(Constants.MEMBER_RESERVATION_START_DATETIME) || moment(Constants.MEMBER_RESERVATION_END_DATETIME) < now) {
-                return this.next(new Error('Message.Expired'));
-            }
+        let now = moment();
+        if (now < moment(conf.get<string>('datetimes.reservation_start_members')) || moment(conf.get<string>('datetimes.reservation_end_members')) < now) {
+            return this.next(new Error('Message.Expired'));
         }
 
         if (this.req.memberUser.isAuthenticated()) {

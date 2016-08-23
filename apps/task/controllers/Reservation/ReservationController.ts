@@ -48,7 +48,7 @@ export default class ReservationController extends BaseController {
      * 固定日時を経過したら、空席ステータスにするバッチ
      */
     public releaseSeatsKeptByMembers() {
-        if (moment(Constants.MEMBER_RESERVATION_END_DATETIME) < moment()) {
+        if (moment(conf.get<string>('datetimes.reservation_end_members')) < moment()) {
             mongoose.connect(MONGOLAB_URI, {});
 
             this.logger.info('releasing reservations kept by members...');

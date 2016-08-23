@@ -8,29 +8,29 @@ import fs = require('fs-extra');
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
-export default class StaffController extends BaseController {
+export default class SponsorController extends BaseController {
     public createFromJson(): void {
         mongoose.connect(MONGOLAB_URI, {});
 
-        fs.readFile(`${process.cwd()}/data/staffs.json`, 'utf8', (err, data) => {
+        fs.readFile(`${process.cwd()}/data/sponsors.json`, 'utf8', (err, data) => {
             if (err) throw err;
-            let staffs = JSON.parse(data);
+            let sponsors = JSON.parse(data);
 
             // パスワードハッシュ化
-            staffs = staffs.map((staff) => {
+            sponsors = sponsors.map((sponsor) => {
                 let password_salt = Util.createToken();
-                staff['password_salt'] = password_salt;
-                staff['password_hash'] = Util.createHash(staff.password, password_salt);
-                delete staff['password'];
-                return staff;
+                sponsor['password_salt'] = password_salt;
+                sponsor['password_hash'] = Util.createHash(sponsor.password, password_salt);
+                delete sponsor['password'];
+                return sponsor;
             });
-            this.logger.info('removing all staffs...');
-            Models.Staff.remove({}, (err) => {
-                this.logger.debug('creating staffs...');
-                Models.Staff.create(
-                    staffs,
+            this.logger.info('removing all sponsors...');
+            Models.Sponsor.remove({}, (err) => {
+                this.logger.debug('creating sponsors...');
+                Models.Sponsor.create(
+                    sponsors,
                     (err) => {
-                        this.logger.info('staffs created.', err);
+                        this.logger.info('sponsors created.', err);
                         mongoose.disconnect();
                         process.exit(0);
                     }

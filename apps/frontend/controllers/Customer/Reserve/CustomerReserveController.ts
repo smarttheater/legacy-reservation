@@ -10,6 +10,8 @@ import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import lockFile = require('lockfile');
 import ReserveControllerInterface from '../../ReserveControllerInterface';
+import moment = require('moment');
+import conf = require('config');
 
 export default class CustomerReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_CUSTOMER;
@@ -38,6 +40,11 @@ export default class CustomerReserveController extends ReserveBaseController imp
      * ポータルからパフォーマンスと言語指定で遷移してくる
      */
     public start(): void {
+        // 期限指定
+        if (moment() < moment(conf.get<string>('datetimes.reservation_start_customers_first'))) {
+            return this.next(new Error('Message.OutOfTerm'));
+        }
+
         this.processStart((err, reservationModel) => {
             if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
 

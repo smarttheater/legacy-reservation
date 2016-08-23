@@ -10,6 +10,9 @@ import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import lockFile = require('lockfile');
 import ReserveControllerInterface from '../../ReserveControllerInterface';
+import moment = require('moment');
+import conf = require('config');
+
 
 export default class SponsorReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_SPONSOR;
@@ -17,6 +20,11 @@ export default class SponsorReserveController extends ReserveBaseController impl
     public static RESERVATION_LIMIT_PER_PERFORMANCE = 10; // パフォーマンスあたりの最大座席確保枚数
 
     public start(): void {
+        // 期限指定
+        if (moment() < moment(conf.get<string>('datetimes.reservation_start_sponsors'))) {
+            return this.next(new Error('Message.OutOfTerm'));
+        }
+
         this.processStart((err, reservationModel) => {
             if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
 

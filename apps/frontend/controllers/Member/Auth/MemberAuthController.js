@@ -1,12 +1,12 @@
 "use strict";
 const BaseController_1 = require('../../BaseController');
 const Util_1 = require('../../../../common/Util/Util');
-const Constants_1 = require('../../../../common/Util/Constants');
 const Models_1 = require('../../../../common/models/Models');
 const moment = require('moment');
 const memberReserveLoginForm_1 = require('../../../forms/Member/Reserve/memberReserveLoginForm');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const MemberUser_1 = require('../../../models/User/MemberUser');
+const conf = require('config');
 class MemberAuthController extends BaseController_1.default {
     constructor(...args) {
         super(...args);
@@ -17,11 +17,9 @@ class MemberAuthController extends BaseController_1.default {
      */
     login() {
         // 期限指定
-        if (process.env.NODE_ENV === 'prod') {
-            let now = moment();
-            if (now < moment(Constants_1.default.MEMBER_RESERVATION_START_DATETIME) || moment(Constants_1.default.MEMBER_RESERVATION_END_DATETIME) < now) {
-                return this.next(new Error('Message.Expired'));
-            }
+        let now = moment();
+        if (now < moment(conf.get('datetimes.reservation_start_members')) || moment(conf.get('datetimes.reservation_end_members')) < now) {
+            return this.next(new Error('Message.Expired'));
         }
         if (this.req.memberUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('member.reserve.start'));

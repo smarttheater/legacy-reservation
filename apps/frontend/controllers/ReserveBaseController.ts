@@ -9,6 +9,7 @@ import Models from '../../common/models/Models';
 import ReservationModel from '../models/Reserve/ReservationModel';
 import moment = require('moment');
 import fs = require('fs-extra');
+import conf = require('config');
 import express = require('express');
 import reserveTicketForm from '../forms/Reserve/reserveTicketForm';
 import reserveProfileForm from '../forms/Reserve/reserveProfileForm';
@@ -102,7 +103,7 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
 
                 // コンビニ決済は5日前まで
-                if (moment() < moment(Constants.CVS_RESERVATION_END_DATETIME)) {
+                if (moment() < moment(conf.get<string>('datetimes.reservation_end_cvs'))) {
                     reservationModel.paymentMethodChoices.push(GMOUtil.PAY_TYPE_CVS);
                 }
 
@@ -143,7 +144,7 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.paymentMethodChoices = [];
 
                 // コンビニ決済は5日前まで
-                if (moment() < moment(Constants.CVS_RESERVATION_END_DATETIME)) {
+                if (moment() < moment(conf.get<string>('datetimes.reservation_end_cvs'))) {
                     reservationModel.paymentMethodChoices.push(GMOUtil.PAY_TYPE_CVS);
                 }
 

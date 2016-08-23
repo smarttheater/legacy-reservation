@@ -10,8 +10,8 @@
                 <option value=""><%- __('Label.AllDay') %></option>
                 <%
                 let now = moment();
-                let start = moment(Constants.EVENT_START_DATETIME);
-                let end = moment(Constants.EVENT_END_DATETIME);
+                let start = moment(conf.get('datetimes.event_start'));
+                let end = moment(conf.get('datetimes.event_end'));
                 let options = '';
                 while (start.format('YYYYMMDD') <= end.format('YYYYMMDD')) {
                     options += `<option value="${start.format('YYYYMMDD')}"`;

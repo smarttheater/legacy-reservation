@@ -5,6 +5,7 @@ import log4js = require('log4js');
 import TestController from './controllers/Test/TestController';
 import PreTiffController from './controllers/PreTiff/PreTiffController';
 import StaffController from './controllers/Staff/StaffController';
+import SponsorController from './controllers/Sponsor/SponsorController';
 import PerformanceController from './controllers/Performance/PerformanceController';
 import TheaterController from './controllers/Theater/TheaterController';
 import FilmController from './controllers/Film/FilmController';
@@ -86,6 +87,25 @@ program
         log4js.configure(logDefaultConfiguration);
 
         (new StaffController())[method]();
+    });
+
+program
+    .command('sponsor <method>')
+    .description('外部関係者タスク')
+    .action((method) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/Sponsor${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+        fs.mkdirsSync(logDir);
+        logDefaultConfiguration.appenders.push({
+            category: 'system',
+            type: 'dateFile',
+            filename: `${logDir}/system.log`,
+            pattern: '-yyyy-MM-dd',
+            backups: 3
+        });
+        logDefaultConfiguration.levels.system = "ALL";
+        log4js.configure(logDefaultConfiguration);
+
+        (new SponsorController())[method]();
     });
 
 program

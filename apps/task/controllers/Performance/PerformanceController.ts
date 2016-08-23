@@ -28,7 +28,15 @@ export default class PerformanceController extends BaseController {
 
         Models.Film.find({}, '_id', (err, films) => {
             Models.Screen.find({}, '_id theater', (err, screens) => {
-                let days = ['20161025', '20161026', '20161027', '20161028', '20161029', '20161030', '20161031', '20161101', '20161102', '20161103'];
+                let days = [];
+                let start = moment(conf.get<string>('datetimes.event_start'));
+                let end = moment(conf.get<string>('datetimes.event_end'));
+                while (start <= end) {
+                    days.push(start.format('YYYYMMDD'));
+                    start.add(+1, 'days');
+                    continue;
+                }
+
                 let starts = ['0900', '1200', '1800', '2100', '2500'];
                 let ends = ['1100', '1400', '2000', '2300', '2700'];
 

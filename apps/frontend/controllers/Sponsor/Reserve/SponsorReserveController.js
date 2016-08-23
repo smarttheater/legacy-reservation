@@ -8,6 +8,8 @@ const ScreenUtil_1 = require('../../../../common/models/Screen/ScreenUtil');
 const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
 const lockFile = require('lockfile');
+const moment = require('moment');
+const conf = require('config');
 class SponsorReserveController extends ReserveBaseController_1.default {
     constructor(...args) {
         super(...args);
@@ -15,6 +17,10 @@ class SponsorReserveController extends ReserveBaseController_1.default {
         this.layout = 'layouts/sponsor/layout';
     }
     start() {
+        // 期限指定
+        if (moment() < moment(conf.get('datetimes.reservation_start_sponsors'))) {
+            return this.next(new Error('Message.OutOfTerm'));
+        }
         this.processStart((err, reservationModel) => {
             if (err)
                 this.next(new Error(this.req.__('Message.UnexpectedError')));

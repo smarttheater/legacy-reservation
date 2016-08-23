@@ -15,6 +15,7 @@ import PerformanceStatusesModel from '../../../common/models/PerformanceStatuses
 import request = require('request');
 import sendgrid = require('sendgrid')
 import emailTemplates = require('email-templates');
+import fs = require('fs-extra');
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
@@ -235,36 +236,60 @@ export default class TestController extends BaseController {
     public createWindows(): void {
         mongoose.connect(MONGOLAB_URI, {});
 
-        let password_salt = Util.createToken();
-        Models.Window.create(
-            {
-                user_id: 'motionpicture',
-                password_salt: password_salt,
-                password_hash: Util.createHash('12345', password_salt),
-                name: '当日窓口モーションピクチャー'
-            },
-            () => {
-                mongoose.disconnect();
-                process.exit(0);
-            }
-        );
+        fs.readFile(`${process.cwd()}/data/windows.json`, 'utf8', (err, data) => {
+            if (err) throw err;
+            let windows = JSON.parse(data);
+
+            // パスワードハッシュ化
+            windows = windows.map((window) => {
+                let password_salt = Util.createToken();
+                window['password_salt'] = password_salt;
+                window['password_hash'] = Util.createHash(window.password, password_salt);
+                delete window['password'];
+                return window;
+            });
+            this.logger.info('removing all windows...');
+            Models.Window.remove({}, (err) => {
+                this.logger.debug('creating windows...');
+                Models.Window.create(
+                    windows,
+                    (err) => {
+                        this.logger.info('windows created.', err);
+                        mongoose.disconnect();
+                        process.exit(0);
+                    }
+                );
+            });
+        });
     }
 
     public createTelStaffs(): void {
         mongoose.connect(MONGOLAB_URI, {});
 
-        let password_salt = Util.createToken();
-        Models.TelStaff.create(
-            {
-                user_id: 'motionpicture',
-                password_salt: password_salt,
-                password_hash: Util.createHash('12345', password_salt),
-                name: '電話窓口モーションピクチャー'
-            },
-            () => {
-                mongoose.disconnect();
-                process.exit(0);
-            }
-        );
+        fs.readFile(`${process.cwd()}/data/telStaffs.json`, 'utf8', (err, data) => {
+            if (err) throw err;
+            let telStaffs = JSON.parse(data);
+
+            // パスワードハッシュ化
+            telStaffs = telStaffs.map((telStaff) => {
+                let password_salt = Util.createToken();
+                telStaff['password_salt'] = password_salt;
+                telStaff['password_hash'] = Util.createHash(telStaff.password, password_salt);
+                delete telStaff['password'];
+                return telStaff;
+            });
+            this.logger.info('removing all telStaffs...');
+            Models.TelStaff.remove({}, (err) => {
+                this.logger.debug('creating telStaffs...');
+                Models.TelStaff.create(
+                    telStaffs,
+                    (err) => {
+                        this.logger.info('telStaffs created.', err);
+                        mongoose.disconnect();
+                        process.exit(0);
+                    }
+                );
+            });
+        });
     }
 }

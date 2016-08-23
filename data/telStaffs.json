@@ -1,0 +1,12 @@
+[
+    {
+        "user_id": "tel01",
+        "password": "tel01",
+        "name": "電話窓口スタッフ01"
+    },
+    {
+        "user_id": "tel02",
+        "password": "tel02",
+        "name": "電話窓口スタッフ02"
+    }
+]

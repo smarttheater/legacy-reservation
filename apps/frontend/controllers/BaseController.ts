@@ -4,6 +4,7 @@ import moment = require('moment');
 import util = require('util');
 import NamedRoutes = require('named-routes');
 import numeral = require('numeral');
+import conf = require('config');
 
 import MemberUser from '../models/User/MemberUser';
 import StaffUser from '../models/User/StaffUser';
@@ -48,6 +49,7 @@ export default class BaseController
         this.res.locals.moment = moment;
         this.res.locals.util = util;
         this.res.locals.numeral = numeral;
+        this.res.locals.conf = conf;
         this.res.locals.Constants = Constants;
 
 
