@@ -47,6 +47,7 @@ export default (app: any) => {
     // ペイデザインプロセス
     app.all('/PayDesign/reserve/notify', 'paydesign.reserve.notify', base, (req, res, next) => {(new PayDesignReserveController(req, res, next)).notify()});
     app.all('/PayDesign/reserve/cancel', 'paydesign.reserve.cancel', base, (req, res, next) => {(new PayDesignReserveController(req, res, next)).cancel()});
+    app.all('/PayDesign/reserve/test', 'paydesign.reserve.test', base, (req, res, next) => {(new PayDesignReserveController(req, res, next)).test()});
 
 
     // admission

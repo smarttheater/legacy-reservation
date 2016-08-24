@@ -23,16 +23,34 @@ app.use(benchmarks); // ベンチマーク的な
 app.use(session); // セッション
 
 // ペイデザイン連携のため
-// TODO 後で消す
-app.use((req, res, next) => {
+app.post('/PayDesign/reserve/notify', (req, res) => {
     if (req.originalUrl === '/PayDesign/reserve/notify') {
         let logger = log4js.getLogger('system');
-        logger.debug('req:', req);
-        logger.debug('req.body:', req.body);
+        logger.debug('/PayDesign/reserve/notify req:', req);
+
+        let content = new Buffer([]);;
+        req.on('data', (chunk) => {
+            logger.debug('data...');
+            logger.debug(chunk);
+            content = Buffer.concat([content, chunk]);
+        });
+
+        req.on('end', () => {
+            let jconv = require('jconv');
+            logger.debug('end.');
+            logger.debug('content(Buffer):', content);
+            logger.debug('content(string):', content.toString('utf8'));
+
+            // utf8変換？
+            let converted = jconv.convert(content, 'SJIS', 'UTF8');
+            logger.debug('converted(Buffer):', converted);
+            logger.debug('converted(string):', converted.toString('utf8'));
+        })
     }
 
-    next();
+    res.send('0');
 });
+
 
 // view engine setup
 app.set('views', `${__dirname}/views`);

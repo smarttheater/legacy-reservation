@@ -26,6 +26,7 @@ exports.default = (app) => {
     // ペイデザインプロセス
     app.all('/PayDesign/reserve/notify', 'paydesign.reserve.notify', base, (req, res, next) => { (new PayDesignReserveController_1.default(req, res, next)).notify(); });
     app.all('/PayDesign/reserve/cancel', 'paydesign.reserve.cancel', base, (req, res, next) => { (new PayDesignReserveController_1.default(req, res, next)).cancel(); });
+    app.all('/PayDesign/reserve/test', 'paydesign.reserve.test', base, (req, res, next) => { (new PayDesignReserveController_1.default(req, res, next)).test(); });
     // admission
     app.all('/admission/performances', 'admission.performances', base, (req, res, next) => { (new AdmissionController_1.default(req, res, next)).performances(); });
     app.get('/admission/performance/:id/confirm', 'admission.confirm', base, (req, res, next) => { (new AdmissionController_1.default(req, res, next)).confirm(); });
