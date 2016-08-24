@@ -8,6 +8,7 @@ export default (req: express.Request) => {
         form.field('signature', req.__('Form.FieldName.signature')).trim()
             .required('', req.__('Message.required{{fieldName}}', {fieldName: '%s'}))
             .maxLength(10, req.__('Message.maxLength{{fieldName}}{{max}}', {fieldName: '%s', max: '10'})),
-        form.field('language', req.__('Form.FieldName.language')).trim().required('', req.__('Message.required{{fieldName}}', {fieldName: '%s'}))
+        form.field('language', req.__('Form.FieldName.language')).trim().required('', req.__('Message.required{{fieldName}}', {fieldName: '%s'})),
+        form.field('remember', req.__('Form.FieldName.remember'))
     );
 }

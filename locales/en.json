@@ -123,7 +123,8 @@
 		"NoMoreReservation": "No more reservation.",
 		"AreYouSureCancel": "Message.AreYouSureCancel",
 		"CompleteCancel": "Message.CompleteCancel",
-		"OutOfTerm": "Message.OutOfTerm"
+		"OutOfTerm": "Message.OutOfTerm",
+		"ConfirmCancelSelectedTickets": "Message.ConfirmCancelSelectedTickets"
 	},
 	"h3": {
 		"SeatChoices": "Seat Choices",

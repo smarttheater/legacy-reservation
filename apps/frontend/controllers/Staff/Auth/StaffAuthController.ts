@@ -26,28 +26,49 @@ export default class StaffAuthController extends BaseController {
                         {
                             user_id: this.req.form['userId']
                         },
-                        (err, staffDocument) => {
+                        (err, staff) => {
                             if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
-                            if (!staffDocument) {
+                            if (!staff) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
                                 this.res.render('staff/auth/login');
                             } else {
                                 // パスワードチェック
-                                if (staffDocument.get('password_hash') !== Util.createHash(this.req.form['password'], staffDocument.get('password_salt'))) {
+                                if (staff.get('password_hash') !== Util.createHash(this.req.form['password'], staff.get('password_salt'))) {
                                     this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
                                     this.res.render('staff/auth/login');
 
                                 } else {
-                                    // ログイン
-                                    this.req.session[StaffUser.AUTH_SESSION_NAME] = staffDocument.toObject();
-                                    this.req.session[StaffUser.AUTH_SESSION_NAME]['signature'] = this.req.form['signature'];
-                                    this.req.session[StaffUser.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
+                                    // ログイン記憶
+                                    let processRemember = (cb: (err: Error, token: string) => void) => {
+                                        if (this.req.form['remember']) {
+                                            // トークン生成
+                                            Models.Authentication.create(
+                                                {
+                                                    token: Util.createToken(),
+                                                    staff: staff.get('_id')
+                                                },
+                                                (err, authentication) => {
+                                                    this.res.cookie('remember_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                                                    cb(err, authentication.get('token'));
+                                                }
+                                            );
+                                        } else {
+                                            cb(null, null);
+                                        }
+                                    }
 
-                                    // if exist parameter cb, redirect to cb.
-                                    let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('staff.mypage');
-                                    this.res.redirect(cb);
+                                    processRemember((err, token) => {
+                                        if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
+                                        this.req.session[StaffUser.AUTH_SESSION_NAME] = staff.toObject();
+                                        this.req.session[StaffUser.AUTH_SESSION_NAME]['signature'] = this.req.form['signature'];
+                                        this.req.session[StaffUser.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
+
+                                        // if exist parameter cb, redirect to cb.
+                                        let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('staff.mypage');
+                                        this.res.redirect(cb);
+                                    });
                                 }
 
                             }
@@ -66,14 +87,12 @@ export default class StaffAuthController extends BaseController {
             this.res.locals.signature = '';
 
             this.res.render('staff/auth/login');
-
         }
-
     }
 
     public logout(): void {
         delete this.req.session[StaffUser.AUTH_SESSION_NAME];
-
+        this.res.clearCookie('remember_staff');
         this.res.redirect('/');
     }
 }

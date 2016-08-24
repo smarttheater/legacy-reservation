@@ -4,19 +4,57 @@ import StaffAuthController from '../controllers/Staff/Auth/StaffAuthController';
 import StaffCancelController from '../controllers/Staff/Cancel/StaffCancelController';
 import StaffMyPageController from '../controllers/Staff/MyPage/StaffMyPageController';
 import StaffReserveController from '../controllers/Staff/Reserve/StaffReserveController';
+import Models from '../../common/models/Models';
 
 import StaffUser from '../models/User/StaffUser';
 
 export default (app: any) => {
     let authentication = (req: express.Request, res: express.Response, next: express.NextFunction) => {
         if (!req.staffUser.isAuthenticated()) {
-            if (req.xhr) {
-                res.json({
-                    message: 'login required.'
-                });
-            } else {
-                res.redirect(`/staff/login?cb=${req.originalUrl}`);
+            // 自動ログインチェック
+            let checkRemember = (cb: (user) => void) => {
+                if (req.cookies.remember_staff) {
+                    Models.Authentication.findOne(
+                        {
+                            token: req.cookies.remember_staff,
+                            staff: {$ne: null}
+                        },
+                        (err, authentication) => {
+                            if (authentication) {
+                                console.log(authentication);
+                                Models.Staff.findById(authentication.get('staff'), (err, staff) => {
+                                    cb(staff);
+                                });
+                            } else {
+                                cb(null);
+                            }
+                        }
+                    );
+                } else {
+                    cb(null);
+                }
             }
+
+            checkRemember((user) => {
+                if (user) {
+                    // ログインしてリダイレクト
+                    req.session[StaffUser.AUTH_SESSION_NAME] = user.toObject();
+                    // TODO
+                    // req.session[StaffUser.AUTH_SESSION_NAME]['signature'] = this.req.form['signature'];
+                    // req.session[StaffUser.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
+
+                    // if exist parameter cb, redirect to cb.
+                    res.redirect(req.originalUrl);
+                } else {
+                    if (req.xhr) {
+                        res.json({
+                            message: 'login required.'
+                        });
+                    } else {
+                        res.redirect(`/staff/login?cb=${req.originalUrl}`);
+                    }
+                }
+            });
         } else {
             // 言語設定
             req.setLocale((req.staffUser.get('locale')) ? req.staffUser.get('locale') : 'en');

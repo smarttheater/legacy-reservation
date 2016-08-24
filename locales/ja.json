@@ -104,7 +104,8 @@
 			"signature": "署名",
 			"language": "使用言語",
 			"paymentNo": "予約番号",
-			"last4DigitsOfTel": "電話番号下4桁"
+			"last4DigitsOfTel": "電話番号下4桁",
+			"remember": "次回から自動的にログインする"
 		}
 	},
 	"Message": {
