@@ -76,23 +76,23 @@ export default class PerformanceController extends BaseController {
             Models.Performance.distinct('film', conditions, (err, filmIds) => {
                 if (err) {
                     return this.res.json({
-                        isSuccess: false,
+                        success: false,
                         results: [],
-                        performancesCount: 0,
-                        filmsCount: 0
+                        performances_count: 0,
+                        films_count: 0
                     });
                 }
 
                 // 総数検索
                 Models.Performance.count(
                     conditions,
-                    (err, performancesCount) => {
+                    (err, performances_count) => {
                         if (err) {
                             return this.res.json({
-                                isSuccess: false,
+                                success: false,
                                 results: [],
-                                performancesCount: 0,
-                                filmsCount: 0
+                                performances_count: 0,
+                                films_count: 0
                             });
                         }
 
@@ -100,7 +100,11 @@ export default class PerformanceController extends BaseController {
                         let query = Models.Performance.find(
                             conditions,
                             'day start_time end_time film screen theater'
-                        ).skip(limit * (page - 1)).limit(limit);
+                        )
+
+                        if (limit) {
+                            query.skip(limit * (page - 1)).limit(limit);
+                        }
 
                         if (this.req.getLocale() === 'ja') {
                             query.populate('film', 'name.ja image sections.name.ja minutes')
@@ -125,10 +129,10 @@ export default class PerformanceController extends BaseController {
                         query.exec((err, performances) => {
                             if (err) {
                                 return this.res.json({
-                                    isSuccess: false,
+                                    success: false,
                                     results: [],
-                                    performancesCount: 0,
-                                    filmsCount: 0
+                                    performances_count: 0,
+                                    films_count: 0
                                 });
 
                             }
@@ -153,10 +157,10 @@ export default class PerformanceController extends BaseController {
                                 });
 
                                 this.res.json({
-                                    isSuccess: true,
+                                    success: true,
                                     results: results,
-                                    performancesCount: performancesCount,
-                                    filmsCount: filmIds.length
+                                    performances_count: performances_count,
+                                    films_count: filmIds.length
                                 });
                             });
                         });

@@ -117,12 +117,12 @@ $(function(){
                 $('.loading').modal('hide');
             },
             success: function(data) {
-                if (data.isSuccess) {
+                if (data.success) {
                     performances = data.results;
 
                     showPerformances();
                     showConditions();
-                    $('.total-count').text(data.filmsCount);
+                    $('.total-count').text(data.films_count);
 
                 } else {
                 }

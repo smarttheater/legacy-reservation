@@ -64,24 +64,27 @@ class PerformanceController extends BaseController_1.default {
             Models_1.default.Performance.distinct('film', conditions, (err, filmIds) => {
                 if (err) {
                     return this.res.json({
-                        isSuccess: false,
+                        success: false,
                         results: [],
-                        performancesCount: 0,
-                        filmsCount: 0
+                        performances_count: 0,
+                        films_count: 0
                     });
                 }
                 // 総数検索
-                Models_1.default.Performance.count(conditions, (err, performancesCount) => {
+                Models_1.default.Performance.count(conditions, (err, performances_count) => {
                     if (err) {
                         return this.res.json({
-                            isSuccess: false,
+                            success: false,
                             results: [],
-                            performancesCount: 0,
-                            filmsCount: 0
+                            performances_count: 0,
+                            films_count: 0
                         });
                     }
                     // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
-                    let query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater').skip(limit * (page - 1)).limit(limit);
+                    let query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater');
+                    if (limit) {
+                        query.skip(limit * (page - 1)).limit(limit);
+                    }
                     if (this.req.getLocale() === 'ja') {
                         query.populate('film', 'name.ja image sections.name.ja minutes')
                             .populate('screen', 'name.ja')
@@ -103,10 +106,10 @@ class PerformanceController extends BaseController_1.default {
                     query.exec((err, performances) => {
                         if (err) {
                             return this.res.json({
-                                isSuccess: false,
+                                success: false,
                                 results: [],
-                                performancesCount: 0,
-                                filmsCount: 0
+                                performances_count: 0,
+                                films_count: 0
                             });
                         }
                         // 空席情報を追加
@@ -128,10 +131,10 @@ class PerformanceController extends BaseController_1.default {
                                 };
                             });
                             this.res.json({
-                                isSuccess: true,
+                                success: true,
                                 results: results,
-                                performancesCount: performancesCount,
-                                filmsCount: filmIds.length
+                                performances_count: performances_count,
+                                films_count: filmIds.length
                             });
                         });
                     });
