@@ -12,7 +12,7 @@ export default (app: any) => {
     let authentication = (req: express.Request, res: express.Response, next: express.NextFunction) => {
         if (!req.staffUser.isAuthenticated()) {
             // 自動ログインチェック
-            let checkRemember = (cb: (user) => void) => {
+            let checkRemember = (cb: (user, signature, locale) => void) => {
                 if (req.cookies.remember_staff) {
                     Models.Authentication.findOne(
                         {
@@ -21,33 +21,34 @@ export default (app: any) => {
                         },
                         (err, authentication) => {
                             if (authentication) {
-                                console.log(authentication);
+                                // TODO トークン再生成する
+
                                 Models.Staff.findById(authentication.get('staff'), (err, staff) => {
-                                    cb(staff);
+                                    cb(staff, authentication.get('signature'), authentication.get('locale'));
                                 });
                             } else {
-                                cb(null);
+                                cb(null, null, null);
                             }
                         }
                     );
                 } else {
-                    cb(null);
+                    cb(null, null, null);
                 }
             }
 
-            checkRemember((user) => {
+            checkRemember((user, signature, locale) => {
                 if (user) {
                     // ログインしてリダイレクト
                     req.session[StaffUser.AUTH_SESSION_NAME] = user.toObject();
-                    // TODO
-                    // req.session[StaffUser.AUTH_SESSION_NAME]['signature'] = this.req.form['signature'];
-                    // req.session[StaffUser.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
+                    req.session[StaffUser.AUTH_SESSION_NAME]['signature'] = signature;
+                    req.session[StaffUser.AUTH_SESSION_NAME]['locale'] = locale;
 
                     // if exist parameter cb, redirect to cb.
                     res.redirect(req.originalUrl);
                 } else {
                     if (req.xhr) {
                         res.json({
+                            success: false,
                             message: 'login required.'
                         });
                     } else {

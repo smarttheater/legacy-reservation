@@ -44,7 +44,9 @@ class StaffAuthController extends BaseController_1.default {
                                         // トークン生成
                                         Models_1.default.Authentication.create({
                                             token: Util_1.default.createToken(),
-                                            staff: staff.get('_id')
+                                            staff: staff.get('_id'),
+                                            signature: this.req.form['signature'],
+                                            locale: this.req.form['language']
                                         }, (err, authentication) => {
                                             this.res.cookie('remember_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
                                             cb(err, authentication.get('token'));

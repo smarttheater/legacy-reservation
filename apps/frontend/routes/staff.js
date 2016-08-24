@@ -17,33 +17,33 @@ exports.default = (app) => {
                         staff: { $ne: null }
                     }, (err, authentication) => {
                         if (authentication) {
-                            console.log(authentication);
+                            // TODO トークン再生成する
                             Models_1.default.Staff.findById(authentication.get('staff'), (err, staff) => {
-                                cb(staff);
+                                cb(staff, authentication.get('signature'), authentication.get('locale'));
                             });
                         }
                         else {
-                            cb(null);
+                            cb(null, null, null);
                         }
                     });
                 }
                 else {
-                    cb(null);
+                    cb(null, null, null);
                 }
             };
-            checkRemember((user) => {
+            checkRemember((user, signature, locale) => {
                 if (user) {
                     // ログインしてリダイレクト
                     req.session[StaffUser_1.default.AUTH_SESSION_NAME] = user.toObject();
-                    // TODO
-                    // req.session[StaffUser.AUTH_SESSION_NAME]['signature'] = this.req.form['signature'];
-                    // req.session[StaffUser.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
+                    req.session[StaffUser_1.default.AUTH_SESSION_NAME]['signature'] = signature;
+                    req.session[StaffUser_1.default.AUTH_SESSION_NAME]['locale'] = locale;
                     // if exist parameter cb, redirect to cb.
                     res.redirect(req.originalUrl);
                 }
                 else {
                     if (req.xhr) {
                         res.json({
+                            success: false,
                             message: 'login required.'
                         });
                     }

@@ -46,7 +46,9 @@ export default class StaffAuthController extends BaseController {
                                             Models.Authentication.create(
                                                 {
                                                     token: Util.createToken(),
-                                                    staff: staff.get('_id')
+                                                    staff: staff.get('_id'),
+                                                    signature: this.req.form['signature'],
+                                                    locale: this.req.form['language']
                                                 },
                                                 (err, authentication) => {
                                                     this.res.cookie('remember_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });

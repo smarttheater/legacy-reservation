@@ -20,8 +20,10 @@ let Schema = new mongoose.Schema({
     },
     window: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Window'
-    }
+        ref: 'Window,'
+    },
+    signature: String, // 署名
+    locale: String // 使用言語
 },{
     collection: 'authentications',
     timestamps: { 
