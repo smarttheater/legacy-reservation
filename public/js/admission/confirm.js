@@ -19,11 +19,12 @@ $(function(){
             audioYes.load();
             audioYes.play();
 
+            var _reservation = reservationsById[reservationId];
+
             // already confirmed.
-            if (confirmedReservationIds.indexOf(reservationId) >= 0) {
+            if (_reservation.entered) {
                 result = _reservation.seat_code+' ['+_reservation.ticket_type_name_ja+'] 入場済み';
             } else {
-                var _reservation = reservationsById[reservationId];
                 result = _reservation.seat_code+' ['+_reservation.ticket_type_name_ja+'] OK';
 
                 // add to list for admission.
@@ -39,7 +40,7 @@ $(function(){
 
             if (_reservation.ticket_type === '03') {
                 $('.result').html(
-                    '<div class="alert confirm-ok" role="alert">'+
+                    '<div class="alert confirmresult confirmresult-ok" role="alert">'+
                         '<span class="inner">'+
                             '<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>'+result+
                         '</span>'+
@@ -47,7 +48,7 @@ $(function(){
                 );
             } else if (_reservation.ticket_type === '02') {
                 $('.result').html(
-                    '<div class="alert confirm-ok" role="alert">'+
+                    '<div class="alert confirmresult confirmresult-ok" role="alert">'+
                         '<span class="inner">'+
                             '<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>'+result+
                         '</span>'+
@@ -55,7 +56,7 @@ $(function(){
                 );
             } else {
                 $('.result').html(
-                    '<div class="alert confirm-ok" role="alert">'+
+                    '<div class="alert confirmresult confirmresult-ok" role="alert">'+
                         '<span class="inner">'+
                             '<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>'+result+
                         '</span>'+
@@ -103,6 +104,7 @@ $(function(){
                     console.log('entered. reservationId', reservationId);
                     confirmingReservationIds.splice(confirmingReservationIds.indexOf(reservationId), 1);
                     confirmedReservationIds.push(reservationId);
+                    reservationsById[reservationId].entered = true;
                 }
             }).fail(function(jqxhr, textStatus, error) {
 
@@ -164,5 +166,5 @@ $(function(){
     });
 
     // for debug
-    // check('57b911a5b5d8f7180aeea8ed');
+    // check('57be9b5a9d55ffb0263025e4');
 });

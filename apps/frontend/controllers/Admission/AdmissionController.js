@@ -48,8 +48,7 @@ class AdmissionController extends BaseController_1.default {
             Models_1.default.Reservation.find({
                 performance: performance.get('_id'),
                 status: ReservationUtil_1.default.STATUS_RESERVED
-            }, 'status seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en ticket_type_charge')
-                .exec((err, reservations) => {
+            }, 'status seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en ticket_type_charge entered').exec((err, reservations) => {
                 if (err)
                     this.next(new Error('Message.UnexpectedError'));
                 let reservationsById = {};
