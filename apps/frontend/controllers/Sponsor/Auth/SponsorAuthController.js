@@ -24,26 +24,47 @@ class SponsorAuthController extends BaseController_1.default {
                     this.logger.debug('finding sponsor... user_id:', this.req.form['userId']);
                     Models_1.default.Sponsor.findOne({
                         user_id: this.req.form['userId']
-                    }, (err, sponsorDocument) => {
+                    }, (err, sponsor) => {
                         if (err)
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        if (!sponsorDocument) {
+                        if (!sponsor) {
                             this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                             this.res.render('sponsor/auth/login');
                         }
                         else {
                             // パスワードチェック
-                            if (sponsorDocument.get('password_hash') !== Util_1.default.createHash(this.req.form['password'], sponsorDocument.get('password_salt'))) {
+                            if (sponsor.get('password_hash') !== Util_1.default.createHash(this.req.form['password'], sponsor.get('password_salt'))) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('sponsor/auth/login');
                             }
                             else {
-                                // ログイン
-                                this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME] = sponsorDocument.toObject();
-                                this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
-                                // if exist parameter cb, redirect to cb.
-                                let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');
-                                this.res.redirect(cb);
+                                // ログイン記憶
+                                let processRemember = (cb) => {
+                                    if (this.req.form['remember']) {
+                                        // トークン生成
+                                        Models_1.default.Authentication.create({
+                                            token: Util_1.default.createToken(),
+                                            sponsor: sponsor.get('_id'),
+                                            locale: this.req.form['language']
+                                        }, (err, authentication) => {
+                                            this.res.cookie('remember_sponsor', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                                            cb(err, authentication.get('token'));
+                                        });
+                                    }
+                                    else {
+                                        cb(null, null);
+                                    }
+                                };
+                                processRemember((err, token) => {
+                                    if (err)
+                                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                                    // ログイン
+                                    this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME] = sponsor.toObject();
+                                    this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
+                                    // if exist parameter cb, redirect to cb.
+                                    let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');
+                                    this.res.redirect(cb);
+                                });
                             }
                         }
                     });
@@ -61,7 +82,10 @@ class SponsorAuthController extends BaseController_1.default {
     }
     logout() {
         delete this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME];
-        this.res.redirect('/');
+        Models_1.default.Authentication.remove({ token: this.req.cookies.remember_sponsor }, (err) => {
+            this.res.clearCookie('remember_sponsor');
+            this.res.redirect('/');
+        });
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

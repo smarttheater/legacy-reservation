@@ -84,8 +84,10 @@ class StaffAuthController extends BaseController_1.default {
     }
     logout() {
         delete this.req.session[StaffUser_1.default.AUTH_SESSION_NAME];
-        this.res.clearCookie('remember_staff');
-        this.res.redirect('/');
+        Models_1.default.Authentication.remove({ token: this.req.cookies.remember_staff }, (err) => {
+            this.res.clearCookie('remember_staff');
+            this.res.redirect('/');
+        });
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

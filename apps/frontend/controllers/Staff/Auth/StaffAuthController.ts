@@ -94,7 +94,9 @@ export default class StaffAuthController extends BaseController {
 
     public logout(): void {
         delete this.req.session[StaffUser.AUTH_SESSION_NAME];
-        this.res.clearCookie('remember_staff');
-        this.res.redirect('/');
+        Models.Authentication.remove({token: this.req.cookies.remember_staff}, (err) => {
+            this.res.clearCookie('remember_staff');
+            this.res.redirect('/');
+        });
     }
 }

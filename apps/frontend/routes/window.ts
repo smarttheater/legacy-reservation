@@ -4,19 +4,64 @@ import WindowAuthController from '../controllers/Window/Auth/WindowAuthControlle
 import WindowMyPageController from '../controllers/Window/MyPage/WindowMyPageController';
 import WindowReserveController from '../controllers/Window/Reserve/WindowReserveController';
 import WindowCancelController from '../controllers/Window/Cancel/WindowCancelController';
+import Models from '../../common/models/Models';
+import Util from '../../common/Util/Util';
 
 import WindowUser from '../models/User/WindowUser';
 
 export default (app: any) => {
     let authentication = (req: express.Request, res: express.Response, next: express.NextFunction) => {
         if (!req.windowUser.isAuthenticated()) {
-            if (req.xhr) {
-                res.json({
-                    message: 'login required.'
-                });
-            } else {
-                res.redirect(`/window/login?cb=${req.originalUrl}`);
+            // 自動ログインチェック
+            let checkRemember = (cb: (user) => void) => {
+                if (req.cookies.remember_window) {
+                    Models.Authentication.findOne(
+                        {
+                            token: req.cookies.remember_window,
+                            window: {$ne: null}
+                        },
+                        (err, authentication) => {
+                            if (authentication) {
+                                // トークン再生成
+                                let token = Util.createToken();
+                                authentication.update({
+                                    token: token
+                                }, (err, raw) => {
+                                    if (err) cb(null);
+
+                                    res.cookie('remember_window', token, { path: '/', httpOnly: true, maxAge: 604800000 });
+                                    Models.Window.findById(authentication.get('window'), (err, window) => {
+                                        cb(window);
+                                    });
+                                });
+                            } else {
+                                res.clearCookie('remember_window');
+                                cb(null);
+                            }
+                        }
+                    );
+                } else {
+                    cb(null);
+                }
             }
+
+            checkRemember((user) => {
+                if (user) {
+                    // ログインしてリダイレクト
+                    req.session[WindowUser.AUTH_SESSION_NAME] = user.toObject();
+
+                    // if exist parameter cb, redirect to cb.
+                    res.redirect(req.originalUrl);
+                } else {
+                    if (req.xhr) {
+                        res.json({
+                            message: 'login required.'
+                        });
+                    } else {
+                        res.redirect(`/window/login?cb=${req.originalUrl}`);
+                    }
+                }
+            });
         } else {
             // 言語設定
             req.setLocale((req.windowUser.get('locale')) ? req.windowUser.get('locale') : 'ja');

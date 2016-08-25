@@ -3,19 +3,62 @@ const WindowAuthController_1 = require('../controllers/Window/Auth/WindowAuthCon
 const WindowMyPageController_1 = require('../controllers/Window/MyPage/WindowMyPageController');
 const WindowReserveController_1 = require('../controllers/Window/Reserve/WindowReserveController');
 const WindowCancelController_1 = require('../controllers/Window/Cancel/WindowCancelController');
+const Models_1 = require('../../common/models/Models');
+const Util_1 = require('../../common/Util/Util');
 const WindowUser_1 = require('../models/User/WindowUser');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     let authentication = (req, res, next) => {
         if (!req.windowUser.isAuthenticated()) {
-            if (req.xhr) {
-                res.json({
-                    message: 'login required.'
-                });
-            }
-            else {
-                res.redirect(`/window/login?cb=${req.originalUrl}`);
-            }
+            // 自動ログインチェック
+            let checkRemember = (cb) => {
+                if (req.cookies.remember_window) {
+                    Models_1.default.Authentication.findOne({
+                        token: req.cookies.remember_window,
+                        window: { $ne: null }
+                    }, (err, authentication) => {
+                        if (authentication) {
+                            // トークン再生成
+                            let token = Util_1.default.createToken();
+                            authentication.update({
+                                token: token
+                            }, (err, raw) => {
+                                if (err)
+                                    cb(null);
+                                res.cookie('remember_window', token, { path: '/', httpOnly: true, maxAge: 604800000 });
+                                Models_1.default.Window.findById(authentication.get('window'), (err, window) => {
+                                    cb(window);
+                                });
+                            });
+                        }
+                        else {
+                            res.clearCookie('remember_window');
+                            cb(null);
+                        }
+                    });
+                }
+                else {
+                    cb(null);
+                }
+            };
+            checkRemember((user) => {
+                if (user) {
+                    // ログインしてリダイレクト
+                    req.session[WindowUser_1.default.AUTH_SESSION_NAME] = user.toObject();
+                    // if exist parameter cb, redirect to cb.
+                    res.redirect(req.originalUrl);
+                }
+                else {
+                    if (req.xhr) {
+                        res.json({
+                            message: 'login required.'
+                        });
+                    }
+                    else {
+                        res.redirect(`/window/login?cb=${req.originalUrl}`);
+                    }
+                }
+            });
         }
         else {
             // 言語設定

@@ -3,19 +3,63 @@ const SponsorAuthController_1 = require('../controllers/Sponsor/Auth/SponsorAuth
 const SponsorMyPageController_1 = require('../controllers/Sponsor/MyPage/SponsorMyPageController');
 const SponsorReserveController_1 = require('../controllers/Sponsor/Reserve/SponsorReserveController');
 const SponsorCancelController_1 = require('../controllers/Sponsor/Cancel/SponsorCancelController');
+const Models_1 = require('../../common/models/Models');
+const Util_1 = require('../../common/Util/Util');
 const SponsorUser_1 = require('../models/User/SponsorUser');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     let authentication = (req, res, next) => {
         if (!req.sponsorUser.isAuthenticated()) {
-            if (req.xhr) {
-                res.json({
-                    message: 'login required.'
-                });
-            }
-            else {
-                res.redirect(`/sponsor/login?cb=${req.originalUrl}`);
-            }
+            // 自動ログインチェック
+            let checkRemember = (cb) => {
+                if (req.cookies.remember_sponsor) {
+                    Models_1.default.Authentication.findOne({
+                        token: req.cookies.remember_sponsor,
+                        sponsor: { $ne: null }
+                    }, (err, authentication) => {
+                        if (authentication) {
+                            // トークン再生成
+                            let token = Util_1.default.createToken();
+                            authentication.update({
+                                token: token
+                            }, (err, raw) => {
+                                if (err)
+                                    cb(null, null);
+                                res.cookie('remember_sponsor', token, { path: '/', httpOnly: true, maxAge: 604800000 });
+                                Models_1.default.Sponsor.findById(authentication.get('sponsor'), (err, sponsor) => {
+                                    cb(sponsor, authentication.get('locale'));
+                                });
+                            });
+                        }
+                        else {
+                            res.clearCookie('remember_sponsor');
+                            cb(null, null);
+                        }
+                    });
+                }
+                else {
+                    cb(null, null);
+                }
+            };
+            checkRemember((user, locale) => {
+                if (user) {
+                    // ログインしてリダイレクト
+                    req.session[SponsorUser_1.default.AUTH_SESSION_NAME] = user.toObject();
+                    req.session[SponsorUser_1.default.AUTH_SESSION_NAME]['locale'] = locale;
+                    // if exist parameter cb, redirect to cb.
+                    res.redirect(req.originalUrl);
+                }
+                else {
+                    if (req.xhr) {
+                        res.json({
+                            message: 'login required.'
+                        });
+                    }
+                    else {
+                        res.redirect(`/sponsor/login?cb=${req.originalUrl}`);
+                    }
+                }
+            });
         }
         else {
             // 言語設定

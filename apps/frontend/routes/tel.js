@@ -3,19 +3,62 @@ const TelAuthController_1 = require('../controllers/Tel/Auth/TelAuthController')
 const TelMyPageController_1 = require('../controllers/Tel/MyPage/TelMyPageController');
 const TelReserveController_1 = require('../controllers/Tel/Reserve/TelReserveController');
 const TelCancelController_1 = require('../controllers/Tel/Cancel/TelCancelController');
+const Models_1 = require('../../common/models/Models');
+const Util_1 = require('../../common/Util/Util');
 const TelStaffUser_1 = require('../models/User/TelStaffUser');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     let authentication = (req, res, next) => {
         if (!req.telStaffUser.isAuthenticated()) {
-            if (req.xhr) {
-                res.json({
-                    message: 'login required.'
-                });
-            }
-            else {
-                res.redirect(`/tel/login?cb=${req.originalUrl}`);
-            }
+            // 自動ログインチェック
+            let checkRemember = (cb) => {
+                if (req.cookies.remember_tel_staff) {
+                    Models_1.default.Authentication.findOne({
+                        token: req.cookies.remember_tel_staff,
+                        tel_staff: { $ne: null }
+                    }, (err, authentication) => {
+                        if (authentication) {
+                            // トークン再生成
+                            let token = Util_1.default.createToken();
+                            authentication.update({
+                                token: token
+                            }, (err, raw) => {
+                                if (err)
+                                    cb(null);
+                                res.cookie('remember_tel_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
+                                Models_1.default.TelStaff.findById(authentication.get('tel_staff'), (err, telStaff) => {
+                                    cb(telStaff);
+                                });
+                            });
+                        }
+                        else {
+                            res.clearCookie('remember_tel_staff');
+                            cb(null);
+                        }
+                    });
+                }
+                else {
+                    cb(null);
+                }
+            };
+            checkRemember((user) => {
+                if (user) {
+                    // ログインしてリダイレクト
+                    req.session[TelStaffUser_1.default.AUTH_SESSION_NAME] = user.toObject();
+                    // if exist parameter cb, redirect to cb.
+                    res.redirect(req.originalUrl);
+                }
+                else {
+                    if (req.xhr) {
+                        res.json({
+                            message: 'login required.'
+                        });
+                    }
+                    else {
+                        res.redirect(`/tel/login?cb=${req.originalUrl}`);
+                    }
+                }
+            });
         }
         else {
             // 言語設定

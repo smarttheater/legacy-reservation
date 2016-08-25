@@ -25,50 +25,69 @@ export default class TelAuthController extends BaseController {
                         {
                             user_id: this.req.form['userId']
                         },
-                        (err, tel) => {
+                        (err, telStaff) => {
                             if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
-                            if (!tel) {
+                            if (!telStaff) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
                                 this.res.render('tel/auth/login');
                             } else {
                                 // パスワードチェック
-                                if (tel.get('password_hash') !== Util.createHash(this.req.form['password'], tel.get('password_salt'))) {
+                                if (telStaff.get('password_hash') !== Util.createHash(this.req.form['password'], telStaff.get('password_salt'))) {
                                     this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
                                     this.res.render('tel/auth/login');
 
                                 } else {
-                                    // ログイン
-                                    this.req.session[TelStaffUser.AUTH_SESSION_NAME] = tel.toObject();
+                                    // ログイン記憶
+                                    let processRemember = (cb: (err: Error, token: string) => void) => {
+                                        if (this.req.form['remember']) {
+                                            // トークン生成
+                                            Models.Authentication.create(
+                                                {
+                                                    token: Util.createToken(),
+                                                    tel_staff: telStaff.get('_id')
+                                                },
+                                                (err, authentication) => {
+                                                    this.res.cookie('remember_tel_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                                                    cb(err, authentication.get('token'));
+                                                }
+                                            );
+                                        } else {
+                                            cb(null, null);
+                                        }
+                                    }
 
-                                    // if exist parameter cb, redirect to cb.
-                                    let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('tel.mypage');
-                                    this.res.redirect(cb);
+                                    processRemember((err, token) => {
+                                        if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
+                                        // ログイン
+                                        this.req.session[TelStaffUser.AUTH_SESSION_NAME] = telStaff.toObject();
+
+                                        // if exist parameter cb, redirect to cb.
+                                        let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('tel.mypage');
+                                        this.res.redirect(cb);
+                                    });
                                 }
                             }
                         }
                     );
-
                 } else {
                     this.res.render('tel/auth/login');
-
                 }
-
             });
         } else {
             this.res.locals.userId = '';
             this.res.locals.password = '';
 
             this.res.render('tel/auth/login');
-
         }
-
     }
 
     public logout(): void {
         delete this.req.session[TelStaffUser.AUTH_SESSION_NAME];
-
-        this.res.redirect('/');
+        Models.Authentication.remove({token: this.req.cookies.remember_tel_staff}, (err) => {
+            this.res.clearCookie('remember_tel_staff');
+            this.res.redirect('/');
+        });
     }
 }

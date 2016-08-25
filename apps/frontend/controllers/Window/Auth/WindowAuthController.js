@@ -37,11 +37,31 @@ class WindowAuthController extends BaseController_1.default {
                                 this.res.render('window/auth/login');
                             }
                             else {
-                                // ログイン
-                                this.req.session[WindowUser_1.default.AUTH_SESSION_NAME] = window.toObject();
-                                // if exist parameter cb, redirect to cb.
-                                let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('window.mypage');
-                                this.res.redirect(cb);
+                                // ログイン記憶
+                                let processRemember = (cb) => {
+                                    if (this.req.form['remember']) {
+                                        // トークン生成
+                                        Models_1.default.Authentication.create({
+                                            token: Util_1.default.createToken(),
+                                            window: window.get('_id')
+                                        }, (err, authentication) => {
+                                            this.res.cookie('remember_window', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                                            cb(err, authentication.get('token'));
+                                        });
+                                    }
+                                    else {
+                                        cb(null, null);
+                                    }
+                                };
+                                processRemember((err, token) => {
+                                    if (err)
+                                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                                    // ログイン
+                                    this.req.session[WindowUser_1.default.AUTH_SESSION_NAME] = window.toObject();
+                                    // if exist parameter cb, redirect to cb.
+                                    let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('window.mypage');
+                                    this.res.redirect(cb);
+                                });
                             }
                         }
                     });
@@ -59,7 +79,10 @@ class WindowAuthController extends BaseController_1.default {
     }
     logout() {
         delete this.req.session[WindowUser_1.default.AUTH_SESSION_NAME];
-        this.res.redirect('/');
+        Models_1.default.Authentication.remove({ token: this.req.cookies.remember_window }, (err) => {
+            this.res.clearCookie('remember_window');
+            this.res.redirect('/');
+        });
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
