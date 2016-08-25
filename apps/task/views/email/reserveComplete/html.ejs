@@ -6,60 +6,78 @@
 </head>
 
 <body>
+<header>
+    <div class="container">
+
+        <a href="http://2016.tiff-jp.net/" class="header-logo"><img src="/images/common/logo.png" alt="TIFF"></a>
+
+        <div class="header-menu">
+    
+        </div>
+    </div>
+</header>
 
 <div class="container">
 
-    <h1>[TIFF][<%- process.env.NODE_ENV %>]</h1>
+    <h1 class="pagetitle">予約完了[<%- process.env.NODE_ENV %>]</h1>
+    <p class="guidetext">
+        ご購入ありがとうございました。<br>
+        当日は下記のQRコードを印刷、またはスマートフォンで表示して入場してください。<br>
+        また購入者情報入力でご入力頂いたメールアドレスにもQRコード付きメールを送信しておりますので、<br>
+        そちらをご提示頂いてもご入場頂けます。
+    </p>
 
-    <table>
+
+    <table class="table table-complete">
+        <thead>
+            <tr>
+                <th>購入番号</th>
+                <td><%- reservations[0].get('payment_no') %></td>
+            </tr>
+            <tr>
+                <th>作品名</th>
+                <td><%- reservations[0].get(`film_name_ja`) %></td>
+            </tr>
+            <tr>
+                <th>時間/場所</th>
+                <td>
+                    <%- reservations[0].get('performance_start_str') %> ～ 
+                    <%- reservations[0].get(`theater_name_ja`) %> 
+                    <%- reservations[0].get(`screen_name_ja`) %>
+                </td>
+            </tr>
+        </thead>
+
         <tbody>
             <tr>
-                <th>メールは日英併記になります。</th>
-                <td><%- reservations[0].get('payment_no') %><td>
-            </tr>
-
-            <tr>
-                <th>メールは日英併記になります。</th>
-                <td><%- reservations[0].get('film_name_ja') %><td>
-            </tr>
-
-            <tr>
-                <th>メールは日英併記になります。</th>
+                <th>座席番号</th>
                 <td>
-                    <%- reservations[0].get('start_str') %>～ 
-                    <%- reservations[0].get('theater_name_ja') %> 
-                    <%- reservations[0].get('screen_name_ja') %>
-                <td>
-            </tr>
-
-            <tr>
-                <th>メールは日英併記になります。</th>
-                <td>
-                    <% reservations.forEach((reservation) => { %>
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <%- reservation.get('seat_code') %>、
-                                        <%- reservation.get('ticket_type_name_ja') %>、
-                                        <%- reservation.get('ticket_type_charge') %> yen<br>
-                                    </td>
-
-                                    <td>
-                                        <img src="cid:qrcode_<%- reservation.get('_id').toString() %>">
-                                    </td>
-
-                                </tr>
-                            </tbody>
-                        </table>
+                    <% reservations.forEach((reservation, index) => { %>
+                    <div class="wrapper-seatcells">
+                        <h2 class="accordion_mobile_toggle">座席番号 <%- reservation.seat_code %></h2>
+                        <div class="accordion_mobile_inner">
+                            <div class="innercontent">
+                                <div class="cell-seatcode">
+                                    <%- reservation.seat_code %>
+                                </div>
+                                <div class="cell-codeimg">
+                                    <img src="cid:qrcode_<%- reservation.get('_id').toString() %>">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <% }) %>
-                <td>
+                </td>
             </tr>
 
         </tbody>
+
     </table>
 
 </div>
 
+<footer>
+    <div class="copyrights"><span>&copy; Tokyo International Film Festival All Rights Reserved.</span></div>
+</footer>
 </body>
 </html>
