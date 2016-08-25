@@ -25,14 +25,14 @@ exports.default = (app) => {
     // 404
     app.use((req, res, next) => {
         res.json({
-            isSuccess: false,
+            success: false,
             message: 'Not Found'
         });
     });
     // error handlers
     app.use((err, req, res, next) => {
         res.json({
-            isSuccess: false,
+            success: false,
             message: 'Internal Server Error'
         });
     });

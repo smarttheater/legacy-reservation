@@ -37,6 +37,7 @@ export default class PerformanceController extends BaseController {
                     continue;
                 }
 
+                let opens = ['0850', '1150', '1750', '2050', '2450'];
                 let starts = ['0900', '1200', '1800', '2100', '2500'];
                 let ends = ['1100', '1400', '2000', '2300', '2700'];
 
@@ -73,6 +74,7 @@ export default class PerformanceController extends BaseController {
                                 screen: screen.get('_id'),
                                 film: _filmId,
                                 day: day,
+                                open_time: opens[index],
                                 start_time: start,
                                 end_time: ends[index]
                             });

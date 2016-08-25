@@ -143,14 +143,14 @@ export default class PerformanceController extends BaseController {
                                     return {
                                         _id: performance.get('_id'),
                                         day: performance.get('day'),
+                                        open_time: performance.get('open_time'),
                                         start_time: performance.get('start_time'),
-                                        end_time: performance.get('end_time'),
                                         seat_status: performanceStatusesModel.getStatus(performance.get('_id')),
                                         theater_name: performance.get('theater').get('name')[this.req.getLocale()],
                                         screen_name: performance.get('screen').get('name')[this.req.getLocale()],
                                         film_id: performance.get('film').get('_id'),
                                         film_name: performance.get('film').get('name')[this.req.getLocale()],
-                                        film_sections: performance.get('film').get('sections').map((section) => {return section['name'][this.req.getLocale()];}),
+                                        film_sections: performance.get('film').get('sections').map((section) => {return section.name[this.req.getLocale()];}),
                                         film_minutes: performance.get('film').get('minutes'),
                                         film_image: performance.get('film').get('image')
                                     };

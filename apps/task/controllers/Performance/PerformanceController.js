@@ -26,6 +26,7 @@ class PerformanceController extends BaseController_1.default {
                     start.add(+1, 'days');
                     continue;
                 }
+                let opens = ['0850', '1150', '1750', '2050', '2450'];
                 let starts = ['0900', '1200', '1800', '2100', '2500'];
                 let ends = ['1100', '1400', '2000', '2300', '2700'];
                 // スクリーンごとに5時間帯のスケジュールを登録する
@@ -56,6 +57,7 @@ class PerformanceController extends BaseController_1.default {
                                 screen: screen.get('_id'),
                                 film: _filmId,
                                 day: day,
+                                open_time: opens[index],
                                 start_time: start,
                                 end_time: ends[index]
                             });

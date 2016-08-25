@@ -32,8 +32,9 @@ class StaffMyPageController extends BaseController_1.default {
         let conditions = [];
         if (this.req.staffUser.get('is_admin')) {
             conditions.push({
+                // 管理者の場合、内部関係者の予約全て
                 purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
-                staff_user_id: 'admin',
+                // staff_user_id: 'admin',
                 status: { $in: [ReservationUtil_1.default.STATUS_RESERVED, ReservationUtil_1.default.STATUS_KEPT_BY_TIFF] }
             });
         }

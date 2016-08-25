@@ -55,7 +55,7 @@ export default (app: any) => {
     // 404
     app.use((req, res, next) => {
         res.json({
-            isSuccess: false,
+            success: false,
             message: 'Not Found'
         });
     });
@@ -63,7 +63,7 @@ export default (app: any) => {
     // error handlers
     app.use((err: any, req, res, next) => {
         res.json({
-            isSuccess: false,
+            success: false,
             message: 'Internal Server Error'
         });
     });

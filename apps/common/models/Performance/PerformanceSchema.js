@@ -18,6 +18,7 @@ let Schema = new mongoose.Schema({
         ref: 'Film'
     },
     day: String,
+    open_time: String,
     start_time: String,
     end_time: String // 上映終了時刻
 }, {
