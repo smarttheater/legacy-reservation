@@ -4,6 +4,7 @@ const StaffCancelController_1 = require('../controllers/Staff/Cancel/StaffCancel
 const StaffMyPageController_1 = require('../controllers/Staff/MyPage/StaffMyPageController');
 const StaffReserveController_1 = require('../controllers/Staff/Reserve/StaffReserveController');
 const Models_1 = require('../../common/models/Models');
+const Util_1 = require('../../common/Util/Util');
 const StaffUser_1 = require('../models/User/StaffUser');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
@@ -17,12 +18,21 @@ exports.default = (app) => {
                         staff: { $ne: null }
                     }, (err, authentication) => {
                         if (authentication) {
-                            // TODO トークン再生成する
-                            Models_1.default.Staff.findById(authentication.get('staff'), (err, staff) => {
-                                cb(staff, authentication.get('signature'), authentication.get('locale'));
+                            // トークン再生成
+                            let token = Util_1.default.createToken();
+                            authentication.update({
+                                token: token
+                            }, (err, raw) => {
+                                if (err)
+                                    cb(null, null, null);
+                                res.cookie('remember_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
+                                Models_1.default.Staff.findById(authentication.get('staff'), (err, staff) => {
+                                    cb(staff, authentication.get('signature'), authentication.get('locale'));
+                                });
                             });
                         }
                         else {
+                            res.clearCookie('remember_staff');
                             cb(null, null, null);
                         }
                     });

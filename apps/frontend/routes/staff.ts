@@ -5,6 +5,7 @@ import StaffCancelController from '../controllers/Staff/Cancel/StaffCancelContro
 import StaffMyPageController from '../controllers/Staff/MyPage/StaffMyPageController';
 import StaffReserveController from '../controllers/Staff/Reserve/StaffReserveController';
 import Models from '../../common/models/Models';
+import Util from '../../common/Util/Util';
 
 import StaffUser from '../models/User/StaffUser';
 
@@ -21,12 +22,20 @@ export default (app: any) => {
                         },
                         (err, authentication) => {
                             if (authentication) {
-                                // TODO トークン再生成する
+                                // トークン再生成
+                                let token = Util.createToken();
+                                authentication.update({
+                                    token: token
+                                }, (err, raw) => {
+                                    if (err) cb(null, null, null);
 
-                                Models.Staff.findById(authentication.get('staff'), (err, staff) => {
-                                    cb(staff, authentication.get('signature'), authentication.get('locale'));
+                                    res.cookie('remember_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
+                                    Models.Staff.findById(authentication.get('staff'), (err, staff) => {
+                                        cb(staff, authentication.get('signature'), authentication.get('locale'));
+                                    });
                                 });
                             } else {
+                                res.clearCookie('remember_staff');
                                 cb(null, null, null);
                             }
                         }
