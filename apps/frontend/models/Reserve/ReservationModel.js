@@ -1,6 +1,5 @@
 "use strict";
 const Util_1 = require('../../../common/Util/Util');
-const Constants_1 = require('../../../common/Util/Constants');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
 /**
@@ -18,7 +17,7 @@ class ReservationModel {
     save(cb, ttl) {
         let client = Util_1.default.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
-        let _ttl = (ttl) ? ttl : Constants_1.default.TEMPORARY_RESERVATION_VALID_PERIOD_SECONDS;
+        let _ttl = (ttl) ? ttl : 1800;
         client.setex(key, _ttl, JSON.stringify(this), (err, reply) => {
             client.quit();
             cb(err);

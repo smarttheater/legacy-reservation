@@ -229,8 +229,9 @@ export default class WindowReserveController extends ReserveBaseController imple
             if (this.req.method === 'POST') {
                 this.processConfirm(reservationModel, (err, reservationModel) => {
                     if (err) {
-                        let message = err.message;
-                        this.res.redirect(`${this.router.build('window.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
+                        reservationModel.remove(() => {
+                            this.next(err);
+                        });
                     } else {
                         // 予約確定
                         this.processFixReservations(reservationModel.paymentNo, {}, (err) => {

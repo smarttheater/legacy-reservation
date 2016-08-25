@@ -1,6 +1,5 @@
 "use strict";
 const BaseController_1 = require('../BaseController');
-const Constants_1 = require('../../../common/Util/Constants');
 const Util_1 = require('../../../common/Util/Util');
 const Models_1 = require('../../../common/models/Models');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
@@ -16,8 +15,8 @@ class ReservationController extends BaseController_1.default {
      */
     removeTmps() {
         mongoose.connect(MONGOLAB_URI, {});
-        // 念のため、仮予約有効期間より5分長めにしておく
-        let seconds = Constants_1.default.TEMPORARY_RESERVATION_VALID_PERIOD_SECONDS + 300;
+        // 念のため、仮予約有効期間より1分長めにしておく
+        let seconds = conf.get('temporary_reservation_valid_period_seconds') + 60;
         this.logger.info('removing temporary reservations...');
         Models_1.default.Reservation.remove({
             status: ReservationUtil_1.default.STATUS_TEMPORARY,

@@ -384,6 +384,7 @@ export default class ReserveBaseController extends BaseController {
 
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
+        reservationModel.tmpReservationExpiredAt = Date.now() + conf.get<number>('temporary_reservation_valid_period_seconds');
 
         // 新たな座席指定と、既に仮予約済みの座席コードについて
         seatCodes.forEach((seatCode) => {
@@ -533,7 +534,11 @@ export default class ReserveBaseController extends BaseController {
      * 予約情報を確定してDBに保存するプロセス
      */
     protected processConfirm(reservationModel: ReservationModel, cb: (err: Error, reservationModel: ReservationModel) => void): void {
-        // 購入番号発行
+        // 仮押さえ有効期限チェック
+        if (reservationModel.tmpReservationExpiredAt && reservationModel.tmpReservationExpiredAt < Date.now()) {
+            return cb(new Error(this.res.__('Message.Expired')), reservationModel);
+        }
+
         let next = (reservationModel: ReservationModel) => {
             // 予約プロセス固有のログファイルをセット
             this.setProcessLogger(reservationModel.paymentNo, () => {
@@ -618,6 +623,7 @@ export default class ReserveBaseController extends BaseController {
         if (reservationModel.paymentNo) {
             next(reservationModel);
         } else {
+            // 購入番号発行
             this.createPaymentNo((err, paymentNo) => {
                 if (err) {
                     cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);

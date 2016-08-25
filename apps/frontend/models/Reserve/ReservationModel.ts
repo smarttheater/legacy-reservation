@@ -83,6 +83,9 @@ export default class ReservationModel {
     /** スクリーンの座席表HTML */
     public screenHtml: string;
 
+    /** 座席を仮押さえした日時 */
+    public tmpReservationExpiredAt: number;
+
     /** 予約座席コードリスト */
     public seatCodes: Array<string>;
 
@@ -108,7 +111,7 @@ export default class ReservationModel {
     public save(cb: (err: Error) => void, ttl?: number) {
         let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
-        let _ttl = (ttl) ? ttl : Constants.TEMPORARY_RESERVATION_VALID_PERIOD_SECONDS;
+        let _ttl = (ttl) ? ttl : 1800;
         client.setex(key, _ttl, JSON.stringify(this), (err, reply) => {
             client.quit();
             cb(err);

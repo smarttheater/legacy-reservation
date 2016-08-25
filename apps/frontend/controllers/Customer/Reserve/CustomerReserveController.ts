@@ -260,10 +260,11 @@ export default class CustomerReserveController extends ReserveBaseController imp
             if (this.req.method === 'POST') {
                 this.processConfirm(reservationModel, (err, reservationModel) => {
                     if (err) {
-                        let message = err.message;
-                        this.res.redirect(`${this.router.build('customer.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
+                        reservationModel.remove(() => {
+                            this.next(err);
+                        });
                     } else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.logger.info('starting GMO payment...');
                             this.res.redirect(307, this.router.build('gmo.reserve.start', {token: token}));
                         });

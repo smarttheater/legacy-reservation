@@ -218,8 +218,9 @@ class TelReserveController extends ReserveBaseController_1.default {
             if (this.req.method === 'POST') {
                 this.processConfirm(reservationModel, (err, reservationModel) => {
                     if (err) {
-                        let message = err.message;
-                        this.res.redirect(`${this.router.build('tel.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
+                        reservationModel.remove(() => {
+                            this.next(err);
+                        });
                     }
                     else {
                         // 予約確定

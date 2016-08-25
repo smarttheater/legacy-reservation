@@ -152,8 +152,9 @@ export default class MemberReserveController extends ReserveBaseController imple
             if (this.req.method === 'POST') {
                 this.processConfirm(reservationModel, (err, reservationModel) => {
                     if (err) {
-                        let message = err.message;
-                        this.res.redirect(`${this.router.build('member.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
+                        reservationModel.remove(() => {
+                            this.next(err);
+                        });
                     } else {
                         reservationModel.save((err) => {
                             this.logger.info('starting GMO payment...');

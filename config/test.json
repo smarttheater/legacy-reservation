@@ -25,5 +25,7 @@
         "reservation_end_cvs": "2016-08-25T23:59:59+09:00",
         "event_start": "2016-08-30T00:00:00+09:00",
         "event_end": "2016-09-06T23:59:59+09:00"
-    }
+    },
+
+    "temporary_reservation_valid_period_seconds": 900000
 }
