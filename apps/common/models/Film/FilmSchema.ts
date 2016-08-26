@@ -6,8 +6,11 @@ import mongoose = require('mongoose');
 let Schema = new mongoose.Schema({
     _id: String,
     name: {
-        ja: String,
-        en: String
+        type: {
+            ja: String,
+            en: String
+        },
+        required: true
     },
     sections: [
          {
@@ -21,7 +24,8 @@ let Schema = new mongoose.Schema({
     ],
     ticket_type_group: { 
         type: String,
-        ref: 'TicketTypeGroup'
+        ref: 'TicketTypeGroup',
+        required: true
     },
     image: String,
     minutes: Number, // 上映時間

@@ -144,6 +144,7 @@ class SponsorCancelController extends BaseController_1.default {
                         status: ReservationUtil_1.default.STATUS_RESERVED
                     }, {
                         // 内部保留の所有者はadmin
+                        // TODO 上書きする
                         status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF,
                         staff: null,
                         staff_user_id: 'admin',

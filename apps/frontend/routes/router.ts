@@ -34,7 +34,6 @@ export default (app: any) => {
     app.get('/language/update/:locale', 'language.update', base, (req, res, next) => {(new LanguageController(req, res, next)).update()});
 
     app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', base, (req, res, next) => {(new ReserveController(req, res, next)).getSeatProperties()});
-    app.get('/reserve/:reservationId/barcode', 'reserve.barcode', base, (req, res, next) => {(new ReserveController(req, res, next)).barcode()});
     app.get('/reserve/:reservationId/qrcode', 'reserve.qrcode', base, (req, res, next) => {(new ReserveController(req, res, next)).qrcode()});
 
 

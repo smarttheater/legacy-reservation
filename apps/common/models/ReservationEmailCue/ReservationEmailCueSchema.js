@@ -6,9 +6,14 @@ const mongoose = require('mongoose');
 let Schema = new mongoose.Schema({
     payment_no: {
         type: String,
-        unique: true
+        unique: true,
+        required: true
     },
-    is_sent: Boolean // 送信済みフラグ
+    is_sent: {
+        type: Boolean,
+        default: false,
+        required: true
+    }
 }, {
     collection: 'reservation_email_cues',
 });

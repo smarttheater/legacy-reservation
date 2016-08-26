@@ -4,15 +4,19 @@ const mongoose = require('mongoose');
  * 予約スキーマ
  */
 let Schema = new mongoose.Schema({
-    token: String,
-    payment_no: String,
-    total_charge: Number,
-    charge: Number,
     performance: {
         type: String,
-        ref: 'Performance'
+        ref: 'Performance',
+        required: true
     },
-    status: String,
+    seat_code: {
+        type: String,
+        required: true
+    },
+    status: {
+        type: String,
+        required: true
+    },
     performance_day: String,
     performance_start_time: String,
     performance_end_time: String,
@@ -43,7 +47,6 @@ let Schema = new mongoose.Schema({
     purchaser_tel: String,
     purchased_at: Date,
     payment_method: String,
-    seat_code: String,
     seat_grade_name_ja: String,
     seat_grade_name_en: String,
     seat_grade_additional_charge: Number,
@@ -53,6 +56,9 @@ let Schema = new mongoose.Schema({
     ticket_type_charge: Number,
     watcher_name: String,
     watcher_name_updated_at: Date,
+    payment_no: String,
+    total_charge: Number,
+    charge: Number,
     sponsor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Sponsor'

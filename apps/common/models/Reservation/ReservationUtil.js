@@ -1,28 +1,6 @@
 "use strict";
-const bwipjs = require('bwip-js');
 const qr = require('qr-image');
 class ReservationUtil {
-    /**
-     * create barcode from reservation infos.
-     */
-    static createBarcode(reservationId, cb) {
-        let text = reservationId;
-        // creating barcode...
-        bwipjs.toBuffer({
-            bcid: 'code128',
-            text: text,
-            scale: 2,
-            height: 40,
-            includetext: true,
-            textxalign: 'center',
-            // textfont:    'Inconsolata', // Use your custom font
-            textsize: 13,
-            paddingwidth: 40,
-            paddingheight: 20
-        }, (err, png) => {
-            cb(err, png);
-        });
-    }
     /**
      * create QR code from reservation infos.
      */
@@ -35,13 +13,15 @@ class ReservationUtil {
 }
 /** 仮予約 */
 ReservationUtil.STATUS_TEMPORARY = 'TEMPORARY';
+/** TIFF確保上の仮予約 */
+ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TIFF = 'TEMPORARY_ON_KEPT_BY_TIFF';
 /** GMOプロセス中 */
 ReservationUtil.STATUS_GMO_PROCESSING = 'GMO_PROCESSING';
 /** 決済待ち */
 ReservationUtil.STATUS_WAITING_SETTLEMENT = 'WAITING_SETTLEMENT';
 /**  ペイデザイン決済待ち */
 ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN = 'WAITING_SETTLEMENT_PAY_DESIGN';
-/** 関係者席保留 */
+/** TIFF確保 */
 ReservationUtil.STATUS_KEPT_BY_TIFF = 'KEPT_BY_TIFF';
 /** メルマガ会員保留 */
 ReservationUtil.STATUS_KEPT_BY_MEMBER = 'KEPT_BY_MEMBER';

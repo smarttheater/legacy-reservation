@@ -20,7 +20,7 @@ class ReserveController extends ReserveBaseController_1.default {
             }
             Models_1.default.Reservation.find({
                 performance: reservationModel.performance._id
-            }, fields, {}, (err, reservationDocuments) => {
+            }, fields, {}, (err, reservations) => {
                 if (err) {
                     this.res.json({
                         propertiesBySeatCode: propertiesBySeatCode
@@ -28,8 +28,8 @@ class ReserveController extends ReserveBaseController_1.default {
                 }
                 else {
                     // 予約テーブルにあるものについて、状態を上書きする
-                    for (let reservationDocument of reservationDocuments) {
-                        let seatCode = reservationDocument.get('seat_code');
+                    for (let reservation of reservations) {
+                        let seatCode = reservation.get('seat_code');
                         let classes = [];
                         let baloonContent = `${seatCode}`;
                         if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
@@ -42,7 +42,10 @@ class ReserveController extends ReserveBaseController_1.default {
                         }
                         // 内部関係者用
                         if (reservationModel.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
-                            baloonContent += this.getBaloonContent4staffs(reservationDocument);
+                            baloonContent += this.getBaloonContent4staffs(reservation);
+                            if (reservation.get('status') === ReservationUtil_1.default.STATUS_KEPT_BY_TIFF) {
+                                classes = ['select-seat'];
+                            }
                         }
                         propertiesBySeatCode[seatCode] = {
                             classes: classes,
@@ -58,19 +61,18 @@ class ReserveController extends ReserveBaseController_1.default {
             });
         });
     }
-    getBaloonContent4staffs(reservationDocument) {
-        console.log(reservationDocument);
+    getBaloonContent4staffs(reservation) {
         let baloonContent = '';
         // 内部関係者の場合、予約情報ポップアップ
-        let status = reservationDocument.get('status');
-        let group = reservationDocument.get('purchaser_group');
+        let status = reservation.get('status');
+        let group = reservation.get('purchaser_group');
         switch (status) {
             case ReservationUtil_1.default.STATUS_RESERVED:
                 if (group === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
-                    baloonContent += `<br>内部関係者${reservationDocument.get('staff_name')}`;
+                    baloonContent += `<br>内部関係者${reservation.get('staff_name')}`;
                 }
                 else if (group === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR) {
-                    baloonContent += `<br>外部関係者${reservationDocument.get('sponsor_name')}`;
+                    baloonContent += `<br>外部関係者${reservation.get('sponsor_name')}`;
                 }
                 else if (group === ReservationUtil_1.default.PURCHASER_GROUP_MEMBER) {
                     baloonContent += `<br>メルマガ当選者`;
@@ -78,11 +80,15 @@ class ReserveController extends ReserveBaseController_1.default {
                 else if (group === ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER) {
                     baloonContent += '<br>一般';
                 }
+                else if (group === ReservationUtil_1.default.PURCHASER_GROUP_TEL) {
+                    baloonContent += '<br>電話窓口';
+                }
                 else if (group === ReservationUtil_1.default.PURCHASER_GROUP_WINDOW) {
-                    baloonContent += '<br>窓口';
+                    baloonContent += '<br>当日窓口';
                 }
                 break;
             case ReservationUtil_1.default.STATUS_TEMPORARY:
+            case ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TIFF:
                 baloonContent += '<br>仮予約中...';
                 break;
             case ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT:
@@ -95,22 +101,6 @@ class ReserveController extends ReserveBaseController_1.default {
                 break;
         }
         return baloonContent;
-    }
-    /**
-     * create barcode by reservation token and reservation id.
-     */
-    barcode() {
-        let reservationId = this.req.params.reservationId;
-        ReservationUtil_1.default.createBarcode(reservationId, (err, png) => {
-            if (err) {
-                this.res.send('false');
-            }
-            else {
-                // `png` is a Buffer
-                this.res.setHeader('Content-Type', 'image/png');
-                this.res.send(png);
-            }
-        });
     }
     /**
      * create qrcode by reservation token and reservation id.

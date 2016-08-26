@@ -163,25 +163,18 @@ class ReserveBaseController extends BaseController_1.default {
      */
     processCancelSeats(reservationModel, cb) {
         let seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
-        if (seatCodesInSession.length === 0) {
+        if (seatCodesInSession.length === 0)
             return cb(null, reservationModel);
-        }
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
         // 仮予約を空席ステータスに戻す
-        this.logger.debug('removing reservations... seatCodes:', seatCodesInSession);
         Models_1.default.Reservation.remove({
             performance: reservationModel.performance._id,
             seat_code: { $in: seatCodesInSession },
             status: ReservationUtil_1.default.STATUS_TEMPORARY
         }, (err) => {
             // 失敗したとしても時間経過で消えるので放置
-            if (err) {
-                cb(err, reservationModel);
-            }
-            else {
-                cb(null, reservationModel);
-            }
+            cb(null, reservationModel);
         });
     }
     /**
@@ -190,7 +183,6 @@ class ReserveBaseController extends BaseController_1.default {
      */
     processFixPerformance(reservationModel, perfomanceId, cb) {
         // パフォーマンス取得
-        this.logger.debug('searching performance... id:', perfomanceId);
         Models_1.default.Performance.findOne({
             _id: perfomanceId
         }, 'day start_time end_time film screen theater' // 必要な項目だけ指定すること
@@ -334,9 +326,7 @@ class ReserveBaseController extends BaseController_1.default {
                         member: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_MEMBER) ? this.req.memberUser.get('_id') : undefined,
                     };
                     // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
-                    this.logger.debug('creating reservation... seat_code:', seatCode);
-                    Models_1.default.Reservation.create(newReservation, (err, reservationDocument) => {
-                        this.logger.debug('reservation created.', err, reservationDocument);
+                    Models_1.default.Reservation.create(newReservation, (err, reservation) => {
                         if (err) {
                             reject(err);
                         }
@@ -344,9 +334,9 @@ class ReserveBaseController extends BaseController_1.default {
                             // ステータス更新に成功したらセッションに保管
                             reservationModel.seatCodes.push(seatCode);
                             reservationModel.setReservation(seatCode, {
-                                _id: reservationDocument.get('_id'),
-                                status: reservationDocument.get('status'),
-                                seat_code: reservationDocument.get('seat_code'),
+                                _id: reservation.get('_id'),
+                                status: reservation.get('status'),
+                                seat_code: reservation.get('seat_code'),
                                 seat_grade_name_ja: seatInfo.grade.name.ja,
                                 seat_grade_name_en: seatInfo.grade.name.en,
                                 seat_grade_additional_charge: seatInfo.grade.additional_charge,

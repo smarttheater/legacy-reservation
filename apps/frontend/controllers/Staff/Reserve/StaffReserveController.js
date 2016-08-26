@@ -45,6 +45,126 @@ class StaffReserveController extends ReserveBaseController_1.default {
         this.res.redirect(cb);
     }
     /**
+     * 予約フロー中の座席をキャンセルするプロセス
+     *
+     * @override
+     */
+    processCancelSeats(reservationModel, cb) {
+        let seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
+        if (seatCodesInSession.length === 0) {
+            return cb(null, reservationModel);
+        }
+        // セッション中の予約リストを初期化
+        reservationModel.seatCodes = [];
+        // 仮予約をTIFF確保ステータスに戻す
+        Models_1.default.Reservation.update({
+            performance: reservationModel.performance._id,
+            seat_code: { $in: seatCodesInSession },
+            status: ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TIFF
+        }, {
+            status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+        }, (err, raw) => {
+            // 失敗したとしても時間経過で消えるので放置
+            // 仮予約を空席ステータスに戻す
+            Models_1.default.Reservation.remove({
+                performance: reservationModel.performance._id,
+                seat_code: { $in: seatCodesInSession },
+                status: ReservationUtil_1.default.STATUS_TEMPORARY
+            }, (err) => {
+                // 失敗したとしても時間経過で消えるので放置
+                cb(null, reservationModel);
+            });
+        });
+    }
+    /**
+     * 座席をFIXするプロセス
+     *
+     * @override
+     */
+    processFixSeats(reservationModel, seatCodes, cb) {
+        let promises = [];
+        // セッション中の予約リストを初期化
+        reservationModel.seatCodes = [];
+        reservationModel.tmpReservationExpiredAt = Date.now() + conf.get('temporary_reservation_valid_period_seconds');
+        // 新たな座席指定と、既に仮予約済みの座席コードについて
+        seatCodes.forEach((seatCode) => {
+            promises.push(new Promise((resolve, reject) => {
+                let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
+                    return (seat.code === seatCode);
+                });
+                // 万が一、座席が存在しなかったら
+                if (!seatInfo) {
+                    return reject(new Error(this.req.__('Message.InvalidSeatCode')));
+                }
+                else {
+                    // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
+                    Models_1.default.Reservation.create({
+                        performance: reservationModel.performance._id,
+                        seat_code: seatCode,
+                        status: ReservationUtil_1.default.STATUS_TEMPORARY,
+                        staff: this.req.staffUser.get('_id')
+                    }, (err, reservation) => {
+                        if (err) {
+                            // TIFF確保からの仮予約を試みる
+                            Models_1.default.Reservation.findOneAndUpdate({
+                                performance: reservationModel.performance._id,
+                                seat_code: seatCode,
+                                status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+                            }, {
+                                status: ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TIFF,
+                                staff: this.req.staffUser.get('_id')
+                            }, {
+                                new: true
+                            }, (err, reservation) => {
+                                if (err) {
+                                    reject(err);
+                                }
+                                else {
+                                    if (!reservation) {
+                                        reject(new Error(this.req.__('Message.UnexpectedError')));
+                                    }
+                                    else {
+                                        // ステータス更新に成功したらセッションに保管
+                                        reservationModel.seatCodes.push(seatCode);
+                                        reservationModel.setReservation(seatCode, {
+                                            _id: reservation.get('_id'),
+                                            status: reservation.get('status'),
+                                            seat_code: reservation.get('seat_code'),
+                                            seat_grade_name_ja: seatInfo.grade.name.ja,
+                                            seat_grade_name_en: seatInfo.grade.name.en,
+                                            seat_grade_additional_charge: seatInfo.grade.additional_charge,
+                                        });
+                                        resolve();
+                                    }
+                                }
+                            });
+                        }
+                        else {
+                            // ステータス更新に成功したらセッションに保管
+                            reservationModel.seatCodes.push(seatCode);
+                            reservationModel.setReservation(seatCode, {
+                                _id: reservation.get('_id'),
+                                status: reservation.get('status'),
+                                seat_code: reservation.get('seat_code'),
+                                seat_grade_name_ja: seatInfo.grade.name.ja,
+                                seat_grade_name_en: seatInfo.grade.name.en,
+                                seat_grade_additional_charge: seatInfo.grade.additional_charge,
+                            });
+                            resolve();
+                        }
+                    });
+                }
+            }));
+        });
+        Promise.all(promises).then(() => {
+            // 座席コードのソート(文字列順に)
+            reservationModel.seatCodes.sort(ScreenUtil_1.default.sortBySeatCode);
+            cb(null, reservationModel);
+        }, (err) => {
+            cb(err, reservationModel);
+        });
+    }
+    /**
      * スケジュール選択
      */
     performances() {
@@ -61,7 +181,6 @@ class StaffReserveController extends ReserveBaseController_1.default {
                                 this.next(err);
                             }
                             else {
-                                this.logger.debug('saving reservationModel... ', reservationModel);
                                 reservationModel.save((err) => {
                                     this.res.redirect(this.router.build('staff.reserve.seats', { token: token }));
                                 });
@@ -76,7 +195,6 @@ class StaffReserveController extends ReserveBaseController_1.default {
             else {
                 // 仮予約あればキャンセルする
                 this.processCancelSeats(reservationModel, (err, reservationModel) => {
-                    this.logger.debug('saving reservationModel... ', reservationModel);
                     reservationModel.save((err) => {
                         this.res.render('staff/reserve/performances', {
                             FilmUtil: FilmUtil_1.default
@@ -106,9 +224,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                         }
                         else {
                             // 仮予約あればキャンセルする
-                            this.logger.debug('processCancelSeats processing...');
                             this.processCancelSeats(reservationModel, (err, reservationModel) => {
-                                this.logger.debug('processCancelSeats processed.', err);
                                 // 座席FIX
                                 this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                     if (err) {

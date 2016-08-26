@@ -36,7 +36,7 @@ export default class ReserveController extends ReserveBaseController {
                 },
                 fields,
                 {},
-                (err, reservationDocuments) => {
+                (err, reservations) => {
                     if (err) {
                         this.res.json({
                             propertiesBySeatCode: propertiesBySeatCode
@@ -45,8 +45,8 @@ export default class ReserveController extends ReserveBaseController {
                     } else {
 
                         // 予約テーブルにあるものについて、状態を上書きする
-                        for (let reservationDocument of reservationDocuments) {
-                            let seatCode = reservationDocument.get('seat_code');
+                        for (let reservation of reservations) {
+                            let seatCode = reservation.get('seat_code');
 
                             let classes = [];
                             let baloonContent = `${seatCode}`;
@@ -65,7 +65,11 @@ export default class ReserveController extends ReserveBaseController {
 
                             // 内部関係者用
                             if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
-                                baloonContent += this.getBaloonContent4staffs(reservationDocument);
+                                baloonContent += this.getBaloonContent4staffs(reservation);
+
+                                if (reservation.get('status') === ReservationUtil.STATUS_KEPT_BY_TIFF) {
+                                    classes = ['select-seat'];
+                                }
                             }
 
 
@@ -90,30 +94,32 @@ export default class ReserveController extends ReserveBaseController {
         });
     }
 
-    private getBaloonContent4staffs(reservationDocument: mongoose.Document) :string {
-        console.log(reservationDocument);
+    private getBaloonContent4staffs(reservation: mongoose.Document) :string {
         let baloonContent = '';
 
         // 内部関係者の場合、予約情報ポップアップ
-        let status = reservationDocument.get('status');
-        let group = reservationDocument.get('purchaser_group');
+        let status = reservation.get('status');
+        let group = reservation.get('purchaser_group');
         switch (status) {
             case ReservationUtil.STATUS_RESERVED:
                 if (group === ReservationUtil.PURCHASER_GROUP_STAFF) {
-                    baloonContent +=  `<br>内部関係者${reservationDocument.get('staff_name')}`;
+                    baloonContent +=  `<br>内部関係者${reservation.get('staff_name')}`;
                 } else if (group === ReservationUtil.PURCHASER_GROUP_SPONSOR) {
-                    baloonContent +=  `<br>外部関係者${reservationDocument.get('sponsor_name')}`;
+                    baloonContent +=  `<br>外部関係者${reservation.get('sponsor_name')}`;
                 } else if (group === ReservationUtil.PURCHASER_GROUP_MEMBER) {
                     baloonContent +=  `<br>メルマガ当選者`;
                 } else if (group === ReservationUtil.PURCHASER_GROUP_CUSTOMER) {
                     baloonContent +=  '<br>一般';
+                } else if (group === ReservationUtil.PURCHASER_GROUP_TEL) {
+                    baloonContent +=  '<br>電話窓口';
                 } else if (group === ReservationUtil.PURCHASER_GROUP_WINDOW) {
-                    baloonContent +=  '<br>窓口';
+                    baloonContent +=  '<br>当日窓口';
                 }
 
                 break;
 
             case ReservationUtil.STATUS_TEMPORARY:
+            case ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TIFF:
                 baloonContent += '<br>仮予約中...';
                 break;
 
@@ -131,27 +137,6 @@ export default class ReserveController extends ReserveBaseController {
 
 
         return baloonContent;
-    }
-
-    /**
-     * create barcode by reservation token and reservation id.
-     */
-    public barcode() {
-        let reservationId = this.req.params.reservationId;
-
-        ReservationUtil.createBarcode(reservationId, (err, png) => {
-            if (err) {
-                this.res.send('false');
-
-            } else {
-                // `png` is a Buffer
-                this.res.setHeader('Content-Type', 'image/png');
-                this.res.send(png);
-
-            }
-
-        });
-
     }
 
     /**

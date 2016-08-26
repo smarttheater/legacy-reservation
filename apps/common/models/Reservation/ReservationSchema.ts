@@ -4,17 +4,20 @@ import mongoose = require('mongoose');
  * 予約スキーマ
  */
 let Schema = new mongoose.Schema({
-    token: String,
-    payment_no: String,
-
-    total_charge: Number, // 予約の合計金額(複数座席分)
-    charge: Number, // 座席単体の料金
-
     performance: {
         type: String,
-        ref: 'Performance'
+        ref: 'Performance',
+        required: true
     },
-    status: String,
+    seat_code: {
+        type: String,
+        required: true
+    },
+    status: {
+        type: String,
+        required: true
+    },
+
     performance_day: String,
     performance_start_time: String,
     performance_end_time: String,
@@ -52,7 +55,6 @@ let Schema = new mongoose.Schema({
 
     payment_method: String, // 決済方法
 
-    seat_code: String,
     seat_grade_name_ja: String,
     seat_grade_name_en: String,
     seat_grade_additional_charge: Number,
@@ -64,6 +66,11 @@ let Schema = new mongoose.Schema({
 
     watcher_name: String, // 配布先
     watcher_name_updated_at: Date, // 配布先更新日時 default: Date.now
+
+    payment_no: String,
+
+    total_charge: Number, // 予約の合計金額(複数座席分)
+    charge: Number, // 座席単体の料金
 
     sponsor: {
         type: mongoose.Schema.Types.ObjectId,

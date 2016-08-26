@@ -4,7 +4,10 @@ const mongoose = require('mongoose');
  * ログイン認証スキーマ
  */
 let Schema = new mongoose.Schema({
-    token: String,
+    token: {
+        type: String,
+        required: true
+    },
     mvtk_kiin_cd: String,
     sponsor: {
         type: mongoose.Schema.Types.ObjectId,
