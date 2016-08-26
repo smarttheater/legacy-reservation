@@ -1,4 +1,5 @@
 import mongoose = require('mongoose');
+import ReservationUtil from './ReservationUtil';
 
 /**
  * 予約スキーマ
@@ -143,6 +144,89 @@ let Schema = new mongoose.Schema({
 // 開始文字列を表示形式で取得できるように
 Schema.virtual('performance_start_str').get(function() {
     return `${this.performance_day.substr(0, 4)}/${this.performance_day.substr(4, 2)}/${this.performance_day.substr(6)} ${this.performance_start_time.substr(0, 2)}:${this.performance_start_time.substr(2)}`;
+});
+
+Schema.virtual('baloon_content4staff').get(function() {
+    let str = `${this.seat_code}`;
+    str += (this.purchaser_group_str) ? `<br>${this.purchaser_group_str}` : '';
+    str += (this.purchaser_name) ? `<br>${this.purchaser_name}` : '';
+    str += (this.status_str) ? `<br>${this.status_str}` : '';
+
+    return str;
+});
+
+Schema.virtual('purchaser_name').get(function() {
+    let name = '';
+
+    if (this.status === ReservationUtil.STATUS_RESERVED) {
+        switch (this.purchaser_group) {
+            case ReservationUtil.PURCHASER_GROUP_STAFF:
+                name = this.staff_name;
+                break;
+            default:
+                name = `${this.purchaser_last_name} ${this.purchaser_first_name}`;
+                break;
+        }
+    }
+
+    return name;
+});
+
+Schema.virtual('purchaser_group_str').get(function() {
+    let str = '';
+
+    switch (this.purchaser_group) {
+        case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
+            str = '一般';
+            break;
+        case ReservationUtil.PURCHASER_GROUP_MEMBER:
+            str = 'メルマガ先行会員';
+            break;
+        case ReservationUtil.PURCHASER_GROUP_SPONSOR:
+            str = '外部関係者';
+            break;
+        case ReservationUtil.PURCHASER_GROUP_STAFF:
+            str = '内部関係者';
+            break;
+        case ReservationUtil.PURCHASER_GROUP_TEL:
+            str = '電話窓口';
+            break;
+        case ReservationUtil.PURCHASER_GROUP_WINDOW:
+            str = '当日窓口';
+            break;
+        default:
+            break;
+    }
+
+    return str;
+});
+
+Schema.virtual('status_str').get(function() {
+    let str = '';
+
+    switch (this.status) {
+        case ReservationUtil.STATUS_RESERVED:
+            str = '予約済';
+            break;
+
+        case ReservationUtil.STATUS_TEMPORARY:
+        case ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TIFF:
+            str = '仮予約中';
+            break;
+
+        case ReservationUtil.STATUS_WAITING_SETTLEMENT:
+            str = '決済中';
+            break;
+
+        case ReservationUtil.STATUS_KEPT_BY_TIFF:
+            str = 'TIFF確保中';
+            break;
+
+        default:
+            break;
+    }
+
+    return str;
 });
 
 Schema.index(

@@ -73,6 +73,9 @@ export default class StaffReserveController extends ReserveBaseController implem
             {
                 status: ReservationUtil.STATUS_KEPT_BY_TIFF
             },
+            {
+                multi: true
+            },
             (err, raw) => {
                 // 失敗したとしても時間経過で消えるので放置
 

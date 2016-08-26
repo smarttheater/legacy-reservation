@@ -63,6 +63,8 @@ class StaffReserveController extends ReserveBaseController_1.default {
             status: ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TIFF
         }, {
             status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+        }, {
+            multi: true
         }, (err, raw) => {
             // 失敗したとしても時間経過で消えるので放置
             // 仮予約を空席ステータスに戻す
