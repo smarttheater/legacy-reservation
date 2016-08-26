@@ -29,32 +29,32 @@ export default class SponsorCancelController extends BaseController {
                             purchaser_group: ReservationUtil.PURCHASER_GROUP_SPONSOR,
                             status: ReservationUtil.STATUS_RESERVED
                         },
-                        (err, reservationDocuments) => {
+                        (err, reservations) => {
                             if (err) {
                                 return this.res.json({
-                                    isSuccess: false,
+                                    success: false,
                                     message: this.req.__('Message.UnexpectedError')
                                 });
                             }
 
-                            if (reservationDocuments.length === 0) {
+                            if (reservations.length === 0) {
                                 return this.res.json({
-                                    isSuccess: false,
+                                    success: false,
                                     message: '予約番号または電話番号下4ケタに誤りがあります'
                                 });
                             }
 
                             this.res.json({
-                                isSuccess: true,
+                                success: true,
                                 message: null,
-                                reservations: reservationDocuments
+                                reservations: reservations
                             });
                         }
                     );
 
                 } else {
                     this.res.json({
-                        isSuccess: false,
+                        success: false,
                         message: '予約番号または電話番号下4ケタに誤りがあります'
                     });
 
@@ -83,17 +83,17 @@ export default class SponsorCancelController extends BaseController {
                 status: ReservationUtil.STATUS_RESERVED
             },
             '_id performance seat_code created_at',
-            (err, reservationDocuments) => {
+            (err, reservations) => {
                 if (err) {
                     return this.res.json({
-                        isSuccess: false,
-                        messaeg: this.req.__('Message.UnexpectedError')
+                        success: false,
+                        message: this.req.__('Message.UnexpectedError')
                     });
                 }
 
-                if (reservationDocuments.length === 0) {
+                if (reservations.length === 0) {
                     return this.res.json({
-                        isSuccess: false,
+                        success: false,
                         message: '予約番号または電話番号下4ケタに誤りがあります'
                     });
                 }
@@ -101,28 +101,22 @@ export default class SponsorCancelController extends BaseController {
                 let promises = [];
                 let option = {
                     new: true,
-                    // multi: true,
                     overwrite: true
                 };
-                for (let reservationDocument of reservationDocuments) {
+                for (let reservation of reservations) {
                     promises.push(new Promise((resolve, reject) => {
                         let update = {
-                            // _id: reservationDocuments[0].get('_id'),
-                            performance: reservationDocument.get('performance'),
-                            seat_code: reservationDocument.get('seat_code'),
+                            performance: reservation.get('performance'),
+                            seat_code: reservation.get('seat_code'),
                             status: ReservationUtil.STATUS_KEPT_BY_TIFF,
-                            staff: null,
-                            staff_user_id: 'admin',
-                            created_at: reservationDocument.get('created_at'),
+                            created_at: reservation.get('created_at'),
                             updated_at: Date.now()
                         };
-                        this.logger.debug('updating reservations...update:', update);
                         Models.Reservation.findByIdAndUpdate(
-                            reservationDocument.get('_id'),
+                            reservation.get('_id'),
                             update,
                             option,
-                            (err, reservationDocument) => {
-                                this.logger.debug('reservations updated.', err);
+                            (err, reservation) => {
                                 if (err) {
                                     reject(err);
                                 } else {
@@ -135,14 +129,14 @@ export default class SponsorCancelController extends BaseController {
 
                 Promise.all(promises).then(() => {
                     this.res.json({
-                        isSuccess: true,
-                        messaeg: null
+                        success: true,
+                        message: null
                     });
 
                 }, (err) => {
                     this.res.json({
-                        isSuccess: false,
-                        messaeg: this.req.__('Message.UnexpectedError')
+                        success: false,
+                        message: this.req.__('Message.UnexpectedError')
                     });
 
                 });
@@ -154,56 +148,66 @@ export default class SponsorCancelController extends BaseController {
         // 予約IDリストをjson形式で受け取る
         let reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
-            let promises = [];
             let updatedReservationIds = [];
 
-            for (let reservationId of reservationIds) {
-                promises.push(new Promise((resolve, reject) => {
-                    // TIFF確保にステータス更新
-                    this.logger.debug('canceling reservation...id:', reservationId);
-                    Models.Reservation.update(
-                        {
-                            _id: reservationId,
-                            sponsor: this.req.sponsorUser.get('_id'),
-                            purchaser_group: ReservationUtil.PURCHASER_GROUP_SPONSOR,
-                            status: ReservationUtil.STATUS_RESERVED
-                        },
-                        {
-                            // 内部保留の所有者はadmin
-                            // TODO 上書きする
-                            status: ReservationUtil.STATUS_KEPT_BY_TIFF,
-                            staff: null,
-                            staff_user_id: 'admin',
-                            sponsor: null
-                        },
-                        (err, raw) => {
-                            if (err) {
-                                reject(err);
-                            } else {
-                                updatedReservationIds.push(reservationId);
-                                resolve();
-                            }
-                        }
-                    );
-                }));
-            }
+            Models.Reservation.find(
+                {
+                    _id: {$in: reservationIds},
+                    sponsor: this.req.sponsorUser.get('_id'),
+                    purchaser_group: ReservationUtil.PURCHASER_GROUP_SPONSOR,
+                    status: ReservationUtil.STATUS_RESERVED
+                },
+                (err, reservations) => {
+                    let promises = [];
+                    let option = {
+                        new: true,
+                        overwrite: true
+                    };
 
-            Promise.all(promises).then(() => {
-                this.res.json({
-                    isSuccess: true,
-                    reservationIds: updatedReservationIds
-                });
-            }, (err) => {
-                this.res.json({
-                    isSuccess: false,
-                    message: err.message,
-                    reservationId: []
-                });
-            });
+                    for (let reservation of reservations) {
+                        promises.push(new Promise((resolve, reject) => {
+                            // TIFF確保にステータス更新
+                            let update = {
+                                performance: reservation.get('performance'),
+                                seat_code: reservation.get('seat_code'),
+                                status: ReservationUtil.STATUS_KEPT_BY_TIFF,
+                                created_at: reservation.get('created_at'),
+                                updated_at: Date.now()
+                            };
+                            Models.Reservation.findByIdAndUpdate(
+                                reservation.get('_id').toString(),
+                                update,
+                                option,
+                                (err, reservation) => {
+                                    console.log('err:', err);
+                                    if (err) {
+                                        reject(err);
+                                    } else {
+                                        updatedReservationIds.push(reservation.get('_id').toString());
+                                        resolve();
+                                    }
+                                }
+                            );
+                        }));
+                    }
 
+                    Promise.all(promises).then(() => {
+                        this.res.json({
+                            success: true,
+                            reservationIds: updatedReservationIds
+                        });
+                    }, (err) => {
+                        this.res.json({
+                            success: false,
+                            message: err.message,
+                            reservationId: []
+                        });
+                    });
+                }
+            );
         } else {
             this.res.json({
-                isSuccess: false,
+                success: false,
                 message: this.req.__('Message.UnexpectedError'),
                 reservationId: []
             });
