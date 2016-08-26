@@ -12,38 +12,26 @@ const session_1 = require('./middlewares/session');
 const conf = require('config');
 const mongoose = require('mongoose');
 const i18n = require('i18n');
-const log4js = require('log4js');
 let app = express();
 app.use(partials()); // レイアウト&パーシャルサポート
 app.use(useragent.express()); // ユーザーエージェント
 app.use(logger_1.default); // ロガー
 app.use(benchmarks_1.default); // ベンチマーク的な
 app.use(session_1.default); // セッション
+// ルーティング
+const NamedRoutes = require('named-routes');
+const payDesign_1 = require('./routes/payDesign');
+const member_1 = require('./routes/member');
+const sponsor_1 = require('./routes/sponsor');
+const staff_1 = require('./routes/staff');
+const tel_1 = require('./routes/tel');
+const window_1 = require('./routes/window');
+const router_1 = require('./routes/router');
+let namedRoutes = new NamedRoutes();
+namedRoutes.extendExpress(app);
+namedRoutes.registerAppHelpers(app);
 // ペイデザイン連携のため
-app.post('/PayDesign/reserve/notify', (req, res) => {
-    if (req.originalUrl === '/PayDesign/reserve/notify') {
-        let logger = log4js.getLogger('system');
-        logger.debug('/PayDesign/reserve/notify req:', req);
-        let content = new Buffer([]);
-        ;
-        req.on('data', (chunk) => {
-            logger.debug('data...');
-            logger.debug(chunk);
-            content = Buffer.concat([content, chunk]);
-        });
-        req.on('end', () => {
-            let jconv = require('jconv');
-            logger.debug('end.');
-            logger.debug('content(Buffer):', content);
-            logger.debug('content(string):', content.toString('utf8'));
-            // utf8変換？
-            let converted = jconv.convert(content, 'SJIS', 'UTF8');
-            logger.debug('converted(Buffer):', converted);
-            logger.debug('converted(string):', converted.toString('utf8'));
-        });
-    }
-    res.send('0');
-});
+payDesign_1.default(app);
 // view engine setup
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
@@ -72,17 +60,6 @@ app.use((req, res, next) => {
     }
     next();
 });
-// ルーティング
-const NamedRoutes = require('named-routes');
-const member_1 = require('./routes/member');
-const sponsor_1 = require('./routes/sponsor');
-const staff_1 = require('./routes/staff');
-const tel_1 = require('./routes/tel');
-const window_1 = require('./routes/window');
-const router_1 = require('./routes/router');
-let namedRoutes = new NamedRoutes();
-namedRoutes.extendExpress(app);
-namedRoutes.registerAppHelpers(app);
 // ルーティング登録の順序に注意！
 member_1.default(app);
 sponsor_1.default(app);

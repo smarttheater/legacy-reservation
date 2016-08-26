@@ -131,6 +131,15 @@ let Schema = new mongoose.Schema({
     gmo_payment_term: String,
     gmo_status: String,
 
+    paydesign_seq: String,
+    paydesign_date: String,
+    paydesign_time: String,
+    paydesign_sid: String,
+    paydesign_kingaku: String,
+    paydesign_cvs: String,
+    paydesign_scode: String,
+    paydesign_fuka: String,
+
     created_user: String,
     updated_user: String,
 },{

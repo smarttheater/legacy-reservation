@@ -22,34 +22,31 @@ app.use(logger); // ロガー
 app.use(benchmarks); // ベンチマーク的な
 app.use(session); // セッション
 
+
+
+
+
+// ルーティング
+import NamedRoutes = require('named-routes');
+import payDesign from './routes/payDesign';
+import memberRouter from './routes/member';
+import sponsorRouter from './routes/sponsor';
+import staffRouter from './routes/staff';
+import telRouter from './routes/tel';
+import windowRouter from './routes/window';
+import router from './routes/router';
+
+let namedRoutes = new NamedRoutes();
+namedRoutes.extendExpress(app);
+namedRoutes.registerAppHelpers(app);
+
+
+
 // ペイデザイン連携のため
-app.post('/PayDesign/reserve/notify', (req, res) => {
-    if (req.originalUrl === '/PayDesign/reserve/notify') {
-        let logger = log4js.getLogger('system');
-        logger.debug('/PayDesign/reserve/notify req:', req);
+payDesign(app);
 
-        let content = new Buffer([]);;
-        req.on('data', (chunk) => {
-            logger.debug('data...');
-            logger.debug(chunk);
-            content = Buffer.concat([content, chunk]);
-        });
 
-        req.on('end', () => {
-            let jconv = require('jconv');
-            logger.debug('end.');
-            logger.debug('content(Buffer):', content);
-            logger.debug('content(string):', content.toString('utf8'));
 
-            // utf8変換？
-            let converted = jconv.convert(content, 'SJIS', 'UTF8');
-            logger.debug('converted(Buffer):', converted);
-            logger.debug('converted(string):', converted.toString('utf8'));
-        })
-    }
-
-    res.send('0');
-});
 
 
 // view engine setup
@@ -95,19 +92,6 @@ app.use((req, res, next) => {
 
 
 
-
-// ルーティング
-import NamedRoutes = require('named-routes');
-import memberRouter from './routes/member';
-import sponsorRouter from './routes/sponsor';
-import staffRouter from './routes/staff';
-import telRouter from './routes/tel';
-import windowRouter from './routes/window';
-import router from './routes/router';
-
-let namedRoutes = new NamedRoutes();
-namedRoutes.extendExpress(app);
-namedRoutes.registerAppHelpers(app);
 
 // ルーティング登録の順序に注意！
 memberRouter(app);
