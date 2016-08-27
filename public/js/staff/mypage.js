@@ -182,7 +182,7 @@ $(function(){
                 $('.cancel-reservation-confirm').modal('hide');
             }
         }).done(function(data) {
-            if (data.isSuccess) {
+            if (data.success) {
                 // 再検索
                 search();
 

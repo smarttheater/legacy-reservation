@@ -21,7 +21,10 @@ class ErrorController extends BaseController_1.default {
         this.logger.error(err.stack);
         let status = 500;
         if (this.req.xhr) {
-            this.res.status(status).send({ error: 'Something failed.' });
+            this.res.status(status).json({
+                success: false,
+                message: err.message
+            });
         }
         else {
             this.res.status(status);

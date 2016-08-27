@@ -200,6 +200,28 @@ Schema.virtual('status_str').get(function () {
     }
     return str;
 });
+/** TIFF確保にステータス更新するメソッド */
+Schema.statics.updateStatus2keptbytiff = function (reservationIds, cb) {
+    let paths4set = ['_id', 'performance', 'seat_code', 'status', 'created_at', 'updated_at'];
+    let unset = {};
+    this.schema.eachPath((path) => {
+        if (paths4set.indexOf(path) < 0) {
+            unset[path] = '';
+        }
+    });
+    return this.update({
+        _id: { $in: reservationIds }
+    }, {
+        $set: {
+            status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF,
+        },
+        $unset: unset
+    }, {
+        multi: true
+    }, (err, raw) => {
+        cb(err, raw);
+    });
+};
 Schema.index({
     performance: 1,
     seat_code: 1
