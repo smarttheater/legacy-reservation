@@ -20,6 +20,7 @@ class ReserveBaseController extends BaseController_1.default {
         super(req, res, next);
         this.res.locals.GMOUtil = GMOUtil_1.default;
         this.res.locals.ReservationUtil = ReservationUtil_1.default;
+        this.res.locals.ScreenUtil = ScreenUtil_1.default;
     }
     /**
      * 購入開始プロセス
@@ -278,11 +279,13 @@ class ReserveBaseController extends BaseController_1.default {
                 };
                 // 座席グレードリスト抽出
                 reservationModel.seatGradeCodesInScreen = [];
-                // for (performance.get('screen').get('sections')[0].seats) {
-                // }
+                for (let seat of reservationModel.performance.screen.sections[0].seats) {
+                    if (reservationModel.seatGradeCodesInScreen.indexOf(seat.grade.code) < 0) {
+                        reservationModel.seatGradeCodesInScreen.push(seat.grade.code);
+                    }
+                }
                 // スクリーン座席表HTMLを保管(apiで取得)
-                // TODO ひとまず固定だが、最終的にはパフォーマンスに応じて適切なスクリーンを入れる
-                fs.readFile(`${__dirname}/../../common/views/screens/map.ejs`, 'utf8', (err, data) => {
+                fs.readFile(`${__dirname}/../../common/views/screens/${performance.get('screen').get('_id').toString()}.ejs`, 'utf8', (err, data) => {
                     if (err) {
                         cb(err, reservationModel);
                     }

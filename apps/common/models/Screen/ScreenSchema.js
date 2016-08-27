@@ -26,6 +26,7 @@ let Schema = new mongoose.Schema({
                     _id: false,
                     code: String,
                     grade: {
+                        code: String,
                         name: {
                             ja: String,
                             en: String,

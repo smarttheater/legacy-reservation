@@ -9,20 +9,18 @@ class ScreenController extends BaseController_1.default {
     show() {
         let id = this.req.params.id;
         // スクリーンを取得
-        Models_1.default.Screen.findOne({
+        Models_1.default.Screen.count({
             _id: id
-        }, {}, {}, (err, screenDocument) => {
-            if (err) {
-                this.res.send('false');
-            }
-            else {
-                this.res.type('txt');
-                // スクリーン座席表HTMLを保管
-                // TODO ひとまず固定だが、最終的にはパフォーマンスに応じて適切なスクリーンを入れる
-                fs.readFile(`${__dirname}/../../../common/views/screens/map.ejs`, 'utf8', (err, data) => {
-                    this.res.send(data);
-                });
-            }
+        }, (err, count) => {
+            if (err)
+                return this.res.send('false');
+            if (count === 0)
+                return this.res.send('false');
+            // スクリーン座席表HTMLを出力
+            this.res.type('txt');
+            fs.readFile(`${__dirname}/../../../common/views/screens/${id}.ejs`, 'utf8', (err, data) => {
+                this.res.send(data);
+            });
         });
     }
 }

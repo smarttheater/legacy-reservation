@@ -31,21 +31,49 @@
         </div>
         <% } %>
 
-        <div class="seats-guide">
-            <div class="figure">
-                <div><strong>空席</strong>クリックで座席を選択します</div>
+        <div class="wrapper-seats-guides">
+
+            <div class="seats-guide">
+                <div class="figure">
+                    <div><img src="/images/screen/icon-normal.png" alt="Available"></div>
+                    <div><strong>空席</strong>クリックで座席を選択します</div>
+                </div>
+                <div class="figure">
+                    <div><img src="/images/screen/icon-selected.png" alt="Selected"></div>
+                    <div><strong>選択した席</strong>クリックで選択を解除します</div>
+                </div>
+                <div class="figure">
+                    <div><img src="/images/screen/icon-disabled.png" alt="Disabled"></div>
+                    <div><strong>購入済みの席</strong>既に他の方が購入済みの席です</div>
+                </div>
             </div>
-            <div class="figure figure-selected">
-                <div><strong>選択した席</strong>クリックで選択を解除します</div>
+
+            <div class="seats-guide seats-guide-special">
+                <% if (reservationModel.seatGradeCodesInScreen.indexOf(ScreenUtil.SEAT_GRADE_CODE_PREMIERE_LUXURY) >= 0) { %>
+                <div class="figure figure-premierluxury">
+                    <div><img src="/images/screen/icon-premierluxury.png" alt="Premier Luxury"></div>
+                    <div><strong>プレミアラグジュアリーシート</strong>+&yen;3000</div>
+                </div>
+                <% } %>
+
+                <% if (reservationModel.seatGradeCodesInScreen.indexOf(ScreenUtil.SEAT_GRADE_CODE_PREMIERE_BOX) >= 0) { %>
+                <div class="figure figure-premierbox">
+                    <div><img src="/images/screen/icon-premierbox.png" alt="Premier Box"></div>
+                    <div><strong>プレミアボックスシート</strong>+&yen;1000</div>
+                </div>
+                <% } %>
+
+                <% if (reservationModel.seatGradeCodesInScreen.indexOf(ScreenUtil.SEAT_GRADE_CODE_FRONT_RECLINING) >= 0) { %>
+                <div class="figure figure-flontreclining">
+                    <div><img src="/images/screen/icon-flontreclining.png" alt="Front Reclining"></div>
+                    <div><strong>フロントリクライニングシート</strong><br></div>
+                </div>
+                <% } %>
             </div>
-            <div class="figure figure-unavailable">
-                <div><strong>購入済みの席</strong>既に他の方が購入済みの席です</div>
-            </div>
+
         </div>
 
         <%- reservationModel.screenHtml %>
         <input type="hidden" name="messageRequiredSeat" value="<%- __('Message.PleaseSelectSeat') %>">
-
     </div>
-
 </div>

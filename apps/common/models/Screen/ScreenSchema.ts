@@ -26,6 +26,7 @@ let Schema = new mongoose.Schema({
                      _id: false,
                      code: String, // 座席コード
                      grade: {
+                         code: String, // 座席グレードコード
                          name: {
                             ja: String, // 座席レベル名
                             en: String, // 座席レベル名(英語)

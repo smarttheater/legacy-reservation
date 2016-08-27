@@ -40,6 +40,7 @@ export default class ReservationModel {
                 seats: Array<{
                     code: string, // 座席コード
                     grade: {
+                        code: string,
                         name: {
                             ja: string,
                             en: string
