@@ -64,7 +64,7 @@ export default class SponsorMyPageController extends BaseController {
             (err, count) => {
                 if (err) {
                     return this.res.json({
-                        isSuccess: false,
+                        success: false,
                         results: [],
                         count: 0
                     });
@@ -84,7 +84,7 @@ export default class SponsorMyPageController extends BaseController {
                 .exec((err, reservationDocuments) => {
                     if (err) {
                         this.res.json({
-                            isSuccess: false,
+                            success: false,
                             results: [],
                             count: 0
                         });
@@ -92,7 +92,7 @@ export default class SponsorMyPageController extends BaseController {
                         conditions['page'] = page;
 
                         this.res.json({
-                            isSuccess: true,
+                            success: true,
                             // conditions: conditions,
                             results: reservationDocuments,
                             count: count

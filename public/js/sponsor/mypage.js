@@ -105,7 +105,7 @@ $(function(){
                 $('.wrapper-reservations input[type="checkbox"]').prop('checked', false);
             }
         }).done(function(data) {
-            if (data.isSuccess) {
+            if (data.success) {
                 reservations = data.results;
 
                 showReservations();

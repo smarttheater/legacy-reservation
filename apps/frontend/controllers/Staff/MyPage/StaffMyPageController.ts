@@ -33,13 +33,19 @@ export default class StaffMyPageController extends BaseController {
         // 検索条件を作成
         let conditions: Array<Object> = [];
 
+        // 管理者の場合、内部関係者の予約全て&確保中
         if (this.req.staffUser.get('is_admin')) {
             conditions.push(
                 {
-                    // 管理者の場合、内部関係者の予約全て
-                    purchaser_group: ReservationUtil.PURCHASER_GROUP_STAFF,
-                    // staff_user_id: 'admin',
-                    status: {$in: [ReservationUtil.STATUS_RESERVED, ReservationUtil.STATUS_KEPT_BY_TIFF]}
+                    $or: [
+                        {
+                            purchaser_group: ReservationUtil.PURCHASER_GROUP_STAFF,
+                            status: ReservationUtil.STATUS_RESERVED
+                        },
+                        {
+                            status: ReservationUtil.STATUS_KEPT_BY_TIFF
+                        }
+                    ]
                 }
             );
         } else {
@@ -95,7 +101,7 @@ export default class StaffMyPageController extends BaseController {
             (err, count) => {
                 if (err) {
                     return this.res.json({
-                        isSuccess: false,
+                        success: false,
                         results: [],
                         count: 0
                     });
@@ -115,7 +121,7 @@ export default class StaffMyPageController extends BaseController {
                 .exec((err, reservationDocuments) => {
                     if (err) {
                         this.res.json({
-                            isSuccess: false,
+                            success: false,
                             results: [],
                             count: 0
                         });
@@ -123,7 +129,7 @@ export default class StaffMyPageController extends BaseController {
                         conditions['page'] = page;
 
                         this.res.json({
-                            isSuccess: true,
+                            success: true,
                             // conditions: conditions,
                             results: reservationDocuments,
                             count: count
@@ -141,13 +147,16 @@ export default class StaffMyPageController extends BaseController {
         let reservationId = this.req.body.reservationId;
         let watcherName = this.req.body.watcherName;
 
-        this.logger.debug('updating watcher_name... id:', reservationId);
+        let condition = {
+            _id: reservationId,
+            status: ReservationUtil.STATUS_RESERVED
+        };
+        // 管理者でない場合は自分の予約のみ
+        if (!this.req.staffUser.get('is_admin')) {
+            condition['staff'] = this.req.staffUser.get('_id');
+        }
         Models.Reservation.findOneAndUpdate(
-            {
-                staff: this.req.staffUser.get('_id'),
-                status: ReservationUtil.STATUS_RESERVED,
-                _id: reservationId,
-            },
+            condition,
             {
                 watcher_name: watcherName,
                 watcher_name_updated_at: Date.now(),
@@ -156,29 +165,27 @@ export default class StaffMyPageController extends BaseController {
             {
                 new: true
             },
-            (err, reservationDocument) => {
-                this.logger.debug('updated watcher_name. reservationDocument:', reservationDocument);
-
+            (err, reservation) => {
                 if (err) {
                     return this.res.json({
-                        isSuccess: false,
+                        success: false,
                         message: this.req.__('Message.UnexpectedError'),
                         reservationId: null
                     });
                 }
 
-                if (!reservationDocument) {
-                    this.res.json({
-                        isSuccess: false,
+                if (!reservation) {
+                    return this.res.json({
+                        success: false,
                         message: this.req.__('Message.NotFound'),
                         reservationId: null
                     });
-                } else {
-                    this.res.json({
-                        isSuccess: true,
-                        reservation: reservationDocument.toObject()
-                    });
                 }
+
+                this.res.json({
+                    success: true,
+                    reservation: reservation.toObject()
+                });
             }
         );
     }

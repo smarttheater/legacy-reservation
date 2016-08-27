@@ -17,28 +17,35 @@ $(function(){
             html += ''
             + '<tr data-seat-code="' + reservation.seat_code + '"'
                + ' data-reservation-id="' + reservation._id + '"'
-               + ' data-payment-no="' + reservation.payment_no + '"'
+               + ' data-payment-no="' + ((reservation.payment_no) ? reservation.payment_no : '') + '"'
                + ' data-film-name="' + reservation.film_name_en + '"'
                + ' data-performance-start-datetime="' + startDatetime + '"'
                + ' data-theater-name="' + reservation.theater_name_en + '"'
                + ' data-screen-name="' + reservation.screen_name_en + '"'
                + '>'
                 + '<th class="td-checkbox"><input type="checkbox" value=""></th>'
-                + '<td class="td-number">' + reservation.payment_no + '</td>'
+                + '<td class="td-number">' + ((reservation.payment_no) ? reservation.payment_no : '') + '</td>'
                 + '<td class="td-title">'
                     + reservation.film_name_en + '<br>'
                     + startDatetime + '-<br>'
                     + reservation.theater_name_en + ' ' + reservation.screen_name_en + ''
                 + '</td>'
                 + '<td class="td-seat"><a href="javascript:void(0);" class="show-seat-position" data-screen-id="' + reservation.screen.toString() + '" data-seat-codes="' + reservation.seat_code + '">' + reservation.seat_code + '</a></td>'
-                + '<td class="td-updater">' + reservation.staff_signature + '</td>'
-                + '<td class="td-distribution form-inline">'
+                + '<td class="td-updater">' + ((reservation.staff_signature) ? reservation.staff_signature : '') + '</td>'
+                + '<td class="td-distribution form-inline">';
+
+            // TIFF確保でなければ配布先更新フォームを表示
+            if (reservation.payment_no) {
+                html += ''
                     + '<div class="form-group">'
-                        + '<input class="form-control" type="text" value="' + reservation.watcher_name + '">'
+                        + '<input class="form-control" type="text" value="' + ((reservation.watcher_name) ? reservation.watcher_name : '') + '">'
                     + '</div>'
                     + '<div class="form-group">'
                         + '<p class="btn update-watcher-name"><span>Update</span></p>'
-                    + '</div>'
+                    + '</div>';
+            }
+
+            html += ''
                 + '</td>'
                 + '<td class="td-actions">'
                     + '<p class="btn confirm-cancel"><span>Cancel</span></p>'
@@ -112,7 +119,7 @@ $(function(){
                 $('.wrapper-reservations input[type="checkbox"]').prop('checked', false);
             }
         }).done(function(data) {
-            if (data.isSuccess) {
+            if (data.success) {
                 reservations = data.results;
 
                 showReservations();
@@ -211,7 +218,7 @@ $(function(){
             beforeSend: function() {
             }
         }).done(function(data) {
-            if (data.isSuccess) {
+            if (data.success) {
                 // 再検索
                 search();
 

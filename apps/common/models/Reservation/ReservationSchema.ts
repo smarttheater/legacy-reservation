@@ -239,8 +239,15 @@ Schema.virtual('status_str').get(function() {
 });
 
 /** TIFF確保にステータス更新するメソッド */
-Schema.statics.updateStatus2keptbytiff = function(reservationIds: Array<string>, cb: (err, raw) => void) {
-    let paths4set = ['_id', 'performance', 'seat_code', 'status', 'created_at', 'updated_at'];
+Schema.statics.updateStatus2keptbytiff = function(reservationIds: Array<string>, cb: (err, raw) => void): void {
+    // パフォーマンス情報だけ残して、購入者情報は削除する
+    let paths4set = [
+        '_id', 'performance', 'seat_code', 'status', 'created_at', 'updated_at',
+        'performance_day', 'performance_start_time', 'performance_end_time', 
+        'theater', 'theater_name_ja', 'theater_name_en', 
+        'screen', 'screen_name_ja', 'screen_name_en', 
+        'film', 'film_name_ja', 'film_name_en', 'film_image', 'film_is_mx4d'
+    ];
     let unset = {};
     this.schema.eachPath((path) => {
         if (paths4set.indexOf(path) < 0) {
