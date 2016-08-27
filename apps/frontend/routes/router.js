@@ -3,6 +3,7 @@ const AdmissionController_1 = require('../controllers/Admission/AdmissionControl
 const GMOReserveController_1 = require('../controllers/GMO/Reserve/GMOReserveController');
 const ReserveController_1 = require('../controllers/Reserve/ReserveController');
 const LanguageController_1 = require('../controllers/Language/LanguageController');
+const OtherController_1 = require('../controllers/Other/OtherController');
 const CustomerReserveController_1 = require('../controllers/Customer/Reserve/CustomerReserveController');
 const ErrorController_1 = require('../controllers/Error/ErrorController');
 const IndexController_1 = require('../controllers/Index/IndexController');
@@ -24,6 +25,9 @@ exports.default = (app) => {
     // admission
     app.all('/admission/performances', 'admission.performances', base, (req, res, next) => { (new AdmissionController_1.default(req, res, next)).performances(); });
     app.get('/admission/performance/:id/confirm', 'admission.confirm', base, (req, res, next) => { (new AdmissionController_1.default(req, res, next)).confirm(); });
+    app.get('/policy', 'policy', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).policy(); });
+    app.get('/privacy', 'privacy', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).privacy(); });
+    app.get('/commercialTransactions', 'commercialTransactions', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).commercialTransactions(); });
     // 一般
     app.all('/customer/reserve/performances', 'customer.reserve.performances', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).performances(); });
     app.get('/customer/reserve/start', 'customer.reserve.start', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).start(); });

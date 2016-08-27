@@ -4,9 +4,8 @@ import AdmissionController from '../controllers/Admission/AdmissionController';
 import GMOReserveController from  '../controllers/GMO/Reserve/GMOReserveController';
 import ReserveController from '../controllers/Reserve/ReserveController';
 import LanguageController from '../controllers/Language/LanguageController';
-
+import OtherController from '../controllers/Other/OtherController';
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
-
 import ErrorController from '../controllers/Error/ErrorController';
 import IndexController from '../controllers/Index/IndexController';
 
@@ -47,7 +46,10 @@ export default (app: any) => {
     // admission
     app.all('/admission/performances', 'admission.performances', base, (req, res, next) => {(new AdmissionController(req, res, next)).performances()});
     app.get('/admission/performance/:id/confirm', 'admission.confirm', base, (req, res, next) => {(new AdmissionController(req, res, next)).confirm()});
-    
+
+    app.get('/policy', 'policy', base, (req, res, next) => {(new OtherController(req, res, next)).policy()});
+    app.get('/privacy', 'privacy', base, (req, res, next) => {(new OtherController(req, res, next)).privacy()});
+    app.get('/commercialTransactions', 'commercialTransactions', base, (req, res, next) => {(new OtherController(req, res, next)).commercialTransactions()});
 
 
 
