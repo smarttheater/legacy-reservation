@@ -35,11 +35,41 @@ export default class ReservationController extends BaseController {
 
                 // 失敗しても、次のタスクにまかせる(気にしない)
                 if (err) {
-                } else {
                 }
 
                 mongoose.disconnect();
                 process.exit(0);
+            }
+        );
+    }
+
+    /**
+     * TIFF確保上の仮予約をTIFF確保へ戻す
+     */
+    public tmp2tiff(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
+        // 念のため、仮予約有効期間より1分長めにしておく
+        let seconds = conf.get<number>('temporary_reservation_valid_period_seconds') + 60;
+        Models.Reservation.distinct(
+            '_id',
+            {
+                status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TIFF,
+                updated_at: {
+                    $lt: moment().add(-seconds, 'seconds').toISOString()
+                }
+            },
+            (err, ids) => {
+                this.logger.info('updateStatus2keptbytiff processing...ids:', ids);
+                Models.Reservation['updateStatus2keptbytiff'](ids, (err, raw) => {
+                    this.logger.info('updateStatus2keptbytiff processed.', err, raw);
+                    // 失敗しても、次のタスクにまかせる(気にしない)
+                    if (err) {
+                    }
+
+                    mongoose.disconnect();
+                    process.exit(0);
+                });
             }
         );
     }

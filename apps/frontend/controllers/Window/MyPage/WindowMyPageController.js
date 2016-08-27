@@ -67,7 +67,7 @@ class WindowMyPageController extends BaseController_1.default {
         }, (err, count) => {
             if (err) {
                 return this.res.json({
-                    isSuccess: false,
+                    success: false,
                     results: [],
                     count: 0
                 });
@@ -82,7 +82,7 @@ class WindowMyPageController extends BaseController_1.default {
                 .exec((err, reservations) => {
                 if (err) {
                     this.res.json({
-                        isSuccess: false,
+                        success: false,
                         results: [],
                         count: 0
                     });
@@ -90,7 +90,7 @@ class WindowMyPageController extends BaseController_1.default {
                 else {
                     conditions['page'] = page;
                     this.res.json({
-                        isSuccess: true,
+                        success: true,
                         // conditions: conditions,
                         results: reservations,
                         count: count

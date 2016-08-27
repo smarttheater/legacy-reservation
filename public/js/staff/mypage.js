@@ -23,7 +23,15 @@ $(function(){
                + ' data-theater-name="' + reservation.theater_name_en + '"'
                + ' data-screen-name="' + reservation.screen_name_en + '"'
                + '>'
-                + '<th class="td-checkbox"><input type="checkbox" value=""></th>'
+                + '<th class="td-checkbox">';
+            
+            if (reservation.payment_no) {
+                html += ''
+                    + '<input type="checkbox" value="">';
+            }
+
+            html += ''
+                + '</th>'
                 + '<td class="td-number">' + ((reservation.payment_no) ? reservation.payment_no : '') + '</td>'
                 + '<td class="td-title">'
                     + reservation.film_name_en + '<br>'
@@ -48,8 +56,14 @@ $(function(){
             html += ''
                 + '</td>'
                 + '<td class="td-actions">'
+
+            if (reservation.payment_no) {
+                html += ''
                     + '<p class="btn confirm-cancel"><span>Cancel</span></p>'
-                    + '<p class="btn"><span>Print</span></p>'
+                    + '<p class="btn"><span>Print</span></p>';
+            }
+
+            html += ''
                 + '</td>'
             + '</tr>';
         });

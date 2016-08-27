@@ -33,12 +33,12 @@ export default class TelCancelController extends BaseController {
 
             Promise.all(promises).then(() => {
                 this.res.json({
-                    isSuccess: true,
+                    success: true,
                     reservationIds: canceledReservationIds
                 });
             }, (err) => {
                 this.res.json({
-                    isSuccess: false,
+                    success: false,
                     message: err.message,
                     reservationId: []
                 });
@@ -46,7 +46,7 @@ export default class TelCancelController extends BaseController {
 
         } else {
             this.res.json({
-                isSuccess: false,
+                success: false,
                 message: this.req.__('Message.UnexpectedError'),
                 reservationId: []
             });

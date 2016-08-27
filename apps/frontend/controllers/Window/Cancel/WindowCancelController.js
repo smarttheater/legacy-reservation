@@ -29,12 +29,12 @@ class WindowCancelController extends BaseController_1.default {
             }
             Promise.all(promises).then(() => {
                 this.res.json({
-                    isSuccess: true,
+                    success: true,
                     reservationIds: canceledReservationIds
                 });
             }, (err) => {
                 this.res.json({
-                    isSuccess: false,
+                    success: false,
                     message: err.message,
                     reservationId: []
                 });
@@ -42,7 +42,7 @@ class WindowCancelController extends BaseController_1.default {
         }
         else {
             this.res.json({
-                isSuccess: false,
+                success: false,
                 message: this.req.__('Message.UnexpectedError'),
                 reservationId: []
             });

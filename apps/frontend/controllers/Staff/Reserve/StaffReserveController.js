@@ -62,7 +62,12 @@ class StaffReserveController extends ReserveBaseController_1.default {
             seat_code: { $in: seatCodesInSession },
             status: ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TIFF
         }, {
-            status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+            $set: {
+                status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+            },
+            $unset: {
+                staff: ''
+            }
         }, {
             multi: true
         }, (err, raw) => {

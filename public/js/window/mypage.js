@@ -110,7 +110,7 @@ $(function(){
                 $('.wrapper-reservations input[type="checkbox"]').prop('checked', false);
             }
         }).done(function(data) {
-            if (data.isSuccess) {
+            if (data.success) {
                 reservations = data.results;
 
                 showReservations();
@@ -182,7 +182,7 @@ $(function(){
                 $('.cancel-reservation-confirm').modal('hide');
             }
         }).done(function(data) {
-            if (data.isSuccess) {
+            if (data.success) {
                 // 再検索
                 search();
 
@@ -211,7 +211,7 @@ $(function(){
             beforeSend: function() {
             }
         }).done(function(data) {
-            if (data.isSuccess) {
+            if (data.success) {
                 // 再検索
                 search();
 

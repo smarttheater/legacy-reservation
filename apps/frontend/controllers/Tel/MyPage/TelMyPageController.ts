@@ -82,7 +82,7 @@ export default class TelMyPageController extends BaseController {
             (err, count) => {
                 if (err) {
                     return this.res.json({
-                        isSuccess: false,
+                        success: false,
                         results: [],
                         count: 0
                     });
@@ -102,7 +102,7 @@ export default class TelMyPageController extends BaseController {
                 .exec((err, reservations) => {
                     if (err) {
                         this.res.json({
-                            isSuccess: false,
+                            success: false,
                             results: [],
                             count: 0
                         });
@@ -110,7 +110,7 @@ export default class TelMyPageController extends BaseController {
                         conditions['page'] = page;
 
                         this.res.json({
-                            isSuccess: true,
+                            success: true,
                             // conditions: conditions,
                             results: reservations,
                             count: count

@@ -71,7 +71,12 @@ export default class StaffReserveController extends ReserveBaseController implem
                 status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TIFF
             },
             {
-                status: ReservationUtil.STATUS_KEPT_BY_TIFF
+                $set: {
+                    status: ReservationUtil.STATUS_KEPT_BY_TIFF
+                },
+                $unset: {
+                    staff: ''
+                }
             },
             {
                 multi: true
