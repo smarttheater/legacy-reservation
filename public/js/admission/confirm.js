@@ -38,17 +38,10 @@ $(function(){
             }
 
 
-            if (_reservation.ticket_type === '03') {
+            // 02,03は学生
+            if (_reservation.ticket_type === '02' || _reservation.ticket_type === '03') {
                 $('.result').html(
-                    '<div class="alert confirmresult confirmresult-ok" role="alert">'+
-                        '<span class="inner">'+
-                            '<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>'+result+
-                        '</span>'+
-                    '</div>'
-                );
-            } else if (_reservation.ticket_type === '02') {
-                $('.result').html(
-                    '<div class="alert confirmresult confirmresult-ok" role="alert">'+
+                    '<div class="alert confirmresult confirmresult-ok-student" role="alert">'+
                         '<span class="inner">'+
                             '<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>'+result+
                         '</span>'+
