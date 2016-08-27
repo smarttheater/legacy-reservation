@@ -84,12 +84,18 @@ class ReserveBaseController extends BaseController_1.default {
                     reservationModel.purchaserFirstName = purchaser.firstName;
                     reservationModel.purchaserTel = purchaser.tel;
                     reservationModel.purchaserEmail = purchaser.email;
+                    reservationModel.purchaserAge = purchaser.age;
+                    reservationModel.purchaserAddress = purchaser.address;
+                    reservationModel.purchaserGender = purchaser.gender;
                 }
                 else {
                     reservationModel.purchaserLastName = '';
                     reservationModel.purchaserFirstName = '';
                     reservationModel.purchaserTel = '';
                     reservationModel.purchaserEmail = '';
+                    reservationModel.purchaserAge = '';
+                    reservationModel.purchaserAddress = '';
+                    reservationModel.purchaserGender = '1';
                 }
                 reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CREDIT];
                 // コンビニ決済は5日前まで
@@ -104,12 +110,18 @@ class ReserveBaseController extends BaseController_1.default {
                     reservationModel.purchaserFirstName = purchaser.firstName;
                     reservationModel.purchaserTel = purchaser.tel;
                     reservationModel.purchaserEmail = purchaser.email;
+                    reservationModel.purchaserAge = purchaser.age;
+                    reservationModel.purchaserAddress = purchaser.address;
+                    reservationModel.purchaserGender = purchaser.gender;
                 }
                 else {
                     reservationModel.purchaserLastName = '';
                     reservationModel.purchaserFirstName = '';
                     reservationModel.purchaserTel = '';
                     reservationModel.purchaserEmail = '';
+                    reservationModel.purchaserAge = '';
+                    reservationModel.purchaserAddress = '';
+                    reservationModel.purchaserGender = '1';
                 }
                 reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CREDIT];
                 break;
@@ -118,6 +130,9 @@ class ReserveBaseController extends BaseController_1.default {
                 reservationModel.purchaserFirstName = 'カンケイシャ';
                 reservationModel.purchaserTel = '0362263025';
                 reservationModel.purchaserEmail = this.req.staffUser.get('email');
+                reservationModel.purchaserAge = '00';
+                reservationModel.purchaserAddress = '';
+                reservationModel.purchaserGender = '1';
                 reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CREDIT];
                 break;
             case ReservationUtil_1.default.PURCHASER_GROUP_TEL:
@@ -125,6 +140,9 @@ class ReserveBaseController extends BaseController_1.default {
                 reservationModel.purchaserFirstName = '';
                 reservationModel.purchaserTel = '';
                 reservationModel.purchaserEmail = 'tiff@localhost.net';
+                reservationModel.purchaserAge = '00';
+                reservationModel.purchaserAddress = '';
+                reservationModel.purchaserGender = '1';
                 reservationModel.paymentMethodChoices = [];
                 // コンビニ決済は5日前まで
                 if (moment() < moment(conf.get('datetimes.reservation_end_cvs'))) {
@@ -136,6 +154,9 @@ class ReserveBaseController extends BaseController_1.default {
                 reservationModel.purchaserFirstName = 'タントウシャ';
                 reservationModel.purchaserTel = '0362263025';
                 reservationModel.purchaserEmail = 'tiff@localhost.net';
+                reservationModel.purchaserAge = '00';
+                reservationModel.purchaserAddress = '';
+                reservationModel.purchaserGender = '1';
                 reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CREDIT, GMOUtil_1.default.PAY_TYPE_CASH];
                 break;
             default:
@@ -145,12 +166,18 @@ class ReserveBaseController extends BaseController_1.default {
                     reservationModel.purchaserFirstName = purchaser.firstName;
                     reservationModel.purchaserTel = purchaser.tel;
                     reservationModel.purchaserEmail = purchaser.email;
+                    reservationModel.purchaserAge = purchaser.age;
+                    reservationModel.purchaserAddress = purchaser.address;
+                    reservationModel.purchaserGender = purchaser.gender;
                 }
                 else {
                     reservationModel.purchaserLastName = '';
                     reservationModel.purchaserFirstName = '';
                     reservationModel.purchaserTel = '';
                     reservationModel.purchaserEmail = '';
+                    reservationModel.purchaserAge = '';
+                    reservationModel.purchaserAddress = '';
+                    reservationModel.purchaserGender = '1';
                 }
                 reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CREDIT];
                 break;
@@ -407,6 +434,9 @@ class ReserveBaseController extends BaseController_1.default {
                 reservationModel.purchaserFirstName = this.req.form['firstName'];
                 reservationModel.purchaserEmail = this.req.form['email'];
                 reservationModel.purchaserTel = this.req.form['tel'];
+                reservationModel.purchaserAge = this.req.form['age'];
+                reservationModel.purchaserAddress = this.req.form['address'];
+                reservationModel.purchaserGender = this.req.form['gender'];
                 reservationModel.paymentMethod = this.req.form['paymentMethod'];
                 // 主体によっては、決済方法を強制的に固定で
                 switch (this.purchaserGroup) {
@@ -424,7 +454,7 @@ class ReserveBaseController extends BaseController_1.default {
                         break;
                 }
                 // セッションに購入者情報格納
-                this.savePurchaser(this.req.form['lastName'], this.req.form['firstName'], this.req.form['tel'], this.req.form['email']);
+                this.savePurchaser(this.req.form['lastName'], this.req.form['firstName'], this.req.form['tel'], this.req.form['email'], this.req.form['age'], this.req.form['address'], this.req.form['gender']);
                 cb(null, reservationModel);
             }
             else {
@@ -601,12 +631,15 @@ class ReserveBaseController extends BaseController_1.default {
     /**
      * 購入者情報をセッションに保管する
      */
-    savePurchaser(lastName, firstName, tel, email) {
+    savePurchaser(lastName, firstName, tel, email, age, address, gender) {
         this.req.session['purchaser'] = {
             lastName: lastName,
             firstName: firstName,
             tel: tel,
-            email: email
+            email: email,
+            age: age,
+            address: address,
+            gender: gender
         };
     }
     /**

@@ -51,6 +51,9 @@ let Schema = new mongoose.Schema({
     purchaser_first_name: String,
     purchaser_email: String,
     purchaser_tel: String,
+    purchaser_age: String, // 生まれた年代
+    purchaser_address: String, // 住所
+    purchaser_gender: String, // 性別
 
     purchased_at: Date, // 購入確定日時
 

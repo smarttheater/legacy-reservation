@@ -105,7 +105,10 @@
 			"language": "使用言語",
 			"paymentNo": "予約番号",
 			"last4DigitsOfTel": "電話番号下4桁",
-			"remember": "次回から自動的にログインする"
+			"remember": "次回から自動的にログインする",
+			"age": "年代",
+			"address": "住所",
+			"gender": "性別"
 		}
 	},
 	"Message": {

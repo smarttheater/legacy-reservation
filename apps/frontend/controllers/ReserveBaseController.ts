@@ -94,11 +94,17 @@ export default class ReserveBaseController extends BaseController {
                     reservationModel.purchaserFirstName = purchaser.firstName;
                     reservationModel.purchaserTel = purchaser.tel;
                     reservationModel.purchaserEmail = purchaser.email;
+                    reservationModel.purchaserAge = purchaser.age;
+                    reservationModel.purchaserAddress = purchaser.address;
+                    reservationModel.purchaserGender = purchaser.gender;
                 } else {
                     reservationModel.purchaserLastName = '';
                     reservationModel.purchaserFirstName = '';
                     reservationModel.purchaserTel = '';
                     reservationModel.purchaserEmail = '';
+                    reservationModel.purchaserAge = '';
+                    reservationModel.purchaserAddress = '';
+                    reservationModel.purchaserGender = '1';
                 }
 
                 reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
@@ -117,11 +123,17 @@ export default class ReserveBaseController extends BaseController {
                     reservationModel.purchaserFirstName = purchaser.firstName;
                     reservationModel.purchaserTel = purchaser.tel;
                     reservationModel.purchaserEmail = purchaser.email;
+                    reservationModel.purchaserAge = purchaser.age;
+                    reservationModel.purchaserAddress = purchaser.address;
+                    reservationModel.purchaserGender = purchaser.gender;
                 } else {
                     reservationModel.purchaserLastName = '';
                     reservationModel.purchaserFirstName = '';
                     reservationModel.purchaserTel = '';
                     reservationModel.purchaserEmail = '';
+                    reservationModel.purchaserAge = '';
+                    reservationModel.purchaserAddress = '';
+                    reservationModel.purchaserGender = '1';
                 }
 
                 reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
@@ -132,6 +144,9 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.purchaserFirstName = 'カンケイシャ';
                 reservationModel.purchaserTel = '0362263025';
                 reservationModel.purchaserEmail = this.req.staffUser.get('email');
+                reservationModel.purchaserAge = '00';
+                reservationModel.purchaserAddress = '';
+                reservationModel.purchaserGender = '1';
 
                 reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
                 break;
@@ -141,6 +156,9 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.purchaserFirstName = '';
                 reservationModel.purchaserTel = '';
                 reservationModel.purchaserEmail = 'tiff@localhost.net';
+                reservationModel.purchaserAge = '00';
+                reservationModel.purchaserAddress = '';
+                reservationModel.purchaserGender = '1';
 
                 reservationModel.paymentMethodChoices = [];
 
@@ -156,6 +174,9 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.purchaserFirstName = 'タントウシャ';
                 reservationModel.purchaserTel = '0362263025';
                 reservationModel.purchaserEmail = 'tiff@localhost.net';
+                reservationModel.purchaserAge = '00';
+                reservationModel.purchaserAddress = '';
+                reservationModel.purchaserGender = '1';
 
                 reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT, GMOUtil.PAY_TYPE_CASH];
                 break;
@@ -167,11 +188,17 @@ export default class ReserveBaseController extends BaseController {
                     reservationModel.purchaserFirstName = purchaser.firstName;
                     reservationModel.purchaserTel = purchaser.tel;
                     reservationModel.purchaserEmail = purchaser.email;
+                    reservationModel.purchaserAge = purchaser.age;
+                    reservationModel.purchaserAddress = purchaser.address;
+                    reservationModel.purchaserGender = purchaser.gender;
                 } else {
                     reservationModel.purchaserLastName = '';
                     reservationModel.purchaserFirstName = '';
                     reservationModel.purchaserTel = '';
                     reservationModel.purchaserEmail = '';
+                    reservationModel.purchaserAge = '';
+                    reservationModel.purchaserAddress = '';
+                    reservationModel.purchaserGender = '1';
                 }
 
                 reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
@@ -487,6 +514,9 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.purchaserFirstName = this.req.form['firstName'];
                 reservationModel.purchaserEmail = this.req.form['email'];
                 reservationModel.purchaserTel = this.req.form['tel'];
+                reservationModel.purchaserAge = this.req.form['age'];
+                reservationModel.purchaserAddress = this.req.form['address'];
+                reservationModel.purchaserGender = this.req.form['gender'];
                 reservationModel.paymentMethod = this.req.form['paymentMethod'];
 
                 // 主体によっては、決済方法を強制的に固定で
@@ -509,7 +539,10 @@ export default class ReserveBaseController extends BaseController {
                 }
 
                 // セッションに購入者情報格納
-                this.savePurchaser(this.req.form['lastName'], this.req.form['firstName'], this.req.form['tel'], this.req.form['email']);
+                this.savePurchaser(
+                    this.req.form['lastName'], this.req.form['firstName'], this.req.form['tel'], this.req.form['email'], 
+                    this.req.form['age'], this.req.form['address'], this.req.form['gender']
+                );
 
                 cb(null, reservationModel);
             } else {
@@ -722,12 +755,15 @@ export default class ReserveBaseController extends BaseController {
     /**
      * 購入者情報をセッションに保管する
      */
-    public savePurchaser(lastName: string, firstName: string, tel: string, email: string) {
+    public savePurchaser(lastName: string, firstName: string, tel: string, email: string, age: string, address: string, gender: string) {
         this.req.session['purchaser'] = {
             lastName: lastName,
             firstName: firstName,
             tel: tel,
-            email: email
+            email: email,
+            age: age,
+            address: address,
+            gender: gender
         }
     }
 
@@ -738,7 +774,10 @@ export default class ReserveBaseController extends BaseController {
         lastName: string,
         firstName: string,
         tel: string,
-        email: string
+        email: string,
+        age: string,
+        address: string,
+        gender: string
     } {
         return (this.req.session['purchaser']) ? this.req.session['purchaser'] : undefined;
     }

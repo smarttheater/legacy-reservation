@@ -98,6 +98,12 @@ export default class ReservationModel {
     public purchaserEmail: string;
     /** 購入者電話番号 */
     public purchaserTel: string;
+    /** 年代 */
+    public purchaserAge: string;
+    /** 住所 */
+    public purchaserAddress: string;
+    /** 性別 */
+    public purchaserGender: string;
     /** 決済方法 */
     public paymentMethod: string;
 
@@ -262,6 +268,11 @@ export default class ReservationModel {
                     seat_grade_name_en: reservation.seat_grade_name_en,
                     seat_grade_additional_charge: reservation.seat_grade_additional_charge,
 
+                    ticket_type_code: reservation.ticket_type_code,
+                    ticket_type_name_ja: reservation.ticket_type_name_ja,
+                    ticket_type_name_en: reservation.ticket_type_name_en,
+                    ticket_type_charge: reservation.ticket_type_charge,
+
                     total_charge: totalCharge,
                     charge: this.getChargeBySeatCode(seatCode),
                     payment_no: this.paymentNo,
@@ -286,19 +297,17 @@ export default class ReservationModel {
                     film_image: this.performance.film.image,
                     film_is_mx4d: this.performance.film.is_mx4d,
 
-                    purchaser_last_name: (this.purchaserLastName) ? this.purchaserLastName : undefined,
-                    purchaser_first_name: (this.purchaserFirstName) ? this.purchaserFirstName : undefined,
-                    purchaser_email: (this.purchaserEmail) ? this.purchaserEmail : undefined,
-                    purchaser_tel: (this.purchaserTel) ? this.purchaserTel : undefined,
-                    payment_method: (this.paymentMethod) ? this.paymentMethod : undefined,
+                    purchaser_last_name: (this.purchaserLastName) ? this.purchaserLastName : '',
+                    purchaser_first_name: (this.purchaserFirstName) ? this.purchaserFirstName : '',
+                    purchaser_email: (this.purchaserEmail) ? this.purchaserEmail : '',
+                    purchaser_tel: (this.purchaserTel) ? this.purchaserTel : '',
+                    purchaser_age: (this.purchaserAge) ? this.purchaserAge : '',
+                    purchaser_address: (this.purchaserAddress) ? this.purchaserAddress : '',
+                    purchaser_gender: (this.purchaserGender) ? this.purchaserGender : '',
+                    payment_method: (this.paymentMethod) ? this.paymentMethod : '',
 
-                    ticket_type_code: reservation.ticket_type_code,
-                    ticket_type_name_ja: reservation.ticket_type_name_ja,
-                    ticket_type_name_en: reservation.ticket_type_name_en,
-                    ticket_type_charge: reservation.ticket_type_charge,
-
-                    watcher_name: (reservation.watcher_name) ? reservation.watcher_name : undefined,
-                    watcher_name_updated_at: (reservation.watcher_name) ? Date.now() : undefined,
+                    watcher_name: (reservation.watcher_name) ? reservation.watcher_name : '',
+                    watcher_name_updated_at: (reservation.watcher_name) ? Date.now() : '',
 
                     updated_user: 'ReservationModel'
                 }

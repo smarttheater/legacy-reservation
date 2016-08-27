@@ -29,11 +29,17 @@
                         <input type="hidden" name="email" value="<%- email %>">
                         <input type="hidden" name="emailConfirm" value="<%- emailConfirm %>">
                         <input type="hidden" name="emailConfirmDomain" value="<%- emailConfirmDomain %>">
+                        <input type="hidden" name="age" value="<%- age %>">
+                        <input type="hidden" name="address" value="<%- address %>">
+                        <input type="hidden" name="gender" value="<%- gender %>">
 
                     <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL) { %>
                         <input type="hidden" name="email" value="<%- email %>">
                         <input type="hidden" name="emailConfirm" value="<%- emailConfirm %>">
                         <input type="hidden" name="emailConfirmDomain" value="<%- emailConfirmDomain %>">
+                        <input type="hidden" name="age" value="<%- age %>">
+                        <input type="hidden" name="address" value="<%- address %>">
+                        <input type="hidden" name="gender" value="<%- gender %>">
 
                         <tr>
                             <th>お名前 (カタカナ)<span class="required">必須項目</span></th>
@@ -115,6 +121,57 @@
                                 <p class="notice">※半角数字、ハイフン「-」なしで入力して下さい</p>
                                 <% if (req.form) { %>
                                 <p class="errmsg"><%- req.form.getErrors('tel')[0] %></p>
+                                <% } %>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th><label for="id_age"><%- __('Form.FieldName.age') %></label><span class="required">必須項目</span></th>
+                            <td>
+                                <select class="form-control" name="age">
+                                    <option value="">---</option>
+                                    <option value="00"<% if (age === '00') { %>selected="selected"<% } %>>0代</option>
+                                    <option value="10"<% if (age === '10') { %>selected="selected"<% } %>>10代</option>
+                                    <option value="20"<% if (age === '20') { %>selected="selected"<% } %>>20代</option>
+                                    <option value="30"<% if (age === '30') { %>selected="selected"<% } %>>30代</option>
+                                    <option value="40"<% if (age === '40') { %>selected="selected"<% } %>>40代</option>
+                                    <option value="50"<% if (age === '50') { %>selected="selected"<% } %>>50代</option>
+                                    <option value="60"<% if (age === '60') { %>selected="selected"<% } %>>60代</option>
+                                    <option value="70"<% if (age === '70') { %>selected="selected"<% } %>>70代</option>
+                                    <option value="80"<% if (age === '80') { %>selected="selected"<% } %>>80代</option>
+                                    <option value="90"<% if (age === '90') { %>selected="selected"<% } %>>90代</option>
+                                    <option value="100"<% if (age === '100') { %>selected="selected"<% } %>>100代-</option>
+                                </select>
+                                <% if (req.form) { %>
+                                <p class="errmsg"><%- req.form.getErrors('age')[0] %></p>
+                                <% } %>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th><label for="id_address"><%- __('Form.FieldName.address') %></label><span class="required">必須項目</span></th>
+                            <td>
+                                <input type="text" name="address" id="id_address" class="form-control" value="<%- address %>">
+                                <% if (req.form) { %>
+                                <p class="errmsg"><%- req.form.getErrors('address')[0] %></p>
+                                <% } %>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th><label for="id_gender"><%- __('Form.FieldName.gender') %></label></th>
+                            <td>
+                                <div class="wrapper-payment form-inline">
+                                    <label for="radio_gender1" class="form-group payment">
+                                        <input type="radio" id="radio_gender1" name="gender" class="form-control" value="1"<% if (gender === '1') { %> checked="checked"<% } %>>男性
+                                    </label>
+                                    <label for="radio_gender2" class="form-group payment">
+                                        <input type="radio" id="radio_gender2" name="gender" class="form-control" value="2"<% if (gender === '2') { %> checked="checked"<% } %>>女性
+                                    </label>
+                                </div>
+
+                                <% if (req.form) { %>
+                                <p class="errmsg"><%- req.form.getErrors('gender')[0] %></p>
                                 <% } %>
                             </td>
                         </tr>
