@@ -1,4 +1,6 @@
 {
+    "dns_name": "testtiffwebapp.azurewebsites.net",
+
     "storage_account_name": "testtiffstorage",
     "storage_account_key": "ouKgxaaVVmYkNFhVNkU3nMMwVBhMdnY74gIEkv/OS3+r6yXO+0kgIqhUrwPHofEKSX81GXgn0A881c50PQqjBg==",
 

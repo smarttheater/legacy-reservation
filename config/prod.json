@@ -1,4 +1,6 @@
 {
+    "dns_name": "prodtiffwebapp.azurewebsites.net",
+
     "storage_account_name": "prodtiffstorage",
     "storage_account_key": "8/2n5KPjAC/yJ5i0T8LCOS8FLzZZyZhs0n9Q3wo8K1+3+DxWZMBV+ZfGnKZKmVB2CcjubXcib8WC2/zuHHXZWA==",
 

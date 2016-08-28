@@ -1,4 +1,6 @@
 {
+    "dns_name": "pretiffwebapp.azurewebsites.net",
+
     "storage_account_name": "devtiffstorage",
     "storage_account_key": "bED6gjMShYo0RSIiXK4kCbtTIiX0nIr414+GckwED2DKDEBKk6GeSnbRl64f/Be8djV1E1PDXFfjzSSrRNamUA==",
 

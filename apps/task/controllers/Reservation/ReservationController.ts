@@ -1,13 +1,10 @@
 import BaseController from '../BaseController';
-import Constants from '../../../common/Util/Constants';
 import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import moment = require('moment');
 import conf = require('config');
 import mongoose = require('mongoose');
-import PerformanceStatusesModel from '../../../common/models/PerformanceStatusesModel';
-import request = require('request');
 import sendgrid = require('sendgrid')
 import emailTemplates = require('email-templates');
 
@@ -216,10 +213,9 @@ export default class ReservationController extends BaseController {
                                             } else {
                                                 let email = new _sendgrid.Email({
                                                     to: to,
-                                                    from: 'noreply@devtiffwebapp.azurewebsites.net',
+                                                    from: `noreply@${conf.get<string>('dns_name')}`,
                                                     subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
                                                     html: result.html
-                                                    // text: result.text
                                                 });
 
 

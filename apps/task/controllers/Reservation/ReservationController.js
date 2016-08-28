@@ -181,7 +181,7 @@ class ReservationController extends BaseController_1.default {
                                         else {
                                             let email = new _sendgrid.Email({
                                                 to: to,
-                                                from: 'noreply@devtiffwebapp.azurewebsites.net',
+                                                from: `noreply@${conf.get('dns_name')}`,
                                                 subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
                                                 html: result.html
                                             });

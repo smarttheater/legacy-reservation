@@ -1,5 +1,4 @@
 import BaseController from '../BaseController';
-import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import sendgrid = require('sendgrid');
@@ -59,8 +58,8 @@ export default class ReservationController extends BaseController {
                     let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
                     let email = new _sendgrid.Email({
                         to: to,
-                        from: 'noreply@devtiffwebapp.azurewebsites.net',
-                        subject: `[TIFF][${process.env.NODE_ENV}] 予約情報`,
+                        from: `noreply@${conf.get<string>('dns_name')}`,
+                        subject: `[TIFF][${process.env.NODE_ENV}] 予約情報転送`,
                         html: html
                     });
 
@@ -69,7 +68,7 @@ export default class ReservationController extends BaseController {
                     email.addFile({
                         filename: `QR_${reservationId}.png`,
                         contentType: 'image/png',
-                        cid: 'qrcode',
+                        cid: `qrcode_${reservationId}`,
                         content: qrcodeBuffer
                     });
 

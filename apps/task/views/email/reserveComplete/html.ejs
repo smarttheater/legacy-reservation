@@ -22,9 +22,7 @@
     <h1 class="pagetitle">予約完了[<%- process.env.NODE_ENV %>]</h1>
     <p class="guidetext">
         ご購入ありがとうございました。<br>
-        当日は下記のQRコードを印刷、またはスマートフォンで表示して入場してください。<br>
-        また購入者情報入力でご入力頂いたメールアドレスにもQRコード付きメールを送信しておりますので、<br>
-        そちらをご提示頂いてもご入場頂けます。
+        当日は下記のQRコードを印刷、またはスマートフォンで表示して入場してください。
     </p>
 
 
@@ -36,14 +34,17 @@
             </tr>
             <tr>
                 <th>作品名</th>
-                <td><%- reservations[0].get(`film_name_ja`) %></td>
+                <td><%- reservations[0].get('film_name_ja') %><br>
+                    <%- reservations[0].get('film_name_en') %></td>
             </tr>
             <tr>
                 <th>時間/場所</th>
                 <td>
                     <%- reservations[0].get('performance_start_str') %> ～ 
-                    <%- reservations[0].get(`theater_name_ja`) %> 
-                    <%- reservations[0].get(`screen_name_ja`) %>
+                    <%- reservations[0].get('theater_name_ja') %> 
+                    <%- reservations[0].get('theater_name_en') %> 
+                    <%- reservations[0].get('screen_name_ja') %> 
+                    <%- reservations[0].get('screen_name_en') %>
                 </td>
             </tr>
         </thead>
@@ -54,11 +55,12 @@
                 <td>
                     <% reservations.forEach((reservation, index) => { %>
                     <div class="wrapper-seatcells">
-                        <h2 class="accordion_mobile_toggle">座席番号 <%- reservation.seat_code %></h2>
                         <div class="accordion_mobile_inner">
                             <div class="innercontent">
                                 <div class="cell-seatcode">
-                                    <%- reservation.seat_code %>
+                                    <%- reservation.seat_code %>、
+                                    <%- reservation.get('ticket_type_name_ja') %>、
+                                    <%- reservation.get('ticket_type_name_en') %>、
                                 </div>
                                 <div class="cell-codeimg">
                                     <img src="cid:qrcode_<%- reservation.get('_id').toString() %>">

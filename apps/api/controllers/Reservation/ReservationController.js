@@ -51,15 +51,15 @@ class ReservationController extends BaseController_1.default {
                 let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
                 let email = new _sendgrid.Email({
                     to: to,
-                    from: 'noreply@devtiffwebapp.azurewebsites.net',
-                    subject: `[TIFF][${process.env.NODE_ENV}] 予約情報`,
+                    from: `noreply@${conf.get('dns_name')}`,
+                    subject: `[TIFF][${process.env.NODE_ENV}] 予約情報転送`,
                     html: html
                 });
                 let reservationId = reservation.get('_id').toString();
                 email.addFile({
                     filename: `QR_${reservationId}.png`,
                     contentType: 'image/png',
-                    cid: 'qrcode',
+                    cid: `qrcode_${reservationId}`,
                     content: qrcodeBuffer
                 });
                 email.addFile({
