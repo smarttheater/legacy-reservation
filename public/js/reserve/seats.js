@@ -46,30 +46,25 @@ $(function(){
 
                 $('.seat a').each(function(){
                     var seatCode = $(this).attr('data-seat-code');
+                    var properties = propertiesBySeatCode[seatCode];
 
-                    // 予約が存在した場合のみ販売可能
-                    if (propertiesBySeatCode.hasOwnProperty(seatCode)) {
-                        // プロパティをセット
-                        var properties = propertiesBySeatCode[seatCode];
-
-                        // 仮予約中と現在選択中の座席を除いて状態を最新に更新する
-                        if (_initialActiveSeatCodes.indexOf(seatCode) < 0 && _activeSeatCodes.indexOf(seatCode) < 0) {
-                            if (properties.avalilable) {
-                                $(this).removeClass('disabled');
-                                $(this).addClass('select-seat');
-                            } else {
-                                $(this).removeClass('select-seat');
-                                $(this).addClass('disabled');
-                            }
-                        }
-    
-                        $(this).attr('data-baloon-content', properties.baloonContent);
-                    } else {
-                        // 予約データがない場合、空席
-                        $(this).removeClass('disabled');
-                        $(this).addClass('select-seat');
-                        $(this).attr('data-baloon-content', seatCode);
+                    // DBに登録されていない座席
+                    if (!properties) {
+                        return;
                     }
+
+                    // 仮予約中と現在選択中の座席を除いて状態を最新に更新する
+                    if (_initialActiveSeatCodes.indexOf(seatCode) < 0 && _activeSeatCodes.indexOf(seatCode) < 0) {
+                        if (properties.avalilable) {
+                            $(this).removeClass('disabled');
+                            $(this).addClass('select-seat');    
+                        } else {
+                            $(this).removeClass('select-seat');
+                            $(this).addClass('disabled');
+                        }
+                    }
+
+                    $(this).attr('data-baloon-content', properties.baloonContent);
                 });
             }
         }).fail(function(jqxhr, textStatus, error) {

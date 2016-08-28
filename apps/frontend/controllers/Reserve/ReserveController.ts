@@ -74,6 +74,16 @@ export default class ReserveController extends ReserveBaseController {
                         };
                     }
 
+                    // 予約のない座席は全て空席
+                    for (let seat of reservationModel.performance.screen.sections[0].seats) {
+                        if (!propertiesBySeatCode.hasOwnProperty(seat.code)) {
+                            propertiesBySeatCode[seat.code] = {
+                                avalilable: true,
+                                baloonContent: seat.code
+                            };
+                        }
+                    }
+
                     this.res.json({
                         propertiesBySeatCode: propertiesBySeatCode
                     });
