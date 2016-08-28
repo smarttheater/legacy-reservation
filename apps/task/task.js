@@ -11,6 +11,7 @@ const TheaterController_1 = require('./controllers/Theater/TheaterController');
 const FilmController_1 = require('./controllers/Film/FilmController');
 const MemberController_1 = require('./controllers/Member/MemberController');
 const ReservationController_1 = require('./controllers/Reservation/ReservationController');
+const SchemaController_1 = require('./controllers/Schema/SchemaController');
 let env = process.env.NODE_ENV || 'dev';
 let logDefaultConfiguration = {
     appenders: [
@@ -175,6 +176,23 @@ program
     logDefaultConfiguration.levels.system = "ALL";
     log4js.configure(logDefaultConfiguration);
     (new ReservationController_1.default())[method]();
+});
+program
+    .command('schema <method>')
+    .description('スキーマ関連タスク')
+    .action((method) => {
+    let logDir = `${__dirname}/../../logs/${env}/task/Schema${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+    fs.mkdirsSync(logDir);
+    logDefaultConfiguration.appenders.push({
+        category: 'system',
+        type: 'dateFile',
+        filename: `${logDir}/system.log`,
+        pattern: '-yyyy-MM-dd',
+        backups: 3
+    });
+    logDefaultConfiguration.levels.system = "ALL";
+    log4js.configure(logDefaultConfiguration);
+    (new SchemaController_1.default())[method]();
 });
 // program
 //   .command('*')

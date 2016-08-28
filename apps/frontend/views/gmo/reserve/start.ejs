@@ -1,36 +1,31 @@
-<!DOCTYPE html>
-<html lang="<%- locale %>">
-<head>
-<meta name="title" content="TIFF" />
-<title>TIFF</title>
-</head>
-<body onload="document.forms[0].submit();">
-<h1>GMO決済へ遷移します...</h1>
+<p class="guidetext">
+GMO決済へ遷移します...
+</p>
 
 <form action="https://pt01.mul-pay.jp/link/<%- shopId %>/Multi/Entry" method="post">
-<input type="hidden" name="ShopID" value="<%- shopId %>"><br>
-<input type="hidden" name="OrderID" value="<%- orderID %>"><br>
-<input type="hidden" name="Amount" value="<%- amount %>"><br>
-<input type="hidden" name="DateTime" value="<%- dateTime %>"><br>
-<input type="hidden" name="ShopPassString" value="<%- shopPassString %>"><br>
-<input type="hidden" name="RetURL" value="<%- 'https://' + req.headers.host + url('gmo.reserve.result') %>"><br>
-<!-- 決済キャンセル時に遷移する加盟店URL -->
-<input type="hidden" name="CancelURL" value="<%- 'https://' + req.headers.host + url('gmo.reserve.cancel', {paymentNo: orderID}) %>"><br>
-<!-- カード決済画面を表示してから決済を行うまでの経過時間の上限で、設定単位は秒 -->
-<input type="hidden" name="SessionTimeout" value="300"><br>
-<input type="hidden" name="Lang" value="<%- locale %>"><br>
+    <input type="hidden" name="ShopID" value="<%- shopId %>"><br>
+    <input type="hidden" name="OrderID" value="<%- orderID %>"><br>
+    <input type="hidden" name="Amount" value="<%- amount %>"><br>
+    <input type="hidden" name="DateTime" value="<%- dateTime %>"><br>
+    <input type="hidden" name="ShopPassString" value="<%- shopPassString %>"><br>
+    <input type="hidden" name="RetURL" value="<%- 'https://' + req.headers.host + url('gmo.reserve.result') %>"><br>
+    <!-- 決済キャンセル時に遷移する加盟店URL -->
+    <input type="hidden" name="CancelURL" value="<%- 'https://' + req.headers.host + url('gmo.reserve.cancel', {paymentNo: orderID}) %>"><br>
+    <!-- カード決済画面を表示してから決済を行うまでの経過時間の上限で、設定単位は秒 -->
+    <input type="hidden" name="SessionTimeout" value="300"><br>
+    <input type="hidden" name="Lang" value="<%- locale %>"><br>
 
-<input type="hidden" name="UseCredit" value="<%- useCredit %>"><br>
-<input type="hidden" name="UseCvs" value="<%- useCvs %>"><br>
+    <input type="hidden" name="UseCredit" value="<%- useCredit %>"><br>
+    <input type="hidden" name="UseCvs" value="<%- useCvs %>"><br>
 
-<input type="hidden" name="JobCd" value="CAPTURE"><br>
-<!--<input type="hidden" name="SiteID" value="<%- conf.get('gmo_payment_site_id') %>"><br>-->
+    <input type="hidden" name="JobCd" value="CAPTURE"><br>
+    <!--<input type="hidden" name="SiteID" value="<%- conf.get('gmo_payment_site_id') %>"><br>-->
 
-<input type="hidden" name="ReceiptsDisp11" value="東京国際映画祭事務局"><br>
-<!-- お問合せ先電話番号 -->
-<input type="hidden" name="ReceiptsDisp12" value="03-1234-5678"><br>
-<!-- お問合せ先受付時間 -->
-<input type="hidden" name="ReceiptsDisp13" value="09:00-18:00"><br>
+    <input type="hidden" name="ReceiptsDisp11" value="東京国際映画祭事務局"><br>
+    <!-- お問合せ先電話番号 -->
+    <input type="hidden" name="ReceiptsDisp12" value="03-1234-5678"><br>
+    <!-- お問合せ先受付時間 -->
+    <input type="hidden" name="ReceiptsDisp13" value="09:00-18:00"><br>
 </form>
 
 <!--
@@ -52,5 +47,8 @@ ReceiptsDisp12:03-1234-5678<br>
 ReceiptsDisp13:09:00-18:00<br>
 -->
 
-</body>
-</html>
+<script>
+$(function(){
+    document.forms[0].submit();
+});
+</script>

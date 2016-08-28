@@ -22,32 +22,23 @@ class GMOReserveController extends ReserveBaseController_1.default {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
             // 予約情報セッション削除
-            this.logger.debug('removing reservationModel... ', reservationModel);
             reservationModel.remove(() => {
-                if (err) {
-                }
-                else {
-                    // 予約プロセス固有のログファイルをセット
-                    this.setProcessLogger(reservationModel.paymentNo, () => {
-                        // GMOへ遷移画面
-                        this.res.locals.shopId = conf.get('gmo_payment_shop_id');
-                        this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(予約番号を使用)
-                        this.res.locals.amount = reservationModel.getTotalCharge();
-                        this.res.locals.shopPassword = conf.get('gmo_payment_shop_password');
-                        this.res.locals.dateTime = moment().format('YYYYMMDDHHmmss');
-                        this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CREDIT) ? '1' : '0';
-                        this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CVS) ? '1' : '0';
-                        // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
-                        let md5hash = crypto.createHash('md5');
-                        md5hash.update(`${this.res.locals.shopId}${this.res.locals.orderID}${this.res.locals.amount}${this.res.locals.shopPassword}${this.res.locals.dateTime}`, 'utf8');
-                        this.res.locals.shopPassString = md5hash.digest('hex');
-                        // TODO 一瞬htmlにパスワードなど埋め込まれるが、これでよいのか吟味する
-                        this.logger.info('redirecting to GMO payment...orderID:', this.res.locals.orderID);
-                        this.res.render('gmo/reserve/start', {
-                            layout: false
-                        });
-                    });
-                }
+                // 予約プロセス固有のログファイルをセット
+                this.setProcessLogger(reservationModel.paymentNo, () => {
+                    // GMOへ遷移画面
+                    this.res.locals.shopId = conf.get('gmo_payment_shop_id');
+                    this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(予約番号を使用)
+                    this.res.locals.amount = reservationModel.getTotalCharge();
+                    this.res.locals.dateTime = moment().format('YYYYMMDDHHmmss');
+                    this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CREDIT) ? '1' : '0';
+                    this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CVS) ? '1' : '0';
+                    // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
+                    let md5hash = crypto.createHash('md5');
+                    md5hash.update(`${this.res.locals.shopId}${this.res.locals.orderID}${this.res.locals.amount}${conf.get('gmo_payment_shop_password')}${this.res.locals.dateTime}`, 'utf8');
+                    this.res.locals.shopPassString = md5hash.digest('hex');
+                    this.logger.info('redirecting to GMO payment...orderID:', this.res.locals.orderID);
+                    this.res.render('gmo/reserve/start', {});
+                });
             });
         });
     }

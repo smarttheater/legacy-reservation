@@ -14,6 +14,8 @@ node bin/command staff createFromJson
 node bin/command test createTelStaffs
 node bin/command test createWindows
 
+node bin/command schema createIndexes
+
 node bin/command film getImages
 
 pause

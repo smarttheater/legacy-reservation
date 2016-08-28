@@ -24,5 +24,10 @@ let Schema = new mongoose.Schema({
         updatedAt: 'updated_at',
     }
 });
+Schema.index({
+    user_id: 1,
+}, {
+    unique: true
+});
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Schema;

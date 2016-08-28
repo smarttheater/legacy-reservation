@@ -17,5 +17,10 @@ let Schema = new mongoose.Schema({
 }, {
     collection: 'reservation_email_cues',
 });
+Schema.index({
+    payment_no: 1,
+}, {
+    unique: true
+});
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Schema;

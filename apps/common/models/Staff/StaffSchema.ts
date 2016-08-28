@@ -21,4 +21,13 @@ let Schema = new mongoose.Schema({
     }
 });
 
+Schema.index(
+    {
+        user_id: 1,
+    },
+    {
+        unique: true
+    }
+);
+
 export default Schema;
