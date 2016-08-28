@@ -37,14 +37,14 @@ class ReserveController extends ReserveBaseController_1.default {
                 for (let reservation of reservations) {
                     let seatCode = reservation.get('seat_code');
                     let avalilable = false;
-                    let attrs = {};
+                    let baloonContent = seatCode;
                     if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
                         // 仮押さえ中
                         avalilable = true;
                     }
                     // 内部関係者用
                     if (reservationModel.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
-                        attrs['data-baloon-content'] = reservation.get('baloon_content4staff');
+                        baloonContent = reservation.get('baloon_content4staff');
                         // 内部関係者はTIFF確保も予約できる
                         if (reservation.get('status') === ReservationUtil_1.default.STATUS_KEPT_BY_TIFF) {
                             avalilable = true;
@@ -52,7 +52,7 @@ class ReserveController extends ReserveBaseController_1.default {
                     }
                     propertiesBySeatCode[seatCode] = {
                         avalilable: avalilable,
-                        attrs: attrs
+                        baloonContent: baloonContent
                     };
                 }
                 this.res.json({

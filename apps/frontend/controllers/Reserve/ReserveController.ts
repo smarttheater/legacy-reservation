@@ -33,7 +33,7 @@ export default class ReserveController extends ReserveBaseController {
             let propertiesBySeatCode: {
                 [seatCode: string]: {
                     avalilable: boolean, // 予約可能かどうか
-                    attrs: Object // htmlのattrs
+                    baloonContent: string
                 };
             } = {};
 
@@ -51,7 +51,7 @@ export default class ReserveController extends ReserveBaseController {
                     for (let reservation of reservations) {
                         let seatCode = reservation.get('seat_code');
                         let avalilable = false;
-                        let attrs = {};
+                        let baloonContent = seatCode;
 
                         if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
                             // 仮押さえ中
@@ -60,7 +60,7 @@ export default class ReserveController extends ReserveBaseController {
 
                         // 内部関係者用
                         if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
-                            attrs['data-baloon-content'] = reservation.get('baloon_content4staff');
+                            baloonContent = reservation.get('baloon_content4staff');
 
                             // 内部関係者はTIFF確保も予約できる
                             if (reservation.get('status') === ReservationUtil.STATUS_KEPT_BY_TIFF) {
@@ -70,7 +70,7 @@ export default class ReserveController extends ReserveBaseController {
 
                         propertiesBySeatCode[seatCode] = {
                             avalilable: avalilable,
-                            attrs: attrs
+                            baloonContent: baloonContent
                         };
                     }
 

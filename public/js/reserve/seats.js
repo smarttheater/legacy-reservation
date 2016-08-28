@@ -6,12 +6,12 @@ $(function(){
     /** 現在選択中の座席 */
     var _activeSeatCodes = JSON.parse($('.seatStatusesMap').attr('data-seat-codes'));
 
-    showSeatStatusesMap();
+    showSeatStatusesMap(true);
 
     /**
      * 空席状況マップを表示する
      */
-    function showSeatStatusesMap() {
+    function showSeatStatusesMap(initialize = false) {
         $.ajax({
             dataType: 'json',
             url: $('.seatStatusesMap').attr('data-url'),
@@ -46,7 +46,6 @@ $(function(){
 
                 $('.seat a').each(function(){
                     var seatCode = $(this).attr('data-seat-code');
-                    var aNode = $(this);
 
                     // 予約が存在した場合のみ販売可能
                     if (propertiesBySeatCode.hasOwnProperty(seatCode)) {
@@ -56,38 +55,34 @@ $(function(){
                         // 仮予約中と現在選択中の座席を除いて状態を最新に更新する
                         if (_initialActiveSeatCodes.indexOf(seatCode) < 0 && _activeSeatCodes.indexOf(seatCode) < 0) {
                             if (properties.avalilable) {
-                                aNode.removeClass('disabled');
-                                aNode.addClass('select-seat');
+                                $(this).removeClass('disabled');
+                                $(this).addClass('select-seat');
                             } else {
-                                aNode.removeClass('select-seat');
-                                aNode.addClass('disabled');
+                                $(this).removeClass('select-seat');
+                                $(this).addClass('disabled');
                             }
                         }
     
-                        Object.keys(properties.attrs).forEach(function(key) {
-                            aNode.attr(key, properties.attrs[key]);
-                        });
+                        $(this).attr('data-baloon-content', properties.baloonContent);
                     } else {
                         // 予約データがない場合、空席
-                        aNode.removeClass('disabled');
-                        aNode.addClass('select-seat');
-                        aNode.attr('data-baloon-content', seatCode);
+                        $(this).removeClass('disabled');
+                        $(this).addClass('select-seat');
+                        $(this).attr('data-baloon-content', seatCode);
                     }
                 });
             }
-
-            // 初期状態で選択中だった座席は仮予約中なので選択可能に
-            _initialActiveSeatCodes.forEach(function(seatCode) {
-                $('.seat a[data-seat-code="' + seatCode + '"]').addClass('select-seat');
-            });
-
-            // 現在選択中の座席も選択可能に
-            _activeSeatCodes.forEach(function(seatCode) {
-                $('.seat a[data-seat-code="' + seatCode + '"]').addClass('select-seat active');
-            });
         }).fail(function(jqxhr, textStatus, error) {
         }).always(function() {
-            _screenSeatStatusesMap = new ScreenSeatStatusesMap($('.screen'));
+            if (initialize) {
+                // 初期状態で選択中だった座席は仮予約中なので選択可能に
+                _initialActiveSeatCodes.forEach(function(seatCode) {
+                    $('.seat a[data-seat-code="' + seatCode + '"]').addClass('select-seat active');
+                });
+
+                _screenSeatStatusesMap = new ScreenSeatStatusesMap($('.screen'));
+            }
+
             $('.seatStatusesMap').removeClass('hidden');
 
             // 20秒おきに状況とりにいく(現在選択中の座席もリセットされてしまう状態を解消できていないので、とりあえずしない)
