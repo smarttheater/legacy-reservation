@@ -22,7 +22,13 @@
         座席を選択してください
     </p>
 
-    <div class="clm-left wrapper-seats seatStatusesMap hidden" data-url="<%- url('reserve.getSeatProperties', {token: reservationModel.token}) %>">
+    <%
+    let url4seatStatusesMap = url('reserve.getUnavailableSeatCodes', {performanceId: reservationModel.performance._id});
+    if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
+        url4seatStatusesMap = url('reserve.getSeatProperties', {token: reservationModel.token});
+    }
+    %>
+    <div class="clm-left wrapper-seats seatStatusesMap hidden" data-url="<%- url4seatStatusesMap %>" data-seat-codes="<%= JSON.stringify(reservationModel.seatCodes) %>">
 
         <% if (req.query.message) { %>
         <div class="alert alert-danger" role="alert">

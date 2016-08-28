@@ -7,84 +7,76 @@ export default class ReserveController extends ReserveBaseController {
     /**
      * 座席の状態を取得する
      */
+    public getUnavailableSeatCodes() {
+        let performanceId = this.req.params.performanceId;
+        Models.Reservation.distinct(
+            'seat_code',
+            {
+                performance: performanceId
+            },
+            (err, seatCodes) => {
+                if (err) return  this.res.json([]);
+
+                this.res.json(seatCodes);
+            }
+        );
+    }
+
+    /**
+     * 座席の状態を取得する
+     */
     public getSeatProperties() {
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.res.json({propertiesBySeatCode: {}});
 
-
             let propertiesBySeatCode: {
                 [seatCode: string]: {
-                    classes: Array<string>,
-                    attrs: Object
+                    avalilable: boolean, // 予約可能かどうか
+                    attrs: Object // htmlのattrs
                 };
             } = {};
 
-
-
             // 予約リストを取得
-            let fields = 'seat_code status';
-            if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
-                fields = null;
-            }
-
+            let fields = (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) ? null : 'seat_code';
             Models.Reservation.find(
                 {
                     performance: reservationModel.performance._id
                 },
                 fields,
-                {},
                 (err, reservations) => {
-                    if (err) {
-                        this.res.json({
-                            propertiesBySeatCode: propertiesBySeatCode
-                        });
+                    if (err) return  this.res.json({propertiesBySeatCode: {}});
 
-                    } else {
+                    // 予約データが存在すれば、現在仮押さえ中の座席を除いて予約不可(disabled)
+                    for (let reservation of reservations) {
+                        let seatCode = reservation.get('seat_code');
+                        let avalilable = false;
+                        let attrs = {};
 
-                        // 予約テーブルにあるものについて、状態を上書きする
-                        for (let reservation of reservations) {
-                            let seatCode = reservation.get('seat_code');
-
-                            let classes = [];
-                            let baloonContent = `${seatCode}`;
-
-                            if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
-                                // 仮押さえ中
-                                classes.push('select-seat', 'active');
-                            } else {
-                                // 予約不可
-                                classes.push('disabled');
-                            }
-
-
-
-                            // 内部関係者用
-                            if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
-                                baloonContent = reservation.get('baloon_content4staff');
-
-                                // 内部関係者はTIFF確保も予約できる
-                                if (reservation.get('status') === ReservationUtil.STATUS_KEPT_BY_TIFF) {
-                                    classes = ['select-seat'];
-                                }
-                            }
-
-
-
-                            propertiesBySeatCode[seatCode] = {
-                                classes: classes,
-                                attrs: {
-                                    'data-baloon-content': baloonContent
-                                }
-                            };
+                        if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
+                            // 仮押さえ中
+                            avalilable = true;
                         }
 
+                        // 内部関係者用
+                        if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
+                            attrs['data-baloon-content'] = reservation.get('baloon_content4staff');
 
+                            // 内部関係者はTIFF確保も予約できる
+                            if (reservation.get('status') === ReservationUtil.STATUS_KEPT_BY_TIFF) {
+                                avalilable = true;
+                            }
+                        }
 
-                        this.res.json({
-                            propertiesBySeatCode: propertiesBySeatCode
-                        });
+                        propertiesBySeatCode[seatCode] = {
+                            avalilable: avalilable,
+                            attrs: attrs
+                        };
                     }
+
+                    this.res.json({
+                        propertiesBySeatCode: propertiesBySeatCode
+                    });
                 }
             );
         });
