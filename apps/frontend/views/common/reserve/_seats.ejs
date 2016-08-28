@@ -22,7 +22,7 @@
         座席を選択してください
     </p>
 
-    <div class="clm-left wrapper-seats seatStatusesMap hidden" data-token="<%- reservationModel.token %>">
+    <div class="clm-left wrapper-seats seatStatusesMap hidden" data-url="<%- url('reserve.getSeatProperties', {token: reservationModel.token}) %>">
 
         <% if (req.query.message) { %>
         <div class="alert alert-danger" role="alert">

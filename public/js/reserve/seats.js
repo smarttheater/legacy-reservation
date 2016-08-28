@@ -1,76 +1,68 @@
-var screenSeatStatusesMap;
-
-/**
- * 空席状況マップを表示する
- */
-function showSeatStatusesMap() {
-    $.ajax({
-        dataType: 'json',
-        url: '/reserve/' + $('.seatStatusesMap').attr('data-token') + '/getSeatProperties',
-        type: 'GET',
-        data: {},
-        beforeSend: function() {
-        }
-    }).done(function(data) {
-        var propertiesBySeatCode = data.propertiesBySeatCode;
-
-        $('.seat a').each(function(index){
-            var seatCode = $(this).attr('data-seat-code');
-            var aNode = $(this);
-
-            // 予約が存在した場合のみ販売可能
-            if (propertiesBySeatCode.hasOwnProperty(seatCode)) {
-                // プロパティをセット
-                var properties = propertiesBySeatCode[seatCode];
-
-                aNode.addClass(properties.classes.join(' '));
-
-                Object.keys(properties.attrs).forEach(function(key){
-                    aNode.attr(key, properties.attrs[key]);
-                });
-
-            } else {
-                // 未販売
-                // 予約データがない場合、空席
-                aNode.addClass('select-seat');
-                aNode.attr('data-baloon-content', seatCode);
-                // aNode.addClass('disabled');
-
-            }
-
-        });
-
-        $('.seatStatusesMap').removeClass('hidden');
-
-    }).fail(function(jqxhr, textStatus, error) {
-    }).always(function() {
-
-        screenSeatStatusesMap = new ScreenSeatStatusesMap($('.screen'));
-
-
-        // 20秒おきに状況とりにいく
-        // setTimeout(function(){
-        //     showSeatStatusesMap()
-        // }, 20000);
-    });
-}
-
 $(function(){
-    var limit = parseInt($('input[name="seatsLimit"]').val());
-    var limitMessage = $('input[name="seatsLimitMessage"]').val();
+    var _limit = parseInt($('input[name="seatsLimit"]').val());
+    var _screenSeatStatusesMap;
 
     showSeatStatusesMap();
 
+    /**
+     * 空席状況マップを表示する
+     */
+    function showSeatStatusesMap() {
+        $.ajax({
+            dataType: 'json',
+            url: $('.seatStatusesMap').attr('data-url'),
+            type: 'GET',
+            data: {},
+            beforeSend: function() {
+            }
+        }).done(function(data) {
+            var propertiesBySeatCode = data.propertiesBySeatCode;
+
+            $('.seat a').each(function(){
+                var seatCode = $(this).attr('data-seat-code');
+                var aNode = $(this);
+
+                // 予約が存在した場合のみ販売可能
+                if (propertiesBySeatCode.hasOwnProperty(seatCode)) {
+                    // プロパティをセット
+                    var properties = propertiesBySeatCode[seatCode];
+
+                    aNode.addClass(properties.classes.join(' '));
+
+                    Object.keys(properties.attrs).forEach(function(key) {
+                        aNode.attr(key, properties.attrs[key]);
+                    });
+                } else {
+                    // 予約データがない場合、空席
+                    aNode.addClass('select-seat');
+                    aNode.attr('data-baloon-content', seatCode);
+                }
+            });
+        }).fail(function(jqxhr, textStatus, error) {
+        }).always(function() {
+            _screenSeatStatusesMap = new ScreenSeatStatusesMap($('.screen'));
+            $('.seatStatusesMap').removeClass('hidden');
+
+            // 20秒おきに状況とりにいく(現在選択中の座席もリセットされてしまう状態を解消できていないので、とりあえずしない)
+            // setTimeout(function(){
+            //     showSeatStatusesMap()
+            // }, 20000);
+        });
+    }
+
+    /**
+     * 座席クリックイベント
+     */
     $(document).on('click', '.select-seat', function(){
-        if (screenSeatStatusesMap.isDeviceType('sp') && screenSeatStatusesMap.state === screenSeatStatusesMap.STATE_DEFAULT) {
+        // スマホで拡大操作
+        if (_screenSeatStatusesMap.isDeviceType('sp') && _screenSeatStatusesMap.state === ScreenSeatStatusesMap.STATE_DEFAULT) {
             return;
         }
 
-
-        // check seats limit
+        // 座席数上限チェック
         if (!$(this).hasClass('active')) {
-            if ($('.select-seat.active').length > limit - 1) {
-                alert(limitMessage);
+            if ($('.select-seat.active').length > _limit - 1) {
+                alert($('input[name="seatsLimitMessage"]').val());
                 return;
             }
         }
@@ -83,23 +75,21 @@ $(function(){
             $('.reservable-count').text(count - 1);
         }
 
-
-
         $(this).toggleClass('active');
     });
 
+    /**
+     * 次へクリックイベント
+     */
     $(document).on('click', '.btn-next', function(){
-        var seatCodes = [];
-
         // 座席コードリストを取得
-        $('.select-seat.active').each(function(index){
-            seatCodes.push($(this).attr('data-seat-code'));
-        });
+        var seatCodes = $('.select-seat.active').map(function(){return $(this).attr('data-seat-code')}).get();
 
         if (seatCodes.length < 1) {
             alert($('input[name="messageRequiredSeat"]').val());
         } else {
-            var form = $('<form/>', {'method': 'post'}); // location.hrefにpostする
+            // location.hrefにpostする
+            var form = $('<form/>', {'method': 'post'});
             form.append($('<input/>', {
                 'type': 'hidden',
                 'name': 'seatCodes',
@@ -109,5 +99,4 @@ $(function(){
             form.submit();
         }
     });
-
 });

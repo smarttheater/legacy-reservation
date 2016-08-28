@@ -401,7 +401,7 @@ export default class ReserveBaseController extends BaseController {
 
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
-        reservationModel.tmpReservationExpiredAt = Date.now() + conf.get<number>('temporary_reservation_valid_period_seconds');
+        reservationModel.tmpReservationExpiredAt = Date.now() + (conf.get<number>('temporary_reservation_valid_period_seconds') * 1000);
 
         // 新たな座席指定と、既に仮予約済みの座席コードについて
         seatCodes.forEach((seatCode) => {
