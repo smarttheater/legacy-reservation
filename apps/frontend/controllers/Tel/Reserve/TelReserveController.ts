@@ -1,5 +1,5 @@
 import ReserveBaseController from '../../ReserveBaseController';
-import Util from '../../../../common/Util/Util';
+import ReserveControllerInterface from '../../ReserveControllerInterface';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
@@ -8,7 +8,6 @@ import ReservationUtil from '../../../../common/models/Reservation/ReservationUt
 import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
-import ReserveControllerInterface from '../../ReserveControllerInterface';
 
 export default class TelReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_TEL;

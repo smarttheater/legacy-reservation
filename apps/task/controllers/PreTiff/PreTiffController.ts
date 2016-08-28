@@ -1,17 +1,9 @@
 import BaseController from '../BaseController';
-import Constants from '../../../common/Util/Constants';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
-import PerformanceUtil from '../../../common/models/Performance/PerformanceUtil';
-import FilmUtil from '../../../common/models/Film/FilmUtil';
-import TicketTypeGroupUtil from '../../../common/models/TicketTypeGroup/TicketTypeGroupUtil';
-import ScreenUtil from '../../../common/models/Screen/ScreenUtil';
-import moment = require('moment');
 import conf = require('config');
 import mongodb = require('mongodb');
 import mongoose = require('mongoose');
-import PerformanceStatusesModel from '../../../common/models/PerformanceStatusesModel';
-import request = require('request');
 import fs = require('fs-extra');
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');

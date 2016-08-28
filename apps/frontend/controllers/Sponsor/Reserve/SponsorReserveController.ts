@@ -1,6 +1,6 @@
 import ReserveBaseController from '../../ReserveBaseController';
+import ReserveControllerInterface from '../../ReserveControllerInterface';
 import SponsorUser from '../../../models/User/SponsorUser';
-import Util from '../../../../common/Util/Util';
 import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
 import Models from '../../../../common/models/Models';
@@ -9,7 +9,6 @@ import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import lockFile = require('lockfile');
-import ReserveControllerInterface from '../../ReserveControllerInterface';
 import moment = require('moment');
 import conf = require('config');
 

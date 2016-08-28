@@ -2,7 +2,6 @@ import express = require('express');
 import log4js = require('log4js');
 import moment = require('moment');
 import util = require('util');
-import NamedRoutes = require('named-routes');
 import numeral = require('numeral');
 import conf = require('config');
 

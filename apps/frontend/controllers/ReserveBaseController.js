@@ -580,8 +580,8 @@ class ReserveBaseController extends BaseController_1.default {
                 Models_1.default.ReservationEmailCue.create({
                     payment_no: paymentNo,
                     is_sent: false
-                }, (err, cueDocument) => {
-                    this.logger.info('reservationEmailCue created.', err, cueDocument);
+                }, (err, cue) => {
+                    this.logger.info('reservationEmailCue created.', err, cue);
                     if (err) {
                     }
                     cb(null);
@@ -617,12 +617,12 @@ class ReserveBaseController extends BaseController_1.default {
             }
         }, {
             new: true
-        }, (err, sequenceDocument) => {
+        }, (err, sequence) => {
             if (err) {
                 cb(err, null);
             }
             else {
-                let no = sequenceDocument.get('no');
+                let no = sequence.get('no');
                 let paymentNo = `${no}${Util_1.default.getCheckDigit(no)}`;
                 cb(err, paymentNo);
             }

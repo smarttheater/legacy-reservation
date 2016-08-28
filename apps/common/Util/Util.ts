@@ -1,7 +1,6 @@
 import redis = require('redis');
 import conf = require('config');
 import crypto = require('crypto');
-import uniqid = require('uniqid');
 import fs = require('fs-extra');
 import log4js = require('log4js');
 
@@ -55,14 +54,11 @@ export default class Util {
      */
     public static getReservationLogger(paymentNo: string, cb: (err: Error, logger: log4js.Logger) => void) {
         let env = process.env.NODE_ENV || 'dev';
-        let moment = require('moment');
-        // let logDir = `${__dirname}/../../../logs/${env}/reservations/${moment().format('YYYYMMDD')}`;
-        let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.slice(0, 1)}`;
+        let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.slice(-1, 1)}`;
 
         fs.mkdirs(logDir, (err) => {
             if (err) {
                 cb(err, null);
-
             } else {
                 log4js.configure({
                     appenders: [
@@ -83,11 +79,15 @@ export default class Util {
                 });
 
                 cb(null, log4js.getLogger('reservation'));
-
             }
         });
     }
 
+    /**
+     * チェックディジットを求める
+     * 
+     * @param {number} source
+     */
     public static getCheckDigit(source: number): number {
         let sourceString = source.toString();
         let weights = [2, 6, 3, 4, 3, 7, 5, 4, 2];
@@ -101,6 +101,12 @@ export default class Util {
         return checkDigit;
     }
 
+    /**
+     * ハッシュ値を作成する
+     * 
+     * @param {string} password
+     * @param {string} salt
+     */
     public static createHash(password: string, salt: string): string {
         let sha512 = crypto.createHash('sha512');
         sha512.update(salt + password, 'utf8')

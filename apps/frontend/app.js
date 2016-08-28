@@ -3,6 +3,7 @@ const express = require('express');
 const partials = require('express-partials');
 const useragent = require('express-useragent');
 const path = require('path');
+// import favicon = require('serve-favicon');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const multer = require('multer');

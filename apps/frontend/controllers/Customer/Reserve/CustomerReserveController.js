@@ -8,7 +8,6 @@ const ReservationUtil_1 = require('../../../../common/models/Reservation/Reserva
 const ScreenUtil_1 = require('../../../../common/models/Screen/ScreenUtil');
 const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
-const lockFile = require('lockfile');
 const moment = require('moment');
 const conf = require('config');
 class CustomerReserveController extends ReserveBaseController_1.default {
@@ -82,81 +81,48 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
-            // 1アカウント1パフォーマンスごとに枚数制限
-            let lockPath = `${__dirname}/../../../../../lock/CustomerFixSeats${reservationModel.performance._id}.lock`;
-            lockFile.lock(lockPath, { wait: 5000 }, (err) => {
-                Models_1.default.Reservation.count({
-                    performance: reservationModel.performance._id,
-                    seat_code: {
-                        $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
-                    },
-                    status: 'dummy'
-                }, (err, reservationsCount) => {
-                    let limit = CustomerReserveController.RESERVATION_LIMIT_PER_PERFORMANCE - reservationsCount;
-                    // すでに枚数制限に達している場合
-                    if (limit <= 0) {
-                        lockFile.unlock(lockPath, (err) => {
-                            this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() })));
-                        });
-                    }
-                    else {
-                        if (this.req.method === 'POST') {
-                            reserveSeatForm_1.default(this.req, this.res, (err) => {
-                                if (this.req.form.isValid) {
-                                    let seatCodes = JSON.parse(this.req.form['seatCodes']);
-                                    // 追加指定席を合わせて制限枚数を超過した場合
-                                    if (seatCodes.length > limit) {
-                                        lockFile.unlock(lockPath, () => {
-                                            let message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
+            let limit = CustomerReserveController.RESERVATION_LIMIT_PER_PERFORMANCE;
+            if (this.req.method === 'POST') {
+                reserveSeatForm_1.default(this.req, this.res, (err) => {
+                    if (this.req.form.isValid) {
+                        let seatCodes = JSON.parse(this.req.form['seatCodes']);
+                        // 追加指定席を合わせて制限枚数を超過した場合
+                        if (seatCodes.length > limit) {
+                            let message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
+                            this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                        }
+                        else {
+                            // 仮予約あればキャンセルする
+                            this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                                // 座席FIX
+                                this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
+                                    if (err) {
+                                        reservationModel.save((err) => {
+                                            let message = this.req.__('Mesasge.SelectedSeatsUnavailable');
                                             this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                                         });
                                     }
                                     else {
-                                        // 仮予約あればキャンセルする
-                                        this.logger.debug('processCancelSeats processing...');
-                                        this.processCancelSeats(reservationModel, (err, reservationModel) => {
-                                            this.logger.debug('processCancelSeats processed.', err);
-                                            // 座席FIX
-                                            this.logger.debug('processFixSeats processing...', reservationModel.token, seatCodes);
-                                            this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
-                                                this.logger.debug('processFixSeats processed.', reservationModel.token, err);
-                                                lockFile.unlock(lockPath, () => {
-                                                    // 仮予約に失敗した座席コードがあった場合
-                                                    if (err) {
-                                                        reservationModel.save((err) => {
-                                                            let message = this.req.__('Mesasge.SelectedSeatsUnavailable');
-                                                            this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
-                                                        });
-                                                    }
-                                                    else {
-                                                        reservationModel.save((err) => {
-                                                            // 券種選択へ
-                                                            this.res.redirect(this.router.build('customer.reserve.tickets', { token: token }));
-                                                        });
-                                                    }
-                                                });
-                                            });
+                                        reservationModel.save((err) => {
+                                            // 券種選択へ
+                                            this.res.redirect(this.router.build('customer.reserve.tickets', { token: token }));
                                         });
                                     }
-                                }
-                                else {
-                                    lockFile.unlock(lockPath, () => {
-                                        this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
-                                    });
-                                }
-                            });
-                        }
-                        else {
-                            lockFile.unlock(lockPath, (err) => {
-                                this.res.render('customer/reserve/seats', {
-                                    reservationModel: reservationModel,
-                                    limit: limit
                                 });
                             });
                         }
                     }
+                    else {
+                        this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
+                    }
                 });
-            });
+            }
+            else {
+                this.res.render('customer/reserve/seats', {
+                    reservationModel: reservationModel,
+                    limit: limit
+                });
+            }
         });
     }
     /**
@@ -266,7 +232,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT
-        }, null, (err, reservations) => {
+        }, (err, reservations) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
             if (reservations.length === 0)

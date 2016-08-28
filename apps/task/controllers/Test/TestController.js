@@ -2,42 +2,12 @@
 const BaseController_1 = require('../BaseController');
 const Util_1 = require('../../../common/Util/Util');
 const Models_1 = require('../../../common/models/Models');
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const conf = require('config');
 const mongodb = require('mongodb');
 const mongoose = require('mongoose');
 const fs = require('fs-extra');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class TestController extends BaseController_1.default {
-    upsertReservation() {
-        mongoose.connect(MONGOLAB_URI, {});
-        let promises = [];
-        for (let i = 0; i < 3; i++) {
-            promises.push(new Promise((resolve, reject) => {
-                this.logger.debug('updating reservation...');
-                Models_1.default.Reservation.findOneAndUpdate({
-                    performance: "57a7c71e59e0a513283e0507",
-                    seat_code: "A-2"
-                }, {
-                    $set: {
-                        status: ReservationUtil_1.default.STATUS_TEMPORARY
-                    },
-                    $setOnInsert: {}
-                }, {
-                    upsert: true,
-                    new: true
-                }, (err, reservationDocument) => {
-                    this.logger.debug('reservation updated.', err, reservationDocument);
-                    resolve();
-                });
-            }));
-        }
-        Promise.all(promises).then(() => {
-            mongoose.disconnect();
-            process.exit(0);
-        }, (err) => {
-        });
-    }
     createIndexes() {
         let MongoClient = mongodb.MongoClient;
         MongoClient.connect(conf.get('mongolab_uri'), (err, db) => {

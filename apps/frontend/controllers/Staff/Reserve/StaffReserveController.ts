@@ -1,6 +1,6 @@
 import ReserveBaseController from '../../ReserveBaseController';
+import ReserveControllerInterface from '../../ReserveControllerInterface';
 import StaffUser from '../../../models/User/StaffUser';
-import Util from '../../../../common/Util/Util';
 import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
 import Models from '../../../../common/models/Models';
@@ -8,7 +8,6 @@ import ReservationUtil from '../../../../common/models/Reservation/ReservationUt
 import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
-import ReserveControllerInterface from '../../ReserveControllerInterface';
 import moment = require('moment');
 import conf = require('config');
 

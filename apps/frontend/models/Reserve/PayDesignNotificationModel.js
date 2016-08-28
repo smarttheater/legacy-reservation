@@ -1,6 +1,6 @@
 "use strict";
 /**
- * ペイデザイン入金モデル
+ * ペイデザイン結果通知モデル
  */
 class PayDesignNotificationModel {
     static parse(postParameters) {

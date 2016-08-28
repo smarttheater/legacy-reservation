@@ -1,6 +1,5 @@
 import BaseController from './BaseController';
 import Util from '../../common/Util/Util';
-import Constants from '../../common/Util/Constants';
 import GMOUtil from '../../common/Util/GMO/GMOUtil';
 import ReservationUtil from '../../common/models/Reservation/ReservationUtil';
 import ScreenUtil from '../../common/models/Screen/ScreenUtil';
@@ -689,8 +688,8 @@ export default class ReserveBaseController extends BaseController {
                             payment_no: paymentNo,
                             is_sent: false
                         },
-                        (err, cueDocument) => {
-                            this.logger.info('reservationEmailCue created.', err, cueDocument);
+                        (err, cue) => {
+                            this.logger.info('reservationEmailCue created.', err, cue);
                             if (err) {
                                 // 失敗してもスルー(ログと運用でなんとかする)
                             }
@@ -719,7 +718,6 @@ export default class ReserveBaseController extends BaseController {
     
             cb();
         });
-
     }
 
     /**
@@ -738,15 +736,13 @@ export default class ReserveBaseController extends BaseController {
             {
                 new: true
             },
-            (err, sequenceDocument) => {
+            (err, sequence) => {
                 if (err) {
                     cb(err, null);
-
                 } else {
-                    let no: number = sequenceDocument.get('no');
+                    let no: number = sequence.get('no');
                     let paymentNo = `${no}${Util.getCheckDigit(no)}`;
                     cb(err, paymentNo);
-
                 }
             }
         );
@@ -755,7 +751,7 @@ export default class ReserveBaseController extends BaseController {
     /**
      * 購入者情報をセッションに保管する
      */
-    public savePurchaser(lastName: string, firstName: string, tel: string, email: string, age: string, address: string, gender: string) {
+    protected savePurchaser(lastName: string, firstName: string, tel: string, email: string, age: string, address: string, gender: string) {
         this.req.session['purchaser'] = {
             lastName: lastName,
             firstName: firstName,
@@ -770,7 +766,7 @@ export default class ReserveBaseController extends BaseController {
     /**
      * 購入者情報をセッションから探す
      */
-    public findPurchaser(): {
+    protected findPurchaser(): {
         lastName: string,
         firstName: string,
         tel: string,

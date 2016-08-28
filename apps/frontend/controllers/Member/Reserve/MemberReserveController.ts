@@ -1,14 +1,12 @@
 import ReserveBaseController from '../../ReserveBaseController';
+import ReserveControllerInterface from '../../ReserveControllerInterface';
 import MemberUser from '../../../models/User/MemberUser';
-import Constants from '../../../../common/Util/Constants';
-import Util from '../../../../common/Util/Util';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import moment = require('moment');
-import ReserveControllerInterface from '../../ReserveControllerInterface';
 
 export default class MemberReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_MEMBER;

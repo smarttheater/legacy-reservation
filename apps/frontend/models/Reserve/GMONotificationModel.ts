@@ -2,28 +2,18 @@
  * GMOコンビニ決済結果通知モデル
  */
 export default class GMONotificationModel {
-    /**
-     * ショップID 13
-     */
+    /** ショップID 13 */
     public ShopID: string;
-    /**
-     * ショップパスワード 10
-     * “*” 10 桁固定
-     */
+    /** ショップパスワード “*” 10 桁固定 */
     public ShopPass: string;
     /**
      * 取引ID 32
      * ※：同一オーダーID でも決済手段が異なると、異なった「取引ID」および「取引パスワード」が返却されます。
      */
     public AccessID: string;
-    /**
-     * 取引パスワード 32
-     * “*” 32 桁固定
-     */
+    /** 取引パスワード “*” 32 桁固定 */
     public AccessPass: string;
-    /**
-     * オーダーID 27
-     */
+    /** オーダーID 27 */
     public OrderID: string;
 
     /**
@@ -65,22 +55,14 @@ export default class GMONotificationModel {
      */
     public JobCd: string;
 
-    /**
-     * 利用金額 10 決済または決済依頼をした金額を返却します。
-     */
+    /** 利用金額 10 決済または決済依頼をした金額を返却します。 */
     public Amount: string;
-    /**
-     * 税送料 10
-     */
+    /** 税送料 10 */
     public Tax: string;
-    /**
-     * 通貨コード 3 決済に利用された通貨を返却します。
-     */
+    /** 通貨コード 3 決済に利用された通貨を返却します。 */
     public Currency: string;
 
-    /**
-     * 仕向先会社コード 7
-     */
+    /** 仕向先会社コード 7 */
     public Forward: string;
 
     /**
@@ -91,13 +73,10 @@ export default class GMONotificationModel {
         3：ボーナス一括
         4：ボーナス分割
         5：リボ
-     * 
      */
     public Method: string;
 
-    /**
-     * 支払回数 2
-     */
+    /** 支払回数 2 */
     public PayTimes: string;
 
     /**
@@ -106,30 +85,18 @@ export default class GMONotificationModel {
      */
     public TranID: string;
 
-    /**
-     * 承認番号
-     */
+    /** 承認番号 */
     public Approve: string;
 
-    /**
-     * 処理日付 14 yyyyMMddHHmmss 書式
-     */
+    /** 処理日付 14 yyyyMMddHHmmss 書式 */
     public TranDate: string;
-    /**
-     * 支払先コンビニコード 5 支払先コンビニ会社コード
-     */
+    /** 支払先コンビニコード 5 支払先コンビニ会社コード */
     public CvsCode: string;
-    /**
-     * 確認番号 20 コンビニ確認番号
-     */
+    /** 確認番号 20 コンビニ確認番号 */
     public CvsConfNo: string;
-    /**
-     * 受付番号 32 支払先コンビニが返却した受付番号
-     */
+    /** 受付番号 32 支払先コンビニが返却した受付番号 */
     public CvsReceiptNo: string;
-    /**
-     * 支払期限日時 14 yyyyMMddHHmmss 書式
-     */
+    /** 支払期限日時 14 yyyyMMddHHmmss 書式 */
     public PaymentTerm: string;
     /**
      * 入金確定日時 14
@@ -143,17 +110,11 @@ export default class GMONotificationModel {
      * 後続センターが受付した日時
      */
     public ReceiptDate: string;
-    /**
-     * エラーコード 3 エラー発生時のみ ※2
-     */
+    /** エラーコード 3 エラー発生時のみ ※2 */
     public ErrCode: string;
-    /**
-     * エラー詳細コード 9 エラー発生時のみ ※2
-     */
+    /** エラー詳細コード 9 エラー発生時のみ ※2 */
     public ErrInfo: string;
-    /**
-     * 決済方法 1 3：コンビニ
-     */
+    /** 決済方法 1 3：コンビニ */
     public PayType: string;
 
     public static parse(postParameters: Object): GMONotificationModel {

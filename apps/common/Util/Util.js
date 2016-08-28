@@ -42,9 +42,7 @@ class Util {
      */
     static getReservationLogger(paymentNo, cb) {
         let env = process.env.NODE_ENV || 'dev';
-        let moment = require('moment');
-        // let logDir = `${__dirname}/../../../logs/${env}/reservations/${moment().format('YYYYMMDD')}`;
-        let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.slice(0, 1)}`;
+        let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.slice(-1, 1)}`;
         fs.mkdirs(logDir, (err) => {
             if (err) {
                 cb(err, null);
@@ -71,6 +69,11 @@ class Util {
             }
         });
     }
+    /**
+     * チェックディジットを求める
+     *
+     * @param {number} source
+     */
     static getCheckDigit(source) {
         let sourceString = source.toString();
         let weights = [2, 6, 3, 4, 3, 7, 5, 4, 2];
@@ -82,6 +85,12 @@ class Util {
         let checkDigit = 11 - (sum % 11);
         return checkDigit;
     }
+    /**
+     * ハッシュ値を作成する
+     *
+     * @param {string} password
+     * @param {string} salt
+     */
     static createHash(password, salt) {
         let sha512 = crypto.createHash('sha512');
         sha512.update(salt + password, 'utf8');

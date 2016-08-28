@@ -1,5 +1,5 @@
 /**
- * ペイデザイン入金モデル
+ * ペイデザイン結果通知モデル
  */
 export default class PayDesignNotificationModel {
     /** 通知番号 */

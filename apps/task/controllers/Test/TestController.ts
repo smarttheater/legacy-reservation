@@ -1,69 +1,14 @@
 import BaseController from '../BaseController';
-import Constants from '../../../common/Util/Constants';
 import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
-import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
-import PerformanceUtil from '../../../common/models/Performance/PerformanceUtil';
-import FilmUtil from '../../../common/models/Film/FilmUtil';
-import TicketTypeGroupUtil from '../../../common/models/TicketTypeGroup/TicketTypeGroupUtil';
-import ScreenUtil from '../../../common/models/Screen/ScreenUtil';
-import moment = require('moment');
 import conf = require('config');
 import mongodb = require('mongodb');
 import mongoose = require('mongoose');
-import PerformanceStatusesModel from '../../../common/models/PerformanceStatusesModel';
-import request = require('request');
-import sendgrid = require('sendgrid')
-import emailTemplates = require('email-templates');
 import fs = require('fs-extra');
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
 export default class TestController extends BaseController {
-    public upsertReservation(): void {
-        mongoose.connect(MONGOLAB_URI, {});
-
-        let promises = [];
-
-        for (let i = 0; i < 3; i++) {
-            promises.push(new Promise((resolve, reject) => {
-                this.logger.debug('updating reservation...');
-                Models.Reservation.findOneAndUpdate(
-                    {
-                        performance: "57a7c71e59e0a513283e0507",
-                        seat_code: "A-2"
-                    },
-                    {
-                        $set: {
-                            status: ReservationUtil.STATUS_TEMPORARY
-                        },
-                        $setOnInsert: {
-                        }
-                    },
-                    {
-                        upsert: true,
-                        new: true
-                    },
-                    (err, reservationDocument) => {
-                        this.logger.debug('reservation updated.', err, reservationDocument);
-
-                        resolve();
-
-                    }
-                );
-            }));
-        }
-
-
-        Promise.all(promises).then(() => {
-            mongoose.disconnect();
-            process.exit(0);
-
-        }, (err) => {
-
-        });
-    }
-
     public createIndexes() {
         let MongoClient = mongodb.MongoClient;
         MongoClient.connect(conf.get<string>('mongolab_uri'), (err, db) => {
