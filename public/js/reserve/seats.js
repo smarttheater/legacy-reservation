@@ -4,7 +4,7 @@ $(function(){
     /** 初期状態で選択中だった座席コード(仮予約中の座席) */
     var _initialActiveSeatCodes = JSON.parse($('.seatStatusesMap').attr('data-seat-codes'));
     /** 現在選択中の座席 */
-    var _activeSeatCodes = JSON.parse($('.seatStatusesMap').attr('data-seat-codes'));
+    var _activeSeatCodes = _initialActiveSeatCodes;
 
     showSeatStatusesMap(true);
 
@@ -20,6 +20,7 @@ $(function(){
             beforeSend: function() {
             }
         }).done(function(data) {
+alert('done' + data.toString());
             if (Array.isArray(data)) {
                 let unavailableSeatCodes = data;
 
@@ -68,6 +69,7 @@ $(function(){
                 });
             }
         }).fail(function(jqxhr, textStatus, error) {
+alert('fail');
         }).always(function() {
             if (initialize) {
                 // 初期状態で選択中だった座席は仮予約中なので選択可能に
