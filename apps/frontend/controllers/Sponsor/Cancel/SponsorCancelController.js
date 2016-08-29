@@ -3,6 +3,7 @@ const BaseController_1 = require('../../BaseController');
 const Models_1 = require('../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const sponsorCancelForm_1 = require('../../../forms/sponsor/sponsorCancelForm');
+const log4js = require('log4js');
 class SponsorCancelController extends BaseController_1.default {
     constructor(...args) {
         super(...args);
@@ -65,6 +66,7 @@ class SponsorCancelController extends BaseController_1.default {
      * 予約番号からキャンセルする
      */
     executeByPaymentNo() {
+        this.logger = log4js.getLogger('cancel');
         // TIFF確保にステータス更新
         Models_1.default.Reservation.distinct('_id', {
             payment_no: this.req.body.paymentNo,
@@ -84,7 +86,9 @@ class SponsorCancelController extends BaseController_1.default {
                     message: '予約番号または電話番号下4ケタに誤りがあります'
                 });
             }
+            this.logger.info('updateStatus2keptbytiff processing by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'ids:', ids);
             Models_1.default.Reservation['updateStatus2keptbytiff'](ids, (err, raw) => {
+                this.logger.info('updateStatus2keptbytiff by sponsor processed.', err, raw, 'sponsor:', this.req.sponsorUser.get('user_id'), 'ids:', ids);
                 if (err) {
                     this.res.json({
                         success: false,
@@ -101,10 +105,13 @@ class SponsorCancelController extends BaseController_1.default {
         });
     }
     execute() {
+        this.logger = log4js.getLogger('cancel');
         // 予約IDリストをjson形式で受け取る
         let reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
+            this.logger.info('updateStatus2keptbytiff processing by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'ids:', reservationIds);
             Models_1.default.Reservation['updateStatus2keptbytiff'](reservationIds, (err, raw) => {
+                this.logger.info('updateStatus2keptbytiff by sponsor processed.', err, raw, 'sponsor:', this.req.sponsorUser.get('user_id'), 'ids:', reservationIds);
                 if (err) {
                     this.res.json({
                         success: false,

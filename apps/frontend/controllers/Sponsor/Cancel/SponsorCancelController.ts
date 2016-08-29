@@ -3,6 +3,7 @@ import Util from '../../../../common/Util/Util';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import sponsorCancelForm from '../../../forms/sponsor/sponsorCancelForm';
+import log4js = require('log4js');
 
 export default class SponsorCancelController extends BaseController {
     public layout = 'layouts/sponsor/layout';
@@ -70,6 +71,8 @@ export default class SponsorCancelController extends BaseController {
      * 予約番号からキャンセルする
      */
     public executeByPaymentNo(): void {
+        this.logger = log4js.getLogger('cancel');
+
         // TIFF確保にステータス更新
         Models.Reservation.distinct(
             '_id',
@@ -94,7 +97,9 @@ export default class SponsorCancelController extends BaseController {
                     });
                 }
 
+                this.logger.info('updateStatus2keptbytiff processing by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'ids:', ids);
                 Models.Reservation['updateStatus2keptbytiff'](ids, (err, raw) => {
+                    this.logger.info('updateStatus2keptbytiff by sponsor processed.', err, raw, 'sponsor:', this.req.sponsorUser.get('user_id'), 'ids:', ids);
                     if (err) {
                         this.res.json({
                             success: false,
@@ -112,10 +117,14 @@ export default class SponsorCancelController extends BaseController {
     }
 
     public execute(): void {
+        this.logger = log4js.getLogger('cancel');
+
         // 予約IDリストをjson形式で受け取る
         let reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
+            this.logger.info('updateStatus2keptbytiff processing by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'ids:', reservationIds);
             Models.Reservation['updateStatus2keptbytiff'](reservationIds, (err, raw) => {
+                this.logger.info('updateStatus2keptbytiff by sponsor processed.', err, raw, 'sponsor:', this.req.sponsorUser.get('user_id'), 'ids:', reservationIds);
                 if (err) {
                     this.res.json({
                         success: false,

@@ -22,14 +22,21 @@ log4js.configure({
             pattern: '-yyyy-MM-dd',
         },
         {
+            category: 'cancel', // 予約キャンセルログ
+            type: 'dateFile',
+            filename: `${logDir}/cancel.log`,
+            pattern: '-yyyy-MM-dd',
+        },
+        {
             type: 'console'
         }
     ],
     levels: {
         access: log4js.levels.ALL.toString(),
-        system: (env === 'prod' || env === 'stg') ? log4js.levels.INFO.toString() : log4js.levels.ALL.toString()
+        system: (env === 'prod') ? log4js.levels.INFO.toString() : log4js.levels.ALL.toString(),
+        cancel: (env === 'prod') ? log4js.levels.INFO.toString() : log4js.levels.ALL.toString()
     },
-    replaceConsole: (env === 'prod' || env === 'stg') ? false : true
+    replaceConsole: (env === 'prod') ? false : true
 });
 
 export default log4js.connectLogger(log4js.getLogger('access'), {});

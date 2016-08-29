@@ -1,54 +1,40 @@
 import BaseController from '../../BaseController';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
+import log4js = require('log4js');
 
 export default class TelCancelController extends BaseController {
     public execute(): void {
+        this.logger = log4js.getLogger('cancel');
+
         // 予約IDリストをjson形式で受け取る
         let reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
-            let promises = [];
-            let canceledReservationIds = [];
-
-            for (let reservationId of reservationIds) {
-                promises.push(new Promise((resolve, reject) => {
-                    // 予約削除
-                    Models.Reservation.remove(
-                        {
-                            _id: reservationId,
-                            purchaser_group: {$ne: ReservationUtil.PURCHASER_GROUP_STAFF}, // 念のため、内部は除外
-                            status: ReservationUtil.STATUS_RESERVED
-                        },
-                        (err) => {
-                            if (err) {
-                                reject(err);
-                            } else {
-                                canceledReservationIds.push(reservationId);
-                                resolve();
-                            }
-                        }
-                    );
-                }));
-            }
-
-            Promise.all(promises).then(() => {
-                this.res.json({
-                    success: true,
-                    reservationIds: canceledReservationIds
-                });
-            }, (err) => {
-                this.res.json({
-                    success: false,
-                    message: err.message,
-                    reservationId: []
-                });
-            });
-
+            this.logger.info('removing reservation by tel_staff... tel:', this.req.telStaffUser.get('user_id'), 'reservationIds:', reservationIds);
+            Models.Reservation.remove(
+                {
+                    _id: {$in: reservationIds},
+                    purchaser_group: {$ne: ReservationUtil.PURCHASER_GROUP_STAFF}, // 念のため、内部は除外
+                },
+                (err) => {
+                    this.logger.info('reservation removed by tel_staff.', err, 'tel:', this.req.telStaffUser.get('user_id'), 'reservationIds:', reservationIds);
+                    if (err) {
+                        this.res.json({
+                            success: false,
+                            message: err.message
+                        });
+                    } else {
+                        this.res.json({
+                            success: true,
+                            message: null
+                        });
+                    }
+                }
+            );
         } else {
             this.res.json({
                 success: false,
-                message: this.req.__('Message.UnexpectedError'),
-                reservationId: []
+                message: this.req.__('Message.UnexpectedError')
             });
         }
     }
