@@ -54,10 +54,7 @@ export default class StaffReserveController extends ReserveBaseController implem
      */
     protected processCancelSeats(reservationModel: ReservationModel, cb: (err: Error, reservationModel: ReservationModel) => void) {
         let seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
-
-        if (seatCodesInSession.length === 0) {
-            return cb(null, reservationModel);
-        }
+        if (seatCodesInSession.length === 0) return cb(null, reservationModel);
 
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];

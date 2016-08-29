@@ -190,16 +190,14 @@ class ReserveBaseController extends BaseController_1.default {
      * @param {ReservationModel} reservationModel
      */
     processCancelSeats(reservationModel, cb) {
-        let seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
-        if (seatCodesInSession.length === 0)
+        let ids = reservationModel.getReservationIds();
+        if (ids.length === 0)
             return cb(null, reservationModel);
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
         // 仮予約を空席ステータスに戻す
         Models_1.default.Reservation.remove({
-            performance: reservationModel.performance._id,
-            seat_code: { $in: seatCodesInSession },
-            status: ReservationUtil_1.default.STATUS_TEMPORARY
+            _id: { $in: ids }
         }, (err) => {
             // 失敗したとしても時間経過で消えるので放置
             cb(null, reservationModel);
@@ -495,14 +493,12 @@ class ReserveBaseController extends BaseController_1.default {
                 }
                 // いったん全情報をDBに保存
                 let promises = [];
-                let reservations4update = reservationModel.toReservationDocuments();
-                for (let reservation4update of reservations4update) {
-                    reservation4update = Object.assign(reservation4update, commonUpdate);
+                for (let seatCode of reservationModel.seatCodes) {
+                    let update = reservationModel.seatCode2reservationDocument(seatCode);
+                    update = Object.assign(update, commonUpdate);
                     promises.push(new Promise((resolve, reject) => {
-                        this.logger.info('updating reservation all infos..._id:', reservation4update['_id']);
-                        Models_1.default.Reservation.findOneAndUpdate({
-                            _id: reservation4update['_id']
-                        }, reservation4update, {
+                        this.logger.info('updating reservation all infos...update:', update);
+                        Models_1.default.Reservation.findByIdAndUpdate(update['_id'], update, {
                             new: true
                         }, (err, reservation) => {
                             this.logger.info('reservation updated.', err, reservation);

@@ -247,74 +247,72 @@ export default class ReservationModel {
     }
 
     /**
-     * 予約ドキュメントへ変換
+     * フロー中の予約IDリストを取得する
      */
-    public toReservationDocuments() {
-        let documents = [];
-        let totalCharge = this.getTotalCharge();
+    public getReservationIds(): Array<string> {
+        return (this.seatCodes) ? this.seatCodes.map((seatCode) => {return this.getReservation(seatCode)._id;}) : [];
+    }
 
+    /**
+     * 座席コードから予約(確定)ドキュメントを作成する
+     */
+    public seatCode2reservationDocument(seatCode) {
+        let reservation = this.getReservation(seatCode);
+        let document =  {
+            // TODO 金額系の税込みと消費税と両方
 
-        this.seatCodes.forEach((seatCode) => {
-            let reservation = this.getReservation(seatCode);
+            _id: reservation._id,
 
-            documents.push(
-                {
-                    // TODO 金額系の税込みと消費税と両方
+            seat_code: seatCode,
+            seat_grade_name_ja: reservation.seat_grade_name_ja,
+            seat_grade_name_en: reservation.seat_grade_name_en,
+            seat_grade_additional_charge: reservation.seat_grade_additional_charge,
 
-                    _id: reservation._id,
+            ticket_type_code: reservation.ticket_type_code,
+            ticket_type_name_ja: reservation.ticket_type_name_ja,
+            ticket_type_name_en: reservation.ticket_type_name_en,
+            ticket_type_charge: reservation.ticket_type_charge,
 
-                    seat_code: seatCode,
-                    seat_grade_name_ja: reservation.seat_grade_name_ja,
-                    seat_grade_name_en: reservation.seat_grade_name_en,
-                    seat_grade_additional_charge: reservation.seat_grade_additional_charge,
+            total_charge: this.getTotalCharge(),
+            charge: this.getChargeBySeatCode(seatCode),
+            payment_no: this.paymentNo,
+            purchaser_group: this.purchaserGroup,
 
-                    ticket_type_code: reservation.ticket_type_code,
-                    ticket_type_name_ja: reservation.ticket_type_name_ja,
-                    ticket_type_name_en: reservation.ticket_type_name_en,
-                    ticket_type_charge: reservation.ticket_type_charge,
+            performance: this.performance._id,
+            performance_day: this.performance.day,
+            performance_start_time: this.performance.start_time,
+            performance_end_time: this.performance.end_time,
 
-                    total_charge: totalCharge,
-                    charge: this.getChargeBySeatCode(seatCode),
-                    payment_no: this.paymentNo,
-                    purchaser_group: this.purchaserGroup,
+            theater: this.performance.theater._id,
+            theater_name_ja: this.performance.theater.name.ja,
+            theater_name_en: this.performance.theater.name.en,
 
-                    performance: this.performance._id,
-                    performance_day: this.performance.day,
-                    performance_start_time: this.performance.start_time,
-                    performance_end_time: this.performance.end_time,
+            screen: this.performance.screen._id,
+            screen_name_ja: this.performance.screen.name.ja,
+            screen_name_en: this.performance.screen.name.en,
 
-                    theater: this.performance.theater._id,
-                    theater_name_ja: this.performance.theater.name.ja,
-                    theater_name_en: this.performance.theater.name.en,
+            film: this.performance.film._id,
+            film_name_ja: this.performance.film.name.ja,
+            film_name_en: this.performance.film.name.en,
+            film_image: this.performance.film.image,
+            film_is_mx4d: this.performance.film.is_mx4d,
 
-                    screen: this.performance.screen._id,
-                    screen_name_ja: this.performance.screen.name.ja,
-                    screen_name_en: this.performance.screen.name.en,
+            purchaser_last_name: (this.purchaserLastName) ? this.purchaserLastName : '',
+            purchaser_first_name: (this.purchaserFirstName) ? this.purchaserFirstName : '',
+            purchaser_email: (this.purchaserEmail) ? this.purchaserEmail : '',
+            purchaser_tel: (this.purchaserTel) ? this.purchaserTel : '',
+            purchaser_age: (this.purchaserAge) ? this.purchaserAge : '',
+            purchaser_address: (this.purchaserAddress) ? this.purchaserAddress : '',
+            purchaser_gender: (this.purchaserGender) ? this.purchaserGender : '',
+            payment_method: (this.paymentMethod) ? this.paymentMethod : '',
 
-                    film: this.performance.film._id,
-                    film_name_ja: this.performance.film.name.ja,
-                    film_name_en: this.performance.film.name.en,
-                    film_image: this.performance.film.image,
-                    film_is_mx4d: this.performance.film.is_mx4d,
+            watcher_name: (reservation.watcher_name) ? reservation.watcher_name : '',
+            watcher_name_updated_at: (reservation.watcher_name) ? Date.now() : '',
 
-                    purchaser_last_name: (this.purchaserLastName) ? this.purchaserLastName : '',
-                    purchaser_first_name: (this.purchaserFirstName) ? this.purchaserFirstName : '',
-                    purchaser_email: (this.purchaserEmail) ? this.purchaserEmail : '',
-                    purchaser_tel: (this.purchaserTel) ? this.purchaserTel : '',
-                    purchaser_age: (this.purchaserAge) ? this.purchaserAge : '',
-                    purchaser_address: (this.purchaserAddress) ? this.purchaserAddress : '',
-                    purchaser_gender: (this.purchaserGender) ? this.purchaserGender : '',
-                    payment_method: (this.paymentMethod) ? this.paymentMethod : '',
+            updated_user: 'ReservationModel'
+        };
 
-                    watcher_name: (reservation.watcher_name) ? reservation.watcher_name : '',
-                    watcher_name_updated_at: (reservation.watcher_name) ? Date.now() : '',
-
-                    updated_user: 'ReservationModel'
-                }
-            );
-        });
-
-        return documents;
+        return document;
     }
 }
 

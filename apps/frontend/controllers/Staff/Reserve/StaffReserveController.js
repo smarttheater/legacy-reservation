@@ -51,9 +51,8 @@ class StaffReserveController extends ReserveBaseController_1.default {
      */
     processCancelSeats(reservationModel, cb) {
         let seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
-        if (seatCodesInSession.length === 0) {
+        if (seatCodesInSession.length === 0)
             return cb(null, reservationModel);
-        }
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
         // 仮予約をTIFF確保ステータスに戻す
