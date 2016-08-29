@@ -130,13 +130,13 @@ class GMOReserveController extends ReserveBaseController_1.default {
      */
     cancel() {
         let paymentNo = this.req.params.paymentNo;
-        let promises = [];
         this.setProcessLogger(paymentNo, () => {
             this.logger.info('start process GMOReserveController.cancel.');
             this.logger.info('finding reservations...');
             Models_1.default.Reservation.find({
-                payment_no: paymentNo
-            }).exec((err, reservations) => {
+                payment_no: paymentNo,
+                status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT] }
+            }, 'purchaser_group member').exec((err, reservations) => {
                 this.logger.info('reservations found.', err, reservations);
                 if (err)
                     return this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -159,13 +159,11 @@ class GMOReserveController extends ReserveBaseController_1.default {
                         break;
                 }
                 // キャンセル
+                let promises = [];
                 for (let reservation of reservations) {
                     promises.push(new Promise((resolve, reject) => {
                         this.logger.info('removing reservation...');
-                        Models_1.default.Reservation.remove({
-                            _id: reservation.get('_id'),
-                            status: ReservationUtil_1.default.STATUS_TEMPORARY
-                        }, (err) => {
+                        reservation.remove((err) => {
                             this.logger.info('reservation removed.', err);
                             if (err) {
                                 reject(new Error(this.req.__('Message.UnexpectedError')));

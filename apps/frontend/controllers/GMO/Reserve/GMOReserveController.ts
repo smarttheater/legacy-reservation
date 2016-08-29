@@ -174,7 +174,6 @@ export default class GMOReserveController extends ReserveBaseController {
      */
     public cancel(): void {
         let paymentNo = this.req.params.paymentNo;
-        let promises = [];
 
         this.setProcessLogger(paymentNo, () => {
             this.logger.info('start process GMOReserveController.cancel.');
@@ -182,8 +181,10 @@ export default class GMOReserveController extends ReserveBaseController {
             this.logger.info('finding reservations...');
             Models.Reservation.find(
                 {
-                    payment_no: paymentNo
-                }
+                    payment_no: paymentNo,
+                    status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_WAITING_SETTLEMENT]}
+                },
+                'purchaser_group member'
             ).exec((err, reservations) => {
                 this.logger.info('reservations found.', err, reservations);
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -211,41 +212,29 @@ export default class GMOReserveController extends ReserveBaseController {
                 }
 
                 // キャンセル
+                let promises = [];
                 for (let reservation of reservations) {
                     promises.push(new Promise((resolve, reject) => {
                         this.logger.info('removing reservation...');
-                        Models.Reservation.remove(
-                            {
-                                _id: reservation.get('_id'),
-                                status: ReservationUtil.STATUS_TEMPORARY
-                            },
-                            (err) => {
-                                this.logger.info('reservation removed.', err);
-                                if (err) {
-                                    reject(new Error(this.req.__('Message.UnexpectedError')));
-                                } else {
-                                    resolve();
-                                }
+                        reservation.remove((err) => {
+                            this.logger.info('reservation removed.', err);
+                            if (err) {
+                                reject(new Error(this.req.__('Message.UnexpectedError')));
+                            } else {
+                                resolve();
                             }
-                        );
-
+                        });
                     }));
-
                 }
 
                 Promise.all(promises).then(() => {
                     this.logger.info('reservations successfully canceled.');
                     this.res.redirect(this.router.build('Home'));
-
                 }, (err) => {
                     this.logger.error('any reservations not canceled.', err);
                     this.res.redirect(this.router.build('Home'));
-
                 });
-
             });
-
         });
-
     }
 }
