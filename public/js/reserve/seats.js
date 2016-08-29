@@ -6,8 +6,6 @@ $(function(){
     /** 現在選択中の座席 */
     var _activeSeatCodes = _initialActiveSeatCodes;
 
-    showSeatStatusesMap(true);
-
     /**
      * 空席状況マップを表示する
      */
@@ -20,7 +18,6 @@ $(function(){
             beforeSend: function() {
             }
         }).done(function(data) {
-alert('done' + data.toString());
             if (Array.isArray(data)) {
                 let unavailableSeatCodes = data;
 
@@ -69,7 +66,6 @@ alert('done' + data.toString());
                 });
             }
         }).fail(function(jqxhr, textStatus, error) {
-alert('fail');
         }).always(function() {
             if (initialize) {
                 // 初期状態で選択中だった座席は仮予約中なので選択可能に
@@ -79,7 +75,7 @@ alert('fail');
 
                 _screenSeatStatusesMap = new ScreenSeatStatusesMap($('.screen'));
             }
-alert(_initialActiveSeatCodes);
+
             $('.seatStatusesMap').removeClass('hidden');
 
             // 20秒おきに状況とりにいく(現在選択中の座席もリセットされてしまう状態を解消できていないので、とりあえずしない)
@@ -140,4 +136,6 @@ alert(_initialActiveSeatCodes);
             form.submit();
         }
     });
+
+    showSeatStatusesMap(true);
 });
