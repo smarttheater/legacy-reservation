@@ -57,7 +57,7 @@ $(function(){
                     if (_initialActiveSeatCodes.indexOf(seatCode) < 0 && _activeSeatCodes.indexOf(seatCode) < 0) {
                         if (properties.avalilable) {
                             $(this).removeClass('disabled');
-                            $(this).addClass('select-seat');    
+                            $(this).addClass('select-seat');
                         } else {
                             $(this).removeClass('select-seat');
                             $(this).addClass('disabled');
@@ -77,7 +77,7 @@ $(function(){
 
                 _screenSeatStatusesMap = new ScreenSeatStatusesMap($('.screen'));
             }
-
+alert(_initialActiveSeatCodes);
             $('.seatStatusesMap').removeClass('hidden');
 
             // 20秒おきに状況とりにいく(現在選択中の座席もリセットされてしまう状態を解消できていないので、とりあえずしない)
