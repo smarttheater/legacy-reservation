@@ -92,7 +92,8 @@ class ReservationController extends BaseController_1.default {
         Models_1.default.Reservation.update({
             _id: this.req.params.id
         }, {
-            entered: true
+            entered: true,
+            entered_at: this.req.body.entered_at
         }, (err, raw) => {
             if (err) {
                 this.res.json({

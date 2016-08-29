@@ -1,12 +1,20 @@
 $(function(){
+    /** 全予約リスト */
     var reservationsById = JSON.parse($('input[name="reservationsById"]').val());
+    /** 全予約IDリスト */
     var reservationIds = Object.keys(reservationsById);
+    /** 入場チェック済み予約IDリスト */
+    var checkedReservationIds = [];
+    /** 入場中予約リスト */
+    var enteringReservations = [];
+    /** 入場処理済み予約IDリスト */
     var enteredReservationIds = [];
-    var confirmingReservationIds = [];
-    var confirmedReservationIds = [];
     var audioYes = new Audio('/audio/yes01.mp3');
     var audioNo = new Audio('/audio/no01.mp3');
 
+    /**
+     * 予約IDをチェックする
+     */
     function check(reservationId) {
         if (!reservationId) {
             return false;
@@ -28,9 +36,12 @@ $(function(){
                 result = _reservation.seat_code+' ['+_reservation.ticket_type_name_ja+'] OK';
 
                 // add to list for admission.
-                if (confirmingReservationIds.indexOf(reservationId) < 0) {
-                    enteredReservationIds.push(reservationId);
-                    confirmingReservationIds.push(reservationId);
+                if (checkedReservationIds.indexOf(reservationId) < 0) {
+                    checkedReservationIds.push(reservationId);
+                    enteringReservations.push({
+                        _id: reservationId,
+                        entered_at: Date.now()
+                    });
 
                     updateResults();
                 }
@@ -77,33 +88,36 @@ $(function(){
     /**
     * 入場フラグを送信する
     */
-    function addAdmission() {
-        if (confirmingReservationIds.length < 1) {
+    function processEnter() {
+        if (enteringReservations.length < 1) {
             setTimeout(function(){
-                addAdmission();
+                processEnter();
             },2000);
 
         } else {
-            var reservationId = confirmingReservationIds[0];
+            var enteringReservation = enteringReservations[0];
+            var id = enteringReservation._id;
             $.ajax({
                 dataType: 'json',
-                url: '/api/reservation/' + reservationId + '/enter',
+                url: '/api/reservation/' + id + '/enter',
                 type: 'POST',
-                data: {},
+                data: {
+                    entered_at: enteringReservation.entered_at
+                },
                 beforeSend: function() {
                 }
             }).done(function(data) {
                 if (data.success) {
-                    console.log('entered. reservationId', reservationId);
-                    confirmingReservationIds.splice(confirmingReservationIds.indexOf(reservationId), 1);
-                    confirmedReservationIds.push(reservationId);
-                    reservationsById[reservationId].entered = true;
+                    console.log('entered. reservationId', id);
+                    enteringReservations.splice(0, 1);
+                    enteredReservationIds.push(id);
+                    reservationsById[id].entered = true;
                 }
             }).fail(function(jqxhr, textStatus, error) {
 
             }).always(function() {
                 updateResults();
-                addAdmission();
+                processEnter();
             });
         }
     }
@@ -114,13 +128,13 @@ $(function(){
     function updateResults() {
         var html = ''
 
-        for (var i = enteredReservationIds.length - 1; i >= 0; i--) {
-            var _reservation = reservationsById[enteredReservationIds[i]];
+        for (var i = checkedReservationIds.length - 1; i >= 0; i--) {
+            var _reservation = reservationsById[checkedReservationIds[i]];
             html += 
                 '<tr>'+
                     '<td>'+_reservation._id+'</td>'+
                     '<td>'+_reservation.ticket_type_name_ja+'</td>'+
-                    '<td>'+((confirmedReservationIds.indexOf(_reservation._id) >= 0) ? "入場済み" : "入場中...")+'</td>'+
+                    '<td>'+((enteredReservationIds.indexOf(_reservation._id) >= 0) ? "入場済み" : "入場中...")+'</td>'+
                 '</tr>'
             ;
         }
@@ -129,7 +143,7 @@ $(function(){
     }
 
     // 入場フラグ送信タイマーをまわす
-    addAdmission();
+    processEnter();
 
 
 
@@ -159,5 +173,5 @@ $(function(){
     });
 
     // for debug
-    // check('57be9b5a9d55ffb0263025e4');
+    // check('57c14ae02045267022ea4759');
 });

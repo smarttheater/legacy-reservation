@@ -116,6 +116,7 @@ let Schema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    entered_at: Date, // 入場日時
 
     gmo_shop_id: String,
     gmo_amount: String,

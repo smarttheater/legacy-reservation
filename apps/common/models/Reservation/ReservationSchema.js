@@ -98,6 +98,7 @@ let Schema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    entered_at: Date,
     gmo_shop_id: String,
     gmo_amount: String,
     gmo_tax: String,

@@ -106,7 +106,8 @@ export default class ReservationController extends BaseController {
                 _id: this.req.params.id
             },
             {
-                entered: true
+                entered: true,
+                entered_at: this.req.body.entered_at
             },
             (err, raw) => {
                 if  (err) {
