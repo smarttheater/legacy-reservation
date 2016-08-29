@@ -11,7 +11,7 @@ $(function(){
     /**
      * 空席状況マップを表示する
      */
-    function showSeatStatusesMap(initialize = false) {
+    function showSeatStatusesMap(initialize) {
         $.ajax({
             dataType: 'json',
             url: $('.seatStatusesMap').attr('data-url'),
@@ -82,7 +82,7 @@ $(function(){
 
             // 20秒おきに状況とりにいく(現在選択中の座席もリセットされてしまう状態を解消できていないので、とりあえずしない)
             setTimeout(function(){
-                showSeatStatusesMap()
+                showSeatStatusesMap(false)
             }, 5000);
         });
     }
