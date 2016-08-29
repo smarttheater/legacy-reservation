@@ -1,16 +1,16 @@
 $(function(){
     var _limit = parseInt($('input[name="seatsLimit"]').val());
     var _screenSeatStatusesMap;
+alert(_limit);
     /** 初期状態で選択中だった座席コード(仮予約中の座席) */
     var _initialActiveSeatCodes = JSON.parse($('.seatStatusesMap').attr('data-seat-codes'));
     /** 現在選択中の座席 */
     var _activeSeatCodes = _initialActiveSeatCodes;
-
+alert(_initialActiveSeatCodes);
     /**
      * 空席状況マップを表示する
      */
     function showSeatStatusesMap(initialize) {
-alert(initialize);
         $.ajax({
             dataType: 'json',
             url: $('.seatStatusesMap').attr('data-url'),
@@ -19,7 +19,6 @@ alert(initialize);
             beforeSend: function() {
             }
         }).done(function(data) {
-alert('done');
             if (Array.isArray(data)) {
                 let unavailableSeatCodes = data;
 
@@ -68,9 +67,7 @@ alert('done');
                 });
             }
         }).fail(function(jqxhr, textStatus, error) {
-alert('fail');
         }).always(function() {
-alert('always');
             if (initialize) {
                 // 初期状態で選択中だった座席は仮予約中なので選択可能に
                 _initialActiveSeatCodes.forEach(function(seatCode) {

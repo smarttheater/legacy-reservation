@@ -28,7 +28,7 @@
         url4seatStatusesMap = url('reserve.getSeatProperties', {token: reservationModel.token});
     }
     %>
-    <div class="clm-left wrapper-seats seatStatusesMap" data-url="<%- url4seatStatusesMap %>" data-seat-codes="<%= JSON.stringify(reservationModel.seatCodes) %>">
+    <div class="clm-left wrapper-seats seatStatusesMap hidden" data-url="<%- url4seatStatusesMap %>" data-seat-codes="<%= (reservationModel.seatCodes) ? JSON.stringify(reservationModel.seatCodes) : '[]' %>">
 
         <% if (req.query.message) { %>
         <div class="alert alert-danger" role="alert">
