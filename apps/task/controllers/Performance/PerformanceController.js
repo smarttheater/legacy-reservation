@@ -34,7 +34,6 @@ class PerformanceController extends BaseController_1.default {
                     days.forEach((day) => {
                         starts.forEach((start, index) => {
                             // 作品を選考する
-                            this.logger.debug('selecting film...');
                             let _filmId;
                             while (_filmId === undefined) {
                                 let _films = this.shuffle(films);
@@ -91,7 +90,7 @@ class PerformanceController extends BaseController_1.default {
                 process.exit(0);
                 return;
             }
-            let now = moment().format('YYYYMMDDHHmm');
+            let now = parseInt(moment().format('YYYYMMDDHHmm'));
             let performanceStatusesModel = new PerformanceStatusesModel_1.default();
             this.logger.info('aggregating...');
             Models_1.default.Reservation.aggregate([
@@ -111,15 +110,14 @@ class PerformanceController extends BaseController_1.default {
                 // パフォーマンスIDごとに
                 let reservationCounts = {};
                 for (let result of results) {
-                    reservationCounts[result._id] = result.count;
+                    reservationCounts[result._id] = parseInt(result.count);
                 }
                 performances.forEach((performance) => {
                     // パフォーマンスごとに空席割合を算出する
                     if (reservationCounts.hasOwnProperty(performance.get('_id').toString())) {
-                        this.logger.debug('seatNum2status...', performance.get('_id'));
                         let seatCount = performance.get('screen').get('sections')[0].seats.length;
                         let start = performance.get('day') + performance.get('start_time');
-                        let status = PerformanceUtil_1.default.seatNum2status(reservationCounts[performance.get('_id').toString()].count, seatCount, start, now);
+                        let status = PerformanceUtil_1.default.seatNum2status(reservationCounts[performance.get('_id').toString()], seatCount, start, now);
                         performanceStatusesModel.setStatus(performance.get('_id').toString(), status);
                     }
                     else {

@@ -15,7 +15,7 @@ export default class PerformanceUtil {
      * 
      * @return string
      */
-    public static seatNum2status(unavailableSeatNum, allSeatNum, start, now) {
+    public static seatNum2status(unavailableSeatNum: number, allSeatNum: number, start: number, now: number) {
         let availableSeatNum = allSeatNum - unavailableSeatNum;
 
         // 開始時間を過ぎていればG
