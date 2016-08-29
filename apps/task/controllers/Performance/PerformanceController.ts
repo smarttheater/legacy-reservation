@@ -117,46 +117,53 @@ export default class PerformanceController extends BaseController {
                 return;
             }
 
-            let promises = [];
             let now = moment().format('YYYYMMDDHHmm');
             let performanceStatusesModel = new PerformanceStatusesModel();
 
-            performances.forEach((performance) => {
-                // パフォーマンスごとに空席割合を算出する
-                promises.push(new Promise((resolve, reject) => {
-                    Models.Reservation.count(
-                        {
-                            performance: performance.get('_id')
-                        },
-                        (err, reservationCount) => {
-                            if (err) {
-                                // エラーしても無視して次のタスクにまかせる
-                                // reject(err);
-                                performanceStatusesModel.setStatus(performance.get('_id').toString(), '?');
-                            } else {
-                                let seatCount = performance.get('screen').get('sections')[0].seats.length;
-                                let start = performance.get('day') + performance.get('start_time');
-                                let status = PerformanceUtil.seatNum2status(reservationCount, seatCount, start, now);
-                                performanceStatusesModel.setStatus(performance.get('_id').toString(), status);
-                            }
-
-                            resolve();
+            this.logger.info('aggregating...');
+            Models.Reservation.aggregate(
+                [
+                    {
+                        $group: {
+                            _id: "$performance",
+                            count: {$sum: 1}
                         }
-                    );
-                }));
-            });
+                    }
+                ],
+                (err, results) => {
+                    this.logger.info('aggregated.', err, results);
+                    if (err) {
+                        mongoose.disconnect();
+                        process.exit(0);
+                        return;
+                    }
 
-            Promise.all(promises).then(() => {
-                this.logger.info('promises completed.');
-                performanceStatusesModel.save((err) => {
-                    mongoose.disconnect();
-                    process.exit(0);
-                });
-            }, (err) => {
-                this.logger.error('promises completed.', err);
-                mongoose.disconnect();
-                process.exit(0);
-            });
+                    // パフォーマンスIDごとに
+                    let reservationCounts = {};
+                    for (let result of results) {
+                        reservationCounts[result._id] = result.count;
+                    }
+
+                    performances.forEach((performance) => {
+                        // パフォーマンスごとに空席割合を算出する
+                        if (reservationCounts.hasOwnProperty(performance.get('_id').toString())) {
+                            this.logger.debug('seatNum2status...', performance.get('_id'));
+                            let seatCount = performance.get('screen').get('sections')[0].seats.length;
+                            let start = performance.get('day') + performance.get('start_time');
+                            let status = PerformanceUtil.seatNum2status(reservationCounts[performance.get('_id').toString()].count, seatCount, start, now);
+                            performanceStatusesModel.setStatus(performance.get('_id').toString(), status);
+                        } else {
+                            performanceStatusesModel.setStatus(performance.get('_id').toString(), PerformanceUtil.SEAT_STATUS_A);
+                        }
+                    });
+
+                    this.logger.info('saving performanceStatusesModel...');
+                    performanceStatusesModel.save((err) => {
+                        mongoose.disconnect();
+                        process.exit(0);
+                    });
+                }
+            );
         });
     }
 }
