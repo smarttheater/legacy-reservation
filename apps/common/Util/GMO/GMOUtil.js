@@ -1,8 +1,18 @@
 "use strict";
+const crypto = require('crypto');
 /**
  * GMOペイメントユーティリティ
  */
 class GMOUtil {
+    /**
+     * ショップ情報確認文字列を作成する
+     */
+    static createShopPassString(shopId, orderId, amount, shopPassword, dateTime) {
+        // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
+        let md5hash = crypto.createHash('md5');
+        md5hash.update(`${shopId}${orderId}${amount}${shopPassword}${dateTime}`, 'utf8');
+        return md5hash.digest('hex');
+    }
 }
 /** カード */
 GMOUtil.PAY_TYPE_CREDIT = '0';

@@ -118,6 +118,8 @@ let Schema = new mongoose.Schema({
     },
     entered_at: Date, // 入場日時
 
+    gmo_shop_pass_string: String, // GMO決済開始時に送信するチェック文字列
+
     gmo_shop_id: String,
     gmo_amount: String,
     gmo_tax: String,

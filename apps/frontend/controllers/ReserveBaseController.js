@@ -455,6 +455,8 @@ class ReserveBaseController extends BaseController_1.default {
             return cb(new Error(this.res.__('Message.Expired')), reservationModel);
         }
         let next = (reservationModel) => {
+            // 購入日時確定
+            reservationModel.purchasedAt = Date.now();
             // 予約プロセス固有のログファイルをセット
             this.setProcessLogger(reservationModel.paymentNo, () => {
                 this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
@@ -542,7 +544,6 @@ class ReserveBaseController extends BaseController_1.default {
      */
     processFixReservations(paymentNo, update, cb) {
         update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
-        update['purchased_at'] = Date.now();
         update['updated_user'] = 'ReserveBaseController';
         // 予約完了ステータスへ変更
         this.logger.info('updating reservations by paymentNo...', paymentNo, update);

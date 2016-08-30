@@ -54,7 +54,7 @@ export default class Util {
      */
     public static getReservationLogger(paymentNo: string, cb: (err: Error, logger: log4js.Logger) => void) {
         let env = process.env.NODE_ENV || 'dev';
-        let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.slice(-1, 1)}`;
+        let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.substr(-1)}`;
 
         fs.mkdirs(logDir, (err) => {
             if (err) {
@@ -90,15 +90,31 @@ export default class Util {
      */
     public static getCheckDigit(source: number): number {
         let sourceString = source.toString();
+        if (sourceString.length !== 9) throw new Error('source length must be 9.'); 
+
         let weights = [2, 6, 3, 4, 3, 7, 5, 4, 2];
-        let digits = sourceString.length;
         let sum = 0;
-        for (let i = 0; i < digits; i++) {
-            sum += parseInt(sourceString[i]) * weights[i];
-        }
+        sourceString.split('').reverse().forEach((digitNumber, index) => {
+            sum += parseInt(digitNumber) * weights[index];
+        });
         let checkDigit = 11 - (sum % 11);
 
-        return checkDigit;
+        // 2桁の場合0、1桁であればそのまま(必ず1桁になるように)
+        return (checkDigit >= 10) ? 0 : checkDigit;
+    }
+
+    /**
+     * 購入番号の有効性をチェックする
+     * 
+     * @param {string} paymentNo
+     */
+    public static isValidPaymentNo(paymentNo: string): boolean {
+        if (paymentNo.length !== 10) return false;
+
+        let sequence = paymentNo.substr(0, paymentNo.length - 1);
+        let checkDigit = Util.getCheckDigit(parseInt(sequence));
+
+        return (parseInt(paymentNo.substr(-1)) === checkDigit);
     }
 
     /**

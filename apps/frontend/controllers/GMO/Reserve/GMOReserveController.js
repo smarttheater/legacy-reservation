@@ -1,5 +1,6 @@
 "use strict";
 const ReserveBaseController_1 = require('../../ReserveBaseController');
+const Util_1 = require('../../../../common/Util/Util');
 const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
 const Models_1 = require('../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
@@ -8,7 +9,6 @@ const GMOResultModel_1 = require('../../../models/Reserve/GMOResultModel');
 const GMONotificationModel_1 = require('../../../models/Reserve/GMONotificationModel');
 const GMONotificationResponseModel_1 = require('../../../models/Reserve/GMONotificationResponseModel');
 const moment = require('moment');
-const crypto = require('crypto');
 const conf = require('config');
 const GMOReserveCreditController_1 = require('./Credit/GMOReserveCreditController');
 const GMOReserveCvsController_1 = require('./Cvs/GMOReserveCvsController');
@@ -28,16 +28,13 @@ class GMOReserveController extends ReserveBaseController_1.default {
                     // GMOへ遷移画面
                     this.res.locals.shopId = conf.get('gmo_payment_shop_id');
                     this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(予約番号を使用)
-                    this.res.locals.amount = reservationModel.getTotalCharge();
-                    this.res.locals.dateTime = moment().format('YYYYMMDDHHmmss');
+                    this.res.locals.amount = reservationModel.getTotalCharge().toString();
+                    this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
                     this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CREDIT) ? '1' : '0';
                     this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CVS) ? '1' : '0';
-                    // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
-                    let md5hash = crypto.createHash('md5');
-                    md5hash.update(`${this.res.locals.shopId}${this.res.locals.orderID}${this.res.locals.amount}${conf.get('gmo_payment_shop_password')}${this.res.locals.dateTime}`, 'utf8');
-                    this.res.locals.shopPassString = md5hash.digest('hex');
-                    this.logger.info('redirecting to GMO payment...orderID:', this.res.locals.orderID);
-                    this.res.render('gmo/reserve/start', {});
+                    this.res.locals.shopPassString = GMOUtil_1.default.createShopPassString(conf.get('gmo_payment_shop_id'), this.res.locals.orderID, this.res.locals.amount, conf.get('gmo_payment_shop_password'), this.res.locals.dateTime);
+                    this.logger.info('redirecting to GMO payment...locals:', this.res.locals);
+                    this.res.render('gmo/reserve/start');
                 });
             });
         });
@@ -130,6 +127,8 @@ class GMOReserveController extends ReserveBaseController_1.default {
      */
     cancel() {
         let paymentNo = this.req.params.paymentNo;
+        if (!Util_1.default.isValidPaymentNo(paymentNo))
+            return this.next(new Error(this.req.__('Message.Invalid')));
         this.setProcessLogger(paymentNo, () => {
             this.logger.info('start process GMOReserveController.cancel.');
             this.logger.info('finding reservations...');

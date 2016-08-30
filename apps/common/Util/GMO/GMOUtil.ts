@@ -1,3 +1,5 @@
+import crypto = require('crypto');
+
 /**
  * GMOペイメントユーティリティ
  */
@@ -66,4 +68,13 @@ export default class GMOUtil {
     /** 簡易オーソリ */
     public static STATUS_CREDIT_SAUTH = 'SAUTH';
 
+    /**
+     * ショップ情報確認文字列を作成する
+     */
+    public static createShopPassString(shopId: string, orderId: string, amount: string, shopPassword: string, dateTime: string) {
+        // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
+        let md5hash = crypto.createHash('md5');
+        md5hash.update(`${shopId}${orderId}${amount}${shopPassword}${dateTime}`, 'utf8');
+        return md5hash.digest('hex');
+    }
 }

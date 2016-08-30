@@ -39,8 +39,8 @@ export default (app: any) => {
     // GMOプロセス
     app.post('/GMO/reserve/:token/start', 'gmo.reserve.start', base, (req, res, next) => {(new GMOReserveController(req, res, next)).start()});
     app.post('/GMO/reserve/result', 'gmo.reserve.result', base, (req, res, next) => {(new GMOReserveController(req, res, next)).result()});
-    app.all('/GMO/reserve/notify', 'gmo.reserve.notify', base, (req, res, next) => {(new GMOReserveController(req, res, next)).notify()});
-    app.all('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', base, (req, res, next) => {(new GMOReserveController(req, res, next)).cancel()});
+    app.get('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', base, (req, res, next) => {(new GMOReserveController(req, res, next)).cancel()});
+    app.post('/GMO/reserve/notify', 'gmo.reserve.notify', base, (req, res, next) => {(new GMOReserveController(req, res, next)).notify()});
 
 
 

@@ -33,20 +33,20 @@ export default class GMOReserveController extends ReserveBaseController {
                     // GMOへ遷移画面
                     this.res.locals.shopId = conf.get<string>('gmo_payment_shop_id');
                     this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(予約番号を使用)
-                    this.res.locals.amount = reservationModel.getTotalCharge();
-                    this.res.locals.dateTime = moment().format('YYYYMMDDHHmmss');
+                    this.res.locals.amount = reservationModel.getTotalCharge().toString();
+                    this.res.locals.dateTime =  moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
                     this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
                     this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
+                    this.res.locals.shopPassString = GMOUtil.createShopPassString(
+                        conf.get<string>('gmo_payment_shop_id'),
+                        this.res.locals.orderID,
+                        this.res.locals.amount,
+                        conf.get<string>('gmo_payment_shop_password'),
+                        this.res.locals.dateTime
+                    );
 
-                    // 「ショップ ID + オーダーID + 利用金額＋税送料＋ショップパスワード + 日時情報」を MD5 でハッシュした文字列。
-                    let md5hash = crypto.createHash('md5');
-                    md5hash.update(`${this.res.locals.shopId}${this.res.locals.orderID}${this.res.locals.amount}${conf.get<string>('gmo_payment_shop_password')}${this.res.locals.dateTime}`, 'utf8');
-                    this.res.locals.shopPassString = md5hash.digest('hex');
-
-                    this.logger.info('redirecting to GMO payment...orderID:', this.res.locals.orderID);
-                    this.res.render('gmo/reserve/start', {
-                        // layout: false
-                    });
+                    this.logger.info('redirecting to GMO payment...locals:', this.res.locals);
+                    this.res.render('gmo/reserve/start');
                 });
             });
         });
@@ -174,6 +174,7 @@ export default class GMOReserveController extends ReserveBaseController {
      */
     public cancel(): void {
         let paymentNo = this.req.params.paymentNo;
+        if (!Util.isValidPaymentNo(paymentNo)) return this.next(new Error(this.req.__('Message.Invalid')));
 
         this.setProcessLogger(paymentNo, () => {
             this.logger.info('start process GMOReserveController.cancel.');

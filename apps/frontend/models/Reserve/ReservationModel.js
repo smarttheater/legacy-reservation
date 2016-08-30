@@ -2,6 +2,8 @@
 const Util_1 = require('../../../common/Util/Util');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
+const conf = require('config');
+const moment = require('moment');
 /**
  * 予約情報モデル
  *
@@ -177,6 +179,8 @@ class ReservationModel {
             payment_method: (this.paymentMethod) ? this.paymentMethod : '',
             watcher_name: (reservation.watcher_name) ? reservation.watcher_name : '',
             watcher_name_updated_at: (reservation.watcher_name) ? Date.now() : '',
+            purchased_at: this.purchasedAt,
+            gmo_shop_pass_string: GMOUtil_1.default.createShopPassString(conf.get('gmo_payment_shop_id'), this.paymentNo, this.getTotalCharge().toString(), conf.get('gmo_payment_shop_password'), moment(this.purchasedAt).format('YYYYMMDDHHmmss')),
             updated_user: 'ReservationModel'
         };
         return document;

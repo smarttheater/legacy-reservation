@@ -2,6 +2,8 @@ import Util from '../../../common/Util/Util';
 import Constants from '../../../common/Util/Constants';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import GMOUtil from '../../../common/Util/GMO/GMOUtil';
+import conf = require('config');
+import moment = require('moment');
 
 /**
  * 予約情報モデル
@@ -12,9 +14,10 @@ import GMOUtil from '../../../common/Util/GMO/GMOUtil';
 export default class ReservationModel {
     /** 予約トークン */
     public token: string;
-
     /** 購入管理番号 */
     public paymentNo: string;
+    /** 購入確定日時タイムスタンプ */
+    public purchasedAt: number;
 
     /** パフォーマンス */
     public performance: {
@@ -308,6 +311,16 @@ export default class ReservationModel {
 
             watcher_name: (reservation.watcher_name) ? reservation.watcher_name : '',
             watcher_name_updated_at: (reservation.watcher_name) ? Date.now() : '',
+
+            purchased_at: this.purchasedAt,
+
+            gmo_shop_pass_string: GMOUtil.createShopPassString(
+                conf.get<string>('gmo_payment_shop_id'),
+                this.paymentNo,
+                this.getTotalCharge().toString(),
+                conf.get<string>('gmo_payment_shop_password'),
+                moment(this.purchasedAt).format('YYYYMMDDHHmmss')
+            ),
 
             updated_user: 'ReservationModel'
         };

@@ -8,6 +8,7 @@ import GMONotificationModel from '../../../../models/Reserve/GMONotificationMode
 import GMONotificationResponseModel from '../../../../models/Reserve/GMONotificationResponseModel';
 import conf = require('config');
 import crypto = require('crypto');
+import moment = require('moment');
 
 export default class GMOReserveCreditController extends ReserveBaseController {
     /**
@@ -113,7 +114,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                     {
                         payment_no: gmoNotificationModel.OrderID
                     },
-                    '_id total_charge',
+                    '_id total_charge purchased_at gmo_shop_pass_string',
                     (err, reservations) => {
                         this.logger.info('reservations found.', err, reservations.length);
                         if (err) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
@@ -123,6 +124,19 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                         this.logger.info('Amount must be ', reservations[0].get('total_charge'));
                         if (parseInt(gmoNotificationModel.Amount) !== reservations[0].get('total_charge')) {
                             return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        }
+
+                        // チェック文字列
+                        let shopPassString = GMOUtil.createShopPassString(
+                            gmoNotificationModel.ShopID,
+                            gmoNotificationModel.OrderID,
+                            gmoNotificationModel.Amount,
+                            conf.get<string>('gmo_payment_shop_password'),
+                            moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss')
+                        );
+                        this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
+                        if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
+                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         }
 
                         this.logger.info('processFixReservations processing... update:', update);

@@ -541,6 +541,9 @@ export default class ReserveBaseController extends BaseController {
         }
 
         let next = (reservationModel: ReservationModel) => {
+            // 購入日時確定
+            reservationModel.purchasedAt = Date.now();
+
             // 予約プロセス固有のログファイルをセット
             this.setProcessLogger(reservationModel.paymentNo, () => {
                 this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
@@ -627,6 +630,7 @@ export default class ReserveBaseController extends BaseController {
                     cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
                 } else {
                     reservationModel.paymentNo = paymentNo;
+
                     next(reservationModel);
                 }
             });
@@ -641,7 +645,6 @@ export default class ReserveBaseController extends BaseController {
      */
     protected processFixReservations(paymentNo: string, update: Object, cb: (err: Error) => void): void {
         update['status'] = ReservationUtil.STATUS_RESERVED;
-        update['purchased_at'] = Date.now();
         update['updated_user'] = 'ReserveBaseController';
 
         // 予約完了ステータスへ変更
