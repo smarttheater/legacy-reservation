@@ -55,7 +55,8 @@
         </tr>
         <tr>
             <th>お支払い期限</th>
-            <td><%- reservationDocuments[0].gmo_payment_term %></td>
+            <% let term = reservationDocuments[0].gmo_payment_term %>
+            <td><%- `${term.substr(0, 4)}/${term.substr(4, 2)}/${term.substr(6, 2)} ${term.substr(8, 2)}:${term.substr(10, 2)}:${term.substr(12)}` %></td>
         </tr>
         <tr>
             <th>お支払い方法</th>

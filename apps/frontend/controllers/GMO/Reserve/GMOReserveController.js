@@ -33,7 +33,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
                     this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CREDIT) ? '1' : '0';
                     this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CVS) ? '1' : '0';
                     this.res.locals.shopPassString = GMOUtil_1.default.createShopPassString(conf.get('gmo_payment_shop_id'), this.res.locals.orderID, this.res.locals.amount, conf.get('gmo_payment_shop_password'), this.res.locals.dateTime);
-                    this.logger.info('redirecting to GMO payment...locals:', this.res.locals);
+                    this.logger.info('redirecting to GMO payment...');
                     this.res.render('gmo/reserve/start');
                 });
             });

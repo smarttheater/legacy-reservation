@@ -111,7 +111,7 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                     let shopPassString = GMOUtil_1.default.createShopPassString(gmoNotificationModel.ShopID, gmoNotificationModel.OrderID, gmoNotificationModel.Amount, conf.get('gmo_payment_shop_password'), moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss'));
                     this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
                     if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
-                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                        return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     }
                     this.logger.info('processFixReservations processing... update:', update);
                     this.processFixReservations(paymentNo, update, (err) => {

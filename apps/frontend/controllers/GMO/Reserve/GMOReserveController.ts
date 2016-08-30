@@ -4,16 +4,12 @@ import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
-
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import GMOResultModel from '../../../models/Reserve/GMOResultModel';
 import GMONotificationModel from '../../../models/Reserve/GMONotificationModel';
 import GMONotificationResponseModel from '../../../models/Reserve/GMONotificationResponseModel';
-
 import moment = require('moment');
-import crypto = require('crypto');
 import conf = require('config');
-
 import GMOReserveCreditController from './Credit/GMOReserveCreditController';
 import GMOReserveCvsController from './Cvs/GMOReserveCvsController';
 
@@ -45,7 +41,7 @@ export default class GMOReserveController extends ReserveBaseController {
                         this.res.locals.dateTime
                     );
 
-                    this.logger.info('redirecting to GMO payment...locals:', this.res.locals);
+                    this.logger.info('redirecting to GMO payment...');
                     this.res.render('gmo/reserve/start');
                 });
             });

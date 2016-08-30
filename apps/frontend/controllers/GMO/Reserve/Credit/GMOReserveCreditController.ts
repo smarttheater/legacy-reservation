@@ -136,7 +136,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                         );
                         this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
                         if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
-                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                            return this.res.send(GMONotificationResponseModel.RecvRes_NG);
                         }
 
                         this.logger.info('processFixReservations processing... update:', update);

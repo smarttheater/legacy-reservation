@@ -7,6 +7,7 @@ import GMONotificationModel from '../../../../models/Reserve/GMONotificationMode
 import GMONotificationResponseModel from '../../../../models/Reserve/GMONotificationResponseModel';
 import crypto = require('crypto');
 import conf = require('config');
+import moment = require('moment');
 
 export default class GMOReserveCvsController extends ReserveBaseController {
     /**
@@ -100,18 +101,30 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                     {
                         payment_no: gmoNotificationModel.OrderID
                     },
-                    '_id total_charge',
-                    (err, reservationDocuments) => {
-                        this.logger.info('reservations found.', err, reservationDocuments.length);
+                    '_id total_charge purchased_at gmo_shop_pass_string',
+                    (err, reservations) => {
+                        this.logger.info('reservations found.', err, reservations.length);
                         if (err) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
-                        if (reservationDocuments.length === 0) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        if (reservations.length === 0) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
 
                         // 利用金額の整合性
-                        this.logger.info('Amount must be ', reservationDocuments[0].get('total_charge'));
-                        if (parseInt(gmoNotificationModel.Amount) !== reservationDocuments[0].get('total_charge')) {
+                        this.logger.info('Amount must be ', reservations[0].get('total_charge'));
+                        if (parseInt(gmoNotificationModel.Amount) !== reservations[0].get('total_charge')) {
                             return this.res.send(GMONotificationResponseModel.RecvRes_NG);
                         }
 
+                        // チェック文字列
+                        let shopPassString = GMOUtil.createShopPassString(
+                            gmoNotificationModel.ShopID,
+                            gmoNotificationModel.OrderID,
+                            gmoNotificationModel.Amount,
+                            conf.get<string>('gmo_payment_shop_password'),
+                            moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss')
+                        );
+                        this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
+                        if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
+                            return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        }
 
                         this.logger.info('processFixReservations processing... update:', update);
                         this.processFixReservations(paymentNo, update, (err) => {
@@ -161,6 +174,18 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                             return this.res.send(GMONotificationResponseModel.RecvRes_NG);
                         }
 
+                        // チェック文字列
+                        let shopPassString = GMOUtil.createShopPassString(
+                            gmoNotificationModel.ShopID,
+                            gmoNotificationModel.OrderID,
+                            gmoNotificationModel.Amount,
+                            conf.get<string>('gmo_payment_shop_password'),
+                            moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss')
+                        );
+                        this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
+                        if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
+                            return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        }
 
                         this.logger.info('processChangeStatus2waitingSettlement processing... update:', update);
                         this.processChangeStatus2waitingSettlement(gmoNotificationModel.OrderID, update, (err) => {
