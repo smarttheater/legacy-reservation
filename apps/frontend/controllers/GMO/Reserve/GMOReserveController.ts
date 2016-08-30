@@ -196,10 +196,8 @@ export default class GMOReserveController extends ReserveBaseController {
                     case ReservationUtil.PURCHASER_GROUP_MEMBER:
                         if (!this.req.memberUser.isAuthenticated()) {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
                         } else if (this.req.memberUser.get('_id') !== reservations[0].get('member').toString()) {
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
                         }
 
                         break;
@@ -226,10 +224,10 @@ export default class GMOReserveController extends ReserveBaseController {
 
                 Promise.all(promises).then(() => {
                     this.logger.info('reservations successfully canceled.');
-                    this.res.redirect(this.router.build('Home'));
+                    this.res.render('gmo/reserve/cancel');
                 }, (err) => {
                     this.logger.error('any reservations not canceled.', err);
-                    this.res.redirect(this.router.build('Home'));
+                    this.res.render('gmo/reserve/cancel');
                 });
             });
         });

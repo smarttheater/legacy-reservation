@@ -26,7 +26,7 @@ export default (app: any) => {
         next();
     }
 
-    app.get('/', 'Home', base, (req, res, next) => {(new IndexController(req, res, next)).index()});
+    app.get('/', 'home', base, (req, res, next) => {(new IndexController(req, res, next)).index()});
 
     // 言語
     app.get('/language/update/:locale', 'language.update', base, (req, res, next) => {(new LanguageController(req, res, next)).update()});

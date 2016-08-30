@@ -81,7 +81,7 @@ class TelAuthController extends BaseController_1.default {
         delete this.req.session[TelStaffUser_1.default.AUTH_SESSION_NAME];
         Models_1.default.Authentication.remove({ token: this.req.cookies.remember_tel_staff }, (err) => {
             this.res.clearCookie('remember_tel_staff');
-            this.res.redirect('/');
+            this.res.redirect(this.router.build('tel.mypage'));
         });
     }
 }

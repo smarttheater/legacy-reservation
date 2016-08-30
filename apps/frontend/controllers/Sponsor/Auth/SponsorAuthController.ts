@@ -90,7 +90,7 @@ export default class SponsorAuthController extends BaseController {
         delete this.req.session[SponsorUser.AUTH_SESSION_NAME];
         Models.Authentication.remove({token: this.req.cookies.remember_sponsor}, (err) => {
             this.res.clearCookie('remember_sponsor');
-            this.res.redirect('/');
+            this.res.redirect(this.router.build('sponsor.reserve.start'));
         });
     }
 }

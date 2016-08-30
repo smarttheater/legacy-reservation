@@ -87,7 +87,7 @@ export default class WindowAuthController extends BaseController {
         delete this.req.session[WindowUser.AUTH_SESSION_NAME];
         Models.Authentication.remove({token: this.req.cookies.remember_window}, (err) => {
             this.res.clearCookie('remember_window');
-            this.res.redirect('/');
+            this.res.redirect(this.router.build('window.mypage'));
         });
     }
 }
