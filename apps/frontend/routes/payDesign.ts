@@ -2,11 +2,8 @@ import PayDesignReserveController from  '../controllers/PayDesign/Reserve/PayDes
 import querystring = require('querystring');
 
 export default (app: any) => {
-    // ペイデザインプロセス
-    app.all('/PayDesign/reserve/test', 'paydesign.reserve.test', (req, res, next) => {(new PayDesignReserveController(req, res, next)).test()});
-
     app.post('/PayDesign/reserve/notify', '', (req, res, next) => {
-        let content = new Buffer([]);;
+        let content = new Buffer([]);
         req.on('data', (chunk) => {
             content = Buffer.concat([content, chunk]);
         });
@@ -21,7 +18,7 @@ export default (app: any) => {
     });
 
     app.post('/PayDesign/reserve/cancel', '', (req, res, next) => {
-        let content = new Buffer([]);;
+        let content = new Buffer([]);
         req.on('data', (chunk) => {
             content = Buffer.concat([content, chunk]);
         });

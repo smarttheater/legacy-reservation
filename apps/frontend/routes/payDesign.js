@@ -3,11 +3,8 @@ const PayDesignReserveController_1 = require('../controllers/PayDesign/Reserve/P
 const querystring = require('querystring');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
-    // ペイデザインプロセス
-    app.all('/PayDesign/reserve/test', 'paydesign.reserve.test', (req, res, next) => { (new PayDesignReserveController_1.default(req, res, next)).test(); });
     app.post('/PayDesign/reserve/notify', '', (req, res, next) => {
         let content = new Buffer([]);
-        ;
         req.on('data', (chunk) => {
             content = Buffer.concat([content, chunk]);
         });
@@ -21,7 +18,6 @@ exports.default = (app) => {
     });
     app.post('/PayDesign/reserve/cancel', '', (req, res, next) => {
         let content = new Buffer([]);
-        ;
         req.on('data', (chunk) => {
             content = Buffer.concat([content, chunk]);
         });

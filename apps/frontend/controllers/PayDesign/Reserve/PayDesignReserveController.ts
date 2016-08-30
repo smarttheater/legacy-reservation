@@ -3,17 +3,6 @@ import Models from '../../../../common/models/Models';
 import PayDesignNotificationModel from '../../../models/Reserve/PayDesignNotificationModel';
 
 export default class PayDesignReserveController extends ReserveBaseController {
-    public test(): void {
-        let jconv = require('jconv');
-        this.res.setHeader('Content-Type', 'text/html; charset=Shift_JIS');
-        this.res.render('paydesign/test', {
-            layout: false
-        }, (err, html) => {
-            this.res.write( jconv.convert( html, 'UTF8', 'SJIS' ));
-            this.res.end();
-        });
-    }
-
     /**
      * ペイデザイン入金通知
      */
@@ -27,7 +16,7 @@ export default class PayDesignReserveController extends ReserveBaseController {
         }
 
         this.setProcessLogger(paymentNo, () => {
-            this.logger.info('payDesignNotificationModel is ', payDesignNotificationModel);
+            this.logger.info('payDesignNotificationModel is', payDesignNotificationModel);
 
             let update = {
                 paydesign_seq: payDesignNotificationModel.SEQ,
@@ -46,28 +35,23 @@ export default class PayDesignReserveController extends ReserveBaseController {
                 {
                     payment_no: paymentNo
                 },
-                '_id total_charge',
+                'total_charge',
                 (err, reservations) => {
-                    this.logger.info('reservations found.', err, reservations.length);
+                    this.logger.info('reservations found.', err, reservations);
                     if (err) return this.res.send('1');
                     if (reservations.length === 0) return this.res.send('1');
 
                     // 利用金額の整合性
-                    this.logger.info('Amount must be ', reservations[0].get('total_charge'));
-                    if (parseInt(payDesignNotificationModel.KINGAKU) !== reservations[0].get('total_charge')) {
-                        return this.res.send('1');
-                    }
-
+                    this.logger.info('payDesignNotificationModel.KINGAKU must be', reservations[0].get('total_charge'));
+                    if (parseInt(payDesignNotificationModel.KINGAKU) !== reservations[0].get('total_charge')) return this.res.send('1');
 
                     this.logger.info('processFixReservations processing... update:', update);
                     this.processFixReservations(paymentNo, update, (err) => {
                         this.logger.info('processFixReservations processed.', err);
                         if (err) {
                             // 失敗した場合、再通知されるので、それをリトライとみなす
-                            this.logger.info('sending response 1...');
                             this.res.send('1');
                         } else {
-                            this.logger.info('sending response 0...');
                             this.res.send('0');
                         }
                     });
@@ -89,7 +73,7 @@ export default class PayDesignReserveController extends ReserveBaseController {
         }
 
         this.setProcessLogger(paymentNo, () => {
-            this.logger.info('payDesignNotificationModel is ', payDesignNotificationModel);
+            this.logger.info('payDesignNotificationModel is', payDesignNotificationModel);
 
             // 空席に戻す
             this.logger.info('finding reservations...payment_no:', paymentNo);
@@ -97,18 +81,15 @@ export default class PayDesignReserveController extends ReserveBaseController {
                 {
                     payment_no: paymentNo
                 },
-                '_id total_charge',
+                'total_charge',
                 (err, reservations) => {
-                    this.logger.info('reservations found.', err, reservations.length);
+                    this.logger.info('reservations found.', err, reservations);
                     if (err) return this.res.send('1');
                     if (reservations.length === 0) return this.res.send('1');
 
                     // 利用金額の整合性
-                    this.logger.info('Amount must be ', reservations[0].get('total_charge'));
-                    if (parseInt(payDesignNotificationModel.KINGAKU) !== reservations[0].get('total_charge')) {
-                        return this.res.send('1');
-                    }
-
+                    this.logger.info('payDesignNotificationModel.KINGAKU must be', reservations[0].get('total_charge'));
+                    if (parseInt(payDesignNotificationModel.KINGAKU) !== reservations[0].get('total_charge')) return this.res.send('1');
 
                     this.logger.info('removing reservations...payment_no:', paymentNo);
                     Models.Reservation.remove(
@@ -118,10 +99,8 @@ export default class PayDesignReserveController extends ReserveBaseController {
                         (err) => {
                             this.logger.info('reservations removed.', err);
                             if (err) {
-                                this.logger.info('sending response 1...');
                                 this.res.send('1');
                             } else {
-                                this.logger.info('sending response 0...');
                                 this.res.send('0');
                             }
                         }
