@@ -130,7 +130,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                 this.logger.info('finding reservations...payment_no:', gmoNotificationModel.OrderID);
                 Models_1.default.Reservation.find({
                     payment_no: gmoNotificationModel.OrderID
-                }, '_id total_charge', (err, reservations) => {
+                }, '_id total_charge purchased_at gmo_shop_pass_string', (err, reservations) => {
                     this.logger.info('reservations found.', err, reservations.length);
                     if (err)
                         return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
@@ -171,7 +171,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                 this.logger.info('finding reservations...payment_no:', gmoNotificationModel.OrderID);
                 Models_1.default.Reservation.find({
                     payment_no: gmoNotificationModel.OrderID
-                }, '_id total_charge', (err, reservations) => {
+                }, '_id total_charge purchased_at gmo_shop_pass_string', (err, reservations) => {
                     this.logger.info('reservations found.', err, reservations.length);
                     if (err)
                         return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
@@ -181,6 +181,12 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                     this.logger.info('Amount must be ', reservations[0].get('total_charge'));
                     if (parseInt(gmoNotificationModel.Amount) !== reservations[0].get('total_charge')) {
                         this.logger.info('sending response RecvRes_NG...');
+                        return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
+                    }
+                    // チェック文字列
+                    let shopPassString = GMOUtil_1.default.createShopPassString(gmoNotificationModel.ShopID, gmoNotificationModel.OrderID, gmoNotificationModel.Amount, conf.get('gmo_payment_shop_password'), moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss'));
+                    this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
+                    if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
                         return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     }
                     this.logger.info('removing reservations...payment_no:', gmoNotificationModel.OrderID);
