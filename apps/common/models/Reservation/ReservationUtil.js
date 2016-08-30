@@ -5,8 +5,7 @@ class ReservationUtil {
      * create QR code from reservation infos.
      */
     static createQRCode(reservationId) {
-        let text = reservationId;
-        return qr.imageSync(text, {
+        return qr.imageSync(reservationId, {
             type: 'png'
         });
     }
@@ -15,8 +14,6 @@ class ReservationUtil {
 ReservationUtil.STATUS_TEMPORARY = 'TEMPORARY';
 /** TIFF確保上の仮予約 */
 ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TIFF = 'TEMPORARY_ON_KEPT_BY_TIFF';
-/** GMOプロセス中 */
-ReservationUtil.STATUS_GMO_PROCESSING = 'GMO_PROCESSING';
 /** 決済待ち */
 ReservationUtil.STATUS_WAITING_SETTLEMENT = 'WAITING_SETTLEMENT';
 /**  ペイデザイン決済待ち */

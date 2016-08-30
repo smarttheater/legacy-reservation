@@ -276,4 +276,24 @@ export default class ReservationController extends BaseController {
             process.exit(0);
         });
     }
+
+    public resetEntered(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
+        Models.Reservation.update(
+            {},
+            {
+                entered: false,
+                entered_at: null
+            },
+            {
+                multi: true
+            },
+            (err, raw) => {
+                this.logger.info('updated.', err);
+                mongoose.disconnect();
+                process.exit(0);
+            }
+        );
+    }
 }
