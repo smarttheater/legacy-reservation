@@ -23,6 +23,7 @@ export default class MemberReserveController extends ReserveBaseController imple
             'performance seat_code status',
             (err, reservations) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                // TODO 「予約可能な席がございません」と表示
                 if (reservations.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
                 this.processStart((err, reservationModel) => {

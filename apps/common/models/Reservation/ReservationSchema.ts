@@ -165,6 +165,7 @@ Schema.virtual('baloon_content4staff').get(function() {
     let str = `${this.seat_code}`;
     str += (this.purchaser_group_str) ? `<br>${this.purchaser_group_str}` : '';
     str += (this.purchaser_name) ? `<br>${this.purchaser_name}` : '';
+    str += (this.watcher_name) ? `<br>${this.watcher_name}` : '';
     str += (this.status_str) ? `<br>${this.status_str}` : '';
 
     return str;
@@ -176,7 +177,7 @@ Schema.virtual('purchaser_name').get(function() {
     if (this.status === ReservationUtil.STATUS_RESERVED) {
         switch (this.purchaser_group) {
             case ReservationUtil.PURCHASER_GROUP_STAFF:
-                name = this.staff_name;
+                name = `${this.staff_name} ${this.staff_signature}`;;
                 break;
             default:
                 name = `${this.purchaser_last_name} ${this.purchaser_first_name}`;

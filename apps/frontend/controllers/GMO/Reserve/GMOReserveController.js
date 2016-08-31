@@ -50,6 +50,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
             this.logger.info('gmoResultModel is ', gmoResultModel);
             // エラー結果の場合
             if (gmoResultModel.ErrCode) {
+                // TODO すぐに空席に戻す
                 // 空席に戻すのは、仮予約タイムアウトタスクにまかせる！
                 this.next(new Error(`エラー結果を受信しました。 ErrCode:${gmoResultModel.ErrCode} ErrInfo:${gmoResultModel.ErrInfo}`));
             }
