@@ -106,12 +106,7 @@ export default class ReserveBaseController extends BaseController {
                     reservationModel.purchaserGender = '1';
                 }
 
-                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
-
-                // コンビニ決済は5日前まで
-                if (moment() < moment(conf.get<string>('datetimes.reservation_end_cvs'))) {
-                    reservationModel.paymentMethodChoices.push(GMOUtil.PAY_TYPE_CVS);
-                }
+                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT, GMOUtil.PAY_TYPE_CVS];
 
                 break;
 
@@ -251,30 +246,26 @@ export default class ReserveBaseController extends BaseController {
             if (!performance) return cb(new Error(this.req.__('Message.NotFound')), reservationModel);
 
 
-            // 内部以外は、上映開始20分過ぎていたらはじく
-            if (this.purchaserGroup !== ReservationUtil.PURCHASER_GROUP_STAFF) {
+            // 内部と当日以外は、上映開始20分過ぎていたらはじく
+            if (this.purchaserGroup !== ReservationUtil.PURCHASER_GROUP_WINDOW
+             && this.purchaserGroup !== ReservationUtil.PURCHASER_GROUP_STAFF) {
                 let now = moment().add(-20, 'minutes');
                 if (performance.get('day') === now.format('YYYYMMDD')) {
                     if (performance.get('start') < now.format('HHmm')) {
                         return cb(new Error('You cannot reserve this performance.'), reservationModel);
 
                     }
-
                 } else if (performance.get('day') < now.format('YYYYMMDD')) {
                     return cb(new Error('You cannot reserve this performance.'), reservationModel);
-
                 }
-
             }
 
 
 
             // 券種取得
-            Models.TicketTypeGroup.findOne(
-                {
-                    _id: performance.get('film').get('ticket_type_group')
-                },
-                (err, ticketTypeGroupDocument) => {
+            Models.TicketTypeGroup.findById(
+                performance.get('film').get('ticket_type_group').toString(),
+                (err, ticketTypeGroup) => {
                     reservationModel.seatCodes = [];
 
 
@@ -293,7 +284,7 @@ export default class ReserveBaseController extends BaseController {
                             // メルマガ当選者の場合、一般だけ
                             reservationModel.ticketTypes = [];
 
-                            for (let ticketType of ticketTypeGroupDocument.get('types')) {
+                            for (let ticketType of ticketTypeGroup.get('types')) {
                                 if (ticketType.get('code') === TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS) {
                                     reservationModel.ticketTypes.push(ticketType);
                                 }
@@ -305,7 +296,7 @@ export default class ReserveBaseController extends BaseController {
                             // 一般、当日窓口、電話予約の場合
                             reservationModel.ticketTypes = [];
 
-                            for (let ticketType of ticketTypeGroupDocument.get('types')) {
+                            for (let ticketType of ticketTypeGroup.get('types')) {
                                 switch (ticketType.get('code')) {
                                     // 学生当日は、当日だけ
                                     case TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY:
@@ -370,7 +361,14 @@ export default class ReserveBaseController extends BaseController {
                         }
                     }
 
-                    // スクリーン座席表HTMLを保管(apiで取得)
+                    // コンビニ決済はパフォーマンス上映の5日前まで
+                    if (parseInt(moment().add(+5, 'days').format('YYYYMMDD')) > parseInt(reservationModel.performance.day)) {
+                        if (reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CVS) >= 0) {
+                            reservationModel.paymentMethodChoices.splice(reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CVS), 1);
+                        }
+                    }
+
+                    // スクリーン座席表HTMLを保管
                     fs.readFile(`${__dirname}/../../common/views/screens/${performance.get('screen').get('_id').toString()}.ejs`, 'utf8', (err, data) => {
                         if (err) {
                             cb(err, reservationModel);

@@ -45,7 +45,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         }
         this.processStart((err, reservationModel) => {
             if (err)
-                this.next(new Error(this.req.__('Message.UnexpectedError')));
+                this.next(err);
             if (reservationModel.performance) {
                 reservationModel.save((err) => {
                     this.res.redirect(this.router.build('customer.reserve.terms', { token: reservationModel.token }));

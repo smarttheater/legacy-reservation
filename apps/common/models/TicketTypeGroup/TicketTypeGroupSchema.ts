@@ -17,8 +17,7 @@ let Schema = new mongoose.Schema({
                 ja: String, // 券種名
                 en: String // 券種名(英語)
             },
-            charge: Number, // 料金
-            is_on_the_day: Boolean // 当日だけフラグ
+            charge: Number // 料金
         },
     ],
     created_user: String,

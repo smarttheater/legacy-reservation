@@ -97,11 +97,7 @@ class ReserveBaseController extends BaseController_1.default {
                     reservationModel.purchaserAddress = '';
                     reservationModel.purchaserGender = '1';
                 }
-                reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CREDIT];
-                // コンビニ決済は5日前まで
-                if (moment() < moment(conf.get('datetimes.reservation_end_cvs'))) {
-                    reservationModel.paymentMethodChoices.push(GMOUtil_1.default.PAY_TYPE_CVS);
-                }
+                reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CREDIT, GMOUtil_1.default.PAY_TYPE_CVS];
                 break;
             case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
                 purchaser = this.findPurchaser();
@@ -221,8 +217,9 @@ class ReserveBaseController extends BaseController_1.default {
                 return cb(err, reservationModel);
             if (!performance)
                 return cb(new Error(this.req.__('Message.NotFound')), reservationModel);
-            // 内部以外は、上映開始20分過ぎていたらはじく
-            if (this.purchaserGroup !== ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
+            // 内部と当日以外は、上映開始20分過ぎていたらはじく
+            if (this.purchaserGroup !== ReservationUtil_1.default.PURCHASER_GROUP_WINDOW
+                && this.purchaserGroup !== ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
                 let now = moment().add(-20, 'minutes');
                 if (performance.get('day') === now.format('YYYYMMDD')) {
                     if (performance.get('start') < now.format('HHmm')) {
@@ -234,9 +231,7 @@ class ReserveBaseController extends BaseController_1.default {
                 }
             }
             // 券種取得
-            Models_1.default.TicketTypeGroup.findOne({
-                _id: performance.get('film').get('ticket_type_group')
-            }, (err, ticketTypeGroupDocument) => {
+            Models_1.default.TicketTypeGroup.findById(performance.get('film').get('ticket_type_group').toString(), (err, ticketTypeGroup) => {
                 reservationModel.seatCodes = [];
                 // 券種リストは、予約する主体によって異なる
                 // 内部関係者の場合
@@ -250,7 +245,7 @@ class ReserveBaseController extends BaseController_1.default {
                     case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
                         // メルマガ当選者の場合、一般だけ
                         reservationModel.ticketTypes = [];
-                        for (let ticketType of ticketTypeGroupDocument.get('types')) {
+                        for (let ticketType of ticketTypeGroup.get('types')) {
                             if (ticketType.get('code') === TicketTypeGroupUtil_1.default.TICKET_TYPE_CODE_ADULTS) {
                                 reservationModel.ticketTypes.push(ticketType);
                             }
@@ -259,7 +254,7 @@ class ReserveBaseController extends BaseController_1.default {
                     default:
                         // 一般、当日窓口、電話予約の場合
                         reservationModel.ticketTypes = [];
-                        for (let ticketType of ticketTypeGroupDocument.get('types')) {
+                        for (let ticketType of ticketTypeGroup.get('types')) {
                             switch (ticketType.get('code')) {
                                 // 学生当日は、当日だけ
                                 case TicketTypeGroupUtil_1.default.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY:
@@ -309,7 +304,13 @@ class ReserveBaseController extends BaseController_1.default {
                         reservationModel.seatGradeCodesInScreen.push(seat.grade.code);
                     }
                 }
-                // スクリーン座席表HTMLを保管(apiで取得)
+                // コンビニ決済はパフォーマンス上映の5日前まで
+                if (parseInt(moment().add(+5, 'days').format('YYYYMMDD')) > parseInt(reservationModel.performance.day)) {
+                    if (reservationModel.paymentMethodChoices.indexOf(GMOUtil_1.default.PAY_TYPE_CVS) >= 0) {
+                        reservationModel.paymentMethodChoices.splice(reservationModel.paymentMethodChoices.indexOf(GMOUtil_1.default.PAY_TYPE_CVS), 1);
+                    }
+                }
+                // スクリーン座席表HTMLを保管
                 fs.readFile(`${__dirname}/../../common/views/screens/${performance.get('screen').get('_id').toString()}.ejs`, 'utf8', (err, data) => {
                     if (err) {
                         cb(err, reservationModel);

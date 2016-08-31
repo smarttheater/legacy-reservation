@@ -44,7 +44,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
         }
 
         this.processStart((err, reservationModel) => {
-            if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
+            if (err) this.next(err);
 
             if (reservationModel.performance) {
                 reservationModel.save((err) => {

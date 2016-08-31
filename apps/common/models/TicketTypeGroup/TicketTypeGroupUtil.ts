@@ -16,8 +16,7 @@ export default class TicketTypeGroupUtil {
                     ja: '無料',
                     en: 'Free'
                 },
-                charge: 0, // 料金
-                is_on_the_day: false
+                charge: 0 // 料金
             },
             {
                 code: TicketTypeGroupUtil.TICKET_TYPE_CODE_NOT_FOR_SALE,
@@ -25,8 +24,7 @@ export default class TicketTypeGroupUtil {
                     ja: 'Not for sale',
                     en: 'Not for Sale'
                 },
-                charge: 0, // 料金
-                is_on_the_day: false
+                charge: 0 // 料金
             },
         ];
     }
@@ -42,8 +40,7 @@ export default class TicketTypeGroupUtil {
                     ja: 'Not for sale',
                     en: 'Not for Sale'
                 },
-                charge: 0, // 料金
-                is_on_the_day: false
+                charge: 0 // 料金
             }
         ];
     }

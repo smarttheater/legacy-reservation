@@ -74,8 +74,7 @@ export default class ReservationModel {
             ja: string,
             en: string
         },
-        charge: number, // 料金
-        is_on_the_day: boolean // 当日だけフラグ
+        charge: number // 料金
     }>;
 
     /** スクリーン内の座席グレードリスト */
