@@ -16,6 +16,12 @@
         <input type="hidden" name="start_from" value="<%- moment().add(-20, 'minutes').format('X') %>">
         <% } %>
 
+        <% if (isTel) { %>
+        <!-- 電話窓口では、開場時間が5日後00:00:00以降 -->
+        <% let now = moment() %>
+        <input type="hidden" name="start_from" value="<%- moment(now.format('YYYY-MM-DDT00:00:00+9:00')).add(+5, 'days').format('X') %>">
+        <% } %>
+
         <div class="form-group">
             <select class="form-control" name="section">
                 <option value=""><%- __('Label.AllSections') %></option>
@@ -30,11 +36,17 @@
                 <option value=""><%- __('Label.AllDay') %></option>
                 <%
                 let now = moment();
+                let fiveDaysLater = now.add(+5, 'days');
                 let start = moment(conf.get('datetimes.event_start'));
                 let end = moment(conf.get('datetimes.event_end'));
                 let options = '';
                 while (start.format('YYYYMMDD') <= end.format('YYYYMMDD')) {
-                    options += `<option value="${start.format('YYYYMMDD')}"`;
+                    // 電話窓口の場合、5日後以降のみ表示
+                    if (isTel && start.format('YYYYMMDD') < fiveDaysLater.format('YYYYMMDD')) {
+                    } else {
+                        options += `<option value="${start.format('YYYYMMDD')}"`;
+                    }
+
                     if (isWindow && now.format('YYYYMMDD') === start.format('YYYYMMDD')) {
                         options += ' selected="selected"';
                     }
