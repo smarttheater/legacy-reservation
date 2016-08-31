@@ -29,5 +29,6 @@
         "event_end": "2016-09-06T23:59:59+09:00"
     },
 
-    "temporary_reservation_valid_period_seconds": 900
+    "temporary_reservation_valid_period_seconds": 900,
+    "waiting_settlement_reservatioin_valid_period_hours": 72
 }
