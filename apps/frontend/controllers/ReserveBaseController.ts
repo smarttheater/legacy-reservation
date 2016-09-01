@@ -154,12 +154,7 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.purchaserAddress = '';
                 reservationModel.purchaserGender = '1';
 
-                reservationModel.paymentMethodChoices = [];
-
-                // コンビニ決済は5日前まで
-                if (moment() < moment(conf.get<string>('datetimes.reservation_end_cvs'))) {
-                    reservationModel.paymentMethodChoices.push(GMOUtil.PAY_TYPE_CVS);
-                }
+                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CVS];
 
                 break;
 

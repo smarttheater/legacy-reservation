@@ -14,13 +14,15 @@ class ReservationModel {
     /**
      * プロセス中の購入情報をセッションに保存する
      *
-     * @param {number} ttl 有効期間(default: 3600)
+     * @param {number} ttl 有効期間(default: 1800)
      */
     save(cb, ttl) {
         let client = Util_1.default.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
         let _ttl = (ttl) ? ttl : 1800;
         client.setex(key, _ttl, JSON.stringify(this), (err, reply) => {
+            if (err)
+                throw err;
             client.quit();
             cb(err);
         });
@@ -76,7 +78,7 @@ class ReservationModel {
      */
     getTotalCharge() {
         let total = 0;
-        if (Array.isArray(this.seatCodes) && this.seatCodes.length > 0) {
+        if (Array.isArray(this.seatCodes)) {
             this.seatCodes.forEach((seatCode) => {
                 total += this.getChargeBySeatCode(seatCode);
             });

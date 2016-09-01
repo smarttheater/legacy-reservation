@@ -1,5 +1,4 @@
 import Util from '../../../common/Util/Util';
-import Constants from '../../../common/Util/Constants';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import GMOUtil from '../../../common/Util/GMO/GMOUtil';
 import conf = require('config');
@@ -18,80 +17,20 @@ export default class ReservationModel {
     public paymentNo: string;
     /** 購入確定日時タイムスタンプ */
     public purchasedAt: number;
-
     /** パフォーマンス */
-    public performance: {
-        _id: string,
-        day: string,
-        start_time: string,
-        end_time: string,
-        start_str: string,
-        theater: {
-            _id: string,
-            name: {
-                ja: string,
-                en: string
-            }
-        },
-        screen: {
-            _id: string,
-            name: {
-                ja: string,
-                en: string
-            },
-            sections: Array<{
-                seats: Array<{
-                    code: string, // 座席コード
-                    grade: {
-                        code: string,
-                        name: {
-                            ja: string,
-                            en: string
-                        },
-                        additional_charge: number // 追加料金
-                    }
-                }>
-            }>
-        },
-        film: {
-            _id: string,
-            name: {
-                ja: string,
-                en: string
-            },
-            image: string,
-            is_mx4d: boolean, // MX4D上映かどうか
-        },
-    };
-
+    public performance: Performance;
     /** 決済方法選択肢 */
     public paymentMethodChoices: Array<string>;
-
     /** 券種リスト */
-    public ticketTypes: Array<{
-        code: string,
-        name: {
-            ja: string,
-            en: string
-        },
-        charge: number // 料金
-    }>;
-
+    public ticketTypes: Array<TicketType>;
     /** スクリーン内の座席グレードリスト */
     public seatGradeCodesInScreen: Array<string>;
-
-
-
-
     /** スクリーンの座席表HTML */
     public screenHtml: string;
-
     /** 座席を仮押さえした日時 */
     public tmpReservationExpiredAt: number;
-
     /** 予約座席コードリスト */
     public seatCodes: Array<string>;
-
     /** 購入者セイ */
     public purchaserLastName: string;
     /** 購入者メイ */
@@ -108,20 +47,20 @@ export default class ReservationModel {
     public purchaserGender: string;
     /** 決済方法 */
     public paymentMethod: string;
-
     /** 購入者区分 */
     public purchaserGroup: string;
 
     /**
      * プロセス中の購入情報をセッションに保存する
      * 
-     * @param {number} ttl 有効期間(default: 3600)
+     * @param {number} ttl 有効期間(default: 1800)
      */
     public save(cb: (err: Error) => void, ttl?: number) {
         let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
         let _ttl = (ttl) ? ttl : 1800;
         client.setex(key, _ttl, JSON.stringify(this), (err, reply) => {
+            if (err) throw err;
             client.quit();
             cb(err);
         });
@@ -182,7 +121,7 @@ export default class ReservationModel {
     public getTotalCharge(): number {
         let total = 0;
 
-        if (Array.isArray(this.seatCodes) && this.seatCodes.length > 0) {
+        if (Array.isArray(this.seatCodes)) {
             this.seatCodes.forEach((seatCode) => {
                 total += this.getChargeBySeatCode(seatCode);
             });
@@ -326,6 +265,59 @@ export default class ReservationModel {
 
         return document;
     }
+}
+
+interface Performance {
+    _id: string,
+    day: string,
+    start_time: string,
+    end_time: string,
+    start_str: string,
+    theater: {
+        _id: string,
+        name: {
+            ja: string,
+            en: string
+        }
+    },
+    screen: {
+        _id: string,
+        name: {
+            ja: string,
+            en: string
+        },
+        sections: Array<{
+            seats: Array<{
+                code: string, // 座席コード
+                grade: {
+                    code: string,
+                    name: {
+                        ja: string,
+                        en: string
+                    },
+                    additional_charge: number // 追加料金
+                }
+            }>
+        }>
+    },
+    film: {
+        _id: string,
+        name: {
+            ja: string,
+            en: string
+        },
+        image: string,
+        is_mx4d: boolean, // MX4D上映かどうか
+    },
+}
+
+interface TicketType {
+    code: string,
+    name: {
+        ja: string,
+        en: string
+    },
+    charge: number // 料金
 }
 
 interface Reservation {
