@@ -1,5 +1,4 @@
 [
-    {"user_id":"admin","password":"admin","name":"管理者","email":"tiff_mp@motionpicture.jp","is_admin":true},
     {"user_id":"motionpicture","password":"motionpicture","name":"モーションピクチャー","email":"tiff_mp@motionpicture.jp","is_admin":false},
     {"user_id":"kizai2016","password":"tiff2016","name":"機材デッド","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"jiko2016","password":"tiff2016","name":"事故","email":"ticket2016@gmail.com","is_admin":false},
@@ -10,7 +9,7 @@
     {"user_id":"2nd2016","password":"tiff2016","name":"二次販売","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"3d2016","password":"tiff2016","name":"３Dデッド","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"pi2016","password":"tiff2016","name":"P＆Iデッド","email":"ticket2016@gmail.com","is_admin":false},
-    {"user_id":"admin2016","password":"tiff2016","name":"admin","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"admin2016","password":"tiff2016","name":"admin","email":"ticket2016@gmail.com","is_admin":true},
     {"user_id":"guesthost2016","password":"tiff2016","name":"ゲスホス","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"press2016","password":"tiff2016","name":"プレス","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"programming2016","password":"tanaka","name":"プログラミング","email":"ticket2016@gmail.com","is_admin":false},

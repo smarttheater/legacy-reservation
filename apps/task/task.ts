@@ -74,7 +74,7 @@ program
 program
     .command('staff <method>')
     .description('内部関係者タスク')
-    .action((method) => {
+    .action((method, options) => {
         let logDir = `${__dirname}/../../logs/${env}/task/Staff${method.charAt(0).toUpperCase()}${method.slice(1)}`;
         fs.mkdirsSync(logDir);
         logDefaultConfiguration.appenders.push({

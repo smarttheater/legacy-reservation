@@ -16,6 +16,8 @@ node bin/command test createWindows
 
 node bin/command schema createIndexes
 
+node bin/command staff createReservationsFromJson
+
 node bin/command film getImages
 
 pause
