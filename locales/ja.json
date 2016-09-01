@@ -19,7 +19,8 @@
 		"MyPage": "マイページ",
 		"AdmissionConfirm": "入場確認",
 		"Login": "ログイン",
-		"ReleaseSeats": "h1.ReleaseSeats"
+		"ReleaseSeats": "座席解放",
+		"Error": "エラー"
 	},
 	"Label": {
 		"Agree": "同意する",
@@ -88,7 +89,8 @@
 		"NewTicket": "チケット予約",
 		"LogoutAndCancel": "ログアウトして予約をキャンセル",
 		"MyPage": "マイページ",
-		"Release": "Button.Release"
+		"Release": "解放する",
+		"BackToOfficialSite": "公式サイトへ戻る"
 	},
 	"Form": {
 		"FieldName": {
@@ -139,7 +141,8 @@
 		"Invalid": "無効です",
 		"InvalidSeatCode": "選択された座席番号が無効です",
 		"ConfirmCancelSelectedTickets": "選択したチケットをキャンセルします",
-		"OutOfTerm": "期間外です"
+		"OutOfTerm": "期間外です",
+		"NoAvailableSeats": "予約可能な席がございません"
 	},
 	"h3": {
 		"SeatChoices": "座席情報",

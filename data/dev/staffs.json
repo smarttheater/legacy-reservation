@@ -1,30 +1,24 @@
 [
-    {
-        "user_id": "admin",
-        "password": "admin",
-        "name": "管理者",
-        "email": "tiff_mp@motionpicture.jp",
-        "is_admin": true
-    },
-    {
-        "user_id": "staff01",
-        "password": "staff01",
-        "name": "作品部",
-        "email": "tiff_mp@motionpicture.jp",
-        "is_admin": false
-    },
-    {
-        "user_id": "staff02",
-        "password": "staff02",
-        "name": "営業部",
-        "email": "tiff_mp@motionpicture.jp",
-        "is_admin": false
-    },
-    {
-        "user_id": "staff03",
-        "password": "staff03",
-        "name": "2次販売分",
-        "email": "tiff_mp@motionpicture.jp",
-        "is_admin": false
-    }
+    {"user_id":"admin","password":"admin","name":"管理者","email":"tiff_mp@motionpicture.jp","is_admin":true},
+    {"user_id":"motionpicture","password":"motionpicture","name":"モーションピクチャー","email":"tiff_mp@motionpicture.jp","is_admin":false},
+    {"user_id":"kizai2016","password":"tiff2016","name":"機材デッド","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"jiko2016","password":"tiff2016","name":"事故","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"gtc2016","password":"tiff2016","name":"GTC","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"yobi2016","password":"tiff2016","name":"予備","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"movie2016","password":"tiff2016","name":"ムービー","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"1st2016","password":"tiff2016","name":"一次販売","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"2nd2016","password":"tiff2016","name":"二次販売","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"3d2016","password":"tiff2016","name":"３Dデッド","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"pi2016","password":"tiff2016","name":"P＆Iデッド","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"admin2016","password":"tiff2016","name":"admin","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"guesthost2016","password":"tiff2016","name":"ゲスホス","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"press2016","password":"tiff2016","name":"プレス","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"programming2016","password":"tanaka","name":"プログラミング","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"promotion2016","password":"ihara","name":"プロモーション","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"partner2016","password":"katsuyama","name":"パートナーシップ","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"hospitality2016","password":"kenjo","name":"ホスピタリティ","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"operation2016","password":"konishi","name":"オペレーション","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"tiffcom2016","password":"takagi","name":"TIFFCOM","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"kanri2016","password":"nishimura","name":"管理","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"system2016","password":"nishimura","name":"システム","email":"ticket2016@gmail.com","is_admin":false}
 ]

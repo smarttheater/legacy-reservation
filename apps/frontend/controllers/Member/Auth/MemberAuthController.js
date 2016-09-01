@@ -4,7 +4,6 @@ const Util_1 = require('../../../../common/Util/Util');
 const Models_1 = require('../../../../common/models/Models');
 const moment = require('moment');
 const memberReserveLoginForm_1 = require('../../../forms/Member/Reserve/memberReserveLoginForm');
-const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const MemberUser_1 = require('../../../models/User/MemberUser');
 const conf = require('config');
 class MemberAuthController extends BaseController_1.default {
@@ -45,24 +44,9 @@ class MemberAuthController extends BaseController_1.default {
                                 this.res.render('member/auth/login');
                             }
                             else {
-                                // 予約の有無を確認
-                                Models_1.default.Reservation.count({
-                                    member_user_id: member.get('user_id'),
-                                    purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_MEMBER,
-                                    status: ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER
-                                }, (err, count) => {
-                                    if (err)
-                                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                    if (count === 0) {
-                                        this.req.form.errors.push('既に購入済みです');
-                                        this.res.render('member/auth/login');
-                                    }
-                                    else {
-                                        // ログイン
-                                        this.req.session[MemberUser_1.default.AUTH_SESSION_NAME] = member.toObject();
-                                        this.res.redirect(this.router.build('member.reserve.start'));
-                                    }
-                                });
+                                // ログイン
+                                this.req.session[MemberUser_1.default.AUTH_SESSION_NAME] = member.toObject();
+                                this.res.redirect(this.router.build('member.reserve.start'));
                             }
                         }
                     });

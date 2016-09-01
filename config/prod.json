@@ -13,7 +13,7 @@
     "sendgrid_username": "azure_b10efc2d22b683abd1652c6ad8d1e4ca@azure.com",
     "sendgrid_password": "AF_BcFy_47JCWtea4aQzUrP3N7kXndPREmtSZ-U2",
 
-    "gmo_payment_site_id": "",
+    "gmo_payment_site_id": "mst2000008756",
     "gmo_payment_shop_id": "9000379736572",
     "gmo_payment_shop_password": "fre3trkk",
 
@@ -22,7 +22,7 @@
         "reservation_start_sponsors": "2016-10-06T00:00:00+09:00",
         "reservation_start_members": "2016-10-06T00:00:00+09:00",
         "reservation_end_members": "2016-10-09T23:59:59+09:00",
-        "reservation_start_customers_first": "2016-10-15T00:00:00+09:00",
+        "reservation_start_customers_first": "2016-08-15T00:00:00+09:00",
         "reservation_start_customers_second": "2016-10-22T00:00:00+09:00",
         "event_start": "2016-10-25T00:00:00+09:00",
         "event_end": "2016-11-03T23:59:59+09:00"

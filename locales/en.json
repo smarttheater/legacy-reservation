@@ -18,7 +18,8 @@
 		"CompleteTemporaryReservation": "Complete Temporary Reservation",
 		"MyPage": "MyPage",
 		"Login": "Login",
-		"AdmissionConfirm": "Admission Confirm"
+		"AdmissionConfirm": "Admission Confirm",
+		"Error": "Error"
 	},
 	"Label": {
 		"Agree": "Agree",
@@ -84,7 +85,8 @@
 		"BackToSelectPerformance": "Select a Schedule Again",
 		"Logout": "Logout",
 		"NewTicket": "New Ticket",
-		"MyPage": "My Page"
+		"MyPage": "My Page",
+		"BackToOfficialSite": "Back to the Official Site"
 	},
 	"Form": {
 		"FieldName": {
@@ -124,7 +126,8 @@
 		"AreYouSureCancel": "Message.AreYouSureCancel",
 		"CompleteCancel": "Message.CompleteCancel",
 		"OutOfTerm": "Message.OutOfTerm",
-		"ConfirmCancelSelectedTickets": "Message.ConfirmCancelSelectedTickets"
+		"ConfirmCancelSelectedTickets": "Message.ConfirmCancelSelectedTickets",
+		"NoAvailableSeats": "No available seats."
 	},
 	"h3": {
 		"SeatChoices": "Seat Choices",
