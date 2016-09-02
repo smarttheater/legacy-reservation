@@ -41,7 +41,6 @@ $(function(){
             } else {
                 $('.loading').modal('hide');
 
-                // TODO 動き調整
                 setTimeout(function() {
                     $('.transfering .errmsg').text(data.message);
                     $('.transfering').modal();
