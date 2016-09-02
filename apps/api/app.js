@@ -1,7 +1,5 @@
 "use strict";
 const express = require('express');
-const partials = require('express-partials');
-const useragent = require('express-useragent');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const multer = require('multer');
@@ -29,8 +27,6 @@ passport.use(new BearerStrategy((token, cb) => {
     });
 }));
 let app = express();
-app.use(partials()); // レイアウト&パーシャルサポート
-app.use(useragent.express()); // ユーザーエージェント
 app.use(logger_1.default); // ロガー
 app.use(benchmarks_1.default); // ベンチマーク的な
 // view engine setup

@@ -18,8 +18,7 @@ import Constants from '../../common/Util/Constants';
  * 基本的にコントローラークラスはルーティングクラスより呼ばれる
  * あらゆるルーティングで実行されるメソッドは、このクラスがベースとなるので、メソッド共通の処理はここで実装するとよい
  */
-export default class BaseController
-{
+export default class BaseController {
     /** httpリクエストオブジェクト */
     public req: express.Request;
     /**httpレスポンスオブジェクト */

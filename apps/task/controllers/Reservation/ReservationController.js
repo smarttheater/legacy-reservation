@@ -105,7 +105,6 @@ class ReservationController extends BaseController_1.default {
      */
     sendEmails() {
         mongoose.connect(MONGOLAB_URI, {});
-        let promises = [];
         this.logger.info('finding reservationEmailCues...');
         Models_1.default.ReservationEmailCue.find({
             is_sent: false

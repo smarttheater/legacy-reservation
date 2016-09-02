@@ -1,8 +1,8 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
-import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
-import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
+import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
+import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
 import Util from '../../../../common/Util/Util';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
@@ -27,12 +27,12 @@ export default class TelReserveController extends ReserveBaseController implemen
                 reservationModel.paymentNo = paymentNo;
 
                 if (reservationModel.performance) {
-                    reservationModel.save((err) => {
+                    reservationModel.save(() => {
                         let cb = this.router.build('tel.reserve.seats', {token: reservationModel.token});
                         this.res.redirect(`${this.router.build('tel.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
                     });
                 } else {
-                    reservationModel.save((err) => {
+                    reservationModel.save(() => {
                         let cb = this.router.build('tel.reserve.performances', {token: reservationModel.token});
                         this.res.redirect(`${this.router.build('tel.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
                     });
@@ -65,34 +65,25 @@ export default class TelReserveController extends ReserveBaseController implemen
                             if (err) {
                                 this.next(err);
                             } else {
-
-                                this.logger.debug('saving reservationModel... ', reservationModel);
-                                reservationModel.save((err) => {
+                                reservationModel.save(() => {
                                     this.res.redirect(this.router.build('tel.reserve.seats', {token: token}));
                                 });
-
                             }
                         });
-
                     } else {
                         this.next(new Error(this.req.__('Message.UnexpectedError')));
-
                     }
-
                 });
             } else {
                 // 仮予約あればキャンセルする
                 this.processCancelSeats(reservationModel, (err, reservationModel) => {
-                    this.logger.debug('saving reservationModel... ', reservationModel);
-                    reservationModel.save((err) => {
+                    reservationModel.save(() => {
                         this.res.render('tel/reserve/performances', {
                             FilmUtil: FilmUtil
                         });
                     });
                 });
-
             }
-
         });
     }
 
@@ -116,46 +107,35 @@ export default class TelReserveController extends ReserveBaseController implemen
                         if (seatCodes.length > limit) {
                             let message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
                             this.res.redirect(`${this.router.build('tel.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
-
                         } else {
                             // 仮予約あればキャンセルする
-                            this.logger.debug('processCancelSeats processing...');
                             this.processCancelSeats(reservationModel, (err, reservationModel) => {
-                                this.logger.debug('processCancelSeats processed.', err);
-
                                 // 座席FIX
                                 this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                     if (err) {
-                                        reservationModel.save((err) => {
+                                        reservationModel.save(() => {
                                             let message = this.req.__('Mesasge.SelectedSeatsUnavailable');
                                             this.res.redirect(`${this.router.build('tel.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
                                         });
                                     } else {
-                                        reservationModel.save((err) => {
+                                        reservationModel.save(() => {
                                             // 券種選択へ
                                             this.res.redirect(this.router.build('tel.reserve.tickets', {token: token}));
                                         });
                                     }
                                 });
                             });
-
                         }
-
                     } else {
                         this.res.redirect(this.router.build('tel.reserve.seats', {token: token}));
-
                     }
-
                 });
             } else {
-
                 this.res.render('tel/reserve/seats', {
                     reservationModel: reservationModel,
                     limit: limit
                 });
-
             }
-
         });
     }
 
@@ -174,7 +154,7 @@ export default class TelReserveController extends ReserveBaseController implemen
                     if (err) {
                         this.res.redirect(this.router.build('tel.reserve.tickets', {token: token}));
                     } else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('tel.reserve.profile', {token: token}));
                         });
                     }
@@ -202,7 +182,7 @@ export default class TelReserveController extends ReserveBaseController implemen
                             reservationModel: reservationModel
                         });
                     } else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('tel.reserve.confirm', {token: token}));
                         });
                     }
@@ -259,7 +239,7 @@ export default class TelReserveController extends ReserveBaseController implemen
                                     let message = err.message;
                                     this.res.redirect(`${this.router.build('tel.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
                                 } else {
-                                    reservationModel.remove((err) => {
+                                    reservationModel.remove(() => {
                                         this.logger.info('redirecting to complete...');
                                         this.res.redirect(this.router.build('tel.reserve.complete', {paymentNo: reservationModel.paymentNo}));
                                     });
@@ -298,7 +278,6 @@ export default class TelReserveController extends ReserveBaseController implemen
                 this.res.render('tel/reserve/complete', {
                     reservationDocuments: reservations
                 });
-
             }
         );
     }

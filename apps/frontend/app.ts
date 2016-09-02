@@ -63,7 +63,7 @@ let storage = multer.memoryStorage()
 app.use(multer({ storage: storage }).any());
 
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, '/../../public')));
+// app.use(express.static(path.join(__dirname, '/../../public')));
 
 
 

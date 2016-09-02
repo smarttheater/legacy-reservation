@@ -3,7 +3,7 @@ const BaseController_1 = require('../../BaseController');
 const Util_1 = require('../../../../common/Util/Util');
 const Models_1 = require('../../../../common/models/Models');
 const moment = require('moment');
-const memberReserveLoginForm_1 = require('../../../forms/Member/Reserve/memberReserveLoginForm');
+const memberLoginForm_1 = require('../../../forms/member/memberLoginForm');
 const MemberUser_1 = require('../../../models/User/MemberUser');
 const conf = require('config');
 class MemberAuthController extends BaseController_1.default {
@@ -24,7 +24,7 @@ class MemberAuthController extends BaseController_1.default {
             return this.res.redirect(this.router.build('member.reserve.start'));
         }
         if (this.req.method === 'POST') {
-            memberReserveLoginForm_1.default(this.req, this.res, (err) => {
+            memberLoginForm_1.default(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
                     this.logger.debug('finding member... user_id:', this.req.form['userId']);

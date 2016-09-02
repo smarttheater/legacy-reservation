@@ -1,8 +1,8 @@
 "use strict";
 const ReserveBaseController_1 = require('../../ReserveBaseController');
 const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
-const reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerformanceForm');
-const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
+const reservePerformanceForm_1 = require('../../../forms/reserve/reservePerformanceForm');
+const reserveSeatForm_1 = require('../../../forms/reserve/reserveSeatForm');
 const Models_1 = require('../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const ScreenUtil_1 = require('../../../../common/models/Screen/ScreenUtil');
@@ -47,7 +47,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             if (err)
                 this.next(err);
             if (reservationModel.performance) {
-                reservationModel.save((err) => {
+                reservationModel.save(() => {
                     this.res.redirect(this.router.build('customer.reserve.terms', { token: reservationModel.token }));
                 });
             }
@@ -97,13 +97,13 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                                 // 座席FIX
                                 this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                     if (err) {
-                                        reservationModel.save((err) => {
+                                        reservationModel.save(() => {
                                             let message = this.req.__('Mesasge.SelectedSeatsUnavailable');
                                             this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                                         });
                                     }
                                     else {
-                                        reservationModel.save((err) => {
+                                        reservationModel.save(() => {
                                             // 券種選択へ
                                             this.res.redirect(this.router.build('customer.reserve.tickets', { token: token }));
                                         });
@@ -140,7 +140,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                         this.res.redirect(this.router.build('customer.reserve.tickets', { token: token }));
                     }
                     else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('customer.reserve.profile', { token: token }));
                         });
                     }
@@ -169,7 +169,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                         });
                     }
                     else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('customer.reserve.confirm', { token: token }));
                         });
                     }

@@ -1,8 +1,8 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
 import SponsorUser from '../../../models/User/SponsorUser';
-import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
-import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
+import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
+import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
@@ -28,12 +28,12 @@ export default class SponsorReserveController extends ReserveBaseController impl
             if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
 
             if (reservationModel.performance) {
-                reservationModel.save((err) => {
+                reservationModel.save(() => {
                     let cb = this.router.build('sponsor.reserve.seats', {token: reservationModel.token});
                     this.res.redirect(`${this.router.build('sponsor.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
                 });
             } else {
-                reservationModel.save((err) => {
+                reservationModel.save(() => {
                     let cb = this.router.build('sponsor.reserve.performances', {token: reservationModel.token});
                     this.res.redirect(`${this.router.build('sponsor.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
                 });
@@ -59,7 +59,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
 
             // 仮予約あればキャンセルする
             this.processCancelSeats(reservationModel, (err, reservationModel) => {
-                reservationModel.save((err) => {
+                reservationModel.save(() => {
 
                     // 外部関係者による予約数を取得
                     Models.Reservation.count(
@@ -80,7 +80,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                                             if (err) {
                                                 this.next(new Error(this.req.__('Message.UnexpectedError')));
                                             } else {
-                                                reservationModel.save((err) => {
+                                                reservationModel.save(() => {
                                                     this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
                                                 });
                                             }
@@ -151,21 +151,18 @@ export default class SponsorReserveController extends ReserveBaseController impl
 
                                         } else {
                                             // 仮予約あればキャンセルする
-                                            this.logger.debug('processCancelSeats processing...');
                                             this.processCancelSeats(reservationModel, (err, reservationModel) => {
-                                                this.logger.debug('processCancelSeats processed.', err);
-
                                                 // 座席FIX
                                                 this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                                     lockFile.unlock(lockPath, () => {
 
                                                         if (err) {
-                                                            reservationModel.save((err) => {
+                                                            reservationModel.save(() => {
                                                                 let message = this.req.__('Mesasge.SelectedSeatsUnavailable');
                                                                 this.res.redirect(`${this.router.build('sponsor.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
                                                             });
                                                         } else {
-                                                            reservationModel.save((err) => {
+                                                            reservationModel.save(() => {
                                                                 // 券種選択へ
                                                                 this.res.redirect(this.router.build('sponsor.reserve.tickets', {token: token}));
                                                             });
@@ -218,7 +215,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                     if (err) {
                         this.res.redirect(this.router.build('sponsor.reserve.tickets', {token: token}));
                     } else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('sponsor.reserve.profile', {token: token}));
                         });
                     }
@@ -246,7 +243,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                             reservationModel: reservationModel
                         });
                     } else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('sponsor.reserve.confirm', {token: token}));
                         });
                     }
@@ -293,7 +290,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                                 let message = err.message;
                                 this.res.redirect(`${this.router.build('sponsor.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
                             } else {
-                                reservationModel.remove((err) => {
+                                reservationModel.remove(() => {
                                     this.logger.info('redirecting to complete...');
                                     this.res.redirect(this.router.build('sponsor.reserve.complete', {paymentNo: reservationModel.paymentNo}));
                                 });

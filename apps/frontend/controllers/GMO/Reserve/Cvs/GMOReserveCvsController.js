@@ -234,7 +234,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
         }, (err, raw) => {
             this.logger.info('reservations updated.', err, raw);
             if (err) {
-                cb(new Error('any reservations not updated.'));
+                cb(err);
             }
             else {
                 cb(null);

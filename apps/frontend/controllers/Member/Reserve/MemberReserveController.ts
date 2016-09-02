@@ -1,12 +1,10 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
-import MemberUser from '../../../models/User/MemberUser';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
-import moment = require('moment');
 
 export default class MemberReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_MEMBER;
@@ -53,7 +51,7 @@ export default class MemberReserveController extends ReserveBaseController imple
 
 
                             // パフォーマンスと座席指定した状態で券種選択へ
-                            reservationModel.save((err) => {
+                            reservationModel.save(() => {
                                 this.res.redirect(this.router.build('member.reserve.tickets', {token: reservationModel.token}));
                             });
                         });
@@ -88,7 +86,7 @@ export default class MemberReserveController extends ReserveBaseController imple
                     if (err) {
                         this.res.redirect(this.router.build('member.reserve.tickets', {token: token}));
                     } else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('member.reserve.profile', {token: token}));
                         });
                     }
@@ -116,7 +114,7 @@ export default class MemberReserveController extends ReserveBaseController imple
                             reservationModel: reservationModel
                         });
                     } else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('member.reserve.confirm', {token: token}));
                         });
                     }
@@ -157,7 +155,7 @@ export default class MemberReserveController extends ReserveBaseController imple
                             this.next(err);
                         });
                     } else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.logger.info('starting GMO payment...');
                             this.res.redirect(307, this.router.build('gmo.reserve.start', {token: token}));
                         });

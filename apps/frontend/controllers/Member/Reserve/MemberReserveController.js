@@ -48,7 +48,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                             });
                         }
                         // パフォーマンスと座席指定した状態で券種選択へ
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('member.reserve.tickets', { token: reservationModel.token }));
                         });
                     });
@@ -79,7 +79,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                         this.res.redirect(this.router.build('member.reserve.tickets', { token: token }));
                     }
                     else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('member.reserve.profile', { token: token }));
                         });
                     }
@@ -108,7 +108,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                         });
                     }
                     else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('member.reserve.confirm', { token: token }));
                         });
                     }
@@ -149,7 +149,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                         });
                     }
                     else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.logger.info('starting GMO payment...');
                             this.res.redirect(307, this.router.build('gmo.reserve.start', { token: token }));
                         });

@@ -1,8 +1,4 @@
 import express = require('express');
-import partials = require('express-partials');
-import useragent = require('express-useragent');
-import path = require('path');
-import favicon = require('serve-favicon');
 import cookieParser = require('cookie-parser');
 import bodyParser = require('body-parser');
 import multer = require('multer');
@@ -41,8 +37,6 @@ passport.use(new BearerStrategy(
 
 let app = express();
 
-app.use(partials()); // レイアウト&パーシャルサポート
-app.use(useragent.express()); // ユーザーエージェント
 app.use(logger); // ロガー
 app.use(benchmarks); // ベンチマーク的な
 

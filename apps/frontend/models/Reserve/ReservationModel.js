@@ -24,7 +24,7 @@ class ReservationModel {
             if (err)
                 throw err;
             client.quit();
-            cb(err);
+            cb();
         });
     }
     /**

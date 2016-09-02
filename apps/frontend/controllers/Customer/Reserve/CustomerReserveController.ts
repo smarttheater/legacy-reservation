@@ -1,8 +1,8 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
-import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
-import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
+import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
+import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
@@ -47,13 +47,13 @@ export default class CustomerReserveController extends ReserveBaseController imp
             if (err) this.next(err);
 
             if (reservationModel.performance) {
-                reservationModel.save((err) => {
+                reservationModel.save(() => {
                     this.res.redirect(this.router.build('customer.reserve.terms', {token: reservationModel.token}));
                 });
             } else {
                 // 今回は必ずパフォーマンス指定で遷移してくるはず
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
-                // reservationModel.save((err) => {
+                // reservationModel.save(() => {
                 //     this.res.redirect(this.router.build('customer.reserve.performances', {token: reservationModel.token}));
                 // });
             }
@@ -101,12 +101,12 @@ export default class CustomerReserveController extends ReserveBaseController imp
                                 // 座席FIX
                                 this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                     if (err) {
-                                        reservationModel.save((err) => {
+                                        reservationModel.save(() => {
                                             let message = this.req.__('Mesasge.SelectedSeatsUnavailable');
                                             this.res.redirect(`${this.router.build('customer.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
                                         });
                                     } else {
-                                        reservationModel.save((err) => {
+                                        reservationModel.save(() => {
                                             // 券種選択へ
                                             this.res.redirect(this.router.build('customer.reserve.tickets', {token: token}));
                                         });
@@ -142,7 +142,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
                     if (err) {
                         this.res.redirect(this.router.build('customer.reserve.tickets', {token: token}));
                     } else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('customer.reserve.profile', {token: token}));
                         });
                     }
@@ -170,7 +170,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
                             reservationModel: reservationModel
                         });
                     } else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('customer.reserve.confirm', {token: token}));
                         });
                     }

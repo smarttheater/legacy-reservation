@@ -10,8 +10,8 @@ import moment = require('moment');
 import fs = require('fs-extra');
 import conf = require('config');
 import express = require('express');
-import reserveTicketForm from '../forms/Reserve/reserveTicketForm';
-import reserveProfileForm from '../forms/Reserve/reserveProfileForm';
+import reserveTicketForm from '../forms/reserve/reserveTicketForm';
+import reserveProfileForm from '../forms/reserve/reserveProfileForm';
 
 /**
  * 予約フローベースコントローラー
@@ -83,54 +83,59 @@ export default class ReserveBaseController extends BaseController {
      * 購入情報を初期化する
      */
     protected initializePayment(reservationModel: ReservationModel): ReservationModel {
-        let purchaser;
+        if (!this.purchaserGroup) throw new Error('purchaser group undefined.');
+
+        let purchaserFromSession = this.findPurchaser();
+
+        reservationModel.purchaserLastName = '';
+        reservationModel.purchaserFirstName = '';
+        reservationModel.purchaserTel = '';
+        reservationModel.purchaserEmail = '';
+        reservationModel.purchaserAge = '';
+        reservationModel.purchaserAddress = '';
+        reservationModel.purchaserGender = '1';
+        reservationModel.paymentMethodChoices = [];
 
         switch (this.purchaserGroup) {
             case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-                purchaser = this.findPurchaser();
-                if (purchaser) {
-                    reservationModel.purchaserLastName = purchaser.lastName;
-                    reservationModel.purchaserFirstName = purchaser.firstName;
-                    reservationModel.purchaserTel = purchaser.tel;
-                    reservationModel.purchaserEmail = purchaser.email;
-                    reservationModel.purchaserAge = purchaser.age;
-                    reservationModel.purchaserAddress = purchaser.address;
-                    reservationModel.purchaserGender = purchaser.gender;
-                } else {
-                    reservationModel.purchaserLastName = '';
-                    reservationModel.purchaserFirstName = '';
-                    reservationModel.purchaserTel = '';
-                    reservationModel.purchaserEmail = '';
-                    reservationModel.purchaserAge = '';
-                    reservationModel.purchaserAddress = '';
-                    reservationModel.purchaserGender = '1';
+                purchaserFromSession = this.findPurchaser();
+                if (purchaserFromSession) {
+                    reservationModel.purchaserLastName = purchaserFromSession.lastName;
+                    reservationModel.purchaserFirstName = purchaserFromSession.firstName;
+                    reservationModel.purchaserTel = purchaserFromSession.tel;
+                    reservationModel.purchaserEmail = purchaserFromSession.email;
+                    reservationModel.purchaserAge = purchaserFromSession.age;
+                    reservationModel.purchaserAddress = purchaserFromSession.address;
+                    reservationModel.purchaserGender = purchaserFromSession.gender;
                 }
 
                 reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT, GMOUtil.PAY_TYPE_CVS];
-
                 break;
 
             case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                purchaser = this.findPurchaser();
-                if (purchaser) {
-                    reservationModel.purchaserLastName = purchaser.lastName;
-                    reservationModel.purchaserFirstName = purchaser.firstName;
-                    reservationModel.purchaserTel = purchaser.tel;
-                    reservationModel.purchaserEmail = purchaser.email;
-                    reservationModel.purchaserAge = purchaser.age;
-                    reservationModel.purchaserAddress = purchaser.address;
-                    reservationModel.purchaserGender = purchaser.gender;
-                } else {
-                    reservationModel.purchaserLastName = '';
-                    reservationModel.purchaserFirstName = '';
-                    reservationModel.purchaserTel = '';
-                    reservationModel.purchaserEmail = '';
-                    reservationModel.purchaserAge = '';
-                    reservationModel.purchaserAddress = '';
-                    reservationModel.purchaserGender = '1';
+                if (purchaserFromSession) {
+                    reservationModel.purchaserLastName = purchaserFromSession.lastName;
+                    reservationModel.purchaserFirstName = purchaserFromSession.firstName;
+                    reservationModel.purchaserTel = purchaserFromSession.tel;
+                    reservationModel.purchaserEmail = purchaserFromSession.email;
+                    reservationModel.purchaserAge = purchaserFromSession.age;
+                    reservationModel.purchaserAddress = purchaserFromSession.address;
+                    reservationModel.purchaserGender = purchaserFromSession.gender;
                 }
 
                 reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
+                break;
+
+            case ReservationUtil.PURCHASER_GROUP_SPONSOR:
+                if (purchaserFromSession) {
+                    reservationModel.purchaserLastName = purchaserFromSession.lastName;
+                    reservationModel.purchaserFirstName = purchaserFromSession.firstName;
+                    reservationModel.purchaserTel = purchaserFromSession.tel;
+                    reservationModel.purchaserEmail = purchaserFromSession.email;
+                    reservationModel.purchaserAge = purchaserFromSession.age;
+                    reservationModel.purchaserAddress = purchaserFromSession.address;
+                    reservationModel.purchaserGender = purchaserFromSession.gender;
+                }
                 break;
 
             case ReservationUtil.PURCHASER_GROUP_STAFF:
@@ -141,8 +146,6 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.purchaserAge = '00';
                 reservationModel.purchaserAddress = '';
                 reservationModel.purchaserGender = '1';
-
-                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
                 break;
 
             case ReservationUtil.PURCHASER_GROUP_TEL:
@@ -155,7 +158,6 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.purchaserGender = '1';
 
                 reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CVS];
-
                 break;
 
             case ReservationUtil.PURCHASER_GROUP_WINDOW:
@@ -171,26 +173,6 @@ export default class ReserveBaseController extends BaseController {
                 break;
 
             default:
-                purchaser = this.findPurchaser();
-                if (purchaser) {
-                    reservationModel.purchaserLastName = purchaser.lastName;
-                    reservationModel.purchaserFirstName = purchaser.firstName;
-                    reservationModel.purchaserTel = purchaser.tel;
-                    reservationModel.purchaserEmail = purchaser.email;
-                    reservationModel.purchaserAge = purchaser.age;
-                    reservationModel.purchaserAddress = purchaser.address;
-                    reservationModel.purchaserGender = purchaser.gender;
-                } else {
-                    reservationModel.purchaserLastName = '';
-                    reservationModel.purchaserFirstName = '';
-                    reservationModel.purchaserTel = '';
-                    reservationModel.purchaserEmail = '';
-                    reservationModel.purchaserAge = '';
-                    reservationModel.purchaserAddress = '';
-                    reservationModel.purchaserGender = '1';
-                }
-
-                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
                 break;
         }
 
@@ -388,15 +370,13 @@ export default class ReserveBaseController extends BaseController {
      * @param {Array<string>} seatCodes
      */
     protected processFixSeats(reservationModel: ReservationModel, seatCodes: Array<string>, cb: (err: Error, reservationModel: ReservationModel) => void) {
-        let promises = [];
-
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
         reservationModel.tmpReservationExpiredAt = Date.now() + (conf.get<number>('temporary_reservation_valid_period_seconds') * 1000);
 
         // 新たな座席指定と、既に仮予約済みの座席コードについて
-        seatCodes.forEach((seatCode) => {
-            promises.push(new Promise((resolve, reject) => {
+        let promises = seatCodes.map((seatCode) => {
+            return new Promise((resolve, reject) => {
                 let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
                     return (seat.code === seatCode);
                 });
@@ -435,7 +415,7 @@ export default class ReserveBaseController extends BaseController {
                         resolve();
                     }
                 );
-            }));
+            });
         });
 
         Promise.all(promises).then(() => {
@@ -584,12 +564,11 @@ export default class ReserveBaseController extends BaseController {
                 }
 
                 // いったん全情報をDBに保存
-                let promises = [];
-                for (let seatCode of reservationModel.seatCodes) {
+                let promises = reservationModel.seatCodes.map((seatCode) => {
                     let update = reservationModel.seatCode2reservationDocument(seatCode);
                     update = Object.assign(update, commonUpdate);
 
-                    promises.push(new Promise((resolve, reject) => {
+                    return new Promise((resolve, reject) => {
                         this.logger.info('updating reservation all infos...update:', update);
                         Models.Reservation.findByIdAndUpdate(
                             update['_id'],
@@ -605,8 +584,8 @@ export default class ReserveBaseController extends BaseController {
                                 resolve();
                             }
                         );
-                    }));
-                };
+                    });
+                });
 
                 Promise.all(promises).then(() => {
                     cb(null, reservationModel);

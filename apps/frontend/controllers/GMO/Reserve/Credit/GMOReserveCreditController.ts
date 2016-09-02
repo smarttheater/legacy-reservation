@@ -1,5 +1,4 @@
 import ReserveBaseController from '../../../ReserveBaseController';
-import Util from '../../../../../common/Util/Util';
 import GMOUtil from '../../../../../common/Util/GMO/GMOUtil';
 import Models from '../../../../../common/models/Models';
 import ReservationUtil from '../../../../../common/models/Reservation/ReservationUtil';
@@ -78,10 +77,8 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                             break;
                     }
                 });
-
             }
         );
-
     }
 
     /**
@@ -161,7 +158,6 @@ export default class GMOReserveCreditController extends ReserveBaseController {
             case GMOUtil.STATUS_CREDIT_AUTHENTICATED:
             case GMOUtil.STATUS_CREDIT_CHECK:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
                 break;
 
             case GMOUtil.STATUS_CREDIT_AUTH:
@@ -192,7 +188,6 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 this.res.send(GMONotificationResponseModel.RecvRes_OK);
                 break;
         }
-
     }
 
     /**
@@ -240,7 +235,6 @@ export default class GMOReserveCreditController extends ReserveBaseController {
             } else {
                 cb(null);
             }
-
         });
     }
     */
@@ -290,7 +284,6 @@ export default class GMOReserveCreditController extends ReserveBaseController {
             } else {
                 cb(null);
             }
-
         });
     }
     */

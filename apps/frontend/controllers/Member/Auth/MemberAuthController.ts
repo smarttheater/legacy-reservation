@@ -1,11 +1,11 @@
 import BaseController from '../../BaseController';
 import SponsorUser from '../../../models/User/SponsorUser';
-import sponsorLoginForm from '../../../forms/Sponsor/sponsorLoginForm';
+import sponsorLoginForm from '../../../forms/sponsor/sponsorLoginForm';
 import Util from '../../../../common/Util/Util';
 import Constants from '../../../../common/Util/Constants';
 import Models from '../../../../common/models/Models';
 import moment = require('moment');
-import memberReserveLoginForm from '../../../forms/Member/Reserve/memberReserveLoginForm';
+import memberLoginForm from '../../../forms/member/memberLoginForm';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import MemberUser from '../../../models/User/MemberUser';
 import conf = require('config');
@@ -28,7 +28,7 @@ export default class MemberAuthController extends BaseController {
         }
 
         if (this.req.method === 'POST') {
-            memberReserveLoginForm(this.req, this.res, (err) => {
+            memberLoginForm(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
                     this.logger.debug('finding member... user_id:', this.req.form['userId']);

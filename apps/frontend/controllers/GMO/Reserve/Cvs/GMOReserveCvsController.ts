@@ -204,7 +204,6 @@ export default class GMOReserveCvsController extends ReserveBaseController {
 
             case GMOUtil.STATUS_CVS_UNPROCESSED:
                 this.res.send(GMONotificationResponseModel.RecvRes_OK);
-
                 break;
 
             case GMOUtil.STATUS_CVS_PAYFAIL: // 決済失敗
@@ -268,10 +267,8 @@ export default class GMOReserveCvsController extends ReserveBaseController {
 
             default:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
                 break;
         }
-
     }
 
     /**
@@ -297,7 +294,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
             (err, raw) => {
                 this.logger.info('reservations updated.', err, raw);
                 if (err) {
-                    cb(new Error('any reservations not updated.'));
+                    cb(err);
                 } else {
                     cb(null);
                 }

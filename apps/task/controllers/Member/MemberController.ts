@@ -74,8 +74,6 @@ export default class MemberController extends BaseController {
             "end_time": "0900"
         };
 
-        let promises = [];
-
         Models.Film.create(film, (err) => {
             Models.Performance.create(performance, (err) => {
                 fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/memberReservations.json`, 'utf8', (err, data) => {

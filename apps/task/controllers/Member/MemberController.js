@@ -65,7 +65,6 @@ class MemberController extends BaseController_1.default {
             "start_time": "0800",
             "end_time": "0900"
         };
-        let promises = [];
         Models_1.default.Film.create(film, (err) => {
             Models_1.default.Performance.create(performance, (err) => {
                 fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/memberReservations.json`, 'utf8', (err, data) => {

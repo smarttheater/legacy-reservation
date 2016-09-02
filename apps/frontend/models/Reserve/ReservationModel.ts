@@ -55,14 +55,14 @@ export default class ReservationModel {
      * 
      * @param {number} ttl 有効期間(default: 1800)
      */
-    public save(cb: (err: Error) => void, ttl?: number) {
+    public save(cb: () => void, ttl?: number) {
         let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
         let _ttl = (ttl) ? ttl : 1800;
         client.setex(key, _ttl, JSON.stringify(this), (err, reply) => {
             if (err) throw err;
             client.quit();
-            cb(err);
+            cb();
         });
     }
 

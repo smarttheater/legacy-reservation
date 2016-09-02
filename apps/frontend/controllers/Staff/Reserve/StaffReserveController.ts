@@ -1,8 +1,7 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
-import StaffUser from '../../../models/User/StaffUser';
-import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
-import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
+import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
+import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
@@ -26,12 +25,12 @@ export default class StaffReserveController extends ReserveBaseController implem
             if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
 
             if (reservationModel.performance) {
-                reservationModel.save((err) => {
+                reservationModel.save(() => {
                     let cb = this.router.build('staff.reserve.seats', {token: reservationModel.token});
                     this.res.redirect(`${this.router.build('staff.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
                 });
             } else {
-                reservationModel.save((err) => {
+                reservationModel.save(() => {
                     let cb = this.router.build('staff.reserve.performances', {token: reservationModel.token});
                     this.res.redirect(`${this.router.build('staff.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
                 });
@@ -103,15 +102,13 @@ export default class StaffReserveController extends ReserveBaseController implem
      * @override
      */
     protected processFixSeats(reservationModel: ReservationModel, seatCodes: Array<string>, cb: (err: Error, reservationModel: ReservationModel) => void) {
-        let promises = [];
-
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
         reservationModel.tmpReservationExpiredAt = Date.now() + (conf.get<number>('temporary_reservation_valid_period_seconds') * 1000);
 
         // 新たな座席指定と、既に仮予約済みの座席コードについて
-        seatCodes.forEach((seatCode) => {
-            promises.push(new Promise((resolve, reject) => {
+        let promises = seatCodes.map((seatCode) => {
+            return new Promise((resolve, reject) => {
                 let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
                     return (seat.code === seatCode);
                 });
@@ -182,7 +179,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                         }
                     }
                 );
-            }));
+            });
         });
 
         Promise.all(promises).then(() => {
@@ -211,7 +208,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                             if (err) {
                                 this.next(err);
                             } else {
-                                reservationModel.save((err) => {
+                                reservationModel.save(() => {
                                     this.res.redirect(this.router.build('staff.reserve.seats', {token: token}));
                                 });
                             }
@@ -224,7 +221,7 @@ export default class StaffReserveController extends ReserveBaseController implem
             } else {
                 // 仮予約あればキャンセルする
                 this.processCancelSeats(reservationModel, (err, reservationModel) => {
-                    reservationModel.save((err) => {
+                    reservationModel.save(() => {
                         this.res.render('staff/reserve/performances', {
                             FilmUtil: FilmUtil
                         });
@@ -261,12 +258,12 @@ export default class StaffReserveController extends ReserveBaseController implem
                                 // 座席FIX
                                 this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                     if (err) {
-                                        reservationModel.save((err) => {
+                                        reservationModel.save(() => {
                                             let message = this.req.__('Mesasge.SelectedSeatsUnavailable');
                                             this.res.redirect(`${this.router.build('staff.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
                                         });
                                     } else {
-                                        reservationModel.save((err) => {
+                                        reservationModel.save(() => {
                                             // 券種選択へ
                                             this.res.redirect(this.router.build('staff.reserve.tickets', {token: token}));
                                         });
@@ -300,7 +297,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                     if (err) {
                         this.res.redirect(this.router.build('staff.reserve.tickets', {token: token}));
                     } else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('staff.reserve.profile', {token: token}));
                         });
                     }
@@ -346,7 +343,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                                 let message = err.message;
                                 this.res.redirect(`${this.router.build('staff.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
                             } else {
-                                reservationModel.remove((err) => {
+                                reservationModel.remove(() => {
                                     this.logger.info('redirecting to complete...');
                                     this.res.redirect(this.router.build('staff.reserve.complete', {paymentNo: reservationModel.paymentNo}));
                                 });

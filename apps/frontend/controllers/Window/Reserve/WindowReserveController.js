@@ -1,8 +1,8 @@
 "use strict";
 const ReserveBaseController_1 = require('../../ReserveBaseController');
 const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
-const reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerformanceForm');
-const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
+const reservePerformanceForm_1 = require('../../../forms/reserve/reservePerformanceForm');
+const reserveSeatForm_1 = require('../../../forms/reserve/reserveSeatForm');
 const Models_1 = require('../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const ScreenUtil_1 = require('../../../../common/models/Screen/ScreenUtil');
@@ -19,13 +19,13 @@ class WindowReserveController extends ReserveBaseController_1.default {
             if (err)
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
             if (reservationModel.performance) {
-                reservationModel.save((err) => {
+                reservationModel.save(() => {
                     let cb = this.router.build('window.reserve.seats', { token: reservationModel.token });
                     this.res.redirect(`${this.router.build('window.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
                 });
             }
             else {
-                reservationModel.save((err) => {
+                reservationModel.save(() => {
                     let cb = this.router.build('window.reserve.performances', { token: reservationModel.token });
                     this.res.redirect(`${this.router.build('window.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
                 });
@@ -56,8 +56,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
                                 this.next(err);
                             }
                             else {
-                                this.logger.debug('saving reservationModel... ', reservationModel);
-                                reservationModel.save((err) => {
+                                reservationModel.save(() => {
                                     this.res.redirect(this.router.build('window.reserve.seats', { token: token }));
                                 });
                             }
@@ -71,8 +70,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
             else {
                 // 仮予約あればキャンセルする
                 this.processCancelSeats(reservationModel, (err, reservationModel) => {
-                    this.logger.debug('saving reservationModel... ', reservationModel);
-                    reservationModel.save((err) => {
+                    reservationModel.save(() => {
                         this.res.render('window/reserve/performances', {
                             FilmUtil: FilmUtil_1.default
                         });
@@ -101,19 +99,17 @@ class WindowReserveController extends ReserveBaseController_1.default {
                         }
                         else {
                             // 仮予約あればキャンセルする
-                            this.logger.debug('processCancelSeats processing...');
                             this.processCancelSeats(reservationModel, (err, reservationModel) => {
-                                this.logger.debug('processCancelSeats processed.', err);
                                 // 座席FIX
                                 this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                     if (err) {
-                                        reservationModel.save((err) => {
+                                        reservationModel.save(() => {
                                             let message = this.req.__('Mesasge.SelectedSeatsUnavailable');
                                             this.res.redirect(`${this.router.build('window.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                                         });
                                     }
                                     else {
-                                        reservationModel.save((err) => {
+                                        reservationModel.save(() => {
                                             // 券種選択へ
                                             this.res.redirect(this.router.build('window.reserve.tickets', { token: token }));
                                         });
@@ -150,7 +146,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
                         this.res.redirect(this.router.build('window.reserve.tickets', { token: token }));
                     }
                     else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('window.reserve.profile', { token: token }));
                         });
                     }
@@ -179,7 +175,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
                         });
                     }
                     else {
-                        reservationModel.save((err) => {
+                        reservationModel.save(() => {
                             this.res.redirect(this.router.build('window.reserve.confirm', { token: token }));
                         });
                     }
@@ -227,7 +223,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
                                 this.res.redirect(`${this.router.build('window.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
                             }
                             else {
-                                reservationModel.remove((err) => {
+                                reservationModel.remove(() => {
                                     this.logger.info('redirecting to complete...');
                                     this.res.redirect(this.router.build('window.reserve.complete', { paymentNo: reservationModel.paymentNo }));
                                 });
