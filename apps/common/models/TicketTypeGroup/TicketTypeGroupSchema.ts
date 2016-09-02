@@ -19,9 +19,7 @@ let Schema = new mongoose.Schema({
             },
             charge: Number // 料金
         },
-    ],
-    created_user: String,
-    updated_user: String,
+    ]
 },{
     collection: 'ticket_type_groups',
     timestamps: { 

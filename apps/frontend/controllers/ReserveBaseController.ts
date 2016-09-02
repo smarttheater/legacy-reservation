@@ -562,7 +562,6 @@ export default class ReserveBaseController extends BaseController {
                         commonUpdate['staff_user_id'] = this.req.staffUser.get('user_id');
                         commonUpdate['staff_name'] = this.req.staffUser.get('name');
                         commonUpdate['staff_email'] = this.req.staffUser.get('email');
-                        commonUpdate['staff_tel'] = this.req.staffUser.get('tel');
                         commonUpdate['staff_signature'] = this.req.staffUser.get('signature');
                         break;
 

@@ -29,7 +29,8 @@ let Schema = new mongoose.Schema({
     },
     image: String,
     minutes: Number,
-    is_mx4d: Boolean // MX4D上映かどうか
+    is_mx4d: Boolean,
+    copyright: String // コピーライト
 }, {
     collection: 'films',
     timestamps: {

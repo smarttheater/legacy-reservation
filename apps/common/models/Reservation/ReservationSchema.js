@@ -41,6 +41,7 @@ let Schema = new mongoose.Schema({
     film_name_en: String,
     film_image: String,
     film_is_mx4d: Boolean,
+    film_copyright: String,
     purchaser_group: String,
     purchaser_last_name: String,
     purchaser_first_name: String,
@@ -77,7 +78,6 @@ let Schema = new mongoose.Schema({
     staff_user_id: String,
     staff_name: String,
     staff_email: String,
-    staff_tel: String,
     staff_signature: String,
     member: {
         type: mongoose.Schema.Types.ObjectId,
