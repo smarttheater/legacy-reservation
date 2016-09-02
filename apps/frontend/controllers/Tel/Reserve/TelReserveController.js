@@ -3,6 +3,7 @@ const ReserveBaseController_1 = require('../../ReserveBaseController');
 const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
 const reservePerformanceForm_1 = require('../../../forms/Reserve/reservePerformanceForm');
 const reserveSeatForm_1 = require('../../../forms/Reserve/reserveSeatForm');
+const Util_1 = require('../../../../common/Util/Util');
 const Models_1 = require('../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const ScreenUtil_1 = require('../../../../common/models/Screen/ScreenUtil');
@@ -19,7 +20,7 @@ class TelReserveController extends ReserveBaseController_1.default {
             if (err)
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
             // 購入番号発行(確認画面でペイデザイン川にコピーする際に必要になるので、事前に発行しておく)
-            this.createPaymentNo((err, paymentNo) => {
+            Util_1.default.createPaymentNo((err, paymentNo) => {
                 if (err)
                     return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 reservationModel.paymentNo = paymentNo;

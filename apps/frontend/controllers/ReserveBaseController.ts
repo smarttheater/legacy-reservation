@@ -620,7 +620,7 @@ export default class ReserveBaseController extends BaseController {
             next(reservationModel);
         } else {
             // 購入番号発行
-            this.createPaymentNo((err, paymentNo) => {
+            Util.createPaymentNo((err, paymentNo) => {
                 if (err) {
                     cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
                 } else {
@@ -692,34 +692,6 @@ export default class ReserveBaseController extends BaseController {
     
             cb();
         });
-    }
-
-    /**
-     * 購入管理番号生成
-     */
-    protected createPaymentNo(cb: (err: Error, no: string) => void): void {
-        Models.Sequence.findOneAndUpdate(
-            {
-                target: 'payment_no'
-            },
-            {
-                $inc: {
-                    no: 1
-                }
-            },
-            {
-                new: true
-            },
-            (err, sequence) => {
-                if (err) {
-                    cb(err, null);
-                } else {
-                    let no: number = sequence.get('no');
-                    let paymentNo = `${no}${Util.getCheckDigit(no)}`;
-                    cb(err, paymentNo);
-                }
-            }
-        );
     }
 
     /**

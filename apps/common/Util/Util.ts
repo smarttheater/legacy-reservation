@@ -4,6 +4,7 @@ import crypto = require('crypto');
 import fs = require('fs-extra');
 import log4js = require('log4js');
 import qr = require('qr-image');
+import Models from '../../common/models/Models';
 
 /**
  * 共通のユーティリティ
@@ -141,5 +142,28 @@ export default class Util {
         let hash = sha512.digest('hex')
 
         return hash;
+    }
+
+    /**
+     * 購入管理番号生成
+     */
+    public static createPaymentNo(cb: (err: Error, no: string) => void): void {
+        Models.Sequence.findOneAndUpdate(
+            {target: 'payment_no'},
+            {$inc: {no: 1}},
+            {new: true},
+            (err, sequence) => {
+                if (err) {
+                    cb(err, null);
+                } else {
+                    let no: number = sequence.get('no');
+                    let random = 1 + Math.floor(Math.random() * 9); // 1-9の整数
+                    let checKDigit = Util.getCheckDigit(no);
+                    // checkDigitの場所にrandomをはさむ
+                    let paymentNo = `${no.toString().substr(0, checKDigit)}${random}${no.toString().substr(checKDigit)}${checKDigit}`;
+                    cb(err, paymentNo);
+                }
+            }
+        );
     }
 }

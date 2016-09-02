@@ -73,13 +73,11 @@ class StaffController extends BaseController_1.default {
                 for (let staff of staffs) {
                     staffsByName[staff.get('name')] = staff;
                 }
-                Models_1.default.Sequence.findOneAndUpdate({ target: 'payment_no' }, { $inc: { no: 1 } }, { new: true }, (err, sequence) => {
+                Util_1.default.createPaymentNo((err, paymentNo) => {
+                    this.logger.debug('paymentNo is', paymentNo);
                     if (err)
                         return cb(err);
-                    let no = sequence.get('no');
-                    let paymentNo = `${no}${Util_1.default.getCheckDigit(no)}`;
                     let reservations = [];
-                    this.logger.debug('paymentNo is', paymentNo);
                     // スクリーンのパフォーマンスをすべて取得
                     Models_1.default.Performance.find({ screen: screenId }, 'day start_time end_time film screen theater')
                         .populate('film', 'name image is_mx4d copyright')

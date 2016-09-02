@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const fs = require('fs-extra');
 const log4js = require('log4js');
 const qr = require('qr-image');
+const Models_1 = require('../../common/models/Models');
 /**
  * 共通のユーティリティ
  */
@@ -121,6 +122,24 @@ class Util {
         sha512.update(salt + password, 'utf8');
         let hash = sha512.digest('hex');
         return hash;
+    }
+    /**
+     * 購入管理番号生成
+     */
+    static createPaymentNo(cb) {
+        Models_1.default.Sequence.findOneAndUpdate({ target: 'payment_no' }, { $inc: { no: 1 } }, { new: true }, (err, sequence) => {
+            if (err) {
+                cb(err, null);
+            }
+            else {
+                let no = sequence.get('no');
+                let random = 1 + Math.floor(Math.random() * 9); // 1-9の整数
+                let checKDigit = Util.getCheckDigit(no);
+                // checkDigitの場所にrandomをはさむ
+                let paymentNo = `${no.toString().substr(0, checKDigit)}${random}${no.toString().substr(checKDigit)}${checKDigit}`;
+                cb(err, paymentNo);
+            }
+        });
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

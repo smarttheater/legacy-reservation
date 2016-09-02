@@ -3,6 +3,7 @@ import ReserveControllerInterface from '../../ReserveControllerInterface';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import reservePerformanceForm from '../../../forms/Reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/Reserve/reserveSeatForm';
+import Util from '../../../../common/Util/Util';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
@@ -20,7 +21,7 @@ export default class TelReserveController extends ReserveBaseController implemen
             if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
                 
             // 購入番号発行(確認画面でペイデザイン川にコピーする際に必要になるので、事前に発行しておく)
-            this.createPaymentNo((err, paymentNo) => {
+            Util.createPaymentNo((err, paymentNo) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                 reservationModel.paymentNo = paymentNo;

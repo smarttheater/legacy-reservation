@@ -82,18 +82,12 @@ export default class StaffController extends BaseController {
                     staffsByName[staff.get('name')] = staff;
                 }
 
-                Models.Sequence.findOneAndUpdate(
-                    {target: 'payment_no'},
-                    {$inc: {no: 1}},
-                    {new: true},
-                    (err, sequence) => {
+                Util.createPaymentNo((err, paymentNo) => {
+                        this.logger.debug('paymentNo is', paymentNo);
                         if (err) return cb(err);
 
-                        let no: number = sequence.get('no');
-                        let paymentNo = `${no}${Util.getCheckDigit(no)}`;
                         let reservations = [];
 
-                        this.logger.debug('paymentNo is', paymentNo);
                         // スクリーンのパフォーマンスをすべて取得
                         Models.Performance.find(
                             {screen: screenId},
