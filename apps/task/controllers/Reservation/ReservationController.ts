@@ -255,7 +255,7 @@ export default class ReservationController extends BaseController {
                                                         filename: `QR_${reservationId}.png`,
                                                         contentType: 'image/png',
                                                         cid: `qrcode_${reservationId}`,
-                                                        content: ReservationUtil.createQRCode(reservationId)
+                                                        content: Util.createQRCode(reservationId)
                                                     });
                                                 }
 

@@ -189,19 +189,25 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                     if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
                         return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     }
+                    // キャンセル
                     this.logger.info('removing reservations...payment_no:', gmoNotificationModel.OrderID);
-                    Models_1.default.Reservation.remove({
-                        payment_no: gmoNotificationModel.OrderID
+                    let promises = reservations.map((reservation) => {
+                        return new Promise((resolve, reject) => {
+                            this.logger.info('removing reservation...', reservation.get('_id'));
+                            reservation.remove((err) => {
+                                this.logger.info('reservation removed.', reservation.get('_id'), err);
+                                if (err)
+                                    return reject(err);
+                                resolve();
+                            });
+                        });
+                    });
+                    Promise.all(promises).then(() => {
+                        this.logger.info('sending response RecvRes_OK...');
+                        this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
                     }, (err) => {
-                        this.logger.info('reservation removed.', err);
-                        if (err) {
-                            this.logger.info('sending response RecvRes_NG...');
-                            this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
-                        }
-                        else {
-                            this.logger.info('sending response RecvRes_OK...');
-                            this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
-                        }
+                        this.logger.info('sending response RecvRes_NG...');
+                        this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     });
                 });
                 break;

@@ -3,6 +3,7 @@ import conf = require('config');
 import crypto = require('crypto');
 import fs = require('fs-extra');
 import log4js = require('log4js');
+import qr = require('qr-image');
 
 /**
  * 共通のユーティリティ
@@ -47,6 +48,17 @@ export default class Util {
     }
 
     /**
+     * 予約IDからQRコードを作成する
+     * 
+     * @param {string} reservationId 予約ID
+     */
+    public static createQRCode(reservationId: string): Buffer {
+        return qr.imageSync(reservationId, {
+            type: 'png'
+        });
+    }
+
+    /**
      * 予約プロセス用のロガーを設定する
      * 1決済管理番号につき、1ログファイル
      * 
@@ -64,7 +76,7 @@ export default class Util {
                     appenders: [
                         {
                             category: 'reservation',
-                            type: 'dateFile',
+                            type: 'file',
                             filename: `${logDir}/${paymentNo}.log`,
                             pattern: '-yyyy-MM-dd'
                         },

@@ -1,13 +1,13 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import Util from '../../../../common/Util/Util';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
-
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import GMOResultModel from '../../../models/Reserve/GMOResultModel';
 import GMONotificationModel from '../../../models/Reserve/GMONotificationModel';
 import GMONotificationResponseModel from '../../../models/Reserve/GMONotificationResponseModel';
+import crypto = require('crypto');
 import moment = require('moment');
 import conf = require('config');
 import GMOReserveCreditController from './Credit/GMOReserveCreditController';
@@ -50,6 +50,7 @@ export default class GMOReserveController extends ReserveBaseController {
 
     /**
      * GMOからの結果受信
+     * GMOで何かしらエラーが発生して「決済をやめる」ボタンから遷移してくることもある
      */
     public result(): void {
         let gmoResultModel = GMOResultModel.parse(this.req.body);
@@ -57,24 +58,54 @@ export default class GMOReserveController extends ReserveBaseController {
 
         // 予約プロセス固有のログファイルをセット
         this.setProcessLogger(paymentNo, () => {
-            this.logger.info('gmoResultModel is ', gmoResultModel);
+            this.logger.info('gmoResultModel is', gmoResultModel);
 
             // エラー結果の場合
             if (gmoResultModel.ErrCode) {
-                // TODO すぐに空席に戻す
-                // 空席に戻すのは、仮予約タイムアウトタスクにまかせる！
-                this.next(new Error(`エラー結果を受信しました。 ErrCode:${gmoResultModel.ErrCode} ErrInfo:${gmoResultModel.ErrInfo}`));
+                // 空席に戻す
+                this.logger.info('finding reservations...payment_no:', paymentNo);
+                Models.Reservation.find(
+                    {
+                        payment_no: paymentNo
+                    },
+                    'total_charge',
+                    (err, reservations) => {
+                        this.logger.info('reservations found.', err, reservations.length);
+                        if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                        if (reservations.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
+                        // 利用金額の整合性
+                        this.logger.info('Amount must be ', reservations[0].get('total_charge'));
+                        if (parseInt(gmoResultModel.Amount) !== reservations[0].get('total_charge')) {
+                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                        }
+
+                        // キャンセル
+                        let promises = reservations.map((reservation) => {
+                            return new Promise((resolve, reject) => {
+                                this.logger.info('removing reservation...', reservation.get('_id'));
+                                reservation.remove((err) => {
+                                    this.logger.info('reservation removed.', reservation.get('_id'), err);
+                                    if (err) return reject(err);
+                                    resolve();
+                                });
+                            });
+                        });
+                        Promise.all(promises).then(() => {
+                            this.res.render('gmo/reserve/cancel');
+                        }, (err) => {
+                            this.res.render('gmo/reserve/cancel');
+                        });
+                    }
+                );
             } else {
                 // 決済方法によって振り分け
                 switch (gmoResultModel.PayType) {
-
                     case GMOUtil.PAY_TYPE_CREDIT:
                         this.logger.info('starting GMOReserveCreditController.result...');
                         let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
                         creditController.logger = this.logger;
                         creditController.result(gmoResultModel);
-
                         break;
 
                     case GMOUtil.PAY_TYPE_CVS:
@@ -82,21 +113,15 @@ export default class GMOReserveController extends ReserveBaseController {
                         let cvsController = new GMOReserveCvsController(this.req, this.res, this.next);
                         cvsController.logger = this.logger;
                         cvsController.result(gmoResultModel);
-
                         break;
 
                     default:
                         this.next(new Error(this.req.__('Message.UnexpectedError')));
-
                         break;
                 }
-
             }
-
         });
-
     }
-
 
     /**
      * GMO結果通知受信
@@ -136,7 +161,7 @@ export default class GMOReserveController extends ReserveBaseController {
 
         // 予約プロセス固有のログファイルをセット
         this.setProcessLogger(paymenyNo, () => {
-            this.logger.info('gmoNotificationModel is ', gmoNotificationModel);
+            this.logger.info('gmoNotificationModel is', gmoNotificationModel);
 
             switch (gmoNotificationModel.PayType) {
 
@@ -162,7 +187,6 @@ export default class GMOReserveController extends ReserveBaseController {
 
                     break;
             }
-
         });
     }
 
@@ -208,26 +232,19 @@ export default class GMOReserveController extends ReserveBaseController {
                 }
 
                 // キャンセル
-                let promises = [];
-                for (let reservation of reservations) {
-                    promises.push(new Promise((resolve, reject) => {
-                        this.logger.info('removing reservation...');
+                let promises = reservations.map((reservation) => {
+                    return new Promise((resolve, reject) => {
+                        this.logger.info('removing reservation...', reservation.get('_id'));
                         reservation.remove((err) => {
-                            this.logger.info('reservation removed.', err);
-                            if (err) {
-                                reject(new Error(this.req.__('Message.UnexpectedError')));
-                            } else {
-                                resolve();
-                            }
+                            this.logger.info('reservation removed.', reservation.get('_id'), err);
+                            if (err) return reject(err);
+                            resolve();
                         });
-                    }));
-                }
-
+                    });
+                });
                 Promise.all(promises).then(() => {
-                    this.logger.info('reservations successfully canceled.');
                     this.res.render('gmo/reserve/cancel');
                 }, (err) => {
-                    this.logger.error('any reservations not canceled.', err);
                     this.res.render('gmo/reserve/cancel');
                 });
             });

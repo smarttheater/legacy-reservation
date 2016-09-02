@@ -1,5 +1,6 @@
 "use strict";
 const BaseController_1 = require('../BaseController');
+const Util_1 = require('../../../common/Util/Util');
 const Models_1 = require('../../../common/models/Models');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const sendgrid = require('sendgrid');
@@ -36,7 +37,7 @@ class ReservationController extends BaseController_1.default {
                     message: this.req.__('Message.NotFound')
                 });
             }
-            let qrcodeBuffer = ReservationUtil_1.default.createQRCode(reservation.get('_id').toString());
+            let qrcodeBuffer = Util_1.default.createQRCode(reservation.get('_id').toString());
             this.res.render('email/resevation', {
                 layout: false,
                 reservations: [reservation],

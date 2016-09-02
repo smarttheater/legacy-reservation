@@ -8,13 +8,19 @@ export default class ScreenUtil {
     /** フロントリクライニングシート */
     public static SEAT_GRADE_CODE_FRONT_RECLINING = '03';
 
+    /**
+     * 座席コードのソート関数
+     * 
+     * @param {string} a 座席コード
+     * @param {string} b 座席コード
+     */
     public static sortBySeatCode(a: string, b:string): number {
-        let typhenIndexA = a.lastIndexOf('-');
-        let typhenIndexB = b.lastIndexOf('-');
-        let rowA = a.substr(0, typhenIndexA); // 行
-        let rowB = b.substr(0, typhenIndexB); // 行
-        let columnA = a.substr(typhenIndexA + 1); // 列
-        let columnB = b.substr(typhenIndexB + 1); // 列
+        let hyphenIndexA = a.lastIndexOf('-');
+        let hyphenIndexB = b.lastIndexOf('-');
+        let rowA = a.substr(0, hyphenIndexA); // 行
+        let rowB = b.substr(0, hyphenIndexB); // 行
+        let columnA = a.substr(hyphenIndexA + 1); // 列
+        let columnB = b.substr(hyphenIndexB + 1); // 列
 
         if (rowA < rowB) {
             return -1;

@@ -205,7 +205,7 @@ class ReserveBaseController extends BaseController_1.default {
             _id: perfomanceId
         }, 'day start_time end_time film screen theater' // 必要な項目だけ指定すること
         )
-            .populate('film', 'name ticket_type_group image is_mx4d') // 必要な項目だけ指定すること
+            .populate('film', 'name ticket_type_group image is_mx4d copyright') // 必要な項目だけ指定すること
             .populate('screen', 'name sections') // 必要な項目だけ指定すること
             .populate('theater', 'name') // 必要な項目だけ指定すること
             .exec((err, performance) => {
@@ -228,6 +228,8 @@ class ReserveBaseController extends BaseController_1.default {
             }
             // 券種取得
             Models_1.default.TicketTypeGroup.findById(performance.get('film').get('ticket_type_group').toString(), (err, ticketTypeGroup) => {
+                if (err)
+                    return cb(err, reservationModel);
                 reservationModel.seatCodes = [];
                 // 券種リストは、予約する主体によって異なる
                 // 内部関係者の場合
@@ -291,6 +293,7 @@ class ReserveBaseController extends BaseController_1.default {
                         name: performance.get('film').get('name'),
                         image: performance.get('film').get('image'),
                         is_mx4d: performance.get('film').get('is_mx4d'),
+                        copyright: performance.get('film').get('copyright')
                     }
                 };
                 // 座席グレードリスト抽出
@@ -399,7 +402,7 @@ class ReserveBaseController extends BaseController_1.default {
                 reservation.ticket_type_name_en = ticketType.name.en;
                 reservation.ticket_type_charge = ticketType.charge;
                 reservation.watcher_name = choice.watcher_name;
-                reservationModel.setReservation(reservation._id, reservation);
+                reservationModel.setReservation(reservation.seat_code, reservation);
             });
             cb(null, reservationModel);
         });

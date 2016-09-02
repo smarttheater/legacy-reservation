@@ -1,5 +1,3 @@
-import qr = require('qr-image');
-
 export default class ReservationUtil {
     /** 仮予約 */
     public static STATUS_TEMPORARY = 'TEMPORARY';
@@ -29,15 +27,8 @@ export default class ReservationUtil {
     /** 窓口 */
     public static PURCHASER_GROUP_WINDOW = '06';
 
+    /** MX4D追加料金 */
     public static CHARGE_MX4D = 1200;
+    /** コンビニ決済手数料 */
     public static CHARGE_CVS = 150;
-
-    /**
-     * create QR code from reservation infos.
-     */
-    public static createQRCode(reservationId: string): Buffer {
-        return qr.imageSync(reservationId, {
-            type: 'png'
-        });
-    }
 }

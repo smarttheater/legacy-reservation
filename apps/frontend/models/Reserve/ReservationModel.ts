@@ -200,8 +200,6 @@ export default class ReservationModel {
     public seatCode2reservationDocument(seatCode) {
         let reservation = this.getReservation(seatCode);
         let document =  {
-            // TODO 金額系の税込みと消費税と両方
-
             _id: reservation._id,
 
             seat_code: seatCode,
@@ -237,6 +235,7 @@ export default class ReservationModel {
             film_name_en: this.performance.film.name.en,
             film_image: this.performance.film.image,
             film_is_mx4d: this.performance.film.is_mx4d,
+            film_copyright: this.performance.film.copyright,
 
             purchaser_last_name: (this.purchaserLastName) ? this.purchaserLastName : '',
             purchaser_first_name: (this.purchaserFirstName) ? this.purchaserFirstName : '',
@@ -252,13 +251,13 @@ export default class ReservationModel {
 
             purchased_at: this.purchasedAt,
 
-            gmo_shop_pass_string: GMOUtil.createShopPassString(
+            gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil.createShopPassString(
                 conf.get<string>('gmo_payment_shop_id'),
                 this.paymentNo,
                 this.getTotalCharge().toString(),
                 conf.get<string>('gmo_payment_shop_password'),
                 moment(this.purchasedAt).format('YYYYMMDDHHmmss')
-            ),
+            ) : '',
 
             updated_user: 'ReservationModel'
         };
@@ -307,7 +306,8 @@ interface Performance {
             en: string
         },
         image: string,
-        is_mx4d: boolean, // MX4D上映かどうか
+        is_mx4d: boolean,
+        copyright: string
     },
 }
 

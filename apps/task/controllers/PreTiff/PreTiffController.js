@@ -1,7 +1,7 @@
 "use strict";
 const BaseController_1 = require('../BaseController');
+const Util_1 = require('../../../common/Util/Util');
 const Models_1 = require('../../../common/models/Models');
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const conf = require('config');
 const mongoose = require('mongoose');
 const fs = require('fs-extra');
@@ -82,7 +82,7 @@ class PreTiffController extends BaseController_1.default {
             .exec((err, reservationDocuments) => {
             for (let reservationDocument of reservationDocuments) {
                 promises.push(new Promise((resolve, reject) => {
-                    let qr = ReservationUtil_1.default.createQRCode(reservationDocument.get('_id').toString());
+                    let qr = Util_1.default.createQRCode(reservationDocument.get('_id').toString());
                     let filename = `${__dirname}/../../../../logs/pretiff/qr/${reservationDocument.get('seat_code')}.png`;
                     fs.writeFile(filename, qr, (err) => {
                         console.log(err);

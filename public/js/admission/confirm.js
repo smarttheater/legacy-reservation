@@ -14,26 +14,25 @@ $(function(){
 
     /**
      * 予約IDをチェックする
+     * 
+     * @param {strnig} reservationId 予約ID
      */
     function check(reservationId) {
         if (!reservationId) {
             return false;
         }
 
-        var result = '';
+        var message = '';
 
-        // reservation exist. OK
+        // 予約データが存在する場合
         if (reservationIds.indexOf(reservationId) >= 0) {
-            audioYes.load();
-            audioYes.play();
-
             var _reservation = reservationsById[reservationId];
 
-            // already confirmed.
+            // 入場済みの場合
             if (_reservation.entered) {
-                result = _reservation.seat_code+' ['+_reservation.ticket_type_name_ja+'] 入場済み';
+                message = _reservation.seat_code+' ['+_reservation.ticket_type_name_ja+'] 入場済み';
             } else {
-                result = _reservation.seat_code+' ['+_reservation.ticket_type_name_ja+'] OK';
+                message = _reservation.seat_code+' ['+_reservation.ticket_type_name_ja+'] OK';
 
                 // add to list for admission.
                 if (checkedReservationIds.indexOf(reservationId) < 0) {
@@ -45,24 +44,34 @@ $(function(){
 
                     updateResults();
                 }
-
             }
 
 
             // 02,03は学生
             if (_reservation.ticket_type === '02' || _reservation.ticket_type === '03') {
+                audioYes.load();
+                audioYes.play();
+
                 $('.result').html(
                     '<div class="alert confirmresult confirmresult-ok-student" role="alert">'+
                         '<span class="inner">'+
-                            '<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>'+result+
+                            '<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>' + message +
                         '</span>'+
                     '</div>'
                 );
             } else {
+                if (_reservation.entered) {
+                    audioYes.load();
+                    audioYes.play();
+                } else {
+                    audioYes.load();
+                    audioYes.play();
+                }
+
                 $('.result').html(
                     '<div class="alert confirmresult confirmresult-ok" role="alert">'+
                         '<span class="inner">'+
-                            '<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>'+result+
+                            '<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>' + message +
                         '</span>'+
                     '</div>'
                 );
@@ -73,12 +82,12 @@ $(function(){
             audioNo.load();
             audioNo.play();
 
-            result = 'NG';
+            message = 'NG';
 
             $('.result').html(
                 '<div class="alert confirmresult confirmresult-ng" role="alert">'+
                     '<span class="inner">'+
-                        '<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>'+result+
+                        '<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>' + message +
                     '</span>'+
                 '</div>'
             );

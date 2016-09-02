@@ -1,5 +1,5 @@
 cd ../
-set NODE_ENV=test
+set NODE_ENV=prod
 node bin/command film createTicketTypeGroupsFromJson
 node bin/command film createFromJson
 node bin/command theater createFromJson

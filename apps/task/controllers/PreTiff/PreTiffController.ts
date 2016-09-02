@@ -1,4 +1,5 @@
 import BaseController from '../BaseController';
+import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import conf = require('config');
@@ -107,7 +108,7 @@ export default class PreTiffController extends BaseController {
             for (let reservationDocument of reservationDocuments) {
 
                 promises.push(new Promise((resolve, reject) => {
-                    let qr = ReservationUtil.createQRCode(reservationDocument.get('_id').toString());
+                    let qr = Util.createQRCode(reservationDocument.get('_id').toString());
 
                     let filename = `${__dirname}/../../../../logs/pretiff/qr/${reservationDocument.get('seat_code')}.png`;
                     fs.writeFile(filename, qr , (err) => {

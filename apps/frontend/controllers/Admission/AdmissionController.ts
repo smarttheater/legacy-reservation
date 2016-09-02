@@ -1,11 +1,7 @@
 import BaseController from '../BaseController';
-import Util from '../../../common/Util/Util';
-
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import FilmUtil from '../../../common/models/Film/FilmUtil';
-
-import moment = require('moment');
 
 export default class AdmissionController extends BaseController {
     public layout = 'layouts/admission/layout';

@@ -213,7 +213,7 @@ class ReservationController extends BaseController_1.default {
                                                     filename: `QR_${reservationId}.png`,
                                                     contentType: 'image/png',
                                                     cid: `qrcode_${reservationId}`,
-                                                    content: ReservationUtil_1.default.createQRCode(reservationId)
+                                                    content: Util_1.default.createQRCode(reservationId)
                                                 });
                                             }
                                             this.logger.info('sending an email...email:', email);

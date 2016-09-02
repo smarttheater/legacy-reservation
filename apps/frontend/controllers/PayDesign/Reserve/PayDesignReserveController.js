@@ -82,16 +82,21 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
                 if (parseInt(payDesignNotificationModel.KINGAKU) !== reservations[0].get('total_charge'))
                     return this.res.send('1');
                 this.logger.info('removing reservations...payment_no:', paymentNo);
-                Models_1.default.Reservation.remove({
-                    payment_no: paymentNo
+                let promises = reservations.map((reservation) => {
+                    return new Promise((resolve, reject) => {
+                        this.logger.info('removing reservation...', reservation.get('_id'));
+                        reservation.remove((err) => {
+                            this.logger.info('reservation removed.', reservation.get('_id'), err);
+                            if (err)
+                                return reject(err);
+                            resolve();
+                        });
+                    });
+                });
+                Promise.all(promises).then(() => {
+                    this.res.send('0');
                 }, (err) => {
-                    this.logger.info('reservations removed.', err);
-                    if (err) {
-                        this.res.send('1');
-                    }
-                    else {
-                        this.res.send('0');
-                    }
+                    this.res.send('1');
                 });
             });
         });

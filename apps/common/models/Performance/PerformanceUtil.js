@@ -29,10 +29,15 @@ class PerformanceUtil {
         return PerformanceUtil.SEAT_STATUS_D;
     }
 }
+/** 座席ステータス(◎) */
 PerformanceUtil.SEAT_STATUS_A = '◎';
+/** 座席ステータス(○) */
 PerformanceUtil.SEAT_STATUS_B = '○';
+/** 座席ステータス(△) */
 PerformanceUtil.SEAT_STATUS_C = '△';
+/** 座席ステータス(×) */
 PerformanceUtil.SEAT_STATUS_D = '×';
+/** 座席ステータス(販売期間外) */
 PerformanceUtil.SEAT_STATUS_G = '-';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PerformanceUtil;

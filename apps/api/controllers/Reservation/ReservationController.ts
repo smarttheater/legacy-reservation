@@ -1,4 +1,5 @@
 import BaseController from '../BaseController';
+import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import sendgrid = require('sendgrid');
@@ -41,7 +42,7 @@ export default class ReservationController extends BaseController {
                     });
                 }
 
-                let qrcodeBuffer = ReservationUtil.createQRCode(reservation.get('_id').toString());
+                let qrcodeBuffer = Util.createQRCode(reservation.get('_id').toString());
 
                 this.res.render('email/resevation', {
                     layout: false,

@@ -1,14 +1,5 @@
 "use strict";
-const qr = require('qr-image');
 class ReservationUtil {
-    /**
-     * create QR code from reservation infos.
-     */
-    static createQRCode(reservationId) {
-        return qr.imageSync(reservationId, {
-            type: 'png'
-        });
-    }
 }
 /** 仮予約 */
 ReservationUtil.STATUS_TEMPORARY = 'TEMPORARY';
@@ -36,7 +27,9 @@ ReservationUtil.PURCHASER_GROUP_STAFF = '04';
 ReservationUtil.PURCHASER_GROUP_TEL = '05';
 /** 窓口 */
 ReservationUtil.PURCHASER_GROUP_WINDOW = '06';
+/** MX4D追加料金 */
 ReservationUtil.CHARGE_MX4D = 1200;
+/** コンビニ決済手数料 */
 ReservationUtil.CHARGE_CVS = 150;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = ReservationUtil;

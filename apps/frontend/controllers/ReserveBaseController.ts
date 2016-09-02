@@ -233,7 +233,7 @@ export default class ReserveBaseController extends BaseController {
             },
             'day start_time end_time film screen theater' // 必要な項目だけ指定すること
         )
-        .populate('film', 'name ticket_type_group image is_mx4d') // 必要な項目だけ指定すること
+        .populate('film', 'name ticket_type_group image is_mx4d copyright') // 必要な項目だけ指定すること
         .populate('screen', 'name sections') // 必要な項目だけ指定すること
         .populate('theater', 'name') // 必要な項目だけ指定すること
         .exec((err, performance) => {
@@ -261,6 +261,8 @@ export default class ReserveBaseController extends BaseController {
             Models.TicketTypeGroup.findById(
                 performance.get('film').get('ticket_type_group').toString(),
                 (err, ticketTypeGroup) => {
+                    if (err) return cb(err, reservationModel);
+
                     reservationModel.seatCodes = [];
 
 
@@ -344,6 +346,7 @@ export default class ReserveBaseController extends BaseController {
                             name: performance.get('film').get('name'),
                             image: performance.get('film').get('image'),
                             is_mx4d: performance.get('film').get('is_mx4d'),
+                            copyright: performance.get('film').get('copyright')
                         }
                     };
 
@@ -469,7 +472,7 @@ export default class ReserveBaseController extends BaseController {
                 reservation.ticket_type_charge = ticketType.charge;
                 reservation.watcher_name = choice.watcher_name;
 
-                reservationModel.setReservation(reservation._id, reservation);
+                reservationModel.setReservation(reservation.seat_code, reservation);
             });
 
             cb(null, reservationModel);

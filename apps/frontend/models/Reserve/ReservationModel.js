@@ -142,7 +142,6 @@ class ReservationModel {
     seatCode2reservationDocument(seatCode) {
         let reservation = this.getReservation(seatCode);
         let document = {
-            // TODO 金額系の税込みと消費税と両方
             _id: reservation._id,
             seat_code: seatCode,
             seat_grade_name_ja: reservation.seat_grade_name_ja,
@@ -171,6 +170,7 @@ class ReservationModel {
             film_name_en: this.performance.film.name.en,
             film_image: this.performance.film.image,
             film_is_mx4d: this.performance.film.is_mx4d,
+            film_copyright: this.performance.film.copyright,
             purchaser_last_name: (this.purchaserLastName) ? this.purchaserLastName : '',
             purchaser_first_name: (this.purchaserFirstName) ? this.purchaserFirstName : '',
             purchaser_email: (this.purchaserEmail) ? this.purchaserEmail : '',
@@ -182,7 +182,7 @@ class ReservationModel {
             watcher_name: (reservation.watcher_name) ? reservation.watcher_name : '',
             watcher_name_updated_at: (reservation.watcher_name) ? Date.now() : '',
             purchased_at: this.purchasedAt,
-            gmo_shop_pass_string: GMOUtil_1.default.createShopPassString(conf.get('gmo_payment_shop_id'), this.paymentNo, this.getTotalCharge().toString(), conf.get('gmo_payment_shop_password'), moment(this.purchasedAt).format('YYYYMMDDHHmmss')),
+            gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil_1.default.createShopPassString(conf.get('gmo_payment_shop_id'), this.paymentNo, this.getTotalCharge().toString(), conf.get('gmo_payment_shop_password'), moment(this.purchasedAt).format('YYYYMMDDHHmmss')) : '',
             updated_user: 'ReservationModel'
         };
         return document;

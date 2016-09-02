@@ -1,5 +1,6 @@
 "use strict";
 const ReserveBaseController_1 = require('../ReserveBaseController');
+const Util_1 = require('../../../common/Util/Util');
 const Models_1 = require('../../../common/models/Models');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const ReservationModel_1 = require('../../models/Reserve/ReservationModel');
@@ -27,10 +28,9 @@ class ReserveController extends ReserveBaseController_1.default {
                 return this.res.json({ propertiesBySeatCode: {} });
             let propertiesBySeatCode = {};
             // 予約リストを取得
-            let fields = (reservationModel.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) ? null : 'seat_code';
             Models_1.default.Reservation.find({
                 performance: reservationModel.performance._id
-            }, fields, (err, reservations) => {
+            }, (err, reservations) => {
                 if (err)
                     return this.res.json({ propertiesBySeatCode: {} });
                 // 予約データが存在すれば、現在仮押さえ中の座席を除いて予約不可(disabled)
@@ -52,7 +52,8 @@ class ReserveController extends ReserveBaseController_1.default {
                     }
                     propertiesBySeatCode[seatCode] = {
                         avalilable: avalilable,
-                        baloonContent: baloonContent
+                        baloonContent: baloonContent,
+                        entered: reservation.get('entered')
                     };
                 }
                 // 予約のない座席は全て空席
@@ -60,7 +61,8 @@ class ReserveController extends ReserveBaseController_1.default {
                     if (!propertiesBySeatCode.hasOwnProperty(seat.code)) {
                         propertiesBySeatCode[seat.code] = {
                             avalilable: true,
-                            baloonContent: seat.code
+                            baloonContent: seat.code,
+                            entered: false
                         };
                     }
                 }
@@ -75,7 +77,7 @@ class ReserveController extends ReserveBaseController_1.default {
      */
     qrcode() {
         let reservationId = this.req.params.reservationId;
-        let png = ReservationUtil_1.default.createQRCode(reservationId);
+        let png = Util_1.default.createQRCode(reservationId);
         this.res.setHeader('Content-Type', 'image/png');
         this.res.send(png);
     }
