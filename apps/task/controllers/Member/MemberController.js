@@ -59,7 +59,15 @@ class MemberController extends BaseController_1.default {
         let performance = {
             "_id": `${moment(conf.get('datetimes.event_start')).format('YYYYMMDD')}000001070600`,
             "theater": "000001",
+            "theater_name": {
+                "ja": "TOHOシネマズ 六本木ヒルズ",
+                "en": "TOHO CINEMAS Roppongi Hills"
+            },
             "screen": "00000107",
+            "screen_name": {
+                "ja": "スクリーン01",
+                "en": "Screen01"
+            },
             "film": "999999",
             "day": moment(conf.get('datetimes.event_start')).format('YYYYMMDD'),
             "start_time": "0800",

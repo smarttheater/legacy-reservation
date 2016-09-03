@@ -17,7 +17,7 @@ class PerformanceController extends BaseController_1.default {
         // 作品ごとのパフォーマンス数(最大3つになるように制御)
         let performancesByFilm = {};
         Models_1.default.Film.find({}, '_id', (err, films) => {
-            Models_1.default.Screen.find({}, '_id theater', (err, screens) => {
+            Models_1.default.Screen.find({}, '_id theater name').populate('theater', 'name').exec((err, screens) => {
                 let days = [];
                 let start = moment(conf.get('datetimes.event_start'));
                 let end = moment(conf.get('datetimes.event_end'));
@@ -53,7 +53,9 @@ class PerformanceController extends BaseController_1.default {
                             performances.push({
                                 _id: day + screen.get('_id') + start,
                                 theater: screen.get('theater'),
+                                theater_name: screen.get('theater').get('name'),
                                 screen: screen.get('_id'),
+                                screen_name: screen.get('name'),
                                 film: _filmId,
                                 day: day,
                                 open_time: opens[index],

@@ -81,29 +81,31 @@ class PerformanceController extends BaseController_1.default {
                         });
                     }
                     // 必要な項目だけ指定すること(レスポンスタイムに大きく影響するので)
-                    let query = Models_1.default.Performance.find(conditions, 'day start_time end_time film screen theater');
+                    let fields = '';
+                    if (this.req.getLocale() === 'ja') {
+                        fields = 'day open_time start_time film screen screen_name.ja theater theater_name.ja';
+                    }
+                    else {
+                        fields = 'day open_time start_time film screen screen_name.en theater theater_name.en';
+                    }
+                    let query = Models_1.default.Performance.find(conditions, fields);
                     if (limit) {
                         query.skip(limit * (page - 1)).limit(limit);
                     }
                     if (this.req.getLocale() === 'ja') {
-                        query.populate('film', 'name.ja image sections.name.ja minutes')
-                            .populate('screen', 'name.ja')
-                            .populate('theater', 'name.ja');
+                        query.populate('film', 'name.ja image sections.name.ja minutes');
                     }
                     else {
-                        query.populate('film', 'name.en image sections.name.en minutes')
-                            .populate('screen', 'name.en')
-                            .populate('theater', 'name.en');
+                        query.populate('film', 'name.en image sections.name.en minutes');
                     }
                     // 上映日、開始時刻
-                    // TODO 作品名昇順を追加？
                     query.setOptions({
                         sort: {
                             day: 1,
-                            start_time: 1,
+                            start_time: 1
                         },
                     });
-                    query.exec((err, performances) => {
+                    query.lean(true).exec((err, performances) => {
                         if (err) {
                             return this.res.json({
                                 success: false,
@@ -116,18 +118,18 @@ class PerformanceController extends BaseController_1.default {
                         PerformanceStatusesModel_1.default.find((err, performanceStatusesModel) => {
                             let results = performances.map((performance) => {
                                 return {
-                                    _id: performance.get('_id'),
-                                    day: performance.get('day'),
-                                    open_time: performance.get('open_time'),
-                                    start_time: performance.get('start_time'),
-                                    seat_status: performanceStatusesModel.getStatus(performance.get('_id')),
-                                    theater_name: performance.get('theater').get('name')[this.req.getLocale()],
-                                    screen_name: performance.get('screen').get('name')[this.req.getLocale()],
-                                    film_id: performance.get('film').get('_id'),
-                                    film_name: performance.get('film').get('name')[this.req.getLocale()],
-                                    film_sections: performance.get('film').get('sections').map((section) => { return section.name[this.req.getLocale()]; }),
-                                    film_minutes: performance.get('film').get('minutes'),
-                                    film_image: performance.get('film').get('image')
+                                    _id: performance['_id'],
+                                    day: performance['day'],
+                                    open_time: performance['open_time'],
+                                    start_time: performance['start_time'],
+                                    seat_status: performanceStatusesModel.getStatus(performance['_id'].toString()),
+                                    theater_name: performance['theater_name'][this.req.getLocale()],
+                                    screen_name: performance['screen_name'][this.req.getLocale()],
+                                    film_id: performance['film']['_id'],
+                                    film_name: performance['film']['name'][this.req.getLocale()],
+                                    film_sections: performance['film']['sections'].map((section) => { return section['name'][this.req.getLocale()]; }),
+                                    film_minutes: performance['film']['minutes'],
+                                    film_image: performance['film']['image']
                                 };
                             });
                             this.res.json({
@@ -181,9 +183,6 @@ class PerformanceController extends BaseController_1.default {
                     cb(err, andConditions);
                 }
                 else {
-                    // let filmIds = films.map((filmDocument) => {
-                    //     return filmDocument.get('_id');
-                    // });
                     if (filmIds.length > 0) {
                         andConditions.push({
                             'film': {

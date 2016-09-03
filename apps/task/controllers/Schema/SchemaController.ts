@@ -1,5 +1,4 @@
 import BaseController from '../BaseController';
-import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import conf = require('config');
 import mongodb = require('mongodb');
@@ -166,6 +165,22 @@ export default class SchemaController extends BaseController {
                 );
             }));
 
+            promises.push(new Promise((resolve, reject) => {
+                db.collection('performances').createIndex(
+                    {
+                        day: 1,
+                        start_time: 1
+                    },
+                    (err) => {
+                        this.logger.debug('index created.', err);
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    }
+                );
+            }));
 
 
             Promise.all(promises).then(() => {

@@ -21,7 +21,7 @@ export default class PerformanceController extends BaseController {
         let performancesByFilm = {};
 
         Models.Film.find({}, '_id', (err, films) => {
-            Models.Screen.find({}, '_id theater', (err, screens) => {
+            Models.Screen.find({}, '_id theater name').populate('theater', 'name').exec((err, screens) => {
                 let days = [];
                 let start = moment(conf.get<string>('datetimes.event_start'));
                 let end = moment(conf.get<string>('datetimes.event_end'));
@@ -64,7 +64,9 @@ export default class PerformanceController extends BaseController {
                             performances.push({
                                 _id: day + screen.get('_id') + start,
                                 theater: screen.get('theater'),
+                                theater_name: screen.get('theater').get('name'),
                                 screen: screen.get('_id'),
+                                screen_name: screen.get('name'),
                                 film: _filmId,
                                 day: day,
                                 open_time: opens[index],

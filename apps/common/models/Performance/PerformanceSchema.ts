@@ -9,9 +9,17 @@ let Schema = new mongoose.Schema({
         type: String,
         ref: 'Theater'
     },
+    theater_name: {
+        ja: String,
+        en: String,
+    },
     screen: { 
         type: String,
         ref: 'Screen'
+    },
+    screen_name: {
+        ja: String,
+        en: String,
     },
     film: { 
         type: String,
@@ -33,5 +41,12 @@ let Schema = new mongoose.Schema({
 Schema.virtual('start_str').get(function() {
     return `${this.day.substr(0, 4)}/${this.day.substr(4, 2)}/${this.day.substr(6)} ${this.start_time.substr(0, 2)}:${this.start_time.substr(2)}`;
 });
+
+Schema.index(
+    {
+        day: 1,
+        start_time: 1
+    }
+);
 
 export default Schema;
