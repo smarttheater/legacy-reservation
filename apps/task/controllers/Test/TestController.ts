@@ -68,4 +68,13 @@ export default class TestController extends BaseController {
             });
         });
     }
+
+    public createPaymentNo(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+        Util.createPaymentNo((err, paymentNo) => {
+            this.logger.info('paymentNo is', paymentNo);
+            mongoose.disconnect();
+            process.exit(0);
+        });
+    }
 }

@@ -9,11 +9,9 @@ class BaseController {
     }
     shuffle(array) {
         let m = array.length, t, i;
-        // While there remain elements to shuffle…
         while (m) {
-            // Pick a remaining element…
-            i = Math.floor(Math.random() * m--);
-            // And swap it with the current element.
+            m--;
+            i = Math.floor(Math.random() * m);
             t = array[m];
             array[m] = array[i];
             array[i] = t;

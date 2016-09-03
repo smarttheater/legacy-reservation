@@ -57,6 +57,14 @@ class TestController extends BaseController_1.default {
             });
         });
     }
+    createPaymentNo() {
+        mongoose.connect(MONGOLAB_URI, {});
+        Util_1.default.createPaymentNo((err, paymentNo) => {
+            this.logger.info('paymentNo is', paymentNo);
+            mongoose.disconnect();
+            process.exit(0);
+        });
+    }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = TestController;

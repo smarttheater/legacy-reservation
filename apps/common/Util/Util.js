@@ -82,36 +82,6 @@ class Util {
         });
     }
     /**
-     * チェックディジットを求める
-     *
-     * @param {number} source
-     */
-    static getCheckDigit(source) {
-        let sourceString = source.toString();
-        if (sourceString.length !== 9)
-            throw new Error('source length must be 9.');
-        let weights = [2, 6, 3, 4, 3, 7, 5, 4, 2];
-        let sum = 0;
-        sourceString.split('').reverse().forEach((digitNumber, index) => {
-            sum += parseInt(digitNumber) * weights[index];
-        });
-        let checkDigit = 11 - (sum % 11);
-        // 2桁の場合0、1桁であればそのまま(必ず1桁になるように)
-        return (checkDigit >= 10) ? 0 : checkDigit;
-    }
-    /**
-     * 購入番号の有効性をチェックする
-     *
-     * @param {string} paymentNo
-     */
-    static isValidPaymentNo(paymentNo) {
-        if (paymentNo.length !== 10)
-            return false;
-        let sequence = paymentNo.substr(0, paymentNo.length - 1);
-        let checkDigit = Util.getCheckDigit(parseInt(sequence));
-        return (parseInt(paymentNo.substr(-1)) === checkDigit);
-    }
-    /**
      * ハッシュ値を作成する
      *
      * @param {string} password
@@ -135,12 +105,65 @@ class Util {
                 let no = sequence.get('no');
                 let random = 1 + Math.floor(Math.random() * 9); // 1-9の整数
                 let checKDigit = Util.getCheckDigit(no);
-                // checkDigitの場所にrandomをはさむ
-                let paymentNo = `${no.toString().substr(0, checKDigit)}${random}${no.toString().substr(checKDigit)}${checKDigit}`;
+                // sortTypes[checkDigit]で並べ替える
+                let sortType = Util.SORT_TYPES_PAYMENT_NO[checKDigit];
+                let paymentNo = random + sortType.map((index) => { return no.toString().substr(index, 1); }).join('') + checKDigit.toString();
                 cb(err, paymentNo);
             }
         });
     }
+    /**
+     * チェックディジットを求める
+     *
+     * @param {number} source
+     */
+    static getCheckDigit(source) {
+        let sourceString = source.toString();
+        if (sourceString.length !== 9)
+            throw new Error('source length must be 9.');
+        let sum = 0;
+        sourceString.split('').reverse().forEach((digitNumber, index) => {
+            sum += parseInt(digitNumber) * Util.CHECK_DIGIT_WEIGHTS[index];
+        });
+        let checkDigit = 11 - (sum % 11);
+        // 2桁の場合0、1桁であればそのまま(必ず1桁になるように)
+        return (checkDigit >= 10) ? 0 : checkDigit;
+    }
+    /**
+     * 購入番号の有効性をチェックする
+     *
+     * @param {string} paymentNo
+     */
+    static isValidPaymentNo(paymentNo) {
+        if (paymentNo.length !== 11)
+            return false;
+        let sequenceNo = Util.decodePaymentNo(paymentNo);
+        let checkDigit = Util.getCheckDigit(parseInt(sequenceNo));
+        return (parseInt(paymentNo.substr(-1)) === checkDigit);
+    }
+    static decodePaymentNo(paymentNo) {
+        let checkDigit = parseInt(paymentNo.substr(-1));
+        let strs = paymentNo.substr(1, paymentNo.length - 2);
+        let sortType = Util.SORT_TYPES_PAYMENT_NO[checkDigit];
+        let sequeceNo = '';
+        for (let i = 0; i < 9; i++) {
+            sequeceNo += strs.substr(sortType.indexOf(i), 1);
+        }
+        return sequeceNo;
+    }
 }
+Util.CHECK_DIGIT_WEIGHTS = [2, 6, 3, 4, 3, 7, 5, 4, 2];
+Util.SORT_TYPES_PAYMENT_NO = [
+    [5, 0, 2, 3, 7, 6, 1, 8, 4],
+    [7, 6, 1, 0, 4, 8, 3, 5, 2],
+    [3, 2, 8, 4, 1, 0, 5, 7, 6],
+    [0, 1, 3, 8, 7, 2, 6, 5, 4],
+    [8, 2, 5, 0, 6, 1, 4, 7, 3],
+    [1, 8, 5, 4, 0, 7, 3, 2, 6],
+    [2, 3, 8, 6, 5, 7, 1, 0, 4],
+    [4, 0, 8, 5, 6, 2, 7, 1, 3],
+    [6, 4, 7, 8, 5, 2, 3, 0, 1],
+    [7, 2, 4, 8, 0, 3, 5, 6, 1]
+];
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Util;
