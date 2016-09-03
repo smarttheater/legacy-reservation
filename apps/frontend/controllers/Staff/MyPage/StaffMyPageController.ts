@@ -118,7 +118,8 @@ export default class StaffMyPageController extends BaseController {
                 )
                 .skip(limit * (page - 1))
                 .limit(limit)
-                .exec((err, reservationDocuments) => {
+                .lean(true)
+                .exec((err, reservations) => {
                     if (err) {
                         this.res.json({
                             success: false,
@@ -130,8 +131,7 @@ export default class StaffMyPageController extends BaseController {
 
                         this.res.json({
                             success: true,
-                            // conditions: conditions,
-                            results: reservationDocuments,
+                            results: reservations,
                             count: count
                         });
                     }

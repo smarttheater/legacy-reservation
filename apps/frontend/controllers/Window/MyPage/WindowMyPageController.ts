@@ -99,6 +99,7 @@ export default class WindowMyPageController extends BaseController {
                 )
                 .skip(limit * (page - 1))
                 .limit(limit)
+                .lean(true)
                 .exec((err, reservations) => {
                     if (err) {
                         this.res.json({
@@ -111,7 +112,6 @@ export default class WindowMyPageController extends BaseController {
 
                         this.res.json({
                             success: true,
-                            // conditions: conditions,
                             results: reservations,
                             count: count
                         });

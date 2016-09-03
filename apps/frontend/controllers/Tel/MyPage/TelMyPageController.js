@@ -79,6 +79,7 @@ class TelMyPageController extends BaseController_1.default {
             })
                 .skip(limit * (page - 1))
                 .limit(limit)
+                .lean(true)
                 .exec((err, reservations) => {
                 if (err) {
                     this.res.json({
@@ -91,7 +92,6 @@ class TelMyPageController extends BaseController_1.default {
                     conditions['page'] = page;
                     this.res.json({
                         success: true,
-                        // conditions: conditions,
                         results: reservations,
                         count: count
                     });
