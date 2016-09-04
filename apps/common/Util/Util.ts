@@ -39,9 +39,8 @@ export default class Util {
             conf.get<string>('redis_host'),
             {
                 password: conf.get<string>('redis_key'),
-                tls: {servername: conf.get<string>('redis_host')}
-                // TODO Bufferで扱わないで大丈夫か？
-                // return_buffers: true
+                tls: {servername: conf.get<string>('redis_host')},
+                return_buffers: true
             }
         );
 

@@ -46,23 +46,16 @@ class ReservationModel {
         let key = ReservationModel.getRedisKey(token);
         client.get(key, (err, reply) => {
             client.quit();
-            if (err) {
-                cb(err, null);
+            if (err)
+                return cb(err, null);
+            if (reply === null)
+                return cb(new Error('Not Found'), null);
+            let reservationModel = new ReservationModel();
+            let reservationModelInRedis = JSON.parse(reply.toString());
+            for (let propertyName in reservationModelInRedis) {
+                reservationModel[propertyName] = reservationModelInRedis[propertyName];
             }
-            else {
-                if (reply === null) {
-                    cb(new Error('Not Found'), null);
-                }
-                else {
-                    let reservationModel = new ReservationModel();
-                    // let reservationModelInRedis = JSON.parse(reply.toString('utf-8'));
-                    let reservationModelInRedis = JSON.parse(reply);
-                    for (let propertyName in reservationModelInRedis) {
-                        reservationModel[propertyName] = reservationModelInRedis[propertyName];
-                    }
-                    cb(err, reservationModel);
-                }
-            }
+            cb(null, reservationModel);
         });
     }
     /**

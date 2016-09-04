@@ -22,7 +22,7 @@ export default class PerformanceStatusesModel {
     public save(cb: (err: Error | void) => void) {
         let client = Util.getRedisClient();
         let key = PerformanceStatusesModel.getRedisKey();
-        client.setex(key, 3600, JSON.stringify(this), (err, reply) => {
+        client.setex(key, 3600, JSON.stringify(this), (err) => {
             client.quit();
             cb(err);
         });
@@ -31,34 +31,28 @@ export default class PerformanceStatusesModel {
     public remove(cb: (err: Error | void) => any) {
         let client = Util.getRedisClient();
         let key = PerformanceStatusesModel.getRedisKey();
-        client.del(key, (err, reply) => {
+        client.del(key, (err) => {
             client.quit();
             cb(err);
         });
     }
 
     public static find(cb: (err: Error | void, performanceStatusesModel: PerformanceStatusesModel) => any): void {
-        let performanceStatusesModel = new PerformanceStatusesModel();
         let client = Util.getRedisClient();
         let key = PerformanceStatusesModel.getRedisKey();
         client.get(key, (err, reply) => {
             client.quit();
-            if (err) {
-                cb(err, performanceStatusesModel);
-            } else {
-                if (reply === null) {
-                    cb(new Error('Not Found'), performanceStatusesModel);
 
-                } else {
-                    // let performanceStatusesModelInRedis = JSON.parse(reply.toString('utf-8'));
-                    let performanceStatusesModelInRedis = JSON.parse(reply);
-                    for (let propertyName in performanceStatusesModelInRedis) {
-                        performanceStatusesModel[propertyName] = performanceStatusesModelInRedis[propertyName];
-                    }
+            if (err) return cb(err, null);
+            if (reply === null) return cb(new Error('Not Found'), null);
 
-                    cb(err, performanceStatusesModel);
-                }
+            let performanceStatusesModel = new PerformanceStatusesModel();
+            let performanceStatusesModelInRedis = JSON.parse(reply.toString());
+            for (let propertyName in performanceStatusesModelInRedis) {
+                performanceStatusesModel[propertyName] = performanceStatusesModelInRedis[propertyName];
             }
+
+            cb(null, performanceStatusesModel);
         });
     }
 

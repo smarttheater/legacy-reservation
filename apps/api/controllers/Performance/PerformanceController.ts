@@ -141,7 +141,7 @@ export default class PerformanceController extends BaseController {
                                         day: performance['day'],
                                         open_time: performance['open_time'],
                                         start_time: performance['start_time'],
-                                        seat_status: performanceStatusesModel.getStatus(performance['_id'].toString()),
+                                        seat_status: (performanceStatusesModel) ? performanceStatusesModel.getStatus(performance['_id'].toString()) : null,
                                         theater_name: performance['theater_name'][this.req.getLocale()],
                                         screen_name: performance['screen_name'][this.req.getLocale()],
                                         film_id: performance['film']['_id'],
