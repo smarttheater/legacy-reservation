@@ -109,7 +109,8 @@ export default class PerformanceController extends BaseController {
         Models.Performance.find(
             {},
             'day start_time screen'
-        ).populate('screen', 'sections')
+        )
+        .populate('screen', 'seats_number')
         .exec((err, performances) => {
             this.logger.info('performances found.', err);
             if (err) {
@@ -146,14 +147,12 @@ export default class PerformanceController extends BaseController {
                     }
 
                     performances.forEach((performance) => {
-                        // パフォーマンスごとに空席割合を算出する
+                        // パフォーマンスごとに空席ステータスを算出する
                         if (reservationCounts.hasOwnProperty(performance.get('_id').toString())) {
-                            let seatCount = performance.get('screen').get('sections')[0].seats.length;
-                            let start = performance.get('day') + performance.get('start_time');
-                            let status = PerformanceUtil.seatNum2status(reservationCounts[performance.get('_id').toString()], seatCount, start, now);
-                            performanceStatusesModel.setStatus(performance.get('_id').toString(), status);
+                            let status = performance['getSeatStatus'](reservationCounts[performance.get('_id').toString()]);
+                            performanceStatusesModel.setStatus(performance._id.toString(), status);
                         } else {
-                            performanceStatusesModel.setStatus(performance.get('_id').toString(), PerformanceUtil.SEAT_STATUS_A);
+                            performanceStatusesModel.setStatus(performance._id.toString(), PerformanceUtil.SEAT_STATUS_A);
                         }
                     });
 

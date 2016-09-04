@@ -12,6 +12,11 @@ class TheaterController extends BaseController_1.default {
             if (err)
                 throw err;
             let screens = JSON.parse(data);
+            // 座席数情報を追加
+            screens = screens.map((screen) => {
+                screen.seats_number = screen.sections[0].seats.length;
+                return screen;
+            });
             this.logger.info('removing all screens...');
             Models_1.default.Screen.remove({}, (err) => {
                 this.logger.info('creating screens...');

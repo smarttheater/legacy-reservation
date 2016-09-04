@@ -1,4 +1,6 @@
 import mongoose = require('mongoose');
+import PerformanceUtil from './PerformanceUtil';
+import moment = require('moment')
 
 /**
  * パフォーマンススキーマ
@@ -37,10 +39,34 @@ let Schema = new mongoose.Schema({
     }
 });
 
-// 開始文字列を表示形式で取得できるように
+/** 開始文字列を表示形式で取得 */
 Schema.virtual('start_str').get(function() {
     return `${this.day.substr(0, 4)}/${this.day.substr(4, 2)}/${this.day.substr(6)} ${this.start_time.substr(0, 2)}:${this.start_time.substr(2)}`;
 });
+
+/**
+ * 空席ステータスを算出する
+ * 
+ * @param {string} reservationNumber 予約数
+ */
+Schema.methods.getSeatStatus = function(reservationNumber: number) {
+    let availableSeatNum = this.screen.seats_number - reservationNumber;
+
+    // 開始時間を過ぎていればG
+    let now = parseInt(moment().format('YYYYMMDDHHmm'));
+    if (parseInt(this.day + this.start) < now) return PerformanceUtil.SEAT_STATUS_G;
+
+    // 残席0以下なら問答無用に×
+    if (availableSeatNum <= 0) return PerformanceUtil.SEAT_STATUS_D;
+
+    // 残席数よりステータスを算出
+    let seatNum = 100 * availableSeatNum;
+    if (PerformanceUtil.SEAT_STATUS_THRESHOLD_A * this.screen.seats_number < seatNum) return PerformanceUtil.SEAT_STATUS_A;
+    if (PerformanceUtil.SEAT_STATUS_THRESHOLD_B * this.screen.seats_number < seatNum) return PerformanceUtil.SEAT_STATUS_B;
+    if (PerformanceUtil.SEAT_STATUS_THRESHOLD_C * this.screen.seats_number < seatNum) return PerformanceUtil.SEAT_STATUS_C;
+
+    return PerformanceUtil.SEAT_STATUS_D;
+};
 
 Schema.index(
     {

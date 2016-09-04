@@ -13,6 +13,7 @@ let Schema = new mongoose.Schema({
         ja: String,
         en: String
     },
+    seats_number: Number, // 座席合計数
     sections: [
          {
              _id: false,

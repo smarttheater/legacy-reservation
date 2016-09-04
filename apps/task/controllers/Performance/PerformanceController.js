@@ -84,7 +84,8 @@ class PerformanceController extends BaseController_1.default {
     updateStatuses() {
         mongoose.connect(MONGOLAB_URI, {});
         this.logger.info('finding performances...');
-        Models_1.default.Performance.find({}, 'day start_time screen').populate('screen', 'sections')
+        Models_1.default.Performance.find({}, 'day start_time screen')
+            .populate('screen', 'seats_number')
             .exec((err, performances) => {
             this.logger.info('performances found.', err);
             if (err) {
@@ -115,15 +116,13 @@ class PerformanceController extends BaseController_1.default {
                     reservationCounts[result._id] = parseInt(result.count);
                 }
                 performances.forEach((performance) => {
-                    // パフォーマンスごとに空席割合を算出する
+                    // パフォーマンスごとに空席ステータスを算出する
                     if (reservationCounts.hasOwnProperty(performance.get('_id').toString())) {
-                        let seatCount = performance.get('screen').get('sections')[0].seats.length;
-                        let start = performance.get('day') + performance.get('start_time');
-                        let status = PerformanceUtil_1.default.seatNum2status(reservationCounts[performance.get('_id').toString()], seatCount, start, now);
-                        performanceStatusesModel.setStatus(performance.get('_id').toString(), status);
+                        let status = performance['getSeatStatus'](reservationCounts[performance.get('_id').toString()]);
+                        performanceStatusesModel.setStatus(performance._id.toString(), status);
                     }
                     else {
-                        performanceStatusesModel.setStatus(performance.get('_id').toString(), PerformanceUtil_1.default.SEAT_STATUS_A);
+                        performanceStatusesModel.setStatus(performance._id.toString(), PerformanceUtil_1.default.SEAT_STATUS_A);
                     }
                 });
                 this.logger.info('saving performanceStatusesModel...');

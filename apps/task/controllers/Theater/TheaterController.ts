@@ -13,6 +13,11 @@ export default class TheaterController extends BaseController {
         fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/screens.json`, 'utf8', (err, data) => {
             if (err) throw err;
             let screens = JSON.parse(data);
+            // 座席数情報を追加
+            screens = screens.map((screen) => {
+                screen.seats_number = screen.sections[0].seats.length;
+                return screen;
+            });
 
             this.logger.info('removing all screens...');
             Models.Screen.remove({}, (err) => {

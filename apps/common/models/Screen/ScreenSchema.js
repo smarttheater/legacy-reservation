@@ -13,6 +13,7 @@ let Schema = new mongoose.Schema({
         ja: String,
         en: String
     },
+    seats_number: Number,
     sections: [
         {
             _id: false,
