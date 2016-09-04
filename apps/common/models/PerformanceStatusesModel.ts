@@ -19,7 +19,7 @@ export default class PerformanceStatusesModel {
         this[id] = status;
     }
 
-    public save(cb: (err: Error) => void) {
+    public save(cb: (err: Error | void) => void) {
         let client = Util.getRedisClient();
         let key = PerformanceStatusesModel.getRedisKey();
         client.setex(key, 3600, JSON.stringify(this), (err, reply) => {
@@ -28,7 +28,7 @@ export default class PerformanceStatusesModel {
         });
     }
 
-    public remove(cb: (err: Error) => any) {
+    public remove(cb: (err: Error | void) => any) {
         let client = Util.getRedisClient();
         let key = PerformanceStatusesModel.getRedisKey();
         client.del(key, (err, reply) => {
@@ -37,11 +37,11 @@ export default class PerformanceStatusesModel {
         });
     }
 
-    public static find(cb: (err: Error, performanceStatusesModel: PerformanceStatusesModel) => any): void {
+    public static find(cb: (err: Error | void, performanceStatusesModel: PerformanceStatusesModel) => any): void {
         let performanceStatusesModel = new PerformanceStatusesModel();
         let client = Util.getRedisClient();
         let key = PerformanceStatusesModel.getRedisKey();
-        client.get(key, (err, reply: Buffer) => {
+        client.get(key, (err, reply) => {
             client.quit();
             if (err) {
                 cb(err, performanceStatusesModel);
@@ -50,7 +50,8 @@ export default class PerformanceStatusesModel {
                     cb(new Error('Not Found'), performanceStatusesModel);
 
                 } else {
-                    let performanceStatusesModelInRedis = JSON.parse(reply.toString('utf-8'));
+                    // let performanceStatusesModelInRedis = JSON.parse(reply.toString('utf-8'));
+                    let performanceStatusesModelInRedis = JSON.parse(reply);
                     for (let propertyName in performanceStatusesModelInRedis) {
                         performanceStatusesModel[propertyName] = performanceStatusesModelInRedis[propertyName];
                     }

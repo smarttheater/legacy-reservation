@@ -4,6 +4,7 @@ import crypto = require('crypto');
 import fs = require('fs-extra');
 import log4js = require('log4js');
 import qr = require('qr-image');
+import uniqid = require('uniqid');
 import Models from '../../common/models/Models';
 
 /**
@@ -16,8 +17,6 @@ export default class Util {
      * @return {string}
      */
     public static createToken(): string {
-        let uniqid = require('uniqid'); // Generates unique id's on multiple processes and machines even if called at the same time.
-
         let md5hash = crypto.createHash('md5');
 
         // console.log(uniqid()); // Generate 18 byte unique id's based on the time, process id and mac address. Works on multiple processes and machines.
@@ -25,7 +24,6 @@ export default class Util {
         // console.log(uniqid.time()); // Generate 8 byte unique id's based on the current time only. Recommended only on a single process on a single machine.
 
         md5hash.update(Math.floor(Math.random() * 10000) + 1000 + uniqid.process(), 'binary');
-        // md5hash.update(uniqid.process(), 'binary');
 
         let token = md5hash.digest('hex');
 
@@ -41,7 +39,9 @@ export default class Util {
             conf.get<string>('redis_host'),
             {
                 password: conf.get<string>('redis_key'),
-                return_buffers: true
+                tls: {servername: conf.get<string>('redis_host')}
+                // TODO Bufferで扱わないで大丈夫か？
+                // return_buffers: true
             }
         );
 

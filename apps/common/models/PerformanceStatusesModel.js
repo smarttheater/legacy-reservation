@@ -47,7 +47,8 @@ class PerformanceStatusesModel {
                     cb(new Error('Not Found'), performanceStatusesModel);
                 }
                 else {
-                    let performanceStatusesModelInRedis = JSON.parse(reply.toString('utf-8'));
+                    // let performanceStatusesModelInRedis = JSON.parse(reply.toString('utf-8'));
+                    let performanceStatusesModelInRedis = JSON.parse(reply);
                     for (let propertyName in performanceStatusesModelInRedis) {
                         performanceStatusesModel[propertyName] = performanceStatusesModelInRedis[propertyName];
                     }

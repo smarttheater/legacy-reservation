@@ -5,7 +5,7 @@
     "storage_account_key": "8/2n5KPjAC/yJ5i0T8LCOS8FLzZZyZhs0n9Q3wo8K1+3+DxWZMBV+ZfGnKZKmVB2CcjubXcib8WC2/zuHHXZWA==",
 
     "redis_host": "prodtiffredis.redis.cache.windows.net",
-    "redis_port": "6379",
+    "redis_port": 6380,
     "redis_key": "rK9LhFvRtLjVDuhepB62BpmFvvHFF/UuglnS2e+N5vM=",
 
     "mongolab_uri": "mongodb://prodtiffmlabmongodbuser:KX5ugtsHc4iPuHFR_myiMKQCeY4MDPD8cBB-77HE@ds044229.mlab.com:44229/prodtiffmlabmongodb",

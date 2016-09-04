@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const fs = require('fs-extra');
 const log4js = require('log4js');
 const qr = require('qr-image');
+const uniqid = require('uniqid');
 const Models_1 = require('../../common/models/Models');
 /**
  * 共通のユーティリティ
@@ -16,13 +17,11 @@ class Util {
      * @return {string}
      */
     static createToken() {
-        let uniqid = require('uniqid'); // Generates unique id's on multiple processes and machines even if called at the same time.
         let md5hash = crypto.createHash('md5');
         // console.log(uniqid()); // Generate 18 byte unique id's based on the time, process id and mac address. Works on multiple processes and machines.
         // console.log(uniqid.process()); // Generate 12 byte unique id's based on the time and the process id. Works on multiple processes within a single machine but not on multiple machines.
         // console.log(uniqid.time()); // Generate 8 byte unique id's based on the current time only. Recommended only on a single process on a single machine.
         md5hash.update(Math.floor(Math.random() * 10000) + 1000 + uniqid.process(), 'binary');
-        // md5hash.update(uniqid.process(), 'binary');
         let token = md5hash.digest('hex');
         return token;
     }
@@ -32,7 +31,7 @@ class Util {
     static getRedisClient() {
         let client = redis.createClient(conf.get('redis_port'), conf.get('redis_host'), {
             password: conf.get('redis_key'),
-            return_buffers: true
+            tls: { servername: conf.get('redis_host') }
         });
         return client;
     }

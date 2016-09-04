@@ -20,7 +20,7 @@ class ReservationModel {
         let client = Util_1.default.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
         let _ttl = (ttl) ? ttl : 1800;
-        client.setex(key, _ttl, JSON.stringify(this), (err, reply) => {
+        client.setex(key, _ttl, JSON.stringify(this), (err) => {
             if (err)
                 throw err;
             client.quit();
@@ -33,7 +33,7 @@ class ReservationModel {
     remove(cb) {
         let client = Util_1.default.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
-        client.del(key, (err, reply) => {
+        client.del(key, (err) => {
             client.quit();
             cb(err);
         });
@@ -55,7 +55,8 @@ class ReservationModel {
                 }
                 else {
                     let reservationModel = new ReservationModel();
-                    let reservationModelInRedis = JSON.parse(reply.toString('utf-8'));
+                    // let reservationModelInRedis = JSON.parse(reply.toString('utf-8'));
+                    let reservationModelInRedis = JSON.parse(reply);
                     for (let propertyName in reservationModelInRedis) {
                         reservationModel[propertyName] = reservationModelInRedis[propertyName];
                     }

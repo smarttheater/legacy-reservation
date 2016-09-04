@@ -59,7 +59,7 @@ export default class ReservationModel {
         let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
         let _ttl = (ttl) ? ttl : 1800;
-        client.setex(key, _ttl, JSON.stringify(this), (err, reply) => {
+        client.setex(key, _ttl, JSON.stringify(this), (err) => {
             if (err) throw err;
             client.quit();
             cb();
@@ -69,10 +69,10 @@ export default class ReservationModel {
     /**
      * プロセス中の購入情報をセッションから削除する
      */
-    public remove(cb: (err: Error) => void) {
+    public remove(cb: (err: Error | void) => void) {
         let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
-        client.del(key, (err, reply) => {
+        client.del(key, (err) => {
             client.quit();
             cb(err);
         });
@@ -81,10 +81,10 @@ export default class ReservationModel {
     /**
      * プロセス中の購入情報をセッションから取得する
      */
-    public static find(token: string, cb: (err: Error, reservationModel: ReservationModel) => void): void {
+    public static find(token: string, cb: (err: Error | void, reservationModel: ReservationModel) => void): void {
         let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(token);
-        client.get(key, (err, reply: Buffer) => {
+        client.get(key, (err, reply) => {
             client.quit();
             if (err) {
                 cb(err, null);
@@ -94,7 +94,8 @@ export default class ReservationModel {
 
                 } else {
                     let reservationModel = new ReservationModel();
-                    let reservationModelInRedis = JSON.parse(reply.toString('utf-8'));
+                    // let reservationModelInRedis = JSON.parse(reply.toString('utf-8'));
+                    let reservationModelInRedis = JSON.parse(reply);
                     for (let propertyName in reservationModelInRedis) {
                         reservationModel[propertyName] = reservationModelInRedis[propertyName];
                     }

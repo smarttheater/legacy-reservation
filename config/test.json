@@ -5,7 +5,7 @@
     "storage_account_key": "ouKgxaaVVmYkNFhVNkU3nMMwVBhMdnY74gIEkv/OS3+r6yXO+0kgIqhUrwPHofEKSX81GXgn0A881c50PQqjBg==",
 
     "redis_host": "testtiffredis.redis.cache.windows.net",
-    "redis_port": "6379",
+    "redis_port": 6380,
     "redis_key": "q/AnbZRrPXF44HMGH63cR4LvcTFfwmFhHNVuUIorces=",
 
     "mongolab_uri": "mongodb://testtiffmlabmongodbuser:VtCZYTa98QWc2Vc5rspCLzZL3DzgDLJTN_xY5JWA@ds038379.mlab.com:38379/testtiffmlabmongodb",
