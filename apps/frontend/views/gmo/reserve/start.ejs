@@ -2,7 +2,7 @@
 GMO決済へ遷移します...
 </p>
 
-<form action="https://pt01.mul-pay.jp/link/<%- shopId %>/Multi/Entry" method="post">
+<form action="<%- conf.get('gmo_payment_api_link_multi_entry') %>" method="post">
     <input type="hidden" name="ShopID" value="<%- shopId %>"><br>
     <input type="hidden" name="OrderID" value="<%- orderID %>"><br>
     <input type="hidden" name="Amount" value="<%- amount %>"><br>
@@ -27,25 +27,6 @@ GMO決済へ遷移します...
     <!-- お問合せ先受付時間 -->
     <input type="hidden" name="ReceiptsDisp13" value="09:00-18:00"><br>
 </form>
-
-<!--
-ShopID：<%- shopId %><br>
-OrderID：<%- orderID %><br>
-Amount:<%- amount %><br>
-DateTime<%- dateTime %><br>
-ShopPassString：<%- shopPassString %><br>
-RetURL<%- 'https://' + req.headers.host + url('gmo.reserve.result') %><br>
-CancelURL<%- 'https://' + req.headers.host + url('gmo.reserve.cancel', {paymentNo: orderID}) %><br>
-SessionTimeout300<br>
-Lang<%- locale %><br>
-UseCredit:<%- useCredit %><br>
-UseCvs:<%- useCvs %><br>
-JobCd:CAPTURE<br>
-SiteID:tsite00022126<br>
-ReceiptsDisp11:東京国際映画祭事務局<br>
-ReceiptsDisp12:03-1234-5678<br>
-ReceiptsDisp13:09:00-18:00<br>
--->
 
 <script>
 $(function(){

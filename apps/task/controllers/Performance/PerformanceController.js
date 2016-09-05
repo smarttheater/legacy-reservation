@@ -65,6 +65,25 @@ class PerformanceController extends BaseController_1.default {
                         });
                     });
                 });
+                // TODO 本番では削除 1円の作品
+                performances.push({
+                    "_id": `${moment(conf.get('datetimes.event_start')).format('YYYYMMDD')}000001070550`,
+                    "theater": "000001",
+                    "screen": "00000107",
+                    "film": "111111",
+                    "day": moment(conf.get('datetimes.event_start')).format('YYYYMMDD'),
+                    "open_time": "0550",
+                    "start_time": "0555",
+                    "end_time": "0600",
+                    "screen_name": {
+                        "en": "Screen07",
+                        "ja": "スクリーン07"
+                    },
+                    "theater_name": {
+                        "en": "TOHO CINEMAS Roppongi Hills",
+                        "ja": "TOHOシネマズ 六本木ヒルズ"
+                    }
+                });
                 // 全削除して一気に作成
                 this.logger.debug('removing all performances...');
                 Models_1.default.Performance.remove({}, (err) => {

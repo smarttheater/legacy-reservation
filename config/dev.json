@@ -16,6 +16,7 @@
     "gmo_payment_site_id": "tsite00022126",
     "gmo_payment_shop_id": "tshop00024743",
     "gmo_payment_shop_password": "tawzswh4",
+    "gmo_payment_api_link_multi_entry": "https://pt01.mul-pay.jp/link/tshop00024743/Multi/Entry",
 
     "datetimes": {
         "reservation_start_staffs": "2016-08-24T00:00:00+09:00",

@@ -19,5 +19,6 @@
     {"user_id":"operation2016","password":"konishi","name":"オペレーション","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"tiffcom2016","password":"takagi","name":"TIFFCOM","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"kanri2016","password":"nishimura","name":"管理","email":"ticket2016@gmail.com","is_admin":false},
-    {"user_id":"system2016","password":"nishimura","name":"システム","email":"ticket2016@gmail.com","is_admin":false}
+    {"user_id":"system2016","password":"nishimura","name":"システム","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"seat_tiff2016","password":"7_ifuH48bNDN","name":"座席確認","email":"hello@motionpicture.jp","is_admin":false}
 ]
