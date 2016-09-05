@@ -21,6 +21,9 @@ GMO決済へ遷移します...
     <input type="hidden" name="JobCd" value="CAPTURE"><br>
     <!--<input type="hidden" name="SiteID" value="<%- conf.get('gmo_payment_site_id') %>"><br>-->
 
+    <!-- 予約番号 -->
+    <input type="hidden" name="ReserveNo" value="<%- orderID %>"><br>
+
     <!--
     レジ・ATM に表示される内容です。設定可能な文字は「全角文字」となります。
     -->
