@@ -58,6 +58,7 @@ $(function(){
                             $(this).addClass('select-seat');
                         } else if (properties.entered) {
                             $(this).removeClass('select-seat');
+                            $(this).removeClass('disabled');
                             $(this).addClass('entered'); // TODO 入場済みのクラス
                         } else {
                             $(this).removeClass('select-seat');
