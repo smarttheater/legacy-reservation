@@ -52,9 +52,9 @@ Schema.virtual('start_str').get(function() {
 Schema.methods.getSeatStatus = function(reservationNumber: number) {
     let availableSeatNum = this.screen.seats_number - reservationNumber;
 
-    // 開始時間を過ぎていればG
-    let now = parseInt(moment().format('YYYYMMDDHHmm'));
-    if (parseInt(this.day + this.start) < now) return PerformanceUtil.SEAT_STATUS_G;
+    // 開始時間を20分過ぎていればG
+    let now = parseInt(moment().add(20, 'minutes').format('YYYYMMDDHHmm'));
+    if (parseInt(this.day + this.start_time) < now) return PerformanceUtil.SEAT_STATUS_G;
 
     // 残席0以下なら問答無用に×
     if (availableSeatNum <= 0) return PerformanceUtil.SEAT_STATUS_D;
