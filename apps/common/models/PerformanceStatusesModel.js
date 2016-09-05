@@ -1,6 +1,6 @@
 "use strict";
-const Util_1 = require('../../common/Util/Util');
 const PerformanceUtil_1 = require('../../common/Models/Performance/PerformanceUtil');
+const redisClient_1 = require('../../common/modules/redisClient');
 /**
  * パフォーマンス情報モデル
  */
@@ -18,34 +18,33 @@ class PerformanceStatusesModel {
         this[id] = status;
     }
     save(cb) {
-        let client = Util_1.default.getRedisClient();
         let key = PerformanceStatusesModel.getRedisKey();
-        client.setex(key, 3600, JSON.stringify(this), (err) => {
-            client.quit();
+        redisClient_1.default.setex(key, 3600, JSON.stringify(this), (err) => {
             cb(err);
         });
     }
     remove(cb) {
-        let client = Util_1.default.getRedisClient();
         let key = PerformanceStatusesModel.getRedisKey();
-        client.del(key, (err) => {
-            client.quit();
+        redisClient_1.default.del(key, (err) => {
             cb(err);
         });
     }
     static find(cb) {
-        let client = Util_1.default.getRedisClient();
         let key = PerformanceStatusesModel.getRedisKey();
-        client.get(key, (err, reply) => {
-            client.quit();
+        redisClient_1.default.get(key, (err, reply) => {
             if (err)
                 return cb(err, null);
             if (reply === null)
                 return cb(new Error('Not Found'), null);
             let performanceStatusesModel = new PerformanceStatusesModel();
-            let performanceStatusesModelInRedis = JSON.parse(reply.toString());
-            for (let propertyName in performanceStatusesModelInRedis) {
-                performanceStatusesModel[propertyName] = performanceStatusesModelInRedis[propertyName];
+            try {
+                let performanceStatusesModelInRedis = JSON.parse(reply.toString());
+                for (let propertyName in performanceStatusesModelInRedis) {
+                    performanceStatusesModel[propertyName] = performanceStatusesModelInRedis[propertyName];
+                }
+            }
+            catch (error) {
+                return cb(error, null);
             }
             cb(null, performanceStatusesModel);
         });

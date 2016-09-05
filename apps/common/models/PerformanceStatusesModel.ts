@@ -1,5 +1,6 @@
 import Util from '../../common/Util/Util';
 import PerformanceUtil from '../../common/Models/Performance/PerformanceUtil';
+import redisClient from '../../common/modules/redisClient';
 
 /**
  * パフォーマンス情報モデル
@@ -20,36 +21,34 @@ export default class PerformanceStatusesModel {
     }
 
     public save(cb: (err: Error | void) => void) {
-        let client = Util.getRedisClient();
         let key = PerformanceStatusesModel.getRedisKey();
-        client.setex(key, 3600, JSON.stringify(this), (err) => {
-            client.quit();
+        redisClient.setex(key, 3600, JSON.stringify(this), (err) => {
             cb(err);
         });
     }
 
     public remove(cb: (err: Error | void) => any) {
-        let client = Util.getRedisClient();
         let key = PerformanceStatusesModel.getRedisKey();
-        client.del(key, (err) => {
-            client.quit();
+        redisClient.del(key, (err) => {
             cb(err);
         });
     }
 
     public static find(cb: (err: Error | void, performanceStatusesModel: PerformanceStatusesModel) => any): void {
-        let client = Util.getRedisClient();
         let key = PerformanceStatusesModel.getRedisKey();
-        client.get(key, (err, reply) => {
-            client.quit();
-
+        redisClient.get(key, (err, reply) => {
             if (err) return cb(err, null);
             if (reply === null) return cb(new Error('Not Found'), null);
 
             let performanceStatusesModel = new PerformanceStatusesModel();
-            let performanceStatusesModelInRedis = JSON.parse(reply.toString());
-            for (let propertyName in performanceStatusesModelInRedis) {
-                performanceStatusesModel[propertyName] = performanceStatusesModelInRedis[propertyName];
+
+            try {
+                let performanceStatusesModelInRedis = JSON.parse(reply.toString());
+                for (let propertyName in performanceStatusesModelInRedis) {
+                    performanceStatusesModel[propertyName] = performanceStatusesModelInRedis[propertyName];
+                }
+            } catch (error) {
+                return cb(error, null);
             }
 
             cb(null, performanceStatusesModel);

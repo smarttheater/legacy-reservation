@@ -8,7 +8,9 @@
     },
     "exclude": [
         "config",
+        "data",
         "definitions",
+        "gmo_templates",
         "locales",
         "lock",
         "logs",

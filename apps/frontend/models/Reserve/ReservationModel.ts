@@ -3,6 +3,7 @@ import ReservationUtil from '../../../common/models/Reservation/ReservationUtil'
 import GMOUtil from '../../../common/Util/GMO/GMOUtil';
 import conf = require('config');
 import moment = require('moment');
+import redisClient from '../../../common/modules/redisClient';
 
 /**
  * 予約情報モデル
@@ -56,12 +57,10 @@ export default class ReservationModel {
      * @param {number} ttl 有効期間(default: 1800)
      */
     public save(cb: () => void, ttl?: number) {
-        let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
         let _ttl = (ttl) ? ttl : 1800;
-        client.setex(key, _ttl, JSON.stringify(this), (err) => {
+        redisClient.setex(key, _ttl, JSON.stringify(this), (err) => {
             if (err) throw err;
-            client.quit();
             cb();
         });
     }
@@ -70,10 +69,8 @@ export default class ReservationModel {
      * プロセス中の購入情報をセッションから削除する
      */
     public remove(cb: (err: Error | void) => void) {
-        let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(this.token);
-        client.del(key, (err) => {
-            client.quit();
+        redisClient.del(key, (err) => {
             cb(err);
         });
     }
@@ -82,17 +79,20 @@ export default class ReservationModel {
      * プロセス中の購入情報をセッションから取得する
      */
     public static find(token: string, cb: (err: Error | void, reservationModel: ReservationModel) => void): void {
-        let client = Util.getRedisClient();
         let key = ReservationModel.getRedisKey(token);
-        client.get(key, (err, reply) => {
-            client.quit();
+        redisClient.get(key, (err, reply) => {
             if (err) return cb(err, null);
             if (reply === null) return cb(new Error('Not Found'), null);
 
             let reservationModel = new ReservationModel();
-            let reservationModelInRedis = JSON.parse(reply.toString());
-            for (let propertyName in reservationModelInRedis) {
-                reservationModel[propertyName] = reservationModelInRedis[propertyName];
+
+            try {
+                let reservationModelInRedis = JSON.parse(reply.toString());
+                for (let propertyName in reservationModelInRedis) {
+                    reservationModel[propertyName] = reservationModelInRedis[propertyName];
+                }
+            } catch (error) {
+                return cb(err, null);
             }
 
             cb(null, reservationModel);

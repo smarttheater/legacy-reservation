@@ -1,5 +1,3 @@
-import redis = require('redis');
-import conf = require('config');
 import crypto = require('crypto');
 import fs = require('fs-extra');
 import log4js = require('log4js');
@@ -28,23 +26,6 @@ export default class Util {
         let token = md5hash.digest('hex');
 
         return token;
-    }
-
-    /**
-     * RedisCacheクライアントを取得する
-     */
-    public static getRedisClient(): redis.RedisClient {
-        let client = redis.createClient(
-            conf.get<number>('redis_port'),
-            conf.get<string>('redis_host'),
-            {
-                password: conf.get<string>('redis_key'),
-                tls: {servername: conf.get<string>('redis_host')},
-                return_buffers: true
-            }
-        );
-
-        return client;
     }
 
     /**

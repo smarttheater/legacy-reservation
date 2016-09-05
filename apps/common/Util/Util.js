@@ -1,6 +1,4 @@
 "use strict";
-const redis = require('redis');
-const conf = require('config');
 const crypto = require('crypto');
 const fs = require('fs-extra');
 const log4js = require('log4js');
@@ -24,17 +22,6 @@ class Util {
         md5hash.update(Math.floor(Math.random() * 10000) + 1000 + uniqid.process(), 'binary');
         let token = md5hash.digest('hex');
         return token;
-    }
-    /**
-     * RedisCacheクライアントを取得する
-     */
-    static getRedisClient() {
-        let client = redis.createClient(conf.get('redis_port'), conf.get('redis_host'), {
-            password: conf.get('redis_key'),
-            tls: { servername: conf.get('redis_host') },
-            return_buffers: true
-        });
-        return client;
     }
     /**
      * 予約IDからQRコードを作成する
