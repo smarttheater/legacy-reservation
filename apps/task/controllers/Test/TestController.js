@@ -5,6 +5,7 @@ const Models_1 = require('../../../common/models/Models');
 const conf = require('config');
 const mongoose = require('mongoose');
 const fs = require('fs-extra');
+const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class TestController extends BaseController_1.default {
     createWindows() {
@@ -57,9 +58,9 @@ class TestController extends BaseController_1.default {
             });
         });
     }
-    createPaymentNo() {
+    publishPaymentNo() {
         mongoose.connect(MONGOLAB_URI, {});
-        Util_1.default.createPaymentNo((err, paymentNo) => {
+        ReservationUtil_1.default.publishPaymentNo((err, paymentNo) => {
             this.logger.info('paymentNo is', paymentNo);
             mongoose.disconnect();
             process.exit(0);

@@ -52,7 +52,6 @@ class FilmController extends BaseController_1.default {
                     url: `https://api.photozou.jp/rest/search_public.json?limit=1&keyword=${encodeURIComponent(filmDocument.get('name').ja)}`,
                     json: true
                 };
-                console.log(options.url);
                 request.get(options, (error, response, body) => {
                     if (!error && response.statusCode == 200) {
                         if (body.stat === 'ok' && body.info.photo) {

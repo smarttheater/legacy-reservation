@@ -66,8 +66,6 @@ export default class FilmController extends BaseController {
                     json: true
                 };
 
-                console.log(options.url);
-
                 request.get(options, (error, response, body) => {
                     if (!error && response.statusCode == 200) {
                         if (body.stat === 'ok' && body.info.photo) {

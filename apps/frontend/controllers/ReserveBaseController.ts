@@ -599,7 +599,7 @@ export default class ReserveBaseController extends BaseController {
             next(reservationModel);
         } else {
             // 購入番号発行
-            Util.createPaymentNo((err, paymentNo) => {
+            ReservationUtil.publishPaymentNo((err, paymentNo) => {
                 if (err) {
                     cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
                 } else {

@@ -5,6 +5,7 @@ import conf = require('config');
 import mongodb = require('mongodb');
 import mongoose = require('mongoose');
 import fs = require('fs-extra');
+import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
@@ -69,9 +70,9 @@ export default class TestController extends BaseController {
         });
     }
 
-    public createPaymentNo(): void {
+    public publishPaymentNo(): void {
         mongoose.connect(MONGOLAB_URI, {});
-        Util.createPaymentNo((err, paymentNo) => {
+        ReservationUtil.publishPaymentNo((err, paymentNo) => {
             this.logger.info('paymentNo is', paymentNo);
             mongoose.disconnect();
             process.exit(0);

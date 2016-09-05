@@ -85,7 +85,6 @@ class PreTiffController extends BaseController_1.default {
                     let qr = Util_1.default.createQRCode(reservationDocument.get('_id').toString());
                     let filename = `${__dirname}/../../../../logs/pretiff/qr/${reservationDocument.get('seat_code')}.png`;
                     fs.writeFile(filename, qr, (err) => {
-                        console.log(err);
                         resolve();
                     });
                 }));
@@ -162,7 +161,6 @@ class PreTiffController extends BaseController_1.default {
             .exec((err, reservations) => {
             let ticketType = this.shuffle(ticketChoices)[0];
             update = Object.assign(ticketType, update);
-            // console.log(update);
             for (let reservation of reservations) {
                 promises.push(new Promise((resolve, reject) => {
                     reservation.update(update, (err, raw) => {

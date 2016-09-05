@@ -502,7 +502,7 @@ class ReserveBaseController extends BaseController_1.default {
         }
         else {
             // 購入番号発行
-            Util_1.default.createPaymentNo((err, paymentNo) => {
+            ReservationUtil_1.default.publishPaymentNo((err, paymentNo) => {
                 if (err) {
                     cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
                 }

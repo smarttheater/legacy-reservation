@@ -21,7 +21,7 @@ export default class TelReserveController extends ReserveBaseController implemen
             if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
                 
             // 購入番号発行(確認画面でペイデザイン川にコピーする際に必要になるので、事前に発行しておく)
-            Util.createPaymentNo((err, paymentNo) => {
+            ReservationUtil.publishPaymentNo((err, paymentNo) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                 reservationModel.paymentNo = paymentNo;

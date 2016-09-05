@@ -1,6 +1,5 @@
 "use strict";
 const ReserveBaseController_1 = require('../../ReserveBaseController');
-const Util_1 = require('../../../../common/Util/Util');
 const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
 const Models_1 = require('../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
@@ -150,7 +149,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
      */
     cancel() {
         let paymentNo = this.req.params.paymentNo;
-        if (!Util_1.default.isValidPaymentNo(paymentNo))
+        if (!ReservationUtil_1.default.isValidPaymentNo(paymentNo))
             return this.next(new Error(this.req.__('Message.Invalid')));
         this.setProcessLogger(paymentNo, () => {
             this.logger.info('start process GMOReserveController.cancel.');

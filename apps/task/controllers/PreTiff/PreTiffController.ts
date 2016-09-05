@@ -112,7 +112,6 @@ export default class PreTiffController extends BaseController {
 
                     let filename = `${__dirname}/../../../../logs/pretiff/qr/${reservationDocument.get('seat_code')}.png`;
                     fs.writeFile(filename, qr , (err) => {
-                        console.log(err);
                         resolve();
                     });
                 }));
@@ -207,7 +206,6 @@ export default class PreTiffController extends BaseController {
 
             let ticketType = this.shuffle(ticketChoices)[0];
             update = Object.assign(ticketType, update);
-            // console.log(update);
 
             for (let reservation of reservations) {
                 promises.push(new Promise((resolve, reject) => {

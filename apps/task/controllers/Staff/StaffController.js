@@ -73,7 +73,7 @@ class StaffController extends BaseController_1.default {
                 for (let staff of staffs) {
                     staffsByName[staff.get('name')] = staff;
                 }
-                Util_1.default.createPaymentNo((err, paymentNo) => {
+                ReservationUtil_1.default.publishPaymentNo((err, paymentNo) => {
                     this.logger.debug('paymentNo is', paymentNo);
                     if (err)
                         return cb(err);

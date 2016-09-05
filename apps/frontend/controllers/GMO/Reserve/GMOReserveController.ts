@@ -170,7 +170,7 @@ export default class GMOReserveController extends ReserveBaseController {
      */
     public cancel(): void {
         let paymentNo = this.req.params.paymentNo;
-        if (!Util.isValidPaymentNo(paymentNo)) return this.next(new Error(this.req.__('Message.Invalid')));
+        if (!ReservationUtil.isValidPaymentNo(paymentNo)) return this.next(new Error(this.req.__('Message.Invalid')));
 
         this.setProcessLogger(paymentNo, () => {
             this.logger.info('start process GMOReserveController.cancel.');

@@ -82,7 +82,7 @@ export default class StaffController extends BaseController {
                     staffsByName[staff.get('name')] = staff;
                 }
 
-                Util.createPaymentNo((err, paymentNo) => {
+                ReservationUtil.publishPaymentNo((err, paymentNo) => {
                         this.logger.debug('paymentNo is', paymentNo);
                         if (err) return cb(err);
 
