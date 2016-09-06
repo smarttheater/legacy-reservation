@@ -473,9 +473,10 @@ class ReserveBaseController extends BaseController_1.default {
                         break;
                 }
                 // いったん全情報をDBに保存
-                let promises = reservationModel.seatCodes.map((seatCode) => {
+                let promises = reservationModel.seatCodes.map((seatCode, index) => {
                     let update = reservationModel.seatCode2reservationDocument(seatCode);
                     update = Object.assign(update, commonUpdate);
+                    update['payment_seat_index'] = index;
                     return new Promise((resolve, reject) => {
                         this.logger.info('updating reservation all infos...update:', update);
                         Models_1.default.Reservation.findByIdAndUpdate(update['_id'], update, {

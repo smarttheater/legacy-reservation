@@ -155,6 +155,11 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 break;
 
             case GMOUtil.STATUS_CREDIT_UNPROCESSED:
+                // 未決済の場合、放置
+                // ユーザーが「戻る」フローでキャンセルされる、あるいは、時間経過で空席になる
+                this.res.send(GMONotificationResponseModel.RecvRes_OK);
+                break;
+
             case GMOUtil.STATUS_CREDIT_AUTHENTICATED:
             case GMOUtil.STATUS_CREDIT_CHECK:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
@@ -169,6 +174,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 break;
 
             case GMOUtil.STATUS_CREDIT_VOID:
+                // TODO 取消しの場合キャンセルする
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
                 break;
 

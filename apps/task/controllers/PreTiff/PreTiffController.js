@@ -1,10 +1,8 @@
 "use strict";
 const BaseController_1 = require('../BaseController');
-const Util_1 = require('../../../common/Util/Util');
 const Models_1 = require('../../../common/models/Models');
 const conf = require('config');
 const mongoose = require('mongoose');
-const fs = require('fs-extra');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class PreTiffController extends BaseController_1.default {
     /**
@@ -72,31 +70,6 @@ class PreTiffController extends BaseController_1.default {
                         process.exit(0);
                     });
                 });
-            });
-        });
-    }
-    createQRCodes() {
-        mongoose.connect(MONGOLAB_URI, {});
-        let promises = [];
-        Models_1.default.Reservation.find({})
-            .exec((err, reservationDocuments) => {
-            for (let reservationDocument of reservationDocuments) {
-                promises.push(new Promise((resolve, reject) => {
-                    let qr = Util_1.default.createQRCode(reservationDocument.get('_id').toString());
-                    let filename = `${__dirname}/../../../../logs/pretiff/qr/${reservationDocument.get('seat_code')}.png`;
-                    fs.writeFile(filename, qr, (err) => {
-                        resolve();
-                    });
-                }));
-            }
-            Promise.all(promises).then(() => {
-                mongoose.disconnect();
-                this.logger.debug('success!');
-                process.exit(0);
-            }, (err) => {
-                mongoose.disconnect();
-                this.logger.debug('fail.');
-                process.exit(0);
             });
         });
     }

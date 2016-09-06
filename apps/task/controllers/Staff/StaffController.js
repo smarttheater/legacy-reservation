@@ -88,7 +88,7 @@ class StaffController extends BaseController_1.default {
                             return cb(err);
                         for (let performance of performances) {
                             let reservationsByPerformance = JSON.parse(data);
-                            reservationsByPerformance = reservationsByPerformance.map((reservation) => {
+                            reservationsByPerformance = reservationsByPerformance.map((reservation, index) => {
                                 // 以下項目を共通でreservationに追加する
                                 return Object.assign(reservation, {
                                     "performance": performance.get('_id'),
@@ -119,6 +119,7 @@ class StaffController extends BaseController_1.default {
                                     "performance_day": performance.get('day'),
                                     "purchaser_group": "04",
                                     "payment_no": paymentNo,
+                                    "payment_seat_index": index,
                                     "charge": 0,
                                     "total_charge": 0,
                                     "ticket_type_charge": 0,

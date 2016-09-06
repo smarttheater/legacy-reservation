@@ -1,7 +1,6 @@
 import crypto = require('crypto');
 import fs = require('fs-extra');
 import log4js = require('log4js');
-import qr = require('qr-image');
 import uniqid = require('uniqid');
 import Models from '../../common/models/Models';
 
@@ -19,17 +18,6 @@ export default class Util {
         // console.log(uniqid.time()); // Generate 8 byte unique id's based on the current time only. Recommended only on a single process on a single machine.
         md5hash.update(Math.floor(Math.random() * 10000) + 1000 + uniqid.process(), 'binary');
         return md5hash.digest('hex');
-    }
-
-    /**
-     * 予約IDからQRコードを作成する
-     * 
-     * @param {string} reservationId 予約ID
-     */
-    public static createQRCode(reservationId: string): Buffer {
-        return qr.imageSync(reservationId, {
-            type: 'png'
-        });
     }
 
     /**
@@ -75,9 +63,7 @@ export default class Util {
      */
     public static createHash(password: string, salt: string): string {
         let sha512 = crypto.createHash('sha512');
-        sha512.update(salt + password, 'utf8')
-        let hash = sha512.digest('hex')
-
-        return hash;
+        sha512.update(salt + password, 'utf8');
+        return sha512.digest('hex');
     }
 }

@@ -2,7 +2,6 @@
 const crypto = require('crypto');
 const fs = require('fs-extra');
 const log4js = require('log4js');
-const qr = require('qr-image');
 const uniqid = require('uniqid');
 /**
  * 共通ユーティリティ
@@ -18,16 +17,6 @@ class Util {
         // console.log(uniqid.time()); // Generate 8 byte unique id's based on the current time only. Recommended only on a single process on a single machine.
         md5hash.update(Math.floor(Math.random() * 10000) + 1000 + uniqid.process(), 'binary');
         return md5hash.digest('hex');
-    }
-    /**
-     * 予約IDからQRコードを作成する
-     *
-     * @param {string} reservationId 予約ID
-     */
-    static createQRCode(reservationId) {
-        return qr.imageSync(reservationId, {
-            type: 'png'
-        });
     }
     /**
      * 予約プロセス用のロガーを設定する
@@ -70,8 +59,7 @@ class Util {
     static createHash(password, salt) {
         let sha512 = crypto.createHash('sha512');
         sha512.update(salt + password, 'utf8');
-        let hash = sha512.digest('hex');
-        return hash;
+        return sha512.digest('hex');
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

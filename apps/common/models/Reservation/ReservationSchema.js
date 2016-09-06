@@ -50,6 +50,8 @@ let Schema = new mongoose.Schema({
     purchaser_age: String,
     purchaser_address: String,
     purchaser_gender: String,
+    payment_no: String,
+    payment_seat_index: Number,
     purchased_at: Date,
     payment_method: String,
     seat_grade_name_ja: String,
@@ -61,7 +63,6 @@ let Schema = new mongoose.Schema({
     ticket_type_charge: Number,
     watcher_name: String,
     watcher_name_updated_at: Date,
-    payment_no: String,
     total_charge: Number,
     charge: Number,
     sponsor: {
@@ -206,6 +207,12 @@ Schema.virtual('status_str').get(function () {
             break;
     }
     return str;
+});
+/**
+ * QRコード文字列
+ */
+Schema.virtual('qr_str').get(function () {
+    return `${this.payment_no}-${this.payment_seat_index}`;
 });
 /** TIFF確保にステータス更新するメソッド */
 Schema.statics.updateStatus2keptbytiff = function (reservationIds, cb) {

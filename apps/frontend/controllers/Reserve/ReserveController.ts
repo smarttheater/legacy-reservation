@@ -3,6 +3,7 @@ import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import ReservationModel from '../../models/Reserve/ReservationModel';
+import qr = require('qr-image');
 
 export default class ReserveController extends ReserveBaseController {
     /**
@@ -98,10 +99,9 @@ export default class ReserveController extends ReserveBaseController {
      * create qrcode by reservation token and reservation id.
      */
     public qrcode() {
-        let reservationId = this.req.params.reservationId;
-
-        let png = Util.createQRCode(reservationId);
-        this.res.setHeader('Content-Type', 'image/png');
-        this.res.send(png);
+        Models.Reservation.findById(this.req.params.reservationId, 'payment_no payment_seat_index', (err, reservation) => {
+            // this.res.setHeader('Content-Type', 'image/png');
+            qr.image(reservation.get('qr_str'), {type: 'png'}).pipe(this.res);
+        });
     }
 }

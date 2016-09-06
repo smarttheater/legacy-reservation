@@ -1,9 +1,9 @@
 "use strict";
 const ReserveBaseController_1 = require('../ReserveBaseController');
-const Util_1 = require('../../../common/Util/Util');
 const Models_1 = require('../../../common/models/Models');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const ReservationModel_1 = require('../../models/Reserve/ReservationModel');
+const qr = require('qr-image');
 class ReserveController extends ReserveBaseController_1.default {
     /**
      * 座席の状態を取得する
@@ -76,10 +76,10 @@ class ReserveController extends ReserveBaseController_1.default {
      * create qrcode by reservation token and reservation id.
      */
     qrcode() {
-        let reservationId = this.req.params.reservationId;
-        let png = Util_1.default.createQRCode(reservationId);
-        this.res.setHeader('Content-Type', 'image/png');
-        this.res.send(png);
+        Models_1.default.Reservation.findById(this.req.params.reservationId, 'payment_no payment_seat_index', (err, reservation) => {
+            // this.res.setHeader('Content-Type', 'image/png');
+            qr.image(reservation.get('qr_str'), { type: 'png' }).pipe(this.res);
+        });
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

@@ -5,6 +5,7 @@ import ReservationUtil from '../../../common/models/Reservation/ReservationUtil'
 import sendgrid = require('sendgrid');
 import conf = require('config');
 import validator = require('validator');
+import qr = require('qr-image');
 
 export default class ReservationController extends BaseController {
     /**
@@ -42,7 +43,7 @@ export default class ReservationController extends BaseController {
                     });
                 }
 
-                let qrcodeBuffer = Util.createQRCode(reservation.get('_id').toString());
+                let qrcodeBuffer = qr.imageSync(reservation.get('qr_str'), {type: 'png'});
 
                 this.res.render('email/resevation', {
                     layout: false,

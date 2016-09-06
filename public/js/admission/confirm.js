@@ -1,8 +1,10 @@
 $(function(){
     /** 全予約リスト */
     var reservationsById = JSON.parse($('input[name="reservationsById"]').val());
+    var reservationIdsByQrStr = JSON.parse($('input[name="reservationIdsByQrStr"]').val());
     /** 全予約IDリスト */
     var reservationIds = Object.keys(reservationsById);
+    var qrStrs = Object.keys(reservationIdsByQrStr);
     /** 入場チェック済み予約IDリスト */
     var checkedReservationIds = [];
     /** 入場中予約リスト */
@@ -13,20 +15,20 @@ $(function(){
     var audioNo = new Audio('/audio/no01.mp3');
 
     /**
-     * 予約IDをチェックする
+     * QRコードをチェックする
      * 
-     * @param {strnig} reservationId 予約ID
+     * @param {strnig} qrStr
      */
-    function check(reservationId) {
-        if (!reservationId) {
+    function check(qrStr) {
+        if (!qrStr) {
             return false;
         }
 
         var message = '';
 
         // 予約データが存在する場合
-        if (reservationIds.indexOf(reservationId) >= 0) {
-            var _reservation = reservationsById[reservationId];
+        if (qrStrs.indexOf(qrStr) >= 0) {
+            var _reservation = reservationsById[reservationIdsByQrStr[qrStr]];
 
             // 入場済みの場合
             if (_reservation.entered) {
@@ -35,10 +37,10 @@ $(function(){
                 message = _reservation.seat_code+' ['+_reservation.ticket_type_name_ja+'] OK';
 
                 // add to list for admission.
-                if (checkedReservationIds.indexOf(reservationId) < 0) {
-                    checkedReservationIds.push(reservationId);
+                if (checkedReservationIds.indexOf(_reservation._id) < 0) {
+                    checkedReservationIds.push(_reservation._id);
                     enteringReservations.push({
-                        _id: reservationId,
+                        _id: _reservation._id,
                         entered_at: Date.now()
                     });
 
@@ -141,7 +143,7 @@ $(function(){
             var _reservation = reservationsById[checkedReservationIds[i]];
             html += 
                 '<tr>'+
-                    '<td>'+_reservation._id+'</td>'+
+                    '<td>'+_reservation.seat_code+'</td>'+
                     '<td>'+_reservation.ticket_type_name_ja+'</td>'+
                     '<td>'+((enteredReservationIds.indexOf(_reservation._id) >= 0) ? "入場済み" : "入場中...")+'</td>'+
                 '</tr>'
@@ -157,30 +159,26 @@ $(function(){
 
 
 
-    // handle events by barcode reader.
-    var chars = [];
+    // 文字入力キャッチイベント
+    var qrStr = '';
     $(window).keypress(function(e) {
-        // 新しい入力値
-        if (chars.length === 0) {
+        // 新しい入力値の場合
+        if (qrStr.length === 0) {
             $('.process').text($('input[name="messageSearching"]').val());
             $('.result').html('');
         }
 
-        // ASCIIとEnterのみ。なくても良いが。
-        if (e.charCode || e.keyCode === 13 ) {
-            if (e.keyCode === 13){
-                var reservationId = chars.join('');
-                chars = [];
-
-                $('.process').text($('input[name="messagePleaseReadBarcode"]').val());
-                // 入力終了で予約IDをチェック
-                check(reservationId);
-            } else {
-                chars.push(String.fromCharCode(e.charCode));
-            }
+        // エンターで入力終了
+        if (e.keyCode === 13) {
+            // 予約をチェック
+            check(qrStr);
+            $('.process').text($('input[name="messagePleaseReadBarcode"]').val());
+            qrStr = '';
+        } else {
+            qrStr += String.fromCharCode(e.charCode);
         }
     });
 
     // for debug
-    // check('57c14ae02045267022ea4759');
+    // check('60060006007-2');
 });

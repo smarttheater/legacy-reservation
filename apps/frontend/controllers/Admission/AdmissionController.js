@@ -48,16 +48,19 @@ class AdmissionController extends BaseController_1.default {
             Models_1.default.Reservation.find({
                 performance: performance.get('_id'),
                 status: ReservationUtil_1.default.STATUS_RESERVED
-            }, 'status seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en ticket_type_charge entered').exec((err, reservations) => {
+            }, 'seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en entered payment_no payment_seat_index').exec((err, reservations) => {
                 if (err)
                     this.next(new Error('Message.UnexpectedError'));
                 let reservationsById = {};
+                let reservationIdsByQrStr = {};
                 for (let reservation of reservations) {
                     reservationsById[reservation.get('_id')] = reservation;
+                    reservationIdsByQrStr[reservation.get('qr_str')] = reservation.get('_id').toString();
                 }
                 this.res.render('admission/confirm', {
                     performance: performance,
-                    reservationsById: reservationsById
+                    reservationsById: reservationsById,
+                    reservationIdsByQrStr: reservationIdsByQrStr
                 });
             });
         });

@@ -8,6 +8,7 @@ const conf = require('config');
 const mongoose = require('mongoose');
 const sendgrid = require('sendgrid');
 const emailTemplates = require('email-templates');
+const qr = require('qr-image');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class ReservationController extends BaseController_1.default {
     /**
@@ -208,11 +209,12 @@ class ReservationController extends BaseController_1.default {
                                             // add barcodes
                                             for (let reservation of reservations) {
                                                 let reservationId = reservation.get('_id').toString();
+                                                let png = qr.imageSync(reservation.get('qr_str'), { type: 'png' });
                                                 email.addFile({
                                                     filename: `QR_${reservationId}.png`,
                                                     contentType: 'image/png',
                                                     cid: `qrcode_${reservationId}`,
-                                                    content: Util_1.default.createQRCode(reservationId)
+                                                    content: png
                                                 });
                                             }
                                             this.logger.info('sending an email...email:', email);

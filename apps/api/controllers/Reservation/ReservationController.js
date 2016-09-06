@@ -1,11 +1,11 @@
 "use strict";
 const BaseController_1 = require('../BaseController');
-const Util_1 = require('../../../common/Util/Util');
 const Models_1 = require('../../../common/models/Models');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const sendgrid = require('sendgrid');
 const conf = require('config');
 const validator = require('validator');
+const qr = require('qr-image');
 class ReservationController extends BaseController_1.default {
     /**
      * 予約情報メールを送信する
@@ -37,7 +37,7 @@ class ReservationController extends BaseController_1.default {
                     message: this.req.__('Message.NotFound')
                 });
             }
-            let qrcodeBuffer = Util_1.default.createQRCode(reservation.get('_id').toString());
+            let qrcodeBuffer = qr.imageSync(reservation.get('qr_str'), { type: 'png' });
             this.res.render('email/resevation', {
                 layout: false,
                 reservations: [reservation],

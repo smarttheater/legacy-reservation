@@ -56,8 +56,9 @@ let Schema = new mongoose.Schema({
     purchaser_address: String, // 住所
     purchaser_gender: String, // 性別
 
+    payment_no: String, // 購入番号
+    payment_seat_index: Number, // 購入座席インデックス
     purchased_at: Date, // 購入確定日時
-
     payment_method: String, // 決済方法
 
     seat_grade_name_ja: String,
@@ -71,8 +72,6 @@ let Schema = new mongoose.Schema({
 
     watcher_name: String, // 配布先
     watcher_name_updated_at: Date, // 配布先更新日時 default: Date.now
-
-    payment_no: String,
 
     total_charge: Number, // 予約の合計金額(複数座席分)
     charge: Number, // 座席単体の料金
@@ -243,6 +242,13 @@ Schema.virtual('status_str').get(function() {
     }
 
     return str;
+});
+
+/**
+ * QRコード文字列
+ */
+Schema.virtual('qr_str').get(function() {
+    return `${this.payment_no}-${this.payment_seat_index}`;
 });
 
 /** TIFF確保にステータス更新するメソッド */

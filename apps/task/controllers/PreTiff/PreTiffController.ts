@@ -1,5 +1,4 @@
 import BaseController from '../BaseController';
-import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import conf = require('config');
@@ -96,43 +95,6 @@ export default class PreTiffController extends BaseController {
 
             });
         });
-    }
-
-    public createQRCodes(): void {
-        mongoose.connect(MONGOLAB_URI, {});
-
-        let promises = [];
-        Models.Reservation.find({})
-        // .limit(1)
-        .exec((err, reservationDocuments) => {
-            for (let reservationDocument of reservationDocuments) {
-
-                promises.push(new Promise((resolve, reject) => {
-                    let qr = Util.createQRCode(reservationDocument.get('_id').toString());
-
-                    let filename = `${__dirname}/../../../../logs/pretiff/qr/${reservationDocument.get('seat_code')}.png`;
-                    fs.writeFile(filename, qr , (err) => {
-                        resolve();
-                    });
-                }));
-            }
-
-
-            Promise.all(promises).then(() => {
-                mongoose.disconnect();
-
-                this.logger.debug('success!');
-                process.exit(0);
-
-            }, (err) => {
-                mongoose.disconnect();
-
-                this.logger.debug('fail.');
-                process.exit(0);
-
-            });
-        });
-
     }
 
     public reservation2reserved() {
