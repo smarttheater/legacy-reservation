@@ -312,7 +312,10 @@ export default class SponsorReserveController extends ReserveBaseController impl
             {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
-                sponsor: this.req.sponsorUser.get('_id')
+                sponsor: this.req.sponsorUser.get('_id'),
+                purchased_at: { // 購入確定から30分有効
+                    $gt: moment().add(-30, 'minutes').toISOString()
+                }
             },
             (err, reservations) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));

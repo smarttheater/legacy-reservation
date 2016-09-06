@@ -365,7 +365,10 @@ export default class StaffReserveController extends ReserveBaseController implem
             {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
-                staff: this.req.staffUser.get('_id')
+                staff: this.req.staffUser.get('_id'),
+                purchased_at: { // 購入確定から30分有効
+                    $gt: moment().add(-30, 'minutes').toISOString()
+                }
             },
             (err, reservations) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));

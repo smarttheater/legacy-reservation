@@ -9,6 +9,7 @@ import ReservationUtil from '../../../../common/models/Reservation/ReservationUt
 import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
+import moment = require('moment');
 
 export default class TelReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_TEL;
@@ -265,7 +266,10 @@ export default class TelReserveController extends ReserveBaseController implemen
             {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN,
-                tel_staff: this.req.telStaffUser.get('_id')
+                tel_staff: this.req.telStaffUser.get('_id'),
+                purchased_at: { // 購入確定から30分有効
+                    $gt: moment().add(-30, 'minutes').toISOString()
+                }
             },
             (err, reservations) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));

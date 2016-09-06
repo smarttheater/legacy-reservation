@@ -231,7 +231,11 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         let paymentNo = this.req.params.paymentNo;
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
-            status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT
+            purchaser_group: this.purchaserGroup,
+            status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
+            purchased_at: {
+                $gt: moment().add(-30, 'minutes').toISOString()
+            }
         }, (err, reservations) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -252,7 +256,11 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         let paymentNo = this.req.params.paymentNo;
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
-            status: ReservationUtil_1.default.STATUS_RESERVED
+            purchaser_group: this.purchaserGroup,
+            status: ReservationUtil_1.default.STATUS_RESERVED,
+            purchased_at: {
+                $gt: moment().add(-30, 'minutes').toISOString()
+            }
         }, (err, reservations) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));

@@ -5,6 +5,7 @@ import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
+import moment = require('moment');
 
 export default class MemberReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_MEMBER;
@@ -178,7 +179,10 @@ export default class MemberReserveController extends ReserveBaseController imple
             {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
-                member: this.req.memberUser.get('_id')
+                member: this.req.memberUser.get('_id'),
+                purchased_at: { // 購入確定から30分有効
+                    $gt: moment().add(-30, 'minutes').toISOString()
+                }
             },
             (err, reservations) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));

@@ -290,7 +290,10 @@ class SponsorReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_RESERVED,
-            sponsor: this.req.sponsorUser.get('_id')
+            sponsor: this.req.sponsorUser.get('_id'),
+            purchased_at: {
+                $gt: moment().add(-30, 'minutes').toISOString()
+            }
         }, (err, reservations) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));

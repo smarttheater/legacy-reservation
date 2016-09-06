@@ -8,6 +8,7 @@ import ReservationUtil from '../../../../common/models/Reservation/ReservationUt
 import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
 import FilmUtil from '../../../../common/models/Film/FilmUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
+import moment = require('moment');
 
 export default class WindowReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_WINDOW;
@@ -247,7 +248,10 @@ export default class WindowReserveController extends ReserveBaseController imple
             {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
-                window: this.req.windowUser.get('_id')
+                window: this.req.windowUser.get('_id'),
+                purchased_at: { // 購入確定から30分有効
+                    $gt: moment().add(-30, 'minutes').toISOString()
+                }
             },
             (err, reservations) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));

@@ -8,6 +8,7 @@ const ReservationUtil_1 = require('../../../../common/models/Reservation/Reserva
 const ScreenUtil_1 = require('../../../../common/models/Screen/ScreenUtil');
 const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
 const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
+const moment = require('moment');
 class WindowReserveController extends ReserveBaseController_1.default {
     constructor(...args) {
         super(...args);
@@ -247,7 +248,10 @@ class WindowReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_RESERVED,
-            window: this.req.windowUser.get('_id')
+            window: this.req.windowUser.get('_id'),
+            purchased_at: {
+                $gt: moment().add(-30, 'minutes').toISOString()
+            }
         }, (err, reservations) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));

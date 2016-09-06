@@ -233,7 +233,11 @@ export default class CustomerReserveController extends ReserveBaseController imp
         Models.Reservation.find(
             {
                 payment_no: paymentNo,
-                status: ReservationUtil.STATUS_WAITING_SETTLEMENT
+                purchaser_group: this.purchaserGroup,
+                status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
+                purchased_at: { // 購入確定から30分有効
+                    $gt: moment().add(-30, 'minutes').toISOString()
+                }
             },
             (err, reservations) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -258,7 +262,11 @@ export default class CustomerReserveController extends ReserveBaseController imp
         Models.Reservation.find(
             {
                 payment_no: paymentNo,
-                status: ReservationUtil.STATUS_RESERVED
+                purchaser_group: this.purchaserGroup,
+                status: ReservationUtil.STATUS_RESERVED,
+                purchased_at: { // 購入確定から30分有効
+                    $gt: moment().add(-30, 'minutes').toISOString()
+                }
             },
             (err, reservations) => {
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
