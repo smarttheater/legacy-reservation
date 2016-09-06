@@ -65,19 +65,20 @@ export default class MemberController extends BaseController {
         };
 
         let performance = {
-            "_id": `${moment(conf.get<string>('datetimes.event_start')).format('YYYYMMDD')}000001070600`,
-            "theater": "000001",
+            "_id": `${moment(conf.get<string>('datetimes.event_start')).format('YYYYMMDD')}001070600`,
+            "theater": "001",
             "theater_name": {
                 "ja": "TOHOシネマズ 六本木ヒルズ",
                 "en": "TOHO CINEMAS Roppongi Hills"
             },
-            "screen": "00000107",
+            "screen": "00107",
             "screen_name": {
-                "ja": "スクリーン01",
-                "en": "Screen01"
+                "ja": "スクリーン07",
+                "en": "Screen07"
             },
             "film": "999999",
             "day": moment(conf.get<string>('datetimes.event_start')).format('YYYYMMDD'),
+            "open_time": "0750",
             "start_time": "0800",
             "end_time": "0900"
         };

@@ -67,9 +67,9 @@ class PerformanceController extends BaseController_1.default {
                 });
                 // TODO 本番では削除 1円の作品
                 performances.push({
-                    "_id": `${moment(conf.get('datetimes.event_start')).format('YYYYMMDD')}000001070550`,
-                    "theater": "000001",
-                    "screen": "00000107",
+                    "_id": `${moment(conf.get('datetimes.event_start')).format('YYYYMMDD')}001070550`,
+                    "theater": "001",
+                    "screen": "00107",
                     "film": "111111",
                     "day": moment(conf.get('datetimes.event_start')).format('YYYYMMDD'),
                     "open_time": "0550",

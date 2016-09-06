@@ -89,7 +89,7 @@ class PreTiffController extends BaseController_1.default {
             }
         ];
         let update = {
-            "performance": "20160905000001011500",
+            "performance": "20160905001011500",
             "status": "RESERVED",
             "updated_user": "system",
             "payment_method": "0",
@@ -104,10 +104,10 @@ class PreTiffController extends BaseController_1.default {
             "film_is_mx4d": false,
             "screen_name_en": "SCREEN01",
             "screen_name_ja": "スクリーン01",
-            "screen": "00000101",
+            "screen": "00101",
             "theater_name_en": "TOHO CINEMAS Roppongi Hills",
             "theater_name_ja": "TOHOシネマズ 六本木ヒルズ",
-            "theater": "000001",
+            "theater": "001",
             "performance_end_time": "1500",
             "performance_start_time": "1700",
             "performance_day": "20160905",
