@@ -30,15 +30,11 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
             this.logger.info('finding reservations...payment_no:', paymentNo);
             Models_1.default.Reservation.find({
                 payment_no: paymentNo
-            }, 'total_charge', (err, reservations) => {
+            }, '_id', (err, reservations) => {
                 this.logger.info('reservations found.', err, reservations);
                 if (err)
                     return this.res.send('1');
                 if (reservations.length === 0)
-                    return this.res.send('1');
-                // 利用金額の整合性
-                this.logger.info('payDesignNotificationModel.KINGAKU must be', reservations[0].get('total_charge'));
-                if (parseInt(payDesignNotificationModel.KINGAKU) !== reservations[0].get('total_charge'))
                     return this.res.send('1');
                 this.logger.info('processFixReservations processing... update:', update);
                 this.processFixReservations(paymentNo, update, (err) => {
@@ -71,15 +67,11 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
             this.logger.info('finding reservations...payment_no:', paymentNo);
             Models_1.default.Reservation.find({
                 payment_no: paymentNo
-            }, 'total_charge', (err, reservations) => {
+            }, '_id', (err, reservations) => {
                 this.logger.info('reservations found.', err, reservations);
                 if (err)
                     return this.res.send('1');
                 if (reservations.length === 0)
-                    return this.res.send('1');
-                // 利用金額の整合性
-                this.logger.info('payDesignNotificationModel.KINGAKU must be', reservations[0].get('total_charge'));
-                if (parseInt(payDesignNotificationModel.KINGAKU) !== reservations[0].get('total_charge'))
                     return this.res.send('1');
                 this.logger.info('removing reservations...payment_no:', paymentNo);
                 let promises = reservations.map((reservation) => {

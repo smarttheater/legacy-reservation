@@ -134,7 +134,6 @@ export default class StaffController extends BaseController {
                                         "payment_no": paymentNo,
                                         "payment_seat_index": index,
                                         "charge": 0,
-                                        "total_charge": 0,
                                         "ticket_type_charge": 0,
                                         "ticket_type_name_en": "Free",
                                         "ticket_type_name_ja": "無料",

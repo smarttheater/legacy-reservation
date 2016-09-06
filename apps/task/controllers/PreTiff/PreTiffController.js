@@ -114,7 +114,6 @@ class PreTiffController extends BaseController_1.default {
             "purchaser_group": "01",
             "payment_no": "1111115945",
             "charge": 5000,
-            "total_charge": 17000,
             "purchased_at": Date.now(),
             "gmo_status": "CAPTURE",
             "gmo_pay_type": "0",

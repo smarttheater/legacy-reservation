@@ -144,7 +144,6 @@ class ReservationModel {
             ticket_type_name_ja: reservation.ticket_type_name_ja,
             ticket_type_name_en: reservation.ticket_type_name_en,
             ticket_type_charge: reservation.ticket_type_charge,
-            total_charge: this.getTotalCharge(),
             charge: this.getChargeBySeatCode(seatCode),
             payment_no: this.paymentNo,
             purchaser_group: this.purchaserGroup,

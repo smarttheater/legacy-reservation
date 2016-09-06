@@ -1,13 +1,13 @@
 $(function(){
-    var locale = $('input[name="locale"]').val();
+    var locale = $('html').attr('lang');
 
     // 券種変更イベント
     $(document).on('change', 'select', function(){
-        showTotalCharge()
+        showTotalCharge();
     });
 
     // 次へ
-    $('.btn-next').on('click', function(){
+    $(document).on('click', '.btn-next', function(){
         // 座席コードリストを取得
         var choices = [];
         $('.table-tickets tbody tr').each(function(){
@@ -41,5 +41,5 @@ $(function(){
         }
     }
 
-    showTotalCharge()
+    showTotalCharge();
 });

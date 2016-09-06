@@ -35,17 +35,11 @@ export default class GMOReserveCreditController extends ReserveBaseController {
             {
                 payment_no: gmoResultModel.OrderID
             },
-            '_id total_charge purchaser_group',
+            '_id purchaser_group',
             (err, reservations) => {
                 this.logger.info('reservations found.', err, reservations.length);
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 if (reservations.length === 0) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
-                // 利用金額の整合性
-                this.logger.info('Amount must be ', reservations[0].get('total_charge'));
-                if (parseInt(gmoResultModel.Amount) !== reservations[0].get('total_charge')) {
-                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                }
 
                 // チェック文字列
                 // 8 ＋ 9 ＋ 10 ＋ 11 ＋ 12 ＋ 13 ＋ 14 ＋ ショップパスワード
@@ -111,17 +105,11 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                     {
                         payment_no: gmoNotificationModel.OrderID
                     },
-                    '_id total_charge purchased_at gmo_shop_pass_string',
+                    '_id purchased_at gmo_shop_pass_string',
                     (err, reservations) => {
                         this.logger.info('reservations found.', err, reservations.length);
                         if (err) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
                         if (reservations.length === 0) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
-
-                        // 利用金額の整合性
-                        this.logger.info('Amount must be ', reservations[0].get('total_charge'));
-                        if (parseInt(gmoNotificationModel.Amount) !== reservations[0].get('total_charge')) {
-                            return this.res.send(GMONotificationResponseModel.RecvRes_NG);
-                        }
 
                         // チェック文字列
                         let shopPassString = GMOUtil.createShopPassString(

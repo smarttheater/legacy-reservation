@@ -73,7 +73,6 @@ let Schema = new mongoose.Schema({
     watcher_name: String, // 配布先
     watcher_name_updated_at: Date, // 配布先更新日時 default: Date.now
 
-    total_charge: Number, // 予約の合計金額(複数座席分)
     charge: Number, // 座席単体の料金
 
     sponsor: {

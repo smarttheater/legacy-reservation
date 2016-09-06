@@ -54,17 +54,12 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 this.logger.info('finding reservations...payment_no:', paymentNo);
                 Models_1.default.Reservation.find({
                     payment_no: paymentNo
-                }, 'total_charge', (err, reservations) => {
+                }, '_id', (err, reservations) => {
                     this.logger.info('reservations found.', err, reservations.length);
                     if (err)
                         return this.next(new Error(this.req.__('Message.UnexpectedError')));
                     if (reservations.length === 0)
                         return this.next(new Error(this.req.__('Message.NotFound')));
-                    // 利用金額の整合性
-                    this.logger.info('Amount must be ', reservations[0].get('total_charge'));
-                    if (parseInt(gmoResultModel.Amount) !== reservations[0].get('total_charge')) {
-                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                    }
                     // キャンセル
                     let promises = reservations.map((reservation) => {
                         return new Promise((resolve, reject) => {

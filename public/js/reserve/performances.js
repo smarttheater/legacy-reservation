@@ -3,7 +3,7 @@ String.prototype.splice = function(idx, str) { //※日時整形用(Stringのidx
 };
 
 $(function(){
-    var locale = $('input[name="locale"]').val();
+    var locale = $('html').attr('lang');
     var performances = [];
     var conditions = {
         page: '1'

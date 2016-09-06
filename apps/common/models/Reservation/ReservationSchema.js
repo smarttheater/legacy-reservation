@@ -63,7 +63,6 @@ let Schema = new mongoose.Schema({
     ticket_type_charge: Number,
     watcher_name: String,
     watcher_name_updated_at: Date,
-    total_charge: Number,
     charge: Number,
     sponsor: {
         type: mongoose.Schema.Types.ObjectId,

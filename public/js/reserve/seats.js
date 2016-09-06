@@ -12,7 +12,7 @@ $(function(){
     function showSeatStatusesMap(initialize) {
         $.ajax({
             dataType: 'json',
-            url: $('.seatStatusesMap').attr('data-url'),
+            url: $('.seatStatusesMap').attr('data-url') + '?' + Date.now(),
             type: 'GET',
             data: {},
             beforeSend: function() {
