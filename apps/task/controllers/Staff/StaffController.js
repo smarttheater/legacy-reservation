@@ -20,7 +20,6 @@ class StaffController extends BaseController_1.default {
                 let password_salt = Util_1.default.createToken();
                 staff['password_salt'] = password_salt;
                 staff['password_hash'] = Util_1.default.createHash(staff.password, password_salt);
-                // delete staff['password'];
                 return staff;
             });
             // あれば更新、なければ追加

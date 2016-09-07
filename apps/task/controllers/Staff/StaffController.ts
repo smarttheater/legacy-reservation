@@ -22,7 +22,6 @@ export default class StaffController extends BaseController {
                 let password_salt = Util.createToken();
                 staff['password_salt'] = password_salt;
                 staff['password_hash'] = Util.createHash(staff.password, password_salt);
-                // delete staff['password'];
                 return staff;
             });
 

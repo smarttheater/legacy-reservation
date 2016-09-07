@@ -18,17 +18,35 @@ class SponsorController extends BaseController_1.default {
                 let password_salt = Util_1.default.createToken();
                 sponsor['password_salt'] = password_salt;
                 sponsor['password_hash'] = Util_1.default.createHash(sponsor.password, password_salt);
-                delete sponsor['password'];
                 return sponsor;
             });
-            this.logger.info('removing all sponsors...');
-            Models_1.default.Sponsor.remove({}, (err) => {
-                this.logger.debug('creating sponsors...');
-                Models_1.default.Sponsor.create(sponsors, (err) => {
-                    this.logger.info('sponsors created.', err);
-                    mongoose.disconnect();
-                    process.exit(0);
+            // あれば更新、なければ追加
+            let promises = sponsors.map((sponsor) => {
+                return new Promise((resolve, reject) => {
+                    this.logger.debug('updating sponsor...');
+                    Models_1.default.Sponsor.update({
+                        user_id: sponsor.user_id
+                    }, sponsor, {
+                        upsert: true
+                    }, (err, raw) => {
+                        this.logger.debug('sponsor updated', err, raw);
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            resolve();
+                        }
+                    });
                 });
+            });
+            Promise.all(promises).then(() => {
+                this.logger.info('promised.');
+                mongoose.disconnect();
+                process.exit(0);
+            }, (err) => {
+                this.logger.error('promised.', err);
+                mongoose.disconnect();
+                process.exit(0);
             });
         });
     }
