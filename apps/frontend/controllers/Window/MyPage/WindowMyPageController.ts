@@ -1,5 +1,6 @@
 import BaseController from '../../BaseController';
 import Util from '../../../../common/Util/Util';
+import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import Models from '../../../../common/models/Models';
 import moment = require('moment');
@@ -9,6 +10,7 @@ export default class WindowMyPageController extends BaseController {
 
     public index(): void {
         this.res.render('window/mypage/index', {
+            GMOUtil: GMOUtil,
             ReservationUtil: ReservationUtil
         });
     }
@@ -20,11 +22,13 @@ export default class WindowMyPageController extends BaseController {
         let limit = (this.req.query.limit) ? this.req.query.limit : 10;
         let page = (this.req.query.page) ? this.req.query.page : 1;
 
-        let purchaserGroups = (this.req.query.purchaser_groups) ? this.req.query.purchaser_groups.split(',') : null;
-        let purchasedDay = (this.req.query.purchased_day) ? this.req.query.purchased_day : null;
-        let email = (this.req.query.email) ? this.req.query.email : null;
-        let tel = (this.req.query.tel) ? this.req.query.tel : null;
-        let purchaser_name = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
+        let purchaserGroups: Array<string> = (this.req.query.purchaser_groups) ? this.req.query.purchaser_groups.split(',') : null;
+        let purchasedDay: string = (this.req.query.purchased_day) ? this.req.query.purchased_day : null;
+        let email: string = (this.req.query.email) ? this.req.query.email : null;
+        let tel: string = (this.req.query.tel) ? this.req.query.tel : null;
+        let purchaserFirstName: string = (this.req.query.purchaser_first_name) ? this.req.query.purchaser_first_name : null;
+        let purchaserLastName: string = (this.req.query.purchaser_last_name) ? this.req.query.purchaser_last_name : null;
+        let paymentNo: string = (this.req.query.payment_no) ? this.req.query.payment_no : null;
 
         // 検索条件を作成
         let conditions: Array<Object> = [];
@@ -33,7 +37,7 @@ export default class WindowMyPageController extends BaseController {
         conditions.push(
             {
                 purchaser_group: {$ne: ReservationUtil.PURCHASER_GROUP_STAFF},
-                status: ReservationUtil.STATUS_RESERVED
+                status: {$in: [ReservationUtil.STATUS_RESERVED, ReservationUtil.STATUS_WAITING_SETTLEMENT, ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN]}
             }
         );
 
@@ -59,17 +63,30 @@ export default class WindowMyPageController extends BaseController {
         if (tel) {
             conditions.push({purchaser_tel: {$regex: `${tel}`}});
         }
-        if (purchaser_name) {
-            conditions.push({
-                $or: [
-                    {
-                        purchaser_last_name: {$regex: `${purchaser_name}`}
-                    },
-                    {
-                        purchaser_first_name: {$regex: `${purchaser_name}`}
-                    }
-                ]
+
+        // 空白つなぎでAND検索
+        if (purchaserFirstName) {
+            // trim and to half-width space
+            purchaserFirstName = purchaserFirstName.replace(/(^\s+)|(\s+$)/g, '').replace(/\s/g, ' ');
+            purchaserFirstName.split(' ').forEach((regex) => {
+                if (regex.length > 0) {
+                    conditions.push({purchaser_first_name: {$regex: `${regex}`}});
+                }
             });
+        }
+        // 空白つなぎでAND検索
+        if (purchaserLastName) {
+            // trim and to half-width space
+            purchaserLastName = purchaserLastName.replace(/(^\s+)|(\s+$)/g, '').replace(/\s/g, ' ');
+            purchaserLastName.split(' ').forEach((regex) => {
+                if (regex.length > 0) {
+                    conditions.push({purchaser_last_name: {$regex: `${regex}`}});
+                }
+            });
+        }
+
+        if (paymentNo) {
+            conditions.push({payment_no: {$regex: `${paymentNo}`}});
         }
 
 
@@ -92,7 +109,7 @@ export default class WindowMyPageController extends BaseController {
                     {
                         $and: conditions
                     },
-                    {},
+                    null,
                     {
                         sort : {staff: 1, seat_code: 1}
                     }
@@ -108,8 +125,6 @@ export default class WindowMyPageController extends BaseController {
                             count: 0
                         });
                     } else {
-                        conditions['page'] = page;
-
                         this.res.json({
                             success: true,
                             results: reservations,

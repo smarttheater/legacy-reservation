@@ -1,5 +1,6 @@
 "use strict";
 const BaseController_1 = require('../../BaseController');
+const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const Models_1 = require('../../../../common/models/Models');
 const moment = require('moment');
@@ -10,6 +11,7 @@ class TelMyPageController extends BaseController_1.default {
     }
     index() {
         this.res.render('tel/mypage/index', {
+            GMOUtil: GMOUtil_1.default,
             ReservationUtil: ReservationUtil_1.default
         });
     }
@@ -23,13 +25,15 @@ class TelMyPageController extends BaseController_1.default {
         let purchasedDay = (this.req.query.purchased_day) ? this.req.query.purchased_day : null;
         let email = (this.req.query.email) ? this.req.query.email : null;
         let tel = (this.req.query.tel) ? this.req.query.tel : null;
-        let purchaser_name = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
+        let purchaserFirstName = (this.req.query.purchaser_first_name) ? this.req.query.purchaser_first_name : null;
+        let purchaserLastName = (this.req.query.purchaser_last_name) ? this.req.query.purchaser_last_name : null;
+        let paymentNo = (this.req.query.payment_no) ? this.req.query.payment_no : null;
         // 検索条件を作成
         let conditions = [];
         // 内部関係者以外がデフォルト
         conditions.push({
             purchaser_group: { $ne: ReservationUtil_1.default.PURCHASER_GROUP_STAFF },
-            status: ReservationUtil_1.default.STATUS_RESERVED
+            status: { $in: [ReservationUtil_1.default.STATUS_RESERVED, ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT, ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN] }
         });
         if (purchaserGroups) {
             conditions.push({ purchaser_group: { $in: purchaserGroups } });
@@ -49,17 +53,28 @@ class TelMyPageController extends BaseController_1.default {
         if (tel) {
             conditions.push({ purchaser_tel: { $regex: `${tel}` } });
         }
-        if (purchaser_name) {
-            conditions.push({
-                $or: [
-                    {
-                        purchaser_last_name: { $regex: `${purchaser_name}` }
-                    },
-                    {
-                        purchaser_first_name: { $regex: `${purchaser_name}` }
-                    }
-                ]
+        // 空白つなぎでAND検索
+        if (purchaserFirstName) {
+            // trim and to half-width space
+            purchaserFirstName = purchaserFirstName.replace(/(^\s+)|(\s+$)/g, '').replace(/\s/g, ' ');
+            purchaserFirstName.split(' ').forEach((regex) => {
+                if (regex.length > 0) {
+                    conditions.push({ purchaser_first_name: { $regex: `${regex}` } });
+                }
             });
+        }
+        // 空白つなぎでAND検索
+        if (purchaserLastName) {
+            // trim and to half-width space
+            purchaserLastName = purchaserLastName.replace(/(^\s+)|(\s+$)/g, '').replace(/\s/g, ' ');
+            purchaserLastName.split(' ').forEach((regex) => {
+                if (regex.length > 0) {
+                    conditions.push({ purchaser_last_name: { $regex: `${regex}` } });
+                }
+            });
+        }
+        if (paymentNo) {
+            conditions.push({ payment_no: { $regex: `${paymentNo}` } });
         }
         // 総数検索
         Models_1.default.Reservation.count({
@@ -74,7 +89,7 @@ class TelMyPageController extends BaseController_1.default {
             }
             Models_1.default.Reservation.find({
                 $and: conditions
-            }, {}, {
+            }, null, {
                 sort: { staff: 1, seat_code: 1 }
             })
                 .skip(limit * (page - 1))
@@ -89,7 +104,6 @@ class TelMyPageController extends BaseController_1.default {
                     });
                 }
                 else {
-                    conditions['page'] = page;
                     this.res.json({
                         success: true,
                         results: reservations,

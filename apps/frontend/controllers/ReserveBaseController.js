@@ -459,14 +459,32 @@ class ReserveBaseController extends BaseController_1.default {
                         commonUpdate['staff_name'] = this.req.staffUser.get('name');
                         commonUpdate['staff_email'] = this.req.staffUser.get('email');
                         commonUpdate['staff_signature'] = this.req.staffUser.get('signature');
+                        commonUpdate['purchaser_last_name'] = '';
+                        commonUpdate['purchaser_first_name'] = '';
+                        commonUpdate['purchaser_email'] = '';
+                        commonUpdate['purchaser_tel'] = '';
+                        commonUpdate['purchaser_age'] = '';
+                        commonUpdate['purchaser_address'] = '';
+                        commonUpdate['purchaser_gender'] = '';
                         break;
                     case ReservationUtil_1.default.PURCHASER_GROUP_TEL:
                         commonUpdate['tel_staff'] = this.req.telStaffUser.get('_id');
                         commonUpdate['tel_staff_user_id'] = this.req.telStaffUser.get('user_id');
+                        commonUpdate['purchaser_email'] = '';
+                        commonUpdate['purchaser_age'] = '';
+                        commonUpdate['purchaser_address'] = '';
+                        commonUpdate['purchaser_gender'] = '';
                         break;
                     case ReservationUtil_1.default.PURCHASER_GROUP_WINDOW:
                         commonUpdate['window'] = this.req.windowUser.get('_id');
                         commonUpdate['window_user_id'] = this.req.windowUser.get('user_id');
+                        commonUpdate['purchaser_last_name'] = '';
+                        commonUpdate['purchaser_first_name'] = '';
+                        commonUpdate['purchaser_email'] = '';
+                        commonUpdate['purchaser_tel'] = '';
+                        commonUpdate['purchaser_age'] = '';
+                        commonUpdate['purchaser_address'] = '';
+                        commonUpdate['purchaser_gender'] = '';
                         break;
                     default:
                         cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);

@@ -25,9 +25,20 @@ $(function(){
                + ' data-theater-name="' + reservation.theater_name_ja + '"'
                + ' data-screen-name="' + reservation.screen_name_ja + '"'
                + '>'
-                + '<th class="td-checkbox"><input type="checkbox" value=""></th>'
+               + '<th class="td-checkbox">';
+
+            // 予約完了のもののみ、チェックボックス表示
+            if (reservation.status === 'RESERVED') {
+                html += ''
+                   + '<input type="checkbox" value="">';
+            }
+
+            html += ''
+                + '</th>'
                 + '<td class="td-number">' + reservation.payment_no + '</td>'
-                + '<td class="">' + $('input[name="purchaser_group_name_' + reservation.purchaser_group + '"]').val() + '</td>'
+                + '<td class="">' + $('input[name="reservation_status_str_' + reservation.status + '"]').val() + '</td>'
+                + '<td class="">' + ((reservation.payment_method) ? $('input[name="payment_method_str_' + reservation.payment_method + '"]').val() : '') + '</td>'
+                + '<td class="">' + $('input[name="purchaser_group_str_' + reservation.purchaser_group + '"]').val() + '</td>'
                 + '<td class="">' + purchasedAt + '</td>'
                 + '<td class="">' + reservation.purchaser_email + '</td>'
                 + '<td class="">' + reservation.purchaser_tel + '</td>'
@@ -38,9 +49,16 @@ $(function(){
                     + reservation.theater_name_ja + ' ' + reservation.screen_name_ja + ''
                 + '</td>'
                 + '<td class="td-seat"><a href="javascript:void(0);" class="show-seat-position" data-screen-id="' + reservation.screen.toString() + '" data-seat-codes="' + reservation.seat_code + '">' + reservation.seat_code + '</a></td>'
-                + '<td class="td-actions">'
+                + '<td class="td-actions">';
+
+            // 予約完了のもののみ、「キャンセル」「印刷」ボタン表示
+            if (reservation.status === 'RESERVED') {
+                html += ''
                     + '<p class="btn confirm-cancel"><span>Cancel</span></p>'
-                    + '<p class="btn"><span>Print</span></p>'
+                    + '<p class="btn"><span>Print</span></p>';
+            }
+
+            html += ''
                 + '</td>'
             + '</tr>';
         });
