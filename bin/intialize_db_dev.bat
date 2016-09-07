@@ -11,12 +11,12 @@ node bin/command performance createFromJson
 node bin/command reservation reset
 
 node bin/command member createFromJson
-node bin/command member createReservationsFromJson
 node bin/command sponsor createFromJson
 node bin/command staff createFromJson
 node bin/command test createTelStaffs
 node bin/command test createWindows
 
+node bin/command member createReservationsFromJson
 node bin/command staff createReservationsFromJson
 
 pause
