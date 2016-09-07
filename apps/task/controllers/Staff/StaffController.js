@@ -20,17 +20,36 @@ class StaffController extends BaseController_1.default {
                 let password_salt = Util_1.default.createToken();
                 staff['password_salt'] = password_salt;
                 staff['password_hash'] = Util_1.default.createHash(staff.password, password_salt);
-                delete staff['password'];
+                // delete staff['password'];
                 return staff;
             });
-            this.logger.info('removing all staffs...');
-            Models_1.default.Staff.remove({}, (err) => {
-                this.logger.debug('creating staffs...');
-                Models_1.default.Staff.create(staffs, (err) => {
-                    this.logger.info('staffs created.', err);
-                    mongoose.disconnect();
-                    process.exit(0);
+            // あれば更新、なければ追加
+            let promises = staffs.map((staff) => {
+                return new Promise((resolve, reject) => {
+                    this.logger.debug('updating staff...');
+                    Models_1.default.Staff.update({
+                        user_id: staff.user_id
+                    }, staff, {
+                        upsert: true
+                    }, (err, raw) => {
+                        this.logger.debug('staff updated', err, raw);
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            resolve();
+                        }
+                    });
                 });
+            });
+            Promise.all(promises).then(() => {
+                this.logger.info('promised.');
+                mongoose.disconnect();
+                process.exit(0);
+            }, (err) => {
+                this.logger.error('promised.', err);
+                mongoose.disconnect();
+                process.exit(0);
             });
         });
     }
