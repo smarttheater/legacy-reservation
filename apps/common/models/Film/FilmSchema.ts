@@ -27,7 +27,6 @@ let Schema = new mongoose.Schema({
         ref: 'TicketTypeGroup',
         required: true
     },
-    image: String,
     minutes: Number, // 上映時間
     is_mx4d: Boolean, // MX4D上映かどうか
     copyright: String // コピーライト

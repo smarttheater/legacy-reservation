@@ -58,11 +58,10 @@ export default class FilmController extends BaseController {
     public getImages() {
         mongoose.connect(MONGOLAB_URI, {});
 
-        Models.Film.find({}, 'name', (err, filmDocuments) => {
-
-            let next = (filmDocument) => {
+        Models.Film.find({}, 'name', (err, films) => {
+            let next = (film) => {
                 let options = {
-                    url: `https://api.photozou.jp/rest/search_public.json?limit=1&keyword=${encodeURIComponent(filmDocument.get('name').ja)}`,
+                    url: `https://api.photozou.jp/rest/search_public.json?limit=1&keyword=${encodeURIComponent(film.get('name').ja)}`,
                     json: true
                 };
 
@@ -72,51 +71,34 @@ export default class FilmController extends BaseController {
                             console.log(body.info.photo[0].image_url)
                             let image = body.info.photo[0].image_url
 
-                            // 画像情報更新
-                            Models.Film.update(
-                                {
-                                    _id: filmDocument.get('_id')
-                                },
-                                {
-                                    image: image
-                                },
-                                (err) => {
-                                    this.logger.debug('film udpated.');
-
-                                    if (i === filmDocuments.length - 1) {
-                                        this.logger.debug('success!');
-
-                                        mongoose.disconnect();
-                                        process.exit(0);
-
-                                    } else {
-                                        i++;
-                                        next(filmDocuments[i]);
-
-                                    }
-
+                            request.get({url: image, encoding: null}, (error, response, body) => {
+                                this.logger.debug('image saved.', error);
+                                if (!error && response.statusCode === 200) {
+                                    fs.writeFileSync(`${__dirname}/../../../../public/images/film/${film.get('_id').toString()}.jpg`, body, 'binary');
                                 }
-                            );
 
+                                if (i === films.length - 1) {
+                                    this.logger.debug('success!');
+                                    mongoose.disconnect();
+                                    process.exit(0);
+                                } else {
+                                    i++;
+                                    next(films[i]);
+                                }
+                            });
                         } else {
                             i++;
-                            next(filmDocuments[i]);
-
+                            next(films[i]);
                         }
-
                     } else {
                         i++;
-                        next(filmDocuments[i]);
-
+                        next(films[i]);
                     }
                 })
-
-
             }
 
             let i = 0;
-            next(filmDocuments[i]);
-
+            next(films[i]);
         });
     }
 }

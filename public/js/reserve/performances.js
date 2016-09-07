@@ -42,7 +42,7 @@ $(function(){
 
             html += 
                 '<div class="performance accordion_mobile_toggle">'+
-                    '<div class="performance-image"><img src="'+performancesOnFilm[0].film_image+'"></div>'+///images/temp_performance_thumb.jpg"></div>'+
+                    '<div class="performance-image"><img src="/images/film/'+performancesOnFilm[0].film_id+'.jpg"></div>'+///images/temp_performance_thumb.jpg"></div>'+
                     '<div class="performance-title"><h3><span>'+performancesOnFilm[0].film_name+'</span></h3></div>'+
                     '<div class="performance-inner accordion_mobile_inner">'+
                         '<div class="performance-info">'+

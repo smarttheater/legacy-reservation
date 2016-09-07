@@ -186,7 +186,7 @@ class ReserveBaseController extends BaseController_1.default {
             _id: perfomanceId
         }, 'day start_time end_time film screen theater' // 必要な項目だけ指定すること
         )
-            .populate('film', 'name ticket_type_group image is_mx4d copyright') // 必要な項目だけ指定すること
+            .populate('film', 'name ticket_type_group is_mx4d copyright') // 必要な項目だけ指定すること
             .populate('screen', 'name sections') // 必要な項目だけ指定すること
             .populate('theater', 'name') // 必要な項目だけ指定すること
             .exec((err, performance) => {
@@ -272,7 +272,7 @@ class ReserveBaseController extends BaseController_1.default {
                     film: {
                         _id: performance.get('film').get('_id'),
                         name: performance.get('film').get('name'),
-                        image: performance.get('film').get('image'),
+                        image: `https://${conf.get('dns_name')}/images/film/${performance.get('film').get('_id')}.jpg`,
                         is_mx4d: performance.get('film').get('is_mx4d'),
                         copyright: performance.get('film').get('copyright')
                     }

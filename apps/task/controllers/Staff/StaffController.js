@@ -98,7 +98,7 @@ class StaffController extends BaseController_1.default {
                     let reservations = [];
                     // スクリーンのパフォーマンスをすべて取得
                     Models_1.default.Performance.find({ screen: screenId }, 'day start_time end_time film screen theater')
-                        .populate('film', 'name image is_mx4d copyright')
+                        .populate('film', 'name is_mx4d copyright')
                         .populate('screen', 'name')
                         .populate('theater', 'name')
                         .exec((err, performances) => {
@@ -122,7 +122,7 @@ class StaffController extends BaseController_1.default {
                                     "watcher_name": "",
                                     "film_copyright": performance.get('film').get('copyright'),
                                     "film_is_mx4d": performance.get('film').get('is_mx4d'),
-                                    "film_image": performance.get('film').get('image'),
+                                    "film_image": `https://${conf.get('dns_name')}/images/film/${performance.get('film').get('_id')}.jpg`,
                                     "film_name_en": performance.get('film').get('name.en'),
                                     "film_name_ja": performance.get('film').get('name.ja'),
                                     "film": performance.get('film').get('_id'),

@@ -7,6 +7,50 @@ import mongoose = require('mongoose');
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
 export default class SchemaController extends BaseController {
+    public dropIndexes() {
+        let MongoClient = mongodb.MongoClient;
+        MongoClient.connect(conf.get<string>('mongolab_uri'), (err, db) => {
+            let collectionNames = [
+                'authentications',
+                'films',
+                'members',
+                'performances',
+                'reservation_email_cues',
+                'reservations',
+                'screens',
+                'sequences',
+                'sponsors',
+                'staffs',
+                'tel_staffs',
+                'theaters',
+                'ticket_type_groups',
+                'windows'
+            ];
+
+            let promises = collectionNames.map((collectionName) => {
+                return new Promise((resolve, reject) => {
+                    this.logger.debug('dropping index.', collectionName);
+                    db.collection(collectionName).dropIndexes(
+                        (err) => {
+                            this.logger.debug('index droped.', collectionName, err);
+                            (err) ? reject(err) : resolve();
+                        }
+                    );
+                });
+            });
+
+            Promise.all(promises).then(() => {
+                this.logger.info('promised.');
+                db.close();
+                process.exit(0);
+            }, (err) => {
+                this.logger.error('promised.', err);
+                db.close();
+                process.exit(0);
+            });
+        });
+    }
+
     public createIndexes() {
         let MongoClient = mongodb.MongoClient;
         MongoClient.connect(conf.get<string>('mongolab_uri'), (err, db) => {
@@ -147,25 +191,6 @@ export default class SchemaController extends BaseController {
             }));
 
             promises.push(new Promise((resolve, reject) => {
-                db.collection('sequences').createIndex(
-                    {
-                        no: 1,
-                    },
-                    {
-                        unique: true
-                    },
-                    (err) => {
-                        this.logger.debug('index created.', err);
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve();
-                        }
-                    }
-                );
-            }));
-
-            promises.push(new Promise((resolve, reject) => {
                 db.collection('performances').createIndex(
                     {
                         day: 1,
@@ -181,7 +206,6 @@ export default class SchemaController extends BaseController {
                     }
                 );
             }));
-
 
             Promise.all(promises).then(() => {
                 this.logger.info('promised.');

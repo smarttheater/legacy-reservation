@@ -2,6 +2,7 @@ import BaseController from '../BaseController';
 import Models from '../../../common/models/Models';
 import PerformanceStatusesModel from '../../../common/models/PerformanceStatusesModel';
 import moment = require('moment');
+import conf = require('config');
 
 export default class PerformanceController extends BaseController {
     /**
@@ -110,9 +111,9 @@ export default class PerformanceController extends BaseController {
                         }
 
                         if (this.req.getLocale() === 'ja') {
-                            query.populate('film', 'name.ja image sections.name.ja minutes');
+                            query.populate('film', 'name.ja sections.name.ja minutes');
                         } else {
-                            query.populate('film', 'name.en image sections.name.en minutes');
+                            query.populate('film', 'name.en sections.name.en minutes');
                         }
 
                         // 上映日、開始時刻
@@ -148,7 +149,7 @@ export default class PerformanceController extends BaseController {
                                         film_name: performance['film']['name'][this.req.getLocale()],
                                         film_sections: performance['film']['sections'].map((section) => {return section['name'][this.req.getLocale()];}),
                                         film_minutes: performance['film']['minutes'],
-                                        film_image: performance['film']['image']
+                                        film_image: `https://${conf.get<string>('dns_name')}/images/film/${performance['film']['_id']}.jpg`
                                     };
                                 });
 

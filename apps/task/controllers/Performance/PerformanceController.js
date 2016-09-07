@@ -5,6 +5,7 @@ const PerformanceUtil_1 = require('../../../common/models/Performance/Performanc
 const moment = require('moment');
 const conf = require('config');
 const mongoose = require('mongoose');
+const fs = require('fs-extra');
 const PerformanceStatusesModel_1 = require('../../../common/models/PerformanceStatusesModel');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class PerformanceController extends BaseController_1.default {
@@ -93,6 +94,55 @@ class PerformanceController extends BaseController_1.default {
                         mongoose.disconnect();
                         process.exit(0);
                     });
+                });
+            });
+        });
+    }
+    createFromJson() {
+        mongoose.connect(MONGOLAB_URI, {});
+        fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/performances.json`, 'utf8', (err, data) => {
+            if (err)
+                throw err;
+            let performances = JSON.parse(data);
+            Models_1.default.Screen.find({}, 'name theater').populate('theater', 'name').exec((err, screens) => {
+                performances = performances.map((performance) => {
+                    // 劇場とスクリーン名称を追加
+                    let _screen = screens.find((screen) => {
+                        return (screen.get('_id').toString() === performance.screen);
+                    });
+                    performance['screen_name.ja'] = _screen.get('name.ja');
+                    performance['screen_name.en'] = _screen.get('name.en');
+                    performance['theater_name.ja'] = _screen.get('theater').get('name.ja');
+                    performance['theater_name.en'] = _screen.get('theater').get('name.en');
+                    return performance;
+                });
+                // あれば更新、なければ追加
+                let promises = performances.map((performance) => {
+                    return new Promise((resolve, reject) => {
+                        this.logger.debug('updating performance...');
+                        Models_1.default.Performance.update({
+                            _id: performance._id
+                        }, performance, {
+                            upsert: true
+                        }, (err, raw) => {
+                            this.logger.debug('performance updated', err, raw);
+                            if (err) {
+                                reject(err);
+                            }
+                            else {
+                                resolve();
+                            }
+                        });
+                    });
+                });
+                Promise.all(promises).then(() => {
+                    this.logger.info('promised.');
+                    mongoose.disconnect();
+                    process.exit(0);
+                }, (err) => {
+                    this.logger.error('promised.', err);
+                    mongoose.disconnect();
+                    process.exit(0);
                 });
             });
         });

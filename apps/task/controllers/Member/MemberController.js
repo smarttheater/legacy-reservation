@@ -2,7 +2,6 @@
 const BaseController_1 = require('../BaseController');
 const Util_1 = require('../../../common/Util/Util');
 const Models_1 = require('../../../common/models/Models');
-const moment = require('moment');
 const conf = require('config');
 const mongoose = require('mongoose');
 const fs = require('fs-extra');
@@ -36,61 +35,15 @@ class MemberController extends BaseController_1.default {
     }
     createReservationsFromJson() {
         mongoose.connect(MONGOLAB_URI, {});
-        let film = {
-            "_id": "999999",
-            "name": {
-                "ja": "メルマガ会員先行予約用の作品",
-                "en": "Film for Email Members",
-            },
-            "ticket_type_group": "01",
-            "minutes": 99,
-            "sections": [
-                {
-                    "code": "01",
-                    "name": {
-                        "ja": "オープニング",
-                        "en": "Opening"
-                    }
-                }
-            ],
-            "image": "http://art33.photozou.jp/pub/794/3019794/photo/239721730.jpg",
-            "is_mx4d": false
-        };
-        let performance = {
-            "_id": `${moment(conf.get('datetimes.event_start')).format('YYYYMMDD')}001070600`,
-            "theater": "001",
-            "theater_name": {
-                "ja": "TOHOシネマズ 六本木ヒルズ",
-                "en": "TOHO CINEMAS Roppongi Hills"
-            },
-            "screen": "00107",
-            "screen_name": {
-                "ja": "スクリーン07",
-                "en": "Screen07"
-            },
-            "film": "999999",
-            "day": moment(conf.get('datetimes.event_start')).format('YYYYMMDD'),
-            "open_time": "0750",
-            "start_time": "0800",
-            "end_time": "0900"
-        };
-        Models_1.default.Film.create(film, (err) => {
-            Models_1.default.Performance.create(performance, (err) => {
-                fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/memberReservations.json`, 'utf8', (err, data) => {
-                    if (err)
-                        throw err;
-                    let reservations = JSON.parse(data);
-                    reservations = reservations.map((reservation) => {
-                        reservation.performance = performance._id;
-                        return reservation;
-                    });
-                    this.logger.debug('creating reservations...');
-                    Models_1.default.Reservation.create(reservations, (err) => {
-                        this.logger.info('reservations created.', err);
-                        mongoose.disconnect();
-                        process.exit(0);
-                    });
-                });
+        fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/memberReservations.json`, 'utf8', (err, data) => {
+            if (err)
+                throw err;
+            let reservations = JSON.parse(data);
+            this.logger.debug('creating reservations...');
+            Models_1.default.Reservation.create(reservations, (err) => {
+                this.logger.info('reservations created.', err);
+                mongoose.disconnect();
+                process.exit(0);
             });
         });
     }

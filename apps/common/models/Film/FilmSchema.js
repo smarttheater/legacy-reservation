@@ -27,7 +27,6 @@ let Schema = new mongoose.Schema({
         ref: 'TicketTypeGroup',
         required: true
     },
-    image: String,
     minutes: Number,
     is_mx4d: Boolean,
     copyright: String // コピーライト
