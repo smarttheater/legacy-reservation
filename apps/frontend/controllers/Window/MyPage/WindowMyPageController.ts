@@ -86,6 +86,8 @@ export default class WindowMyPageController extends BaseController {
         }
 
         if (paymentNo) {
+            // remove space characters
+            paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
             conditions.push({payment_no: {$regex: `${paymentNo}`}});
         }
 

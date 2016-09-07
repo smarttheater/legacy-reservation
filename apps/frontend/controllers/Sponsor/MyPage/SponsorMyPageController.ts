@@ -17,8 +17,9 @@ export default class SponsorMyPageController extends BaseController {
     public search(): void {
         let limit = (this.req.query.limit) ? this.req.query.limit : 10;
         let page = (this.req.query.page) ? this.req.query.page : 1;
-        let tel = (this.req.query.tel) ? this.req.query.tel : null;
-        let purchaser_name = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
+        let tel: string = (this.req.query.tel) ? this.req.query.tel : null;
+        let purchaserName: string = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
+        let paymentNo: string = (this.req.query.payment_no) ? this.req.query.payment_no : null;
 
         // 検索条件を作成
         let conditions: Array<Object> = [];
@@ -41,17 +42,23 @@ export default class SponsorMyPageController extends BaseController {
             });
         }
 
-        if (purchaser_name) {
+        if (purchaserName) {
             conditions.push({
                 $or: [
                     {
-                        purchaser_last_name: {$regex: `${purchaser_name}`}
+                        purchaser_last_name: {$regex: `${purchaserName}`}
                     },
                     {
-                        purchaser_first_name: {$regex: `${purchaser_name}`}
+                        purchaser_first_name: {$regex: `${purchaserName}`}
                     }
                 ]
             });
+        }
+
+        if (paymentNo) {
+            // remove space characters
+            paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
+            conditions.push({payment_no: {$regex: `${paymentNo}`}});
         }
 
 

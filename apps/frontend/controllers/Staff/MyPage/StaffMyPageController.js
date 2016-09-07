@@ -1,5 +1,6 @@
 "use strict";
 const BaseController_1 = require('../../BaseController');
+const Util_1 = require('../../../../common/Util/Util');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const Models_1 = require('../../../../common/models/Models');
 class StaffMyPageController extends BaseController_1.default {
@@ -28,6 +29,7 @@ class StaffMyPageController extends BaseController_1.default {
         let theater = (this.req.query.theater) ? this.req.query.theater : null;
         let film = (this.req.query.film) ? this.req.query.film : null;
         let updater = (this.req.query.updater) ? this.req.query.updater : null;
+        let paymentNo = (this.req.query.payment_no) ? this.req.query.payment_no : null;
         // 検索条件を作成
         let conditions = [];
         // 管理者の場合、内部関係者の予約全て&確保中
@@ -78,6 +80,11 @@ class StaffMyPageController extends BaseController_1.default {
                     }
                 ]
             });
+        }
+        if (paymentNo) {
+            // remove space characters
+            paymentNo = Util_1.default.toHalfWidth(paymentNo.replace(/\s/g, ''));
+            conditions.push({ payment_no: { $regex: `${paymentNo}` } });
         }
         // 総数検索
         Models_1.default.Reservation.count({

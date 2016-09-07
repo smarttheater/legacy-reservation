@@ -66,4 +66,14 @@ export default class Util {
         sha512.update(salt + password, 'utf8');
         return sha512.digest('hex');
     }
+
+    /**
+     * 全角→半角変換
+     */
+    public static toHalfWidth(str: string): string {
+        return str.split('').map((value) => {
+            // 全角であれば変換
+            return value.replace(/[Ａ-Ｚａ-ｚ０-９]/g, String.fromCharCode(value.charCodeAt(0) - 0xFEE0));
+        }).join('');
+    }
 }

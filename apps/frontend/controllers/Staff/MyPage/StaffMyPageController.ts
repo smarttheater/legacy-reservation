@@ -24,11 +24,12 @@ export default class StaffMyPageController extends BaseController {
     public search(): void {
         let limit = (this.req.query.limit) ? this.req.query.limit : 10;
         let page = (this.req.query.page) ? this.req.query.page : 1;
-        let day = (this.req.query.day) ? this.req.query.day : null;
-        let startTime = (this.req.query.start_time) ? this.req.query.start_time : null;
-        let theater = (this.req.query.theater) ? this.req.query.theater : null;
-        let film = (this.req.query.film) ? this.req.query.film : null;
-        let updater = (this.req.query.updater) ? this.req.query.updater : null;
+        let day: string = (this.req.query.day) ? this.req.query.day : null;
+        let startTime: string = (this.req.query.start_time) ? this.req.query.start_time : null;
+        let theater: string = (this.req.query.theater) ? this.req.query.theater : null;
+        let film: string = (this.req.query.film) ? this.req.query.film : null;
+        let updater: string = (this.req.query.updater) ? this.req.query.updater : null;
+        let paymentNo: string = (this.req.query.payment_no) ? this.req.query.payment_no : null;
 
         // 検索条件を作成
         let conditions: Array<Object> = [];
@@ -89,6 +90,12 @@ export default class StaffMyPageController extends BaseController {
                     }
                 ]
             });
+        }
+
+        if (paymentNo) {
+            // remove space characters
+            paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
+            conditions.push({payment_no: {$regex: `${paymentNo}`}});
         }
 
 

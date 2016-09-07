@@ -1,5 +1,6 @@
 "use strict";
 const BaseController_1 = require('../../BaseController');
+const Util_1 = require('../../../../common/Util/Util');
 const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const Models_1 = require('../../../../common/models/Models');
@@ -74,6 +75,8 @@ class TelMyPageController extends BaseController_1.default {
             });
         }
         if (paymentNo) {
+            // remove space characters
+            paymentNo = Util_1.default.toHalfWidth(paymentNo.replace(/\s/g, ''));
             conditions.push({ payment_no: { $regex: `${paymentNo}` } });
         }
         // 総数検索

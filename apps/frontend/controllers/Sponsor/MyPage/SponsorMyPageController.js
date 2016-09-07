@@ -1,5 +1,6 @@
 "use strict";
 const BaseController_1 = require('../../BaseController');
+const Util_1 = require('../../../../common/Util/Util');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
 const Models_1 = require('../../../../common/models/Models');
 class SponsorMyPageController extends BaseController_1.default {
@@ -17,7 +18,8 @@ class SponsorMyPageController extends BaseController_1.default {
         let limit = (this.req.query.limit) ? this.req.query.limit : 10;
         let page = (this.req.query.page) ? this.req.query.page : 1;
         let tel = (this.req.query.tel) ? this.req.query.tel : null;
-        let purchaser_name = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
+        let purchaserName = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
+        let paymentNo = (this.req.query.payment_no) ? this.req.query.payment_no : null;
         // 検索条件を作成
         let conditions = [];
         conditions.push({
@@ -34,17 +36,22 @@ class SponsorMyPageController extends BaseController_1.default {
                 ]
             });
         }
-        if (purchaser_name) {
+        if (purchaserName) {
             conditions.push({
                 $or: [
                     {
-                        purchaser_last_name: { $regex: `${purchaser_name}` }
+                        purchaser_last_name: { $regex: `${purchaserName}` }
                     },
                     {
-                        purchaser_first_name: { $regex: `${purchaser_name}` }
+                        purchaser_first_name: { $regex: `${purchaserName}` }
                     }
                 ]
             });
+        }
+        if (paymentNo) {
+            // remove space characters
+            paymentNo = Util_1.default.toHalfWidth(paymentNo.replace(/\s/g, ''));
+            conditions.push({ payment_no: { $regex: `${paymentNo}` } });
         }
         // 総数検索
         Models_1.default.Reservation.count({
