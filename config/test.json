@@ -25,8 +25,8 @@
         "reservation_end_members": "2016-08-25T23:59:59+09:00",
         "reservation_start_customers_first": "2016-08-26T00:00:00+09:00",
         "reservation_start_customers_second": "2016-08-29T00:00:00+09:00",
-        "event_start": "2016-09-09T00:00:00+09:00",
-        "event_end": "2016-09-18T23:59:59+09:00"
+        "event_start": "2016-09-12T00:00:00+09:00",
+        "event_end": "2016-09-21T23:59:59+09:00"
     },
 
     "temporary_reservation_valid_period_seconds": 900,
