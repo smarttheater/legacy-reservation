@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>東京国際映画祭チケット購入完了のお知らせ</title>
+<title><%- title %></title>
 <!--
     gmailはstyle要素とlink要素を無効にするので全タグにstyle属性を付けるしかない
     https://www.campaignmonitor.com/css/
@@ -19,7 +19,7 @@
 
 
 <div style="padding:0 30px;font-family:'游ゴシック',meiryo,sans-serif;">
-    <h1 style="margin:0;font-size:20px;text-align:center;">東京国際映画祭チケット購入完了のお知らせ</h1>
+    <h1 style="margin:0;font-size:20px;text-align:center;"><%- title %></h1>
     <h2 style="margin:0;font-size:16px;text-align:center;">Notice of TIFF Ticket Purchase Completion</h2>
 
     <p style="font-weight:bold;"><%- reservations[0].get('purchaser_name') %> 様</p>
@@ -82,17 +82,17 @@
         <h3 style="font-weight:normal;font-size:14px;margin:0;">券種 (Ticket type) :</h3>
 
         <% reservations.forEach((reservation, index) => { %>
-        <strong><%- reservation.get('ticket_type_name_ja') %>　&yen;<%- numeral(reservation.get('charge')).format('0,0') %>
-            <% if (reservation.get('seat_grade_charge') > 0) { %>
-            　(内<%- reservation.get('seat_grade_name_ja') %> &yen;<%- reservation.get('seat_grade_charge') %>)</strong><br>
+        <strong><%- reservation.get('ticket_type_name_ja') %>　&yen;<%- numeral(reservation.get('ticket_type_charge') + reservation.get('seat_grade_additional_charge')).format('0,0') %>
+            <% if (reservation.get('seat_grade_additional_charge') > 0) { %>
+            　(内<%- reservation.get('seat_grade_name_ja') %> &yen;<%- reservation.get('seat_grade_additional_charge') %>)</strong><br>
             <% } %>
         <% }) %>
 
         <p style="font-size:12px;">
             <% reservations.forEach((reservation, index) => { %>
-            <%- reservation.get('ticket_type_name_en') %> &yen;<%- numeral(reservation.get('charge')).format('0,0') %>
-                <% if (reservation.get('seat_grade_charge') > 0) { %>
-                (<%- reservation.get('seat_grade_name_en') %> &yen;<%- reservation.get('seat_grade_charge') %>)
+            <%- reservation.get('ticket_type_name_en') %> &yen;<%- numeral(reservation.get('ticket_type_charge') + reservation.get('seat_grade_additional_charge')).format('0,0') %>
+                <% if (reservation.get('seat_grade_additional_charge') > 0) { %>
+                (<%- reservation.get('seat_grade_name_en') %> &yen;<%- reservation.get('seat_grade_additional_charge') %>)
                 <% } %>
             <% }) %>
         </p>

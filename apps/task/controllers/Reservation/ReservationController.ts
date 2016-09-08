@@ -137,11 +137,7 @@ export default class ReservationController extends BaseController {
         mongoose.connect(MONGOLAB_URI, {});
 
         this.logger.info('finding reservationEmailCues...');
-        Models.ReservationEmailCue.find(
-            {
-                is_sent: false
-            }
-        ).limit(10).exec((err, cues) => {
+        Models.ReservationEmailCue.find({is_sent: false}).limit(10).exec((err, cues) => {
             this.logger.info('reservationEmailCues found.', err, cues);
             if (err) {
                 mongoose.disconnect();
@@ -157,152 +153,164 @@ export default class ReservationController extends BaseController {
 
             let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
 
-            let next = (i: number) => {
-                if (i === cues.length) {
-                    mongoose.disconnect();
-                    process.exit(0);
-                    return;
+            let promises = cues.map((cue) => {
+                return new Promise((resolve, reject) => {
+                    // 予約ロガーを取得
+                    Util.getReservationLogger(cue.get('payment_no'), (err, _logger) => {
+                        if (err) {
+                            // 失敗したらデフォルトロガーに逃げる
+                            _logger = this.logger;
+                        }
 
-                }
+                        Models.Reservation.find(
+                            {
+                                payment_no: cue.get('payment_no')
+                            },
+                            (err, reservations) => {
+                                _logger.info('reservations for email found.', err, reservations.length);
+                                if (err) return resolve();
 
-                let cue = cues[i];
-
-                // 予約ロガーを取得
-                Util.getReservationLogger(cue.get('payment_no'), (err, logger) => {
-                    if (err) {
-                        // 失敗したらデフォルトロガーに逃げる
-                    } else {
-                        this.logger = logger;
-                    }
-
-                    // 送信
-                    Models.Reservation.find(
-                        {
-                            payment_no: cue.get('payment_no'),
-                            status: ReservationUtil.STATUS_RESERVED
-                        },
-                        (err, reservations) => {
-                            this.logger.info('reservations for email found.', err, reservations.length);
-                            if (err) {
-                                i++;
-                                next(i);
-                            } else {
                                 if (reservations.length === 0) {
                                     // 送信済みフラグを立てる
-                                    this.logger.info('setting is_sent to true...');
+                                    _logger.info('setting is_sent to true...');
                                     cue.set('is_sent', true);
                                     cue.save((err, res) => {
-                                        this.logger.info('cue saved.');
-                                        i++;
-                                        next(i);
+                                        _logger.info('cue saved.', err);
+                                        resolve();
                                     });
-                                } else {
-                                    let to = '';
-                                    let purchaserGroup = reservations[0].get('purchaser_group');
-                                    switch (purchaserGroup) {
-                                        case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-                                        case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                                        case ReservationUtil.PURCHASER_GROUP_SPONSOR:
-                                            to = reservations[0].get('purchaser_email')
-                                            break;
+                                    return;
+                                }
 
-                                        case ReservationUtil.PURCHASER_GROUP_STAFF:
-                                            to = reservations[0].get('staff_email')
-                                            break;
+                                let to = '';
+                                let purchaserGroup = reservations[0].get('purchaser_group');
+                                switch (purchaserGroup) {
+                                    case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
+                                    case ReservationUtil.PURCHASER_GROUP_MEMBER:
+                                    case ReservationUtil.PURCHASER_GROUP_SPONSOR:
+                                        to = reservations[0].get('purchaser_email')
+                                        break;
 
-                                        default:
-                                            break;
+                                    case ReservationUtil.PURCHASER_GROUP_STAFF:
+                                        to = reservations[0].get('staff_email')
+                                        break;
+
+                                    default:
+                                        break;
+                                }
+
+                                _logger.info('to is', to);
+
+                                if (!to) {
+                                    // 送信済みフラグを立てる
+                                    _logger.info('setting is_sent to true...');
+                                    cue.set('is_sent', true);
+                                    cue.save((err, res) => {
+                                        _logger.info('cue saved.', err);
+                                        resolve();
+                                    });
+                                    return;
+                                }
+
+
+
+
+                                let EmailTemplate = emailTemplates.EmailTemplate
+                                // __dirnameを使うとテンプレートを取得できないので注意
+                                // http://stackoverflow.com/questions/38173996/azure-and-node-js-dirname
+                                let dir: string;
+                                let title: string;
+                                switch (reservations[0].get('status')) {
+                                    case ReservationUtil.STATUS_RESERVED:
+                                        dir = `${process.cwd()}/apps/task/views/email/reserve/complete`;
+                                        title = '東京国際映画祭チケット購入完了のお知らせ';
+                                        break;
+                                    case ReservationUtil.STATUS_WAITING_SETTLEMENT:
+                                        dir = `${process.cwd()}/apps/task/views/email/reserve/waitingSettlement`;
+                                        title = '東京国際映画祭チケット仮予約完了のお知らせ';
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                if (!dir) {
+                                    // 送信済みフラグを立てる
+                                    _logger.info('setting is_sent to true...');
+                                    cue.set('is_sent', true);
+                                    cue.save((err, res) => {
+                                        _logger.info('cue saved.', err);
+                                        resolve();
+                                    });
+                                    return;
+                                }
+
+                                let template = new EmailTemplate(dir);
+                                let locals = {
+                                    title: title,
+                                    reservations: reservations,
+                                    moment: moment,
+                                    numeral: numeral,
+                                    GMOUtil: GMOUtil
+                                };
+                                _logger.info('rendering template...dir:', dir);
+                                template.render(locals, (err, result) => {
+                                    _logger.info('email template rendered.', err);
+                                    if (err) return resolve();
+
+                                    let email = new _sendgrid.Email({
+                                        to: to,
+                                        from: `noreply@${conf.get<string>('dns_name')}`,
+                                        subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}${title}`,
+                                        html: result.html
+                                    });
+
+                                    // 完了の場合、QRコードを添付
+                                    if (reservations[0].get('status') === ReservationUtil.STATUS_RESERVED) {
+                                        // add barcodes
+                                        for (let reservation of reservations) {
+                                            let reservationId = reservation.get('_id').toString();
+                                            let png = qr.imageSync(reservation.get('qr_str'), {type: 'png'});
+
+                                            email.addFile({
+                                                filename: `QR_${reservationId}.png`,
+                                                contentType: 'image/png',
+                                                cid: `qrcode_${reservationId}`,
+                                                content: png
+                                            });
+                                        }
                                     }
 
-                                    this.logger.info('to is', to);
+                                    // add logo
+                                    email.addFile({
+                                        filename: `logo.png`,
+                                        contentType: 'image/png',
+                                        cid: 'logo',
+                                        content: fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`)
+                                    });
 
-                                    if (!to) {
+                                    _logger.info('sending an email...email:', email);
+                                    _sendgrid.send(email, (err, json) => {
+                                        _logger.info('an email sent.', err, json);
+                                        if (err) return resolve();
+
                                         // 送信済みフラグを立てる
-                                        this.logger.info('setting is_sent to true...');
+                                        _logger.info('setting is_sent to true...');
                                         cue.set('is_sent', true);
                                         cue.save((err, res) => {
-                                            this.logger.info('cue saved.');
-                                            i++;
-                                            next(i);
+                                            _logger.info('cue saved.', err);
+                                            resolve();
                                         });
-                                    } else {
-                                        let EmailTemplate = emailTemplates.EmailTemplate
-                                        // __dirnameを使うとテンプレートを取得できないので注意
-                                        // http://stackoverflow.com/questions/38173996/azure-and-node-js-dirname
-                                        let dir = `${process.cwd()}/apps/task/views/email/reserveComplete`;
-                                        let template = new EmailTemplate(dir);
-                                        let locals = {
-                                            reservations: reservations,
-                                            moment: moment,
-                                            numeral: numeral,
-                                            GMOUtil: GMOUtil
-                                        };
-                                        this.logger.info('rendering template...dir:', dir);
-                                        template.render(locals, (err, result) => {
-                                            this.logger.info('email template rendered.', err);
-                                            if (err) {
-                                                i++;
-                                                next(i);
-                                            } else {
-                                                let email = new _sendgrid.Email({
-                                                    to: to,
-                                                    from: `noreply@${conf.get<string>('dns_name')}`,
-                                                    subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京国際映画祭チケット購入完了のお知らせ`,
-                                                    html: result.html
-                                                });
-
-
-                                                // add barcodes
-                                                for (let reservation of reservations) {
-                                                    let reservationId = reservation.get('_id').toString();
-                                                    let png = qr.imageSync(reservation.get('qr_str'), {type: 'png'});
-
-
-                                                    email.addFile({
-                                                        filename: `QR_${reservationId}.png`,
-                                                        contentType: 'image/png',
-                                                        cid: `qrcode_${reservationId}`,
-                                                        content: png
-                                                    });
-                                                }
-
-                                                // add logo
-                                                email.addFile({
-                                                    filename: `logo.png`,
-                                                    contentType: 'image/png',
-                                                    cid: 'logo',
-                                                    content: fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`)
-                                                });
-
-                                                this.logger.info('sending an email...email:', email);
-                                                _sendgrid.send(email, (err, json) => {
-                                                    this.logger.info('an email sent.', err, json);
-                                                    if (err) {
-                                                        i++;
-                                                        next(i);
-                                                    } else {
-                                                        // 送信済みフラグを立てる
-                                                        this.logger.info('setting is_sent to true...');
-                                                        cue.set('is_sent', true);
-                                                        cue.save((err, res) => {
-                                                            this.logger.info('cue saved.');
-                                                            i++;
-                                                            next(i);
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    }
-                                }
+                                    });
+                                });
                             }
-                        }
-                    );
+                        );
+                    });
                 });
-            }
+            });
 
-            let i = 0;
-            next(i);
+            Promise.all(promises).then(() => {
+                mongoose.disconnect();
+                process.exit(0);
+            });
         });
     }
 

@@ -212,12 +212,19 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
             multi: true
         }, (err, raw) => {
             this.logger.info('reservations updated.', err, raw);
-            if (err) {
-                cb(err);
-            }
-            else {
+            if (err)
+                return cb(err);
+            // 仮予約完了メールキュー追加
+            this.logger.info('creating reservationEmailCue...');
+            Models_1.default.ReservationEmailCue.create({
+                payment_no: paymentNo,
+                is_sent: false
+            }, (err, cue) => {
+                this.logger.info('reservationEmailCue created.', err, cue);
+                if (err) {
+                }
                 cb(null);
-            }
+            });
         });
     }
 }

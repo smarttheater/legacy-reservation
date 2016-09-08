@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title><%- title %></title>
+<!--
+    gmailはstyle要素とlink要素を無効にするので全タグにstyle属性を付けるしかない
+    https://www.campaignmonitor.com/css/    
+-->
+</head>
+<body>
+
+
+
+
+<div style="background-color:#fff;height:80px;text-align:center;">
+    <img src="cid:logo" alt="東京国際映画祭" >
+</div>
+
+
+<div style="padding:0 30px;font-family:'游ゴシック',meiryo,sans-serif;">
+    <h1 style="margin:0;font-size:20px;text-align:center;"><%- title %></h1>
+    <h2 style="margin:0;font-size:16px;text-align:center;">Announcement of the Tokyo International Film Festival ticket tentative reservation completion</h2>
+
+    <p style="font-weight:bold;"><%- reservations[0].get('purchaser_name') %> 様</p>
+
+    <p style="font-size:14px;">
+        この度は東京国際映画祭チケットサイトをご利用いただき誠にありがとうございます。<br>
+        下記の内容にて仮予約を承りました。<br>
+        ご確認の上、お支払期限までにお近くのファミリーマートにてお支払いください。
+    </p>
+    <p style="font-size:12px;">
+        Use the Tokyo International Film Festival ticket site this time, and thank you very much truly.<br>
+        I took care of temporary reservation in the following contents.<br>
+        After checking it, please pay in Familymart in neighborhood by the due date.
+    </p>
+
+
+    <hr style="margin:1em 0;">
+
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">ご指定のコンビニエンスストア (Convenience store) :</h3>
+        <strong>ファミリーマート</strong><br>
+        <span style="font-size:14px;">Family Mart</span>
+    </div>
+
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">お支払い期限 (Payment deadline) :</h3>
+        <% let term = reservations[0].get('gmo_payment_term') %>
+        <strong><%- `${term.substr(0, 4)}/${term.substr(4, 2)}/${term.substr(6, 2)} ${term.substr(8, 2)}:${term.substr(10, 2)}:${term.substr(12)}` %></strong><br>
+    </div>
+
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">作品名 (Title) :</h3>
+        <strong><%- reservations[0].get('film_name_ja') %></strong><br>
+        <span style="font-size:12px;"><%- reservations[0].get('film_name_en') %></span>
+    </div>
+
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">予約番号 (Reservation number) :</h3>
+        <strong><%- reservations[0].get('payment_no') %></strong>
+    </div>
+
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">劇場 (Theater) :</h3>
+        <strong><%- reservations[0].get('theater_name_ja') %>  <%- reservations[0].get('screen_name_ja') %></strong><br>
+        <%- reservations[0].get('theater_address_ja') %><br>
+        <p style="font-size:12px;">
+            <%- reservations[0].get('theater_name_en') %> <%- reservations[0].get('screen_name_en') %><br>
+            <%- reservations[0].get('theater_address_en') %>
+        </p>
+    </div>
+
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">時間 (Date and time) :</h3>
+        <%
+        let day = moment(`${reservations[0].get('performance_day').substr(0, 4)}-${reservations[0].get('performance_day').substr(4, 2)}-${reservations[0].get('performance_day').substr(6)}T00:00:00+09:00`);
+        %>
+        <strong><%- day.format('YYYY/MM/DD (ddd)') %></strong>　
+        開場 Open: <strong><%- reservations[0].get('performance_open_time').substr(0, 2) %>:<%- reservations[0].get('performance_open_time').substr(2) %></strong>　
+        開演 Start: <strong><%- reservations[0].get('performance_start_time').substr(0, 2) %>:<%- reservations[0].get('performance_start_time').substr(2) %>-</strong>
+    </div>
+
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">券種 (Ticket type) :</h3>
+
+        <% reservations.forEach((reservation, index) => { %>
+        <strong><%- reservation.get('ticket_type_name_ja') %>　&yen;<%- numeral(reservation.get('ticket_type_charge') + reservation.get('seat_grade_additional_charge')).format('0,0') %>
+            <% if (reservation.get('seat_grade_additional_charge') > 0) { %>
+            　(内<%- reservation.get('seat_grade_name_ja') %> &yen;<%- reservation.get('seat_grade_additional_charge') %>)</strong><br>
+            <% } %>
+        <% }) %>
+
+        <p style="font-size:12px;">
+            <% reservations.forEach((reservation, index) => { %>
+            <%- reservation.get('ticket_type_name_en') %> &yen;<%- numeral(reservation.get('ticket_type_charge') + reservation.get('seat_grade_additional_charge')).format('0,0') %>
+                <% if (reservation.get('seat_grade_additional_charge') > 0) { %>
+                (<%- reservation.get('seat_grade_name_en') %> &yen;<%- reservation.get('seat_grade_additional_charge') %>)
+                <% } %>
+            <% }) %>
+        </p>
+
+    </div>
+
+
+    <!-- コンビニ決済完了の場合 -->
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">コンビニ決済手数料 (Handling charge) :</h3>
+        <strong>&yen;150 x <%- reservations.length %></strong>
+    </div>
+    <!-- /コンビニ決済完了の場合 -->
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入枚数 (Purchase number) :</h3>
+        <strong><%- reservations.length %>枚</strong>
+        <span style="font-size:12px;"><%- reservations.length %> ticket</span>
+    </div>
+
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">合計金額 (total fee) :</h3>
+        <%
+        let totalCharge = 0;
+        reservations.forEach((reservation) => {
+            totalCharge += reservation.get('charge');
+        });
+        %>
+        <strong>&yen;<%- numeral(totalCharge).format('0,0') %> (税込/tax incl.)</strong>
+    </div>
+
+
+    <p style="font-size:12px;">
+        ※学生（小学生は除く）の方は、劇場へのご入場の際に、必ず学生証または生徒手帳のご提示をお願いします。<br>
+        ※交通渋滞による来場遅延、その他いかなる場合でも、ご購入後のチケットの変更およびキャンセル・払い戻しはいたしません。<br>
+        なお不可抗力により表記公演の興行を中止する場合の払い戻しは、所定の期間内に所定の方法にて行います。<br>
+        ・Students (elementary school students are excluded), at the time of your entrance to the theater, be sure to ask for your presentation of a student card or student handbook.<br>
+        ・Visitors delays due to traffic congestion, even if any other, I do not do ticket changes and cancellation refund after your purchase.<br>
+        It should be noted that refund if you want to stop the box office of the title performance by the force majeure will be made in a predetermined way to within a predetermined period of time.
+    </p>
+
+
+    <hr>
+
+    <h1 style="margin:0;font-size:20px;text-align:center;">Fami ポートでのお支払い方法</h1>
+    <h2 style="margin:0;font-size:16px;text-align:center;">Payment method in the Fami port</h2>
+
+
+    <p>
+        <span style="color:red;font-weight:bold;">お支払いの際、お客様番号と確認番号もしくはが必要です。<br>
+        メモを取るか、このメールを印刷して、コンビニエンスストアまでお持ちください。</span><br>
+        <span style="font-size:12px;">
+            The case, the customer number and the confirmation number you pay or, but it's necessary.<br>
+            Whether a memo is taken print this mail, and please have it to the convenience store.
+        </span>
+    </p>
+
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">お客様番号 (Customer number) :</h3>
+        <strong><%- reservations[0].get('gmo_cvs_receipt_no') %></strong>
+    </div>
+
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">確認番号 (Confirmation number) :</h3>
+        <strong><%- reservations[0].get('gmo_cvs_conf_no') %></strong>
+    </div>
+
+
+    <p>1．トップメニューより「代金支払い（コンビニでお支払い）」を選択してください。<br>
+        <span style="font-size:12px;">
+            Please select the "payment (payment at a convenience store)" from the top menu.
+        </span>
+    </p>
+
+
+    <p>2．「代金お支払い」のページで「各種番号をお持ちの方はこちら」を選択してください。<br>
+        <span style="font-size:12px;">
+            Please select the "here if you have a variety of number" in the pages of "price payment".
+        </span>
+    </p>
+
+
+    <p>3．お客様番号 を入力し、「OK」を選択してください。<br>
+        <span style="font-size:12px;">
+            Enter customer number, please select "OK".
+        </span>
+    </p>
+
+
+    <p>4．確認番号 を入力し、「OK」を選択してください。<br>
+        <span style="font-size:12px;">
+            Enter the confirmation number, please select "OK".
+        </span>
+    </p>
+
+
+    <p>5．お支払い内容を確認のうえ、「確認」を選択してください。<br>
+        <span style="font-size:12px;">
+            Check the payment details, please select the "Confirm".
+        </span>
+    </p>
+
+
+    <p>6．印刷された申込券をレジに渡し、30分以内に現金でお支払いください。<br>
+        <span style="font-size:12px;">
+            Pass the printed subscription ticket to register, please pay in cash within 30 minutes.
+        </span>
+    </p>
+
+
+    <p>
+        7．お支払い後、「取扱明細兼受領書」を必ずお受け取りください。 ※「取扱明細兼受領書」が領収書となります。<br>
+        <span style="font-size:12px;">
+            After the payment, please be sure to receive a "handling specification and receipt." *"Handling specification and receipt" is the receipt.
+        </span>
+    </p>
+
+
+    <p style="font-size:12px;">
+        ※交通渋滞による来場遅延、その他いかなる場合でも、ご購入後のチケットの変更およびキャンセル・払い戻しはいたしません。<br>
+        なお不可抗力により表記公演の興行を中止する場合の払い戻しは、所定の期間内に所定の方法にて行います。<br>
+        ・Visitors delays due to traffic congestion, even if any other, I do not do ticket changes and cancellation refund after your purchase.<br>
+        It should be noted that refund if you want to stop the box office of the title performance by the force majeure will be made in a predetermined way to within a predetermined period of time.
+    </p>
+
+
+    <hr>
+
+
+    <strong style="font-size:14px;">東京国際映画祭  TOKYO INTERNATIONAL FILM FESTIVAL 2016</strong>
+    <p style="font-size:14px;">
+        本メールアドレスは送信専用です。返信はできませんのであらかじめご了承ください。<br>
+        本メールに心当たりのない方やチケットに関してご不明な点は、下記電話番号までお問い合わせください。<br>
+        チケットのお問合せ：050-3786-0368　/12:00～18:00（休業：土/日/祝日　東京国際映画祭開催期間中は無休）<br>
+        オフィシャルサイト： <a href="http://2016.tiff-jp.net/" target="_blank" style="color:#000;">http://2016.tiff-jp.net/</a>
+    </p>
+    <p style="font-size:10px;">
+        This e-mail address is a post-only. Please note that you can not reply.<br>
+        If you have any questions with respect to one and the ticket to this email no idea, please contact us at the following telephone number.<br>
+        Inquiries about ticket : +81 050-3786-0368 12:00-18:00(Closed: sat / sun / holiday Tokyo International Film Festival held period is seven days a week)<br>
+        Official site : <a href="http://2016.tiff-jp.net/" target="_blank" style="color:#000;">http://2016.tiff-jp.net/</a>
+    </p>
+
+</div>
+
+
+
+
+</body>
+</html>
