@@ -33,6 +33,14 @@ program
     });
 
 program
+    .command('createStaffReservationsByPerformanceId <performanceId>')
+    .description('パフォーマンス指定で内部関係者の先抑えを行うタスク')
+    .action((performanceId, options) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/StaffCreateReservationsByPerformanceId`;
+        (new StaffController(logDir)).createReservationsByPerformanceId(performanceId);
+    });
+
+program
     .command('sponsor <method>')
     .description('外部関係者タスク')
     .action((method) => {
