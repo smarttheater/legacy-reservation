@@ -1,9 +1,5 @@
 import program = require('commander');
-import fs = require('fs-extra');
-import log4js = require('log4js');
-
 import TestController from './controllers/Test/TestController';
-import PreTiffController from './controllers/PreTiff/PreTiffController';
 import StaffController from './controllers/Staff/StaffController';
 import SponsorController from './controllers/Sponsor/SponsorController';
 import PerformanceController from './controllers/Performance/PerformanceController';
@@ -12,23 +8,10 @@ import FilmController from './controllers/Film/FilmController';
 import MemberController from './controllers/Member/MemberController';
 import ReservationController from './controllers/Reservation/ReservationController';
 import SchemaController from './controllers/Schema/SchemaController';
-
-
+import TelController from './controllers/Tel/TelController';
+import WindowController from './controllers/Window/WindowController';
 
 let env = process.env.NODE_ENV || 'dev';
-let logDefaultConfiguration: any = {
-    appenders: [
-        {
-            type: 'console'
-        }
-    ],
-    levels: {
-    },
-    replaceConsole: true
-};
-
-
-
 
 program
     .version('0.0.1')
@@ -38,37 +21,7 @@ program
     .description('テストタスク')
     .action((method) => {
         let logDir = `${__dirname}/../../logs/${env}/task/Test${method.charAt(0).toUpperCase()}${method.slice(1)}`;
-        fs.mkdirsSync(logDir);
-        logDefaultConfiguration.appenders.push({
-            category: 'system',
-            type: 'dateFile',
-            filename: `${logDir}/system.log`,
-            pattern: '-yyyy-MM-dd',
-            backups: 3
-        });
-        logDefaultConfiguration.levels.system = "ALL";
-        log4js.configure(logDefaultConfiguration);
-
-        (new TestController())[method]();
-    });
-
-program
-    .command('pretiff <method>')
-    .description('0905試写会タスク')
-    .action((method) => {
-        let logDir = `${__dirname}/../../logs/${env}/task/PreTiff${method.charAt(0).toUpperCase()}${method.slice(1)}`;
-        fs.mkdirsSync(logDir);
-        logDefaultConfiguration.appenders.push({
-            category: 'system',
-            type: 'dateFile',
-            filename: `${logDir}/system.log`,
-            pattern: '-yyyy-MM-dd',
-            backups: 3
-        });
-        logDefaultConfiguration.levels.system = "ALL";
-        log4js.configure(logDefaultConfiguration);
-
-        (new PreTiffController())[method]();
+        (new TestController(logDir))[method]();
     });
 
 program
@@ -76,18 +29,7 @@ program
     .description('内部関係者タスク')
     .action((method, options) => {
         let logDir = `${__dirname}/../../logs/${env}/task/Staff${method.charAt(0).toUpperCase()}${method.slice(1)}`;
-        fs.mkdirsSync(logDir);
-        logDefaultConfiguration.appenders.push({
-            category: 'system',
-            type: 'dateFile',
-            filename: `${logDir}/system.log`,
-            pattern: '-yyyy-MM-dd',
-            backups: 3
-        });
-        logDefaultConfiguration.levels.system = "ALL";
-        log4js.configure(logDefaultConfiguration);
-
-        (new StaffController())[method]();
+        (new StaffController(logDir))[method]();
     });
 
 program
@@ -95,18 +37,7 @@ program
     .description('外部関係者タスク')
     .action((method) => {
         let logDir = `${__dirname}/../../logs/${env}/task/Sponsor${method.charAt(0).toUpperCase()}${method.slice(1)}`;
-        fs.mkdirsSync(logDir);
-        logDefaultConfiguration.appenders.push({
-            category: 'system',
-            type: 'dateFile',
-            filename: `${logDir}/system.log`,
-            pattern: '-yyyy-MM-dd',
-            backups: 3
-        });
-        logDefaultConfiguration.levels.system = "ALL";
-        log4js.configure(logDefaultConfiguration);
-
-        (new SponsorController())[method]();
+        (new SponsorController(logDir))[method]();
     });
 
 program
@@ -114,18 +45,7 @@ program
     .description('パフォーマンスタスク')
     .action((method) => {
         let logDir = `${__dirname}/../../logs/${env}/task/Performance${method.charAt(0).toUpperCase()}${method.slice(1)}`;
-        fs.mkdirsSync(logDir);
-        logDefaultConfiguration.appenders.push({
-            category: 'system',
-            type: 'dateFile',
-            filename: `${logDir}/system.log`,
-            pattern: '-yyyy-MM-dd',
-            backups: 3
-        });
-        logDefaultConfiguration.levels.system = "ALL";
-        log4js.configure(logDefaultConfiguration);
-
-        (new PerformanceController())[method]();
+        (new PerformanceController(logDir))[method]();
     });
 
 program
@@ -133,18 +53,7 @@ program
     .description('劇場タスク')
     .action((method) => {
         let logDir = `${__dirname}/../../logs/${env}/task/Theater${method.charAt(0).toUpperCase()}${method.slice(1)}`;
-        fs.mkdirsSync(logDir);
-        logDefaultConfiguration.appenders.push({
-            category: 'system',
-            type: 'dateFile',
-            filename: `${logDir}/system.log`,
-            pattern: '-yyyy-MM-dd',
-            backups: 3
-        });
-        logDefaultConfiguration.levels.system = "ALL";
-        log4js.configure(logDefaultConfiguration);
-
-        (new TheaterController())[method]();
+        (new TheaterController(logDir))[method]();
     });
 
 program
@@ -152,18 +61,7 @@ program
     .description('作品タスク')
     .action((method) => {
         let logDir = `${__dirname}/../../logs/${env}/task/Film${method.charAt(0).toUpperCase()}${method.slice(1)}`;
-        fs.mkdirsSync(logDir);
-        logDefaultConfiguration.appenders.push({
-            category: 'system',
-            type: 'dateFile',
-            filename: `${logDir}/system.log`,
-            pattern: '-yyyy-MM-dd',
-            backups: 3
-        });
-        logDefaultConfiguration.levels.system = "ALL";
-        log4js.configure(logDefaultConfiguration);
-
-        (new FilmController())[method]();
+        (new FilmController(logDir))[method]();
     });
 
 program
@@ -171,18 +69,23 @@ program
     .description('メルマガ会員タスク')
     .action((method) => {
         let logDir = `${__dirname}/../../logs/${env}/task/Member${method.charAt(0).toUpperCase()}${method.slice(1)}`;
-        fs.mkdirsSync(logDir);
-        logDefaultConfiguration.appenders.push({
-            category: 'system',
-            type: 'dateFile',
-            filename: `${logDir}/system.log`,
-            pattern: '-yyyy-MM-dd',
-            backups: 3
-        });
-        logDefaultConfiguration.levels.system = "ALL";
-        log4js.configure(logDefaultConfiguration);
+        (new MemberController(logDir))[method]();
+    });
 
-        (new MemberController())[method]();
+program
+    .command('tel <method>')
+    .description('電話窓口タスク')
+    .action((method) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/Tel${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+        (new TelController(logDir))[method]();
+    });
+
+program
+    .command('window <method>')
+    .description('当日窓口タスク')
+    .action((method) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/Window${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+        (new WindowController(logDir))[method]();
     });
 
 program
@@ -190,18 +93,7 @@ program
     .description('予約関連タスク')
     .action((method) => {
         let logDir = `${__dirname}/../../logs/${env}/task/Reservation${method.charAt(0).toUpperCase()}${method.slice(1)}`;
-        fs.mkdirsSync(logDir);
-        logDefaultConfiguration.appenders.push({
-            category: 'system',
-            type: 'dateFile',
-            filename: `${logDir}/system.log`,
-            pattern: '-yyyy-MM-dd',
-            backups: 3
-        });
-        logDefaultConfiguration.levels.system = "ALL";
-        log4js.configure(logDefaultConfiguration);
-
-        (new ReservationController())[method]();
+        (new ReservationController(logDir))[method]();
     });
 
 program
@@ -209,18 +101,7 @@ program
     .description('スキーマ関連タスク')
     .action((method) => {
         let logDir = `${__dirname}/../../logs/${env}/task/Schema${method.charAt(0).toUpperCase()}${method.slice(1)}`;
-        fs.mkdirsSync(logDir);
-        logDefaultConfiguration.appenders.push({
-            category: 'system',
-            type: 'dateFile',
-            filename: `${logDir}/system.log`,
-            pattern: '-yyyy-MM-dd',
-            backups: 3
-        });
-        logDefaultConfiguration.levels.system = "ALL";
-        log4js.configure(logDefaultConfiguration);
-
-        (new SchemaController())[method]();
+        (new SchemaController(logDir))[method]();
     });
 
 // program

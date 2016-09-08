@@ -105,33 +105,21 @@ class PerformanceController extends BaseController_1.default {
                 throw err;
             let performances = JSON.parse(data);
             Models_1.default.Screen.find({}, 'name theater').populate('theater', 'name').exec((err, screens) => {
-                performances = performances.map((performance) => {
+                // あれば更新、なければ追加
+                let promises = performances.map((performance) => {
                     // 劇場とスクリーン名称を追加
                     let _screen = screens.find((screen) => {
                         return (screen.get('_id').toString() === performance.screen);
                     });
-                    performance['screen_name.ja'] = _screen.get('name.ja');
-                    performance['screen_name.en'] = _screen.get('name.en');
-                    performance['theater_name.ja'] = _screen.get('theater').get('name.ja');
-                    performance['theater_name.en'] = _screen.get('theater').get('name.en');
-                    return performance;
-                });
-                // あれば更新、なければ追加
-                let promises = performances.map((performance) => {
+                    performance.screen_name = _screen.get('name');
+                    performance.theater_name = _screen.get('theater').get('name');
                     return new Promise((resolve, reject) => {
                         this.logger.debug('updating performance...');
-                        Models_1.default.Performance.update({
-                            _id: performance._id
-                        }, performance, {
+                        Models_1.default.Performance.findByIdAndUpdate(performance._id, performance, {
                             upsert: true
-                        }, (err, raw) => {
-                            this.logger.debug('performance updated', err, raw);
-                            if (err) {
-                                reject(err);
-                            }
-                            else {
-                                resolve();
-                            }
+                        }, (err) => {
+                            this.logger.debug('performance updated', err);
+                            (err) ? reject(err) : resolve();
                         });
                     });
                 });

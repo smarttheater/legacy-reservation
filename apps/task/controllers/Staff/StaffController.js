@@ -15,29 +15,21 @@ class StaffController extends BaseController_1.default {
             if (err)
                 throw err;
             let staffs = JSON.parse(data);
-            // パスワードハッシュ化
-            staffs = staffs.map((staff) => {
+            // あれば更新、なければ追加
+            let promises = staffs.map((staff) => {
+                // パスワードハッシュ化
                 let password_salt = Util_1.default.createToken();
                 staff['password_salt'] = password_salt;
                 staff['password_hash'] = Util_1.default.createHash(staff.password, password_salt);
-                return staff;
-            });
-            // あれば更新、なければ追加
-            let promises = staffs.map((staff) => {
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating staff...');
                     Models_1.default.Staff.update({
                         user_id: staff.user_id
                     }, staff, {
                         upsert: true
-                    }, (err, raw) => {
-                        this.logger.debug('staff updated', err, raw);
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            resolve();
-                        }
+                    }, (err) => {
+                        this.logger.debug('staff updated', err);
+                        (err) ? reject(err) : resolve();
                     });
                 });
             });

@@ -15,18 +15,15 @@ export default class StaffController extends BaseController {
 
         fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/staffs.json`, 'utf8', (err, data) => {
             if (err) throw err;
-            let staffs = JSON.parse(data);
-
-            // パスワードハッシュ化
-            staffs = staffs.map((staff) => {
-                let password_salt = Util.createToken();
-                staff['password_salt'] = password_salt;
-                staff['password_hash'] = Util.createHash(staff.password, password_salt);
-                return staff;
-            });
+            let staffs: Array<any> = JSON.parse(data);
 
             // あれば更新、なければ追加
             let promises = staffs.map((staff) => {
+                // パスワードハッシュ化
+                let password_salt = Util.createToken();
+                staff['password_salt'] = password_salt;
+                staff['password_hash'] = Util.createHash(staff.password, password_salt);
+
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating staff...');
                     Models.Staff.update(
@@ -37,13 +34,9 @@ export default class StaffController extends BaseController {
                         {
                             upsert: true
                         },
-                        (err, raw) => {
-                            this.logger.debug('staff updated', err, raw);
-                            if (err) {
-                                reject(err);
-                            } else {
-                                resolve();
-                            }
+                        (err) => {
+                            this.logger.debug('staff updated', err);
+                            (err) ? reject(err) : resolve();
                         }
                     );
                 });

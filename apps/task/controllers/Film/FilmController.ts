@@ -35,19 +35,33 @@ export default class FilmController extends BaseController {
 
         fs.readFile(`${process.cwd()}/data/${process.env.NODE_ENV}/films.json`, 'utf8', (err, data) => {
             if (err) throw err;
-            let films = JSON.parse(data);
+            let films: Array<any> = JSON.parse(data);
 
-            this.logger.info('removing all films...');
-            Models.Film.remove({}, (err) => {
-                this.logger.debug('creating films...');
-                Models.Film.create(
-                    films,
-                    (err) => {
-                        this.logger.info('films created.', err);
-                        mongoose.disconnect();
-                        process.exit(0);
-                    }
-                );
+            let promises = films.map((film) => {
+                return new Promise((resolve, reject) => {
+                    this.logger.debug('updating film...');
+                    Models.Film.findByIdAndUpdate(
+                        film._id,
+                        film,
+                        {
+                            upsert: true
+                        },
+                        (err) => {
+                            this.logger.debug('film updated', err);
+                            (err) ? reject(err) : resolve();
+                        }
+                    );
+                });
+            });
+
+            Promise.all(promises).then(() => {
+                this.logger.info('promised.');
+                mongoose.disconnect();
+                process.exit(0);
+            }, (err) => {
+                this.logger.error('promised.', err);
+                mongoose.disconnect();
+                process.exit(0);
             });
         });
     }

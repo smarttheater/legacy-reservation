@@ -1,3 +1,4 @@
+import fs = require('fs-extra');
 import log4js = require('log4js');
 
 /**
@@ -8,7 +9,31 @@ export default class BaseController
     /** ロガー */
     public logger: log4js.Logger;
 
-    constructor() {
+    /**
+     * constructor
+     * 
+     * @param {string} ログディレクトリ
+     */
+    constructor(logDir: string) {
+        fs.mkdirsSync(logDir);
+        log4js.configure({
+            appenders: [
+                {
+                    category: 'system',
+                    type: 'dateFile',
+                    filename: `${logDir}/system.log`,
+                    pattern: '-yyyy-MM-dd',
+                    backups: 3
+                },
+                {
+                    type: 'console'
+                }
+            ],
+            levels: {
+                system: 'ALL'
+            },
+            replaceConsole: true
+        });
         this.logger = log4js.getLogger('system');
     }
 

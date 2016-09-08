@@ -13,29 +13,21 @@ class SponsorController extends BaseController_1.default {
             if (err)
                 throw err;
             let sponsors = JSON.parse(data);
-            // パスワードハッシュ化
-            sponsors = sponsors.map((sponsor) => {
+            // あれば更新、なければ追加
+            let promises = sponsors.map((sponsor) => {
+                // パスワードハッシュ化
                 let password_salt = Util_1.default.createToken();
                 sponsor['password_salt'] = password_salt;
                 sponsor['password_hash'] = Util_1.default.createHash(sponsor.password, password_salt);
-                return sponsor;
-            });
-            // あれば更新、なければ追加
-            let promises = sponsors.map((sponsor) => {
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating sponsor...');
                     Models_1.default.Sponsor.update({
                         user_id: sponsor.user_id
                     }, sponsor, {
                         upsert: true
-                    }, (err, raw) => {
-                        this.logger.debug('sponsor updated', err, raw);
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            resolve();
-                        }
+                    }, (err) => {
+                        this.logger.debug('sponsor updated', err);
+                        (err) ? reject(err) : resolve();
                     });
                 });
             });

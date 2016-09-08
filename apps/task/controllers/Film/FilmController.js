@@ -30,14 +30,25 @@ class FilmController extends BaseController_1.default {
             if (err)
                 throw err;
             let films = JSON.parse(data);
-            this.logger.info('removing all films...');
-            Models_1.default.Film.remove({}, (err) => {
-                this.logger.debug('creating films...');
-                Models_1.default.Film.create(films, (err) => {
-                    this.logger.info('films created.', err);
-                    mongoose.disconnect();
-                    process.exit(0);
+            let promises = films.map((film) => {
+                return new Promise((resolve, reject) => {
+                    this.logger.debug('updating film...');
+                    Models_1.default.Film.findByIdAndUpdate(film._id, film, {
+                        upsert: true
+                    }, (err) => {
+                        this.logger.debug('film updated', err);
+                        (err) ? reject(err) : resolve();
+                    });
                 });
+            });
+            Promise.all(promises).then(() => {
+                this.logger.info('promised.');
+                mongoose.disconnect();
+                process.exit(0);
+            }, (err) => {
+                this.logger.error('promised.', err);
+                mongoose.disconnect();
+                process.exit(0);
             });
         });
     }

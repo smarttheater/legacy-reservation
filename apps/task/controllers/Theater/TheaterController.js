@@ -12,19 +12,27 @@ class TheaterController extends BaseController_1.default {
             if (err)
                 throw err;
             let screens = JSON.parse(data);
-            // 座席数情報を追加
-            screens = screens.map((screen) => {
+            let promises = screens.map((screen) => {
+                // 座席数情報を追加
                 screen.seats_number = screen.sections[0].seats.length;
-                return screen;
-            });
-            this.logger.info('removing all screens...');
-            Models_1.default.Screen.remove({}, (err) => {
-                this.logger.info('creating screens...');
-                Models_1.default.Screen.create(screens, (err) => {
-                    this.logger.info('screens created.', err);
-                    mongoose.disconnect();
-                    process.exit(0);
+                return new Promise((resolve, reject) => {
+                    this.logger.debug('updating screen...');
+                    Models_1.default.Screen.findByIdAndUpdate(screen._id, screen, {
+                        upsert: true
+                    }, (err) => {
+                        this.logger.debug('screen updated', err);
+                        (err) ? reject(err) : resolve();
+                    });
                 });
+            });
+            Promise.all(promises).then(() => {
+                this.logger.info('promised.');
+                mongoose.disconnect();
+                process.exit(0);
+            }, (err) => {
+                this.logger.error('promised.', err);
+                mongoose.disconnect();
+                process.exit(0);
             });
         });
     }
@@ -34,13 +42,25 @@ class TheaterController extends BaseController_1.default {
             if (err)
                 throw err;
             let theaters = JSON.parse(data);
-            this.logger.info('removing all theaters...');
-            Models_1.default.Theater.remove({}, (err) => {
-                Models_1.default.Theater.create(theaters, (err) => {
-                    this.logger.info('theaters created.', err);
-                    mongoose.disconnect();
-                    process.exit(0);
+            let promises = theaters.map((theater) => {
+                return new Promise((resolve, reject) => {
+                    this.logger.debug('updating theater...');
+                    Models_1.default.Theater.findByIdAndUpdate(theater._id, theater, {
+                        upsert: true
+                    }, (err) => {
+                        this.logger.debug('theater updated', err);
+                        (err) ? reject(err) : resolve();
+                    });
                 });
+            });
+            Promise.all(promises).then(() => {
+                this.logger.info('promised.');
+                mongoose.disconnect();
+                process.exit(0);
+            }, (err) => {
+                this.logger.error('promised.', err);
+                mongoose.disconnect();
+                process.exit(0);
             });
         });
     }

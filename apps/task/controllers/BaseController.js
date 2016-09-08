@@ -1,10 +1,35 @@
 "use strict";
+const fs = require('fs-extra');
 const log4js = require('log4js');
 /**
  * ベースコントローラー
  */
 class BaseController {
-    constructor() {
+    /**
+     * constructor
+     *
+     * @param {string} ログディレクトリ
+     */
+    constructor(logDir) {
+        fs.mkdirsSync(logDir);
+        log4js.configure({
+            appenders: [
+                {
+                    category: 'system',
+                    type: 'dateFile',
+                    filename: `${logDir}/system.log`,
+                    pattern: '-yyyy-MM-dd',
+                    backups: 3
+                },
+                {
+                    type: 'console'
+                }
+            ],
+            levels: {
+                system: 'ALL'
+            },
+            replaceConsole: true
+        });
         this.logger = log4js.getLogger('system');
     }
     shuffle(array) {
