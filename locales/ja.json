@@ -90,7 +90,8 @@
 		"LogoutAndCancel": "ログアウトして予約をキャンセル",
 		"MyPage": "マイページ",
 		"Release": "解放する",
-		"BackToOfficialSite": "公式サイトへ戻る"
+		"BackToOfficialSite": "公式サイトへ戻る",
+		"ThermalPrint": "サーマル印刷"
 	},
 	"Form": {
 		"FieldName": {

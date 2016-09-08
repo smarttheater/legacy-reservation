@@ -7,10 +7,7 @@
 </head>
 <body>
 
-
-
-
-
+<% for (let reservation of reservations) { %>
 <div class="printcontent">
 
     <div class="pr-header pr-bg">
@@ -30,7 +27,7 @@
                 <span class="smalltext">Here the QR code held up to the entrance at the time the leader, please admission.</span>
             </h2>
             <div class="wrapper-qrimg pr-bg">
-                <img src="/images/print/qr.png">
+                <img src="<%- url('reserve.qrcode', {reservationId: reservation._id}) %>">
             </div>
         </div>
     </div>
@@ -42,9 +39,9 @@
 
             <h3>作品名<span class="smalltext">Title</span></h3>
 
-            <strong class="filmtitle">新機動戦記ガンダムW　Endless Waltz 特別篇 （同時上映：GUNDAM EVOLVE../7 XXXG-00W0 WING GUNDAM ZERO）</strong>
+            <strong class="filmtitle"><%- reservation.film_name_ja %></strong>
 
-            <span class="smalltext">NEW MOBILE REPORT GUNDAM WING ENDLESS WALTZ SPECIAL EDITION (Screened together with GUNDAM EVOLVE../7 XXXG-00W0 WING GUNDAM ZERO )</span>
+            <span class="smalltext"><%- reservation.film_name_en %></span>
 
         </div>
 
@@ -53,13 +50,13 @@
                 <td class="pr-rsrvnum">
                     <h3>予約番号<span class="smalltext">Reservation number</span></h3>
 
-                    <strong>123456</strong>
+                    <strong><%- reservation.payment_no %></strong>
 
                 </td>
 
                 <td class="pr-screen" rowspan="6">
 
-                    <img src="/images/print/screen/00000107.png">
+                    <img src="/images/print/screen/<%- reservation.screen %>.png">
 
                 </td>
 
@@ -69,13 +66,13 @@
 
                 <h3>劇場<span class="smalltext">Screening location</span></h3>
 
-                <strong>TOHOシネマズ六本木ヒルズ SCREEN7</strong>
-                <span class="smalltext">TOHO CINEMAS Roppongi Hills SCREEN7</span>
+                <strong><%- reservation.theater_name_ja %> <%- reservation.screen_name_ja %></strong>
+                <span class="smalltext"><%- reservation.theater_name_en %> <%- reservation.screen_name_en %></span>
 
                 <p class="theateraddress">
-                    東京都港区六本木6-10-2 六本木ヒルズけやき坂コンプレックス内
+                    <%- reservation.theater_address_ja %>
                     <span class="smalltext">
-                        Roppongi, Minato-ku, Tokyo 6-10-2 Roppoingi Hills Keyakizaka in the complex
+                        <%- reservation.theater_address_en %>
                     </span>
                 </p>
 
@@ -87,13 +84,13 @@
                 <h3>時間<span class="smalltext">Screen time</span></h3>
                 <table class="timetable"><tr>
 
-                    <td><strong>2016/10/31</strong></td>
+                    <td><strong><%- reservation.performance_day.substr(0, 4) %>/<%- reservation.performance_day.substr(4, 2) %>/<%- reservation.performance_day.substr(6) %></strong></td>
 
                     <td>開場<span class="smalltext">(OPEN)</span></td>
-                    <td><strong>17:00</strong></td>
+                    <td><strong><%- reservation.performance_open_time.substr(0, 2) %>:<%- reservation.performance_open_time.substr(2) %></strong></td>
 
                     <td>開演<span class="smalltext">(START)</span></td>
-                    <td><strong>17:20</strong></td>
+                    <td><strong><%- reservation.performance_start_time.substr(0, 2) %>:<%- reservation.performance_start_time.substr(2) %></strong></td>
 
                 </tr></table>
 
@@ -104,8 +101,8 @@
 
                 <h3>座席(全席指定)<span class="smalltext">All seats are specified</span></h3>
 
-                <strong>D 列 6 番</strong>
-                <span class="smalltext">D-6</span>
+                <strong><%- reservation.seat_code.substr(0, reservation.seat_code.lastIndexOf('-')) %> 列 <%- reservation.seat_code.substr(reservation.seat_code.lastIndexOf('-')) %> 番</strong>
+                <span class="smalltext"><%- reservation.seat_code %></span>
 
             </td></tr>
 
@@ -114,8 +111,8 @@
 
                 <h3>券種・金額<span class="smalltext">Denomination Amount of money</span></h3>
 
-                <strong>一般 / 1,500 円 (税込)</strong>
-                <span class="smalltext">General / 1,500 yen (tax included)</span>
+                <strong><%- reservation.ticket_type_name_ja %> / <%- numeral(reservation.charge).format('0,0') %> 円 (税込)</strong>
+                <span class="smalltext"><%- reservation.ticket_type_name_en %> / <%- numeral(reservation.charge).format('0,0') %> yen (tax included)</span>
 
             </td></tr>
 
@@ -154,160 +151,7 @@
 
 
 </div>
-
-
-
-
-
-
-
-
-<div class="printcontent">
-
-    <div class="pr-header pr-bg">
-        <img class="pr-bg-image" src="/images/print/header.png">
-    </div>
-
-    <div class="pr-thanks">
-        この度はご購入いただき誠にありがとうございます。鑑賞当日はこちらのチケットをご持参してQRコードをご提示頂いてご入場下さい。<br>
-        <span class="smalltext">Thank you very much for your purchase. Watching the day, please admission gotten presents a QR code to bring your own here ticket.</span>
-    </div>
-
-    <div class="pr-qrcode pr-bg">
-        <img class="pr-bg-image" src="/images/print/bg_gray.png">
-        <div class="pr-bg-content inner">
-            <h2>
-                こちらのQRコードを入場時リーダーにかざし、ご入場ください。
-                <span class="smalltext">Here the QR code held up to the entrance at the time the leader, please admission.</span>
-            </h2>
-            <div class="wrapper-qrimg pr-bg">
-                <img src="/images/print/qr.png">
-            </div>
-        </div>
-    </div>
-
-
-    <div class="pr-paddinglr">
-
-        <div class="pr-title">
-
-            <h3>作品名<span class="smalltext">Title</span></h3>
-
-            <strong class="filmtitle">レヴェナント　蘇えりし者（字幕版・ＤＯＬＢＹ－ＡＴＭＯＳ）</strong>
-
-            <span class="smalltext">The Revenant / English DOLBY-ATMOS</span>
-
-        </div>
-
-        <table class="pr-maintable">
-            <tr>
-                <td class="pr-rsrvnum">
-                    <h3>予約番号<span class="smalltext">Reservation number</span></h3>
-
-                    <strong>123456</strong>
-
-                </td>
-
-                <td class="pr-screen" rowspan="6">
-
-                    <img src="/images/print/screen/00000109.png">
-
-                </td>
-
-            </tr>
-
-            <tr><td class="pr-location">
-
-                <h3>劇場<span class="smalltext">Screening location</span></h3>
-
-                <strong>TOHOシネマズ六本木ヒルズ SCREEN9</strong>
-                <span class="smalltext">TOHO CINEMAS Roppongi Hills SCREEN9</span>
-
-                <p class="theateraddress">
-                    東京都港区六本木6-10-2 六本木ヒルズけやき坂コンプレックス内
-                    <span class="smalltext">
-                        Roppongi, Minato-ku, Tokyo 6-10-2 Roppoingi Hills Keyakizaka in the complex
-                    </span>
-                </p>
-
-            </td></tr>
-
-
-            <tr><td class="pr-time">
-
-                <h3>時間<span class="smalltext">Screen time</span></h3>
-                <table class="timetable"><tr>
-
-                    <td><strong>2016/10/25</strong></td>
-
-                    <td>開場<span class="smalltext">(OPEN)</span></td>
-                    <td><strong>08:40</strong></td>
-
-                    <td>開演<span class="smalltext">(START)</span></td>
-                    <td><strong>09:00</strong></td>
-
-                </tr></table>
-
-            </td></tr>
-
-
-            <tr><td class="pr-seat">
-
-                <h3>座席(全席指定)<span class="smalltext">All seats are specified</span></h3>
-
-                <strong>A 列 1 番</strong>
-                <span class="smalltext">A-1</span>
-
-            </td></tr>
-
-
-            <tr><td class="pr-ticket">
-
-                <h3>券種・金額<span class="smalltext">Denomination Amount of money</span></h3>
-
-                <strong>一般 / 1,500 円 (税込)</strong>
-                <span class="smalltext">General / 1,500 yen (tax included)</span>
-
-            </td></tr>
-
-
-            <tr><td class="pr-term">
-                <p>
-                    主催:公益財団法人ユニジャパン 第29回東京国際映画祭実行委員会<br>
-                    Organizer: Foundation UNIJAPAN Tokyo International Film Festival Executive Committee 29th
-                </p>
-
-                <p>
-                    ※学生(小学生は除く)の方は、劇場へのご入場の際に、必ず学生証または生徒手帳のご提示をお願いします。<br>
-                    ※The direction of the student (elementary school students are excluded), at the time of your entrance to the theater,
-                    be sure to ask for your presentation of a student card or student handbook.<br>
-                    ※不可抗力により表記公演の興行を中止する場合以外は、交通渋滞による来場遅延、その他いかなる場合でもご購入後のチケットの変更およびキャンセル・払い戻しはいたしません。表記公演の上映中止の場合の払い戻しは、所定の期間に所定の方法にて行います。<br>
-                    ※ except if you want to stop the box office of the title performance by for majeure, visitor delays due to traffic congestion, even if any other, I do not do ticket changes and cancellation refund after your purchase Refund in the case of screening discontinuation of notation performances will be made in a predetermined way to within a predetermined period of time.<br>
-                    ※本チケットは領収書としてご利用いただけます。<br>
-                    ※This ticket is available as Purchase hope
-                </p>
-
-            </td></tr>
-        </table>
-
-    </div>
-
-    <div class="pr-footer pr-bg">
-        <img class="pr-bg-image" src="/images/print/bg_black.png">
-        <div class="pr-bg-content">
-            <h4>チケットのお問い合わせ</h4>: 0570-006-0506 / PHS・IP電話の方は 0986-46-2672
-            <h4>Ticket inquiries</h4>: 0570-006-0506 / PHS · IP phone person of 0986-46-2672<br>
-            <h4>TIFF公式ウエブサイト</h4>: www.tiff-jp.net TIFF official web site: www.tiff-jp.net<br>
-            <h4>その他お問い合わせ</h4>: ハローダイヤル Tel.03-5777-8600 / 050-5541-8600
-            <h4>Other Contact</h4>: Hello dial Tel.03-5777-8600 / 050-5541-8600
-        </div>
-    </div>
-
-
-</div>
-
-
-
+<% } %>
 
 </body>
 </html>

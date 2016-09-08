@@ -1,4 +1,18 @@
+<%
+let reservationsById = {};
+for (let reservation of reservationDocuments) {
+    reservationsById[reservation._id.toString()] = reservation;
+}
+%>
+<input type="hidden" name="reservationsById" value="<%= JSON.stringify(reservationsById) %>">
 <script src="/js/reserve/complete.js"></script>
+
+<!-- StarWebPRNTライブラリ　= http://sp-support.star-m.jp/SDKDocumentation.aspx -->
+<script src="/js/thermalprint/StarWebPrintBuilder.js"></script>
+<script src="/js/thermalprint/StarWebPrintTrader.js"></script>
+<!-- 当日入場券サーマル印刷用モジュール -->
+<script src="/js/thermalprint/tiffThermalPrint.js"></script>
+
 
 <%- include('./_step') %>
 
@@ -44,7 +58,13 @@
                                 <%- reservation.seat_code %>
                             </div>
                             <div class="cell-btn cell-print">
+
+                                <% if (reservation.purchaser_group === ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
+                                <a class="btn btn-icon-print btn-thermalprint" data-reservation-id="<%- reservation._id %>" href="javascript:void(0)"><span><%- __('Button.ThermalPrint') %></span></a>
+                                <% } else { %>
                                 <a class="btn btn-default btn-icon-print" target="_blank" href="<%- url('reserve.print') %>?ids=<%= JSON.stringify([reservation._id.toString()]) %>"><span><%- __('Button.Print') %></span></a>
+                                <% } %>
+
                             </div>
                             <div class="cell-codeimg">
                                 <img class="codeimg-barcode" src="<%- url('reserve.qrcode', {reservationId: reservation._id}) %>">

@@ -1,4 +1,6 @@
 [
+    {"user_id":"staff01","password":"staff01","name":"staff01","email":"tiff_mp@motionpicture.jp","is_admin":false},
+    {"user_id":"staff02","password":"staff02","name":"staff02","email":"tiff_mp@motionpicture.jp","is_admin":false},
     {"user_id":"motionpicture","password":"motionpicture","name":"モーションピクチャー","email":"tiff_mp@motionpicture.jp","is_admin":false},
     {"user_id":"seat_tiff2016","password":"7_ifuH48bNDN","name":"座席確認","email":"hello@motionpicture.jp","is_admin":false},
     {"user_id":"kizai2016","password":"tiff2016","name":"機材デッド","email":"ticket2016@gmail.com","is_admin":false},

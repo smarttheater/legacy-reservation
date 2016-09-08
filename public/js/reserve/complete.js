@@ -1,6 +1,7 @@
 $(function(){
     var url4transfering = '';
     var reservationID4transfering = '';
+    var reservationsById = JSON.parse($('input[name="reservationsById"]').val());
 
     $(document).on('click', '.send-mail', function(){
         url4transfering = $(this).attr('data-url');
@@ -53,4 +54,67 @@ $(function(){
 
         });
     });
-})
+
+    //　当日入場券サーマル印刷
+    $(document).on('click', '.btn-thermalprint', function(){
+        // 予約オブジェクトを渡す
+        var _reservation = reservationsById[$(this).attr('data-reservation-id')];
+        var reservation = {
+            reservation_id: _reservation._id,
+
+            film_name_ja: _reservation.film_name_ja,
+            film_name_en: _reservation.film_name_en,
+
+            theater_name_ja: _reservation.film_name_en,
+            theater_name_en: _reservation.film_name_en,
+
+            screen_name_ja: _reservation.film_name_en,
+            screen_name_en: _reservation.film_name_en,
+
+            performance_day: _reservation.performance_day.substr(0, 4) + '/' + _reservation.performance_day.substr(4, 2) + '/' + _reservation.performance_day.substr(6),
+            performance_open_time: _reservation.performance_open_time.substr(0, 2) + ':' + _reservation.performance_open_time.substr(2),
+            performance_start_time: _reservation.performance_start_time.substr(0, 2) + ':' + _reservation.performance_start_time.substr(2),
+
+            seat_code: _reservation.seat_code,
+
+            ticket_type_name_ja:  _reservation.ticket_type_name_ja,
+            ticket_type_name_en:  _reservation.ticket_type_name_en,
+            ticket_type_charge: _reservation.charge,
+        };
+
+        return tiffThermalPrint.printReservation(reservation);
+    });
+
+    //　当日入場券一括サーマル印刷
+    $(document).on('click', '.btn-thermalprintall', function(){
+        // 予約オブジェクトの配列を渡す
+        var reservations = [];
+        Object.keys(reservationsById).forEach(function(key){
+            var _reservation = reservationsById[key];
+            reservations.push({
+                reservation_id: _reservation._id,
+
+                film_name_ja: _reservation.film_name_ja,
+                film_name_en: _reservation.film_name_en,
+
+                theater_name_ja: _reservation.film_name_en,
+                theater_name_en: _reservation.film_name_en,
+
+                screen_name_ja: _reservation.film_name_en,
+                screen_name_en: _reservation.film_name_en,
+
+                performance_day: _reservation.performance_day.substr(0, 4) + '/' + _reservation.performance_day.substr(4, 2) + '/' + _reservation.performance_day.substr(6),
+                performance_open_time: _reservation.performance_open_time.substr(0, 2) + ':' + _reservation.performance_open_time.substr(2),
+                performance_start_time: _reservation.performance_start_time.substr(0, 2) + ':' + _reservation.performance_start_time.substr(2),
+
+                seat_code: _reservation.seat_code,
+
+                ticket_type_name_ja:  _reservation.ticket_type_name_ja,
+                ticket_type_name_en:  _reservation.ticket_type_name_en,
+                ticket_type_charge: _reservation.charge,
+            });
+        });
+
+        return tiffThermalPrint.printReservationArray(reservations);
+    });
+});
