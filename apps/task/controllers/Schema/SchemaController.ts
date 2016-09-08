@@ -134,7 +134,7 @@ export default class SchemaController extends BaseController {
             }));
 
             promises.push(new Promise((resolve, reject) => {
-                db.collection('window').createIndex(
+                db.collection('windows').createIndex(
                     {
                         user_id: 1,
                     },
