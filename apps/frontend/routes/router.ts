@@ -34,6 +34,7 @@ export default (app: any) => {
     app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', base, (req, res, next) => {(new ReserveController(req, res, next)).getSeatProperties()});
     app.get('/reserve/:reservationId/qrcode', 'reserve.qrcode', base, (req, res, next) => {(new ReserveController(req, res, next)).qrcode()});
     app.get('/reserve/:performanceId/unavailableSeatCodes', 'reserve.getUnavailableSeatCodes', base, (req, res, next) => {(new ReserveController(req, res, next)).getUnavailableSeatCodes()});
+    app.get('/reserve/print', 'reserve.print', base, (req, res, next) => {(new ReserveController(req, res, next)).print()});
 
 
     // GMOプロセス

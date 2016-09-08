@@ -2,8 +2,10 @@ import ReserveBaseController from '../ReserveBaseController';
 import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
+import ScreenUtil from '../../../common/models/Screen/ScreenUtil';
 import ReservationModel from '../../models/Reserve/ReservationModel';
 import qr = require('qr-image');
+import moment = require('moment');
 
 export default class ReserveController extends ReserveBaseController {
     /**
@@ -103,5 +105,31 @@ export default class ReserveController extends ReserveBaseController {
             // this.res.setHeader('Content-Type', 'image/png');
             qr.image(reservation.get('qr_str'), {type: 'png'}).pipe(this.res);
         });
+    }
+
+    /**
+     * 印刷
+     */
+    public print(): void {
+        let ids: Array<string> = JSON.parse(this.req.query.ids);
+        Models.Reservation.find(
+            {
+                _id: {$in: ids},
+                status: ReservationUtil.STATUS_RESERVED
+            },
+            (err, reservations) => {
+                if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                if (reservations.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
+
+                reservations.sort((a, b) => {
+                    return ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                });
+
+                this.res.render('reserve/print', {
+                    layout: false,
+                    reservations: reservations
+                });
+            }
+        );
     }
 }

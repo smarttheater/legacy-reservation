@@ -2,6 +2,7 @@
 const ReserveBaseController_1 = require('../ReserveBaseController');
 const Models_1 = require('../../../common/models/Models');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
+const ScreenUtil_1 = require('../../../common/models/Screen/ScreenUtil');
 const ReservationModel_1 = require('../../models/Reserve/ReservationModel');
 const qr = require('qr-image');
 class ReserveController extends ReserveBaseController_1.default {
@@ -79,6 +80,28 @@ class ReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.findById(this.req.params.reservationId, 'payment_no payment_seat_index', (err, reservation) => {
             // this.res.setHeader('Content-Type', 'image/png');
             qr.image(reservation.get('qr_str'), { type: 'png' }).pipe(this.res);
+        });
+    }
+    /**
+     * 印刷
+     */
+    print() {
+        let ids = JSON.parse(this.req.query.ids);
+        Models_1.default.Reservation.find({
+            _id: { $in: ids },
+            status: ReservationUtil_1.default.STATUS_RESERVED
+        }, (err, reservations) => {
+            if (err)
+                return this.next(new Error(this.req.__('Message.UnexpectedError')));
+            if (reservations.length === 0)
+                return this.next(new Error(this.req.__('Message.NotFound')));
+            reservations.sort((a, b) => {
+                return ScreenUtil_1.default.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+            });
+            this.res.render('reserve/print', {
+                layout: false,
+                reservations: reservations
+            });
         });
     }
 }

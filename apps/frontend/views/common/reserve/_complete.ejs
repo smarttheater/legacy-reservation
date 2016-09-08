@@ -44,7 +44,7 @@
                                 <%- reservation.seat_code %>
                             </div>
                             <div class="cell-btn cell-print">
-                                <a class="btn btn-default btn-icon-print" href="javascript:void(0)"><span><%- __('Button.Print') %></span></a>
+                                <a class="btn btn-default btn-icon-print" target="_blank" href="<%- url('reserve.print') %>?ids=<%= JSON.stringify([reservation._id.toString()]) %>"><span><%- __('Button.Print') %></span></a>
                             </div>
                             <div class="cell-codeimg">
                                 <img class="codeimg-barcode" src="<%- url('reserve.qrcode', {reservationId: reservation._id}) %>">
