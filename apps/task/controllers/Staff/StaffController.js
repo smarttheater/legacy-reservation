@@ -92,7 +92,7 @@ class StaffController extends BaseController_1.default {
                     Models_1.default.Performance.find({ screen: screenId })
                         .populate('film', 'name is_mx4d copyright')
                         .populate('screen', 'name')
-                        .populate('theater', 'name')
+                        .populate('theater', 'name address')
                         .exec((err, performances) => {
                         if (err)
                             return cb(err);
@@ -124,6 +124,8 @@ class StaffController extends BaseController_1.default {
                                     "screen": performance.get('screen').get('_id'),
                                     "theater_name_en": performance.get('theater').get('name.en'),
                                     "theater_name_ja": performance.get('theater').get('name.ja'),
+                                    "theater_address_en": performance.get('theater').get('address.en'),
+                                    "theater_address_ja": performance.get('theater').get('address.ja'),
                                     "theater": performance.get('theater').get('_id'),
                                     "performance_end_time": performance.get('end_time'),
                                     "performance_start_time": performance.get('start_time'),
@@ -168,7 +170,7 @@ class StaffController extends BaseController_1.default {
         Models_1.default.Performance.findById(performanceId)
             .populate('film', 'name is_mx4d copyright')
             .populate('screen', 'name')
-            .populate('theater', 'name')
+            .populate('theater', 'name address')
             .exec((err, performance) => {
             if (!performance) {
                 this.logger.info('no performance.');
@@ -225,6 +227,8 @@ class StaffController extends BaseController_1.default {
                                 "screen": performance.get('screen').get('_id'),
                                 "theater_name_en": performance.get('theater').get('name.en'),
                                 "theater_name_ja": performance.get('theater').get('name.ja'),
+                                "theater_address_en": performance.get('theater').get('address.en'),
+                                "theater_address_ja": performance.get('theater').get('address.ja'),
                                 "theater": performance.get('theater').get('_id'),
                                 "performance_end_time": performance.get('end_time'),
                                 "performance_start_time": performance.get('start_time'),

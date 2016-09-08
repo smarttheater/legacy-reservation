@@ -20,6 +20,7 @@ let Schema = new mongoose.Schema({
     },
 
     performance_day: String,
+    performance_open_time: String,
     performance_start_time: String,
     performance_end_time: String,
 
@@ -29,6 +30,8 @@ let Schema = new mongoose.Schema({
     },
     theater_name_ja: String,
     theater_name_en: String,
+    theater_address_ja: String,
+    theater_address_en: String,
 
     screen: {
         type: String,
@@ -256,7 +259,7 @@ Schema.statics.updateStatus2keptbytiff = function(reservationIds: Array<string>,
     let paths4set = [
         '_id', 'performance', 'seat_code', 'status', 'created_at', 'updated_at',
         'performance_day', 'performance_start_time', 'performance_end_time', 
-        'theater', 'theater_name_ja', 'theater_name_en', 
+        'theater', 'theater_name_ja', 'theater_name_en', 'theater_address_ja', 'theater_address_en', 
         'screen', 'screen_name_ja', 'screen_name_en', 
         'film', 'film_name_ja', 'film_name_en', 'film_image', 'film_is_mx4d'
     ];

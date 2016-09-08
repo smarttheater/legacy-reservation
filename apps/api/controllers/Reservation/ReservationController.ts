@@ -6,6 +6,8 @@ import sendgrid = require('sendgrid');
 import conf = require('config');
 import validator = require('validator');
 import qr = require('qr-image');
+import moment = require('moment');
+import fs = require('fs-extra');
 
 export default class ReservationController extends BaseController {
     /**
@@ -48,7 +50,9 @@ export default class ReservationController extends BaseController {
                 this.res.render('email/resevation', {
                     layout: false,
                     reservations: [reservation],
-                    qrcode: qrcodeBuffer
+                    to: to,
+                    qrcode: qrcodeBuffer,
+                    moment: moment
                 }, (err, html) => {
                     if (err) {
                         return this.res.json({
@@ -61,7 +65,7 @@ export default class ReservationController extends BaseController {
                     let email = new _sendgrid.Email({
                         to: to,
                         from: `noreply@${conf.get<string>('dns_name')}`,
-                        subject: `[TIFF][${process.env.NODE_ENV}] 予約情報転送`,
+                        subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}${reservation.get('purchaser_name')}様より東京国際映画祭のチケットが届いております`,
                         html: html
                     });
 
@@ -74,11 +78,19 @@ export default class ReservationController extends BaseController {
                         content: qrcodeBuffer
                     });
 
+                    // logo
                     email.addFile({
-                        filename: `qrcode4attachment_${reservationId}.png`,
+                        filename: `logo.png`,
                         contentType: 'image/png',
-                        content: qrcodeBuffer
+                        cid: 'logo',
+                        content: fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`)
                     });
+
+                    // email.addFile({
+                    //     filename: `qrcode4attachment_${reservationId}.png`,
+                    //     contentType: 'image/png',
+                    //     content: qrcodeBuffer
+                    // });
 
                     this.logger.debug('sending an email...email:', email);
                     _sendgrid.send(email, (err, json) => {

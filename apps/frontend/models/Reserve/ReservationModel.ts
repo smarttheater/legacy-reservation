@@ -212,12 +212,15 @@ export default class ReservationModel {
 
             performance: this.performance._id,
             performance_day: this.performance.day,
+            performance_open_time: this.performance.open_time,
             performance_start_time: this.performance.start_time,
             performance_end_time: this.performance.end_time,
 
             theater: this.performance.theater._id,
             theater_name_ja: this.performance.theater.name.ja,
             theater_name_en: this.performance.theater.name.en,
+            theater_address_ja: this.performance.theater.address.ja,
+            theater_address_en: this.performance.theater.address.en,
 
             screen: this.performance.screen._id,
             screen_name_ja: this.performance.screen.name.ja,
@@ -262,12 +265,17 @@ export default class ReservationModel {
 interface Performance {
     _id: string,
     day: string,
+    open_time: string,
     start_time: string,
     end_time: string,
     start_str: string,
     theater: {
         _id: string,
         name: {
+            ja: string,
+            en: string
+        },
+        address: {
             ja: string,
             en: string
         }

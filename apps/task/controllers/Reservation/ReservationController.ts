@@ -2,12 +2,15 @@ import BaseController from '../BaseController';
 import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
+import GMOUtil from '../../../common/Util/GMO/GMOUtil';
 import moment = require('moment');
 import conf = require('config');
 import mongoose = require('mongoose');
 import sendgrid = require('sendgrid')
 import emailTemplates = require('email-templates');
 import qr = require('qr-image');
+import fs = require('fs-extra');
+import numeral = require('numeral');
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
@@ -229,7 +232,10 @@ export default class ReservationController extends BaseController {
                                         let dir = `${process.cwd()}/apps/task/views/email/reserveComplete`;
                                         let template = new EmailTemplate(dir);
                                         let locals = {
-                                            reservations: reservations
+                                            reservations: reservations,
+                                            moment: moment,
+                                            numeral: numeral,
+                                            GMOUtil: GMOUtil
                                         };
                                         this.logger.info('rendering template...dir:', dir);
                                         template.render(locals, (err, result) => {
@@ -241,7 +247,7 @@ export default class ReservationController extends BaseController {
                                                 let email = new _sendgrid.Email({
                                                     to: to,
                                                     from: `noreply@${conf.get<string>('dns_name')}`,
-                                                    subject: `[TIFF][${process.env.NODE_ENV}] 予約完了`,
+                                                    subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京国際映画祭チケット購入完了のお知らせ`,
                                                     html: result.html
                                                 });
 
@@ -260,6 +266,13 @@ export default class ReservationController extends BaseController {
                                                     });
                                                 }
 
+                                                // add logo
+                                                email.addFile({
+                                                    filename: `logo.png`,
+                                                    contentType: 'image/png',
+                                                    cid: 'logo',
+                                                    content: fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`)
+                                                });
 
                                                 this.logger.info('sending an email...email:', email);
                                                 _sendgrid.send(email, (err, json) => {

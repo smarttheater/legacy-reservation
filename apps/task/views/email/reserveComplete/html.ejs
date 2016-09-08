@@ -1,85 +1,174 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>東京国際映画祭チケット購入完了のお知らせ</title>
+<!--
+    gmailはstyle要素とlink要素を無効にするので全タグにstyle属性を付けるしかない
+    https://www.campaignmonitor.com/css/
+-->
 </head>
-
 <body>
-<header>
-    <div class="container">
+<!--
+   「購入完了」と「コンビニ決済完了」の違いは"コンビニ手数料"の項目の有無のみ
+-->
 
-        <a href="http://2016.tiff-jp.net/" class="header-logo"><img src="/images/common/logo.png" alt="TIFF"></a>
+<div style="background-color:#fff;height:80px;text-align:center;">
+    <img src="cid:logo" alt="東京国際映画祭" >
+</div>
 
-        <div class="header-menu">
-    
-        </div>
-    </div>
-</header>
 
-<div class="container">
+<div style="padding:0 30px;font-family:'游ゴシック',meiryo,sans-serif;">
+    <h1 style="margin:0;font-size:20px;text-align:center;">東京国際映画祭チケット購入完了のお知らせ</h1>
+    <h2 style="margin:0;font-size:16px;text-align:center;">Notice of TIFF Ticket Purchase Completion</h2>
 
-    <h1 class="pagetitle">予約完了[<%- process.env.NODE_ENV %>]</h1>
-    <p class="guidetext">
-        ご購入ありがとうございました。<br>
-        当日は下記のQRコードを印刷、またはスマートフォンで表示して入場してください。
+    <p style="font-weight:bold;"><%- reservations[0].get('purchaser_name') %> 様</p>
+
+    <p style="font-size:14px;">
+        この度はご購入いただき誠にありがとうございます。<br>
+        ご入場の際に添付のQRコードが必要となりますので、ご鑑賞当日は必ずお持ちください。<br>
+        QRコードは画像保存もしくは印刷していただくと便利です。<br>
+        尚、お取り扱いには十分ご注意ください。<br>
+        ＊本メールはご鑑賞後まで、大切に保管してください。
+    </p>
+    <p style="font-size:12px;">
+        This Thank you for your purchase.<br>
+        It will be necessary to attach QR code at the time of your admission, please have it your appreciation day without fail.<br>
+        QR Code is a convenient Order from image storage or printing.<br>
+        In addition, please pay attention to handling.<br>
+        ・This e-mail until after your appreciation, please keep it.
     </p>
 
 
-    <table class="table table-complete">
-        <thead>
-            <tr>
-                <th>購入番号</th>
-                <td><%- reservations[0].get('payment_no') %></td>
-            </tr>
-            <tr>
-                <th>作品名</th>
-                <td><%- reservations[0].get('film_name_ja') %><br>
-                    <%- reservations[0].get('film_name_en') %></td>
-            </tr>
-            <tr>
-                <th>時間/場所</th>
-                <td>
-                    <%- reservations[0].get('performance_start_str') %> ～ 
-                    <%- reservations[0].get('theater_name_ja') %> 
-                    <%- reservations[0].get('theater_name_en') %> 
-                    <%- reservations[0].get('screen_name_ja') %> 
-                    <%- reservations[0].get('screen_name_en') %>
-                </td>
-            </tr>
-        </thead>
+    <hr style="margin:1em 0;">
 
-        <tbody>
-            <tr>
-                <th>座席番号</th>
-                <td>
-                    <% reservations.forEach((reservation, index) => { %>
-                    <div class="wrapper-seatcells">
-                        <div class="accordion_mobile_inner">
-                            <div class="innercontent">
-                                <div class="cell-seatcode">
-                                    <%- reservation.seat_code %>、
-                                    <%- reservation.get('ticket_type_name_ja') %>、
-                                    <%- reservation.get('ticket_type_name_en') %>、
-                                </div>
-                                <div class="cell-codeimg">
-                                    <img src="cid:qrcode_<%- reservation.get('_id').toString() %>">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <% }) %>
-                </td>
-            </tr>
 
-        </tbody>
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">作品名 (Title) :</h3>
+        <strong><%- reservations[0].get('film_name_ja') %></strong><br>
+        <span style="font-size:12px;"><%- reservations[0].get('film_name_en') %></span>
+    </div>
 
-    </table>
 
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">予約番号 (Reservation number) :</h3>
+        <strong><%- reservations[0].get('payment_no') %></strong>
+    </div>
+
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">劇場 (Theater) :</h3>
+        <strong><%- reservations[0].get('theater_name_ja') %>  <%- reservations[0].get('screen_name_ja') %></strong><br>
+        <%- reservations[0].get('theater_address_ja') %><br>
+        <p style="font-size:12px;">
+            <%- reservations[0].get('theater_name_en') %> <%- reservations[0].get('screen_name_en') %><br>
+            <%- reservations[0].get('theater_address_en') %>
+        </p>
+    </div>
+
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">時間 (Date and time) :</h3>
+        <%
+        let day = moment(`${reservations[0].get('performance_day').substr(0, 4)}-${reservations[0].get('performance_day').substr(4, 2)}-${reservations[0].get('performance_day').substr(6)}T00:00:00+09:00`);
+        %>
+        <strong><%- day.format('YYYY/MM/DD (ddd)') %></strong>　
+        開場 Open: <strong><%- reservations[0].get('performance_open_time').substr(0, 2) %>:<%- reservations[0].get('performance_open_time').substr(2) %></strong>　
+        開演 Start: <strong><%- reservations[0].get('performance_start_time').substr(0, 2) %>:<%- reservations[0].get('performance_start_time').substr(2) %>-</strong>
+    </div>
+
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">券種 (Ticket type) :</h3>
+
+        <% reservations.forEach((reservation, index) => { %>
+        <strong><%- reservation.get('ticket_type_name_ja') %>　&yen;<%- numeral(reservation.get('charge')).format('0,0') %>
+            <% if (reservation.get('seat_grade_charge') > 0) { %>
+            　(内<%- reservation.get('seat_grade_name_ja') %> &yen;<%- reservation.get('seat_grade_charge') %>)</strong><br>
+            <% } %>
+        <% }) %>
+
+        <p style="font-size:12px;">
+            <% reservations.forEach((reservation, index) => { %>
+            <%- reservation.get('ticket_type_name_en') %> &yen;<%- numeral(reservation.get('charge')).format('0,0') %>
+                <% if (reservation.get('seat_grade_charge') > 0) { %>
+                (<%- reservation.get('seat_grade_name_en') %> &yen;<%- reservation.get('seat_grade_charge') %>)
+                <% } %>
+            <% }) %>
+        </p>
+
+    </div>
+
+    <% if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) { %>
+    <!-- 「コンビニ決済完了」の場合 -->
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">コンビニ決済手数料 (Handling charge) :</h3>
+        <strong>&yen;150 x <%- reservations.length %></strong>
+    </div>
+    <!-- /「コンビニ決済完了」の場合 -->
+    <% } %>
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入枚数 (Purchase number) :</h3>
+        <strong><%- reservations.length %>枚</strong>
+        <span style="font-size:12px;"><%- reservations.length %> ticket</span>
+    </div>
+
+
+    <div style="margin-bottom:1em;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">合計金額 (total fee) :</h3>
+        <%
+        let totalCharge = 0;
+        reservations.forEach((reservation) => {
+            totalCharge += reservation.get('charge');
+        });
+        %>
+        <strong>&yen;<%- numeral(totalCharge).format('0,0') %> (税込/tax incl.)</strong>
+    </div>
+
+
+    <div style="margin-bottom:1em;page-break-inside:avoid;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">QRコード (QR-code) :</h3>
+
+        <% reservations.forEach((reservation, index) => { %>
+        <p>
+            <strong><%- reservation.get('seat_code') %></strong><br>
+            <img src="cid:qrcode_<%- reservation.get('_id').toString() %>" alt="<%- reservation.get('seat_code') %>">
+        </p>
+        <% }) %>
+    </div>
+
+
+    <p style="font-size:12px;">
+        ※学生（小学生は除く）の方は、劇場へのご入場の際に、必ず学生証または生徒手帳のご提示をお願いします。<br>
+        ※交通渋滞による来場遅延、その他いかなる場合でも、ご購入後のチケットの変更およびキャンセル・払い戻しはいたしません。<br>
+        なお不可抗力により表記公演の興行を中止する場合の払い戻しは、所定の期間内に所定の方法にて行います。<br>
+        ・Students (elementary school students are excluded), at the time of your entrance to the theater, be sure to ask for your presentation of a student card or student handbook.<br>
+        ・Visitors delays due to traffic congestion, even if any other, I do not do ticket changes and cancellation refund after your purchase.<br>
+        It should be noted that refund if you want to stop the box office of the title performance by the force majeure will be made in a predetermined way to within a predetermined period of time.
+    </p>
+
+
+    <hr>
+
+
+    <strong style="font-size:14px;">東京国際映画祭  TOKYO INTERNATIONAL FILM FESTIVAL 2016</strong>
+    <p style="font-size:14px;">
+        本メールアドレスは送信専用です。返信はできませんのであらかじめご了承ください。<br>
+        本メールに心当たりのない方やチケットに関してご不明な点は、下記電話番号までお問い合わせください。<br>
+        チケットのお問合せ：050-3786-0368　/12:00～18:00（休業：土/日/祝日　東京国際映画祭開催期間中は無休）<br>
+        オフィシャルサイト： <a href="http://2016.tiff-jp.net/" target="_blank" style="color:#000;">http://2016.tiff-jp.net/</a>
+    </p>
+    <p style="font-size:10px;">
+        This e-mail address is a post-only. Please note that you can not reply.<br>
+        If you have any questions with respect to one and the ticket to this email no idea, please contact us at the following telephone number.<br>
+        Inquiries about ticket : +81 050-3786-0368 12:00-18:00(Closed: sat / sun / holiday Tokyo International Film Festival held period is seven days a week)<br>
+        Official site : <a href="http://2016.tiff-jp.net/" target="_blank" style="color:#000;">http://2016.tiff-jp.net/</a>
+    </p>
 </div>
 
-<footer>
-    <div class="copyrights"><span>&copy; Tokyo International Film Festival All Rights Reserved.</span></div>
-</footer>
+
+
+
 </body>
 </html>

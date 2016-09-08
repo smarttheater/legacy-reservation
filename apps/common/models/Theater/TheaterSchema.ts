@@ -8,6 +8,10 @@ let Schema = new mongoose.Schema({
     name: {
         ja: String,
         en: String
+    },
+    address: {
+        ja: String,
+        en: String
     }
 },{
     collection: 'theaters',
