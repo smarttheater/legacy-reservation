@@ -80,6 +80,7 @@ $(function(){
             });
             html += 
                         '</div>'+
+                        '<p class="performance-copyrights">' + $('<div/>').text(performancesOnFilm[0].film_copyright).html() + '</p>'+
                     '</div>'+
                 '</div>'
             ;
@@ -112,23 +113,17 @@ $(function(){
             data: conditions,
             beforeSend: function() {
                 $('.loading').modal();
-            },
-            complete: function() {
-                $('.loading').modal('hide');
-            },
-            success: function(data) {
-                if (data.success) {
-                    performances = data.results;
-
-                    showPerformances();
-                    showConditions();
-                    $('.total-count').text(data.films_count);
-
-                } else {
-                }
-            },
-            error: function(jqxhr, textStatus, error) {
             }
+        }).done(function(data) {
+            if (data.success) {
+                performances = data.results;
+                showPerformances();
+                showConditions();
+                $('.total-count').text(data.films_count);
+            }
+        }).fail(function(jqxhr, textStatus, error) {
+        }).always(function(data) {
+            $('.loading').modal('hide');
         });
     }
 

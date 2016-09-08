@@ -94,10 +94,10 @@ class PerformanceController extends BaseController_1.default {
                         query.skip(limit * (page - 1)).limit(limit);
                     }
                     if (this.req.getLocale() === 'ja') {
-                        query.populate('film', 'name.ja sections.name.ja minutes');
+                        query.populate('film', 'name.ja sections.name.ja minutes copyright');
                     }
                     else {
-                        query.populate('film', 'name.en sections.name.en minutes');
+                        query.populate('film', 'name.en sections.name.en minutes copyright');
                     }
                     // 上映日、開始時刻
                     query.setOptions({
@@ -130,6 +130,7 @@ class PerformanceController extends BaseController_1.default {
                                     film_name: performance['film']['name'][this.req.getLocale()],
                                     film_sections: performance['film']['sections'].map((section) => { return section['name'][this.req.getLocale()]; }),
                                     film_minutes: performance['film']['minutes'],
+                                    film_copyright: performance['film']['copyright'],
                                     film_image: `https://${conf.get('dns_name')}/images/film/${performance['film']['_id']}.jpg`
                                 };
                             });

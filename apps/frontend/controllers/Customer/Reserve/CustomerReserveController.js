@@ -65,6 +65,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
+            console.log(reservationModel.performance);
             if (this.req.method === 'POST') {
                 this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
             }
