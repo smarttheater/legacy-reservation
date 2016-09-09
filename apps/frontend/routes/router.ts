@@ -26,7 +26,10 @@ export default (app: any) => {
         next();
     }
 
-    app.get('/', 'home', base, (req, res, next) => {(new IndexController(req, res, next)).index()});
+    // 本番環境ではhomeは存在しない
+    if (process.env.NODE_ENV !== 'prod') {
+        app.get('/', 'home', base, (req, res, next) => {(new IndexController(req, res, next)).index()});
+    }
 
     // 言語
     app.get('/language/update/:locale', 'language.update', base, (req, res, next) => {(new LanguageController(req, res, next)).update()});

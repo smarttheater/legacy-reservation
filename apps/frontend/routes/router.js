@@ -12,7 +12,10 @@ exports.default = (app) => {
     let base = (req, res, next) => {
         next();
     };
-    app.get('/', 'home', base, (req, res, next) => { (new IndexController_1.default(req, res, next)).index(); });
+    // 本番環境ではhomeは存在しない
+    if (process.env.NODE_ENV !== 'prod') {
+        app.get('/', 'home', base, (req, res, next) => { (new IndexController_1.default(req, res, next)).index(); });
+    }
     // 言語
     app.get('/language/update/:locale', 'language.update', base, (req, res, next) => { (new LanguageController_1.default(req, res, next)).update(); });
     app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', base, (req, res, next) => { (new ReserveController_1.default(req, res, next)).getSeatProperties(); });

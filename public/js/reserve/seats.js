@@ -53,15 +53,12 @@ $(function(){
 
                     // 仮予約中と現在選択中の座席を除いて状態を最新に更新する
                     if (_initialActiveSeatCodes.indexOf(seatCode) < 0 && _activeSeatCodes.indexOf(seatCode) < 0) {
+                        $(this).removeClass('select-seat disabled entered');
                         if (properties.avalilable) {
-                            $(this).removeClass('disabled');
                             $(this).addClass('select-seat');
                         } else if (properties.entered) {
-                            $(this).removeClass('select-seat');
-                            $(this).removeClass('disabled');
-                            $(this).addClass('entered'); // TODO 入場済みのクラス
+                            $(this).addClass('entered');
                         } else {
-                            $(this).removeClass('select-seat');
                             $(this).addClass('disabled');
                         }
                     }
