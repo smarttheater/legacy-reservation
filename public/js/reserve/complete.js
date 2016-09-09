@@ -65,11 +65,11 @@ $(function(){
             film_name_ja: _reservation.film_name_ja,
             film_name_en: _reservation.film_name_en,
 
-            theater_name_ja: _reservation.film_name_en,
-            theater_name_en: _reservation.film_name_en,
+            theater_name_ja: _reservation.theater_name_ja,
+            theater_name_en: _reservation.theater_name_en,
 
-            screen_name_ja: _reservation.film_name_en,
-            screen_name_en: _reservation.film_name_en,
+            screen_name_ja: _reservation.screen_name_ja,
+            screen_name_en: _reservation.screen_name_en,
 
             performance_day: _reservation.performance_day.substr(0, 4) + '/' + _reservation.performance_day.substr(4, 2) + '/' + _reservation.performance_day.substr(6),
             performance_open_time: _reservation.performance_open_time.substr(0, 2) + ':' + _reservation.performance_open_time.substr(2),
@@ -97,11 +97,11 @@ $(function(){
                 film_name_ja: _reservation.film_name_ja,
                 film_name_en: _reservation.film_name_en,
 
-                theater_name_ja: _reservation.film_name_en,
-                theater_name_en: _reservation.film_name_en,
+                theater_name_ja: _reservation.theater_name_ja,
+                theater_name_en: _reservation.theater_name_en,
 
-                screen_name_ja: _reservation.film_name_en,
-                screen_name_en: _reservation.film_name_en,
+                screen_name_ja: _reservation.screen_name_ja,
+                screen_name_en: _reservation.screen_name_en,
 
                 performance_day: _reservation.performance_day.substr(0, 4) + '/' + _reservation.performance_day.substr(4, 2) + '/' + _reservation.performance_day.substr(6),
                 performance_open_time: _reservation.performance_open_time.substr(0, 2) + ':' + _reservation.performance_open_time.substr(2),
