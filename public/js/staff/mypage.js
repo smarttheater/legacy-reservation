@@ -25,7 +25,7 @@ $(function(){
                + '>'
                 + '<th class="td-checkbox">';
             
-            if (reservation.payment_no) {
+            if (reservation.payment_no && !reservation.performance_canceled) {
                 html += ''
                     + '<input type="checkbox" value="">';
             }
@@ -36,14 +36,15 @@ $(function(){
                 + '<td class="td-title">'
                     + reservation.film_name_en + '<br>'
                     + startDatetime + '-<br>'
-                    + reservation.theater_name_en + ' ' + reservation.screen_name_en + ''
+                    + reservation.theater_name_en + ' ' + reservation.screen_name_en + '' + '<br>'
+                    + ((reservation.performance_canceled) ? '<div class="alert alert-danger">Canceled</div>' : '')
                 + '</td>'
                 + '<td class="td-seat"><a href="javascript:void(0);" class="show-seat-position" data-screen-id="' + reservation.screen.toString() + '" data-seat-codes="' + reservation.seat_code + '">' + reservation.seat_code + '</a></td>'
                 + '<td class="td-updater">' + ((reservation.staff_signature) ? reservation.staff_signature : '') + '</td>'
                 + '<td class="td-distribution form-inline">';
 
             // TIFF確保でなければ配布先更新フォームを表示
-            if (reservation.payment_no) {
+            if (reservation.payment_no && !reservation.performance_canceled) {
                 html += ''
                     + '<div class="form-group">'
                         + '<input class="form-control" type="text" value="' + ((reservation.watcher_name) ? reservation.watcher_name : '') + '">'
@@ -57,7 +58,7 @@ $(function(){
                 + '</td>'
                 + '<td class="td-actions">'
 
-            if (reservation.payment_no) {
+            if (reservation.payment_no && !reservation.performance_canceled) {
                 html += ''
                     + '<p class="btn confirm-cancel"><span>Cancel</span></p>'
                     + '<p class="btn"><span>Print</span></p>';

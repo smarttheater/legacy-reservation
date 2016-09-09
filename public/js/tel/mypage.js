@@ -28,7 +28,7 @@ $(function(){
                + '<th class="td-checkbox">';
 
             // 予約完了のもののみ、チェックボックス表示
-            if (reservation.status === 'RESERVED') {
+            if (reservation.status === 'RESERVED' && !reservation.performance_canceled) {
                 html += ''
                    + '<input type="checkbox" value="">';
             }
@@ -46,13 +46,14 @@ $(function(){
                 + '<td class="td-title">'
                     + reservation.film_name_ja + '<br>'
                     + startDatetime + '-<br>'
-                    + reservation.theater_name_ja + ' ' + reservation.screen_name_ja + ''
+                    + reservation.theater_name_ja + ' ' + reservation.screen_name_ja + '<br>'
+                    + ((reservation.performance_canceled) ? '<div class="alert alert-danger">Canceled</div>' : '')
                 + '</td>'
                 + '<td class="td-seat"><a href="javascript:void(0);" class="show-seat-position" data-screen-id="' + reservation.screen.toString() + '" data-seat-codes="' + reservation.seat_code + '">' + reservation.seat_code + '</a></td>'
                 + '<td class="td-actions">';
 
             // 予約完了のもののみ、「キャンセル」「印刷」ボタン表示
-            if (reservation.status === 'RESERVED') {
+            if (reservation.status === 'RESERVED' && !reservation.performance_canceled) {
                 html += ''
                     + '<p class="btn confirm-cancel"><span>Cancel</span></p>'
                     + '<p class="btn"><span>Print</span></p>';

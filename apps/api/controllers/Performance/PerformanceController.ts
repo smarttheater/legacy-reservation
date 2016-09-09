@@ -20,7 +20,9 @@ export default class PerformanceController extends BaseController {
         let screen = (this.req.query.screen) ? this.req.query.screen : null; // スクリーン
 
         // 検索条件を作成
-        let andConditions: Array<Object> = [];
+        let andConditions: Array<Object> = [
+            {canceled: false}
+        ];
 
         if (day) {
             andConditions.push({

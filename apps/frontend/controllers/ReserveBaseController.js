@@ -48,23 +48,13 @@ class ReserveBaseController extends BaseController_1.default {
         if (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser.get('performance')) {
             // パフォーマンスFIX
             this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'), (err, reservationModel) => {
-                if (err) {
-                    cb(err, reservationModel);
-                }
-                else {
-                    cb(null, reservationModel);
-                }
+                cb(err, reservationModel);
             });
         }
         else if (performanceId) {
             // パフォーマンスFIX
             this.processFixPerformance(reservationModel, performanceId, (err, reservationModel) => {
-                if (err) {
-                    cb(err, reservationModel);
-                }
-                else {
-                    cb(null, reservationModel);
-                }
+                cb(err, reservationModel);
             });
         }
         else {
@@ -184,7 +174,7 @@ class ReserveBaseController extends BaseController_1.default {
         // パフォーマンス取得
         Models_1.default.Performance.findOne({
             _id: perfomanceId
-        }, 'day open_time start_time end_time film screen theater' // 必要な項目だけ指定すること
+        }, 'day open_time start_time end_time canceled film screen theater' // 必要な項目だけ指定すること
         )
             .populate('film', 'name ticket_type_group is_mx4d copyright') // 必要な項目だけ指定すること
             .populate('screen', 'name sections') // 必要な項目だけ指定すること
@@ -194,6 +184,8 @@ class ReserveBaseController extends BaseController_1.default {
                 return cb(err, reservationModel);
             if (!performance)
                 return cb(new Error(this.req.__('Message.NotFound')), reservationModel);
+            if (performance.get('canceled'))
+                return cb(new Error('Performance Canceled.'), reservationModel); // 万が一上映中止だった場合
             // 内部と当日以外は、上映開始20分過ぎていたらはじく
             if (this.purchaserGroup !== ReservationUtil_1.default.PURCHASER_GROUP_WINDOW
                 && this.purchaserGroup !== ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
@@ -524,13 +516,10 @@ class ReserveBaseController extends BaseController_1.default {
         else {
             // 購入番号発行
             ReservationUtil_1.default.publishPaymentNo((err, paymentNo) => {
-                if (err) {
-                    cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-                }
-                else {
-                    reservationModel.paymentNo = paymentNo;
-                    next(reservationModel);
-                }
+                if (err)
+                    return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+                reservationModel.paymentNo = paymentNo;
+                next(reservationModel);
             });
         }
     }

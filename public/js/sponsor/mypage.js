@@ -23,19 +23,34 @@ $(function(){
                + ' data-theater-name="' + reservation.theater_name_en + '"'
                + ' data-screen-name="' + reservation.screen_name_en + '"'
                + '>'
-                + '<th class="td-checkbox"><input type="checkbox" value=""></th>'
+                + '<th class="td-checkbox">';
+
+            if (!reservation.performance_canceled) {
+                html += ''
+                    + '<input type="checkbox" value="">';
+            }
+
+            html += ''
+                + '</th>'
                 + '<td class="td-number">' + reservation.payment_no + '</td>'
                 + '<td class="td-tel">' + reservation.purchaser_tel + '</td>'
                 + '<td class="td-updater">' + reservation.purchaser_last_name + ' ' + reservation.purchaser_first_name + '</td>'
                 + '<td class="td-title">'
                     + reservation.film_name_en + '<br>'
                     + startDatetime + '-<br>'
-                    + reservation.theater_name_en + ' ' + reservation.screen_name_en + ''
+                    + reservation.theater_name_en + ' ' + reservation.screen_name_en + '' + '<br>'
+                    + ((reservation.performance_canceled) ? '<div class="alert alert-danger">Canceled</div>' : '')
                 + '</td>'
                 + '<td class="td-seat"><a href="javascript:void(0);" class="show-seat-position" data-screen-id="' + reservation.screen.toString() + '" data-seat-codes="' + reservation.seat_code + '">' + reservation.seat_code + '</a></td>'
-                + '<td class="td-actions">'
+                + '<td class="td-actions">';
+
+            if (!reservation.performance_canceled) {
+                html += ''
                     + '<p class="btn confirm-cancel"><span>Cancel</span></p>'
-                    + '<p class="btn"><span>Print</span></p>'
+                    + '<p class="btn"><span>Print</span></p>';
+            }
+
+            html += ''
                 + '</td>'
             + '</tr>';
         });

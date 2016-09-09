@@ -23,6 +23,10 @@ let Schema = new mongoose.Schema({
     performance_open_time: String,
     performance_start_time: String,
     performance_end_time: String,
+    performance_canceled: {
+        type: Boolean,
+        default: false
+    },
 
     theater: {
         type: String,

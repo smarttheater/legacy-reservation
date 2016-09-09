@@ -18,7 +18,9 @@ class PerformanceController extends BaseController_1.default {
         let theater = (this.req.query.theater) ? this.req.query.theater : null; // 劇場
         let screen = (this.req.query.screen) ? this.req.query.screen : null; // スクリーン
         // 検索条件を作成
-        let andConditions = [];
+        let andConditions = [
+            { canceled: false }
+        ];
         if (day) {
             andConditions.push({
                 day: day

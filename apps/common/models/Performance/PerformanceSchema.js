@@ -30,7 +30,8 @@ let Schema = new mongoose.Schema({
     day: String,
     open_time: String,
     start_time: String,
-    end_time: String // 上映終了時刻
+    end_time: String,
+    canceled: Boolean // 上映中止フラグ 
 }, {
     collection: 'performances',
     timestamps: {

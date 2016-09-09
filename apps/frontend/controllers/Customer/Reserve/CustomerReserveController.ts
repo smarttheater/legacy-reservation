@@ -44,7 +44,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
         }
 
         this.processStart((err, reservationModel) => {
-            if (err) this.next(err);
+            if (err) return this.next(err);
 
             if (reservationModel.performance) {
                 reservationModel.save(() => {
@@ -67,7 +67,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
         let token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
-console.log(reservationModel.performance);
+
             if (this.req.method === 'POST') {
                 this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
             } else {
