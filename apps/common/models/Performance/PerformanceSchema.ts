@@ -1,6 +1,7 @@
 import mongoose = require('mongoose');
 import PerformanceUtil from './PerformanceUtil';
 import moment = require('moment')
+import ReservationSchema from '../Reservation/ReservationSchema';
 
 /**
  * パフォーマンススキーマ
@@ -68,6 +69,29 @@ Schema.methods.getSeatStatus = function(reservationNumber: number) {
 
     return PerformanceUtil.SEAT_STATUS_D;
 };
+
+/**
+ * パフォーマンスと予約の整合性を保つ
+ */
+Schema.post('findOneAndUpdate', function(doc, next){
+    mongoose.model('Reservation', ReservationSchema).update(
+        {
+            performance: doc['_id']
+        },
+        {
+            performance_day: doc['day'],
+            performance_open_time: doc['open_time'],
+            performance_start_time: doc['start_time'],
+            performance_end_time: doc['end_time'],
+            performance_canceled: doc['canceled'],
+        },
+        {multi: true},
+        (err, raw) => {
+            console.log('reservation updated.', err, raw);
+            next();
+        }
+    );
+});
 
 Schema.index(
     {

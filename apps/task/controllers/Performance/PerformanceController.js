@@ -115,7 +115,7 @@ class PerformanceController extends BaseController_1.default {
                     performance.theater_name = _screen.get('theater').get('name');
                     return new Promise((resolve, reject) => {
                         this.logger.debug('updating performance...');
-                        Models_1.default.Performance.findByIdAndUpdate(performance._id, performance, {
+                        Models_1.default.Performance.findOneAndUpdate({ _id: performance._id }, performance, {
                             upsert: true
                         }, (err) => {
                             this.logger.debug('performance updated', err);
