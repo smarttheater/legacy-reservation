@@ -32,5 +32,6 @@
     {"user_id":"2016douin7","password":"2016tiff","name":"動員用アカウント７","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"2016douin8","password":"2016tiff","name":"動員用アカウント８","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"2016douin9","password":"2016tiff","name":"動員用アカウント９","email":"ticket2016@gmail.com","is_admin":false},
-    {"user_id":"2016douin10","password":"2016tiff","name":"動員用アカウント１０","email":"ticket2016@gmail.com","is_admin":false}
+    {"user_id":"2016douin10","password":"2016tiff","name":"動員用アカウント１０","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"shikai2016","password":"gozu","name":"司会通訳","email":"ticket2016@gmail.com","is_admin":false}
 ]
