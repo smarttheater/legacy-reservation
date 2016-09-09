@@ -1,10 +1,10 @@
 "use strict";
 const log4js = require('log4js');
 const moment = require('moment');
-const util = require('util');
 const numeral = require('numeral');
 const conf = require('config');
 const Constants_1 = require('../../common/Util/Constants');
+const Util_1 = require('../../common/Util/Util');
 /**
  * ベースコントローラー
  *
@@ -20,10 +20,10 @@ class BaseController {
         this.router = this.req.app.namedRoutes;
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;
-        this.res.locals.util = util;
         this.res.locals.numeral = numeral;
         this.res.locals.conf = conf;
         this.res.locals.Constants = Constants_1.default;
+        this.res.locals.Util = Util_1.default;
         // レイアウト指定があれば変更
         let _render = this.res.render;
         this.res.render = (view, options, cb) => {

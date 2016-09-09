@@ -128,19 +128,26 @@
                         <tr>
                             <th><label for="id_age"><%- __('Form.FieldName.age') %></label><span class="required">必須項目</span></th>
                             <td>
+                                <%
+                                let choices = [
+                                    {code: '00', name: {ja: '0代', en:'0-'}},
+                                    {code: '10', name: {ja: '10代', en:'10-'}},
+                                    {code: '20', name: {ja: '20代', en:'20-'}},
+                                    {code: '30', name: {ja: '30代', en:'30-'}},
+                                    {code: '40', name: {ja: '40代', en:'40-'}},
+                                    {code: '50', name: {ja: '50代', en:'50-'}},
+                                    {code: '60', name: {ja: '60代', en:'60-'}},
+                                    {code: '70', name: {ja: '70代', en:'70-'}},
+                                    {code: '80', name: {ja: '80代', en:'80-'}},
+                                    {code: '90', name: {ja: '90代', en:'90-'}},
+                                    {code: '100', name: {ja: '100代-', en:'100-'}}
+                                ];
+                                %>
                                 <select class="form-control" name="age">
                                     <option value="">---</option>
-                                    <option value="00"<% if (age === '00') { %>selected="selected"<% } %>>0代</option>
-                                    <option value="10"<% if (age === '10') { %>selected="selected"<% } %>>10代</option>
-                                    <option value="20"<% if (age === '20') { %>selected="selected"<% } %>>20代</option>
-                                    <option value="30"<% if (age === '30') { %>selected="selected"<% } %>>30代</option>
-                                    <option value="40"<% if (age === '40') { %>selected="selected"<% } %>>40代</option>
-                                    <option value="50"<% if (age === '50') { %>selected="selected"<% } %>>50代</option>
-                                    <option value="60"<% if (age === '60') { %>selected="selected"<% } %>>60代</option>
-                                    <option value="70"<% if (age === '70') { %>selected="selected"<% } %>>70代</option>
-                                    <option value="80"<% if (age === '80') { %>selected="selected"<% } %>>80代</option>
-                                    <option value="90"<% if (age === '90') { %>selected="selected"<% } %>>90代</option>
-                                    <option value="100"<% if (age === '100') { %>selected="selected"<% } %>>100代-</option>
+                                    <% for (let choice of choices) { %>
+                                    <option value="<%- choice.code %>"<% if (age === choice.code) { %> selected="selected"<% } %>><%- choice.name[locale] %></option>
+                                    <% } %>
                                 </select>
                                 <% if (req.form) { %>
                                 <p class="errmsg"><%- req.form.getErrors('age')[0] %></p>
@@ -151,7 +158,12 @@
                         <tr>
                             <th><label for="id_address"><%- __('Form.FieldName.address') %></label></th>
                             <td>
-                                <input type="text" name="address" id="id_address" class="form-control" value="<%- address %>">
+                                <select class="form-control" name="address">
+                                    <option value="">---</option>
+                                    <% for (let prefecture of Util.getPrefectrues()) { %>
+                                    <option value="<%- prefecture.code %>"<% if (address === prefecture.code) { %> selected="selected"<% } %>><%- prefecture.name[locale] %></option>
+                                    <% } %>
+                                </select>
                                 <% if (req.form) { %>
                                 <p class="errmsg"><%- req.form.getErrors('address')[0] %></p>
                                 <% } %>

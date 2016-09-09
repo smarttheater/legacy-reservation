@@ -1,16 +1,15 @@
 import express = require('express');
 import log4js = require('log4js');
 import moment = require('moment');
-import util = require('util');
 import numeral = require('numeral');
 import conf = require('config');
-
 import MemberUser from '../models/User/MemberUser';
 import StaffUser from '../models/User/StaffUser';
 import SponsorUser from '../models/User/SponsorUser';
 import WindowUser from '../models/User/WindowUser';
 import TelStaffUser from '../models/User/TelStaffUser';
 import Constants from '../../common/Util/Constants';
+import Util from '../../common/Util/Util';
 
 /**
  * ベースコントローラー
@@ -45,10 +44,10 @@ export default class BaseController {
 
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;
-        this.res.locals.util = util;
         this.res.locals.numeral = numeral;
         this.res.locals.conf = conf;
         this.res.locals.Constants = Constants;
+        this.res.locals.Util = Util;
 
 
         // レイアウト指定があれば変更
