@@ -13,6 +13,8 @@ $(function(){
     var enteredReservationIds = [];
     var audioYes = new Audio('/audio/yes01.mp3');
     var audioNo = new Audio('/audio/no01.mp3');
+    audioYes.load();
+    audioNo.load();
 
     /**
      * QRコードをチェックする
@@ -33,9 +35,17 @@ $(function(){
             // 入場済みの場合
             if (_reservation.entered) {
                 message = _reservation.seat_code+' ['+_reservation.ticket_type_name_ja+'] 入場済み';
-            } else {
-                message = _reservation.seat_code+' ['+_reservation.ticket_type_name_ja+'] OK';
+                // audioYes.load();
+                audioYes.play();
 
+                $('.result').html(
+                    '<div class="alert confirmresult confirmresult-entered" role="alert">'+
+                        '<span class="inner">'+
+                            '<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>' + message +
+                        '</span>'+
+                    '</div>'
+                );
+            } else {
                 // add to list for admission.
                 if (checkedReservationIds.indexOf(_reservation._id) < 0) {
                     checkedReservationIds.push(_reservation._id);
@@ -46,42 +56,40 @@ $(function(){
 
                     updateResults();
                 }
-            }
 
 
-            // 02,03は学生
-            if (_reservation.ticket_type === '02' || _reservation.ticket_type === '03') {
-                audioYes.load();
-                audioYes.play();
+                message = _reservation.seat_code+' ['+_reservation.ticket_type_name_ja+'] OK';
 
-                $('.result').html(
-                    '<div class="alert confirmresult confirmresult-ok-student" role="alert">'+
-                        '<span class="inner">'+
-                            '<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>' + message +
-                        '</span>'+
-                    '</div>'
-                );
-            } else {
-                if (_reservation.entered) {
-                    audioYes.load();
+                // 02,03は学生
+                if (_reservation.ticket_type === '02' || _reservation.ticket_type === '03') {
+                    // audioYes.load();
                     audioYes.play();
+
+                    $('.result').html(
+                        '<div class="alert confirmresult confirmresult-ok-student" role="alert">'+
+                            '<span class="inner">'+
+                                '<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>' + message +
+                            '</span>'+
+                        '</div>'
+                    );
                 } else {
-                    audioYes.load();
+                    // audioYes.load();
                     audioYes.play();
-                }
 
-                $('.result').html(
-                    '<div class="alert confirmresult confirmresult-ok" role="alert">'+
-                        '<span class="inner">'+
-                            '<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>' + message +
-                        '</span>'+
-                    '</div>'
-                );
+                    $('.result').html(
+                        '<div class="alert confirmresult confirmresult-ok" role="alert">'+
+                            '<span class="inner">'+
+                                '<span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>' + message +
+                            '</span>'+
+                        '</div>'
+                    );
+                }
             }
+
 
         // NG
         } else {
-            audioNo.load();
+            // audioNo.load();
             audioNo.play();
 
             message = 'NG';
@@ -180,5 +188,5 @@ $(function(){
     });
 
     // for debug
-    // check('60060006007-2');
+    // check('30092060006-4');
 });
