@@ -346,4 +346,36 @@ export default class ReservationController extends BaseController {
             }
         );
     }
+
+    /**
+     * パフォーマンスの上映中止フラグを予約に反映する
+     */
+    public setPerformanceCanceledFlags(): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
+        // いったん上映中止フラグをオフにしてから、パフォーマンスのフラグを反映する
+        Models.Reservation.update(
+            {performance_canceled: true},
+            {performance_canceled: false},
+            {multi: true},
+            (err, raw) => {
+                this.logger.info('updated.', err, raw);
+
+                this.logger.info('finding performances...');
+                Models.Performance.distinct('_id', {canceled: true}, (err, performanceIds) => {
+                    this.logger.info('performaces found.', err, performanceIds);
+                    Models.Reservation.update(
+                        {performance: {$in: performanceIds}},
+                        {performance_canceled: true},
+                        {multi: true},
+                        (err, raw) => {
+                            this.logger.info('updated.', err, raw);
+                            mongoose.disconnect();
+                            process.exit(0);
+                        }
+                    );
+                });
+            }
+        );
+    }
 }

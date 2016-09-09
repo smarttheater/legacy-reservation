@@ -287,6 +287,25 @@ class ReservationController extends BaseController_1.default {
             process.exit(0);
         });
     }
+    /**
+     * パフォーマンスの上映中止フラグを予約に反映する
+     */
+    setPerformanceCanceledFlags() {
+        mongoose.connect(MONGOLAB_URI, {});
+        // いったん上映中止フラグをオフにしてから、パフォーマンスのフラグを反映する
+        Models_1.default.Reservation.update({ performance_canceled: true }, { performance_canceled: false }, { multi: true }, (err, raw) => {
+            this.logger.info('updated.', err, raw);
+            this.logger.info('finding performances...');
+            Models_1.default.Performance.distinct('_id', { canceled: true }, (err, performanceIds) => {
+                this.logger.info('performaces found.', err, performanceIds);
+                Models_1.default.Reservation.update({ performance: { $in: performanceIds } }, { performance_canceled: true }, { multi: true }, (err, raw) => {
+                    this.logger.info('updated.', err, raw);
+                    mongoose.disconnect();
+                    process.exit(0);
+                });
+            });
+        });
+    }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = ReservationController;
