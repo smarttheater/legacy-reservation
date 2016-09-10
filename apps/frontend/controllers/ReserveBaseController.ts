@@ -585,8 +585,10 @@ export default class ReserveBaseController extends BaseController {
 
                     return new Promise((resolve, reject) => {
                         this.logger.info('updating reservation all infos...update:', update);
-                        Models.Reservation.findByIdAndUpdate(
-                            update['_id'],
+                        Models.Reservation.findOneAndUpdate(
+                            {
+                                _id: update['_id']
+                            },
                             update,
                             {
                                 new: true

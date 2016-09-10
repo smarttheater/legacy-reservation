@@ -20,8 +20,10 @@ export default class TheaterController extends BaseController {
 
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating screen...');
-                    Models.Screen.findByIdAndUpdate(
-                        screen._id,
+                    Models.Screen.findOneAndUpdate(
+                        {
+                            _id: screen._id
+                        },
                         screen,
                         {
                             upsert: true
@@ -56,8 +58,10 @@ export default class TheaterController extends BaseController {
             let promises = theaters.map((theater) => {
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating theater...');
-                    Models.Theater.findByIdAndUpdate(
-                        theater._id,
+                    Models.Theater.findOneAndUpdate(
+                        {
+                            _id: theater._id
+                        },
                         theater,
                         {
                             upsert: true

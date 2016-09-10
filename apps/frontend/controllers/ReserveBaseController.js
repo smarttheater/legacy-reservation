@@ -491,7 +491,9 @@ class ReserveBaseController extends BaseController_1.default {
                     update['payment_seat_index'] = index;
                     return new Promise((resolve, reject) => {
                         this.logger.info('updating reservation all infos...update:', update);
-                        Models_1.default.Reservation.findByIdAndUpdate(update['_id'], update, {
+                        Models_1.default.Reservation.findOneAndUpdate({
+                            _id: update['_id']
+                        }, update, {
                             new: true
                         }, (err, reservation) => {
                             this.logger.info('reservation updated.', err, reservation);

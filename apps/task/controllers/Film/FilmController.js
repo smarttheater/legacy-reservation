@@ -33,7 +33,9 @@ class FilmController extends BaseController_1.default {
             let promises = films.map((film) => {
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating film...');
-                    Models_1.default.Film.findByIdAndUpdate(film._id, film, {
+                    Models_1.default.Film.findOneAndUpdate({
+                        _id: film._id
+                    }, film, {
                         upsert: true
                     }, (err) => {
                         this.logger.debug('film updated', err);

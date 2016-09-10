@@ -10,7 +10,7 @@
     {"user_id":"movie2016","password":"tiff2016","name":"ムービー","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"1st2016","password":"tiff2016","name":"一次販売","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"2nd2016","password":"tiff2016","name":"二次販売","email":"ticket2016@gmail.com","is_admin":false},
-    {"user_id":"3d2016","password":"tiff2016","name":"３Dデッド","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"3d2016","password":"tiff2016","name":"3Dデッド","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"pi2016","password":"tiff2016","name":"P＆Iデッド","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"admin2016","password":"tiff2016","name":"admin","email":"ticket2016@gmail.com","is_admin":true},
     {"user_id":"guesthost2016","password":"tiff2016","name":"ゲスホス","email":"ticket2016@gmail.com","is_admin":false},
