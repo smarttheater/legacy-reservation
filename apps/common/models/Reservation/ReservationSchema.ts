@@ -257,41 +257,32 @@ Schema.virtual('qr_str').get(function() {
     return `${this.payment_no}-${this.payment_seat_index}`;
 });
 
-/** TIFF確保にステータス更新するメソッド */
-Schema.statics.updateStatus2keptbytiff = function(reservationIds: Array<string>, cb: (err, raw) => void): void {
-    // パフォーマンス情報だけ残して、購入者情報は削除する
-    let paths4set = [
-        '_id', 'performance', 'seat_code', 'status', 'created_at', 'updated_at',
-        'performance_day', 'performance_start_time', 'performance_end_time', 
-        'theater', 'theater_name_ja', 'theater_name_en', 'theater_address_ja', 'theater_address_en', 
-        'screen', 'screen_name_ja', 'screen_name_en', 
-        'film', 'film_name_ja', 'film_name_en', 'film_image', 'film_is_mx4d'
-    ];
-    let unset = {};
-    this.schema.eachPath((path) => {
-        if (paths4set.indexOf(path) < 0) {
-            unset[path] = '';
-        }
-    });
 
-    return this.update(
-        {
-            _id: {$in: reservationIds}
-        },
-        {
-            $set: {
-                status: ReservationUtil.STATUS_KEPT_BY_TIFF,
-            },
-            $unset: unset
-        },
-        {
-            multi: true
-        },
-        (err, raw) => {
-            cb(err, raw);
-        }
-    );
-};
+Schema.post('findOneAndUpdate', function(doc){
+    // TIFF確保への更新の場合、パフォーマンス情報だけ残して、購入者情報は削除する
+    // 仮に失敗したとしても気にしない
+    if (doc.get('status') === ReservationUtil.STATUS_KEPT_BY_TIFF) {
+        let paths4set = [
+            '_id', 'performance', 'seat_code', 'status', 'created_at', 'updated_at',
+            'performance_day', 'performance_start_time', 'performance_end_time', 
+            'theater', 'theater_name_ja', 'theater_name_en', 'theater_address_ja', 'theater_address_en', 
+            'screen', 'screen_name_ja', 'screen_name_en', 
+            'film', 'film_name_ja', 'film_name_en', 'film_image', 'film_is_mx4d', 'film_copyright'
+        ];
+        let unset = {};
+        this.schema.eachPath((path) => {
+            if (paths4set.indexOf(path) < 0) {
+                unset[path] = '';
+            }
+        });
+
+        doc.update(
+            {$unset: unset},
+            (err, raw) => {
+            }
+        );
+    }
+});
 
 Schema.index(
     {

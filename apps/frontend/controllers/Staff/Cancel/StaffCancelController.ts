@@ -10,20 +10,31 @@ export default class StaffCancelController extends BaseController {
         // 予約IDリストをjson形式で受け取る
         let reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
-            this.logger.info('updateStatus2keptbytiff processing by staff... staff:', this.req.staffUser.get('user_id'), 'signature:', this.req.staffUser.get('signature'), 'ids:', reservationIds);
-            Models.Reservation['updateStatus2keptbytiff'](reservationIds, (err, raw) => {
-                this.logger.info('updateStatus2keptbytiff by staff processed.', err, raw, 'staff:', this.req.staffUser.get('user_id'), 'signature:', this.req.staffUser.get('signature'), 'ids:', reservationIds);
-                if (err) {
-                    this.res.json({
-                        success: false,
-                        message: err.message
-                    });
-                } else {
-                    this.res.json({
-                        success: true,
-                        message: null
-                    });
-                }
+            let promises = reservationIds.map((id) => {
+                return new Promise((resolve, reject) => {
+                    this.logger.info('updating to STATUS_KEPT_BY_TIFF by staff... staff:', this.req.staffUser.get('user_id'), 'signature:', this.req.staffUser.get('signature'), 'id:', id);
+                    Models.Reservation.findOneAndUpdate(
+                        {_id: id},
+                        {status: ReservationUtil.STATUS_KEPT_BY_TIFF},
+                        {new: true},
+                        (err, raw) => {
+                            this.logger.info('updated to STATUS_KEPT_BY_TIFF by staff.', err, raw, 'staff:', this.req.staffUser.get('user_id'), 'signature:', this.req.staffUser.get('signature'), 'id:', id);
+                            (err) ? reject(err) : resolve();
+                        }
+                    );
+                });
+            });
+
+            Promise.all(promises).then(() => {
+                this.res.json({
+                    success: true,
+                    message: null
+                });
+            }, (err) => {
+                this.res.json({
+                    success: false,
+                    message: err.message
+                });
             });
         } else {
             this.res.json({

@@ -32,7 +32,7 @@
     "moment": "^2.13.0",
     "mongo-express": "^0.30.59",
     "mongodb": "^2.2.7",
-    "mongoose": "^4.5.9",
+    "mongoose": "^4.6.0",
     "multer": "^1.1.0",
     "named-routes": "^2.0.5",
     "numeral": "^1.5.3",

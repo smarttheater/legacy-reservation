@@ -20,6 +20,7 @@ class TheaterController extends BaseController_1.default {
                     Models_1.default.Screen.findOneAndUpdate({
                         _id: screen._id
                     }, screen, {
+                        new: true,
                         upsert: true
                     }, (err) => {
                         this.logger.debug('screen updated', err);
@@ -50,6 +51,7 @@ class TheaterController extends BaseController_1.default {
                     Models_1.default.Theater.findOneAndUpdate({
                         _id: theater._id
                     }, theater, {
+                        new: true,
                         upsert: true
                     }, (err) => {
                         this.logger.debug('theater updated', err);

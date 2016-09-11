@@ -26,6 +26,7 @@ export default class TheaterController extends BaseController {
                         },
                         screen,
                         {
+                            new: true,
                             upsert: true
                         },
                         (err) => {
@@ -64,6 +65,7 @@ export default class TheaterController extends BaseController {
                         },
                         theater,
                         {
+                            new: true,
                             upsert: true
                         },
                         (err) => {

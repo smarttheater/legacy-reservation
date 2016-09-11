@@ -97,20 +97,31 @@ export default class SponsorCancelController extends BaseController {
                     });
                 }
 
-                this.logger.info('updateStatus2keptbytiff processing by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'ids:', ids);
-                Models.Reservation['updateStatus2keptbytiff'](ids, (err, raw) => {
-                    this.logger.info('updateStatus2keptbytiff by sponsor processed.', err, raw, 'sponsor:', this.req.sponsorUser.get('user_id'), 'ids:', ids);
-                    if (err) {
-                        this.res.json({
-                            success: false,
-                            message: err.message
-                        });
-                    } else {
-                        this.res.json({
-                            success: true,
-                            message: null
-                        });
-                    }
+                let promises = ids.map((id) => {
+                    return new Promise((resolve, reject) => {
+                        this.logger.info('updating to STATUS_KEPT_BY_TIFF by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                        Models.Reservation.findOneAndUpdate(
+                            {_id: id},
+                            {status: ReservationUtil.STATUS_KEPT_BY_TIFF},
+                            {new: true},
+                            (err, raw) => {
+                                this.logger.info('updated to STATUS_KEPT_BY_TIFF.', err, raw, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                                (err) ? reject(err) : resolve();
+                            }
+                        );
+                    });
+                });
+
+                Promise.all(promises).then(() => {
+                    this.res.json({
+                        success: true,
+                        message: null
+                    });
+                }, (err) => {
+                    this.res.json({
+                        success: false,
+                        message: err.message
+                    });
                 });
             }
         );
@@ -122,20 +133,31 @@ export default class SponsorCancelController extends BaseController {
         // 予約IDリストをjson形式で受け取る
         let reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
-            this.logger.info('updateStatus2keptbytiff processing by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'ids:', reservationIds);
-            Models.Reservation['updateStatus2keptbytiff'](reservationIds, (err, raw) => {
-                this.logger.info('updateStatus2keptbytiff by sponsor processed.', err, raw, 'sponsor:', this.req.sponsorUser.get('user_id'), 'ids:', reservationIds);
-                if (err) {
-                    this.res.json({
-                        success: false,
-                        message: err.message
-                    });
-                } else {
-                    this.res.json({
-                        success: true,
-                        message: null
-                    });
-                }
+            let promises = reservationIds.map((id) => {
+                return new Promise((resolve, reject) => {
+                    this.logger.info('updating to STATUS_KEPT_BY_TIFF by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                    Models.Reservation.findOneAndUpdate(
+                        {_id: id},
+                        {status: ReservationUtil.STATUS_KEPT_BY_TIFF},
+                        {new: true},
+                        (err, raw) => {
+                            this.logger.info('updated to STATUS_KEPT_BY_TIFF.', err, raw, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                            (err) ? reject(err) : resolve();
+                        }
+                    );
+                });
+            });
+
+            Promise.all(promises).then(() => {
+                this.res.json({
+                    success: true,
+                    message: null
+                });
+            }, (err) => {
+                this.res.json({
+                    success: false,
+                    message: err.message
+                });
             });
         } else {
             this.res.json({

@@ -126,7 +126,7 @@ export default class PerformanceController extends BaseController {
                             },
                         });
 
-                        query.lean(true).exec((err, performances) => {
+                        query.lean(true).exec((err, performances: Array<any>) => {
                             if (err) {
                                 return this.res.json({
                                     success: false,

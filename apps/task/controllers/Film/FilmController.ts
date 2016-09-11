@@ -46,6 +46,7 @@ export default class FilmController extends BaseController {
                         },
                         film,
                         {
+                            new: true,
                             upsert: true
                         },
                         (err) => {

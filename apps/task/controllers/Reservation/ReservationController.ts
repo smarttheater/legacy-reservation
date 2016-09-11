@@ -61,13 +61,26 @@ export default class ReservationController extends BaseController {
                 }
             },
             (err, ids) => {
-                this.logger.info('updateStatus2keptbytiff processing...ids:', ids);
-                Models.Reservation['updateStatus2keptbytiff'](ids, (err, raw) => {
-                    this.logger.info('updateStatus2keptbytiff processed.', err, raw);
-                    // 失敗しても、次のタスクにまかせる(気にしない)
-                    if (err) {
-                    }
+                let promises = ids.map((id) => {
+                    return new Promise((resolve, reject) => {
+                        this.logger.info('updating to STATUS_KEPT_BY_TIFF...id:', id);
+                        Models.Reservation.findOneAndUpdate(
+                            {_id: id},
+                            {status: ReservationUtil.STATUS_KEPT_BY_TIFF},
+                            {new: true},
+                            (err, raw) => {
+                                this.logger.info('updated to STATUS_KEPT_BY_TIFF. id:', id, err, raw);
+                                (err) ? reject(err) : resolve();
+                            }
+                        );
+                    });
+                });
 
+                Promise.all(promises).then(() => {
+                    mongoose.disconnect();
+                    process.exit(0);
+                }, (err) => {
+                    // 失敗しても、次のタスクにまかせる(気にしない)
                     mongoose.disconnect();
                     process.exit(0);
                 });

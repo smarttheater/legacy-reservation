@@ -36,6 +36,7 @@ class FilmController extends BaseController_1.default {
                     Models_1.default.Film.findOneAndUpdate({
                         _id: film._id
                     }, film, {
+                        new: true,
                         upsert: true
                     }, (err) => {
                         this.logger.debug('film updated', err);

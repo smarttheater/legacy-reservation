@@ -15,7 +15,7 @@ class Util {
         // console.log(uniqid()); // Generate 18 byte unique id's based on the time, process id and mac address. Works on multiple processes and machines.
         // console.log(uniqid.process()); // Generate 12 byte unique id's based on the time and the process id. Works on multiple processes within a single machine but not on multiple machines.
         // console.log(uniqid.time()); // Generate 8 byte unique id's based on the current time only. Recommended only on a single process on a single machine.
-        md5hash.update(Math.floor(Math.random() * 10000) + 1000 + uniqid.process(), 'binary');
+        md5hash.update(Math.floor(Math.random() * 10000) + 1000 + uniqid.process(), 'utf8');
         return md5hash.digest('hex');
     }
     /**

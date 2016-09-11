@@ -145,6 +145,7 @@ export default class PerformanceController extends BaseController {
                             {_id: performance._id},
                             performance,
                             {
+                                new: true,
                                 upsert: true
                             },
                             (err) => {

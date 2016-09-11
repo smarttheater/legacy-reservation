@@ -116,6 +116,7 @@ class PerformanceController extends BaseController_1.default {
                     return new Promise((resolve, reject) => {
                         this.logger.debug('updating performance...');
                         Models_1.default.Performance.findOneAndUpdate({ _id: performance._id }, performance, {
+                            new: true,
                             upsert: true
                         }, (err) => {
                             this.logger.debug('performance updated', err);
