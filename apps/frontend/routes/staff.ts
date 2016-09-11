@@ -30,7 +30,7 @@ export default (app: any) => {
                                     if (err) cb(null, null, null);
 
                                     res.cookie('remember_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                    Models.Staff.findById(authentication.get('staff'), (err, staff) => {
+                                    Models.Staff.findOne({_id: authentication.get('staff')}, (err, staff) => {
                                         cb(staff, authentication.get('signature'), authentication.get('locale'));
                                     });
                                 });

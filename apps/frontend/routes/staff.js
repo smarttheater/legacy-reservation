@@ -26,7 +26,7 @@ exports.default = (app) => {
                                 if (err)
                                     cb(null, null, null);
                                 res.cookie('remember_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                Models_1.default.Staff.findById(authentication.get('staff'), (err, staff) => {
+                                Models_1.default.Staff.findOne({ _id: authentication.get('staff') }, (err, staff) => {
                                     cb(staff, authentication.get('signature'), authentication.get('locale'));
                                 });
                             });

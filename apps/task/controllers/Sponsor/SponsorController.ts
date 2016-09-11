@@ -25,12 +25,13 @@ export default class SponsorController extends BaseController {
 
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating sponsor...');
-                    Models.Sponsor.update(
+                    Models.Sponsor.findOneAndUpdate(
                         {
                             user_id: sponsor.user_id
                         },
                         sponsor,
                         {
+                            new: true,
                             upsert: true
                         },
                         (err) => {

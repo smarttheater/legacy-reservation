@@ -21,9 +21,10 @@ class SponsorController extends BaseController_1.default {
                 sponsor['password_hash'] = Util_1.default.createHash(sponsor.password, password_salt);
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating sponsor...');
-                    Models_1.default.Sponsor.update({
+                    Models_1.default.Sponsor.findOneAndUpdate({
                         user_id: sponsor.user_id
                     }, sponsor, {
+                        new: true,
                         upsert: true
                     }, (err) => {
                         this.logger.debug('sponsor updated', err);

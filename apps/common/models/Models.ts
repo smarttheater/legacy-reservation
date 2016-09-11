@@ -129,7 +129,47 @@ PerformanceSchema.post('findOneAndUpdate', function(doc, next){
         },
         {multi: true},
         (err, raw) => {
-            console.log('reservation updated.', err, raw);
+            console.log('related reservation updated.', err, raw);
+            next();
+        }
+    );
+});
+
+/**
+ * 外部関係者と予約の整合性を保つ
+ */
+SponsorSchema.post('findOneAndUpdate', function(doc, next){
+    Models.Reservation.update(
+        {
+            sponsor: doc['_id']
+        },
+        {
+            sponsor_name: doc['name'],
+            sponsor_email: doc['email']
+        },
+        {multi: true},
+        (err, raw) => {
+            console.log('related reservation updated.', err, raw);
+            next();
+        }
+    );
+});
+
+/**
+ * 内部関係者と予約の整合性を保つ
+ */
+StaffSchema.post('findOneAndUpdate', function(doc, next){
+    Models.Reservation.update(
+        {
+            staff: doc['_id']
+        },
+        {
+            staff_name: doc['name'],
+            staff_email: doc['email']
+        },
+        {multi: true},
+        (err, raw) => {
+            console.log('related reservation updated.', err, raw);
             next();
         }
     );

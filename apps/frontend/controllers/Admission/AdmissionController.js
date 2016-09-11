@@ -38,7 +38,7 @@ class AdmissionController extends BaseController_1.default {
         }
     }
     confirm() {
-        Models_1.default.Performance.findById(this.req.params.id)
+        Models_1.default.Performance.findOne({ _id: this.req.params.id })
             .populate('film', 'name')
             .populate('screen', 'name')
             .populate('theater', 'name')

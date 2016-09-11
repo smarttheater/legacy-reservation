@@ -182,7 +182,7 @@ Schema.virtual('purchaser_name').get(function() {
     if (this.status === ReservationUtil.STATUS_RESERVED) {
         switch (this.purchaser_group) {
             case ReservationUtil.PURCHASER_GROUP_STAFF:
-                name = `${this.staff_name} ${this.staff_signature}`;;
+                name = `${this.staff_name} ${this.staff_signature}`;
                 break;
             default:
                 name = `${this.purchaser_last_name} ${this.purchaser_first_name}`;
@@ -236,11 +236,16 @@ Schema.virtual('status_str').get(function() {
             break;
 
         case ReservationUtil.STATUS_WAITING_SETTLEMENT:
+        case ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN:
             str = '決済中';
             break;
 
         case ReservationUtil.STATUS_KEPT_BY_TIFF:
             str = 'TIFF確保中';
+            break;
+
+        case ReservationUtil.STATUS_KEPT_BY_MEMBER:
+            str = 'メルマガ保留中';
             break;
 
         default:
@@ -257,17 +262,17 @@ Schema.virtual('qr_str').get(function() {
     return `${this.payment_no}-${this.payment_seat_index}`;
 });
 
-
+/**
+ * TIFF確保への更新の場合、パフォーマンス情報だけ残して、購入者情報は削除する
+ */
 Schema.post('findOneAndUpdate', function(doc){
-    // TIFF確保への更新の場合、パフォーマンス情報だけ残して、購入者情報は削除する
-    // 仮に失敗したとしても気にしない
     if (doc.get('status') === ReservationUtil.STATUS_KEPT_BY_TIFF) {
         let paths4set = [
-            '_id', 'performance', 'seat_code', 'status', 'created_at', 'updated_at',
-            'performance_day', 'performance_start_time', 'performance_end_time', 
-            'theater', 'theater_name_ja', 'theater_name_en', 'theater_address_ja', 'theater_address_en', 
-            'screen', 'screen_name_ja', 'screen_name_en', 
-            'film', 'film_name_ja', 'film_name_en', 'film_image', 'film_is_mx4d', 'film_copyright'
+            '_id', 'performance', 'seat_code', 'status', 'created_at', 'updated_at'
+          , 'performance_day', 'performance_open_time', 'performance_start_time', 'performance_end_time', 'performance_canceled'
+          , 'theater', 'theater_name_ja', 'theater_name_en', 'theater_address_ja', 'theater_address_en'
+          , 'screen', 'screen_name_ja', 'screen_name_en'
+          , 'film', 'film_name_ja', 'film_name_en', 'film_image', 'film_is_mx4d', 'film_copyright'
         ];
         let unset = {};
         this.schema.eachPath((path) => {
@@ -279,6 +284,7 @@ Schema.post('findOneAndUpdate', function(doc){
         doc.update(
             {$unset: unset},
             (err, raw) => {
+                // 仮に失敗したとしても気にしない
             }
         );
     }

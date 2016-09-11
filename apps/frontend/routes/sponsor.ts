@@ -30,7 +30,7 @@ export default (app: any) => {
                                     if (err) cb(null, null);
 
                                     res.cookie('remember_sponsor', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                    Models.Sponsor.findById(authentication.get('sponsor'), (err, sponsor) => {
+                                    Models.Sponsor.findOne({_id: authentication.get('sponsor')}, (err, sponsor) => {
                                         cb(sponsor, authentication.get('locale'));
                                     });
                                 });

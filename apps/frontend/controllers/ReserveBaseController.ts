@@ -231,8 +231,8 @@ export default class ReserveBaseController extends BaseController {
 
 
             // 券種取得
-            Models.TicketTypeGroup.findById(
-                performance.get('film').get('ticket_type_group').toString(),
+            Models.TicketTypeGroup.findOne(
+                {_id: performance.get('film').get('ticket_type_group')},
                 (err, ticketTypeGroup) => {
                     if (err) return cb(err, reservationModel);
 

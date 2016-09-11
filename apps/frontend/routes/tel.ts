@@ -30,7 +30,7 @@ export default (app: any) => {
                                     if (err) cb(null);
 
                                     res.cookie('remember_tel_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                    Models.TelStaff.findById(authentication.get('tel_staff'), (err, telStaff) => {
+                                    Models.TelStaff.findOne({_id: authentication.get('tel_staff')}, (err, telStaff) => {
                                         cb(telStaff);
                                     });
                                 });

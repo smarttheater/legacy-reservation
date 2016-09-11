@@ -26,7 +26,7 @@ exports.default = (app) => {
                                 if (err)
                                     cb(null);
                                 res.cookie('remember_window', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                Models_1.default.Window.findById(authentication.get('window'), (err, window) => {
+                                Models_1.default.Window.findOne({ _id: authentication.get('window') }, (err, window) => {
                                     cb(window);
                                 });
                             });

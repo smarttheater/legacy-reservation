@@ -26,12 +26,13 @@ export default class StaffController extends BaseController {
 
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating staff...');
-                    Models.Staff.update(
+                    Models.Staff.findOneAndUpdate(
                         {
                             user_id: staff.user_id
                         },
                         staff,
                         {
+                            new: true,
                             upsert: true
                         },
                         (err) => {
@@ -190,7 +191,7 @@ export default class StaffController extends BaseController {
     public createReservationsByPerformanceId(performanceId: string): void {
         mongoose.connect(MONGOLAB_URI, {});
 
-        Models.Performance.findById(performanceId)
+        Models.Performance.findOne({_id: performanceId})
         .populate('film', 'name is_mx4d copyright')
         .populate('screen', 'name')
         .populate('theater', 'name address')

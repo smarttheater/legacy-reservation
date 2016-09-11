@@ -23,9 +23,10 @@ class StaffController extends BaseController_1.default {
                 staff['password_hash'] = Util_1.default.createHash(staff.password, password_salt);
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating staff...');
-                    Models_1.default.Staff.update({
+                    Models_1.default.Staff.findOneAndUpdate({
                         user_id: staff.user_id
                     }, staff, {
+                        new: true,
                         upsert: true
                     }, (err) => {
                         this.logger.debug('staff updated', err);
@@ -168,7 +169,7 @@ class StaffController extends BaseController_1.default {
      */
     createReservationsByPerformanceId(performanceId) {
         mongoose.connect(MONGOLAB_URI, {});
-        Models_1.default.Performance.findById(performanceId)
+        Models_1.default.Performance.findOne({ _id: performanceId })
             .populate('film', 'name is_mx4d copyright')
             .populate('screen', 'name')
             .populate('theater', 'name address')

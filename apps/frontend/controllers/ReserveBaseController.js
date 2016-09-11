@@ -200,7 +200,7 @@ class ReserveBaseController extends BaseController_1.default {
                 }
             }
             // 券種取得
-            Models_1.default.TicketTypeGroup.findById(performance.get('film').get('ticket_type_group').toString(), (err, ticketTypeGroup) => {
+            Models_1.default.TicketTypeGroup.findOne({ _id: performance.get('film').get('ticket_type_group') }, (err, ticketTypeGroup) => {
                 if (err)
                     return cb(err, reservationModel);
                 reservationModel.seatCodes = [];

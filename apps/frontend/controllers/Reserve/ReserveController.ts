@@ -101,7 +101,7 @@ export default class ReserveController extends ReserveBaseController {
      * create qrcode by reservation token and reservation id.
      */
     public qrcode() {
-        Models.Reservation.findById(this.req.params.reservationId, 'payment_no payment_seat_index', (err, reservation) => {
+        Models.Reservation.findOne({_id: this.req.params.reservationId}, 'payment_no payment_seat_index', (err, reservation) => {
             // this.res.setHeader('Content-Type', 'image/png');
             qr.image(reservation.get('qr_str'), {type: 'png'}).pipe(this.res);
         });

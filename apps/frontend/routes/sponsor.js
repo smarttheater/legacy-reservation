@@ -26,7 +26,7 @@ exports.default = (app) => {
                                 if (err)
                                     cb(null, null);
                                 res.cookie('remember_sponsor', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                Models_1.default.Sponsor.findById(authentication.get('sponsor'), (err, sponsor) => {
+                                Models_1.default.Sponsor.findOne({ _id: authentication.get('sponsor') }, (err, sponsor) => {
                                     cb(sponsor, authentication.get('locale'));
                                 });
                             });
