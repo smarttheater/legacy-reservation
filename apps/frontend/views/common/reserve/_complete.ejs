@@ -1,7 +1,10 @@
 <%
 let reservationsById = {};
 for (let reservation of reservationDocuments) {
-    reservationsById[reservation._id.toString()] = reservation;
+    let _reservation = reservation.toObject();
+    _reservation['ticket_type_charge_str_ja'] = reservation.get('ticket_type_charge_str_ja');
+    _reservation['ticket_type_charge_str_en'] = reservation.get('ticket_type_charge_str_en');
+    reservationsById[reservation._id.toString()] = _reservation;
 }
 %>
 <input type="hidden" name="reservationsById" value="<%= JSON.stringify(reservationsById) %>">
