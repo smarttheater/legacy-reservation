@@ -562,7 +562,7 @@ class ReserveBaseController extends BaseController_1.default {
      * 予約プロセス用のロガーを設定する
      * 1決済管理番号につき、1ログファイル
      *
-     * @param {string} paymentNo 予約番号
+     * @param {string} paymentNo 購入番号
      */
     setProcessLogger(paymentNo, cb) {
         Util_1.default.getReservationLogger(paymentNo, (err, logger) => {

@@ -106,7 +106,7 @@
 			"userId": "ユーザー番号",
 			"signature": "署名",
 			"language": "使用言語",
-			"paymentNo": "予約番号",
+			"paymentNo": "購入番号",
 			"last4DigitsOfTel": "電話番号下4桁",
 			"remember": "次回から自動的にログインする",
 			"age": "年代",

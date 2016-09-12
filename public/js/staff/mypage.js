@@ -1,5 +1,5 @@
 $(function(){
-    // 予約番号ごとにまとめた予約ドキュメントリスト
+    // 購入番号ごとにまとめた予約ドキュメントリスト
     var reservations = [];
     var conditions = {
         limit: $('.search-form input[name="limit"]').val(),
@@ -184,7 +184,7 @@ $(function(){
 
         reservationsIds4cancel = [reservationNode.attr('data-reservation-id')];
 
-        var body = '<tr><th>予約番号:</th><td>' + reservationNode.attr('data-payment-no') + '</td></tr>'
+        var body = '<tr><th>購入番号:</th><td>' + reservationNode.attr('data-payment-no') + '</td></tr>'
                  + '<tr><th>タイトル:</th><td>' + reservationNode.attr('data-film-name') + '</td></tr>'
                  + '<tr><th>上映時間/場所:</th><td>'
                      + reservationNode.attr('data-performance-start-datetime') + '-'

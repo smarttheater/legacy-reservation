@@ -38,7 +38,7 @@ class SponsorCancelController extends BaseController_1.default {
                         if (reservations.length === 0) {
                             return this.res.json({
                                 success: false,
-                                message: '予約番号または電話番号下4ケタに誤りがあります'
+                                message: '購入番号または電話番号下4ケタに誤りがあります'
                             });
                         }
                         this.res.json({
@@ -51,7 +51,7 @@ class SponsorCancelController extends BaseController_1.default {
                 else {
                     this.res.json({
                         success: false,
-                        message: '予約番号または電話番号下4ケタに誤りがあります'
+                        message: '購入番号または電話番号下4ケタに誤りがあります'
                     });
                 }
             });
@@ -63,7 +63,7 @@ class SponsorCancelController extends BaseController_1.default {
         }
     }
     /**
-     * 予約番号からキャンセルする
+     * 購入番号からキャンセルする
      */
     executeByPaymentNo() {
         this.logger = log4js.getLogger('cancel');
@@ -83,7 +83,7 @@ class SponsorCancelController extends BaseController_1.default {
             if (ids.length === 0) {
                 return this.res.json({
                     success: false,
-                    message: '予約番号または電話番号下4ケタに誤りがあります'
+                    message: '購入番号または電話番号下4ケタに誤りがあります'
                 });
             }
             let promises = ids.map((id) => {

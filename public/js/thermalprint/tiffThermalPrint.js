@@ -112,7 +112,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
                 return (!reservation[item]);
             });
             if(missings[0]){
-                throw({message:'[!] 予約番号'+reservation.reservation_id+'の以下の情報が見つかりませんでした\n'+missings.join('\n')});
+                throw({message:'[!] 購入番号'+reservation.reservation_id+'の以下の情報が見つかりませんでした\n'+missings.join('\n')});
             }
 
 
@@ -142,9 +142,9 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
             });
 
             request += builder.createTextElement({
-                data: '\n予約番号\n-RESERVATION NUMBER-\n'
+                data: '\n購入番号\n-RESERVATION NUMBER-\n'
             });
-            //予約番号を強調
+            //購入番号を強調
             request += builder.createTextElement({
                 emphasis: true,
                 data: reservation.reservation_id+'\n\n'
@@ -275,7 +275,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
             //予約情報を印刷データに変換
             var request = genRequestByReservationObj(reservation);
             if(!request){
-                throw({message:'[!] 予約番号'+reservation.reservation_id+'の印刷データ作成に失敗しました'});
+                throw({message:'[!] 購入番号'+reservation.reservation_id+'の印刷データ作成に失敗しました'});
             }
 
             //プリンターに送信
@@ -297,7 +297,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
             reservations.forEach(function(reservation){
                 var temp = genRequestByReservationObj(reservation);
                 if(!temp){
-                    alert('[!] 予約番号'+reservation.reservation_id+'の印刷は印刷データ作成エラーが起きたためスキップされました');
+                    alert('[!] 購入番号'+reservation.reservation_id+'の印刷は印刷データ作成エラーが起きたためスキップされました');
                 }else{
                     request += temp;
                 }

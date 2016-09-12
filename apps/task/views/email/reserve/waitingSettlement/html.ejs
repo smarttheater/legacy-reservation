@@ -61,7 +61,7 @@
 
 
     <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">予約番号 (Reservation number) :</h3>
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入番号 (Reservation number) :</h3>
         <strong><%- reservations[0].get('payment_no') %></strong>
     </div>
 
@@ -99,7 +99,7 @@
         <p style="font-size:12px;">
             <% reservations.forEach((reservation, index) => { %>
             <%- (index > 0) ? '<br>' : '' %>
-            <%- reservation.get('ticket_type_name_en') %> <%- reservation.get('ticket_type_charge_str_en') %><br>
+            <%- reservation.get('ticket_type_name_en') %> <%- reservation.get('ticket_type_charge_str_en') %>
             <% }) %>
         </p>
 
@@ -115,7 +115,7 @@
     <div style="margin-bottom:1em;">
         <h3 style="font-weight:normal;font-size:14px;margin:0;">購入枚数 (Purchase number) :</h3>
         <strong><%- reservations.length %>枚</strong>
-        <span style="font-size:12px;"><%- reservations.length %> ticket</span>
+        <span style="font-size:12px;"><%- reservations.length %> ticket(s)</span>
     </div>
 
 
