@@ -2,18 +2,15 @@
 <div class="modal fade selected-seat-map" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
+            <p class="btn-circle-close" data-dismiss="modal"></p>
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                座席を表示
             </div>
-
             <div class="modal-body">
             </div>
-
-            <!--
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <p class="btn btn-close" data-dismiss="modal"><span><%- __('Button.Close') %></span></p>
             </div>
-            -->
         </div>
     </div>
 </div>
@@ -33,14 +30,11 @@ function showSeatPositon(screenId, selecteSeatCodes) {
         beforeSend: function() {
         }
     }).done(function(data) {
-        $('.selected-seat-map .modal-body').html(data);
-
+        $('.selected-seat-map .modal-body').html(data).find('.seat a').addClass('disabled');
         new ScreenSeatStatusesMap($('.screen'));
-
         selecteSeatCodes.forEach(function(selecteSeatCode){
-            $('.selected-seat-map .modal-body .seat a[data-seat-code="' + selecteSeatCode + '"]').addClass('active');
+            $('.selected-seat-map .modal-body .seat a[data-seat-code="' + selecteSeatCode + '"]').removeClass('disabled').addClass('active');
         });
-
         $('.selected-seat-map').modal();
     }).fail(function(jqxhr, textStatus, error) {
     }).always(function() {
@@ -49,8 +43,7 @@ function showSeatPositon(screenId, selecteSeatCodes) {
 
 // 座席位置確認マップを表示する
 $(document).on('click', '.show-seat-position', function(){
-    var seatCodes = $(this).attr('data-seat-codes').split(',');
-    showSeatPositon($(this).attr('data-screen-id'), seatCodes);
+    showSeatPositon($(this).attr('data-screen-id'), $(this).attr('data-seat-codes').split(','));
 });
 
 </script>

@@ -6,10 +6,6 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
 
     'use strict';
 
-    //StarWebPRNT専用ブラウザか判定
-    var bool_StarWebPRNTBrowser = !!~navigator.userAgent.toLowerCase().indexOf('starwebprnt');
-
-
     //印刷ボタンを連打させないための「印刷中...」モーダル
     d.body.insertAdjacentHTML('afterbegin','<div id="modal_thermalprinting"><div><span>印刷中...</span></div></div>');
     var modal = d.getElementById('modal_thermalprinting');
@@ -273,9 +269,6 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
 
     //予約単体印刷
     var printReservation = function(reservation){
-        if(!bool_StarWebPRNTBrowser){
-            return alert('『Star WebPRNT ブラウザー』で実行してください');
-        }
         modal.style.display = 'block';
         try{
             //予約情報を印刷データに変換
@@ -296,9 +289,6 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
 
     //予約一括印刷 (予約配列をforEachして1本の長いrequestを作って送信する)
     var printReservationArray = function(reservations){
-        if(!bool_StarWebPRNTBrowser){
-            return alert('『Star WebPRNT ブラウザー』で実行してください');
-        }
         modal.style.display = 'block';
         try{
             //予約情報の配列を印刷データに変換
