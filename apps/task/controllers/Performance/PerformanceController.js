@@ -1,7 +1,6 @@
 "use strict";
 const BaseController_1 = require('../BaseController');
 const Models_1 = require('../../../common/models/Models');
-const PerformanceUtil_1 = require('../../../common/models/Performance/PerformanceUtil');
 const moment = require('moment');
 const conf = require('config');
 const mongoose = require('mongoose');
@@ -162,29 +161,28 @@ class PerformanceController extends BaseController_1.default {
                     }
                 }
             ], (err, results) => {
-                this.logger.info('aggregated.', err, results);
+                this.logger.info('aggregated.', err);
                 if (err) {
                     mongoose.disconnect();
                     process.exit(0);
                     return;
                 }
                 // パフォーマンスIDごとに
-                let reservationCounts = {};
+                let reservationNumbers = {};
                 for (let result of results) {
-                    reservationCounts[result._id] = parseInt(result.count);
+                    reservationNumbers[result._id] = parseInt(result.count);
                 }
                 performances.forEach((performance) => {
                     // パフォーマンスごとに空席ステータスを算出する
-                    if (reservationCounts.hasOwnProperty(performance.get('_id').toString())) {
-                        let status = performance['getSeatStatus'](reservationCounts[performance.get('_id').toString()]);
-                        performanceStatusesModel.setStatus(performance._id.toString(), status);
+                    if (!reservationNumbers.hasOwnProperty(performance.get('_id').toString())) {
+                        reservationNumbers[performance.get('_id').toString()] = 0;
                     }
-                    else {
-                        performanceStatusesModel.setStatus(performance._id.toString(), PerformanceUtil_1.default.SEAT_STATUS_A);
-                    }
+                    let status = performance['getSeatStatus'](reservationNumbers[performance.get('_id').toString()]);
+                    performanceStatusesModel.setStatus(performance._id.toString(), status);
                 });
-                this.logger.info('saving performanceStatusesModel...');
+                this.logger.info('saving performanceStatusesModel...', performanceStatusesModel);
                 performanceStatusesModel.save((err) => {
+                    this.logger.info('performanceStatusesModel saved.', err);
                     mongoose.disconnect();
                     process.exit(0);
                 });

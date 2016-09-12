@@ -203,7 +203,7 @@ export default class PerformanceController extends BaseController {
                     }
                 ],
                 (err, results) => {
-                    this.logger.info('aggregated.', err, results);
+                    this.logger.info('aggregated.', err);
                     if (err) {
                         mongoose.disconnect();
                         process.exit(0);
@@ -211,23 +211,24 @@ export default class PerformanceController extends BaseController {
                     }
 
                     // パフォーマンスIDごとに
-                    let reservationCounts = {};
+                    let reservationNumbers = {};
                     for (let result of results) {
-                        reservationCounts[result._id] = parseInt(result.count);
+                        reservationNumbers[result._id] = parseInt(result.count);
                     }
 
                     performances.forEach((performance) => {
                         // パフォーマンスごとに空席ステータスを算出する
-                        if (reservationCounts.hasOwnProperty(performance.get('_id').toString())) {
-                            let status = performance['getSeatStatus'](reservationCounts[performance.get('_id').toString()]);
-                            performanceStatusesModel.setStatus(performance._id.toString(), status);
-                        } else {
-                            performanceStatusesModel.setStatus(performance._id.toString(), PerformanceUtil.SEAT_STATUS_A);
+                        if (!reservationNumbers.hasOwnProperty(performance.get('_id').toString())) {
+                            reservationNumbers[performance.get('_id').toString()] = 0;
                         }
+
+                        let status = performance['getSeatStatus'](reservationNumbers[performance.get('_id').toString()]);
+                        performanceStatusesModel.setStatus(performance._id.toString(), status);
                     });
 
-                    this.logger.info('saving performanceStatusesModel...');
+                    this.logger.info('saving performanceStatusesModel...', performanceStatusesModel);
                     performanceStatusesModel.save((err) => {
+                        this.logger.info('performanceStatusesModel saved.', err);
                         mongoose.disconnect();
                         process.exit(0);
                     });
