@@ -260,7 +260,8 @@ export default class ReservationController extends BaseController {
                                     reservations: reservations,
                                     moment: moment,
                                     numeral: numeral,
-                                    GMOUtil: GMOUtil
+                                    GMOUtil: GMOUtil,
+                                    ReservationUtil: ReservationUtil
                                 };
                                 _logger.info('rendering template...dir:', dir);
                                 template.render(locals, (err, result) => {

@@ -92,28 +92,23 @@
         <h3 style="font-weight:normal;font-size:14px;margin:0;">券種 (Ticket type) :</h3>
 
         <% reservations.forEach((reservation, index) => { %>
-        <strong><%- reservation.get('ticket_type_name_ja') %>　&yen;<%- numeral(reservation.get('ticket_type_charge') + reservation.get('seat_grade_additional_charge')).format('0,0') %>
-            <% if (reservation.get('seat_grade_additional_charge') > 0) { %>
-            　(内<%- reservation.get('seat_grade_name_ja') %> &yen;<%- reservation.get('seat_grade_additional_charge') %>)</strong><br>
-            <% } %>
+        <%- (index > 0) ? '<br>' : '' %>
+        <strong><%- reservation.get('ticket_type_name_ja') %> <%- reservation.get('ticket_type_charge_str_ja') %>
         <% }) %>
 
         <p style="font-size:12px;">
             <% reservations.forEach((reservation, index) => { %>
-            <%- reservation.get('ticket_type_name_en') %> &yen;<%- numeral(reservation.get('ticket_type_charge') + reservation.get('seat_grade_additional_charge')).format('0,0') %>
-                <% if (reservation.get('seat_grade_additional_charge') > 0) { %>
-                (<%- reservation.get('seat_grade_name_en') %> &yen;<%- reservation.get('seat_grade_additional_charge') %>)
-                <% } %>
+            <%- (index > 0) ? '<br>' : '' %>
+            <%- reservation.get('ticket_type_name_en') %> <%- reservation.get('ticket_type_charge_str_en') %><br>
             <% }) %>
         </p>
 
     </div>
 
-
     <!-- コンビニ決済完了の場合 -->
     <div style="margin-bottom:1em;">
         <h3 style="font-weight:normal;font-size:14px;margin:0;">コンビニ決済手数料 (Handling charge) :</h3>
-        <strong>&yen;150 x <%- reservations.length %></strong>
+        <strong>&yen;<%- ReservationUtil.CHARGE_CVS %> x <%- reservations.length %></strong>
     </div>
     <!-- /コンビニ決済完了の場合 -->
 
@@ -132,7 +127,7 @@
             totalCharge += reservation.get('charge');
         });
         %>
-        <strong>&yen;<%- numeral(totalCharge).format('0,0') %> (税込/tax incl.)</strong>
+        <strong>&yen;<%- numeral(totalCharge).format('0,0') %></strong>
     </div>
 
 
