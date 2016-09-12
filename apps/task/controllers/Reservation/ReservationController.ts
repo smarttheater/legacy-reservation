@@ -21,14 +21,13 @@ export default class ReservationController extends BaseController {
     public removeTmps(): void {
         mongoose.connect(MONGOLAB_URI, {});
 
-        // 念のため、仮予約有効期間より1分長めにしておく
-        let seconds = conf.get<number>('temporary_reservation_valid_period_seconds') + 60;
         this.logger.info('removing temporary reservations...');
         Models.Reservation.remove(
             {
                 status: ReservationUtil.STATUS_TEMPORARY,
-                updated_at: {
-                    $lt: moment().add(-seconds, 'seconds').toISOString()
+                expired_at: {
+                    // 念のため、仮予約有効期間より1分長めにしておく
+                    $lt: moment().add(-60, 'seconds').toISOString()
                 }
             },
             (err) => {
@@ -50,14 +49,13 @@ export default class ReservationController extends BaseController {
     public tmp2tiff(): void {
         mongoose.connect(MONGOLAB_URI, {});
 
-        // 念のため、仮予約有効期間より1分長めにしておく
-        let seconds = conf.get<number>('temporary_reservation_valid_period_seconds') + 60;
         Models.Reservation.distinct(
             '_id',
             {
                 status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TIFF,
-                updated_at: {
-                    $lt: moment().add(-seconds, 'seconds').toISOString()
+                expired_at: {
+                    // 念のため、仮予約有効期間より1分長めにしておく
+                    $lt: moment().add(-60, 'seconds').toISOString()
                 }
             },
             (err, ids) => {
@@ -68,8 +66,8 @@ export default class ReservationController extends BaseController {
                             {_id: id},
                             {status: ReservationUtil.STATUS_KEPT_BY_TIFF},
                             {new: true},
-                            (err, raw) => {
-                                this.logger.info('updated to STATUS_KEPT_BY_TIFF. id:', id, err, raw);
+                            (err, reservation) => {
+                                this.logger.info('updated to STATUS_KEPT_BY_TIFF. id:', id, err, reservation);
                                 (err) ? reject(err) : resolve();
                             }
                         );
@@ -99,8 +97,8 @@ export default class ReservationController extends BaseController {
         Models.Reservation.remove(
             {
                 status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
-                updated_at: {
-                    $lt: moment().add(-hours, 'hours').toISOString()
+                gmo_payment_term: {
+                    $lt: moment().add(-hours, 'hours').format('YYYYMMDDHHmmss')
                 }
             },
             (err) => {
@@ -356,38 +354,6 @@ export default class ReservationController extends BaseController {
                 this.logger.info('updated.', err);
                 mongoose.disconnect();
                 process.exit(0);
-            }
-        );
-    }
-
-    /**
-     * パフォーマンスの上映中止フラグを予約に反映する
-     */
-    public setPerformanceCanceledFlags(): void {
-        mongoose.connect(MONGOLAB_URI, {});
-
-        // いったん上映中止フラグをオフにしてから、パフォーマンスのフラグを反映する
-        Models.Reservation.update(
-            {performance_canceled: true},
-            {performance_canceled: false},
-            {multi: true},
-            (err, raw) => {
-                this.logger.info('updated.', err, raw);
-
-                this.logger.info('finding performances...');
-                Models.Performance.distinct('_id', {canceled: true}, (err, performanceIds) => {
-                    this.logger.info('performaces found.', err, performanceIds);
-                    Models.Reservation.update(
-                        {performance: {$in: performanceIds}},
-                        {performance_canceled: true},
-                        {multi: true},
-                        (err, raw) => {
-                            this.logger.info('updated.', err, raw);
-                            mongoose.disconnect();
-                            process.exit(0);
-                        }
-                    );
-                });
             }
         );
     }

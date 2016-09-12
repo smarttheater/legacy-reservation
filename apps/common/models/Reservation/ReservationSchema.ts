@@ -19,6 +19,8 @@ let Schema = new mongoose.Schema({
         required: true
     },
 
+    expired_at: Date, // 仮予約期限
+
     performance_day: String,
     performance_open_time: String,
     performance_start_time: String,

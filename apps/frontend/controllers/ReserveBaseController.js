@@ -321,6 +321,7 @@ class ReserveBaseController extends BaseController_1.default {
                     performance: reservationModel.performance._id,
                     seat_code: seatCode,
                     status: ReservationUtil_1.default.STATUS_TEMPORARY,
+                    expired_at: reservationModel.tmpReservationExpiredAt,
                     staff: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) ? this.req.staffUser.get('_id') : undefined,
                     sponsor: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR) ? this.req.sponsorUser.get('_id') : undefined,
                     member: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_MEMBER) ? this.req.memberUser.get('_id') : undefined,

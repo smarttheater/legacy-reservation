@@ -122,6 +122,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                         performance: reservationModel.performance._id,
                         seat_code: seatCode,
                         status: ReservationUtil.STATUS_TEMPORARY,
+                        expired_at: reservationModel.tmpReservationExpiredAt,
                         staff: this.req.staffUser.get('_id')
                     },
                     (err, reservation) => {
@@ -135,32 +136,28 @@ export default class StaffReserveController extends ReserveBaseController implem
                                 },
                                 {
                                     status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TIFF,
+                                    expired_at: reservationModel.tmpReservationExpiredAt,
                                     staff: this.req.staffUser.get('_id')
                                 },
                                 {
                                     new: true
                                 },
                                 (err, reservation) => {
-                                    if (err) {
-                                        reject(err);
-                                    } else {
-                                        if (!reservation) {
-                                            reject(new Error(this.req.__('Message.UnexpectedError')));
-                                        } else {
-                                            // ステータス更新に成功したらセッションに保管
-                                            reservationModel.seatCodes.push(seatCode);
-                                            reservationModel.setReservation(seatCode, {
-                                                _id: reservation.get('_id'),
-                                                status: reservation.get('status'),
-                                                seat_code: reservation.get('seat_code'),
-                                                seat_grade_name_ja: seatInfo.grade.name.ja,
-                                                seat_grade_name_en: seatInfo.grade.name.en,
-                                                seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                                            });
+                                    if (err) return reject(err); 
+                                    if (!reservation) return reject(new Error(this.req.__('Message.UnexpectedError')));
 
-                                            resolve();
-                                        }
-                                    }
+                                    // ステータス更新に成功したらセッションに保管
+                                    reservationModel.seatCodes.push(seatCode);
+                                    reservationModel.setReservation(seatCode, {
+                                        _id: reservation.get('_id'),
+                                        status: reservation.get('status'),
+                                        seat_code: reservation.get('seat_code'),
+                                        seat_grade_name_ja: seatInfo.grade.name.ja,
+                                        seat_grade_name_en: seatInfo.grade.name.en,
+                                        seat_grade_additional_charge: seatInfo.grade.additional_charge,
+                                    });
+
+                                    resolve();
                                 }
                             );
                         } else {

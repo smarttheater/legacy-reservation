@@ -177,6 +177,7 @@ class ReservationModel {
             watcher_name: (reservation.watcher_name) ? reservation.watcher_name : '',
             watcher_name_updated_at: (reservation.watcher_name) ? Date.now() : '',
             purchased_at: this.purchasedAt,
+            expired_at: null,
             gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil_1.default.createShopPassString(conf.get('gmo_payment_shop_id'), this.paymentNo, this.getTotalCharge().toString(), conf.get('gmo_payment_shop_password'), moment(this.purchasedAt).format('YYYYMMDDHHmmss')) : '',
             updated_user: 'ReservationModel'
         };

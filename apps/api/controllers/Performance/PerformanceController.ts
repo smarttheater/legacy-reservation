@@ -9,15 +9,15 @@ export default class PerformanceController extends BaseController {
      * パフォーマンス検索API
      */
     public search(): void {
-        let limit = (this.req.query.limit) ? this.req.query.limit : 100; // せいぜい100件までにしておく(レスポンスタイム的に)
-        let page = (this.req.query.page) ? this.req.query.page : 1;
+        let limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit) : 100; // せいぜい100件までにしておく(レスポンスタイム的に)
+        let page: number = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
 
-        let day = (this.req.query.day) ? this.req.query.day : null; // 上映日
-        let section = (this.req.query.section) ? this.req.query.section : null; // 部門
-        let words = (this.req.query.words) ? this.req.query.words : null; // フリーワード
-        let startFrom = (this.req.query.start_from) ? this.req.query.start_from : null; // この時間以降開始のパフォーマンスに絞る(timestamp)
-        let theater = (this.req.query.theater) ? this.req.query.theater : null; // 劇場
-        let screen = (this.req.query.screen) ? this.req.query.screen : null; // スクリーン
+        let day: string = (this.req.query.day) ? this.req.query.day : null; // 上映日
+        let section: string = (this.req.query.section) ? this.req.query.section : null; // 部門
+        let words: string = (this.req.query.words) ? this.req.query.words : null; // フリーワード
+        let startFrom: number = (this.req.query.start_from) ? parseInt(this.req.query.start_from) : null; // この時間以降開始のパフォーマンスに絞る(timestamp)
+        let theater: string = (this.req.query.theater) ? this.req.query.theater : null; // 劇場
+        let screen: string = (this.req.query.screen) ? this.req.query.screen : null; // スクリーン
 
         // 検索条件を作成
         let andConditions: Array<Object> = [

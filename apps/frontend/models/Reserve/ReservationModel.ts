@@ -246,6 +246,7 @@ export default class ReservationModel {
             watcher_name_updated_at: (reservation.watcher_name) ? Date.now() : '',
 
             purchased_at: this.purchasedAt,
+            expired_at: null,
 
             gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil.createShopPassString(
                 conf.get<string>('gmo_payment_shop_id'),

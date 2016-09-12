@@ -18,6 +18,7 @@ let Schema = new mongoose.Schema({
         type: String,
         required: true
     },
+    expired_at: Date,
     performance_day: String,
     performance_open_time: String,
     performance_start_time: String,
