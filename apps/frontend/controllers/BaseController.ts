@@ -3,11 +3,6 @@ import log4js = require('log4js');
 import moment = require('moment');
 import numeral = require('numeral');
 import conf = require('config');
-import MemberUser from '../models/User/MemberUser';
-import StaffUser from '../models/User/StaffUser';
-import SponsorUser from '../models/User/SponsorUser';
-import WindowUser from '../models/User/WindowUser';
-import TelStaffUser from '../models/User/TelStaffUser';
 import Constants from '../../common/Util/Constants';
 import Util from '../../common/Util/Util';
 

@@ -1,4 +1,3 @@
-import session = require('express-session');
 import BaseUser from './BaseUser';
 
 /**

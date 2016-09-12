@@ -8,21 +8,17 @@
   "dependencies": {
     "azure-storage": "^0.10.0",
     "body-parser": "^1.15.2",
-    "bwip-js": "^1.0.5",
     "commander": "^2.9.0",
     "config": "^1.20.1",
     "connect-redis": "^3.1.0",
     "cookie-parser": "^1.4.1",
     "debug": "^2.2.0",
-    "documentdb": "^1.7.0",
     "ejs": "^2.4.1",
     "email-templates": "^2.4.1",
     "express": "^4.14.0",
     "express-form": "^0.12.6",
     "express-partials": "^0.3.0",
     "express-session": "^1.13.0",
-    "express-useragent": "^0.2.4",
-    "forms": "^1.1.4",
     "fs-extra": "^0.28.0",
     "i18n": "^0.8.3",
     "jconv": "^0.1.5",
@@ -34,7 +30,7 @@
     "mongodb": "^2.2.7",
     "mongoose": "^4.6.0",
     "multer": "^1.1.0",
-    "named-routes": "^2.0.5",
+    "named-routes": "^2.0.6",
     "numeral": "^1.5.3",
     "passport": "^0.3.2",
     "passport-http-bearer": "^1.0.1",
@@ -44,7 +40,6 @@
     "sendgrid": "^2.0.0",
     "serve-favicon": "^2.3.0",
     "siege": "^0.2.0",
-    "sprintf": "^0.1.5",
     "uniqid": "^3.0.0",
     "validator": "^5.5.0"
   },
@@ -55,8 +50,8 @@
   "author": "Tetsu Yamazaki <yamazaki@motionpicture.jp>",
   "license": "UNLICENSED",
   "engines": {
-    "node": ">=6.2.2",
-    "npm": ">=3.8.0"
+    "node": ">=6.3.0",
+    "npm": ">=3.10.0"
   },
   "description": "This is a repogitory for TIFF online website."
 }

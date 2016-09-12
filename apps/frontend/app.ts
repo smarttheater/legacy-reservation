@@ -1,6 +1,5 @@
 import express = require('express');
 import partials = require('express-partials');
-import useragent = require('express-useragent');
 import path = require('path');
 // import favicon = require('serve-favicon');
 import cookieParser = require('cookie-parser');
@@ -17,7 +16,6 @@ import log4js = require('log4js');
 let app = express();
 
 app.use(partials()); // レイアウト&パーシャルサポート
-app.use(useragent.express()); // ユーザーエージェント
 app.use(logger); // ロガー
 app.use(benchmarks); // ベンチマーク的な
 app.use(session); // セッション

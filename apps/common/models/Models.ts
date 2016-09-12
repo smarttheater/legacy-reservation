@@ -1,6 +1,3 @@
-/**
- * MongoDBのモデルをまとめたモジュール
- */
 import mongoose = require('mongoose');
 
 import AuthenticationSchema from '../models/Authentication/AuthenticationSchema';
@@ -195,6 +192,9 @@ let Theater = mongoose.model('Theater', TheaterSchema);
 let TicketTypeGroup = mongoose.model('TicketTypeGroup', TicketTypeGroupSchema);
 let Window = mongoose.model('Window', WindowSchema);
 
+/**
+ * MongoDBのモデルをまとめたモジュール
+ */
 let Models = {
     Authentication,
     Film,

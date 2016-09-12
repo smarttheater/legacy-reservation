@@ -1,5 +1,3 @@
-import session = require('express-session');
-
 /**
  * ベースユーザークラス
  */

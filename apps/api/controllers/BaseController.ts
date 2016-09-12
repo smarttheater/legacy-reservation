@@ -1,13 +1,9 @@
 import express = require('express');
 import log4js = require('log4js');
 import moment = require('moment');
-import util = require('util');
 
 /**
  * ベースコントローラー
- * 
- * 基本的にコントローラークラスはルーティングクラスより呼ばれる
- * あらゆるルーティングで実行されるメソッドは、このクラスがベースとなるので、メソッド共通の処理はここで実装するとよい
  */
 export default class BaseController {
     /** httpリクエストオブジェクト */
@@ -29,15 +25,11 @@ export default class BaseController {
         this.logger = log4js.getLogger('system');
         this.router = this.req.app.namedRoutes;
 
-
         // URLパラメータで言語管理
         if (this.req.params.locale) {
             this.req.setLocale(req.params.locale);
         }
 
-
-        this.res.locals.req = this.req;
         this.res.locals.moment = moment;
-        this.res.locals.util = util;
     }
 }

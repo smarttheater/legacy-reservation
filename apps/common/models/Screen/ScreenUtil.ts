@@ -22,16 +22,9 @@ export default class ScreenUtil {
         let columnA = a.substr(hyphenIndexA + 1); // 列
         let columnB = b.substr(hyphenIndexB + 1); // 列
 
-        if (rowA < rowB) {
-            return -1;
-        } else if (rowA > rowB) {
-            return 1;
-        } else {
-            if (parseInt(columnA) < parseInt(columnB)) {
-                return -1;
-            } else {
-                return 1;
-            }
-        }
+        if (rowA < rowB) return -1; // 行は文字列比較
+        if (rowA > rowB) return 1; // 行は文字列比較
+        if (parseInt(columnA) < parseInt(columnB)) return -1; // 列は数値比較
+        return 1;
     }
 }

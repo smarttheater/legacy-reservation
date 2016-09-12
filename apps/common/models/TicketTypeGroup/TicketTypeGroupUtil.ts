@@ -1,8 +1,13 @@
 export default class TicketTypeGroupUtil {
+    /** 券種(一般) */
     public static TICKET_TYPE_CODE_ADULTS = '01';
+    /** 券種(学生) */
     public static TICKET_TYPE_CODE_STUDENTS = '02';
+    /** 券種(学生当日) */
     public static TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY = '03';
+    /** 券種(無料) */
     public static TICKET_TYPE_CODE_FREE= '00';
+    /** 券種(Not for sale) */
     public static TICKET_TYPE_CODE_NOT_FOR_SALE= '99';
 
     /**

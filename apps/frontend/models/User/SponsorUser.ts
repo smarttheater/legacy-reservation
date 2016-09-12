@@ -1,4 +1,3 @@
-import session = require('express-session');
 import BaseUser from './BaseUser';
 
 /**
@@ -19,12 +18,4 @@ export default class SponsorUser extends BaseUser {
 
         return user;
     }
-
-    /** 購入フロー中のプロフィール */
-    public profile: {
-        last_name: string,
-        first_name: string,
-        tel: string,
-        email: string
-    };
 }

@@ -1,7 +1,7 @@
 import express = require('express');
 import cookieParser = require('cookie-parser');
 import bodyParser = require('body-parser');
-import multer = require('multer');
+// import multer = require('multer');
 import logger from './middlewares/logger';
 import benchmarks from './middlewares/benchmarks';
 import router from './routes/router';
@@ -15,21 +15,15 @@ import Models from '../common/models/Models';
 
 passport.use(new BearerStrategy(
     (token, cb) => {
-
         Models.Authentication.findOne(
             {
                 token: token
             },
             (err, authentication) => {
-                if (err) {
-                    return cb(err);
-                }
+                if (err) return cb(err);
+                if (!authentication) return cb(null, false);
 
-                if (!authentication) {
-                    return cb(null, false);
-                }
-
-                return cb(null, authentication);
+                cb(null, authentication);
             }
         );
     }
@@ -44,13 +38,12 @@ app.use(benchmarks); // ベンチマーク的な
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
 
-// uncomment after placing your favicon in /public
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // for parsing multipart/form-data
-let storage = multer.memoryStorage()
-app.use(multer({ storage: storage }).any());
+// let storage = multer.memoryStorage()
+// app.use(multer({ storage: storage }).any());
 
 app.use(cookieParser());
 

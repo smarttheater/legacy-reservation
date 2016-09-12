@@ -7,10 +7,9 @@ class ScreenController extends BaseController_1.default {
      * スクリーンの座席マップを生成する
      */
     show() {
-        let id = this.req.params.id;
         // スクリーンを取得
         Models_1.default.Screen.count({
-            _id: id
+            _id: this.req.params.id
         }, (err, count) => {
             if (err)
                 return this.res.send('false');
@@ -18,7 +17,7 @@ class ScreenController extends BaseController_1.default {
                 return this.res.send('false');
             // スクリーン座席表HTMLを出力
             this.res.type('txt');
-            fs.readFile(`${__dirname}/../../../common/views/screens/${id}.ejs`, 'utf8', (err, data) => {
+            fs.readFile(`${__dirname}/../../../common/views/screens/${this.req.params.id}.ejs`, 'utf8', (err, data) => {
                 this.res.send(data);
             });
         });

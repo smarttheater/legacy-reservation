@@ -1,7 +1,4 @@
 "use strict";
-/**
- * MongoDBのモデルをまとめたモジュール
- */
 const mongoose = require('mongoose');
 const AuthenticationSchema_1 = require('../models/Authentication/AuthenticationSchema');
 const FilmSchema_1 = require('../models/Film/FilmSchema');
@@ -140,6 +137,9 @@ let TelStaff = mongoose.model('TelStaff', TelStaffSchema_1.default);
 let Theater = mongoose.model('Theater', TheaterSchema_1.default);
 let TicketTypeGroup = mongoose.model('TicketTypeGroup', TicketTypeGroupSchema_1.default);
 let Window = mongoose.model('Window', WindowSchema_1.default);
+/**
+ * MongoDBのモデルをまとめたモジュール
+ */
 let Models = {
     Authentication: Authentication,
     Film: Film,

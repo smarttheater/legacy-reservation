@@ -1,7 +1,6 @@
 "use strict";
 const express = require('express');
 const partials = require('express-partials');
-const useragent = require('express-useragent');
 // import favicon = require('serve-favicon');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -14,7 +13,6 @@ const mongoose = require('mongoose');
 const i18n = require('i18n');
 let app = express();
 app.use(partials()); // レイアウト&パーシャルサポート
-app.use(useragent.express()); // ユーザーエージェント
 app.use(logger_1.default); // ロガー
 app.use(benchmarks_1.default); // ベンチマーク的な
 app.use(session_1.default); // セッション

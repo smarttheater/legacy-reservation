@@ -7,11 +7,10 @@
     "mongodb": "registry:npm/mongodb#2.1.0+20160721204323",
     "redis": "registry:npm/redis#2.6.0+20160901110043",
     "request": "registry:npm/request#2.69.0+20160428223725",
-    "validator": "registry:npm/validator#4.5.1+20160723033700"
+    "validator": "registry:npm/validator#5.7.0+20160912014851"
   },
   "globalDependencies": {
     "body-parser": "registry:dt/body-parser#0.0.0+20160619023215",
-    "bwip-js": "file:./definitions/bwip-js.d.ts",
     "commander": "registry:dt/commander#2.3.0+20160317120654",
     "config": "registry:dt/config#0.0.0+20160317120654",
     "connect-redis": "registry:dt/connect-redis#0.0.0+20160305170114",
@@ -24,7 +23,6 @@
     "express-partials": "registry:dt/express-partials#0.0.0+20160316155526",
     "express-serve-static-core": "registry:dt/express-serve-static-core#4.0.0+20160829034835",
     "express-session": "registry:dt/express-session#0.0.0+20160819134112",
-    "express-useragent": "registry:dt/express-useragent#0.2.4+20160412141759",
     "fs-extra": "registry:dt/fs-extra#0.0.0+20160907105211",
     "i18n-node": "registry:dt/i18n-node#0.0.0+20160521152545",
     "jquery": "registry:dt/jquery#1.10.0+20160908203239",
@@ -41,7 +39,6 @@
     "sendgrid": "registry:dt/sendgrid#1.1.0+20160521152616",
     "serve-favicon": "registry:dt/serve-favicon#0.0.0+20160316155526",
     "serve-static": "registry:dt/serve-static#0.0.0+20160606155157",
-    "sprintf": "registry:dt/sprintf#0.0.0+20160316155526",
     "tiff": "file:./definitions/tiff.d.ts",
     "uniqid": "file:./definitions/uniqid.d.ts"
   }
