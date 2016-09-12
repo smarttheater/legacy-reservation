@@ -1,5 +1,6 @@
 "use strict";
 const mongoose = require('mongoose');
+const numeral = require('numeral');
 const ReservationUtil_1 = require('./ReservationUtil');
 /**
  * 予約スキーマ
@@ -223,6 +224,41 @@ Schema.virtual('status_str').get(function () {
  */
 Schema.virtual('qr_str').get(function () {
     return `${this.payment_no}-${this.payment_seat_index}`;
+});
+/**
+ * 券種金額文字列
+ */
+Schema.virtual('ticket_type_charge_str_ja').get(function () {
+    let charge = 0;
+    let str = '';
+    if (this.get('purchaser_group') === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR || this.get('purchaser_group') === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
+        charge += this.get('ticket_type_charge');
+        str += `\\${numeral(charge).format('0,0')}`;
+    }
+    else {
+        charge += this.get('ticket_type_charge') + this.get('seat_grade_additional_charge') + ((this.get('film_is_mx4d')) ? ReservationUtil_1.default.CHARGE_MX4D : 0);
+        str += `\\${numeral(charge).format('0,0')}`;
+        if (this.get('seat_grade_additional_charge') > 0) {
+            str += ` (内${this.get('seat_grade_name_ja')} \\${this.get('seat_grade_additional_charge')})`;
+        }
+    }
+    return str;
+});
+Schema.virtual('ticket_type_charge_str_en').get(function () {
+    let charge = 0;
+    let str = '';
+    if (this.get('purchaser_group') === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR || this.get('purchaser_group') === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
+        charge += this.get('ticket_type_charge');
+        str += `\\${numeral(charge).format('0,0')}`;
+    }
+    else {
+        charge += this.get('ticket_type_charge') + this.get('seat_grade_additional_charge') + ((this.get('film_is_mx4d')) ? ReservationUtil_1.default.CHARGE_MX4D : 0);
+        str += `\\${numeral(charge).format('0,0')}`;
+        if (this.get('seat_grade_additional_charge') > 0) {
+            str += ` (${this.get('seat_grade_name_en')} \\${this.get('seat_grade_additional_charge')})`;
+        }
+    }
+    return str;
 });
 /**
  * TIFF確保への更新の場合、パフォーマンス情報だけ残して、購入者情報は削除する

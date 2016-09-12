@@ -1,4 +1,5 @@
 import mongoose = require('mongoose');
+import numeral = require('numeral');
 import ReservationUtil from './ReservationUtil';
 
 /**
@@ -262,6 +263,42 @@ Schema.virtual('status_str').get(function() {
  */
 Schema.virtual('qr_str').get(function() {
     return `${this.payment_no}-${this.payment_seat_index}`;
+});
+
+/**
+ * 券種金額文字列
+ */
+Schema.virtual('ticket_type_charge_str_ja').get(function() {
+    let charge = 0;
+    let str = '';
+    if (this.get('purchaser_group') === ReservationUtil.PURCHASER_GROUP_SPONSOR || this.get('purchaser_group') === ReservationUtil.PURCHASER_GROUP_STAFF) {
+        charge += this.get('ticket_type_charge');
+        str += `\\${numeral(charge).format('0,0')}`;
+    } else {
+        charge += this.get('ticket_type_charge') + this.get('seat_grade_additional_charge') + ((this.get('film_is_mx4d')) ? ReservationUtil.CHARGE_MX4D : 0);
+        str += `\\${numeral(charge).format('0,0')}`;
+        if (this.get('seat_grade_additional_charge') > 0) {
+            str += ` (内${this.get('seat_grade_name_ja')} \\${this.get('seat_grade_additional_charge')})`;
+        }
+    }
+
+    return str;
+});
+Schema.virtual('ticket_type_charge_str_en').get(function() {
+    let charge = 0;
+    let str = '';
+    if (this.get('purchaser_group') === ReservationUtil.PURCHASER_GROUP_SPONSOR || this.get('purchaser_group') === ReservationUtil.PURCHASER_GROUP_STAFF) {
+        charge += this.get('ticket_type_charge');
+        str += `\\${numeral(charge).format('0,0')}`;
+    } else {
+        charge += this.get('ticket_type_charge') + this.get('seat_grade_additional_charge') + ((this.get('film_is_mx4d')) ? ReservationUtil.CHARGE_MX4D : 0);
+        str += `\\${numeral(charge).format('0,0')}`;
+        if (this.get('seat_grade_additional_charge') > 0) {
+            str += ` (${this.get('seat_grade_name_en')} \\${this.get('seat_grade_additional_charge')})`;
+        }
+    }
+
+    return str;
 });
 
 /**

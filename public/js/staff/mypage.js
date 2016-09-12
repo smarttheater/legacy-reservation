@@ -61,7 +61,7 @@ $(function(){
             if (reservation.payment_no && !reservation.performance_canceled) {
                 html += ''
                     + '<p class="btn confirm-cancel"><span>Cancel</span></p>'
-                    + '<p class="btn"><span>Print</span></p>';
+                    + '<p class="btn print"><span>Print</span></p>';
             }
 
             html += ''
@@ -169,6 +169,12 @@ $(function(){
         search();
     });
 
+    // 印刷
+    $(document).on('click', '.print', function(){
+        var ids = [$(this).parent().parent().attr('data-reservation-id')];
+        window.open('/reserve/print?ids=' + JSON.stringify(ids));
+    });
+
     // キャンセルしようとしている予約IDリスト
     var reservationsIds4cancel = [];
 
@@ -254,7 +260,7 @@ $(function(){
             var _seatCodes = [];
 
             // チェック予約リストを取得
-            $('.td-checkbox input[type="checkbox"]:checked').map(function(){
+            $('.td-checkbox input[type="checkbox"]:checked').each(function(){
                 var reservationId = $(this).parent().parent().attr('data-reservation-id');
                 var seatCode = $(this).parent().parent().attr('data-seat-code');
 
@@ -274,7 +280,15 @@ $(function(){
             }
 
         } else if (action === 'print') {
-            alert('Sorry not yet.');
+            var ids = $('.td-checkbox input[type="checkbox"]:checked').map(function(){
+                return $(this).parent().parent().attr('data-reservation-id');
+            }).get();
+
+            if (ids.length < 1) {
+                return alert('Select reservations.');
+            }
+
+            window.open('/reserve/print?ids=' + JSON.stringify(ids));
         } else {
             alert('Select Your Action.');
         }

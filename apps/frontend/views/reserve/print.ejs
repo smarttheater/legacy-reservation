@@ -27,7 +27,7 @@
                 <span class="smalltext">Here the QR code held up to the entrance at the time the leader, please admission.</span>
             </h2>
             <div class="wrapper-qrimg pr-bg">
-                <img src="<%- url('reserve.qrcode', {reservationId: reservation._id}) %>">
+                <img src="<%- url('reserve.qrcode', {reservationId: reservation.get('_id')}) %>">
             </div>
         </div>
     </div>
@@ -39,9 +39,9 @@
 
             <h3>作品名<span class="smalltext">Title</span></h3>
 
-            <strong class="filmtitle"><%- reservation.film_name_ja %></strong>
+            <strong class="filmtitle"><%- reservation.get('film_name_ja') %></strong>
 
-            <span class="smalltext"><%- reservation.film_name_en %></span>
+            <span class="smalltext"><%- reservation.get('film_name_en') %></span>
 
         </div>
 
@@ -50,13 +50,13 @@
                 <td class="pr-rsrvnum">
                     <h3>予約番号<span class="smalltext">Reservation number</span></h3>
 
-                    <strong><%- reservation.payment_no %></strong>
+                    <strong><%- reservation.get('payment_no') %></strong>
 
                 </td>
 
                 <td class="pr-screen" rowspan="6">
 
-                    <img src="/images/print/screen/<%- reservation.screen %>.png">
+                    <img src="/images/print/screen/<%- reservation.get('screen') %>.png">
 
                 </td>
 
@@ -66,13 +66,13 @@
 
                 <h3>劇場<span class="smalltext">Screening location</span></h3>
 
-                <strong><%- reservation.theater_name_ja %> <%- reservation.screen_name_ja %></strong>
-                <span class="smalltext"><%- reservation.theater_name_en %> <%- reservation.screen_name_en %></span>
+                <strong><%- reservation.get('theater_name_ja') %> <%- reservation.get('screen_name_ja') %></strong>
+                <span class="smalltext"><%- reservation.get('theater_name_en') %> <%- reservation.get('screen_name_en') %></span>
 
                 <p class="theateraddress">
-                    <%- reservation.theater_address_ja %>
+                    <%- reservation.get('theater_address_ja') %>
                     <span class="smalltext">
-                        <%- reservation.theater_address_en %>
+                        <%- reservation.get('theater_address_en') %>
                     </span>
                 </p>
 
@@ -84,13 +84,13 @@
                 <h3>時間<span class="smalltext">Screen time</span></h3>
                 <table class="timetable"><tr>
 
-                    <td><strong><%- reservation.performance_day.substr(0, 4) %>/<%- reservation.performance_day.substr(4, 2) %>/<%- reservation.performance_day.substr(6) %></strong></td>
+                    <td><strong><%- reservation.get('performance_day').substr(0, 4) %>/<%- reservation.get('performance_day').substr(4, 2) %>/<%- reservation.get('performance_day').substr(6) %></strong></td>
 
                     <td>開場<span class="smalltext">(OPEN)</span></td>
-                    <td><strong><%- reservation.performance_open_time.substr(0, 2) %>:<%- reservation.performance_open_time.substr(2) %></strong></td>
+                    <td><strong><%- reservation.get('performance_open_time').substr(0, 2) %>:<%- reservation.get('performance_open_time').substr(2) %></strong></td>
 
                     <td>開演<span class="smalltext">(START)</span></td>
-                    <td><strong><%- reservation.performance_start_time.substr(0, 2) %>:<%- reservation.performance_start_time.substr(2) %></strong></td>
+                    <td><strong><%- reservation.get('performance_start_time').substr(0, 2) %>:<%- reservation.get('performance_start_time').substr(2) %></strong></td>
 
                 </tr></table>
 
@@ -101,8 +101,8 @@
 
                 <h3>座席(全席指定)<span class="smalltext">All seats are specified</span></h3>
 
-                <strong><%- reservation.seat_code.substr(0, reservation.seat_code.lastIndexOf('-')) %> 列 <%- reservation.seat_code.substr(reservation.seat_code.lastIndexOf('-')) %> 番</strong>
-                <span class="smalltext"><%- reservation.seat_code %></span>
+                <strong><%- reservation.get('seat_code').substr(0, reservation.get('seat_code').lastIndexOf('-')) %> 列 <%- reservation.get('seat_code').substr(reservation.get('seat_code').lastIndexOf('-')) %> 番</strong>
+                <span class="smalltext"><%- reservation.get('seat_code') %></span>
 
             </td></tr>
 
@@ -111,8 +111,8 @@
 
                 <h3>券種・金額<span class="smalltext">Denomination Amount of money</span></h3>
 
-                <strong><%- reservation.ticket_type_name_ja %> / <%- numeral(reservation.charge).format('0,0') %> 円 (税込)</strong>
-                <span class="smalltext"><%- reservation.ticket_type_name_en %> / <%- numeral(reservation.charge).format('0,0') %> yen (tax included)</span>
+                <strong><%- reservation.get('ticket_type_name_ja') %> / <%- reservation.get('ticket_type_charge_str_ja') %></strong>
+                <span class="smalltext"><%- reservation.get('ticket_type_name_en') %> / <%- reservation.get('ticket_type_charge_str_en') %></span>
 
             </td></tr>
 
