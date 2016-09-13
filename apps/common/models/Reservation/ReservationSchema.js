@@ -156,7 +156,7 @@ Schema.virtual('baloon_content4staff').get(function () {
 });
 Schema.virtual('purchaser_name').get(function () {
     let name = '';
-    if (this.status === ReservationUtil_1.default.STATUS_RESERVED) {
+    if (this.get('status') === ReservationUtil_1.default.STATUS_RESERVED) {
         switch (this.purchaser_group) {
             case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
                 name = `${this.staff_name} ${this.staff_signature}`;
@@ -170,7 +170,7 @@ Schema.virtual('purchaser_name').get(function () {
 });
 Schema.virtual('purchaser_group_str').get(function () {
     let str = '';
-    switch (this.purchaser_group) {
+    switch (this.get('purchaser_group')) {
         case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
             str = '一般';
             break;
@@ -196,7 +196,7 @@ Schema.virtual('purchaser_group_str').get(function () {
 });
 Schema.virtual('status_str').get(function () {
     let str = '';
-    switch (this.status) {
+    switch (this.get('status')) {
         case ReservationUtil_1.default.STATUS_RESERVED:
             str = '予約済';
             break;
@@ -231,32 +231,38 @@ Schema.virtual('qr_str').get(function () {
 Schema.virtual('ticket_type_charge_str_ja').get(function () {
     let charge = 0;
     let str = '';
-    if (this.get('purchaser_group') === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR || this.get('purchaser_group') === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
-        charge += this.get('ticket_type_charge');
-        str += `\\${numeral(charge).format('0,0')}`;
-    }
-    else {
-        charge += this.get('ticket_type_charge') + this.get('seat_grade_additional_charge') + ((this.get('film_is_mx4d')) ? ReservationUtil_1.default.CHARGE_MX4D : 0);
-        str += `\\${numeral(charge).format('0,0')}`;
-        if (this.get('seat_grade_additional_charge') > 0) {
-            str += ` (内${this.get('seat_grade_name_ja')} \\${numeral(this.get('seat_grade_additional_charge')).format('0,0')})`;
-        }
+    switch (this.get('purchaser_group')) {
+        case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
+        case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
+            charge += this.get('ticket_type_charge');
+            str += `\\${numeral(charge).format('0,0')}`;
+            break;
+        default:
+            charge += this.get('ticket_type_charge') + this.get('seat_grade_additional_charge') + ((this.get('film_is_mx4d')) ? ReservationUtil_1.default.CHARGE_MX4D : 0);
+            str += `\\${numeral(charge).format('0,0')}`;
+            if (this.get('seat_grade_additional_charge') > 0) {
+                str += ` (内${this.get('seat_grade_name_ja')} \\${numeral(this.get('seat_grade_additional_charge')).format('0,0')})`;
+            }
+            break;
     }
     return str;
 });
 Schema.virtual('ticket_type_charge_str_en').get(function () {
     let charge = 0;
     let str = '';
-    if (this.get('purchaser_group') === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR || this.get('purchaser_group') === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
-        charge += this.get('ticket_type_charge');
-        str += `\\${numeral(charge).format('0,0')}`;
-    }
-    else {
-        charge += this.get('ticket_type_charge') + this.get('seat_grade_additional_charge') + ((this.get('film_is_mx4d')) ? ReservationUtil_1.default.CHARGE_MX4D : 0);
-        str += `\\${numeral(charge).format('0,0')}`;
-        if (this.get('seat_grade_additional_charge') > 0) {
-            str += ` (${this.get('seat_grade_name_en')} \\${numeral(this.get('seat_grade_additional_charge')).format('0,0')})`;
-        }
+    switch (this.get('purchaser_group')) {
+        case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
+        case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
+            charge += this.get('ticket_type_charge');
+            str += `\\${numeral(charge).format('0,0')}`;
+            break;
+        default:
+            charge += this.get('ticket_type_charge') + this.get('seat_grade_additional_charge') + ((this.get('film_is_mx4d')) ? ReservationUtil_1.default.CHARGE_MX4D : 0);
+            str += `\\${numeral(charge).format('0,0')}`;
+            if (this.get('seat_grade_additional_charge') > 0) {
+                str += ` (内${this.get('seat_grade_name_en')} \\${numeral(this.get('seat_grade_additional_charge')).format('0,0')})`;
+            }
+            break;
     }
     return str;
 });
