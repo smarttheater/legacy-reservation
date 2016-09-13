@@ -1,5 +1,5 @@
 "use strict";
-const BaseUser_1 = require('./BaseUser');
+const BaseUser_1 = require("./BaseUser");
 /**
  * 外部関係者ユーザークラス
  */
@@ -15,6 +15,9 @@ class SponsorUser extends BaseUser_1.default {
         return user;
     }
 }
-SponsorUser.AUTH_SESSION_NAME = 'TIFFFrontendSponsorAuth';
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * 外部関係者ユーザークラス
+ */
 exports.default = SponsorUser;
+SponsorUser.AUTH_SESSION_NAME = 'TIFFFrontendSponsorAuth';

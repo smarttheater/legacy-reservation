@@ -1,18 +1,18 @@
 "use strict";
-const express = require('express');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
 // import multer = require('multer');
-const logger_1 = require('./middlewares/logger');
-const benchmarks_1 = require('./middlewares/benchmarks');
-const router_1 = require('./routes/router');
-const conf = require('config');
-const mongoose = require('mongoose');
-const i18n = require('i18n');
-const passport = require('passport');
-const passportHttpBearer = require('passport-http-bearer');
+const logger_1 = require("./middlewares/logger");
+const benchmarks_1 = require("./middlewares/benchmarks");
+const router_1 = require("./routes/router");
+const conf = require("config");
+const mongoose = require("mongoose");
+const i18n = require("i18n");
+const passport = require("passport");
+const passportHttpBearer = require("passport-http-bearer");
 let BearerStrategy = passportHttpBearer.Strategy;
-const Models_1 = require('../common/models/Models');
+const Models_1 = require("../common/models/Models");
 passport.use(new BearerStrategy((token, cb) => {
     Models_1.default.Authentication.findOne({
         token: token

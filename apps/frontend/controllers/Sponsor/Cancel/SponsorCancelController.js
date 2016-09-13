@@ -1,12 +1,12 @@
 "use strict";
-const BaseController_1 = require('../../BaseController');
-const Models_1 = require('../../../../common/models/Models');
-const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
-const sponsorCancelForm_1 = require('../../../forms/sponsor/sponsorCancelForm');
-const log4js = require('log4js');
+const BaseController_1 = require("../../BaseController");
+const Models_1 = require("../../../../common/models/Models");
+const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
+const sponsorCancelForm_1 = require("../../../forms/sponsor/sponsorCancelForm");
+const log4js = require("log4js");
 class SponsorCancelController extends BaseController_1.default {
-    constructor(...args) {
-        super(...args);
+    constructor() {
+        super(...arguments);
         this.layout = 'layouts/sponsor/layout';
     }
     /**

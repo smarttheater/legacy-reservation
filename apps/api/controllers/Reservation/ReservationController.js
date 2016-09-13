@@ -1,13 +1,13 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Models_1 = require('../../../common/models/Models');
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
-const sendgrid = require('sendgrid');
-const conf = require('config');
-const validator = require('validator');
-const qr = require('qr-image');
-const moment = require('moment');
-const fs = require('fs-extra');
+const BaseController_1 = require("../BaseController");
+const Models_1 = require("../../../common/models/Models");
+const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const sendgrid = require("sendgrid");
+const conf = require("config");
+const validator = require("validator");
+const qr = require("qr-image");
+const moment = require("moment");
+const fs = require("fs-extra");
 class ReservationController extends BaseController_1.default {
     /**
      * 予約情報メールを送信する

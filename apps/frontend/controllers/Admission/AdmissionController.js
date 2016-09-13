@@ -1,11 +1,11 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Models_1 = require('../../../common/models/Models');
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
-const FilmUtil_1 = require('../../../common/models/Film/FilmUtil');
+const BaseController_1 = require("../BaseController");
+const Models_1 = require("../../../common/models/Models");
+const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const FilmUtil_1 = require("../../../common/models/Film/FilmUtil");
 class AdmissionController extends BaseController_1.default {
-    constructor(...args) {
-        super(...args);
+    constructor() {
+        super(...arguments);
         this.layout = 'layouts/admission/layout';
     }
     performances() {

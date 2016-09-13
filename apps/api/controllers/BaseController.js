@@ -1,6 +1,6 @@
 "use strict";
-const log4js = require('log4js');
-const moment = require('moment');
+const log4js = require("log4js");
+const moment = require("moment");
 /**
  * ベースコントローラー
  */
@@ -19,4 +19,7 @@ class BaseController {
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * ベースコントローラー
+ */
 exports.default = BaseController;

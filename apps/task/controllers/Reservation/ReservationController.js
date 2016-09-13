@@ -1,17 +1,17 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Util_1 = require('../../../common/Util/Util');
-const Models_1 = require('../../../common/models/Models');
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
-const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
-const moment = require('moment');
-const conf = require('config');
-const mongoose = require('mongoose');
-const sendgrid = require('sendgrid');
-const emailTemplates = require('email-templates');
-const qr = require('qr-image');
-const fs = require('fs-extra');
-const numeral = require('numeral');
+const BaseController_1 = require("../BaseController");
+const Util_1 = require("../../../common/Util/Util");
+const Models_1 = require("../../../common/models/Models");
+const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
+const moment = require("moment");
+const conf = require("config");
+const mongoose = require("mongoose");
+const sendgrid = require("sendgrid");
+const emailTemplates = require("email-templates");
+const qr = require("qr-image");
+const fs = require("fs-extra");
+const numeral = require("numeral");
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class ReservationController extends BaseController_1.default {
     /**

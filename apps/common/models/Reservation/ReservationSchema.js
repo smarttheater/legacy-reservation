@@ -1,7 +1,7 @@
 "use strict";
-const mongoose = require('mongoose');
-const numeral = require('numeral');
-const ReservationUtil_1 = require('./ReservationUtil');
+const mongoose = require("mongoose");
+const numeral = require("numeral");
+const ReservationUtil_1 = require("./ReservationUtil");
 /**
  * 予約スキーマ
  */

@@ -1,11 +1,11 @@
 "use strict";
-const WindowAuthController_1 = require('../controllers/Window/Auth/WindowAuthController');
-const WindowMyPageController_1 = require('../controllers/Window/MyPage/WindowMyPageController');
-const WindowReserveController_1 = require('../controllers/Window/Reserve/WindowReserveController');
-const WindowCancelController_1 = require('../controllers/Window/Cancel/WindowCancelController');
-const Models_1 = require('../../common/models/Models');
-const Util_1 = require('../../common/Util/Util');
-const WindowUser_1 = require('../models/User/WindowUser');
+const WindowAuthController_1 = require("../controllers/Window/Auth/WindowAuthController");
+const WindowMyPageController_1 = require("../controllers/Window/MyPage/WindowMyPageController");
+const WindowReserveController_1 = require("../controllers/Window/Reserve/WindowReserveController");
+const WindowCancelController_1 = require("../controllers/Window/Cancel/WindowCancelController");
+const Models_1 = require("../../common/models/Models");
+const Util_1 = require("../../common/Util/Util");
+const WindowUser_1 = require("../models/User/WindowUser");
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     let authentication = (req, res, next) => {

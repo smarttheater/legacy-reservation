@@ -1,11 +1,11 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Models_1 = require('../../../common/models/Models');
-const moment = require('moment');
-const conf = require('config');
-const mongoose = require('mongoose');
-const fs = require('fs-extra');
-const PerformanceStatusesModel_1 = require('../../../common/models/PerformanceStatusesModel');
+const BaseController_1 = require("../BaseController");
+const Models_1 = require("../../../common/models/Models");
+const moment = require("moment");
+const conf = require("config");
+const mongoose = require("mongoose");
+const fs = require("fs-extra");
+const PerformanceStatusesModel_1 = require("../../../common/models/PerformanceStatusesModel");
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class PerformanceController extends BaseController_1.default {
     /**

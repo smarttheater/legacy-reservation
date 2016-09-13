@@ -39,6 +39,8 @@ class TicketTypeGroupUtil {
         ];
     }
 }
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = TicketTypeGroupUtil;
 /** 券種(一般) */
 TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS = '01';
 /** 券種(学生) */
@@ -49,5 +51,3 @@ TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY = '03';
 TicketTypeGroupUtil.TICKET_TYPE_CODE_FREE = '00';
 /** 券種(Not for sale) */
 TicketTypeGroupUtil.TICKET_TYPE_CODE_NOT_FOR_SALE = '99';
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = TicketTypeGroupUtil;

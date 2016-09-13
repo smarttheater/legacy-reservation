@@ -1,5 +1,5 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
+const BaseController_1 = require("../BaseController");
 class ErrorController extends BaseController_1.default {
     /**
      * Not Found

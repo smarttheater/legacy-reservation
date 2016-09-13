@@ -1,8 +1,7 @@
 {
-  "name": "mwsr_src",
+  "name": "tiff_src",
   "version": "0.0.0",
   "dependencies": {
-    "azure-storage": "registry:npm/azure-storage#0.10.0+20160903154543",
     "lockfile": "registry:npm/lockfile#1.0.0+20160723033700",
     "mongodb": "registry:npm/mongodb#2.1.0+20160721204323",
     "redis": "registry:npm/redis#2.6.0+20160901110043",

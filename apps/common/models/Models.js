@@ -1,19 +1,19 @@
 "use strict";
-const mongoose = require('mongoose');
-const AuthenticationSchema_1 = require('../models/Authentication/AuthenticationSchema');
-const FilmSchema_1 = require('../models/Film/FilmSchema');
-const MemberSchema_1 = require('../models/Member/MemberSchema');
-const PerformanceSchema_1 = require('../models/Performance/PerformanceSchema');
-const ReservationSchema_1 = require('../models/Reservation/ReservationSchema');
-const ReservationEmailCueSchema_1 = require('../models/ReservationEmailCue/ReservationEmailCueSchema');
-const ScreenSchema_1 = require('../models/Screen/ScreenSchema');
-const SequenceSchema_1 = require('../models/Sequence/SequenceSchema');
-const SponsorSchema_1 = require('../models/Sponsor/SponsorSchema');
-const StaffSchema_1 = require('../models/Staff/StaffSchema');
-const TelStaffSchema_1 = require('../models/TelStaff/TelStaffSchema');
-const TheaterSchema_1 = require('../models/Theater/TheaterSchema');
-const TicketTypeGroupSchema_1 = require('../models/TicketTypeGroup/TicketTypeGroupSchema');
-const WindowSchema_1 = require('../models/Window/WindowSchema');
+const mongoose = require("mongoose");
+const AuthenticationSchema_1 = require("../models/Authentication/AuthenticationSchema");
+const FilmSchema_1 = require("../models/Film/FilmSchema");
+const MemberSchema_1 = require("../models/Member/MemberSchema");
+const PerformanceSchema_1 = require("../models/Performance/PerformanceSchema");
+const ReservationSchema_1 = require("../models/Reservation/ReservationSchema");
+const ReservationEmailCueSchema_1 = require("../models/ReservationEmailCue/ReservationEmailCueSchema");
+const ScreenSchema_1 = require("../models/Screen/ScreenSchema");
+const SequenceSchema_1 = require("../models/Sequence/SequenceSchema");
+const SponsorSchema_1 = require("../models/Sponsor/SponsorSchema");
+const StaffSchema_1 = require("../models/Staff/StaffSchema");
+const TelStaffSchema_1 = require("../models/TelStaff/TelStaffSchema");
+const TheaterSchema_1 = require("../models/Theater/TheaterSchema");
+const TicketTypeGroupSchema_1 = require("../models/TicketTypeGroup/TicketTypeGroupSchema");
+const WindowSchema_1 = require("../models/Window/WindowSchema");
 /**
  * 作品と予約の整合性を保つ
  */
@@ -141,20 +141,20 @@ let Window = mongoose.model('Window', WindowSchema_1.default);
  * MongoDBのモデルをまとめたモジュール
  */
 let Models = {
-    Authentication: Authentication,
-    Film: Film,
-    Member: Member,
-    Performance: Performance,
-    Reservation: Reservation,
-    ReservationEmailCue: ReservationEmailCue,
-    Screen: Screen,
-    Sequence: Sequence,
-    Sponsor: Sponsor,
-    Staff: Staff,
-    TelStaff: TelStaff,
-    Theater: Theater,
-    TicketTypeGroup: TicketTypeGroup,
-    Window: Window
+    Authentication,
+    Film,
+    Member,
+    Performance,
+    Reservation,
+    ReservationEmailCue,
+    Screen,
+    Sequence,
+    Sponsor,
+    Staff,
+    TelStaff,
+    Theater,
+    TicketTypeGroup,
+    Window
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Models;

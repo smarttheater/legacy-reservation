@@ -12,4 +12,7 @@ class PayDesignNotificationModel {
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * ペイデザイン結果通知モデル
+ */
 exports.default = PayDesignNotificationModel;

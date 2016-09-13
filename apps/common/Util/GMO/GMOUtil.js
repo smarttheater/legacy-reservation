@@ -1,5 +1,5 @@
 "use strict";
-const crypto = require('crypto');
+const crypto = require("crypto");
 /**
  * GMOペイメントユーティリティ
  */
@@ -14,6 +14,11 @@ class GMOUtil {
         return md5hash.digest('hex');
     }
 }
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * GMOペイメントユーティリティ
+ */
+exports.default = GMOUtil;
 /** カード */
 GMOUtil.PAY_TYPE_CREDIT = '0';
 /** モバイルSuica */
@@ -72,5 +77,3 @@ GMOUtil.STATUS_CREDIT_RETURN = 'RETURN';
 GMOUtil.STATUS_CREDIT_RETURNX = 'RETURNX';
 /** 簡易オーソリ */
 GMOUtil.STATUS_CREDIT_SAUTH = 'SAUTH';
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = GMOUtil;

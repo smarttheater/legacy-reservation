@@ -1,30 +1,30 @@
 "use strict";
-const express = require('express');
-const partials = require('express-partials');
+const express = require("express");
+const partials = require("express-partials");
 // import favicon = require('serve-favicon');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const multer = require('multer');
-const logger_1 = require('./middlewares/logger');
-const benchmarks_1 = require('./middlewares/benchmarks');
-const session_1 = require('./middlewares/session');
-const conf = require('config');
-const mongoose = require('mongoose');
-const i18n = require('i18n');
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const multer = require("multer");
+const logger_1 = require("./middlewares/logger");
+const benchmarks_1 = require("./middlewares/benchmarks");
+const session_1 = require("./middlewares/session");
+const conf = require("config");
+const mongoose = require("mongoose");
+const i18n = require("i18n");
 let app = express();
 app.use(partials()); // レイアウト&パーシャルサポート
 app.use(logger_1.default); // ロガー
 app.use(benchmarks_1.default); // ベンチマーク的な
 app.use(session_1.default); // セッション
 // ルーティング
-const NamedRoutes = require('named-routes');
-const payDesign_1 = require('./routes/payDesign');
-const member_1 = require('./routes/member');
-const sponsor_1 = require('./routes/sponsor');
-const staff_1 = require('./routes/staff');
-const tel_1 = require('./routes/tel');
-const window_1 = require('./routes/window');
-const router_1 = require('./routes/router');
+const NamedRoutes = require("named-routes");
+const payDesign_1 = require("./routes/payDesign");
+const member_1 = require("./routes/member");
+const sponsor_1 = require("./routes/sponsor");
+const staff_1 = require("./routes/staff");
+const tel_1 = require("./routes/tel");
+const window_1 = require("./routes/window");
+const router_1 = require("./routes/router");
 let namedRoutes = new NamedRoutes();
 namedRoutes.extendExpress(app);
 namedRoutes.registerAppHelpers(app);

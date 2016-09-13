@@ -1,8 +1,8 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const mongoose = require('mongoose');
-const conf = require('config');
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
+const BaseController_1 = require("../BaseController");
+const mongoose = require("mongoose");
+const conf = require("config");
+const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class TestController extends BaseController_1.default {
     publishPaymentNo() {

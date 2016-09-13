@@ -1,5 +1,5 @@
 "use strict";
-const BaseUser_1 = require('./BaseUser');
+const BaseUser_1 = require("./BaseUser");
 /**
  * 電話窓口ユーザークラス
  */
@@ -15,6 +15,9 @@ class TelStaffUser extends BaseUser_1.default {
         return user;
     }
 }
-TelStaffUser.AUTH_SESSION_NAME = 'TIFFFrontendTelStaffAuth';
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * 電話窓口ユーザークラス
+ */
 exports.default = TelStaffUser;
+TelStaffUser.AUTH_SESSION_NAME = 'TIFFFrontendTelStaffAuth';

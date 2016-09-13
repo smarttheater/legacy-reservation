@@ -22,6 +22,8 @@ class ScreenUtil {
         return 1;
     }
 }
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = ScreenUtil;
 /** ノーマルシート */
 ScreenUtil.SEAT_GRADE_CODE_NORMAL = '00';
 /** プレミアボックスシート */
@@ -30,5 +32,3 @@ ScreenUtil.SEAT_GRADE_CODE_PREMIERE_BOX = '01';
 ScreenUtil.SEAT_GRADE_CODE_PREMIERE_LUXURY = '02';
 /** フロントリクライニングシート */
 ScreenUtil.SEAT_GRADE_CODE_FRONT_RECLINING = '03';
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = ScreenUtil;

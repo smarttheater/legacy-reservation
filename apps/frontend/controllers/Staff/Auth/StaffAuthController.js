@@ -1,12 +1,12 @@
 "use strict";
-const BaseController_1 = require('../../BaseController');
-const StaffUser_1 = require('../../../models/User/StaffUser');
-const staffLoginForm_1 = require('../../../forms/staff/staffLoginForm');
-const Util_1 = require('../../../../common/Util/Util');
-const Models_1 = require('../../../../common/models/Models');
+const BaseController_1 = require("../../BaseController");
+const StaffUser_1 = require("../../../models/User/StaffUser");
+const staffLoginForm_1 = require("../../../forms/staff/staffLoginForm");
+const Util_1 = require("../../../../common/Util/Util");
+const Models_1 = require("../../../../common/models/Models");
 class StaffAuthController extends BaseController_1.default {
-    constructor(...args) {
-        super(...args);
+    constructor() {
+        super(...arguments);
         this.layout = 'layouts/staff/layout';
     }
     /**

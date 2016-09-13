@@ -1,11 +1,11 @@
 "use strict";
-const BaseController_1 = require('../../BaseController');
-const Util_1 = require('../../../../common/Util/Util');
-const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
-const Models_1 = require('../../../../common/models/Models');
+const BaseController_1 = require("../../BaseController");
+const Util_1 = require("../../../../common/Util/Util");
+const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
+const Models_1 = require("../../../../common/models/Models");
 class SponsorMyPageController extends BaseController_1.default {
-    constructor(...args) {
-        super(...args);
+    constructor() {
+        super(...arguments);
         this.layout = 'layouts/sponsor/layout';
     }
     index() {

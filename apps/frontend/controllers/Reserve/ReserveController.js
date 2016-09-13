@@ -1,10 +1,10 @@
 "use strict";
-const ReserveBaseController_1 = require('../ReserveBaseController');
-const Models_1 = require('../../../common/models/Models');
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
-const ScreenUtil_1 = require('../../../common/models/Screen/ScreenUtil');
-const ReservationModel_1 = require('../../models/Reserve/ReservationModel');
-const qr = require('qr-image');
+const ReserveBaseController_1 = require("../ReserveBaseController");
+const Models_1 = require("../../../common/models/Models");
+const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const ScreenUtil_1 = require("../../../common/models/Screen/ScreenUtil");
+const ReservationModel_1 = require("../../models/Reserve/ReservationModel");
+const qr = require("qr-image");
 class ReserveController extends ReserveBaseController_1.default {
     /**
      * 座席の状態を取得する

@@ -1,7 +1,7 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Models_1 = require('../../../common/models/Models');
-const Util_1 = require('../../../common/Util/Util');
+const BaseController_1 = require("../BaseController");
+const Models_1 = require("../../../common/models/Models");
+const Util_1 = require("../../../common/Util/Util");
 class AuthController extends BaseController_1.default {
     /**
      * ログイン

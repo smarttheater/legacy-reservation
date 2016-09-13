@@ -1,5 +1,5 @@
 "use strict";
-const BaseUser_1 = require('./BaseUser');
+const BaseUser_1 = require("./BaseUser");
 /**
  * 窓口ユーザークラス
  */
@@ -15,6 +15,9 @@ class WindowUser extends BaseUser_1.default {
         return user;
     }
 }
-WindowUser.AUTH_SESSION_NAME = 'TIFFFrontendWindowAuth';
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * 窓口ユーザークラス
+ */
 exports.default = WindowUser;
+WindowUser.AUTH_SESSION_NAME = 'TIFFFrontendWindowAuth';

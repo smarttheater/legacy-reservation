@@ -12,4 +12,7 @@ class GMONotificationModel {
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * GMOコンビニ決済結果通知モデル
+ */
 exports.default = GMONotificationModel;

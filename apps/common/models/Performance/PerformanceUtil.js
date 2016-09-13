@@ -1,6 +1,8 @@
 "use strict";
 class PerformanceUtil {
 }
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = PerformanceUtil;
 /** 座席ステータス(◎) */
 PerformanceUtil.SEAT_STATUS_A = '◎';
 /** 座席ステータス(○) */
@@ -17,5 +19,3 @@ PerformanceUtil.SEAT_STATUS_THRESHOLD_A = 99;
 PerformanceUtil.SEAT_STATUS_THRESHOLD_B = 90;
 /** 座席ステータス閾値(△) */
 PerformanceUtil.SEAT_STATUS_THRESHOLD_C = 0;
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = PerformanceUtil;

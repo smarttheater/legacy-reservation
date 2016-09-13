@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 "use strict";
-const app = require('./apps/frontend/app');
-const debugModule = require('debug');
-const http = require('http');
+const app = require("./apps/frontend/app");
+const debugModule = require("debug");
+const http = require("http");
 let debug = debugModule('app:server');
 /**
  * Get port from environment and store in Express.

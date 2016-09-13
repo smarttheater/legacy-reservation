@@ -1,10 +1,10 @@
 "use strict";
-const log4js = require('log4js');
-const moment = require('moment');
-const numeral = require('numeral');
-const conf = require('config');
-const Constants_1 = require('../../common/Util/Constants');
-const Util_1 = require('../../common/Util/Util');
+const log4js = require("log4js");
+const moment = require("moment");
+const numeral = require("numeral");
+const conf = require("config");
+const Constants_1 = require("../../common/Util/Constants");
+const Util_1 = require("../../common/Util/Util");
 /**
  * ベースコントローラー
  *
@@ -44,4 +44,10 @@ class BaseController {
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * ベースコントローラー
+ *
+ * 基本的にコントローラークラスはルーティングクラスより呼ばれる
+ * あらゆるルーティングで実行されるメソッドは、このクラスがベースとなるので、メソッド共通の処理はここで実装するとよい
+ */
 exports.default = BaseController;
