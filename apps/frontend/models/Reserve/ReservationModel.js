@@ -131,11 +131,14 @@ class ReservationModel {
     }
     /**
      * 座席コードから予約(確定)ドキュメントを作成する
+     *
+     * @param {string} seatCode 座席コード
      */
     seatCode2reservationDocument(seatCode) {
         let reservation = this.getReservation(seatCode);
         let doc = {
             _id: reservation._id,
+            status: reservation.status,
             seat_code: seatCode,
             seat_grade_name_ja: reservation.seat_grade_name_ja,
             seat_grade_name_en: reservation.seat_grade_name_en,
