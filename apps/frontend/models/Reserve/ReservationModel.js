@@ -134,7 +134,7 @@ class ReservationModel {
      */
     seatCode2reservationDocument(seatCode) {
         let reservation = this.getReservation(seatCode);
-        let document = {
+        let doc = {
             _id: reservation._id,
             seat_code: seatCode,
             seat_grade_name_ja: reservation.seat_grade_name_ja,
@@ -181,7 +181,7 @@ class ReservationModel {
             gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil_1.default.createShopPassString(conf.get('gmo_payment_shop_id'), this.paymentNo, this.getTotalCharge().toString(), conf.get('gmo_payment_shop_password'), moment(this.purchasedAt).format('YYYYMMDDHHmmss')) : '',
             updated_user: 'ReservationModel'
         };
-        return document;
+        return doc;
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

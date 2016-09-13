@@ -3,7 +3,6 @@ const BaseController_1 = require("../BaseController");
 const Util_1 = require("../../../common/Util/Util");
 const Models_1 = require("../../../common/models/Models");
 const conf = require("config");
-const mongodb = require("mongodb");
 const mongoose = require("mongoose");
 const fs = require("fs-extra");
 const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
@@ -148,14 +147,10 @@ class StaffController extends BaseController_1.default {
                             });
                             reservations = reservations.concat(reservationsByPerformance);
                         }
-                        let MongoClient = mongodb.MongoClient;
-                        MongoClient.connect(conf.get('mongolab_uri'), (err, db) => {
-                            this.logger.debug('creating staff reservations...length:', reservations.length);
-                            db.collection('reservations').insertMany(reservations, (err, result) => {
-                                this.logger.debug('staff reservations created.', err);
-                                db.close();
-                                cb(err);
-                            });
+                        this.logger.debug('creating staff reservations...length:', reservations.length);
+                        Models_1.default.Reservation.insertMany(reservations, (err, docs) => {
+                            this.logger.debug('staff reservations created.', err);
+                            cb(err);
                         });
                     });
                 });

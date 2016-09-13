@@ -46,9 +46,8 @@
                 <td>
                     <p>
                         <% reservationModel.seatCodes.forEach((seatCode) => { %>
-                            <% let reservation = reservationModel.getReservation(seatCode) %>
-                            <%- reservation.seat_code %> / 
-                            <%- reservation[`ticket_type_name_${locale}`] %> <%- __('{{price}} yen', {price: reservation.ticket_type_charge}) %>
+                            <% let reservation = new Models.Reservation(reservationModel.seatCode2reservationDocument(seatCode)); %>
+                            <%- reservation.get('seat_code') %> / <%- reservation.get(`ticket_type_name_${locale}`) %> <%- reservation.get(`ticket_type_charge_str_${locale}`) %>
                             <br>
                         <% }) %>
                     </p>

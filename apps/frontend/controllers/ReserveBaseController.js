@@ -21,6 +21,7 @@ class ReserveBaseController extends BaseController_1.default {
         this.res.locals.GMOUtil = GMOUtil_1.default;
         this.res.locals.ReservationUtil = ReservationUtil_1.default;
         this.res.locals.ScreenUtil = ScreenUtil_1.default;
+        this.res.locals.Models = Models_1.default;
     }
     /**
      * 購入開始プロセス
@@ -341,6 +342,11 @@ class ReserveBaseController extends BaseController_1.default {
                         seat_grade_name_ja: seatInfo.grade.name.ja,
                         seat_grade_name_en: seatInfo.grade.name.en,
                         seat_grade_additional_charge: seatInfo.grade.additional_charge,
+                        ticket_type_code: null,
+                        ticket_type_name_ja: null,
+                        ticket_type_name_en: null,
+                        ticket_type_charge: 0,
+                        watcher_name: null
                     });
                     resolve();
                 });

@@ -2,8 +2,9 @@
 {
     // ファイルとフォルダーを除外するための glob パターンを構成します。
     "files.exclude": {
-        "app/**/*.js": true,
+        "apps/**/*.js": true,
         "bin/**/*.js": true,
         "*.js": true
-    }
+    },
+    "typescript.tsdk": "node_modules/typescript/lib"
 }

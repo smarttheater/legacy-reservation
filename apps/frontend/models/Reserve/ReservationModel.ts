@@ -193,7 +193,7 @@ export default class ReservationModel {
      */
     public seatCode2reservationDocument(seatCode) {
         let reservation = this.getReservation(seatCode);
-        let document =  {
+        let doc =  {
             _id: reservation._id,
 
             seat_code: seatCode,
@@ -259,7 +259,7 @@ export default class ReservationModel {
             updated_user: 'ReservationModel'
         };
 
-        return document;
+        return doc;
     }
 }
 
@@ -330,10 +330,10 @@ interface Reservation {
     seat_grade_name_en: string,
     seat_grade_additional_charge: number,
 
-    ticket_type_code?: string,
-    ticket_type_name_ja?: string,
-    ticket_type_name_en?: string,
-    ticket_type_charge?: number,
+    ticket_type_code: string,
+    ticket_type_name_ja: string,
+    ticket_type_name_en: string,
+    ticket_type_charge: number,
 
-    watcher_name?: string,
+    watcher_name: string
 }

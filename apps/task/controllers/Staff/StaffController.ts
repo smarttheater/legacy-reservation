@@ -2,7 +2,6 @@ import BaseController from '../BaseController';
 import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import conf = require('config');
-import mongodb = require('mongodb');
 import mongoose = require('mongoose');
 import fs = require('fs-extra');
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
@@ -167,14 +166,10 @@ export default class StaffController extends BaseController {
                                 reservations = reservations.concat(reservationsByPerformance);
                             }
 
-                            let MongoClient = mongodb.MongoClient;
-                            MongoClient.connect(conf.get<string>('mongolab_uri'), (err, db) => {
-                                this.logger.debug('creating staff reservations...length:', reservations.length);
-                                db.collection('reservations').insertMany(reservations, (err, result) => {
-                                    this.logger.debug('staff reservations created.', err);
-                                    db.close();
-                                    cb(err);
-                                });
+                            this.logger.debug('creating staff reservations...length:', reservations.length);
+                            Models.Reservation.insertMany(reservations, (err, docs) => {
+                                this.logger.debug('staff reservations created.', err);
+                                cb(err);
                             });
                         });
                     }

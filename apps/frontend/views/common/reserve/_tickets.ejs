@@ -17,32 +17,21 @@
 
             <tbody>
                 <% for (let seatCode of reservationModel.seatCodes) { %>
-                <% let reservation = reservationModel.getReservation(seatCode) %>
+                <% let reservation = new Models.Reservation(reservationModel.seatCode2reservationDocument(seatCode)); %>
                 <tr data-seat-code="<%- reservation.seat_code %>" data-seat-extra-charge="<%= reservationModel.getChargeExceptTicketTypeBySeatCode(seatCode) %>">
 
-                    <th><span class="visible-mobile"><%- __('Label.SeatCode') %></span><%- reservation.seat_code %></th>
+                    <th><span class="visible-mobile"><%- __('Label.SeatCode') %></span><%- reservation.get('seat_code') %></th>
                     <td>
                         <select class="form-control">
-                            <% reservationModel.ticketTypes.forEach(function(ticketType, index) { %>
-                            <option value="<%- ticketType.code %>" data-charge="<%= ticketType.charge %>"
-                                <% if (reservation.hasOwnProperty('ticket_type_code')) { %>
-                                <% if (reservation.ticket_type_code == ticketType.code) { %> selected="selected"<% } %>
-                                <% } %>
-                            >
-                                <%- ticketType.name[locale] %> <%- __('{{price}} yen', {price: ticketType.charge}) %>
-
-                                <% if (reservationModel.purchaserGroup !== ReservationUtil.PURCHASER_GROUP_SPONSOR
-                                    && reservationModel.purchaserGroup !== ReservationUtil.PURCHASER_GROUP_STAFF) { %>
-                                    <%- (reservationModel.performance.film.is_mx4d) ? `[+${ReservationUtil.CHARGE_MX4D}(MX4D)]` : '' %>
-                                    <%- (reservation.seat_grade_additional_charge > 0) ? `[+${reservation.seat_grade_additional_charge}(${reservation[`seat_grade_name_${locale}`]})]` : '' %>
-                                <% } %>
-
+                            <% reservationModel.ticketTypes.forEach(function(ticketType) { %>
+                            <option value="<%- ticketType.code %>" data-charge="<%= ticketType.charge %>"<%- (reservation.get('ticket_type_code') === ticketType.code) ? ' selected="selected"' : '' %>>
+                                <%- ticketType.name[locale] %> <%- reservation.set('ticket_type_charge', ticketType.charge).get('ticket_type_charge_str_' + locale) %>
                             </option>
                             <% }) %>
                         </select>
 
                         <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) { %>
-                        <input type="text" name="watcherName" class="form-control" placeholder="<%- __('Label.PleaseEnterWatcherName') %>" value="<%- (reservation.hasOwnProperty('watcher_name')) ? reservation.watcher_name : '' %>">
+                        <input type="text" name="watcherName" class="form-control" placeholder="<%- __('Label.PleaseEnterWatcherName') %>" value="<%- reservation.get('watcher_name') %>">
                         <% } %>
                     </td>
                 </tr>
