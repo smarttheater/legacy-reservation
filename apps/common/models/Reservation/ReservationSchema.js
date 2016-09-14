@@ -260,7 +260,7 @@ Schema.virtual('ticket_type_charge_str_en').get(function () {
             charge += this.get('ticket_type_charge') + this.get('seat_grade_additional_charge') + ((this.get('film_is_mx4d')) ? ReservationUtil_1.default.CHARGE_MX4D : 0);
             str += `\\${numeral(charge).format('0,0')}`;
             if (this.get('seat_grade_additional_charge') > 0) {
-                str += ` (内${this.get('seat_grade_name_en')} \\${numeral(this.get('seat_grade_additional_charge')).format('0,0')})`;
+                str += ` (including ${this.get('seat_grade_name_en')} \\${numeral(this.get('seat_grade_additional_charge')).format('0,0')})`;
             }
             break;
     }
