@@ -36,7 +36,7 @@
                 <option value=""><%- __('Label.AllDay') %></option>
                 <%
                 let now = moment();
-                let fiveDaysLater = now.add(+5, 'days');
+                let fiveDaysLater = moment().add(+5, 'days');
                 let start = moment(conf.get('datetimes.event_start'));
                 let end = moment(conf.get('datetimes.event_end'));
                 let options = '';
@@ -51,7 +51,7 @@
                         options += ' selected="selected"';
                     }
                     options += `>${start.format('MM/DD')}</option>`;
-                    start = start.add(+1, 'days');
+                    start.add(+1, 'days');
                     continue;
                 }
                 %>
