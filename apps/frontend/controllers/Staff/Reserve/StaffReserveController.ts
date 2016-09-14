@@ -104,7 +104,7 @@ export default class StaffReserveController extends ReserveBaseController implem
     protected processFixSeats(reservationModel: ReservationModel, seatCodes: Array<string>, cb: (err: Error, reservationModel: ReservationModel) => void) {
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
-        reservationModel.tmpReservationExpiredAt = Date.now() + (conf.get<number>('temporary_reservation_valid_period_seconds') * 1000);
+        reservationModel.expiredAt = moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').valueOf();
 
         // 新たな座席指定と、既に仮予約済みの座席コードについて
         let promises = seatCodes.map((seatCode) => {
@@ -122,7 +122,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                         performance: reservationModel.performance._id,
                         seat_code: seatCode,
                         status: ReservationUtil.STATUS_TEMPORARY,
-                        expired_at: reservationModel.tmpReservationExpiredAt,
+                        expired_at: reservationModel.expiredAt,
                         staff: this.req.staffUser.get('_id')
                     },
                     (err, reservation) => {
@@ -136,7 +136,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                                 },
                                 {
                                     status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TIFF,
-                                    expired_at: reservationModel.tmpReservationExpiredAt,
+                                    expired_at: reservationModel.expiredAt,
                                     staff: this.req.staffUser.get('_id')
                                 },
                                 {

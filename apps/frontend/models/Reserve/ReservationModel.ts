@@ -18,6 +18,8 @@ export default class ReservationModel {
     public paymentNo: string;
     /** 購入確定日時タイムスタンプ */
     public purchasedAt: number;
+    /** 座席仮予約有効期限タイムスタンプ */
+    public expiredAt: number;
     /** パフォーマンス */
     public performance: Performance;
     /** 決済方法選択肢 */
@@ -28,8 +30,6 @@ export default class ReservationModel {
     public seatGradeCodesInScreen: Array<string>;
     /** スクリーンの座席表HTML */
     public screenHtml: string;
-    /** 座席を仮押さえした日時 */
-    public tmpReservationExpiredAt: number;
     /** 予約座席コードリスト */
     public seatCodes: Array<string>;
     /** 購入者セイ */
@@ -244,10 +244,9 @@ export default class ReservationModel {
             payment_method: (this.paymentMethod) ? this.paymentMethod : '',
 
             watcher_name: (reservation.watcher_name) ? reservation.watcher_name : '',
-            watcher_name_updated_at: (reservation.watcher_name) ? Date.now() : '',
+            watcher_name_updated_at: (reservation.watcher_name) ? moment().valueOf() : '',
 
             purchased_at: this.purchasedAt,
-            expired_at: null,
 
             gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil.createShopPassString(
                 conf.get<string>('gmo_payment_shop_id'),

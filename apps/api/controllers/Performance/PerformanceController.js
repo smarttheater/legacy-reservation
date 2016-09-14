@@ -14,7 +14,7 @@ class PerformanceController extends BaseController_1.default {
         let day = (this.req.query.day) ? this.req.query.day : null; // 上映日
         let section = (this.req.query.section) ? this.req.query.section : null; // 部門
         let words = (this.req.query.words) ? this.req.query.words : null; // フリーワード
-        let startFrom = (this.req.query.start_from) ? parseInt(this.req.query.start_from) : null; // この時間以降開始のパフォーマンスに絞る(timestamp)
+        let startFrom = (this.req.query.start_from) ? parseInt(this.req.query.start_from) : null; // この時間以降開始のパフォーマンスに絞る(timestamp milliseconds)
         let theater = (this.req.query.theater) ? this.req.query.theater : null; // 劇場
         let screen = (this.req.query.screen) ? this.req.query.screen : null; // スクリーン
         // 検索条件を作成
@@ -37,8 +37,8 @@ class PerformanceController extends BaseController_1.default {
             });
         }
         if (startFrom) {
-            let now = moment.unix(startFrom);
-            let tomorrow = moment.unix(startFrom).add(+24, 'hours');
+            let now = moment(startFrom);
+            let tomorrow = moment(startFrom).add(+24, 'hours');
             andConditions.push({
                 $or: [
                     {

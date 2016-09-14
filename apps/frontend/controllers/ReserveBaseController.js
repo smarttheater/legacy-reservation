@@ -308,7 +308,7 @@ class ReserveBaseController extends BaseController_1.default {
     processFixSeats(reservationModel, seatCodes, cb) {
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
-        reservationModel.tmpReservationExpiredAt = Date.now() + (conf.get('temporary_reservation_valid_period_seconds') * 1000);
+        reservationModel.expiredAt = moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').valueOf();
         // 新たな座席指定と、既に仮予約済みの座席コードについて
         let promises = seatCodes.map((seatCode) => {
             return new Promise((resolve, reject) => {
@@ -322,7 +322,7 @@ class ReserveBaseController extends BaseController_1.default {
                     performance: reservationModel.performance._id,
                     seat_code: seatCode,
                     status: ReservationUtil_1.default.STATUS_TEMPORARY,
-                    expired_at: reservationModel.tmpReservationExpiredAt,
+                    expired_at: reservationModel.expiredAt,
                     staff: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) ? this.req.staffUser.get('_id') : undefined,
                     sponsor: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR) ? this.req.sponsorUser.get('_id') : undefined,
                     member: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_MEMBER) ? this.req.memberUser.get('_id') : undefined,
@@ -432,16 +432,19 @@ class ReserveBaseController extends BaseController_1.default {
      */
     processConfirm(reservationModel, cb) {
         // 仮押さえ有効期限チェック
-        if (reservationModel.tmpReservationExpiredAt && reservationModel.tmpReservationExpiredAt < Date.now()) {
+        if (reservationModel.expiredAt && reservationModel.expiredAt < moment().valueOf()) {
             return cb(new Error(this.res.__('Message.Expired')), reservationModel);
         }
         let next = (reservationModel) => {
             // 購入日時確定
-            reservationModel.purchasedAt = Date.now();
+            reservationModel.purchasedAt = moment().valueOf();
             // 予約プロセス固有のログファイルをセット
             this.setProcessLogger(reservationModel.paymentNo, () => {
                 this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
-                let commonUpdate = {};
+                let commonUpdate = {
+                    // 決済移行のタイミングで仮予約有効期限を更新
+                    'expired_at': moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').valueOf()
+                };
                 switch (this.purchaserGroup) {
                     case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
                         break;

@@ -15,7 +15,7 @@ export default class PerformanceController extends BaseController {
         let day: string = (this.req.query.day) ? this.req.query.day : null; // 上映日
         let section: string = (this.req.query.section) ? this.req.query.section : null; // 部門
         let words: string = (this.req.query.words) ? this.req.query.words : null; // フリーワード
-        let startFrom: number = (this.req.query.start_from) ? parseInt(this.req.query.start_from) : null; // この時間以降開始のパフォーマンスに絞る(timestamp)
+        let startFrom: number = (this.req.query.start_from) ? parseInt(this.req.query.start_from) : null; // この時間以降開始のパフォーマンスに絞る(timestamp milliseconds)
         let theater: string = (this.req.query.theater) ? this.req.query.theater : null; // 劇場
         let screen: string = (this.req.query.screen) ? this.req.query.screen : null; // スクリーン
 
@@ -43,8 +43,8 @@ export default class PerformanceController extends BaseController {
         }
 
         if (startFrom) {
-            let now = moment.unix(startFrom);
-            let tomorrow = moment.unix(startFrom).add(+24, 'hours');
+            let now = moment(startFrom);
+            let tomorrow = moment(startFrom).add(+24, 'hours');
 
             andConditions.push({
                 $or: [

@@ -13,13 +13,13 @@
     <form class="form-inline">
         <% if (!isStaff && !isWindow) { %>
         <!-- 内部関係者以外では、開始20分後まで検索対象 -->
-        <input type="hidden" name="start_from" value="<%- moment().add(-20, 'minutes').format('X') %>">
+        <input type="hidden" name="start_from" value="<%- moment().add(-20, 'minutes').valueOf() %>">
         <% } %>
 
         <% if (isTel) { %>
         <!-- 電話窓口では、開場時間が5日後00:00:00以降 -->
         <% let now = moment() %>
-        <input type="hidden" name="start_from" value="<%- moment(now.format('YYYY-MM-DDT00:00:00+9:00')).add(+5, 'days').format('X') %>">
+        <input type="hidden" name="start_from" value="<%- moment(now.format('YYYY-MM-DDT00:00:00+9:00')).add(+5, 'days').valueOf() %>">
         <% } %>
 
         <div class="form-group">
