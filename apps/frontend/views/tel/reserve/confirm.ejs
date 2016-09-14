@@ -51,7 +51,7 @@
                     <p>
                         <% reservationModel.seatCodes.forEach((seatCode) => { %>
                             <% let reservation = new Models.Reservation(reservationModel.seatCode2reservationDocument(seatCode)); %>
-                            <%- reservation.get('seat_code') %> / <%- reservation.get(`ticket_type_name_${locale}`) %> <%- reservation.get(`ticket_type_charge_str_${locale}`) %>
+                            <%- reservation.get('seat_code') %> / <%- reservation.get(`ticket_type_name_${locale}`) %> <%- reservation.get(`ticket_type_charge_str_${locale}`).replace(/\\/g, '&yen;') %>
                             <%- (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? `[+${ReservationUtil.CHARGE_CVS}(${__('Label.PaymentMethodName.CVS')})]` : '' %>
                             <br>
                         <% }) %>
