@@ -100,10 +100,10 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 };
 
                 // 内容の整合性チェック
-                this.logger.info('finding reservations...payment_no:', gmoNotificationModel.OrderID);
+                this.logger.info('finding reservations...payment_no:', paymentNo);
                 Models.Reservation.find(
                     {
-                        payment_no: gmoNotificationModel.OrderID
+                        payment_no: paymentNo
                     },
                     '_id purchased_at gmo_shop_pass_string',
                     (err, reservations) => {
@@ -161,8 +161,52 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
                 break;
 
-            case GMOUtil.STATUS_CREDIT_VOID:
-                // TODO 取消しの場合キャンセルする
+            case GMOUtil.STATUS_CREDIT_VOID: // 取消し
+                // 空席に戻す
+                this.logger.info('finding reservations...payment_no:', paymentNo);
+                Models.Reservation.find(
+                    {
+                        payment_no: paymentNo
+                    },
+                    '_id purchased_at gmo_shop_pass_string',
+                    (err, reservations) => {
+                        this.logger.info('reservations found.', err, reservations.length);
+                        if (err) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        if (reservations.length === 0) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
+                        // チェック文字列
+                        let shopPassString = GMOUtil.createShopPassString(
+                            gmoNotificationModel.ShopID,
+                            gmoNotificationModel.OrderID,
+                            gmoNotificationModel.Amount,
+                            conf.get<string>('gmo_payment_shop_password'),
+                            moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss')
+                        );
+                        this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
+                        if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
+                            return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        }
+
+                        // キャンセル
+                        this.logger.info('removing reservations...payment_no:', paymentNo);
+                        let promises = reservations.map((reservation) => {
+                            return new Promise((resolve, reject) => {
+                                this.logger.info('removing reservation...', reservation.get('_id'));
+                                reservation.remove((err) => {
+                                    this.logger.info('reservation removed.', reservation.get('_id'), err);
+                                    (err) ? reject(err) : resolve();
+                                });
+                            });
+                        });
+                        Promise.all(promises).then(() => {
+                            this.logger.info('sending response RecvRes_OK...');
+                            this.res.send(GMONotificationResponseModel.RecvRes_OK);
+                        }, (err) => {
+                            this.logger.info('sending response RecvRes_NG...');
+                            this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        });
+                    }
+                );
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);
                 break;
 

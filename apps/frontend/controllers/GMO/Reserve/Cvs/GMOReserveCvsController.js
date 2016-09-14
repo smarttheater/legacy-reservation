@@ -74,9 +74,9 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                     gmo_status: gmoNotificationModel.Status
                 };
                 // 内容の整合性チェック
-                this.logger.info('finding reservations...payment_no:', gmoNotificationModel.OrderID);
+                this.logger.info('finding reservations...payment_no:', paymentNo);
                 Models_1.default.Reservation.find({
-                    payment_no: gmoNotificationModel.OrderID
+                    payment_no: paymentNo
                 }, '_id purchased_at gmo_shop_pass_string', (err, reservations) => {
                     this.logger.info('reservations found.', err, reservations.length);
                     if (err)
@@ -117,9 +117,9 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                     gmo_payment_term: gmoNotificationModel.PaymentTerm
                 };
                 // 内容の整合性チェック
-                this.logger.info('finding reservations...payment_no:', gmoNotificationModel.OrderID);
+                this.logger.info('finding reservations...payment_no:', paymentNo);
                 Models_1.default.Reservation.find({
-                    payment_no: gmoNotificationModel.OrderID
+                    payment_no: paymentNo
                 }, '_id purchased_at gmo_shop_pass_string', (err, reservations) => {
                     this.logger.info('reservations found.', err, reservations.length);
                     if (err)
@@ -133,7 +133,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                         return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     }
                     this.logger.info('processChangeStatus2waitingSettlement processing... update:', update);
-                    this.processChangeStatus2waitingSettlement(gmoNotificationModel.OrderID, update, (err) => {
+                    this.processChangeStatus2waitingSettlement(paymentNo, update, (err) => {
                         this.logger.info('processChangeStatus2waitingSettlement processed.', err);
                         if (err) {
                             this.logger.info('sending response RecvRes_NG...');
@@ -153,9 +153,9 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
             case GMOUtil_1.default.STATUS_CVS_EXPIRED: // 期限切れ
             case GMOUtil_1.default.STATUS_CVS_CANCEL:
                 // 空席に戻す
-                this.logger.info('finding reservations...payment_no:', gmoNotificationModel.OrderID);
+                this.logger.info('finding reservations...payment_no:', paymentNo);
                 Models_1.default.Reservation.find({
-                    payment_no: gmoNotificationModel.OrderID
+                    payment_no: paymentNo
                 }, '_id purchased_at gmo_shop_pass_string', (err, reservations) => {
                     this.logger.info('reservations found.', err, reservations.length);
                     if (err)
@@ -169,15 +169,13 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                         return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     }
                     // キャンセル
-                    this.logger.info('removing reservations...payment_no:', gmoNotificationModel.OrderID);
+                    this.logger.info('removing reservations...payment_no:', paymentNo);
                     let promises = reservations.map((reservation) => {
                         return new Promise((resolve, reject) => {
                             this.logger.info('removing reservation...', reservation.get('_id'));
                             reservation.remove((err) => {
                                 this.logger.info('reservation removed.', reservation.get('_id'), err);
-                                if (err)
-                                    return reject(err);
-                                resolve();
+                                (err) ? reject(err) : resolve();
                             });
                         });
                     });

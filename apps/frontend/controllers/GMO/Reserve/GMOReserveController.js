@@ -66,9 +66,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
                             this.logger.info('removing reservation...', reservation.get('_id'));
                             reservation.remove((err) => {
                                 this.logger.info('reservation removed.', reservation.get('_id'), err);
-                                if (err)
-                                    return reject(err);
-                                resolve();
+                                (err) ? reject(err) : resolve();
                             });
                         });
                     });
@@ -180,9 +178,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
                         this.logger.info('removing reservation...', reservation.get('_id'));
                         reservation.remove((err) => {
                             this.logger.info('reservation removed.', reservation.get('_id'), err);
-                            if (err)
-                                return reject(err);
-                            resolve();
+                            (err) ? reject(err) : resolve();
                         });
                     });
                 });
