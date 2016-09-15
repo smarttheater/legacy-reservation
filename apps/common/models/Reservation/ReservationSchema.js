@@ -161,6 +161,9 @@ Schema.virtual('purchaser_name').get(function () {
             case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
                 name = `${this.staff_name} ${this.staff_signature}`;
                 break;
+            case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
+                name = `${this.sponsor_name} ${this.purchaser_last_name} ${this.purchaser_first_name}`;
+                break;
             default:
                 name = `${this.purchaser_last_name} ${this.purchaser_first_name}`;
                 break;
