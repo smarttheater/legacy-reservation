@@ -1,10 +1,15 @@
+/**
+ * 初期状態で選択中だった座席と、
+ * 画面上で選択中の座席については
+ * 状態変化させてはいけないので、注意すること
+ */
 $(function(){
     var _limit = parseInt($('input[name="seatsLimit"]').val());
     var _screenSeatStatusesMap;
     /** 初期状態で選択中だった座席コード(仮予約中の座席) */
     var _initialActiveSeatCodes = JSON.parse($('.seatStatusesMap').attr('data-seat-codes'));
     /** 現在選択中の座席 */
-    var _activeSeatCodes = _initialActiveSeatCodes;
+    var _activeSeatCodes = JSON.parse($('.seatStatusesMap').attr('data-seat-codes'));
 
     /**
      * 空席状況マップを表示する
