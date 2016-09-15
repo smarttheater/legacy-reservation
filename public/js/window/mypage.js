@@ -1,4 +1,5 @@
 $(function(){
+    var locale = $('html').attr('lang');
     // 購入番号ごとにまとめた予約ドキュメントリスト
     var reservations = [];
     var conditions = {
@@ -20,10 +21,10 @@ $(function(){
             + '<tr data-seat-code="' + reservation.seat_code + '"'
                + ' data-reservation-id="' + reservation._id + '"'
                + ' data-payment-no="' + reservation.payment_no + '"'
-               + ' data-film-name="' + reservation.film_name_ja + '"'
+               + ' data-film-name="' + reservation['film_name_' + locale] + '"'
                + ' data-performance-start-datetime="' + startDatetime + '"'
-               + ' data-theater-name="' + reservation.theater_name_ja + '"'
-               + ' data-screen-name="' + reservation.screen_name_ja + '"'
+               + ' data-theater-name="' + reservation['theater_name_' + locale] + '"'
+               + ' data-screen-name="' + reservation['screen_name_' + locale] + '"'
                + '>'
                + '<th class="td-checkbox">';
 
@@ -44,9 +45,9 @@ $(function(){
                 + '<td class="">' + reservation.purchaser_tel + '</td>'
                 + '<td class="">' + reservation.purchaser_last_name + ' ' + reservation.purchaser_first_name + '</td>'
                 + '<td class="td-title">'
-                    + reservation.film_name_ja + '<br>'
+                    + reservation['film_name_' + locale] + '<br>'
                     + startDatetime + '-<br>'
-                    + reservation.theater_name_ja + ' ' + reservation.screen_name_ja + '<br>'
+                    + reservation['theater_name_' + locale] + ' ' + reservation['screen_name_' + locale] + '<br>'
                     + ((reservation.performance_canceled) ? '<div class="alert alert-danger">Canceled</div>' : '')
                 + '</td>'
                 + '<td class="td-seat"><a href="javascript:void(0);" class="show-seat-position" data-screen-id="' + reservation.screen.toString() + '" data-seat-codes="' + reservation.seat_code + '">' + reservation.seat_code + '</a></td>'
