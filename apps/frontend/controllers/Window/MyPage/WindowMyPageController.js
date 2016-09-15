@@ -3,6 +3,7 @@ const BaseController_1 = require("../../BaseController");
 const Util_1 = require("../../../../common/Util/Util");
 const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
 const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
+const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
 const Models_1 = require("../../../../common/models/Models");
 const moment = require("moment");
 class WindowMyPageController extends BaseController_1.default {
@@ -90,11 +91,7 @@ class WindowMyPageController extends BaseController_1.default {
                     count: 0
                 });
             }
-            Models_1.default.Reservation.find({
-                $and: conditions
-            }, null, {
-                sort: { staff: 1, seat_code: 1 }
-            })
+            Models_1.default.Reservation.find({ $and: conditions })
                 .skip(limit * (page - 1))
                 .limit(limit)
                 .lean(true)
@@ -107,6 +104,16 @@ class WindowMyPageController extends BaseController_1.default {
                     });
                 }
                 else {
+                    // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
+                    reservations.sort((a, b) => {
+                        if (a.performance_day > b.performance_day)
+                            return 1;
+                        if (a.performance_start_time > b.performance_start_time)
+                            return 1;
+                        if (a.screen > b.screen)
+                            return 1;
+                        return ScreenUtil_1.default.sortBySeatCode(a.seat_code, b.seat_code);
+                    });
                     this.res.json({
                         success: true,
                         results: reservations,

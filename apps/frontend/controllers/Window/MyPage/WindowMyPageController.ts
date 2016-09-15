@@ -2,6 +2,7 @@ import BaseController from '../../BaseController';
 import Util from '../../../../common/Util/Util';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
+import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
 import Models from '../../../../common/models/Models';
 import moment = require('moment');
 
@@ -107,19 +108,11 @@ export default class WindowMyPageController extends BaseController {
                     });
                 }
 
-                Models.Reservation.find(
-                    {
-                        $and: conditions
-                    },
-                    null,
-                    {
-                        sort : {staff: 1, seat_code: 1}
-                    }
-                )
+                Models.Reservation.find({$and: conditions})
                 .skip(limit * (page - 1))
                 .limit(limit)
                 .lean(true)
-                .exec((err, reservations) => {
+                .exec((err, reservations: Array<any>) => {
                     if (err) {
                         this.res.json({
                             success: false,
@@ -127,6 +120,14 @@ export default class WindowMyPageController extends BaseController {
                             count: 0
                         });
                     } else {
+                        // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
+                        reservations.sort((a, b) => {
+                            if (a.performance_day > b.performance_day) return 1;
+                            if (a.performance_start_time > b.performance_start_time) return 1;
+                            if (a.screen > b.screen) return 1;
+                            return ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                        });
+
                         this.res.json({
                             success: true,
                             results: reservations,
