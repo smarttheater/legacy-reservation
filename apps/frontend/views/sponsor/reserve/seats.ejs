@@ -1,6 +1,14 @@
 <%- include('../../common/reserve/_seats') %>
 
+
+<% // パフォーマンス指定外部関係者の場合は戻れない %>
+<% if (req.sponsorUser.get('performance')) { %>
+<div class="center">
+    <a class="btn btn-lg btn-next" href="javascript:void(0);"><span><%- __('Button.Next') %></span></a>
+</div>
+<% } else { %>
 <div class="btns2clm">
     <a class="btn btn-lg btn-next" href="javascript:void(0);"><span><%- __('Button.Next') %></span></a>
     <a class="btn btn-lg btn-back" href="<%- url('sponsor.reserve.performances', {token: req.params.token}) %>"><span><%- __('Button.Back') %></span></a>
 </div>
+<% } %>
