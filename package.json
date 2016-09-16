@@ -51,7 +51,7 @@
   "author": "Tetsu Yamazaki <yamazaki@motionpicture.jp>",
   "license": "UNLICENSED",
   "engines": {
-    "node": ">=6.3.0",
+    "node": ">=6.5.0",
     "npm": ">=3.10.0"
   },
   "description": "This is a repogitory for TIFF online website."
