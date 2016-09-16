@@ -93,13 +93,13 @@
 
         <% reservations.forEach((reservation, index) => { %>
         <%- (index > 0) ? '<br>' : '' %>
-        <strong><%- reservation.get('ticket_type_name_ja') %> <%- reservation.get('ticket_type_charge_str_ja').replace(/\\/g, '&yen;') %>
+        <strong><%- reservation.get('ticket_type_detail_str_ja').replace(/\\/g, '&yen;') %>
         <% }) %>
 
         <p style="font-size:12px;">
             <% reservations.forEach((reservation, index) => { %>
             <%- (index > 0) ? '<br>' : '' %>
-            <%- reservation.get('ticket_type_name_en') %> <%- reservation.get('ticket_type_charge_str_en').replace(/\\/g, '&yen;') %>
+            <%- reservation.get('ticket_type_detail_str_en').replace(/\\/g, '&yen;') %>
             <% }) %>
         </p>
 

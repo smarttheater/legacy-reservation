@@ -111,8 +111,8 @@
 
                 <h3>券種・金額<span class="smalltext">Denomination Amount of money</span></h3>
 
-                <strong><%- reservation.get('ticket_type_name_ja') %> / <%- reservation.get('ticket_type_charge_str_ja').replace(/\\/g, '&yen;') %></strong>
-                <span class="smalltext"><%- reservation.get('ticket_type_name_en') %> / <%- reservation.get('ticket_type_charge_str_en').replace(/\\/g, '&yen;') %></span>
+                <strong><%- reservation.get('ticket_type_detail_str_ja').replace(/\\/g, '&yen;') %></strong>
+                <span class="smalltext"><%- reservation.get('ticket_type_detail_str_en').replace(/\\/g, '&yen;') %></span>
 
             </td></tr>
 

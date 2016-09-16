@@ -106,8 +106,8 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
                 'seat_code',
                 'ticket_type_name_ja',
                 'ticket_type_name_en',
-                'ticket_type_charge_str_ja',
-                'ticket_type_charge_str_en'
+                'ticket_type_detail_str_ja',
+                'ticket_type_detail_str_en'
             ].filter(function(item){
                 return (!reservation[item]);
             });
@@ -236,12 +236,12 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
             //日本語券種・金額を強調
             request += builder.createTextElement({
                 emphasis: true,
-                data: reservation.ticket_type_name_ja+'/'+reservation.ticket_type_charge_str_ja+'\n'
+                data: reservation.ticket_type_detail_str_ja+'\n'
             });
             //強調を解除して英語券種・金額
             request += builder.createTextElement({
                 emphasis: false,
-                data: reservation.ticket_type_name_en+'/'+reservation.ticket_type_charge_str_en+'\n\n'
+                data: reservation.ticket_type_detail_str_en+'\n\n'
             });
 
 

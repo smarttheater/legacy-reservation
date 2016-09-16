@@ -231,39 +231,47 @@ Schema.virtual('qr_str').get(function () {
 /**
  * 券種金額文字列
  */
-Schema.virtual('ticket_type_charge_str_ja').get(function () {
+Schema.virtual('ticket_type_detail_str_ja').get(function () {
     let charge = 0;
-    let str = '';
+    let str = this.get('ticket_type_name_ja');
     switch (this.get('purchaser_group')) {
         case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
         case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
             charge += this.get('ticket_type_charge');
-            str += `\\${numeral(charge).format('0,0')}`;
+            if (charge > 0) {
+                str += ` / \\${numeral(charge).format('0,0')}`;
+            }
             break;
         default:
             charge += this.get('ticket_type_charge') + this.get('seat_grade_additional_charge') + ((this.get('film_is_mx4d')) ? ReservationUtil_1.default.CHARGE_MX4D : 0);
-            str += `\\${numeral(charge).format('0,0')}`;
-            if (this.get('seat_grade_additional_charge') > 0) {
-                str += ` (内${this.get('seat_grade_name_ja')} \\${numeral(this.get('seat_grade_additional_charge')).format('0,0')})`;
+            if (charge > 0) {
+                str += ` / \\${numeral(charge).format('0,0')}`;
+                if (this.get('seat_grade_additional_charge') > 0) {
+                    str += ` (内${this.get('seat_grade_name_ja')} \\${numeral(this.get('seat_grade_additional_charge')).format('0,0')})`;
+                }
             }
             break;
     }
     return str;
 });
-Schema.virtual('ticket_type_charge_str_en').get(function () {
+Schema.virtual('ticket_type_detail_str_en').get(function () {
     let charge = 0;
-    let str = '';
+    let str = this.get('ticket_type_name_en');
     switch (this.get('purchaser_group')) {
         case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
         case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
             charge += this.get('ticket_type_charge');
-            str += `\\${numeral(charge).format('0,0')}`;
+            if (charge > 0) {
+                str += ` / \\${numeral(charge).format('0,0')}`;
+            }
             break;
         default:
             charge += this.get('ticket_type_charge') + this.get('seat_grade_additional_charge') + ((this.get('film_is_mx4d')) ? ReservationUtil_1.default.CHARGE_MX4D : 0);
-            str += `\\${numeral(charge).format('0,0')}`;
-            if (this.get('seat_grade_additional_charge') > 0) {
-                str += ` (including ${this.get('seat_grade_name_en')} \\${numeral(this.get('seat_grade_additional_charge')).format('0,0')})`;
+            if (charge > 0) {
+                str += ` / \\${numeral(charge).format('0,0')}`;
+                if (this.get('seat_grade_additional_charge') > 0) {
+                    str += ` (including ${this.get('seat_grade_name_ja')} \\${numeral(this.get('seat_grade_additional_charge')).format('0,0')})`;
+                }
             }
             break;
     }
