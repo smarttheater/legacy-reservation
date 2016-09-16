@@ -14,6 +14,11 @@ let Schema = new mongoose.Schema({
         en: String
     },
     seats_number: Number, // 座席合計数
+    seats_numbers_by_seat_grade: [{ // 座席グレードごとの座席数
+        _id: false,
+        seat_grade_code: String, // 座席グレードコード
+        seats_number: Number
+    }],
     sections: [
          {
              _id: false,

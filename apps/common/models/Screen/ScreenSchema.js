@@ -14,6 +14,11 @@ let Schema = new mongoose.Schema({
         en: String
     },
     seats_number: Number,
+    seats_numbers_by_seat_grade: [{
+            _id: false,
+            seat_grade_code: String,
+            seats_number: Number
+        }],
     sections: [
         {
             _id: false,

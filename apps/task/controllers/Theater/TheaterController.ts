@@ -1,5 +1,6 @@
 import BaseController from '../BaseController';
 import Models from '../../../common/models/Models';
+import ScreenUtil from '../../../common/models/Screen/ScreenUtil';
 import conf = require('config');
 import mongoose = require('mongoose');
 import fs = require('fs-extra');
@@ -17,6 +18,23 @@ export default class TheaterController extends BaseController {
             let promises = screens.map((screen) => {
                 // 座席数情報を追加
                 screen.seats_number = screen.sections[0].seats.length;
+
+                // 座席グレードごとの座席数情報を追加
+                let seatsNumbersBySeatCode = {};
+                seatsNumbersBySeatCode[ScreenUtil.SEAT_GRADE_CODE_NORMAL] = 0;
+                seatsNumbersBySeatCode[ScreenUtil.SEAT_GRADE_CODE_PREMIERE_BOX] = 0;
+                seatsNumbersBySeatCode[ScreenUtil.SEAT_GRADE_CODE_PREMIERE_LUXURY] = 0;
+                seatsNumbersBySeatCode[ScreenUtil.SEAT_GRADE_CODE_FRONT_RECLINING] = 0;
+                screen.sections[0].seats.forEach((seat) => {
+                    seatsNumbersBySeatCode[seat.grade.code]++;
+                });
+                screen.seats_numbers_by_seat_grade = Object.keys(seatsNumbersBySeatCode).map((seatGradeCode) => {
+                    return {
+                        seat_grade_code: seatGradeCode,
+                        seats_number: seatsNumbersBySeatCode[seatGradeCode],
+                    };
+                });
+
 
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating screen...');
