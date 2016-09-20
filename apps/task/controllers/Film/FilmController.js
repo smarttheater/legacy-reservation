@@ -63,14 +63,22 @@ class FilmController extends BaseController_1.default {
         Models_1.default.Film.find({}, 'name', (err, films) => {
             let next = (film) => {
                 let options = {
-                    url: `https://api.photozou.jp/rest/search_public.json?limit=1&keyword=${encodeURIComponent(film.get('name').ja)}`,
-                    json: true
+                    url: `https://api.cognitive.microsoft.com/bing/v5.0/images/search?q=${encodeURIComponent(film.get('name.ja'))}`,
+                    json: true,
+                    headers: {
+                        'Ocp-Apim-Subscription-Key': '3bca568e7b684e218eb2a11d0cdce9c0'
+                    }
                 };
+                // let options = {
+                //     url: `https://api.photozou.jp/rest/search_public.json?limit=1&keyword=${encodeURIComponent(film.get('name').ja)}`,
+                //     json: true
+                // };
+                console.log('searching...', film.get('name').ja);
                 request.get(options, (error, response, body) => {
                     if (!error && response.statusCode == 200) {
-                        if (body.stat === 'ok' && body.info.photo) {
-                            console.log(body.info.photo[0].image_url);
-                            let image = body.info.photo[0].image_url;
+                        if (body.value.length > 0) {
+                            let image = body.value[0].thumbnailUrl;
+                            console.log('thumbnailUrl:', image);
                             request.get({ url: image, encoding: null }, (error, response, body) => {
                                 this.logger.debug('image saved.', error);
                                 if (!error && response.statusCode === 200) {
@@ -93,8 +101,15 @@ class FilmController extends BaseController_1.default {
                         }
                     }
                     else {
-                        i++;
-                        next(films[i]);
+                        if (i === films.length - 1) {
+                            this.logger.debug('success!');
+                            mongoose.disconnect();
+                            process.exit(0);
+                        }
+                        else {
+                            i++;
+                            next(films[i]);
+                        }
                     }
                 });
             };
