@@ -3,7 +3,7 @@ $(function(){
 
     // 券種変更イベント
     $(document).on('change', 'select', function(){
-        showTotalCharge();
+        reloadTotalCharge();
     });
 
     // 次へ
@@ -23,23 +23,24 @@ $(function(){
     });
 
     /**
-     * 合計金額を表示する
+     * 合計金額を再表示する
      */
-    function showTotalCharge() {
-        var total = 0;
+    function reloadTotalCharge() {
+        $('tfoot').addClass('hidden');
 
+        var total = 0;
         $('.table-tickets tbody tr').each(function(){
             total += parseInt($('option:selected', this).attr('data-charge'));
             total += parseInt($(this).attr('data-seat-extra-charge'));
         });
 
+        if (total === 0) return;
+
         // 数字をコンマ区切りに
-        if (locale === 'ja') {
-            $('.price').text(total.toString().replace(/(\d)(?=(\d{3})+$)/g , '$1,') + '円');
-        } else {
-            $('.price').text(total.toString().replace(/(\d)(?=(\d{3})+$)/g , '$1,') + 'yen');
-        }
+        let text = total.toString().replace(/(\d)(?=(\d{3})+$)/g , '$1,') + ((locale === 'ja') ? '円' : 'yen');
+        $('.price').text(text);
+        $('tfoot').removeClass('hidden');
     }
 
-    showTotalCharge();
+    reloadTotalCharge();
 });
