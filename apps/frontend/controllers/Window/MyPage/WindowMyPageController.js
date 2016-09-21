@@ -1,11 +1,11 @@
 "use strict";
-const BaseController_1 = require("../../BaseController");
-const Util_1 = require("../../../../common/Util/Util");
-const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
-const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
-const Models_1 = require("../../../../common/models/Models");
-const moment = require("moment");
+const BaseController_1 = require('../../BaseController');
+const Util_1 = require('../../../../common/Util/Util');
+const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
+const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
+const ScreenUtil_1 = require('../../../../common/models/Screen/ScreenUtil');
+const Models_1 = require('../../../../common/models/Models');
+const moment = require('moment');
 class WindowMyPageController extends BaseController_1.default {
     constructor() {
         super(...arguments);

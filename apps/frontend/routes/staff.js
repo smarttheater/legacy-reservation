@@ -1,11 +1,11 @@
 "use strict";
-const StaffAuthController_1 = require("../controllers/Staff/Auth/StaffAuthController");
-const StaffCancelController_1 = require("../controllers/Staff/Cancel/StaffCancelController");
-const StaffMyPageController_1 = require("../controllers/Staff/MyPage/StaffMyPageController");
-const StaffReserveController_1 = require("../controllers/Staff/Reserve/StaffReserveController");
-const Models_1 = require("../../common/models/Models");
-const Util_1 = require("../../common/Util/Util");
-const StaffUser_1 = require("../models/User/StaffUser");
+const StaffAuthController_1 = require('../controllers/Staff/Auth/StaffAuthController');
+const StaffCancelController_1 = require('../controllers/Staff/Cancel/StaffCancelController');
+const StaffMyPageController_1 = require('../controllers/Staff/MyPage/StaffMyPageController');
+const StaffReserveController_1 = require('../controllers/Staff/Reserve/StaffReserveController');
+const Models_1 = require('../../common/models/Models');
+const Util_1 = require('../../common/Util/Util');
+const StaffUser_1 = require('../models/User/StaffUser');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     let authentication = (req, res, next) => {

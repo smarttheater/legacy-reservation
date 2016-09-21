@@ -1,9 +1,9 @@
 "use strict";
-const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
-const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
-const conf = require("config");
-const moment = require("moment");
-const redisClient_1 = require("../../../common/modules/redisClient");
+const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
+const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
+const conf = require('config');
+const moment = require('moment');
+const redisClient_1 = require('../../../common/modules/redisClient');
 /**
  * 予約情報モデル
  *
@@ -187,10 +187,4 @@ class ReservationModel {
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * 予約情報モデル
- *
- * 予約プロセス中の情報を全て管理するためのモデルです
- * この情報をセッションで引き継くことで、予約プロセスを管理しています
- */
 exports.default = ReservationModel;

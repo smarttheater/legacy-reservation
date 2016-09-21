@@ -1,15 +1,15 @@
 "use strict";
-const ReserveBaseController_1 = require("../../ReserveBaseController");
-const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
-const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
-const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
-const Models_1 = require("../../../../common/models/Models");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
-const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
-const FilmUtil_1 = require("../../../../common/models/Film/FilmUtil");
-const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
-const moment = require("moment");
-const conf = require("config");
+const ReserveBaseController_1 = require('../../ReserveBaseController');
+const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
+const reservePerformanceForm_1 = require('../../../forms/reserve/reservePerformanceForm');
+const reserveSeatForm_1 = require('../../../forms/reserve/reserveSeatForm');
+const Models_1 = require('../../../../common/models/Models');
+const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
+const ScreenUtil_1 = require('../../../../common/models/Screen/ScreenUtil');
+const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
+const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
+const moment = require('moment');
+const conf = require('config');
 class CustomerReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
@@ -275,6 +275,6 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         });
     }
 }
+CustomerReserveController.RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = CustomerReserveController;
-CustomerReserveController.RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数

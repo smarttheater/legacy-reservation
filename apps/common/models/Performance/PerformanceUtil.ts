@@ -11,9 +11,9 @@ export default class PerformanceUtil {
     public static SEAT_STATUS_G = '-';
 
     /** 座席ステータス閾値(◎) */
-    public static SEAT_STATUS_THRESHOLD_A = 99;
+    public static SEAT_STATUS_THRESHOLD_A = 50;
     /** 座席ステータス閾値(○) */
-    public static SEAT_STATUS_THRESHOLD_B = 90;
+    public static SEAT_STATUS_THRESHOLD_B = 30;
     /** 座席ステータス閾値(△) */
     public static SEAT_STATUS_THRESHOLD_C = 0;
 }

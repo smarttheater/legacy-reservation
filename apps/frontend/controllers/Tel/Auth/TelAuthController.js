@@ -1,9 +1,9 @@
 "use strict";
-const BaseController_1 = require("../../BaseController");
-const TelStaffUser_1 = require("../../../models/User/TelStaffUser");
-const telLoginForm_1 = require("../../../forms/tel/telLoginForm");
-const Util_1 = require("../../../../common/Util/Util");
-const Models_1 = require("../../../../common/models/Models");
+const BaseController_1 = require('../../BaseController');
+const TelStaffUser_1 = require('../../../models/User/TelStaffUser');
+const telLoginForm_1 = require('../../../forms/tel/telLoginForm');
+const Util_1 = require('../../../../common/Util/Util');
+const Models_1 = require('../../../../common/models/Models');
 class TelAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);

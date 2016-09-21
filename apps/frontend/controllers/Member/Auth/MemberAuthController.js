@@ -1,11 +1,11 @@
 "use strict";
-const BaseController_1 = require("../../BaseController");
-const Util_1 = require("../../../../common/Util/Util");
-const Models_1 = require("../../../../common/models/Models");
-const moment = require("moment");
-const memberLoginForm_1 = require("../../../forms/member/memberLoginForm");
-const MemberUser_1 = require("../../../models/User/MemberUser");
-const conf = require("config");
+const BaseController_1 = require('../../BaseController');
+const Util_1 = require('../../../../common/Util/Util');
+const Models_1 = require('../../../../common/models/Models');
+const moment = require('moment');
+const memberLoginForm_1 = require('../../../forms/member/memberLoginForm');
+const MemberUser_1 = require('../../../models/User/MemberUser');
+const conf = require('config');
 class MemberAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);

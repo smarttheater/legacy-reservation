@@ -1,5 +1,5 @@
 "use strict";
-const BaseUser_1 = require("./BaseUser");
+const BaseUser_1 = require('./BaseUser');
 /**
  * メルマガ会員ユーザークラス
  */
@@ -15,9 +15,6 @@ class MemberUser extends BaseUser_1.default {
         return user;
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * メルマガ会員ユーザークラス
- */
-exports.default = MemberUser;
 MemberUser.AUTH_SESSION_NAME = 'TIFFFrontendMemberAuth';
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = MemberUser;

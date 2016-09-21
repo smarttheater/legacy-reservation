@@ -14,7 +14,4 @@ class BaseUser {
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * ベースユーザークラス
- */
 exports.default = BaseUser;

@@ -1,16 +1,16 @@
 "use strict";
-const program = require("commander");
-const TestController_1 = require("./controllers/Test/TestController");
-const StaffController_1 = require("./controllers/Staff/StaffController");
-const SponsorController_1 = require("./controllers/Sponsor/SponsorController");
-const PerformanceController_1 = require("./controllers/Performance/PerformanceController");
-const TheaterController_1 = require("./controllers/Theater/TheaterController");
-const FilmController_1 = require("./controllers/Film/FilmController");
-const MemberController_1 = require("./controllers/Member/MemberController");
-const ReservationController_1 = require("./controllers/Reservation/ReservationController");
-const SchemaController_1 = require("./controllers/Schema/SchemaController");
-const TelController_1 = require("./controllers/Tel/TelController");
-const WindowController_1 = require("./controllers/Window/WindowController");
+const program = require('commander');
+const TestController_1 = require('./controllers/Test/TestController');
+const StaffController_1 = require('./controllers/Staff/StaffController');
+const SponsorController_1 = require('./controllers/Sponsor/SponsorController');
+const PerformanceController_1 = require('./controllers/Performance/PerformanceController');
+const TheaterController_1 = require('./controllers/Theater/TheaterController');
+const FilmController_1 = require('./controllers/Film/FilmController');
+const MemberController_1 = require('./controllers/Member/MemberController');
+const ReservationController_1 = require('./controllers/Reservation/ReservationController');
+const SchemaController_1 = require('./controllers/Schema/SchemaController');
+const TelController_1 = require('./controllers/Tel/TelController');
+const WindowController_1 = require('./controllers/Window/WindowController');
 let env = process.env.NODE_ENV || 'dev';
 program
     .version('0.0.1');

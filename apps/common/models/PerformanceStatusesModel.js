@@ -1,6 +1,6 @@
 "use strict";
-const PerformanceUtil_1 = require("../../common/Models/Performance/PerformanceUtil");
-const redisClient_1 = require("../../common/modules/redisClient");
+const PerformanceUtil_1 = require('../../common/Models/Performance/PerformanceUtil');
+const redisClient_1 = require('../../common/modules/redisClient');
 /**
  * パフォーマンス情報モデル
  */
@@ -59,7 +59,4 @@ class PerformanceStatusesModel {
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * パフォーマンス情報モデル
- */
 exports.default = PerformanceStatusesModel;

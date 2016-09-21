@@ -1,5 +1,5 @@
 "use strict";
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 /**
  * 作品スキーマ
  */

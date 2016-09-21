@@ -1,7 +1,7 @@
 "use strict";
-const BaseController_1 = require("../BaseController");
-const Models_1 = require("../../../common/models/Models");
-const fs = require("fs-extra");
+const BaseController_1 = require('../BaseController');
+const Models_1 = require('../../../common/models/Models');
+const fs = require('fs-extra');
 class ScreenController extends BaseController_1.default {
     /**
      * スクリーンの座席マップを生成する

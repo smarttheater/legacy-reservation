@@ -116,7 +116,4 @@ class GMOResultModel {
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * GMO決済結果モデル
- */
 exports.default = GMOResultModel;

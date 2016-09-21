@@ -1,14 +1,14 @@
 "use strict";
-const ReserveBaseController_1 = require("../../ReserveBaseController");
-const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
-const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
-const Models_1 = require("../../../../common/models/Models");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
-const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
-const FilmUtil_1 = require("../../../../common/models/Film/FilmUtil");
-const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
-const moment = require("moment");
-const conf = require("config");
+const ReserveBaseController_1 = require('../../ReserveBaseController');
+const reservePerformanceForm_1 = require('../../../forms/reserve/reservePerformanceForm');
+const reserveSeatForm_1 = require('../../../forms/reserve/reserveSeatForm');
+const Models_1 = require('../../../../common/models/Models');
+const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
+const ScreenUtil_1 = require('../../../../common/models/Screen/ScreenUtil');
+const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
+const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
+const moment = require('moment');
+const conf = require('config');
 class StaffReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
@@ -364,6 +364,6 @@ class StaffReserveController extends ReserveBaseController_1.default {
         });
     }
 }
+StaffReserveController.RESERVATION_LIMIT_PER_PERFORMANCE = 10; // パフォーマンスあたりの最大座席確保枚数
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = StaffReserveController;
-StaffReserveController.RESERVATION_LIMIT_PER_PERFORMANCE = 10; // パフォーマンスあたりの最大座席確保枚数

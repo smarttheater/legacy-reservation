@@ -1,5 +1,5 @@
 "use strict";
-const log4js = require("log4js");
+const log4js = require('log4js');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (req, res, next) => {
     if (process.env.NODE_ENV === 'dev') {

@@ -1,5 +1,5 @@
 "use strict";
-const BaseController_1 = require("../BaseController");
+const BaseController_1 = require('../BaseController');
 class LanguageController extends BaseController_1.default {
     /**
      * 言語切り替え

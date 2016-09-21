@@ -62,6 +62,7 @@
                 </td>
             </tr>
 
+            <% if (reservationModel.getTotalCharge() > 0) { %>
             <tr>
                 <th>
                     <%- __('Label.TotalPrice') %>
@@ -72,7 +73,7 @@
                     </p>
                 </td>
             </tr>
-            
+
         </tbody>
     </table>
 

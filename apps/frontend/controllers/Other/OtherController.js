@@ -1,5 +1,5 @@
 "use strict";
-const BaseController_1 = require("../BaseController");
+const BaseController_1 = require('../BaseController');
 class OtherController extends BaseController_1.default {
     policy() {
         this.res.render('other/policy');

@@ -1,5 +1,5 @@
 "use strict";
-const Models_1 = require("../Models");
+const Models_1 = require('../Models');
 class ReservationUtil {
     /**
      * 購入管理番号生成
@@ -80,8 +80,6 @@ class ReservationUtil {
         return sequeceNo;
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = ReservationUtil;
 /** 仮予約 */
 ReservationUtil.STATUS_TEMPORARY = 'TEMPORARY';
 /** TIFF確保上の仮予約 */
@@ -125,3 +123,5 @@ ReservationUtil.SORT_TYPES_PAYMENT_NO = [
     [6, 4, 7, 8, 5, 2, 3, 0, 1],
     [7, 2, 4, 8, 0, 3, 5, 6, 1]
 ];
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = ReservationUtil;

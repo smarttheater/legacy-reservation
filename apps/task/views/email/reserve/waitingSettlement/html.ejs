@@ -119,16 +119,18 @@
     </div>
 
 
+    <%
+    let totalCharge = 0;
+    reservations.forEach((reservation) => {
+        totalCharge += reservation.get('charge');
+    });
+    %>
+    <% if (totalCharge > 0) { %>
     <div style="margin-bottom:1em;">
         <h3 style="font-weight:normal;font-size:14px;margin:0;">合計金額 (total fee) :</h3>
-        <%
-        let totalCharge = 0;
-        reservations.forEach((reservation) => {
-            totalCharge += reservation.get('charge');
-        });
-        %>
         <strong>&yen;<%- numeral(totalCharge).format('0,0') %></strong>
     </div>
+    <% } %>
 
 
     <p style="font-size:12px;">

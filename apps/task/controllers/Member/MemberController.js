@@ -1,10 +1,10 @@
 "use strict";
-const BaseController_1 = require("../BaseController");
-const Util_1 = require("../../../common/Util/Util");
-const Models_1 = require("../../../common/models/Models");
-const conf = require("config");
-const mongoose = require("mongoose");
-const fs = require("fs-extra");
+const BaseController_1 = require('../BaseController');
+const Util_1 = require('../../../common/Util/Util');
+const Models_1 = require('../../../common/models/Models');
+const conf = require('config');
+const mongoose = require('mongoose');
+const fs = require('fs-extra');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class MemberController extends BaseController_1.default {
     createFromJson() {

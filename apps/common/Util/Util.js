@@ -1,8 +1,8 @@
 "use strict";
-const crypto = require("crypto");
-const fs = require("fs-extra");
-const log4js = require("log4js");
-const uniqid = require("uniqid");
+const crypto = require('crypto');
+const fs = require('fs-extra');
+const log4js = require('log4js');
+const uniqid = require('uniqid');
 /**
  * 共通ユーティリティ
  */
@@ -126,7 +126,4 @@ class Util {
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * 共通ユーティリティ
- */
 exports.default = Util;

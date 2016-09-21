@@ -1,7 +1,7 @@
 "use strict";
-const BaseController_1 = require("../BaseController");
-const conf = require("config");
-const mongodb = require("mongodb");
+const BaseController_1 = require('../BaseController');
+const conf = require('config');
+const mongodb = require('mongodb');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class SchemaController extends BaseController_1.default {
     dropIndexes() {

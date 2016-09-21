@@ -1,11 +1,11 @@
 "use strict";
-const TelAuthController_1 = require("../controllers/Tel/Auth/TelAuthController");
-const TelMyPageController_1 = require("../controllers/Tel/MyPage/TelMyPageController");
-const TelReserveController_1 = require("../controllers/Tel/Reserve/TelReserveController");
-const TelCancelController_1 = require("../controllers/Tel/Cancel/TelCancelController");
-const Models_1 = require("../../common/models/Models");
-const Util_1 = require("../../common/Util/Util");
-const TelStaffUser_1 = require("../models/User/TelStaffUser");
+const TelAuthController_1 = require('../controllers/Tel/Auth/TelAuthController');
+const TelMyPageController_1 = require('../controllers/Tel/MyPage/TelMyPageController');
+const TelReserveController_1 = require('../controllers/Tel/Reserve/TelReserveController');
+const TelCancelController_1 = require('../controllers/Tel/Cancel/TelCancelController');
+const Models_1 = require('../../common/models/Models');
+const Util_1 = require('../../common/Util/Util');
+const TelStaffUser_1 = require('../models/User/TelStaffUser');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     let authentication = (req, res, next) => {
