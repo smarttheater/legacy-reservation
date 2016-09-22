@@ -67,30 +67,20 @@ class SponsorCancelController extends BaseController_1.default {
      */
     executeByPaymentNo() {
         this.logger = log4js.getLogger('cancel');
-        // TIFF確保にステータス更新
-        Models_1.default.Reservation.distinct('_id', {
-            payment_no: this.req.body.paymentNo,
-            purchaser_tel: { $regex: `${this.req.body.last4DigitsOfTel}$` },
-            purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR,
-            status: ReservationUtil_1.default.STATUS_RESERVED
-        }, (err, ids) => {
-            if (err) {
-                return this.res.json({
-                    success: false,
-                    message: this.req.__('Message.UnexpectedError')
-                });
-            }
-            if (ids.length === 0) {
-                return this.res.json({
-                    success: false,
-                    message: '購入番号または電話番号下4ケタに誤りがあります'
-                });
-            }
-            let promises = ids.map((id) => {
+        // 予約IDリストをjson形式で受け取る
+        let reservationIds = JSON.parse(this.req.body.reservationIds);
+        if (Array.isArray(reservationIds)) {
+            let promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
                     this.logger.info('updating to STATUS_KEPT_BY_TIFF by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
-                    Models_1.default.Reservation.findOneAndUpdate({ _id: id }, { status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF }, { new: true }, (err, raw) => {
-                        this.logger.info('updated to STATUS_KEPT_BY_TIFF.', err, raw, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                    Models_1.default.Reservation.findOneAndUpdate({
+                        _id: id,
+                        payment_no: this.req.body.paymentNo,
+                        purchaser_tel: { $regex: `${this.req.body.last4DigitsOfTel}$` },
+                        purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR,
+                        status: ReservationUtil_1.default.STATUS_RESERVED
+                    }, { status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF }, { new: true }, (err, reservation) => {
+                        this.logger.info('updated to STATUS_KEPT_BY_TIFF.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                         (err) ? reject(err) : resolve();
                     });
                 });
@@ -106,7 +96,13 @@ class SponsorCancelController extends BaseController_1.default {
                     message: err.message
                 });
             });
-        });
+        }
+        else {
+            this.res.json({
+                success: false,
+                message: this.req.__('Message.UnexpectedError')
+            });
+        }
     }
     execute() {
         this.logger = log4js.getLogger('cancel');
@@ -116,8 +112,8 @@ class SponsorCancelController extends BaseController_1.default {
             let promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
                     this.logger.info('updating to STATUS_KEPT_BY_TIFF by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
-                    Models_1.default.Reservation.findOneAndUpdate({ _id: id }, { status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF }, { new: true }, (err, raw) => {
-                        this.logger.info('updated to STATUS_KEPT_BY_TIFF.', err, raw, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                    Models_1.default.Reservation.findOneAndUpdate({ _id: id }, { status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF }, { new: true }, (err, reservation) => {
+                        this.logger.info('updated to STATUS_KEPT_BY_TIFF.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                         (err) ? reject(err) : resolve();
                     });
                 });

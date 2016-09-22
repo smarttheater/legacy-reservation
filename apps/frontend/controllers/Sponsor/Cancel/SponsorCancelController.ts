@@ -73,58 +73,47 @@ export default class SponsorCancelController extends BaseController {
     public executeByPaymentNo(): void {
         this.logger = log4js.getLogger('cancel');
 
-        // TIFF確保にステータス更新
-        Models.Reservation.distinct(
-            '_id',
-            {
-                payment_no: this.req.body.paymentNo,
-                purchaser_tel: {$regex: `${this.req.body.last4DigitsOfTel}$`},
-                purchaser_group: ReservationUtil.PURCHASER_GROUP_SPONSOR,
-                status: ReservationUtil.STATUS_RESERVED
-            },
-            (err, ids) => {
-                if (err) {
-                    return this.res.json({
-                        success: false,
-                        message: this.req.__('Message.UnexpectedError')
-                    });
-                }
-
-                if (ids.length === 0) {
-                    return this.res.json({
-                        success: false,
-                        message: '購入番号または電話番号下4ケタに誤りがあります'
-                    });
-                }
-
-                let promises = ids.map((id) => {
-                    return new Promise((resolve, reject) => {
-                        this.logger.info('updating to STATUS_KEPT_BY_TIFF by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
-                        Models.Reservation.findOneAndUpdate(
-                            {_id: id},
-                            {status: ReservationUtil.STATUS_KEPT_BY_TIFF},
-                            {new: true},
-                            (err, raw) => {
-                                this.logger.info('updated to STATUS_KEPT_BY_TIFF.', err, raw, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
-                                (err) ? reject(err) : resolve();
-                            }
-                        );
-                    });
+        // 予約IDリストをjson形式で受け取る
+        let reservationIds = JSON.parse(this.req.body.reservationIds);
+        if (Array.isArray(reservationIds)) {
+            let promises = reservationIds.map((id) => {
+                return new Promise((resolve, reject) => {
+                    this.logger.info('updating to STATUS_KEPT_BY_TIFF by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                    Models.Reservation.findOneAndUpdate(
+                        {
+                            _id: id,
+                            payment_no: this.req.body.paymentNo,
+                            purchaser_tel: {$regex: `${this.req.body.last4DigitsOfTel}$`},
+                            purchaser_group: ReservationUtil.PURCHASER_GROUP_SPONSOR,
+                            status: ReservationUtil.STATUS_RESERVED
+                        },
+                        {status: ReservationUtil.STATUS_KEPT_BY_TIFF},
+                        {new: true},
+                        (err, reservation) => {
+                            this.logger.info('updated to STATUS_KEPT_BY_TIFF.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                            (err) ? reject(err) : resolve();
+                        }
+                    );
                 });
+            });
 
-                Promise.all(promises).then(() => {
-                    this.res.json({
-                        success: true,
-                        message: null
-                    });
-                }, (err) => {
-                    this.res.json({
-                        success: false,
-                        message: err.message
-                    });
+            Promise.all(promises).then(() => {
+                this.res.json({
+                    success: true,
+                    message: null
                 });
-            }
-        );
+            }, (err) => {
+                this.res.json({
+                    success: false,
+                    message: err.message
+                });
+            });
+        } else {
+            this.res.json({
+                success: false,
+                message: this.req.__('Message.UnexpectedError')
+            });
+        }
     }
 
     public execute(): void {
@@ -140,8 +129,8 @@ export default class SponsorCancelController extends BaseController {
                         {_id: id},
                         {status: ReservationUtil.STATUS_KEPT_BY_TIFF},
                         {new: true},
-                        (err, raw) => {
-                            this.logger.info('updated to STATUS_KEPT_BY_TIFF.', err, raw, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                        (err, reservation) => {
+                            this.logger.info('updated to STATUS_KEPT_BY_TIFF.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                             (err) ? reject(err) : resolve();
                         }
                     );
