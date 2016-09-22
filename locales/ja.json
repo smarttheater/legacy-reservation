@@ -20,7 +20,14 @@
 		"AdmissionConfirm": "入場確認",
 		"Login": "ログイン",
 		"ReleaseSeats": "座席解放",
-		"Error": "エラー"
+		"Error": "エラー",
+		"Privacy": "プライバシーポリシー",
+		"Policy": "利用規約",
+		"Contact": "お問い合わせ",
+		"ActOnSpecifiedCommercialTransactions": "特定商取引法に基づく表示"
+	},
+	"h2": {
+		"LoginForStaffs": "関係者向けログイン"
 	},
 	"Label": {
 		"Agree": "同意する",
@@ -43,7 +50,6 @@
 			"CASH": "現金"
 		},
 		"PaymentMethod": "お支払い方法",
-		"Login": "ログイン",
 		"TotalCharge": "合計金額",
 		"Day": "上映日",
 		"UpdatedUser": "更新者",
@@ -62,13 +68,33 @@
 		"DepartmentName": "部署名",
 		"Signature": "署名",
 		"ConfirmCancel": "キャンセル確認",
-		"CompleteCancel": "キャンセル完了"
+		"CompleteCancel": "キャンセル完了",
+		"TermsGuideText": "利用規約をご確認頂き、問題ないようでしたら「利用規約に同意して次へ」ボタンを押してください",
+		"SelectSeatsGuideText": "ご希望の座席を選択して次へボタンを押してください。",
+		"SelectTicketsGuideText": "ご希望の券種を選択して次へボタンを押してください。",
+		"EnterProfileGuideText": "必要情報を入力して次へボタンを押してください。",
+		"ConfirmReservationGuideText": "内容をご確認のうえ、「決済へ進む」ボタンを押してください。",
+		"ConfirmReservationGuideTextNoPayment": "内容をご確認のうえ、「次へ」ボタンを押してください。",
+		"CompleteReservationGuideText": "ご購入ありがとうございました。<br>当日は下記のQRコードを印刷、またはスマートフォンで表示して入場してください。<br>また購入者情報入力でご入力頂いたメールアドレスにもQRコード付きメールを送信しておりますので、<br>そちらをご提示頂いてもご入場頂けます。",
+		"CompleteTemporaryReservationGuideText": "仮予約が完了しました。<br>仮予約内容は「仮予約完了メール」に記載して送信したしました。<br>まだ購入は完了しておりませんので最寄りのファミリーマートよりお支払いください。",
+		"SelectPerformanceGuideText": "以下より鑑賞作品の上映スケジュールを選択してください。",
+		"ReleaseSeatsGuideText": "座席開放を行う日付を選択して、開放するボタンを押してください。",
+		"Required": "必須項目",
+		"ConfirmNotes": "注意事項",
+		"RedirectToThirdPartyWebsite": "外部サイトへ移動します",
+		"RequireCustomerNumberAndConfirmationNumber": "お支払いの際は以下の「お客様番号」と「確認番号」が必要となります。",
+		"CustomerNumber": "お客様番号",
+		"ConfirmationNumber": "確認番号",
+		"DateDue": "お支払い期限",
+		"HowToPay": "お支払い方法",
+		"NumberOfTicketsAvailable": "取得可能残り",
+		"Male": "男性",
+		"Female": "女性"
 	},
 	"Button": {
 		"Send": "送信",
 		"Search": "検索",
 		"Back": "戻る",
-		"SelectTickets": "券種選択",
 		"Next": "次へ",
 		"Change": "変更",
 		"Confirm": "確定",
@@ -78,23 +104,27 @@
 		"Cancel": "キャンセル",
 		"Transfer": "転送",
 		"Login": "ログイン",
+		"Logout": "ログアウト",
 		"GoToPayment": "決済へ進む",
 		"InformFriends": "お友達に渡す",
 		"Close": "閉じる",
 		"No": "いいえ",
 		"Yes": "はい",
 		"BackToMyPage": "マイページへ戻る",
-		"Logout": "ログアウト",
 		"BackToSelectPerformance": "スケジュール選択へ戻る",
 		"NewTicket": "チケット予約",
-		"LogoutAndCancel": "ログアウトして予約をキャンセル",
 		"MyPage": "マイページ",
 		"Release": "解放する",
-		"BackToOfficialSite": "公式サイトへ戻る",
-		"ThermalPrint": "サーマル印刷"
+		"BackToOfficialSite": "公式サイトに戻る",
+		"ThermalPrint": "サーマル印刷",
+		"AcceptTermsAndNext": "利用規約に同意して次へ",
+		"ReserveTicketsAnotherMovie": "続けて他の作品を予約する",
+		"ReserveMoreSameShow": "同じ上映回で追加予約する",
+		"ReleaseSeats": "座席解放"
 	},
 	"Form": {
 		"FieldName": {
+			"name": "お名前 (カタカナ)",
 			"lastName": "セイ",
 			"firstName": "メイ",
 			"tel": "電話番号",
@@ -109,8 +139,8 @@
 			"paymentNo": "購入番号",
 			"last4DigitsOfTel": "電話番号下4桁",
 			"remember": "次回から自動的にログインする",
-			"age": "年代",
-			"address": "住所",
+			"age": "年齢",
+			"address": "お住まいの地域",
 			"gender": "性別"
 		}
 	},
@@ -123,20 +153,23 @@
 		"invalid{{fieldName}}": "{{fieldName}}が不適切です",
 		"regexTelRange{{fieldName}}{{min}}{{max}}": "{{fieldName}}は{{min}}桁以上{{max}}桁以内で入力してください",
 		"match{{fieldName}}": "{{fieldName}}が一致しません",
+		"EnterInFullWidthKatakana": "全角カタカナでご入力ください",
+		"RetypeToConfirm": "確認の為に、もう一度入力してください",
+		"SettingForLimitingEmailReception": "携帯メールでドメイン指定受信を利用している方解除の設定をお願いします",
+		"UseHalfWidthAlphanumericWithoutHyphens": "半角数字、ハイフン「-」なしで入力して下さい",
 		"Sending": "送信しています...",
 		"Sent": "送信しました",
 		"Unsent": "送信できませんでした",
 		"PleaseReadBarcode": "QRコードを読み取ってください",
 		"seatsLimit{{limit}}": "選択出来る座席は{{limit}}席までとなります",
-		"UnexpectedError": "予期せぬエラー",
+		"UnexpectedError": "システムエラーが発生しました。ご不便をおかけして申し訳ありませんがしばらく経ってから再度お試しください。",
+		"Expired": "期限切れです",
+		"NotFound": "お探しのページが見つかりません",
 		"UnavailableSeat": "指定できない座席です",
 		"SelectedSeatsUnavailable": "選択された座席は指定できません",
-		"Expired": "期限切れです",
-		"NotFound": "見つかりません",
 		"NoMoreReservation": "既に選択出来る座席の上限に達しています",
 		"regexTel": "半角数字、ハイフン「-」なしで7桁以上13桁以内で入力してください",
 		"PleaseSearch": "検索をおこなってください",
-		"ConfirmCancel": "キャンセルします",
 		"AreYouSureCancel": "本当にキャンセルしますか？",
 		"CompleteCancel": "キャンセルが完了しました",
 		"Invalid": "無効です",
@@ -151,9 +184,6 @@
 	},
 	"{{price}} yen": "{{price}} 円",
 	"Mr{{name}}": "{{name}} 様",
-	"Mesasge": {
-		"SelectedSeatsUnavailable": "選択された座席は指定できません"
-	},
 	"Steps": {
 		"SelectPerformance": "スケジュール選択",
 		"SelectSeats": "座席選択",
@@ -161,5 +191,29 @@
 		"EditProfile": "購入者情報入力",
 		"Confirm": "購入内容確認",
 		"Complete": "購入完了"
-	}
+	},
+	"SeatsGuide": {
+		"Avalilable": {
+			"Name": "空席",
+			"Caption": "クリックで座席を選択します"
+		},
+		"Selected": {
+			"Name": "選択した席",
+			"Caption": "クリックで座席を解除します"
+		},
+		"Disabled": {
+			"Name": "購入済みの席",
+			"Caption": "既に他の方が購入済みの席です"
+		},
+		"PremiereLuxury": {
+			"Name": "プレミアラグジュアリーシート"
+		},
+		"PremiereBox": {
+			"Name": "プレミアボックスシート"
+		},
+		"FrontReclining": {
+			"Name": "フロントリクライニングシート"
+		}
+	},
+	"ConfirmNotesText": "・チケットの払い戻し・交換・再発行はいたしません。<br>・東京都青少年の健全な育成に関する条例により18歳未満の方は23時から翌朝4時までの劇場への出入りは禁止となっております。<br>保護者同伴の場合も同様です。<br>・携帯電話のドメイン指定受信をご利用の場合は「xxxxxxxxxx@xxx.xxx」をご指定ください。"
 }

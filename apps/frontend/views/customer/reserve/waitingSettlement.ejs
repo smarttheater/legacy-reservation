@@ -1,11 +1,7 @@
 <%- include('../../common/reserve/_step') %>
 
 <h1 class="pagetitle"><%- __('h1.CompleteTemporaryReservation') %></h1>
-<p class="guidetext">
-    仮予約が完了しました。<br>
-    仮予約内容は「仮予約完了メール」に記載して送信したしました。<br>
-    まだ購入は完了しておりませんので最寄りのファミリーマートよりお支払いください。
-</p>
+<p class="guidetext"><%- __('Label.CompleteTemporaryReservationGuideText') %></p>
 
 <table class="table table-waitingSettlement">
     <tbody>
@@ -39,27 +35,25 @@
 
 
 
-<p class="guidetext">
-    お支払いの際は以下の「お客様番号」と「確認番号」が必要となります。
-</p>
+<p class="guidetext"><%- __('Label.RequireCustomerNumberAndConfirmationNumber') %></p>
 
 <table class="table table-waitingSettlement">
     <tbody>
         <tr>
-            <th>お客様番号</th>
+            <th><%- __('Label.CustomerNumber') %></th>
             <td><%- reservationDocuments[0].gmo_cvs_receipt_no %></td>
         </tr>
         <tr>
-            <th>確認番号</th>
+            <th><%- __('Label.ConfirmationNumber') %></th>
             <td><%- reservationDocuments[0].gmo_cvs_conf_no %></td>
         </tr>
         <tr>
-            <th>お支払い期限</th>
+            <th><%- __('Label.DateDue') %></th>
             <% let term = reservationDocuments[0].gmo_payment_term %>
             <td><%- `${term.substr(0, 4)}/${term.substr(4, 2)}/${term.substr(6, 2)} ${term.substr(8, 2)}:${term.substr(10, 2)}:${term.substr(12)}` %></td>
         </tr>
         <tr>
-            <th>お支払い方法</th>
+            <th><%- __('Label.HowToPay') %></th>
             <td><a target="_blank" href="https://www.gmo-pg.com/service/convenience_store/various_user/#familymart">https://www.gmo-pg.com/service/convenience_store/various_user/#familymart
 </a></td>
         </tr>
@@ -68,6 +62,6 @@
 
 
 <div class="btns2clm">
-    <a class="btn btn-lg btn-next" href="http://2016.tiff-jp.net/"><span>続けて他の作品を予約する</span></a>
+    <a class="btn btn-lg btn-next" href="http://2016.tiff-jp.net/"><span><%- __('Button.ReserveTicketsAnotherMovie') %></span></a>
     <a class="btn btn-lg btn-back" href="http://2016.tiff-jp.net/"><span><%- __('Button.BackToOfficialSite') %></span></a>
 </div>

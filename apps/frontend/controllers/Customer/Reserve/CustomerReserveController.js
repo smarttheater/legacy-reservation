@@ -98,7 +98,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                                 this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                     if (err) {
                                         reservationModel.save(() => {
-                                            let message = this.req.__('Mesasge.SelectedSeatsUnavailable');
+                                            let message = this.req.__('Message.SelectedSeatsUnavailable');
                                             this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                                         });
                                     }

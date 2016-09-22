@@ -20,12 +20,7 @@ for (let reservation of reservationDocuments) {
 <%- include('./_step') %>
 
 <h1 class="pagetitle"><%- __('h1.CompleteReservation') %></h1>
-<p class="guidetext">
-    ご購入ありがとうございました。<br>
-    当日は下記のQRコードを印刷、またはスマートフォンで表示して入場してください。<br>
-    また購入者情報入力でご入力頂いたメールアドレスにもQRコード付きメールを送信しておりますので、<br>
-    そちらをご提示頂いてもご入場頂けます。
-</p>
+<p class="guidetext"><%- __('Label.CompleteReservationGuideText') %></p>
 
 
 <table class="table table-complete">
@@ -105,9 +100,14 @@ let seatCodes = reservationDocuments.map((reservationDocument) => {return reserv
             <p class="btn-circle-close" data-dismiss="modal"></p>
             <div class="modal-body">
                 <h2>
+                    <% if (req.locale === 'ja') { %>
                     メールアドレスを入力して<br class="visible-mobile-block">
                     送信ボタンを押してください。<br>
-                    ※携帯メールでドメイン指定受信を利用している方解除の設定をお願いします
+                    <% } else { %>
+                    Enter your email address<br class="visible-mobile-block">
+                     and click on the Send button.<br>
+                    <% } %>
+                    ※<%- __('Message.SettingForLimitingEmailReception') %>
                 </h2>
                 <p class="errmsg"></p>
                 <div class="form-group form-inline">

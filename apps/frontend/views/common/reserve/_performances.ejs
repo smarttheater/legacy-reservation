@@ -3,10 +3,10 @@
 <%- include('./_step') %>
 
 <h1 class="pagetitle"><%- __('h1.SelectPerformance') %></h1>
-<p class="guidetext">以下より鑑賞作品の上映スケジュールを選択してください。</p>
+<p class="guidetext"><%- __('Label.SelectPerformanceGuideText') %></p>
 
 <% if (isSponsor) { %>
-<p class="remainingtickets">取得可能残り:<strong><%= parseInt(req.sponsorUser.get('max_reservation_count')) - reservationsCount %>枚</strong></p>
+<p class="remainingtickets"><%- __('Label.NumberOfTicketsAvailable') %>:<strong><%= parseInt(req.sponsorUser.get('max_reservation_count')) - reservationsCount %><% if (req.locale === 'ja') { %>枚<% } %></strong></p>
 <% } %>
 
 <div class="performancesearchform">

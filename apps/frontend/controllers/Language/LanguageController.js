@@ -7,7 +7,7 @@ class LanguageController extends BaseController_1.default {
     update() {
         let locale = this.req.params.locale;
         this.req.session['locale'] = locale;
-        this.res.redirect(this.router.build('Home'));
+        this.res.redirect('/');
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

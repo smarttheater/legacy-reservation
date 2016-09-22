@@ -158,7 +158,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
 
                                                         if (err) {
                                                             reservationModel.save(() => {
-                                                                let message = this.req.__('Mesasge.SelectedSeatsUnavailable');
+                                                                let message = this.req.__('Message.SelectedSeatsUnavailable');
                                                                 this.res.redirect(`${this.router.build('sponsor.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
                                                             });
                                                         } else {

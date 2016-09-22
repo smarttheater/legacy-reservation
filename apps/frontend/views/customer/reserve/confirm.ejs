@@ -1,7 +1,7 @@
 <%- include('../../common/reserve/_step') %>
 
 <h1 class="pagetitle"><%- __('h1.ConfirmReservation') %></h1>
-<p class="guidetext">内容をご確認のうえ、「決済へ進む」ボタンを押してください。</p>
+<p class="guidetext"><%- __('Label.ConfirmReservationGuideText') %></p>
 
 <div class="wrapper-confirm">
 
@@ -114,17 +114,12 @@
 </div>
 
 <div class="wrapper-notice">
-    <h2>注意事項</h2>
-    <p>
-        ・チケットの払い戻し・交換・再発行はいたしません。<br>
-        ・東京都青少年の健全な育成に関する条例により18歳未満の方は23時から翌朝4時までの劇場への出入りは禁止となっております。<br>
-        保護者同伴の場合も同様です。<br>
-        ・携帯電話のドメイン指定受信をご利用の場合は「xxxxxxxxxx@xxx.xxx」をご指定ください。
-    </p>
+    <h2><%- __('Label.ConfirmNotes') %></h2>
+    <p><%- __('ConfirmNotesText') %></p>
 </div>
 
 <div class="btns2clm">
-    <a class="btn btn-lg btn-next" href="javascript:void(0);"><span><%- __('Button.GoToPayment') %><span class="smalltext">(外部サイトへ移動します)</span></span></a>
+    <a class="btn btn-lg btn-next" href="javascript:void(0);"><span><%- __('Button.GoToPayment') %><span class="smalltext">(<%- __('Label.RedirectToThirdPartyWebsite') %>)</span></span></a>
     <a class="btn btn-lg btn-back" href="<%- url('customer.reserve.profile', {token: req.params.token}) %>"><span><%- __('Button.Back') %></span></a>
 </div>
 

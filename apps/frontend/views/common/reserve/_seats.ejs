@@ -5,10 +5,10 @@
 <%- include('./_step') %>
 
 <h1 class="pagetitle"><%- __('h1.SelectSeats') %></h1>
-<p class="guidetext">ご希望の座席を選択して次へボタンを押してください。</p>
+<p class="guidetext"><%- __('Label.SelectSeatsGuideText') %></p>
 
 <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR) { %>
-<p class="remainingtickets">取得可能残り:<strong><span class="reservable-count"><%= reservableCount - reservationModel.seatCodes.length %></span>枚</strong></p>
+<p class="remainingtickets"><%- __('Label.NumberOfTicketsAvailable') %>:<strong><span class="reservable-count"><%= reservableCount - reservationModel.seatCodes.length %></span><% if (req.locale === 'ja') { %>枚<% } %></strong></p>
 <% } %>
 
 <div class="wrapper-2clm">
@@ -42,15 +42,15 @@
             <div class="seats-guide">
                 <div class="figure">
                     <div><img src="/images/screen/icon-normal.png" alt="Available"></div>
-                    <div><strong>空席</strong>クリックで座席を選択します</div>
+                    <div><strong><%- __('SeatsGuide.Avalilable.Name') %></strong><%- __('SeatsGuide.Avalilable.Caption') %></div>
                 </div>
                 <div class="figure">
                     <div><img src="/images/screen/icon-selected.png" alt="Selected"></div>
-                    <div><strong>選択した席</strong>クリックで選択を解除します</div>
+                    <div><strong><%- __('SeatsGuide.Selected.Name') %></strong><%- __('SeatsGuide.Selected.Caption') %></div>
                 </div>
                 <div class="figure">
                     <div><img src="/images/screen/icon-disabled.png" alt="Disabled"></div>
-                    <div><strong>購入済みの席</strong>既に他の方が購入済みの席です</div>
+                    <div><strong><%- __('SeatsGuide.Disabled.Name') %></strong><%- __('SeatsGuide.Disabled.Caption') %></div>
                 </div>
             </div>
 
@@ -58,21 +58,21 @@
                 <% if (reservationModel.seatGradeCodesInScreen.indexOf(ScreenUtil.SEAT_GRADE_CODE_PREMIERE_LUXURY) >= 0) { %>
                 <div class="figure figure-premierluxury">
                     <div><img src="/images/screen/icon-premierluxury.png" alt="Premier Luxury"></div>
-                    <div><strong>プレミアラグジュアリーシート</strong>+&yen;3000</div>
+                    <div><strong><%- __('SeatsGuide.PremiereLuxury.Name') %></strong>+&yen;3000</div>
                 </div>
                 <% } %>
 
                 <% if (reservationModel.seatGradeCodesInScreen.indexOf(ScreenUtil.SEAT_GRADE_CODE_PREMIERE_BOX) >= 0) { %>
                 <div class="figure figure-premierbox">
                     <div><img src="/images/screen/icon-premierbox.png" alt="Premier Box"></div>
-                    <div><strong>プレミアボックスシート</strong>+&yen;1000</div>
+                    <div><strong><%- __('SeatsGuide.PremiereBox.Name') %></strong>+&yen;1000</div>
                 </div>
                 <% } %>
 
                 <% if (reservationModel.seatGradeCodesInScreen.indexOf(ScreenUtil.SEAT_GRADE_CODE_FRONT_RECLINING) >= 0) { %>
                 <div class="figure figure-flontreclining">
                     <div><img src="/images/screen/icon-flontreclining.png" alt="Front Reclining"></div>
-                    <div><strong>フロントリクライニングシート</strong><br></div>
+                    <div><strong><%- __('SeatsGuide.FrontReclining.Name') %></strong><br></div>
                 </div>
                 <% } %>
             </div>

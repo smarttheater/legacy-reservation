@@ -1,5 +1,5 @@
 <h1 class="pagetitle"><%- __('h1.ReleaseSeats') %></h1>
-<p class="guidetext">座席開放を行う日付を選択して、開放するボタンを押してください。</p>
+<p class="guidetext"><%- __('Label.ReleaseSeatsGuideText') %></p>
 
 <div class="wrapper-releaseform">
     <form class="form-inline">
@@ -49,6 +49,7 @@
 
 <script>
 $(function(){
+    var locale = $('html').attr('lang');
     var day;
     var count;
 
@@ -59,8 +60,12 @@ $(function(){
             return false;
         }
 
-        // 開放件数取得
-        $('.text-confirm').html(day + 'のキャンセル(キャンセル数' + count + '件)を開放します');
+        if (locale === 'ja') {
+            $('.text-confirm').html(day + 'のキャンセル(キャンセル数' + count + '件)を解放します');
+        } else {
+            $('.text-confirm').html('Release your cancelled seats for ' + day + ' for (number of cancelled seats*: ' + count + ')');
+        }
+
         $('.release-confirm').modal();
     });
 
@@ -78,7 +83,11 @@ $(function(){
         }).done(function(data) {
             if (data.success) {
                 $('.select-day option:selected').remove();
-                $('.text-complete').html(day + 'のキャンセル(キャンセル数' + count + '件)を開放しました');
+                if (locale === 'ja') {
+                    $('.text-complete').html(day + 'のキャンセル(キャンセル数' + count + '件)を解放しました');
+                } else {
+                    $('.text-complete').html('Your cancelled seats for ' + day + ' for (number of cancelled seats*: ' + count + ') have been released.');
+                }
                 $('.release-confirm').modal('hide');
                 $('.release-complete').modal();
             } else {

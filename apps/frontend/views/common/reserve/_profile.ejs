@@ -5,7 +5,7 @@
 <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
 <p class="guidetext">お支払い方法を選択して次へボタンを押してください。</p>
 <% } else { %>
-<p class="guidetext">必要情報を入力して次へボタンを押してください。</p>
+<p class="guidetext"><%- __('Label.EnterProfileGuideText') %></p>
 <% } %>
 
 <div class="wrapper-2clm">
@@ -42,7 +42,7 @@
                         <input type="hidden" name="gender" value="<%- gender %>">
 
                         <tr>
-                            <th>お名前 (カタカナ)<span class="required">必須項目</span></th>
+                            <th><%- __('Form.FieldName.name') %><span class="required"><%- __('Label.Required') %></span></th>
                             <td>
                                 <div class="wrapper-names">
                                     <div class="wrapper-nameinput">
@@ -54,7 +54,7 @@
                                         <input type="text" name="firstName" id="id_firstName" class="form-control" value="<%- firstName %>">
                                     </div>
                                 </div>
-                                <p class="notice">※全角カタカナでご入力ください</p>
+                                <p class="notice">※<%- __('Message.EnterInFullWidthKatakana') %></p>
                                 <% if (req.form) { %>
                                 <p class="errmsg"><%- req.form.getErrors('lastName')[0] %></p>
                                 <p class="errmsg"><%- req.form.getErrors('firstName')[0] %></p>
@@ -63,10 +63,10 @@
                         </tr>
 
                         <tr>
-                            <th><label for="id_tel"><%- __('Form.FieldName.tel') %></label><span class="required">必須項目</span></th>
+                            <th><label for="id_tel"><%- __('Form.FieldName.tel') %></label><span class="required"><%- __('Label.Required') %></span></th>
                             <td>
                                 <input type="text" name="tel" id="id_tel" class="form-control" value="<%- tel %>">
-                                <p class="notice">※半角数字、ハイフン「-」なしで入力して下さい</p>
+                                <p class="notice">※<%- __('Message.UseHalfWidthAlphanumericWithoutHyphens') %></p>
                                 <% if (req.form) { %>
                                 <p class="errmsg"><%- req.form.getErrors('tel')[0] %></p>
                                 <% } %>
@@ -75,7 +75,7 @@
 
                     <% } else { %>
                         <tr>
-                            <th>お名前 (カタカナ)<span class="required">必須項目</span></th>
+                            <th><%- __('Form.FieldName.name') %><span class="required"><%- __('Label.Required') %></span></th>
                             <td>
                                 <div class="wrapper-names">
                                     <div class="wrapper-nameinput">
@@ -87,7 +87,7 @@
                                         <input type="text" name="firstName" id="id_firstName" class="form-control" value="<%- firstName %>">
                                     </div>
                                 </div>
-                                <p class="notice">※全角カタカナでご入力ください</p>
+                                <p class="notice">※<%- __('Message.EnterInFullWidthKatakana') %></p>
                                 <% if (req.form) { %>
                                 <p class="errmsg"><%- req.form.getErrors('lastName')[0] %></p>
                                 <p class="errmsg"><%- req.form.getErrors('firstName')[0] %></p>
@@ -96,16 +96,16 @@
                         </tr>
 
                         <tr>
-                            <th><%- __('Form.FieldName.email') %><span class="required">必須項目</span></th>
+                            <th><%- __('Form.FieldName.email') %><span class="required"><%- __('Label.Required') %></span></th>
                             <td>
                                 <input type="text" name="email" id="id_email" class="form-control" value="<%- email %>">
-                                <p class="notice">※確認の為に、もう一度入力してください</p>
+                                <p class="notice">※<%- __('Message.RetypeToConfirm') %></p>
                                 <div class="wrapper-emailconfirm">
                                     <input type="text" name="emailConfirm" id="id_emailConfirm" class="form-control" value="<%- emailConfirm %>">
                                     <span>@</span>
                                     <input type="text" name="emailConfirmDomain" id="id_emailConfirmDomain" class="form-control" value="<%- emailConfirmDomain %>">
                                 </div>
-                                <p class="notice">※携帯メールでドメイン指定受信を利用している方解除の設定をお願いします</p>
+                                <p class="notice">※<%- __('Message.SettingForLimitingEmailReception') %></p>
                                 <% if (req.form) { %>
                                 <p class="errmsg"><%- req.form.getErrors('email')[0] %></p>
                                 <p class="errmsg"><%- req.form.getErrors('emailConfirm')[0] %></p>
@@ -115,10 +115,10 @@
                         </tr>
 
                         <tr>
-                            <th><label for="id_tel"><%- __('Form.FieldName.tel') %></label><span class="required">必須項目</span></th>
+                            <th><label for="id_tel"><%- __('Form.FieldName.tel') %></label><span class="required"><%- __('Label.Required') %></span></th>
                             <td>
                                 <input type="text" name="tel" id="id_tel" class="form-control" value="<%- tel %>">
-                                <p class="notice">※半角数字、ハイフン「-」なしで入力して下さい</p>
+                                <p class="notice">※<%- __('Message.UseHalfWidthAlphanumericWithoutHyphens') %></p>
                                 <% if (req.form) { %>
                                 <p class="errmsg"><%- req.form.getErrors('tel')[0] %></p>
                                 <% } %>
@@ -126,7 +126,7 @@
                         </tr>
 
                         <tr>
-                            <th><label for="id_age"><%- __('Form.FieldName.age') %></label><span class="required">必須項目</span></th>
+                            <th><label for="id_age"><%- __('Form.FieldName.age') %></label><span class="required"><%- __('Label.Required') %></span></th>
                             <td>
                                 <%
                                 let choices = [
@@ -175,10 +175,10 @@
                             <td>
                                 <div class="wrapper-payment form-inline">
                                     <label for="radio_gender1" class="form-group payment">
-                                        <input type="radio" id="radio_gender1" name="gender" class="form-control" value="1"<% if (gender === '1') { %> checked="checked"<% } %>>男性
+                                        <input type="radio" id="radio_gender1" name="gender" class="form-control" value="1"<% if (gender === '1') { %> checked="checked"<% } %>><%- __('Label.Male') %>
                                     </label>
                                     <label for="radio_gender2" class="form-group payment">
-                                        <input type="radio" id="radio_gender2" name="gender" class="form-control" value="2"<% if (gender === '2') { %> checked="checked"<% } %>>女性
+                                        <input type="radio" id="radio_gender2" name="gender" class="form-control" value="2"<% if (gender === '2') { %> checked="checked"<% } %>><%- __('Label.Female') %>
                                     </label>
                                 </div>
 
@@ -198,7 +198,7 @@
 
                     <% } else { %>
                         <tr>
-                            <th>お支払い方法<span class="required">必須項目</span></th>
+                            <th>お支払い方法<span class="required"><%- __('Label.Required') %></span></th>
                             <td>
                                 <div class="wrapper-payment form-inline">
                                     <% for (let choice of reservationModel.paymentMethodChoices) { %>
@@ -227,10 +227,17 @@
                                 <% if (reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CVS) >= 0) { %>
                                 <p class="notice">
                                     <span class="notice-cvs">
-                                        ※コンビニ決済の支払期限は、ご注文完了日を含めて3日間です。<br>
-                                        ※コンビニ決済の場合、手数料としてご購入1席につき<%- ReservationUtil.CHARGE_CVS %>円がかかります。<br>
-                                        手数料はお支払いいただく料金に含まれます。<br>
-                                        ※コンビニ決済が可能なコンビニはファミリーマートのみとなります。
+                                        <% if (req.locale === 'ja') { %>
+                                        コンビ二決済に関して<br>
+                                        ※コンビニ決済が可能なコンビニはファミリーマートのみとなります。<br>
+                                        ※発券手数料として　1枚につき150円かかります。<br>
+                                        ※決済・受取り期限は上映3日前までとなります。
+                                        <% } else { %>
+                                        Conditions for payment at the convenience store:<br>
+                                        *Payment can be only made at FamilyMart.<br>
+                                        *Each ticket is subject to a ticket processing fee: 150 yen per ticket.<br>
+                                        *Purchased tickets should be received and paid for no later than three days prior to the day of the showing.
+                                        <% } %>
                                     </span>
                                 </p>
                                 <% } %>

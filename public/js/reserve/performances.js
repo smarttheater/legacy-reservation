@@ -50,7 +50,7 @@ $(function(){
                             '<div class="genreslength">'+
                                 '<div class="genres">'+
                                 '</div>'+
-                                '<span class="length">本編 ' + performancesOnFilm[0].film_minutes + '分</span>'+
+                                ((locale === 'ja') ? '<span class="length">本編 ' + performancesOnFilm[0].film_minutes + '分</span>' : '<span class="length">Running time ' + performancesOnFilm[0].film_minutes + 'minutes</span>') +
                             '</div>'+
                         '</div>'+
                         '<div class="performance-schedule">'

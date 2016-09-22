@@ -1,5 +1,5 @@
 <div class="loginform loginform-mypage">
-    <h2>関係者向けログイン</h2>
+    <h2><%- __('h2.LoginForStaffs') %></h2>
 
 
     <% if (req.form) { %>
@@ -28,7 +28,7 @@
                 <option value="en">English</option>
             </select>
         </div>
-        <label for="id_remember"><input id="id_remember" name="remember" type="checkbox">次回から自動的にログインする</label>
+        <label for="id_remember"><input id="id_remember" name="remember" type="checkbox"><%- __('Form.FieldName.remember') %></label>
         <a class="btn btn-big btn-login" href="javascript:void(0);"><span><%- __('Button.Login') %></span></a>
     </form>
 </div>

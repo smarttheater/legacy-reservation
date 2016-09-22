@@ -115,7 +115,7 @@ export default class TelReserveController extends ReserveBaseController implemen
                                 this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                     if (err) {
                                         reservationModel.save(() => {
-                                            let message = this.req.__('Mesasge.SelectedSeatsUnavailable');
+                                            let message = this.req.__('Message.SelectedSeatsUnavailable');
                                             this.res.redirect(`${this.router.build('tel.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
                                         });
                                     } else {
