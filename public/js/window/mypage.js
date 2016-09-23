@@ -11,7 +11,7 @@ $(function(){
         var html = '';
 
         reservations.forEach(function(reservation) {
-            let purchasedAt = (reservation.purchased_at) ? (new Date(reservation.purchased_at)).toLocaleString('ja'): '';
+            var purchasedAt = (reservation.purchased_at) ? (new Date(reservation.purchased_at)).toLocaleString('ja'): '';
             var startDatetime = reservation.performance_day.substr(0, 4)
                         + '/' + reservation.performance_day.substr(4, 2)
                         + '/' + reservation.performance_day.substr(6)

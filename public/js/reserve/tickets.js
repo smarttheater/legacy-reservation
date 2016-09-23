@@ -37,7 +37,7 @@ $(function(){
         if (total === 0) return;
 
         // 数字をコンマ区切りに
-        let text = total.toString().replace(/(\d)(?=(\d{3})+$)/g , '$1,') + ((locale === 'ja') ? '円' : 'yen');
+        var text = total.toString().replace(/(\d)(?=(\d{3})+$)/g , '$1,') + ((locale === 'ja') ? '円' : 'yen');
         $('.price').text(text);
         $('tfoot').removeClass('hidden');
     }
