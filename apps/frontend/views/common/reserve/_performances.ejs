@@ -73,6 +73,15 @@
     <%- __('Label.ResultsCount') %> <span class="total-count"></span> films
 </p>
 
+<% if (isStaff || isWindow) { %>
+<% // 内部関係者と当日窓口については、残席0でも次へ進める %>
+<style>
+.page-performances .performance .performance-schedule .scheduleitem-soldout {
+    pointer-events: auto;
+}
+</style>
+<% } %>
+
 <div class="row performances">
 </div>
 

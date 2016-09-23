@@ -266,6 +266,6 @@ class WindowReserveController extends ReserveBaseController_1.default {
         });
     }
 }
-WindowReserveController.RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数
+WindowReserveController.RESERVATION_LIMIT_PER_PERFORMANCE = 10; // パフォーマンスあたりの最大座席確保枚数
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = WindowReserveController;

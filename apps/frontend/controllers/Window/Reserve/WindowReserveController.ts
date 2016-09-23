@@ -14,7 +14,7 @@ export default class WindowReserveController extends ReserveBaseController imple
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_WINDOW;
     public layout = 'layouts/window/layout';
 
-    public static RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数
+    public static RESERVATION_LIMIT_PER_PERFORMANCE = 10; // パフォーマンスあたりの最大座席確保枚数
 
     public start(): void {
         this.processStart((err, reservationModel) => {
