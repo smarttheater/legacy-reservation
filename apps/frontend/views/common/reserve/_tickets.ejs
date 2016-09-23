@@ -20,7 +20,7 @@
                 <% let reservation = new Models.Reservation(reservationModel.seatCode2reservationDocument(seatCode)); %>
                 <tr data-seat-code="<%- reservation.seat_code %>" data-seat-extra-charge="<%= reservationModel.getChargeExceptTicketTypeBySeatCode(seatCode) %>">
 
-                    <th><span class="visible-mobile"><%- __('Label.SeatCode') %></span><%- reservation.get('seat_code') %></th>
+                    <th><span class="visible-mobile"><%- __('Label.SeatCode') %></span> <%- reservation.get('seat_code') %></th>
                     <td>
                         <select class="form-control">
                             <% reservationModel.ticketTypes.forEach(function(ticketType) { %>

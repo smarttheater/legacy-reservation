@@ -270,7 +270,7 @@ Schema.virtual('ticket_type_detail_str_en').get(function () {
             if (charge > 0) {
                 str += ` / \\${numeral(charge).format('0,0')}`;
                 if (this.get('seat_grade_additional_charge') > 0) {
-                    str += ` (including ${this.get('seat_grade_name_ja')} \\${numeral(this.get('seat_grade_additional_charge')).format('0,0')})`;
+                    str += ` (including ${this.get('seat_grade_name_en')} \\${numeral(this.get('seat_grade_additional_charge')).format('0,0')})`;
                 }
             }
             break;
