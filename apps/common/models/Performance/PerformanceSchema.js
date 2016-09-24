@@ -56,16 +56,14 @@ Schema.methods.getSeatStatus = function (reservationNumber) {
     // 残席0以下なら問答無用に×
     let availableSeatNum = this.screen.seats_number - reservationNumber;
     if (availableSeatNum <= 0)
-        return PerformanceUtil_1.default.SEAT_STATUS_D;
+        return PerformanceUtil_1.default.SEAT_STATUS_C;
     // 残席数よりステータスを算出
     let seatNum = 100 * availableSeatNum;
     if (PerformanceUtil_1.default.SEAT_STATUS_THRESHOLD_A * this.screen.seats_number < seatNum)
         return PerformanceUtil_1.default.SEAT_STATUS_A;
     if (PerformanceUtil_1.default.SEAT_STATUS_THRESHOLD_B * this.screen.seats_number < seatNum)
         return PerformanceUtil_1.default.SEAT_STATUS_B;
-    if (PerformanceUtil_1.default.SEAT_STATUS_THRESHOLD_C * this.screen.seats_number < seatNum)
-        return PerformanceUtil_1.default.SEAT_STATUS_C;
-    return PerformanceUtil_1.default.SEAT_STATUS_D;
+    return PerformanceUtil_1.default.SEAT_STATUS_C;
 };
 Schema.index({
     day: 1,
