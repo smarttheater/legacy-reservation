@@ -36,14 +36,20 @@ $(function(){
 
             html += ''
                 + '</th>'
-                + '<td class="td-number">' + reservation.payment_no + '</td>'
-                + '<td class="">' + $('input[name="reservation_status_str_' + reservation.status + '"]').val() + '</td>'
-                + '<td class="">' + ((reservation.payment_method) ? $('input[name="payment_method_str_' + reservation.payment_method + '"]').val() : '') + '</td>'
-                + '<td class="">' + $('input[name="purchaser_group_str_' + reservation.purchaser_group + '"]').val() + '</td>'
-                + '<td class="">' + purchasedAt + '</td>'
-                + '<td class="">' + reservation.purchaser_email + '</td>'
-                + '<td class="">' + reservation.purchaser_tel + '</td>'
-                + '<td class="">' + reservation.purchaser_last_name + ' ' + reservation.purchaser_first_name + '</td>'
+                + '<td class="td-number">'
+                    + reservation.payment_no
+                    + '<br>' + $('input[name="purchaser_group_str_' + reservation.purchaser_group + '"]').val()
+                    + '<br>' + purchasedAt
+                + '</td>'
+                + '<td class="">'
+                    + $('input[name="reservation_status_str_' + reservation.status + '"]').val()
+                    + '<br>' + ((reservation.payment_method) ? $('input[name="payment_method_str_' + reservation.payment_method + '"]').val() : '')
+                + '</td>'
+                + '<td class="">'
+                    + reservation.purchaser_last_name + ' ' + reservation.purchaser_first_name
+                    + '<br>' + reservation.purchaser_email
+                    + '<br>' + reservation.purchaser_tel
+                + '</td>'
                 + '<td class="td-title">'
                     + reservation['film_name_' + locale] + '<br>'
                     + startDatetime + '-<br>'
