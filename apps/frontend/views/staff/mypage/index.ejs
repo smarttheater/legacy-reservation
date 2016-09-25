@@ -54,7 +54,7 @@
                     </div>
                 </td>
                 <td>
-                    <%- __('Label.UpdatedUser') %><br>
+                    <%- __('Label.UpdatedUser') %>/<%- __('Label.Distribution') %><br>
                     <div class="form-inline">
                         <div class="form-group">
                             <input type="text" class="form-control" name="updater">
@@ -78,10 +78,13 @@
             <tr>
                 <th><input type="checkbox" class="check-all"></th>
                 <th><%- __('Label.PaymentNo') %></th>
-                <th><%- __('Label.FilmName') %> / <%- __('Label.PerformanceTime') %> / <%- __('Label.PerformancePlace') %></th>
+                <th><%- __('Label.FilmName') %><br><%- __('Label.PerformanceTime') %><br><%- __('Label.PerformancePlace') %></th>
                 <th><%- __('Label.SeatCode') %></th>
                 <th><%- __('Label.UpdatedUser') %></th>
-                <th><%- __('Label.Distribution') %></th>
+                <th>
+                    <%- __('Label.Distribution') %><br>
+                    <%- __('Message.UpdateWatcherNameHelp') %>
+                </th>
                 <th></th>
             </tr>
         </thead>

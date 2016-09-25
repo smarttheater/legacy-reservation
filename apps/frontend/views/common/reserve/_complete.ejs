@@ -36,9 +36,7 @@ for (let reservation of reservationDocuments) {
         <tr>
             <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
             <td>
-                <%- reservationDocuments[0].get('performance_start_str') %> ～ 
-                <%- reservationDocuments[0].get(`theater_name_${locale}`) %> 
-                <%- reservationDocuments[0].get(`screen_name_${locale}`) %>
+                <%- reservationDocuments[0].get(`performance_start_str_${locale}`) %>&nbsp;&nbsp;<%- reservationDocuments[0].get(`location_str_${locale}`) %>
             </td>
         </tr>
     </thead>
@@ -107,8 +105,8 @@ let seatCodes = reservationDocuments.map((reservationDocument) => {return reserv
                     Enter your email address<br class="visible-mobile-block">
                      and click on the Send button.<br>
                     <% } %>
-                    ※<%- __('Message.SettingForLimitingEmailReception') %>
                 </h2>
+                <p style="text-align: left;"><%- __('Message.SettingForLimitingEmailReception') %></p>
                 <p class="errmsg"></p>
                 <div class="form-group form-inline">
                     <input type="email" name="email" id="id_email" class="form-control">

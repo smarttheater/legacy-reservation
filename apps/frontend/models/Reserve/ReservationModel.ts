@@ -269,7 +269,10 @@ interface Performance {
     open_time: string,
     start_time: string,
     end_time: string,
-    start_str: string,
+    start_str_ja: string,
+    start_str_en: string,
+    location_str_ja: string,
+    location_str_en: string,
     theater: {
         _id: string,
         name: {

@@ -1,4 +1,5 @@
 $(function(){
+    var locale = $('html').attr('lang');
     var url4transfering = '';
     var reservationID4transfering = '';
     var reservationsById = JSON.parse($('input[name="reservationsById"]').val());
@@ -15,7 +16,7 @@ $(function(){
     $(document).on('click', '.execute-transfer', function(){
         var to = $('.transfering input[name="email"]').val();
         if (!to) {
-            $('.transfering .errmsg').text('メールアドレスを入力してください');
+            $('.transfering .errmsg').text((locale === 'ja') ? 'メールアドレスを入力してください' : 'Enter an email address.');
             return;
         }
 

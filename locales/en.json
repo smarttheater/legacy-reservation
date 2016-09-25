@@ -13,7 +13,7 @@
 		"SelectSeats": "Select a seat",
 		"SelectTickets": "Select the type of ticket",
 		"EnterProfile": "Enter your customer information",
-		"ConfirmReservation": "Check the purchasing application details",
+		"ConfirmReservation": "Check the purchasing details",
 		"CompleteReservation": "Purchase complete",
 		"CompleteTemporaryReservation": "Tentative reservation complete",
 		"MyPage": "MyPage",
@@ -31,9 +31,10 @@
 	},
 	"Label": {
 		"Agree": "Agree",
-		"FilmName": "Movie Title",
+		"FilmName": "Film Tiltle",
 		"PerformanceTime": "Date",
 		"PerformancePlace": "Location",
+		"DatetimeAndLocation": "Date, time, and location",
 		"SeatCode": "Seat number",
 		"TicketType": "Type of ticket",
 		"TotalPrice": "Total",
@@ -52,14 +53,14 @@
 		"PaymentMethod": "Method of payment",
 		"TotalCharge": "Total",
 		"Day": "Day",
-		"UpdatedUser": "Person who updates data",
-		"Distribution": "Distribution",
+		"UpdatedUser": "Modified by",
+		"Distribution": "Destination",
 		"Actions": "Action",
 		"Cancel": "Cancel",
 		"Print": "Print",
 		"Apply": "Apply",
 		"CompleteCancelReservations": "Canceled reservations.",
-		"PleaseEnterWatcherName": "Enter the name of the person who will see the movie.",
+		"PleaseEnterWatcherName": "Enter the name of the person who will see the film.",
 		"PhoneNumber": "Phone Number",
 		"Name": "Name",
 		"ResultsCount": "Results",
@@ -73,11 +74,11 @@
 		"SelectSeatsGuideText": "Select a seat and click on the Next button.",
 		"SelectTicketsGuideText": "Select the type of ticket and click on the Next button.",
 		"EnterProfileGuideText": "Fill in the form and click on the Next button.",
-		"ConfirmReservationGuideText": "Check purchase application details and click on the Proceed to Payment button.",
+		"ConfirmReservationGuideText": "Check the purchasing details details and click on the Proceed to Payment button.",
 		"ConfirmReservationGuideTextNoPayment": "Check the details and click on the Next button.",
-		"CompleteReservationGuideText": "Thank you for your purchase.<br>Show a printout of the following QR code or show the QR code on the screen of your smartphone to enter the cinema.<br>We have sent an email including the QR code to you at your specified email address. You can also show the email as an admission ticket.",
+		"CompleteReservationGuideText": "Thank you for your purchase.<br><br>!! Notice !!<br>If you close this page, you cannot return to it later.<br>The QR code is necessary to enter the screen on the day of your movie.<br>Be sure to confirm it and print or save it.<br>*The QR code is displayed on this page and sent to the email address specified by you.",
 		"CompleteTemporaryReservationGuideText": "Now your tentative reservation is complete.<br>An email was sent to you that includes the details of the tentative reservation.<br>Make a payment at the nearest FamilyMart location to complete the purchase.",
-		"SelectPerformanceGuideText": "Select the movie time below.",
+		"SelectPerformanceGuideText": "Select the show time below.",
 		"ReleaseSeatsGuideText": "Select the date to release cancelled seats and click on the Release cancelled seats button.",
 		"Required": "Required",
 		"ConfirmNotes": "Notes",
@@ -85,7 +86,7 @@
 		"RequireCustomerNumberAndConfirmationNumber": "Your customer number and the confirmation number below are required at the time of payment.",
 		"CustomerNumber": "Customer number",
 		"ConfirmationNumber": "Confirmation number",
-		"DateDue": "Date due",
+		"DateDue": "Payment due date",
 		"HowToPay": "How to pay",
 		"NumberOfTicketsAvailable": "Number of tickets available",
 		"Male": "Male",
@@ -118,8 +119,8 @@
 		"BackToOfficialSite": "Return to the official website",
 		"ThermalPrint": "Thermal Print",
 		"AcceptTermsAndNext": "Accept the Terms of Use and click on the Next",
-		"ReserveTicketsAnotherMovie": "Reserve tickets for another movie.",
-		"ReserveMoreSameShow": "Reserve more tickets for the same show time.",
+		"ReserveTicketsAnotherMovie": "Reserve tickets for another film.",
+		"ReserveMoreSameShow": "Reserve more tickets for the same show.",
 		"ReleaseSeats": "Release cacelled seats"
 	},
 	"Form": {
@@ -155,7 +156,7 @@
 		"match{{fieldName}}": "{{fieldName}} does not match.",
 		"EnterInFullWidthKatakana": "Enter in full-width katakana.",
 		"RetypeToConfirm": "Re-type to confirm.",
-		"SettingForLimitingEmailReception": "Cancel the setting for limiting email reception to the specified domains for you mobile phone.",
+		"SettingForLimitingEmailReception": "*Enter an email address that accepts HTML messages.<br>[If you use an email filter or setting for specified domains.]<br>* If you use a filter to limit messages to specified domains for you mobile phone, additionally set the domain \"@tiff-ticket.net\" <br>*If you use au (@ezweb.ne.jp), in addition to the above setting, additionally set the domain \"@tiff-ticket.net\" under the \"list for exemption from spam.\"",
 		"UseHalfWidthAlphanumericWithoutHyphens": "Use half-width alphanumeric. Do not use hyphens.",
 		"Sending": "Now sending...",
 		"Sent": "Sent",
@@ -174,9 +175,10 @@
 		"CompleteCancel": "The cancellation process is completed.",
 		"Invalid": "Invalid.",
 		"InvalidSeatCode": "The seat number that you have selected is invalid.",
-		"ConfirmCancelSelectedTickets": "Do you want to cancel the selected reservation?",
+		"ConfirmCancelSelectedTickets": "Cancel the selected reservation?",
 		"OutOfTerm": "Message.OutOfTerm",
-		"NoAvailableSeats": "No available seats."
+		"NoAvailableSeats": "No available seats.",
+		"UpdateWatcherNameHelp": "* Use full-width katakana for the Japanese names and in half-width alphanumeric characters for foreign names. Do not leave a half-width space between the last name and the first name."
 	},
 	"h3": {
 		"SeatChoices": "Seat information",
@@ -189,7 +191,7 @@
 		"SelectSeats": "Select a seat",
 		"SelectTickets": "Select the type of ticket",
 		"EditProfile": "Enter your customer information",
-		"Confirm": "Check the purchasing application details",
+		"Confirm": "Check the purchasing details",
 		"Complete": "Purchase complete"
 	},
 	"SeatsGuide": {
@@ -215,5 +217,5 @@
 			"Name": "Front-row reclining seat"
 		}
 	},
-	"ConfirmNotesText": " - We will not refund, exchange, or re-issue tickets.<br> - Under the Tokyo Metropolitan Ordinance Regarding the Healthy Development of Youths, persons younger than 18 years old are prohibited to enter cinemas/theaters from 11:00 p.m. to 4:00 a.m.<br>This also applies to cases where they are accompanied by a guardian.<br> - If you want to activate the feature of limiting email reception to the specified domains, specify XXXXXX@XXX.XXX."
+	"ConfirmNotesText": " - We will not refund, exchange, or re-issue tickets.<br> - Under the Tokyo Metropolitan Ordinance Regarding the Healthy Development of Youths, persons younger than 18 years old are prohibited to enter cinemas/theaters from 11:00 p.m. to 4:00 a.m.This also applies to cases where they are accompanied by a guardian.<br> - If you use a filter to limit messages to specified domains for you mobile phone, additionally set the domain \"@tiff-ticket.net\" <br> - If you use au (@ezweb.ne.jp), in addition to the above setting, additionally set the domain \"@tiff-ticket.net\" under the \"list for exemption from spam.\""
 }

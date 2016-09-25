@@ -2,8 +2,8 @@
 
 <div class="performancedata row">
     <h2><%- performance.get('film').get('name')[locale] %></h2>
-    <span class="when"><%- performance.get('start_str') %>～</span>
-    <span class="where"><%- performance.get('theater').get('name')[locale] %>  <%- performance.get('screen').get('name')[locale] %></span>
+    <span class="when"><%- performance.get(`start_str_${locale}`) %></span>
+    <span class="where"><%- performance.get(`location_str_${locale}`) %></span>
 </div>
 
 <p class="text-primary text-center process row"><%- __('Message.PleaseReadBarcode') %></p>

@@ -1,5 +1,6 @@
 import mongoose = require('mongoose');
 import numeral = require('numeral');
+import moment = require('moment');
 import ReservationUtil from './ReservationUtil';
 
 /**
@@ -165,8 +166,18 @@ let Schema = new mongoose.Schema({
 });
 
 // 開始文字列を表示形式で取得できるように
-Schema.virtual('performance_start_str').get(function() {
-    return `${this.performance_day.substr(0, 4)}/${this.performance_day.substr(4, 2)}/${this.performance_day.substr(6)} ${this.performance_start_time.substr(0, 2)}:${this.performance_start_time.substr(2)}`;
+Schema.virtual('performance_start_str_ja').get(function() {
+    return `${this.performance_day.substr(0, 4)}/${this.performance_day.substr(4, 2)}/${this.performance_day.substr(6)} 開場 ${this.performance_open_time.substr(0, 2)}:${this.performance_open_time.substr(2)} 開演 ${this.performance_start_time.substr(0, 2)}:${this.performance_start_time.substr(2)}`;
+});
+Schema.virtual('performance_start_str_en').get(function() {
+    let date = `${moment(`${this.performance_day.substr(0, 4)}-${this.performance_day.substr(4, 2)}-${this.performance_day.substr(6)}T00:00:00+09:00`).format('MMMM DD, YYYY')}`;
+    return `Opening time: ${this.performance_open_time.substr(0, 2)}:${this.performance_open_time.substr(2)}/Starting time: ${this.performance_start_time.substr(0, 2)}:${this.performance_start_time.substr(2)} on ${date}`;
+});
+Schema.virtual('location_str_ja').get(function() {
+    return `${this.get('theater_name_ja')} ${this.get('screen_name_ja')}`;
+});
+Schema.virtual('location_str_en').get(function() {
+    return `at ${this.get('screen_name_en')}, ${this.get('theater_name_en')}`;
 });
 
 Schema.virtual('baloon_content4staff').get(function() {

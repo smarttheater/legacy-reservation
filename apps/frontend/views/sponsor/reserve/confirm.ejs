@@ -26,12 +26,10 @@
             </tr>
 
             <tr>
-                <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
+                <th><%- __('Label.DatetimeAndLocation') %></th>
                 <td>
                     <p>
-                        <%- reservationModel.performance.day %> <%- reservationModel.performance.start_time %> ～ 
-                        <%- reservationModel.performance.theater.name[locale] %> 
-                        <%- reservationModel.performance.screen.name[locale] %>
+                        <%- reservationModel.performance[`start_str_${locale}`] %>&nbsp;&nbsp;<%- reservationModel.performance[`location_str_${locale}`] %> 
                     </p>
                 </td>
             </tr>

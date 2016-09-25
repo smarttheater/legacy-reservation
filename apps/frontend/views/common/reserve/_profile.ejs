@@ -129,23 +129,20 @@
                             <th><label for="id_age"><%- __('Form.FieldName.age') %></label><span class="required"><%- __('Label.Required') %></span></th>
                             <td>
                                 <%
-                                let choices = [
-                                    {code: '00', name: {ja: '0代', en:'0-'}},
-                                    {code: '10', name: {ja: '10代', en:'10-'}},
-                                    {code: '20', name: {ja: '20代', en:'20-'}},
-                                    {code: '30', name: {ja: '30代', en:'30-'}},
-                                    {code: '40', name: {ja: '40代', en:'40-'}},
-                                    {code: '50', name: {ja: '50代', en:'50-'}},
-                                    {code: '60', name: {ja: '60代', en:'60-'}},
-                                    {code: '70', name: {ja: '70代', en:'70-'}},
-                                    {code: '80', name: {ja: '80代', en:'80-'}},
-                                    {code: '90', name: {ja: '90代', en:'90-'}},
-                                    {code: '100', name: {ja: '100代-', en:'100-'}}
+                                let ageChoices = [
+                                    {code: '00', name: {ja: '10代未満', en:'younger than 10'}},
+                                    {code: '10', name: {ja: '10代', en:'10s'}},
+                                    {code: '20', name: {ja: '20代', en:'20s'}},
+                                    {code: '30', name: {ja: '30代', en:'30s'}},
+                                    {code: '40', name: {ja: '40代', en:'40s'}},
+                                    {code: '50', name: {ja: '50代', en:'50s'}},
+                                    {code: '60', name: {ja: '60代', en:'60s'}},
+                                    {code: '70', name: {ja: '70代以上', en:'70s or older'}}
                                 ];
                                 %>
                                 <select class="form-control" name="age">
                                     <option value="">---</option>
-                                    <% for (let choice of choices) { %>
+                                    <% for (let choice of ageChoices) { %>
                                     <option value="<%- choice.code %>"<% if (age === choice.code) { %> selected="selected"<% } %>><%- choice.name[locale] %></option>
                                     <% } %>
                                 </select>
@@ -158,10 +155,22 @@
                         <tr>
                             <th><label for="id_address"><%- __('Form.FieldName.address') %></label></th>
                             <td>
+                                <%
+                                let addressChoices = [
+                                    {code: '00', name: {ja: '北海道', en:'Hokkaido'}},
+                                    {code: '10', name: {ja: '東北', en:'Tohoku'}},
+                                    {code: '20', name: {ja: '関東・信越', en:'Kanto/Shinetsu'}},
+                                    {code: '30', name: {ja: '東海・北陸', en:'Tokai/Hokuriku'}},
+                                    {code: '40', name: {ja: '近畿', en:'Kinki'}},
+                                    {code: '50', name: {ja: '中国・四国', en:'Chugoku/Shikoku'}},
+                                    {code: '60', name: {ja: '九州・沖縄', en:'Kyushu/Okinawa'}},
+                                    {code: '70', name: {ja: '海外', en:'Overseas'}}
+                                ];
+                                %>
                                 <select class="form-control" name="address">
                                     <option value="">---</option>
-                                    <% for (let prefecture of Util.getPrefectrues()) { %>
-                                    <option value="<%- prefecture.code %>"<% if (address === prefecture.code) { %> selected="selected"<% } %>><%- prefecture.name[locale] %></option>
+                                    <% for (let choice of addressChoices) { %>
+                                    <option value="<%- choice.code %>"<% if (address === choice.code) { %> selected="selected"<% } %>><%- choice.name[locale] %></option>
                                     <% } %>
                                 </select>
                                 <% if (req.form) { %>
@@ -228,15 +237,14 @@
                                 <p class="notice">
                                     <span class="notice-cvs">
                                         <% if (req.locale === 'ja') { %>
-                                        コンビ二決済に関して<br>
-                                        ※コンビニ決済が可能なコンビニはファミリーマートのみとなります。<br>
-                                        ※発券手数料として　1枚につき150円かかります。<br>
-                                        ※決済・受取り期限は上映3日前までとなります。
+                                        ※コンビニ決済の支払期限は、ご注文完了日を含めて3日間です。<br>
+                                        ※コンビニ決済の場合、手数料としてご購入1席につき150円がかかります。<br>
+                                        手数料はお支払いいただく料金に含まれます。<br>
+                                        ※コンビニ決済が可能なコンビニは全国のファミリーマートのみとなります。
                                         <% } else { %>
-                                        Conditions for payment at the convenience store:<br>
-                                        *Payment can be only made at FamilyMart.<br>
-                                        *Each ticket is subject to a ticket processing fee: 150 yen per ticket.<br>
-                                        *Purchased tickets should be received and paid for no later than three days prior to the day of the showing.
+                                        *The time allotted for payment at the convenience store is three (3) days from the date of the completion of your order.<br>
+                                        *In the case of payment at the convenience store, each seat purchased is subject to a processing fee of 150 yen per seat. This fee is included in the total price.<br>
+                                        *Payment at a convenience store can be only made at FamilyMart locations in Japan.
                                         <% } %>
                                     </span>
                                 </p>

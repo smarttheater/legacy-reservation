@@ -175,7 +175,7 @@ class ReserveBaseController extends BaseController_1.default {
         // パフォーマンス取得
         Models_1.default.Performance.findOne({
             _id: perfomanceId
-        }, 'day open_time start_time end_time canceled film screen theater' // 必要な項目だけ指定すること
+        }, 'day open_time start_time end_time canceled film screen screen_name theater theater_name' // 必要な項目だけ指定すること
         )
             .populate('film', 'name ticket_type_group is_mx4d copyright') // 必要な項目だけ指定すること
             .populate('screen', 'name sections') // 必要な項目だけ指定すること
@@ -253,7 +253,10 @@ class ReserveBaseController extends BaseController_1.default {
                     open_time: performance.get('open_time'),
                     start_time: performance.get('start_time'),
                     end_time: performance.get('end_time'),
-                    start_str: performance.get('start_str'),
+                    start_str_ja: performance.get('start_str_ja'),
+                    start_str_en: performance.get('start_str_en'),
+                    location_str_ja: performance.get('location_str_ja'),
+                    location_str_en: performance.get('location_str_en'),
                     theater: {
                         _id: performance.get('theater').get('_id'),
                         name: performance.get('theater').get('name'),
