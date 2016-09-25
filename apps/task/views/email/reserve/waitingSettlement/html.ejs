@@ -27,12 +27,12 @@
     <p style="font-size:14px;">
         この度は東京国際映画祭チケットサイトをご利用いただき誠にありがとうございます。<br>
         下記の内容にて仮予約を承りました。<br>
-        ご確認の上、お支払期限までにお近くのファミリーマートにてお支払いください。
+        ご確認の上、お支払期限までにお近くのファミリーマートにて購入された日を含む3日以内（<%- `${reservations[0].get('gmo_payment_term').substr(4, 2)}月${reservations[0].get('gmo_payment_term').substr(6, 2)}日` %>まで）にお支払い下さい。
     </p>
     <p style="font-size:12px;">
-        Use the Tokyo International Film Festival ticket site this time, and thank you very much truly.<br>
-        I took care of temporary reservation in the following contents.<br>
-        After checking it, please pay in Familymart in neighborhood by the due date.
+        Thank you very much for using the Tokyo International Film Festival ticketing website.<br>
+        We have accepted your tentative reservation as stated below.<br>
+        Please check the details and make a payment at your nearest FamilyMart store within 3 days including the date of your reservation(by （<%- `${reservations[0].get('gmo_payment_term').substr(4, 2)}/${reservations[0].get('gmo_payment_term').substr(6, 2)}` %>).
     </p>
 
 
@@ -40,14 +40,14 @@
 
 
     <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">ご指定のコンビニエンスストア (Convenience store) :</h3>
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">ご指定のコンビニエンスストア (Selected convenience store) :</h3>
         <strong>ファミリーマート</strong><br>
         <span style="font-size:14px;">Family Mart</span>
     </div>
 
 
     <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">お支払い期限 (Payment deadline) :</h3>
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">お支払い期限 (Date due) :</h3>
         <% let term = reservations[0].get('gmo_payment_term') %>
         <strong><%- `${term.substr(0, 4)}/${term.substr(4, 2)}/${term.substr(6, 2)} ${term.substr(8, 2)}:${term.substr(10, 2)}:${term.substr(12)}` %></strong><br>
     </div>
@@ -61,17 +61,17 @@
 
 
     <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入番号 (Reservation number) :</h3>
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入番号 (Transaction number) :</h3>
         <strong><%- reservations[0].get('payment_no') %></strong>
     </div>
 
 
     <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">劇場 (Theater) :</h3>
-        <strong><%- reservations[0].get('theater_name_ja') %>  <%- reservations[0].get('screen_name_ja') %></strong><br>
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">劇場 (Location) :</h3>
+        <strong><%- reservations[0].get('location_str_ja') %></strong><br>
         <%- reservations[0].get('theater_address_ja') %><br>
         <p style="font-size:12px;">
-            <%- reservations[0].get('theater_name_en') %> <%- reservations[0].get('screen_name_en') %><br>
+            <%- reservations[0].get('location_str_en') %><br>
             <%- reservations[0].get('theater_address_en') %>
         </p>
     </div>
@@ -89,7 +89,7 @@
 
 
     <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">券種 (Ticket type) :</h3>
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">券種 (Type of ticket) :</h3>
 
         <% reservations.forEach((reservation, index) => { %>
         <%- (index > 0) ? '<br>' : '' %>
@@ -113,7 +113,7 @@
     <!-- /コンビニ決済完了の場合 -->
 
     <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入枚数 (Purchase number) :</h3>
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入枚数 (Number of tickets purchased) :</h3>
         <strong><%- reservations.length %>枚</strong>
         <span style="font-size:12px;"><%- reservations.length %> ticket(s)</span>
     </div>
@@ -127,7 +127,7 @@
     %>
     <% if (totalCharge > 0) { %>
     <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">合計金額 (total fee) :</h3>
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">合計金額 (total) :</h3>
         <strong>&yen;<%- numeral(totalCharge).format('0,0') %></strong>
     </div>
     <% } %>
@@ -146,21 +146,21 @@
     <hr>
 
     <h1 style="margin:0;font-size:20px;text-align:center;">Fami ポートでのお支払い方法</h1>
-    <h2 style="margin:0;font-size:16px;text-align:center;">Payment method in the Fami port</h2>
+    <h2 style="margin:0;font-size:16px;text-align:center;">How to make a payment via FamiPort:</h2>
 
 
     <p>
         <span style="color:red;font-weight:bold;">お支払いの際、お客様番号と確認番号もしくはが必要です。<br>
         メモを取るか、このメールを印刷して、コンビニエンスストアまでお持ちください。</span><br>
         <span style="font-size:12px;">
-            The case, the customer number and the confirmation number you pay or, but it's necessary.<br>
-            Whether a memo is taken print this mail, and please have it to the convenience store.
+            The 5-digit confirmation number and the 12-digit reception number are required for payment.<br>
+            Please make a note of this information or print this email and bring it to the convenience store.
         </span>
     </p>
 
 
     <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">お客様番号 (Customer number) :</h3>
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">お客様番号 (Reception number) :</h3>
         <strong><%- reservations[0].get('gmo_cvs_receipt_no') %></strong>
     </div>
 
@@ -173,42 +173,42 @@
 
     <p>1．トップメニューより「代金支払い（コンビニでお支払い）」を選択してください。<br>
         <span style="font-size:12px;">
-            Please select the "payment (payment at a convenience store)" from the top menu.
+            Select “Payment at the convenience store” under Method of Payment on the Top page.
         </span>
     </p>
 
 
     <p>2．「代金お支払い」のページで「各種番号をお持ちの方はこちら」を選択してください。<br>
         <span style="font-size:12px;">
-            Please select the "here if you have a variety of number" in the pages of "price payment".
+            Click on the “If You Have Numbers” button on the payment page.
         </span>
     </p>
 
 
     <p>3．お客様番号 を入力し、「OK」を選択してください。<br>
         <span style="font-size:12px;">
-            Enter customer number, please select "OK".
+            Enter your customer number and click “OK”.
         </span>
     </p>
 
 
     <p>4．確認番号 を入力し、「OK」を選択してください。<br>
         <span style="font-size:12px;">
-            Enter the confirmation number, please select "OK".
+            Enter your confirmation number and click “OK”.
         </span>
     </p>
 
 
     <p>5．お支払い内容を確認のうえ、「確認」を選択してください。<br>
         <span style="font-size:12px;">
-            Check the payment details, please select the "Confirm".
+            Check the payment details and click “Confirm”.
         </span>
     </p>
 
 
     <p>6．印刷された申込券をレジに渡し、30分以内に現金でお支払いください。<br>
         <span style="font-size:12px;">
-            Pass the printed subscription ticket to register, please pay in cash within 30 minutes.
+            Give the printed application form to the cashier and pay with cash within 30 minutes.
         </span>
     </p>
 
@@ -216,16 +216,17 @@
     <p>
         7．お支払い後、「取扱明細兼受領書」を必ずお受け取りください。 ※「取扱明細兼受領書」が領収書となります。<br>
         <span style="font-size:12px;">
-            After the payment, please be sure to receive a "handling specification and receipt." *"Handling specification and receipt" is the receipt.
+            Be sure to retain your transaction statement/receipt after making the payment.<br>
+            *The transaction statement/receipt serves as your receipt.
         </span>
     </p>
 
 
     <p style="font-size:12px;">
-        ※交通渋滞による来場遅延、その他いかなる場合でも、ご購入後のチケットの変更およびキャンセル・払い戻しはいたしません。<br>
-        なお不可抗力により表記公演の興行を中止する場合の払い戻しは、所定の期間内に所定の方法にて行います。<br>
-        ・Visitors delays due to traffic congestion, even if any other, I do not do ticket changes and cancellation refund after your purchase.<br>
-        It should be noted that refund if you want to stop the box office of the title performance by the force majeure will be made in a predetermined way to within a predetermined period of time.
+        ※学生（小学生は除く）の方は、劇場へのご入場の際に、必ず学生証または生徒手帳のご提示をお願いします。<br>
+        ※交通渋滞による来場遅延、その他いかなる場合でも、ご購入後のチケットの変更およびキャンセル・払い戻しはいたしません。なお不可抗力により表記公演の興行を中止する場合の払い戻しは、所定の期間内に所定の方法にて行います。<br>
+        *Students (excluding elementary school students) are asked to show their student ID card or student handbook before entering the cinema.<br>
+        *Once tickets are purchased, they cannot be changed, canceled or refunded under any circumstance, including delayed arrival due to traffic congestion. If the event is canceled due to any unforeseen causes, tickets will be refunded by the prescribed methods during the prescribed period of time.
     </p>
 
 

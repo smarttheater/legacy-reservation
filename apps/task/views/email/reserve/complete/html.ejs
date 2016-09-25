@@ -32,11 +32,10 @@
         ＊本メールはご鑑賞後まで、大切に保管してください。
     </p>
     <p style="font-size:12px;">
-        This Thank you for your purchase.<br>
-        It will be necessary to attach QR code at the time of your admission, please have it your appreciation day without fail.<br>
-        QR Code is a convenient Order from image storage or printing.<br>
-        In addition, please pay attention to handling.<br>
-        ・This e-mail until after your appreciation, please keep it.
+        Thank you very much for your purchase.<br>
+        Please be sure to bring the QR code attached to the email with you when attending your screening as it is required for admission. <br>
+        It is recommended to save the QR code as image data or to print it for your convenience. Please handle carefully.<br>
+        *Please keep this email until your screening is finished.
     </p>
 
 
@@ -51,17 +50,17 @@
 
 
     <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入番号 (Reservation number) :</h3>
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入番号 (Transaction number) :</h3>
         <strong><%- reservations[0].get('payment_no') %></strong>
     </div>
 
 
     <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">劇場 (Theater) :</h3>
-        <strong><%- reservations[0].get('theater_name_ja') %>  <%- reservations[0].get('screen_name_ja') %></strong><br>
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">劇場 (Location) :</h3>
+        <strong><%- reservations[0].get('location_str_ja') %></strong><br>
         <%- reservations[0].get('theater_address_ja') %><br>
         <p style="font-size:12px;">
-            <%- reservations[0].get('theater_name_en') %> <%- reservations[0].get('screen_name_en') %><br>
+            <%- reservations[0].get('location_str_en') %><br>
             <%- reservations[0].get('theater_address_en') %>
         </p>
     </div>
@@ -79,7 +78,7 @@
 
 
     <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">券種 (Ticket type) :</h3>
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">券種 (Type of ticket) :</h3>
 
         <% reservations.forEach((reservation, index) => { %>
         <%- (index > 0) ? '<br>' : '' %>
@@ -105,7 +104,7 @@
     <% } %>
 
     <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入枚数 (Purchase number) :</h3>
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入枚数 (Number of tickets purchased) :</h3>
         <strong><%- reservations.length %>枚</strong>
         <span style="font-size:12px;"><%- reservations.length %> ticket(s)</span>
     </div>
@@ -119,7 +118,7 @@
     %>
     <% if (totalCharge > 0) { %>
     <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">合計金額 (total fee) :</h3>
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">合計金額 (Total) :</h3>
         <strong>&yen;<%- numeral(totalCharge).format('0,0') %></strong>
     </div>
     <% } %>
