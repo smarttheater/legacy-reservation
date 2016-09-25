@@ -27,7 +27,9 @@
 		"ActOnSpecifiedCommercialTransactions": "Representation under the Act on Specified Commercial Transactions"
 	},
 	"h2": {
-		"LoginForStaffs": "Customer Log in"
+		"LoginForStaffs": "Log in for people inside TIFF",
+		"LoginForSponsors": "Log in for people related to TIFF",
+		"Cancel": "Cancel"
 	},
 	"Label": {
 		"Agree": "Agree",
@@ -138,7 +140,7 @@
 			"signature": "Signature",
 			"language": "Language",
 			"paymentNo": "Transaction number",
-			"last4DigitsOfTel": "Last 4 Digits of Tel",
+			"last4DigitsOfTel": "Last 4 digits of tel",
 			"remember": "Enable automatic log in from the next time",
 			"age": "Age",
 			"address": "Area of residence",
@@ -178,7 +180,8 @@
 		"ConfirmCancelSelectedTickets": "Cancel the selected reservation?",
 		"OutOfTerm": "Message.OutOfTerm",
 		"NoAvailableSeats": "No available seats.",
-		"UpdateWatcherNameHelp": "* Use full-width katakana for the Japanese names and in half-width alphanumeric characters for foreign names. Do not leave a half-width space between the last name and the first name."
+		"UpdateWatcherNameHelp": "* Use full-width katakana for the Japanese names and in half-width alphanumeric characters for foreign names. Do not leave a half-width space between the last name and the first name.",
+		"invalidPaymentNoOrLast4DigitsOfTel": "There are some mistakes in a transaction number or last 4 digits of tel."
 	},
 	"h3": {
 		"SeatChoices": "Seat information",

@@ -20,13 +20,13 @@ $(function(){
                     html = 
                         '<tr><th>購入番号:</th><td>' + data.reservations[0].payment_no + '</td></tr>'
                         + '<tr><th>タイトル:</th><td>' + data.reservations[0].film_name_ja + '</td></tr>'
-                        + '<tr><th>上映時間/場所:</th><td>' + data.reservations[0].performance_day + ' ' + data.reservations[0].performance_start_time + '- ' + data.reservations[0].theater_name_ja + '' + data.reservations[0].screen_name_ja + '</td></tr>'
+                        + '<tr><th>上映時間/場所:</th><td>' + data.reservations[0].performance_start_str_ja + '  ' + data.reservations[0].location_str_ja + '</td></tr>'
                         + '<tr><th>座席</th><td>';
                 } else {
                     html = 
                         '<tr><th>Transaction number:</th><td>' + data.reservations[0].payment_no + '</td></tr>'
-                        + '<tr><th>Title:</th><td>' + data.reservations[0].film_name_ja + '</td></tr>'
-                        + '<tr><th>Date/Location:</th><td>' + data.reservations[0].performance_day + ' ' + data.reservations[0].performance_start_time + '- ' + data.reservations[0].theater_name_ja + '' + data.reservations[0].screen_name_ja + '</td></tr>'
+                        + '<tr><th>Title:</th><td>' + data.reservations[0].film_name_en + '</td></tr>'
+                        + '<tr><th>Date/Location:</th><td>' + data.reservations[0].performance_start_str_en + '  ' + data.reservations[0].location_str_en + '</td></tr>'
                         + '<tr><th>Seat</th><td>';
                 }
 

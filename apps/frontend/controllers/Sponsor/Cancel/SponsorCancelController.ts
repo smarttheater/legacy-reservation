@@ -15,7 +15,7 @@ export default class SponsorCancelController extends BaseController {
         if (this.req.sponsorUser.isAuthenticated()) {
             // ログイン時そのまま
         } else {
-            this.req.setLocale('ja');
+            // this.req.setLocale('ja');
         }
 
         if (this.req.method === 'POST') {
@@ -41,21 +41,34 @@ export default class SponsorCancelController extends BaseController {
                             if (reservations.length === 0) {
                                 return this.res.json({
                                     success: false,
-                                    message: '購入番号または電話番号下4ケタに誤りがあります'
+                                    message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
                                 });
                             }
 
+                            let results = reservations.map((reservation) => {
+                                return {
+                                    _id: reservation.get('payment_no'),
+                                    seat_code: reservation.get('seat_code'),
+                                    payment_no: reservation.get('payment_no'),
+                                    film_name_ja: reservation.get('film_name_ja'),
+                                    film_name_en: reservation.get('film_name_en'),
+                                    performance_start_str_ja: reservation.get('performance_start_str_ja'),
+                                    performance_start_str_en: reservation.get('performance_start_str_en'),
+                                    location_str_ja: reservation.get('location_str_ja'),
+                                    location_str_en: reservation.get('location_str_en')
+                                };
+                            });
                             this.res.json({
                                 success: true,
                                 message: null,
-                                reservations: reservations
+                                reservations: results
                             });
                         }
                     );
                 } else {
                     this.res.json({
                         success: false,
-                        message: '購入番号または電話番号下4ケタに誤りがあります'
+                        message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
                     });
                 }
             });

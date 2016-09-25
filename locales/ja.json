@@ -27,7 +27,9 @@
 		"ActOnSpecifiedCommercialTransactions": "特定商取引法に基づく表示"
 	},
 	"h2": {
-		"LoginForStaffs": "関係者向けログイン"
+		"LoginForStaffs": "内部関係者向けログイン",
+		"LoginForSponsors": "外部関係者向けログイン",
+		"Cancel": "キャンセル"
 	},
 	"Label": {
 		"Agree": "同意する",
@@ -178,7 +180,8 @@
 		"ConfirmCancelSelectedTickets": "選択したチケットをキャンセルします",
 		"OutOfTerm": "期間外です",
 		"NoAvailableSeats": "予約可能な席がございません",
-		"UpdateWatcherNameHelp": "※日本人の場合は「全角カタカナ」外国人の場合は「半角英字」で入力してください。セイとメイの間に半角スペースを入れないでください。"
+		"UpdateWatcherNameHelp": "※日本人の場合は「全角カタカナ」外国人の場合は「半角英字」で入力してください。セイとメイの間に半角スペースを入れないでください。",
+		"invalidPaymentNoOrLast4DigitsOfTel": "購入番号または電話番号下4ケタに誤りがあります"
 	},
 	"h3": {
 		"SeatChoices": "座席情報",

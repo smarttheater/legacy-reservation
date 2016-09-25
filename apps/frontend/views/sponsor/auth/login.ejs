@@ -1,5 +1,5 @@
 <div class="loginform loginform-mypage">
-    <h2><%- __('h2.LoginForStaffs') %></h2>
+    <h2><%- __('h2.LoginForSponsors') %></h2>
 
 
     <% if (req.form) { %>
@@ -20,8 +20,8 @@
         <div class="form-group form-inline">
             <label><%- __('Form.FieldName.language') %></label>
             <select class="form-control" name="language">
-                <option value="ja">日本語</option>
-                <option value="en">English</option>
+                <option value="ja"<% if (locale === 'ja') { %> selected="selected"<% } %>>日本語</option>
+                <option value="en"<% if (locale === 'en') { %> selected="selected"<% } %>>English</option>
             </select>
         </div>
         <label for="id_remember"><input id="id_remember" name="remember" type="checkbox"><%- __('Form.FieldName.remember') %></label>

@@ -22,3 +22,11 @@ if (req.hasOwnProperty('route')) {
         </div>
     </div>
 </footer>
+
+<script>
+$(function(){
+    $(document).on('click', '.update-locale', function(){
+        location.href = '/language/update/' + $(this).attr('data-locale') + '?cb=' + location.href;
+    })
+});
+</script>
