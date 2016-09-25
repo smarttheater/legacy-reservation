@@ -26,6 +26,9 @@
     </thead>
 </table>
 
+<%
+let seatCodes = reservationDocuments.map((reservationDocument) => {return reservationDocument.seat_code});
+%>
 <div class="center">
     <a class="btn btn-lg btn-showseat show-seat-position" href="javascript:void(0)" data-screen-id="<%- reservationDocuments[0].screen %>" data-seat-codes="<%- seatCodes.join(',') %>"><span>座席を表示</span></a>
 </div>
