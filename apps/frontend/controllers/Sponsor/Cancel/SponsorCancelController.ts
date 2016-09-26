@@ -47,7 +47,7 @@ export default class SponsorCancelController extends BaseController {
 
                             let results = reservations.map((reservation) => {
                                 return {
-                                    _id: reservation.get('payment_no'),
+                                    _id: reservation.get('_id'),
                                     seat_code: reservation.get('seat_code'),
                                     payment_no: reservation.get('payment_no'),
                                     film_name_ja: reservation.get('film_name_ja'),
