@@ -13,9 +13,9 @@ pageClassName = pageClassName + ' page-'+currentLang;
 <html lang="<%- currentLang %>">
 <head>
 <meta charset="utf-8">
-<title></title>
-<meta name="description" content="">
-<meta name="keywords" content="">
+<title><%= __('Title') %></title>
+<meta name="description" content="<%= conf.get('meta.description') %>">
+<meta name="keywords" content="<%= conf.get('meta.keywords') %>">
 <meta name="viewport" content="width=device-width,user-scalable=no,maximum-scale=1">
 
 <link href="/css/tiff2016.css" rel="stylesheet">

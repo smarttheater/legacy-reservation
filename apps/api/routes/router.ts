@@ -16,8 +16,6 @@ import ScreenController from '../controllers/Screen/ScreenController';
  * ルーティング名称は、ejs側やコントローラーでURLを生成する際に用いたりするので、意識的にページ一意な値を定めること
  * 
  * リクエスト毎に、req,res,nextでコントローラーインスタンスを生成して、URLに応じたメソッドを実行する、という考え方
- * 
- * メタタグ情報は./metas.jsonで管理しています
  */
 export default (app: any) => {
     let router = new NamedRoutes();

@@ -1,5 +1,9 @@
 {
     "dns_name": "prodtiffwebapp.azurewebsites.net",
+    "meta": {
+        "keywords": "東京国際映画祭, 2016, TIFF, コンペティション,Competiton,",
+        "description": "第29回東京国際映画祭は2016年10月25日（火）から11月3日（木・祝）の10日間開催いたします。"
+    },
 
     "storage_account_name": "prodtiffstorage",
     "storage_account_key": "8/2n5KPjAC/yJ5i0T8LCOS8FLzZZyZhs0n9Q3wo8K1+3+DxWZMBV+ZfGnKZKmVB2CcjubXcib8WC2/zuHHXZWA==",
