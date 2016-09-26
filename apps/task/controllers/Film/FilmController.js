@@ -60,7 +60,7 @@ class FilmController extends BaseController_1.default {
      */
     getImages() {
         mongoose.connect(MONGOLAB_URI, {});
-        Models_1.default.Film.find({}, 'name', (err, films) => {
+        Models_1.default.Film.find({}, 'name', { sort: { _id: 1 } }, (err, films) => {
             let next = (film) => {
                 let options = {
                     url: `https://api.cognitive.microsoft.com/bing/v5.0/images/search?q=${encodeURIComponent(film.get('name.ja'))}`,
