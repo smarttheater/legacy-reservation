@@ -39,10 +39,10 @@
 
 
 
-{"seat_code":"D-12","staff_name":"ゲスホス"},
-{"seat_code":"D-13","staff_name":"ゲスホス"},
-{"seat_code":"D-14","staff_name":"ゲスホス"},
-{"seat_code":"D-15","staff_name":"ゲスホス"},
+{"seat_code":"D-12","staff_name":"プログラミング"},
+{"seat_code":"D-13","staff_name":"プログラミング"},
+{"seat_code":"D-14","staff_name":"プログラミング"},
+{"seat_code":"D-15","staff_name":"プログラミング"},
 
 
 
@@ -136,5 +136,7 @@
 {"seat_code":"J-17","staff_name":"機材デッド"},
 {"seat_code":"J-18","staff_name":"機材デッド"},
 {"seat_code":"J-19","staff_name":"機材デッド"},
-{"seat_code":"J-20","staff_name":"機材デッド"}
+{"seat_code":"J-20","staff_name":"機材デッド"},
+{"seat_code":"HC-1","staff_name":"機材デッド"},
+{"seat_code":"HC-2","staff_name":"機材デッド"}
 ]

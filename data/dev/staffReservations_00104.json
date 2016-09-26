@@ -7,8 +7,6 @@
 {"seat_code":"A-10","staff_name":"プレス"},
 {"seat_code":"A-11","staff_name":"プレス"},
 {"seat_code":"A-12","staff_name":"プレス"},
-{"seat_code":"B-1","staff_name":"司会通訳"},
-{"seat_code":"B-2","staff_name":"司会通訳"},
 
 
 
@@ -17,12 +15,12 @@
 
 
 
-
-
-{"seat_code":"C-5","staff_name":"ゲスホス"},
-{"seat_code":"C-6","staff_name":"ゲスホス"},
-{"seat_code":"C-7","staff_name":"ゲスホス"},
-{"seat_code":"C-8","staff_name":"ゲスホス"},
+{"seat_code":"C-1","staff_name":"司会通訳"},
+{"seat_code":"C-2","staff_name":"司会通訳"},
+{"seat_code":"C-5","staff_name":"プログラミング"},
+{"seat_code":"C-6","staff_name":"プログラミング"},
+{"seat_code":"C-7","staff_name":"プログラミング"},
+{"seat_code":"C-8","staff_name":"プログラミング"},
 
 
 
@@ -101,5 +99,7 @@
 {"seat_code":"J-12","staff_name":"機材デッド"},
 {"seat_code":"J-13","staff_name":"機材デッド"},
 {"seat_code":"J-14","staff_name":"機材デッド"},
-{"seat_code":"J-15","staff_name":"機材デッド"}
+{"seat_code":"J-15","staff_name":"機材デッド"},
+{"seat_code":"HC-1","staff_name":"機材デッド"},
+{"seat_code":"HC-2","staff_name":"機材デッド"}
 ]

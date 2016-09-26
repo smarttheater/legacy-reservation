@@ -163,7 +163,9 @@
 {"code":"L-15","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"L-16","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"L-17","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
-{"code":"L-18","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
+{"code":"L-18","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-1","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-2","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
     ]}]},
     {"_id":"00102","theater":"001","name":{"ja":"スクリーン02","en":"Screen02"},"sections":[{"code":"","name":{},"seats":[
 {"code":"A-5","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
@@ -516,7 +518,9 @@
 {"code":"Q-24","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"Q-25","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"Q-26","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
-{"code":"Q-27","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
+{"code":"Q-27","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-1","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-2","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
     ]}]},
     {"_id":"00103","theater":"001","name":{"ja":"スクリーン03","en":"Screen03"},"sections":[{"code":"","name":{},"seats":[
 {"code":"A-4","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
@@ -656,7 +660,9 @@
 {"code":"J-17","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"J-18","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"J-19","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
-{"code":"J-20","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
+{"code":"J-20","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-1","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-2","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
     ]}]},
     {"_id":"00104","theater":"001","name":{"ja":"スクリーン04","en":"Screen04"},"sections":[{"code":"","name":{},"seats":[
 {"code":"A-5","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
@@ -667,8 +673,6 @@
 {"code":"A-10","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"A-11","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"A-12","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
-{"code":"B-1","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
-{"code":"B-2","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"B-5","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"B-6","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"B-7","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
@@ -761,7 +765,9 @@
 {"code":"J-12","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"J-13","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"J-14","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
-{"code":"J-15","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
+{"code":"J-15","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-1","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-2","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
     ]}]},
     {"_id":"00105","theater":"001","name":{"ja":"スクリーン05","en":"Screen05"},"sections":[{"code":"","name":{},"seats":[
 {"code":"A-3","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
@@ -871,7 +877,9 @@
 {"code":"J-12","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"J-13","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"J-14","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
-{"code":"J-15","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
+{"code":"J-15","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-1","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-2","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
     ]}]},
     {"_id":"00106","theater":"001","name":{"ja":"スクリーン06","en":"Screen06"},"sections":[{"code":"","name":{},"seats":[
 {"code":"A-1","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
@@ -997,7 +1005,9 @@
 {"code":"K-12","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"K-13","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"K-14","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
-{"code":"K-15","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
+{"code":"K-15","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-1","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-2","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
     ]}]},
     {"_id":"00107","theater":"001","name":{"ja":"スクリーン07","en":"Screen07"},"sections":[{"code":"","name":{},"seats":[
 {"code":"A-8","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
@@ -1530,7 +1540,9 @@
 {"code":"P-45","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"P-46","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"P-47","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
-{"code":"P-48","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
+{"code":"P-48","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-1","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-2","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
     ]}]},
     {"_id":"00108","theater":"001","name":{"ja":"スクリーン08","en":"Screen08"},"sections":[{"code":"","name":{},"seats":[
 {"code":"A-1","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
@@ -1632,7 +1644,9 @@
 {"code":"H-9","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"H-10","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"H-11","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
-{"code":"H-12","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
+{"code":"H-12","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-1","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-2","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
     ]}]},
     {"_id":"00109","theater":"001","name":{"ja":"スクリーン09","en":"Screen09"},"sections":[{"code":"","name":{},"seats":[
 {"code":"A-6","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
@@ -1890,7 +1904,9 @@
 {"code":"L-24","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"L-25","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"L-26","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
-{"code":"L-27","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
+{"code":"L-27","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-1","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
+{"code":"HC-2","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
     ]}]},
     {"_id":"00201","theater":"002","name":{"ja":"スクリーン01","en":"Screen01"},"sections":[{"code":"","name":{},"seats":[
 {"code":"A-3","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},

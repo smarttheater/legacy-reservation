@@ -39,10 +39,10 @@
 
 {"seat_code":"C-16","staff_name":"二次販売"},
 {"seat_code":"C-17","staff_name":"二次販売"},
-{"seat_code":"D-5","staff_name":"ゲスホス"},
-{"seat_code":"D-6","staff_name":"ゲスホス"},
-{"seat_code":"D-7","staff_name":"ゲスホス"},
-{"seat_code":"D-8","staff_name":"ゲスホス"},
+{"seat_code":"D-5","staff_name":"プログラミング"},
+{"seat_code":"D-6","staff_name":"プログラミング"},
+{"seat_code":"D-7","staff_name":"プログラミング"},
+{"seat_code":"D-8","staff_name":"プログラミング"},
 
 
 
@@ -158,5 +158,11 @@
 {"seat_code":"L-11","staff_name":"機材デッド"},
 {"seat_code":"L-12","staff_name":"二次販売"},
 {"seat_code":"L-13","staff_name":"二次販売"},
-{"seat_code":"L-14","staff_name":"二次販売"}
+{"seat_code":"L-14","staff_name":"二次販売"},
+
+
+
+
+{"seat_code":"HC-1","staff_name":"機材デッド"},
+{"seat_code":"HC-2","staff_name":"機材デッド"}
 ]

@@ -160,10 +160,10 @@
 
 
 
-{"seat_code":"H-16","staff_name":"ゲスホス"},
-{"seat_code":"H-17","staff_name":"ゲスホス"},
-{"seat_code":"H-18","staff_name":"ゲスホス"},
-{"seat_code":"H-19","staff_name":"ゲスホス"},
+{"seat_code":"H-16","staff_name":"プログラミング"},
+{"seat_code":"H-17","staff_name":"プログラミング"},
+{"seat_code":"H-18","staff_name":"プログラミング"},
+{"seat_code":"H-19","staff_name":"プログラミング"},
 {"seat_code":"H-22","staff_name":"事故"},
 {"seat_code":"H-23","staff_name":"事故"},
 
@@ -311,7 +311,7 @@
 
 
 
-
+{"seat_code":"P-13","staff_name":"機材デッド"},
 {"seat_code":"P-14","staff_name":"機材デッド"},
 {"seat_code":"P-15","staff_name":"機材デッド"},
 {"seat_code":"P-16","staff_name":"機材デッド"},
@@ -345,5 +345,11 @@
 {"seat_code":"Q-20","staff_name":"二次販売"},
 {"seat_code":"Q-21","staff_name":"二次販売"},
 {"seat_code":"Q-22","staff_name":"プロモーション"},
-{"seat_code":"Q-23","staff_name":"プロモーション"}
+{"seat_code":"Q-23","staff_name":"プロモーション"},
+
+
+
+
+{"seat_code":"HC-1","staff_name":"機材デッド"},
+{"seat_code":"HC-2","staff_name":"機材デッド"}
 ]
