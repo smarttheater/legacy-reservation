@@ -7,7 +7,6 @@ import LanguageController from '../controllers/Language/LanguageController';
 import OtherController from '../controllers/Other/OtherController';
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
 import ErrorController from '../controllers/Error/ErrorController';
-import IndexController from '../controllers/Index/IndexController';
 
 
 /**
@@ -24,11 +23,6 @@ import IndexController from '../controllers/Index/IndexController';
 export default (app: any) => {
     let base = (req: express.Request, res: express.Response, next: express.NextFunction) => {
         next();
-    }
-
-    // 本番環境ではhomeは存在しない
-    if (process.env.NODE_ENV !== 'prod') {
-        app.get('/', 'home', base, (req, res, next) => {(new IndexController(req, res, next)).index()});
     }
 
     // 言語
@@ -63,7 +57,10 @@ export default (app: any) => {
 
 
     // 一般
-    app.all('/customer/reserve/performances', 'customer.reserve.performances', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).performances()});
+    // 本番環境ではhomeは存在しない
+    if (process.env.NODE_ENV !== 'prod') {
+        app.all('/customer/reserve/performances', 'customer.reserve.performances', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).performances()});
+    }
     app.get('/customer/reserve/start', 'customer.reserve.start', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).start()});
     app.all('/customer/reserve/:token/terms', 'customer.reserve.terms', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).terms()});
     app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', base, (req, res, next) => {(new CustomerReserveController(req, res, next)).seats()});

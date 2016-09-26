@@ -6,16 +6,11 @@ const LanguageController_1 = require('../controllers/Language/LanguageController
 const OtherController_1 = require('../controllers/Other/OtherController');
 const CustomerReserveController_1 = require('../controllers/Customer/Reserve/CustomerReserveController');
 const ErrorController_1 = require('../controllers/Error/ErrorController');
-const IndexController_1 = require('../controllers/Index/IndexController');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     let base = (req, res, next) => {
         next();
     };
-    // 本番環境ではhomeは存在しない
-    if (process.env.NODE_ENV !== 'prod') {
-        app.get('/', 'home', base, (req, res, next) => { (new IndexController_1.default(req, res, next)).index(); });
-    }
     // 言語
     app.get('/language/update/:locale', 'language.update', base, (req, res, next) => { (new LanguageController_1.default(req, res, next)).update(); });
     app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', base, (req, res, next) => { (new ReserveController_1.default(req, res, next)).getSeatProperties(); });
@@ -34,7 +29,10 @@ exports.default = (app) => {
     app.get('/privacy', 'privacy', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).privacy(); });
     app.get('/commercialTransactions', 'commercialTransactions', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).commercialTransactions(); });
     // 一般
-    app.all('/customer/reserve/performances', 'customer.reserve.performances', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).performances(); });
+    // 本番環境ではhomeは存在しない
+    if (process.env.NODE_ENV !== 'prod') {
+        app.all('/customer/reserve/performances', 'customer.reserve.performances', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).performances(); });
+    }
     app.get('/customer/reserve/start', 'customer.reserve.start', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).start(); });
     app.all('/customer/reserve/:token/terms', 'customer.reserve.terms', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).terms(); });
     app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).seats(); });
