@@ -10,14 +10,14 @@
 </head>
 <body>
 
-
-
-
 <div style="background-color:#fff;height:80px;text-align:center;">
     <img src="cid:logo" alt="東京国際映画祭" >
 </div>
 
-
+<%
+let term = reservations[0].get('gmo_payment_term');
+let paymentTerm = moment(`${term.substr(0, 4)}-${term.substr(4, 2)}-${term.substr(6, 2)}T${term.substr(8, 2)}:${term.substr(10, 2)}:${term.substr(12)}+09:00`);
+%>
 <div style="padding:0 30px;font-family:'游ゴシック',meiryo,sans-serif;">
     <h1 style="margin:0;font-size:20px;text-align:center;"><%- title %></h1>
     <h2 style="margin:0;font-size:16px;text-align:center;">Announcement of the Tokyo International Film Festival ticket tentative reservation completion</h2>
@@ -27,12 +27,12 @@
     <p style="font-size:14px;">
         この度は東京国際映画祭チケットサイトをご利用いただき誠にありがとうございます。<br>
         下記の内容にて仮予約を承りました。<br>
-        ご確認の上、お支払期限までにお近くのファミリーマートにて購入された日を含む3日以内（<%- `${reservations[0].get('gmo_payment_term').substr(4, 2)}月${reservations[0].get('gmo_payment_term').substr(6, 2)}日` %>まで）にお支払い下さい。
+        ご確認の上、お支払期限までにお近くのファミリーマートにて購入された日を含む3日以内（<%- paymentTerm.format('M月DD日') %>まで）にお支払い下さい。
     </p>
     <p style="font-size:12px;">
         Thank you very much for using the Tokyo International Film Festival ticketing website.<br>
         We have accepted your tentative reservation as stated below.<br>
-        Please check the details and make a payment at your nearest FamilyMart store within 3 days including the date of your reservation(by （<%- `${reservations[0].get('gmo_payment_term').substr(4, 2)}/${reservations[0].get('gmo_payment_term').substr(6, 2)}` %>).
+        Please check the details and make a payment at your nearest FamilyMart store within 3 days including the date of your reservation(by <%- paymentTerm.format('MMMM D') %>).
     </p>
 
 
@@ -48,8 +48,7 @@
 
     <div style="margin-bottom:1em;">
         <h3 style="font-weight:normal;font-size:14px;margin:0;">お支払い期限 (Date due) :</h3>
-        <% let term = reservations[0].get('gmo_payment_term') %>
-        <strong><%- `${term.substr(0, 4)}/${term.substr(4, 2)}/${term.substr(6, 2)} ${term.substr(8, 2)}:${term.substr(10, 2)}:${term.substr(12)}` %></strong><br>
+        <strong><%- paymentTerm.format('YYYY/MM/DD HH:mm:ss') %></strong><br>
     </div>
 
 
@@ -79,12 +78,8 @@
 
     <div style="margin-bottom:1em;">
         <h3 style="font-weight:normal;font-size:14px;margin:0;">時間 (Date and time) :</h3>
-        <%
-        let day = moment(`${reservations[0].get('performance_day').substr(0, 4)}-${reservations[0].get('performance_day').substr(4, 2)}-${reservations[0].get('performance_day').substr(6)}T00:00:00+09:00`);
-        %>
-        <strong><%- day.format('YYYY/MM/DD (ddd)') %></strong>　
-        開場 Open: <strong><%- reservations[0].get('performance_open_time').substr(0, 2) %>:<%- reservations[0].get('performance_open_time').substr(2) %></strong>　
-        開演 Start: <strong><%- reservations[0].get('performance_start_time').substr(0, 2) %>:<%- reservations[0].get('performance_start_time').substr(2) %>-</strong>
+        <strong><%- reservations[0].get('performance_start_str_ja') %></strong><br>
+        <span style="font-size:12px;"><%- reservations[0].get('performance_start_str_en') %></span>
     </div>
 
 
@@ -173,35 +168,35 @@
 
     <p>1．トップメニューより「代金支払い（コンビニでお支払い）」を選択してください。<br>
         <span style="font-size:12px;">
-            Select “Payment at the convenience store” under Method of Payment on the Top page.
+            Select "Payment at the convenience store" under Method of Payment on the Top page.
         </span>
     </p>
 
 
     <p>2．「代金お支払い」のページで「各種番号をお持ちの方はこちら」を選択してください。<br>
         <span style="font-size:12px;">
-            Click on the “If You Have Numbers” button on the payment page.
+            Click on the "If You Have Numbers" button on the payment page.
         </span>
     </p>
 
 
     <p>3．お客様番号 を入力し、「OK」を選択してください。<br>
         <span style="font-size:12px;">
-            Enter your customer number and click “OK”.
+            Enter your customer number and click "OK".
         </span>
     </p>
 
 
     <p>4．確認番号 を入力し、「OK」を選択してください。<br>
         <span style="font-size:12px;">
-            Enter your confirmation number and click “OK”.
+            Enter your confirmation number and click "OK".
         </span>
     </p>
 
 
     <p>5．お支払い内容を確認のうえ、「確認」を選択してください。<br>
         <span style="font-size:12px;">
-            Check the payment details and click “Confirm”.
+            Check the payment details and click "Confirm".
         </span>
     </p>
 

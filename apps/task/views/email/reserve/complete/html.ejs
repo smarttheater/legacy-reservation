@@ -9,9 +9,6 @@
 -->
 </head>
 <body>
-<!--
-   「購入完了」と「コンビニ決済完了」の違いは"コンビニ手数料"の項目の有無のみ
--->
 
 <div style="background-color:#fff;height:80px;text-align:center;">
     <img src="cid:logo" alt="東京国際映画祭" >
@@ -68,12 +65,8 @@
 
     <div style="margin-bottom:1em;">
         <h3 style="font-weight:normal;font-size:14px;margin:0;">時間 (Date and time) :</h3>
-        <%
-        let day = moment(`${reservations[0].get('performance_day').substr(0, 4)}-${reservations[0].get('performance_day').substr(4, 2)}-${reservations[0].get('performance_day').substr(6)}T00:00:00+09:00`);
-        %>
-        <strong><%- day.format('YYYY/MM/DD (ddd)') %></strong>　
-        開場 Open: <strong><%- reservations[0].get('performance_open_time').substr(0, 2) %>:<%- reservations[0].get('performance_open_time').substr(2) %></strong>　
-        開演 Start: <strong><%- reservations[0].get('performance_start_time').substr(0, 2) %>:<%- reservations[0].get('performance_start_time').substr(2) %>-</strong>
+        <strong><%- reservations[0].get('performance_start_str_ja') %></strong><br>
+        <span style="font-size:12px;"><%- reservations[0].get('performance_start_str_en') %></span>
     </div>
 
 
