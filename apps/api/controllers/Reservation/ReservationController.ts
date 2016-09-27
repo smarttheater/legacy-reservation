@@ -64,6 +64,7 @@ export default class ReservationController extends BaseController {
                     let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
                     let email = new _sendgrid.Email({
                         to: to,
+                        fromname: `${conf.get<string>('email.fromname')}`,
                         from: `noreply@${conf.get<string>('dns_name')}`,
                         subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}${reservation.get('purchaser_name')}様より東京国際映画祭のチケットが届いております`,
                         html: html

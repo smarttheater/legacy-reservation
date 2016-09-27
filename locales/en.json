@@ -27,6 +27,8 @@
 		"ActOnSpecifiedCommercialTransactions": "Representation under the Act on Specified Commercial Transactions"
 	},
 	"h2": {
+		"SeatInformation": "Seat information",
+		"Profile": "Customer information",
 		"LoginForStaffs": "Log in for people inside TIFF",
 		"LoginForSponsors": "Log in for people related to TIFF",
 		"Cancel": "Cancel"
@@ -182,10 +184,6 @@
 		"NoAvailableSeats": "No available seats.",
 		"UpdateWatcherNameHelp": "* Use full-width katakana for the Japanese names and in half-width alphanumeric characters for foreign names. Do not leave a half-width space between the last name and the first name.",
 		"invalidPaymentNoOrLast4DigitsOfTel": "There are some mistakes in a transaction number or last 4 digits of tel."
-	},
-	"h3": {
-		"SeatChoices": "Seat information",
-		"Profile": "Customer information"
 	},
 	"{{price}} yen": "{{price}} yen",
 	"Mr{{name}}": "Mr. {{name}}",

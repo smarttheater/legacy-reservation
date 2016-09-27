@@ -221,6 +221,7 @@ class ReservationController extends BaseController_1.default {
                                     return resolve();
                                 let email = new _sendgrid.Email({
                                     to: to,
+                                    fromname: `${conf.get('email.fromname')}`,
                                     from: `noreply@${conf.get('dns_name')}`,
                                     subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}${title}`,
                                     html: result.html
