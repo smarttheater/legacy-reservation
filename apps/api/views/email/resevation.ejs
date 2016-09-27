@@ -23,14 +23,14 @@
     <p style="font-weight:bold;font-size:12px;">Dear <%= to %>,</p>
 
     <p style="font-size:14px;">
-        この度はご購入いただき誠にありがとうございます。<br>
-        ご入場の際に添付のQRコードが必要となりますので、ご鑑賞当日は必ずお持ちください。<br>
+        <%- reservations[0].get('purchaser_name_ja') %>様より東京国際映画祭のチケットが届いております。下記の内容をご確認ください。<br>
+        ご入場の際に本メールのQRコードが必要となりますので、ご鑑賞当日は必ずお持ちください。<br>
         QRコードは画像保存もしくは印刷していただくと便利です。<br>
         尚、お取り扱いには十分ご注意ください。<br>
         ＊本メールはご鑑賞後まで、大切に保管してください。
     </p>
     <p style="font-size:12px;">
-        Please find the attached ticket for Tokyo International Film Festival from Mr./Ms. YYYY and confirm the following details.<br>
+        Please find the attached ticket for Tokyo International Film Festival from Mr./Ms. <%- reservations[0].get('purchaser_name_en') %> and confirm the following details.<br>
         Be sure to bring the QR code attached to the email with you when attending because it is required for admission. <br>
         It is recommended to save the QR code as image data or print it for your convenience. Handle carefully.<br>
         *Please retain this email until after you have seen the movie.
@@ -58,7 +58,7 @@
         <strong><%- reservations[0].get('location_str_ja') %></strong><br>
         <%- reservations[0].get('theater_address_ja') %><br>
         <p style="font-size:12px;">
-            <%- reservations[0].get('location_str_en') %><br>
+            <%- reservations[0].get('theater_name_en') %> <%- reservations[0].get('screen_name_en') %><br>
             <%- reservations[0].get('theater_address_en') %>
         </p>
     </div>

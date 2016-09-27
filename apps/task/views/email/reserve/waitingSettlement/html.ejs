@@ -71,7 +71,7 @@ let paymentTerm = moment(`${term.substr(0, 4)}-${term.substr(4, 2)}-${term.subst
         <strong><%- reservations[0].get('location_str_ja') %></strong><br>
         <%- reservations[0].get('theater_address_ja') %><br>
         <p style="font-size:12px;">
-            <%- reservations[0].get('location_str_en') %><br>
+            <%- reservations[0].get('theater_name_en') %> <%- reservations[0].get('screen_name_en') %><br>
             <%- reservations[0].get('theater_address_en') %>
         </p>
     </div>
@@ -125,6 +125,7 @@ let paymentTerm = moment(`${term.substr(0, 4)}-${term.substr(4, 2)}-${term.subst
     <div style="margin-bottom:1em;">
         <h3 style="font-weight:normal;font-size:14px;margin:0;">合計金額 (total) :</h3>
         <strong>&yen;<%- numeral(totalCharge).format('0,0') %></strong>
+        <span style="font-size:12px;"><%- numeral(totalCharge).format('0,0') %> yen (including tax)</span>
     </div>
     <% } %>
 
@@ -133,9 +134,8 @@ let paymentTerm = moment(`${term.substr(0, 4)}-${term.substr(4, 2)}-${term.subst
         ※学生（小学生は除く）の方は、劇場へのご入場の際に、必ず学生証または生徒手帳のご提示をお願いします。<br>
         ※交通渋滞による来場遅延、その他いかなる場合でも、ご購入後のチケットの変更およびキャンセル・払い戻しはいたしません。<br>
         なお不可抗力により表記公演の興行を中止する場合の払い戻しは、所定の期間内に所定の方法にて行います。<br>
-        ・Students (elementary school students are excluded), at the time of your entrance to the theater, be sure to ask for your presentation of a student card or student handbook.<br>
-        ・Visitors delays due to traffic congestion, even if any other, I do not do ticket changes and cancellation refund after your purchase.<br>
-        It should be noted that refund if you want to stop the box office of the title performance by the force majeure will be made in a predetermined way to within a predetermined period of time.
+        *Students (excluding elementary school students) are asked to show their student ID card or student handbook before entering the cinema.<br>
+        *Once tickets are purchased, they cannot be changed, canceled or refunded under any circumstance, including delayed arrival due to traffic congestion. If the event is canceled due to any unforeseen causes, tickets will be refunded by the prescribed methods during the prescribed period of time.
     </p>
 
 
@@ -237,10 +237,9 @@ let paymentTerm = moment(`${term.substr(0, 4)}-${term.substr(4, 2)}-${term.subst
         オフィシャルサイト： <a href="http://2016.tiff-jp.net/" target="_blank" style="color:#000;">http://2016.tiff-jp.net/</a>
     </p>
     <p style="font-size:10px;">
-        This e-mail address is a post-only. Please note that you can not reply.<br>
-        If you have any questions with respect to one and the ticket to this email no idea, please contact us at the following telephone number.<br>
-        Inquiries about ticket : +81 050-3786-0368 12:00-18:00(Closed: sat / sun / holiday Tokyo International Film Festival held period is seven days a week)<br>
-        Official site : <a href="http://2016.tiff-jp.net/" target="_blank" style="color:#000;">http://2016.tiff-jp.net/</a>
+        If you are not the intended recipient of this email or have any questions about tickets, Please contact us at the telephone number below.
+        For inquiries about tickets: 050-3786-0368/12:00 p.m. to 6:00 p.m. (Closed on Saturdays, Sundays, and national holidays, except during TIFF)
+        Official website: <a href="http://2016.tiff-jp.net/" target="_blank" style="color:#000;">http://2016.tiff-jp.net/</a>
     </p>
 
 </div>

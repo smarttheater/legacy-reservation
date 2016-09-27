@@ -171,7 +171,7 @@ Schema.virtual('performance_start_str_ja').get(function() {
 });
 Schema.virtual('performance_start_str_en').get(function() {
     let date = `${moment(`${this.performance_day.substr(0, 4)}-${this.performance_day.substr(4, 2)}-${this.performance_day.substr(6)}T00:00:00+09:00`).format('MMMM DD, YYYY')}`;
-    return `Opening time: ${this.performance_open_time.substr(0, 2)}:${this.performance_open_time.substr(2)}/Starting time: ${this.performance_start_time.substr(0, 2)}:${this.performance_start_time.substr(2)} on ${date}`;
+    return `Open: ${this.performance_open_time.substr(0, 2)}:${this.performance_open_time.substr(2)}/Start: ${this.performance_start_time.substr(0, 2)}:${this.performance_start_time.substr(2)} on ${date}`;
 });
 Schema.virtual('location_str_ja').get(function() {
     return `${this.get('theater_name_ja')} ${this.get('screen_name_ja')}`;
