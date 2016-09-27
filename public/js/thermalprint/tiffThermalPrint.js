@@ -93,7 +93,8 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
         try{
             //印刷に必要な情報が欠けていないか確認する
             var missings = [
-                'reservation_id',
+                '_id',
+                'payment_no',
                 'film_name_ja',
                 'film_name_en',
                 'theater_name_ja',
@@ -112,7 +113,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
                 return (!reservation[item]);
             });
             if(missings[0]){
-                throw({message:'[!] 購入番号'+reservation.reservation_id+'の以下の情報が見つかりませんでした\n'+missings.join('\n')});
+                throw({message:'[!] 予約番号'+reservation.reservation_id+'の以下の情報が見つかりませんでした\n'+missings.join('\n')});
             }
 
 
@@ -126,6 +127,10 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
                 position: 'center'
             });
 
+            request += builder.createTextElement({
+                data: 'チケット兼領収書\n\n'
+            });
+
             //ロゴ画像
             request += tiff_logo;
 
@@ -133,21 +138,12 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
                 data: '\nこちらのQRコードを入場時リーダーにかざし、ご入場ください\n\n'
             });
 
-            //QRコードを生成して配置
+            //予約IDからQRコードを生成して配置
             request += builder.createQrCodeElement({
                 model: 'model2',
                 level: 'level_m',
                 cell: 8,
-                data: reservation.reservation_id
-            });
-
-            request += builder.createTextElement({
-                data: '\n購入番号\n-RESERVATION NUMBER-\n'
-            });
-            //購入番号を強調
-            request += builder.createTextElement({
-                emphasis: true,
-                data: reservation.reservation_id+'\n\n'
+                data: reservation._id
             });
 
             //中央揃え解除
@@ -158,7 +154,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
             //強調を解除して日本語作品名見出し
             request += builder.createTextElement({
                 emphasis: false,
-                data: '作品名-TITLE-\n'
+                data: '\n作品名-TITLE-\n'
             });
             //日本語タイトルを強調
             request += builder.createTextElement({
@@ -174,20 +170,12 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
             request += builder.createTextElement({
                 data: '時間-TIME-\n'
             });
-            //日付を強調
+            //日付と上映時刻を強調
             request += builder.createTextElement({
                 emphasis: true,
-                data: reservation.performance_day+'\n'
-            });
-
-            //文字サイズ2倍で上映時刻
-            request += builder.createTextElement({
-                emphasis: false,
-                width: 2,
-                height: 2,
-                data:
-                'OPEN:'+reservation.performance_open_time+'\n'+
-                'START:'+reservation.performance_start_time+'\n'
+                data:reservation.performance_day.substr(0, 4) + '/' + reservation.performance_day.substr(4, 2) + '/' + reservation.performance_day.substr(6)+'\n'+
+                    'OPEN:'+reservation.performance_open_time.substr(0, 2) + ':' + reservation.performance_open_time.substr(2)+'\n'+
+                    'START:'+reservation.performance_start_time.substr(0, 2) + ':' + reservation.performance_start_time.substr(2)+'\n'
             });
 
             //文字サイズを戻して座席位置の見出し
@@ -197,16 +185,22 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
                 data: '座席位置-SCREEN & SEAT-\n'
             });
 
-            //中央揃えして文字サイズ2倍でスクリーンと席コード
+            //中央揃え
             request += builder.createAlignmentElement({
                 position: 'center'
             });
+            //文字サイズ2でスクリーン名
             request += builder.createTextElement({
                 width: 2,
                 height: 2,
-                data: reservation.screen_name_en+'\n'+reservation.seat_code+'\n'
+                data: reservation.screen_name_en+'\n'
             });
-
+            //文字サイズ3で座席コード
+            request += builder.createTextElement({
+                width: 3,
+                height: 3,
+                data: reservation.seat_code+'\n'
+            });
             //中央揃え解除
             request += builder.createAlignmentElement({
                 position:'left'
@@ -245,6 +239,16 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
             });
 
 
+            request += builder.createTextElement({
+                data: '\n購入番号-PAYMENT NUMBER-\n'
+            });
+            //予約番号を強調
+            request += builder.createTextElement({
+                emphasis: true,
+                data: reservation.payment_no+'\n\n'
+            });
+
+
             //最後右端に印刷時刻を入れる
             request += builder.createAlignmentElement({
                 position: 'right'
@@ -275,7 +279,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
             //予約情報を印刷データに変換
             var request = genRequestByReservationObj(reservation);
             if(!request){
-                throw({message:'[!] 購入番号'+reservation.reservation_id+'の印刷データ作成に失敗しました'});
+                throw({message:'[!] 購入番号'+reservation.payment_no+'の印刷データ作成に失敗しました'});
             }
 
             //プリンターに送信
@@ -297,7 +301,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
             reservations.forEach(function(reservation){
                 var temp = genRequestByReservationObj(reservation);
                 if(!temp){
-                    alert('[!] 購入番号'+reservation.reservation_id+'の印刷は印刷データ作成エラーが起きたためスキップされました');
+                    alert('[!] 購入番号'+reservation.payment_no+'の印刷は印刷データ作成エラーが起きたためスキップされました');
                 }else{
                     request += temp;
                 }

@@ -61,7 +61,8 @@ $(function(){
         // 予約オブジェクトを渡す
         var _reservation = reservationsById[$(this).attr('data-reservation-id')];
         var reservation = {
-            reservation_id: _reservation.payment_no,
+            _id: _reservation._id,
+            payment_no: _reservation.payment_no,
 
             film_name_ja: _reservation.film_name_ja,
             film_name_en: _reservation.film_name_en,
@@ -94,7 +95,8 @@ $(function(){
         Object.keys(reservationsById).forEach(function(key){
             var _reservation = reservationsById[key];
             reservations.push({
-                reservation_id: _reservation.payment_no,
+                _id: _reservation._id,
+                payment_no: _reservation.payment_no,
 
                 film_name_ja: _reservation.film_name_ja,
                 film_name_en: _reservation.film_name_en,
