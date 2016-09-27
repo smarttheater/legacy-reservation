@@ -19,23 +19,23 @@
                 <tbody>
 
                     <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
-                        <input type="hidden" name="lastName" value="<%- lastName %>">
-                        <input type="hidden" name="firstName" value="<%- firstName %>">
-                        <input type="hidden" name="tel" value="<%- tel %>">
-                        <input type="hidden" name="email" value="<%- email %>">
-                        <input type="hidden" name="emailConfirm" value="<%- emailConfirm %>">
-                        <input type="hidden" name="emailConfirmDomain" value="<%- emailConfirmDomain %>">
-                        <input type="hidden" name="age" value="<%- age %>">
-                        <input type="hidden" name="address" value="<%- address %>">
-                        <input type="hidden" name="gender" value="<%- gender %>">
+                        <input type="hidden" name="lastName" value="<%= lastName %>">
+                        <input type="hidden" name="firstName" value="<%= firstName %>">
+                        <input type="hidden" name="tel" value="<%= tel %>">
+                        <input type="hidden" name="email" value="<%= email %>">
+                        <input type="hidden" name="emailConfirm" value="<%= emailConfirm %>">
+                        <input type="hidden" name="emailConfirmDomain" value="<%= emailConfirmDomain %>">
+                        <input type="hidden" name="age" value="<%= age %>">
+                        <input type="hidden" name="address" value="<%= address %>">
+                        <input type="hidden" name="gender" value="<%= gender %>">
 
                     <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL) { %>
-                        <input type="hidden" name="email" value="<%- email %>">
-                        <input type="hidden" name="emailConfirm" value="<%- emailConfirm %>">
-                        <input type="hidden" name="emailConfirmDomain" value="<%- emailConfirmDomain %>">
-                        <input type="hidden" name="age" value="<%- age %>">
-                        <input type="hidden" name="address" value="<%- address %>">
-                        <input type="hidden" name="gender" value="<%- gender %>">
+                        <input type="hidden" name="email" value="<%= email %>">
+                        <input type="hidden" name="emailConfirm" value="<%= emailConfirm %>">
+                        <input type="hidden" name="emailConfirmDomain" value="<%= emailConfirmDomain %>">
+                        <input type="hidden" name="age" value="<%= age %>">
+                        <input type="hidden" name="address" value="<%= address %>">
+                        <input type="hidden" name="gender" value="<%= gender %>">
 
                         <tr>
                             <th><%- __('Form.FieldName.name') %><span class="required"><%- __('Label.Required') %></span></th>
@@ -43,11 +43,11 @@
                                 <div class="wrapper-names">
                                     <div class="wrapper-nameinput">
                                         <label for="id_lastName"><%- __('Form.FieldName.lastName') %></label>
-                                        <input type="text" name="lastName" id="id_lastName" class="form-control" value="<%- lastName %>">
+                                        <input type="text" name="lastName" id="id_lastName" class="form-control" value="<%= lastName %>">
                                     </div>
                                     <div class="wrapper-nameinput">
                                         <label for="id_firstName"><%- __('Form.FieldName.firstName') %></label>
-                                        <input type="text" name="firstName" id="id_firstName" class="form-control" value="<%- firstName %>">
+                                        <input type="text" name="firstName" id="id_firstName" class="form-control" value="<%= firstName %>">
                                     </div>
                                 </div>
                                 <p class="notice">※<%- __('Message.EnterInFullWidthKatakana') %></p>
@@ -61,7 +61,7 @@
                         <tr>
                             <th><label for="id_tel"><%- __('Form.FieldName.tel') %></label><span class="required"><%- __('Label.Required') %></span></th>
                             <td>
-                                <input type="text" name="tel" id="id_tel" class="form-control" value="<%- tel %>">
+                                <input type="text" name="tel" id="id_tel" class="form-control" value="<%= tel %>">
                                 <p class="notice">※<%- __('Message.UseHalfWidthAlphanumericWithoutHyphens') %></p>
                                 <% if (req.form) { %>
                                 <p class="errmsg"><%- req.form.getErrors('tel')[0] %></p>
@@ -76,11 +76,11 @@
                                 <div class="wrapper-names">
                                     <div class="wrapper-nameinput">
                                         <label for="id_lastName"><%- __('Form.FieldName.lastName') %></label>
-                                        <input type="text" name="lastName" id="id_lastName" class="form-control" value="<%- lastName %>">
+                                        <input type="text" name="lastName" id="id_lastName" class="form-control" value="<%= lastName %>">
                                     </div>
                                     <div class="wrapper-nameinput">
                                         <label for="id_firstName"><%- __('Form.FieldName.firstName') %></label>
-                                        <input type="text" name="firstName" id="id_firstName" class="form-control" value="<%- firstName %>">
+                                        <input type="text" name="firstName" id="id_firstName" class="form-control" value="<%= firstName %>">
                                     </div>
                                 </div>
                                 <p class="notice">※<%- __('Message.EnterInFullWidthKatakana') %></p>
@@ -94,12 +94,12 @@
                         <tr>
                             <th><%- __('Form.FieldName.email') %><span class="required"><%- __('Label.Required') %></span></th>
                             <td>
-                                <input type="text" name="email" id="id_email" class="form-control" value="<%- email %>">
+                                <input type="text" name="email" id="id_email" class="form-control" value="<%= email %>">
                                 <p class="notice">※<%- __('Message.RetypeToConfirm') %></p>
                                 <div class="wrapper-emailconfirm">
-                                    <input type="text" name="emailConfirm" id="id_emailConfirm" class="form-control" value="<%- emailConfirm %>">
+                                    <input type="text" name="emailConfirm" id="id_emailConfirm" class="form-control" value="<%= emailConfirm %>">
                                     <span>@</span>
-                                    <input type="text" name="emailConfirmDomain" id="id_emailConfirmDomain" class="form-control" value="<%- emailConfirmDomain %>">
+                                    <input type="text" name="emailConfirmDomain" id="id_emailConfirmDomain" class="form-control" value="<%= emailConfirmDomain %>">
                                 </div>
                                 <p class="notice">※<%- __('Message.SettingForLimitingEmailReception') %></p>
                                 <% if (req.form) { %>
@@ -113,7 +113,7 @@
                         <tr>
                             <th><label for="id_tel"><%- __('Form.FieldName.tel') %></label><span class="required"><%- __('Label.Required') %></span></th>
                             <td>
-                                <input type="text" name="tel" id="id_tel" class="form-control" value="<%- tel %>">
+                                <input type="text" name="tel" id="id_tel" class="form-control" value="<%= tel %>">
                                 <p class="notice">※<%- __('Message.UseHalfWidthAlphanumericWithoutHyphens') %></p>
                                 <% if (req.form) { %>
                                 <p class="errmsg"><%- req.form.getErrors('tel')[0] %></p>
@@ -139,7 +139,7 @@
                                 <select class="form-control" name="age">
                                     <option value="">---</option>
                                     <% for (let choice of ageChoices) { %>
-                                    <option value="<%- choice.code %>"<% if (age === choice.code) { %> selected="selected"<% } %>><%- choice.name[locale] %></option>
+                                    <option value="<%= choice.code %>"<% if (age === choice.code) { %> selected="selected"<% } %>><%- choice.name[locale] %></option>
                                     <% } %>
                                 </select>
                                 <% if (req.form) { %>
@@ -166,7 +166,7 @@
                                 <select class="form-control" name="address">
                                     <option value="">---</option>
                                     <% for (let choice of addressChoices) { %>
-                                    <option value="<%- choice.code %>"<% if (address === choice.code) { %> selected="selected"<% } %>><%- choice.name[locale] %></option>
+                                    <option value="<%= choice.code %>"<% if (address === choice.code) { %> selected="selected"<% } %>><%- choice.name[locale] %></option>
                                     <% } %>
                                 </select>
                                 <% if (req.form) { %>
@@ -199,7 +199,7 @@
 
                     <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF
                         || reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR) { %>
-                        <input type="hidden" name="paymentMethod" value="<%- GMOUtil.PAY_TYPE_CREDIT %>">
+                        <input type="hidden" name="paymentMethod" value="<%= GMOUtil.PAY_TYPE_CREDIT %>">
 
                     <% } else { %>
                         <tr>
@@ -224,7 +224,7 @@
                                     }
                                     %>
                                     <label for="radio_<%- choice %>" class="form-group payment">
-                                        <input type="radio" id="radio_<%- choice %>" name="paymentMethod" class="form-control" value="<%- choice %>"<% if (paymentMethod === choice) { %> checked="checked"<% } %>><%- label %>
+                                        <input type="radio" id="radio_<%- choice %>" name="paymentMethod" class="form-control" value="<%= choice %>"<% if (paymentMethod === choice) { %> checked="checked"<% } %>><%- label %>
                                     </label>
                                     <% } %>
                                 </div>

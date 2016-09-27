@@ -1,7 +1,12 @@
 <%- include('./_step') %>
 
 <h1 class="pagetitle"><%- __('h1.SelectTickets') %></h1>
-<p class="guidetext"><%- __('Label.SelectTicketsGuideText') %></p>
+<p class="guidetext">
+    <%- __('Label.SelectTicketsGuideText') %>
+    <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) { %>
+    <br><%= __('Message.UpdateWatcherNameHelp') %>
+    <% } %>
+</p>
 
 <div class="wrapper-2clm">
 

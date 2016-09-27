@@ -31,12 +31,12 @@ for (let reservation of reservationDocuments) {
         </tr>
         <tr>
             <th><%- __('Label.FilmName') %></th>
-            <td><%- reservationDocuments[0].get(`film_name_${locale}`) %></td>
+            <td><%= reservationDocuments[0].get(`film_name_${locale}`) %></td>
         </tr>
         <tr>
             <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
             <td>
-                <%- reservationDocuments[0].get(`performance_start_str_${locale}`) %>&nbsp;&nbsp;<%- reservationDocuments[0].get(`location_str_${locale}`) %>
+                <%= reservationDocuments[0].get(`performance_start_str_${locale}`) %>&nbsp;&nbsp;<%= reservationDocuments[0].get(`location_str_${locale}`) %>
             </td>
         </tr>
     </thead>

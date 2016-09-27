@@ -16,14 +16,6 @@ export default class TicketTypeGroupUtil {
     public static getOne4staff() {
         return [
             {
-                code: TicketTypeGroupUtil.TICKET_TYPE_CODE_FREE,
-                name: {
-                    ja: '無料',
-                    en: 'Free'
-                },
-                charge: 0 // 料金
-            },
-            {
                 code: TicketTypeGroupUtil.TICKET_TYPE_CODE_NOT_FOR_SALE,
                 name: {
                     ja: 'Not for sale',
@@ -31,6 +23,14 @@ export default class TicketTypeGroupUtil {
                 },
                 charge: 0 // 料金
             },
+            {
+                code: TicketTypeGroupUtil.TICKET_TYPE_CODE_FREE,
+                name: {
+                    ja: '無料',
+                    en: 'Free'
+                },
+                charge: 0 // 料金
+            }
         ];
     }
 

@@ -11,7 +11,7 @@
             <tr>
                 <th><%- __('Label.FilmName') %></th>
                 <td>
-                    <p><%- reservationModel.performance.film.name[locale] %></p>
+                    <p><%= reservationModel.performance.film.name[locale] %></p>
                 </td>
             </tr>
 
@@ -75,7 +75,7 @@
             <tr>
                 <th><%- __('Label.FullName') %></th>
                 <td>
-                    <p><%- reservationModel.purchaserLastName %> <%- reservationModel.purchaserFirstName %></p>
+                    <p><%= reservationModel.purchaserLastName %> <%= reservationModel.purchaserFirstName %></p>
                 </td>
             </tr>
 
@@ -83,14 +83,14 @@
             <tr>
                 <th><%- __('Label.Email') %></th>
                 <td>
-                    <p><%- reservationModel.purchaserEmail %></p>
+                    <p><%= reservationModel.purchaserEmail %></p>
                 </td>
             </tr>
 
             <tr>
                 <th><%- __('Label.Tel') %></th>
                 <td>
-                    <p><%- reservationModel.purchaserTel %></p>
+                    <p><%= reservationModel.purchaserTel %></p>
                 </td>
             </tr>
 
