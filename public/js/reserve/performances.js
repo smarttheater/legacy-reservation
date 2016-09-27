@@ -67,7 +67,7 @@ $(function(){
                                 '<div class="scheduleitem scheduleitem-'+NAMETABLE_STATUS[performance.seat_status]+' select-performance" data-performance-id="'+performance._id+'">'+
                                     '<div class="text">'+ 
                                         '<h3>'+performance.day+' '+performance.start_time+' - </h3>'+
-                                        '<p>'+performance.theater.name+'<br class="visible-pc">'+performance.screen.name+'</p>'+
+                                        '<p>'+performance.theater_name+'<br class="visible-pc">'+performance.screen_name+'</p>'+
                                     '</div>'+
                                     '<span class="status">'+performance.seat_status+'</span>'+
                                 '</div>'

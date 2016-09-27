@@ -13,10 +13,6 @@
 
 <div class="wrapper-2clm">
 
-    <div class="clm-right">
-        <%- include('./_reservationModel') %>
-    </div>
-
     <p class="guidetext visible-mobile-block"><%- __('Label.SelectSeatsGuideTextSP') %></p>
 
     <%
@@ -78,5 +74,9 @@
 
         <%- reservationModel.screenHtml %>
         <input type="hidden" name="messageRequiredSeat" value="<%- __('Message.PleaseSelectSeat') %>">
+    </div>
+
+    <div class="clm-right">
+        <%- include('./_reservationModel') %>
     </div>
 </div>

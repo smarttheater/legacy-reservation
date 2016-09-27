@@ -18,7 +18,7 @@ $(function(){
     e.stopPropagation();
   })
   .on('click','.accordion_mobile_toggle',function(e){
-    if(!fn_checkPageWidthIsMobile()){return false;}
+    if(!~this.parentNode.className.indexOf('reservationstatus') && !fn_checkPageWidthIsMobile()){return false;}
     if(~this.className.indexOf('performance')){
       $(this).toggleClass('accordion_mobile_toggleIsOpen').find('.accordion_mobile_inner').stop(false,true).slideToggle(200);
     }else{

@@ -48,7 +48,7 @@ for (let reservation of reservationDocuments) {
                 <% reservationDocuments.forEach((reservation, index) => { %>
                 <div class="wrapper-seatcells">
                     <h2 class="accordion_mobile_toggle"><%- __('Label.SeatCode') %> <%- reservation.seat_code %></h2>
-                    <div class="accordion_mobile_inner">
+                    <div>
                         <div class="innercontent">
                             <div class="cell-seatcode">
                                 <%- reservation.seat_code %>
@@ -110,7 +110,7 @@ let seatCodes = reservationDocuments.map((reservationDocument) => {return reserv
                 <p class="errmsg"></p>
                 <div class="form-group form-inline">
                     <input type="email" name="email" id="id_email" class="form-control">
-                    <p class="btn btn-submit form-control execute-transfer"><%- __('Button.Send') %></p>
+                    <p class="btn btn-submit form-control execute-transfer"><span><%- __('Button.Send') %></span></p>
                 </div>
             </div>
         </div>
