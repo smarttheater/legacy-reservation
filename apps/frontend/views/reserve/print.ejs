@@ -48,7 +48,7 @@
         <table class="pr-maintable">
             <tr>
                 <td class="pr-rsrvnum">
-                    <h3>購入番号<span class="smalltext">Reservation number</span></h3>
+                    <h3>購入番号<span class="smalltext">Transaction number</span></h3>
 
                     <strong><%- reservation.get('payment_no') %></strong>
 
@@ -109,7 +109,7 @@
 
             <tr><td class="pr-ticket">
 
-                <h3>券種・金額<span class="smalltext">Denomination Amount of money</span></h3>
+                <h3>券種・金額<span class="smalltext">Type of ticket / Charge</span></h3>
 
                 <strong><%- reservation.get('ticket_type_detail_str_ja').replace(/\\/g, '&yen;') %></strong>
                 <span class="smalltext"><%- reservation.get('ticket_type_detail_str_en').replace(/\\/g, '&yen;') %></span>
@@ -125,12 +125,12 @@
 
                 <p>
                     ※学生(小学生は除く)の方は、劇場へのご入場の際に、必ず学生証または生徒手帳のご提示をお願いします。<br>
-                    ※The direction of the student (elementary school students are excluded), at the time of your entrance to the theater,
-                    be sure to ask for your presentation of a student card or student handbook.<br>
-                    ※不可抗力により表記公演の興行を中止する場合以外は、交通渋滞による来場遅延、その他いかなる場合でもご購入後のチケットの変更およびキャンセル・払い戻しはいたしません。表記公演の上映中止の場合の払い戻しは、所定の期間に所定の方法にて行います。<br>
-                    ※ except if you want to stop the box office of the title performance by for majeure, visitor delays due to traffic congestion, even if any other, I do not do ticket changes and cancellation refund after your purchase Refund in the case of screening discontinuation of notation performances will be made in a predetermined way to within a predetermined period of time.<br>
+                    *Students (excluding elementary school students) are asked to show their student ID card or student handbook before entering the cinema.<br>
+                    ※交通渋滞による来場遅延、その他いかなる場合でも、ご購入後のチケットの変更およびキャンセル・払い戻しはいたしません。<br>
+                    なお不可抗力により表記公演の興行を中止する場合の払い戻しは、所定の期間内に所定の方法にて行います。<br>
+                    *Once tickets are purchased, they cannot be changed, canceled or refunded under any circumstance, including delayed arrival due to traffic congestion. If the event is canceled due to any unforeseen causes, tickets will be refunded by the prescribed methods during the prescribed period of time.
                     ※本チケットは領収書としてご利用いただけます。<br>
-                    ※This ticket is available as Purchase hope
+                    *This ticket is available as Purchase hope
                 </p>
 
             </td></tr>
