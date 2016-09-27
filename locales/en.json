@@ -96,7 +96,8 @@
 		"HowToPay": "How to pay",
 		"NumberOfTicketsAvailable": "Number of tickets available",
 		"Male": "Male",
-		"Female": "Female"
+		"Female": "Female",
+		"NameOfPersonWhoWillSeeFilm": "The name of the person who will see the film"
 	},
 	"Button": {
 		"Send": "Send",
@@ -184,7 +185,7 @@
 		"ConfirmCancelSelectedTickets": "Cancel the selected reservation?",
 		"OutOfTerm": "Message.OutOfTerm",
 		"NoAvailableSeats": "No available seats.",
-		"UpdateWatcherNameHelp": "* Use full-width katakana for the Japanese names and in half-width alphanumeric characters for foreign names. Do not leave a half-width space between the last name and the first name.",
+		"UpdateWatcherNameHelp": "* Use full-width katakana for the Japanese names and in half-width alphanumeric characters for foreign names.<br>* Do not leave a half-width space between the last name and the first name.",
 		"invalidPaymentNoOrLast4DigitsOfTel": "There are some mistakes in a transaction number or last 4 digits of tel."
 	},
 	"{{price}} yen": "{{price}} yen",

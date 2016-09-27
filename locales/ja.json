@@ -96,7 +96,8 @@
 		"HowToPay": "お支払い方法",
 		"NumberOfTicketsAvailable": "取得可能残り",
 		"Male": "男性",
-		"Female": "女性"
+		"Female": "女性",
+		"NameOfPersonWhoWillSeeFilm": "鑑賞者氏名"
 	},
 	"Button": {
 		"Send": "送信",
@@ -184,7 +185,7 @@
 		"ConfirmCancelSelectedTickets": "選択したチケットをキャンセルします",
 		"OutOfTerm": "期間外です",
 		"NoAvailableSeats": "予約可能な席がございません",
-		"UpdateWatcherNameHelp": "※日本人の場合は「全角カタカナ」外国人の場合は「半角英字」で入力してください。セイとメイの間に半角スペースを入れないでください。",
+		"UpdateWatcherNameHelp": "※日本人の場合は「全角カタカナ」外国人の場合は「半角英字」で入力してください。<br>※セイとメイの間に半角スペースを入れないでください。",
 		"invalidPaymentNoOrLast4DigitsOfTel": "購入番号または電話番号下4ケタに誤りがあります"
 	},
 	"{{price}} yen": "{{price}} 円",
