@@ -2,11 +2,7 @@
 
 <h1 class="pagetitle"><%- __('h1.EnterProfile') %></h1>
 
-<% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
-<p class="guidetext">お支払い方法を選択して次へボタンを押してください。</p>
-<% } else { %>
-<p class="guidetext"><%- __('Label.EnterProfileGuideText') %></p>
-<% } %>
+<p class="guidetext"><%= (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) ? __('Label.EnterProfileGuideTextWindow') : __('Label.EnterProfileGuideText') %></p>
 
 <div class="wrapper-2clm">
 
@@ -14,7 +10,7 @@
         <%- include('./_reservationModel') %>
     </div>
 
-    <div class="clm-left" data-token="">
+    <div class="clm-left">
 
         <form method="post">
 
@@ -207,7 +203,7 @@
 
                     <% } else { %>
                         <tr>
-                            <th>お支払い方法<span class="required"><%- __('Label.Required') %></span></th>
+                            <th><%- __('Form.FieldName.paymentMethod') %><span class="required"><%- __('Label.Required') %></span></th>
                             <td>
                                 <div class="wrapper-payment form-inline">
                                     <% for (let choice of reservationModel.paymentMethodChoices) { %>
@@ -234,20 +230,9 @@
                                 </div>
 
                                 <% if (reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CVS) >= 0) { %>
-                                <p class="notice">
-                                    <span class="notice-cvs">
-                                        <% if (req.locale === 'ja') { %>
-                                        ※コンビニ決済の支払期限は、ご注文完了日を含めて3日間です。<br>
-                                        ※コンビニ決済の場合、手数料としてご購入1席につき150円がかかります。<br>
-                                        手数料はお支払いいただく料金に含まれます。<br>
-                                        ※コンビニ決済が可能なコンビニは全国のファミリーマートのみとなります。
-                                        <% } else { %>
-                                        *The time allotted for payment at the convenience store is three (3) days from the date of the completion of your order.<br>
-                                        *In the case of payment at the convenience store, each seat purchased is subject to a processing fee of 150 yen per seat. This fee is included in the total price.<br>
-                                        *Payment at a convenience store can be only made at FamilyMart locations in Japan.
-                                        <% } %>
-                                    </span>
-                                </p>
+                                    <p class="notice"><span class="notice-cvs"><%- __('NoticeCVS') %></span></p>
+                                <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_MEMBER) { %>
+                                    <p class="notice"><span class="notice-cvs"><%- __('NoticeCVSMember') %></span></p>
                                 <% } %>
 
                                 <% if (req.form) { %>

@@ -1,6 +1,4 @@
-<p class="guidetext">
-GMO決済へ遷移します...
-</p>
+<p class="guidetext"><%- __('Label.GMOStartGuideText') %></p>
 
 <form action="<%- conf.get('gmo_payment_api_link_multi_entry') %>" method="post">
     <input type="hidden" name="ShopID" value="<%- shopId %>"><br>

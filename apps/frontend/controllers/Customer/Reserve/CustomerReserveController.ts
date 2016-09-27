@@ -22,7 +22,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
         if (this.req.method === 'POST') {
             reservePerformanceForm(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
-                    this.res.redirect(this.router.build('customer.reserve.start') + `?performance=${this.req.form['performanceId']}`);
+                    this.res.redirect(this.router.build('customer.reserve.start') + `?performance=${this.req.form['performanceId']}&locale=${this.req.getLocale()}`);
                 } else {
                     this.res.render('customer/reserve/performances');
                 }

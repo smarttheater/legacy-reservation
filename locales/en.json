@@ -78,12 +78,14 @@
 		"SelectSeatsGuideText": "Select a seat and click on the Next button.",
 		"SelectTicketsGuideText": "Select the type of ticket and click on the Next button.",
 		"EnterProfileGuideText": "Fill in the form and click on the Next button.",
+		"EnterProfileGuideTextWindow": "Select a method of payment and click on the Next button.",
 		"ConfirmReservationGuideText": "Check the purchasing details details and click on the Proceed to Payment button.",
 		"ConfirmReservationGuideTextNoPayment": "Check the details and click on the Next button.",
 		"CompleteReservationGuideText": "Thank you for your purchase.<br><br>!! Notice !!<br>If you close this page, you cannot return to it later.<br>The QR code is necessary to enter the screen on the day of your movie.<br>Be sure to confirm it and print or save it.<br>*The QR code is displayed on this page and sent to the email address specified by you.",
 		"CompleteTemporaryReservationGuideText": "Now your tentative reservation is complete.<br>An email was sent to you that includes the details of the tentative reservation.<br>Make a payment at the nearest FamilyMart location to complete the purchase.",
 		"SelectPerformanceGuideText": "Select the show time below.",
 		"ReleaseSeatsGuideText": "Select the date to release cancelled seats and click on the Release cancelled seats button.",
+		"GMOStartGuideText": "proceeding to GMO payment...",
 		"Required": "Required",
 		"ConfirmNotes": "Notes",
 		"RedirectToThirdPartyWebsite": "You will be redirected to a third-party website.",
@@ -218,5 +220,7 @@
 			"Name": "Front-row reclining seat"
 		}
 	},
-	"ConfirmNotesText": " - We will not refund, exchange, or re-issue tickets.<br> - Under the Tokyo Metropolitan Ordinance Regarding the Healthy Development of Youths, persons younger than 18 years old are prohibited to enter cinemas/theaters from 11:00 p.m. to 4:00 a.m.This also applies to cases where they are accompanied by a guardian.<br> - If you use a filter to limit messages to specified domains for you mobile phone, additionally set the domain \"@tiff-ticket.net\" <br> - If you use au (@ezweb.ne.jp), in addition to the above setting, additionally set the domain \"@tiff-ticket.net\" under the \"list for exemption from spam.\""
+	"ConfirmNotesText": " - We will not refund, exchange, or re-issue tickets.<br> - Under the Tokyo Metropolitan Ordinance Regarding the Healthy Development of Youths, persons younger than 18 years old are prohibited to enter cinemas/theaters from 11:00 p.m. to 4:00 a.m.This also applies to cases where they are accompanied by a guardian.<br> - If you use a filter to limit messages to specified domains for you mobile phone, additionally set the domain \"@tiff-ticket.net\" <br> - If you use au (@ezweb.ne.jp), in addition to the above setting, additionally set the domain \"@tiff-ticket.net\" under the \"list for exemption from spam.\"",
+	"NoticeCVS": "*The time allotted for payment at the convenience store is three (3) days from the date of the completion of your order.<br>*In the case of payment at the convenience store, each seat purchased is subject to a processing fee of 150 yen per seat. This fee is included in the total price.<br>*Payment at a convenience store can be only made at FamilyMart locations in Japan.",
+	"NoticeCVSMember": "コンビニ決済をご希望の方は下記電話番号までお問い合わせください。<br>050-3786-8066"
 }
