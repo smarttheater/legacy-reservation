@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title><%- title %></title>
+<title><%= title_ja %> <%= title_en %></title>
 <!--
     gmailはstyle要素とlink要素を無効にするので全タグにstyle属性を付けるしかない
     https://www.campaignmonitor.com/css/
@@ -16,16 +16,22 @@
 
 
 <div style="padding:0 30px;font-family:'游ゴシック',meiryo,sans-serif;">
-    <h1 style="margin:0;font-size:20px;text-align:center;"><%- title %></h1>
-    <h2 style="margin:0;font-size:16px;text-align:center;">Notice of TIFF Ticket Purchase Completion</h2>
+    <h1 style="margin:0;font-size:20px;text-align:center;"><%= title_ja %></h1>
+    <h2 style="margin:0;font-size:16px;text-align:center;"><%= title_en %></h2>
 
-    <p style="font-weight:bold;"><%- reservations[0].get('purchaser_name') %> 様</p>
+    <p style="font-weight:bold;"><%= reservations[0].get('purchaser_name_ja') %> 様</p>
+    <p style="font-weight:bold;font-size:12px;">Dear <%= reservations[0].get('purchaser_name_en') %>,</p>
 
     <p style="font-size:14px;">
         この度はご購入いただき誠にありがとうございます。<br>
         ご入場の際に添付のQRコードが必要となりますので、ご鑑賞当日は必ずお持ちください。<br>
         QRコードは画像保存もしくは印刷していただくと便利です。<br>
         尚、お取り扱いには十分ご注意ください。<br>
+        <% if (reservations[0].get('purchaser_group') === ReservationUtil.PURCHASER_GROUP_SPONSOR) { %>
+        キャンセルを行う場合は<br>
+        https://<%= conf.get('dns_name') %>/sponsor/cancel<br>
+        よりキャンセルを行ってください。<br>
+        <% } %>
         ＊本メールはご鑑賞後まで、大切に保管してください。
     </p>
     <p style="font-size:12px;">

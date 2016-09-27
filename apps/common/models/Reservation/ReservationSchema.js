@@ -160,23 +160,44 @@ Schema.virtual('location_str_en').get(function () {
 Schema.virtual('baloon_content4staff').get(function () {
     let str = `${this.seat_code}`;
     str += (this.purchaser_group_str) ? `<br>${this.purchaser_group_str}` : '';
-    str += (this.purchaser_name) ? `<br>${this.purchaser_name}` : '';
+    str += (this.purchaser_name_ja) ? `<br>${this.purchaser_name_ja}` : '';
     str += (this.watcher_name) ? `<br>${this.watcher_name}` : '';
     str += (this.status_str) ? `<br>${this.status_str}` : '';
     return str;
 });
-Schema.virtual('purchaser_name').get(function () {
+Schema.virtual('purchaser_name_ja').get(function () {
     let name = '';
-    if (this.get('status') === ReservationUtil_1.default.STATUS_RESERVED) {
+    if (this.get('status') === ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT
+        || this.get('status') === ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN
+        || this.get('status') === ReservationUtil_1.default.STATUS_RESERVED) {
         switch (this.purchaser_group) {
             case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
-                name = `${this.staff_name} ${this.staff_signature}`;
+                name = `${this.get('staff_name')} ${this.get('staff_signature')}`;
                 break;
             case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
-                name = `${this.sponsor_name} ${this.purchaser_last_name} ${this.purchaser_first_name}`;
+                name = `${this.get('sponsor_name')} ${this.get('purchaser_last_name')} ${this.get('purchaser_first_name')}`;
                 break;
             default:
-                name = `${this.purchaser_last_name} ${this.purchaser_first_name}`;
+                name = `${this.get('purchaser_last_name')} ${this.get('purchaser_first_name')}`;
+                break;
+        }
+    }
+    return name;
+});
+Schema.virtual('purchaser_name_en').get(function () {
+    let name = '';
+    if (this.get('status') === ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT
+        || this.get('status') === ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN
+        || this.get('status') === ReservationUtil_1.default.STATUS_RESERVED) {
+        switch (this.purchaser_group) {
+            case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
+                name = `${this.get('staff_name')} ${this.get('staff_signature')}`;
+                break;
+            case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
+                name = `${this.get('sponsor_name')} ${this.get('purchaser_first_name')} ${this.get('purchaser_last_name')}`;
+                break;
+            default:
+                name = `${this.get('purchaser_first_name')} ${this.get('purchaser_last_name')}`;
                 break;
         }
     }

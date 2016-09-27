@@ -46,13 +46,17 @@ export default class ReservationController extends BaseController {
                 }
 
                 let qrcodeBuffer = qr.imageSync(reservation.get('qr_str'), {type: 'png'});
+                let title_ja = `${reservation.get('purchaser_name_ja')}様より東京国際映画祭のチケットが届いております`;
+                let title_en = `This is a notification that you have been invited to Tokyo International Film Festival by Mr./Ms. ${reservation.get('purchaser_name_en')}.`;
 
                 this.res.render('email/resevation', {
                     layout: false,
                     reservations: [reservation],
                     to: to,
                     qrcode: qrcodeBuffer,
-                    moment: moment
+                    moment: moment,
+                    title_ja: title_ja,
+                    title_en: title_en
                 }, (err, html) => {
                     if (err) {
                         return this.res.json({
@@ -66,7 +70,7 @@ export default class ReservationController extends BaseController {
                         to: to,
                         fromname: `${conf.get<string>('email.fromname')}`,
                         from: `noreply@${conf.get<string>('dns_name')}`,
-                        subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}${reservation.get('purchaser_name')}様より東京国際映画祭のチケットが届いております`,
+                        subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}${title_ja} ${title_en}`,
                         html: html
                     });
 
@@ -86,12 +90,6 @@ export default class ReservationController extends BaseController {
                         cid: 'logo',
                         content: fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`)
                     });
-
-                    // email.addFile({
-                    //     filename: `qrcode4attachment_${reservationId}.png`,
-                    //     contentType: 'image/png',
-                    //     content: qrcodeBuffer
-                    // });
 
                     this.logger.debug('sending an email...email:', email);
                     _sendgrid.send(email, (err, json) => {

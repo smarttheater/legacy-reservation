@@ -188,7 +188,7 @@
 		"invalidPaymentNoOrLast4DigitsOfTel": "There are some mistakes in a transaction number or last 4 digits of tel."
 	},
 	"{{price}} yen": "{{price}} yen",
-	"Mr{{name}}": "Mr. {{name}}",
+	"Mr{{name}}": "Mr./Ms. {{name}}",
 	"Steps": {
 		"SelectPerformance": "Select the show time",
 		"SelectSeats": "Select a seat",

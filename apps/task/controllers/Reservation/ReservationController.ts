@@ -229,15 +229,18 @@ export default class ReservationController extends BaseController {
                                 // __dirnameを使うとテンプレートを取得できないので注意
                                 // http://stackoverflow.com/questions/38173996/azure-and-node-js-dirname
                                 let dir: string;
-                                let title: string;
+                                let title_ja: string;
+                                let title_en: string;
                                 switch (reservations[0].get('status')) {
                                     case ReservationUtil.STATUS_RESERVED:
                                         dir = `${process.cwd()}/apps/task/views/email/reserve/complete`;
-                                        title = '東京国際映画祭チケット購入完了のお知らせ';
+                                        title_ja = '東京国際映画祭チケット 購入完了のお知らせ';
+                                        title_en = 'Notice of Completion of TIFF Ticket Purchase';
                                         break;
                                     case ReservationUtil.STATUS_WAITING_SETTLEMENT:
                                         dir = `${process.cwd()}/apps/task/views/email/reserve/waitingSettlement`;
-                                        title = '東京国際映画祭チケット仮予約完了のお知らせ';
+                                        title_ja = '東京国際映画祭チケット 仮予約完了のお知らせ';
+                                        title_en = 'Notice of Completion of Tentative Reservation for TIFF Tickets';
                                         break;
                                     default:
                                         break;
@@ -256,10 +259,12 @@ export default class ReservationController extends BaseController {
 
                                 let template = new EmailTemplate(dir);
                                 let locals = {
-                                    title: title,
+                                    title_ja: title_ja,
+                                    title_en: title_en,
                                     reservations: reservations,
                                     moment: moment,
                                     numeral: numeral,
+                                    conf: conf,
                                     GMOUtil: GMOUtil,
                                     ReservationUtil: ReservationUtil
                                 };
@@ -272,7 +277,7 @@ export default class ReservationController extends BaseController {
                                         to: to,
                                         fromname: `${conf.get<string>('email.fromname')}`,
                                         from: `noreply@${conf.get<string>('dns_name')}`,
-                                        subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}${title}`,
+                                        subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}${title_ja} ${title_en}`,
                                         html: result.html
                                     });
 

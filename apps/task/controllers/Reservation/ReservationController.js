@@ -182,15 +182,18 @@ class ReservationController extends BaseController_1.default {
                             // __dirnameを使うとテンプレートを取得できないので注意
                             // http://stackoverflow.com/questions/38173996/azure-and-node-js-dirname
                             let dir;
-                            let title;
+                            let title_ja;
+                            let title_en;
                             switch (reservations[0].get('status')) {
                                 case ReservationUtil_1.default.STATUS_RESERVED:
                                     dir = `${process.cwd()}/apps/task/views/email/reserve/complete`;
-                                    title = '東京国際映画祭チケット購入完了のお知らせ';
+                                    title_ja = '東京国際映画祭チケット 購入完了のお知らせ';
+                                    title_en = 'Notice of Completion of TIFF Ticket Purchase';
                                     break;
                                 case ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT:
                                     dir = `${process.cwd()}/apps/task/views/email/reserve/waitingSettlement`;
-                                    title = '東京国際映画祭チケット仮予約完了のお知らせ';
+                                    title_ja = '東京国際映画祭チケット 仮予約完了のお知らせ';
+                                    title_en = 'Notice of Completion of Tentative Reservation for TIFF Tickets';
                                     break;
                                 default:
                                     break;
@@ -207,10 +210,12 @@ class ReservationController extends BaseController_1.default {
                             }
                             let template = new EmailTemplate(dir);
                             let locals = {
-                                title: title,
+                                title_ja: title_ja,
+                                title_en: title_en,
                                 reservations: reservations,
                                 moment: moment,
                                 numeral: numeral,
+                                conf: conf,
                                 GMOUtil: GMOUtil_1.default,
                                 ReservationUtil: ReservationUtil_1.default
                             };
@@ -223,7 +228,7 @@ class ReservationController extends BaseController_1.default {
                                     to: to,
                                     fromname: `${conf.get('email.fromname')}`,
                                     from: `noreply@${conf.get('dns_name')}`,
-                                    subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}${title}`,
+                                    subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}${title_ja} ${title_en}`,
                                     html: result.html
                                 });
                                 // 完了の場合、QRコードを添付

@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title><%- reservations[0].get('purchaser_name') %>様より東京国際映画祭のチケットが届いております</title>
+<title><%= title_ja %> <%= title_en %></title>
 <!--
     gmailはstyle要素とlink要素を無効にするので全タグにstyle属性を付けるしかない
     https://www.campaignmonitor.com/css/    
@@ -16,10 +16,11 @@
 
 
 <div style="padding:0 30px;font-family:'游ゴシック',meiryo,sans-serif;">
-    <h1 style="margin:0;font-size:20px;text-align:center;"><%- reservations[0].get('purchaser_name') %>様より東京国際映画祭のチケットが届いております</h1>
-    <h2 style="margin:0;font-size:16px;text-align:center;">Ticket have been received of the Tokyo International Film Festival</h2>
+    <h1 style="margin:0;font-size:20px;text-align:center;"><%= title_ja %></h1>
+    <h2 style="margin:0;font-size:16px;text-align:center;"><%= title_en %></h2>
 
     <p style="font-weight:bold;"><%= to %> 様</p>
+    <p style="font-weight:bold;font-size:12px;">Dear <%= to %>,</p>
 
     <p style="font-size:14px;">
         この度はご購入いただき誠にありがとうございます。<br>
