@@ -22,6 +22,7 @@
 		"Login": "ログイン",
 		"ReleaseSeats": "座席解放",
 		"Error": "エラー",
+		"NotFound": "お探しのページが見つかりません",
 		"Privacy": "プライバシーポリシー",
 		"Policy": "利用規約",
 		"ActOnSpecifiedCommercialTransactions": "特定商取引法に基づく表示"
@@ -87,6 +88,7 @@
 		"SelectPerformanceGuideText": "以下より鑑賞作品の上映スケジュールを選択してください。",
 		"ReleaseSeatsGuideText": "座席開放を行う日付を選択して、開放するボタンを押してください。",
 		"GMOStartGuideText": "GMO決済へ遷移します...",
+		"NotFoundGuideText": "既に存在しないか、もしくはアドレスの入力が間違っている可能性があります。",
 		"Required": "必須項目",
 		"ConfirmNotes": "注意事項",
 		"RedirectToThirdPartyWebsite": "外部サイトへ移動します",
