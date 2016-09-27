@@ -36,7 +36,7 @@
 		<ul>
 			<li class="active">
 				<a href="{$CancelURL|htmlspecialchars}">
-					<span>ショッピングサイトに戻る &lt;</span>
+					<span>ショッピングサイトに戻る Return to the online ticket website &lt;</span>
 				</a>
 			</li>
 			{if $SelectURL ne null}
@@ -89,7 +89,7 @@
 					
 					<table class="generic" summary="credit_1" id="credit">
 						<tr>
-							<th>お支払い方法<br />Total payment</th>
+							<th>お支払い方法<br />Method of payment</th>
 							<td>
 								{insert name="select_payMethodList"}
 							</td>
@@ -159,9 +159,9 @@
 					<p class="control">
 						<span class="submit">
 							{if $Confirm eq "1"}
-							<input type="submit" value="確認する" />
+							<input type="submit" value="確認する Confirm" />
 							{else}
-							<input type="submit" value="決済する" />
+							<input type="submit" value="決済する Pay" />
 							{/if}
 						</span>
 					</p>

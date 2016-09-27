@@ -36,7 +36,7 @@
 		<ul>
 			<li class="active">
 				<a href="{$CancelURL|htmlspecialchars}">
-					<span>ショッピングサイトに戻る &lt;</span>
+					<span>ショッピングサイトに戻る Return to the online ticket website  &lt;</span>
 				</a>
 			</li>
 			{if $SelectURL ne null}
@@ -109,7 +109,7 @@
 					
 					<p class="control">
 						<span class="submit">
-							<input type="submit" value="決済する" />
+							<input type="submit" value="決済する Pay" />
 						</span>
 					</p>
 				</div>

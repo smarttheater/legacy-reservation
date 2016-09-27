@@ -35,7 +35,7 @@
 	<div class="flow">
 		<ul>
 			<li>
-				<span>ショッピングサイトに戻る &lt;</span>
+				<span>ショッピングサイトに戻る Return to the online ticket website &lt;</span>
 			</li>
 			{if $SelectURL ne null}
 			<li>
@@ -103,7 +103,7 @@
 					
 					<p class="control">
 						<span class="submit">
-							<input type="submit" value="進む" />
+							<input type="submit" value="進む Next" />
 						</span>
 					</p>
 					<br class="clear" />	

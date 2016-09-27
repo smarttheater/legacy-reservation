@@ -34,7 +34,7 @@
 		<ul>
 			<li class="active">
 				<a href="{$CancelURL|htmlspecialchars}">
-					<span>ショッピングサイトに戻る &lt;</span>
+					<span>ショッピングサイトに戻る Return to the online ticket website &lt;</span>
 				</a>
 			</li>
 			<li class="current">
@@ -87,15 +87,15 @@
 						<table id="cartinfo" class="generic">
 							<tr>
 								<th>お品代<br />Ticket price</th>
-								<td>{$Amount|number_format|htmlspecialchars}円</td>
+								<td>&yen;{$Amount|number_format|htmlspecialchars}</td>
 							</tr>
 							<tr>
 								<th>税送料<br />Tax and postage</th>
-								<td>{$Tax|number_format|htmlspecialchars}円</td>
+								<td>&yen;{$Tax|number_format|htmlspecialchars}</td>
 							</tr>
 							<tr>
 								<th>お支払合計<br />Total payment</th>
-								<td>{$Total|number_format|htmlspecialchars}円</td>
+								<td>&yen;{$Total|number_format|htmlspecialchars}</td>
 							</tr>
 						</table>
 					</div>
@@ -188,7 +188,7 @@
 						<p class="control">
 
 							<span class="submit">
-								<input type="submit" value="進む" />
+								<input type="submit" value="進む Next" />
 							</span>
 
 						</p>

@@ -17,10 +17,7 @@
         <%- include('./_reservationModel') %>
     </div>
 
-    <p class="guidetext visible-mobile-block">
-        画面をタッチすると画面がズームしますので<br>
-        座席を選択してください
-    </p>
+    <p class="guidetext visible-mobile-block"><%- __('Label.SelectSeatsGuideTextSP') %></p>
 
     <%
     let url4seatStatusesMap = url('reserve.getUnavailableSeatCodes', {performanceId: reservationModel.performance._id});

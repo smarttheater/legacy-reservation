@@ -35,7 +35,7 @@
 	<div class="flow">
 		<ul>
 			<li>
-				<span>ショッピングサイトに戻る &lt;</span>
+				<span>ショッピングサイトに戻る Return to the online ticket website &lt;</span>
 			</li>
 			{if $SelectURL ne null}
 			<li>
@@ -400,7 +400,7 @@
 			<div class="bl_title">
 				<div class="bl_title_inner">
 					<h2>
-						<span class="p">ショッピングサイトに戻る</span>
+						<span class="p">ショッピングサイトに戻る Back to the online ticket website</span>
 					</h2>
 				</div>
 			</div>
@@ -418,7 +418,7 @@
 					<p>{insert name="input_returnParams"}</p>
 					<p class="control">
 						<span class="submit">
-							<input type="submit" value="ショッピングサイトに戻る" />
+							<input type="submit" value="進む Next" />
 						</span>
 					</p>
 				</form>

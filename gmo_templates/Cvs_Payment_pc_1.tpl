@@ -36,7 +36,7 @@
 		<ul>
 			<li class="active">
 				<a href="{$CancelURL|htmlspecialchars}">
-					<span>ショッピングサイトに戻る &lt;</span>
+					<span>ショッピングサイトに戻る Return to the online ticket website &lt;</span>
 				</a>
 			</li>
 			{if $SelectURL ne null}
@@ -107,7 +107,7 @@
 							</td>
 						</tr>
 						<tr>
-							<th>電話番号</th>
+							<th>電話番号<br />Telephone number</th>
 							<td>
 								<input type="text" name="TelNo" size='15' maxlength="13" class="code" value="{$TelNo|htmlspecialchars}" />
 							</td>
@@ -122,9 +122,9 @@
 					<p class="control">
 						<span class="submit">
 							{if $Confirm eq "1"}
-							<input type="submit" value="確認する" />
+							<input type="submit" value="確認する Confirm" />
 							{else}
-							<input type="submit" value="決済する" />
+							<input type="submit" value="決済する Pay" />
 							{/if}
 						</span>
 					</p>

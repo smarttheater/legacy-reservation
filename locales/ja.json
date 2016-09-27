@@ -76,6 +76,7 @@
 		"CompleteCancel": "キャンセル完了",
 		"TermsGuideText": "利用規約をご確認頂き、問題ないようでしたら「利用規約に同意して次へ」ボタンを押してください",
 		"SelectSeatsGuideText": "ご希望の座席を選択して次へボタンを押してください。",
+		"SelectSeatsGuideTextSP": "画面をタッチすると画面がズームしますので<br>座席を選択してください",
 		"SelectTicketsGuideText": "ご希望の券種を選択して次へボタンを押してください。",
 		"EnterProfileGuideText": "必要情報を入力して次へボタンを押してください。",
 		"EnterProfileGuideTextWindow": "お支払い方法を選択して次へボタンを押してください。",

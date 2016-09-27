@@ -76,6 +76,7 @@
 		"CompleteCancel": "Cancellation complete",
 		"TermsGuideText": "Read through the Terms of use. Click the Accept the Terms of Use and click on the Next button to proceed.",
 		"SelectSeatsGuideText": "Select a seat and click on the Next button.",
+		"SelectSeatsGuideTextSP": "The screen will zoom when you touch it.<br>And then, select a seat.",
 		"SelectTicketsGuideText": "Select the type of ticket and click on the Next button.",
 		"EnterProfileGuideText": "Fill in the form and click on the Next button.",
 		"EnterProfileGuideTextWindow": "Select a method of payment and click on the Next button.",
