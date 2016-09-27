@@ -33,26 +33,26 @@
 
 
 
-{"seat_code":"C-9","staff_name":"予備"},
-{"seat_code":"C-10","staff_name":"予備"},
+{"seat_code":"C-9","staff_name":"司会通訳"},
+{"seat_code":"C-10","staff_name":"司会通訳"},
+{"seat_code":"D-1","staff_name":"予備"},
+{"seat_code":"D-2","staff_name":"予備"},
 
 
 
 
-{"seat_code":"D-5","staff_name":"ゲスホス"},
-{"seat_code":"D-6","staff_name":"ゲスホス"},
-{"seat_code":"D-7","staff_name":"ゲスホス"},
-{"seat_code":"D-8","staff_name":"ゲスホス"},
-
-
-{"seat_code":"E-1","staff_name":"プログラミング"},
-{"seat_code":"E-2","staff_name":"プログラミング"},
-
+{"seat_code":"D-7","staff_name":"プログラミング"},
+{"seat_code":"D-8","staff_name":"プログラミング"},
+{"seat_code":"D-11","staff_name":"プログラミング"},
+{"seat_code":"D-12","staff_name":"プログラミング"},
 
 
 
 
 
+
+{"seat_code":"E-7","staff_name":"プログラミング"},
+{"seat_code":"E-8","staff_name":"プログラミング"},
 {"seat_code":"E-11","staff_name":"プログラミング"},
 {"seat_code":"E-12","staff_name":"プログラミング"},
 
@@ -61,8 +61,8 @@
 
 
 
-{"seat_code":"F-7","staff_name":"プログラミング"},
-{"seat_code":"F-8","staff_name":"プログラミング"},
+
+
 
 
 
@@ -81,8 +81,8 @@
 
 
 
-
-
+{"seat_code":"H-7","staff_name":"プログラミング"},
+{"seat_code":"H-8","staff_name":"プログラミング"},
 
 
 
@@ -122,5 +122,7 @@
 {"seat_code":"K-12","staff_name":"機材デッド"},
 {"seat_code":"K-13","staff_name":"機材デッド"},
 {"seat_code":"K-14","staff_name":"機材デッド"},
-{"seat_code":"K-15","staff_name":"機材デッド"}
+{"seat_code":"K-15","staff_name":"機材デッド"},
+{"seat_code":"HC-1","staff_name":"機材デッド"},
+{"seat_code":"HC-2","staff_name":"機材デッド"}
 ]
