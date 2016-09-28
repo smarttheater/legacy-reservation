@@ -226,13 +226,13 @@ let paymentTerm = moment(`${term.substr(0, 4)}-${term.substr(4, 2)}-${term.subst
         本メールアドレスは送信専用です。返信はできませんのであらかじめご了承ください。<br>
         本メールに心当たりのない方やチケットに関してご不明な点は、下記電話番号までお問い合わせください。<br>
         チケットのお問合せ：050-3786-0368　/12:00～18:00（休業：土/日/祝日　東京国際映画祭開催期間中は無休）<br>
-        オフィシャルサイト： <a href="http://2016.tiff-jp.net/" target="_blank" style="color:#000;">http://2016.tiff-jp.net/</a>
+        オフィシャルサイト： <a href="<%= conf.get('official_website_url') %>" target="_blank" style="color:#000;"><%= conf.get('official_website_url') %></a>
     </p>
     <p style="font-size:10px;">
         This email was sent from a send-only address. Please do not reply to this message.<br>
         If you are not the intended recipient of this email or have any questions about tickets, Please contact us at the telephone number below.
         For inquiries about tickets: 050-3786-0368/12:00 p.m. to 6:00 p.m. (Closed on Saturdays, Sundays, and national holidays, except during TIFF)
-        Official website: <a href="http://2016.tiff-jp.net/" target="_blank" style="color:#000;">http://2016.tiff-jp.net/</a>
+        Official website: <a href="<%= conf.get('official_website_url') %>" target="_blank" style="color:#000;"><%= conf.get('official_website_url') %></a>
     </p>
 
 </div>

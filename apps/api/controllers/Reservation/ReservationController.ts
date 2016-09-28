@@ -55,6 +55,7 @@ export default class ReservationController extends BaseController {
                     to: to,
                     qrcode: qrcodeBuffer,
                     moment: moment,
+                    conf: conf,
                     title_ja: title_ja,
                     title_en: title_en
                 }, (err, html) => {
@@ -68,8 +69,8 @@ export default class ReservationController extends BaseController {
                     let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
                     let email = new _sendgrid.Email({
                         to: to,
-                        fromname: `${conf.get<string>('email.fromname')}`,
-                        from: `noreply@${conf.get<string>('dns_name')}`,
+                        fromname: conf.get<string>('email.fromname'),
+                        from: conf.get<string>('email.from'),
                         subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}${title_ja} ${title_en}`,
                         html: html
                     });

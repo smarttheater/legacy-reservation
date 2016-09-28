@@ -1,10 +1,12 @@
 {
+    "official_website_url": "http://2016.tiff-jp.net/",
     "dns_name": "testtiffwebapp.azurewebsites.net",
     "meta": {
         "keywords": "東京国際映画祭, 2016, TIFF, コンペティション,Competiton,",
         "description": "第29回東京国際映画祭は2016年10月25日（火）から11月3日（木・祝）の10日間開催いたします。"
     },
     "email": {
+        "from": "noreply@testtiffwebapp.azurewebsites.net",
         "fromname": "第29回東京国際映画祭 29th Tokyo International Film Festival (2016) Online Ticket"
     },
 

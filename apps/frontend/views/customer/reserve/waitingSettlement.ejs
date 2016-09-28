@@ -62,6 +62,6 @@ let seatCodes = reservationDocuments.map((reservationDocument) => {return reserv
 
 
 <div class="btns2clm">
-    <a class="btn btn-lg btn-next" href="http://2016.tiff-jp.net/"><span><%- __('Button.ReserveTicketsAnotherMovie') %></span></a>
-    <a class="btn btn-lg btn-back" href="http://2016.tiff-jp.net/"><span><%- __('Button.BackToOfficialSite') %></span></a>
+    <a class="btn btn-lg btn-next" href="<%= conf.get('official_website_url') %>"><span><%- __('Button.ReserveTicketsAnotherMovie') %></span></a>
+    <a class="btn btn-lg btn-back" href="<%= conf.get('official_website_url') %>"><span><%- __('Button.BackToOfficialSite') %></span></a>
 </div>
