@@ -311,11 +311,6 @@
 
 
 
-{"seat_code":"P-13","staff_name":"機材デッド"},
-{"seat_code":"P-14","staff_name":"機材デッド"},
-{"seat_code":"P-15","staff_name":"機材デッド"},
-{"seat_code":"P-16","staff_name":"機材デッド"},
-{"seat_code":"P-17","staff_name":"機材デッド"},
 
 
 
@@ -323,6 +318,11 @@
 
 
 
+
+
+{"seat_code":"P-24","staff_name":"機材デッド"},
+{"seat_code":"P-25","staff_name":"機材デッド"},
+{"seat_code":"P-26","staff_name":"機材デッド"},
 {"seat_code":"Q-1","staff_name":"予備"},
 {"seat_code":"Q-2","staff_name":"予備"},
 {"seat_code":"Q-3","staff_name":"予備"},
@@ -336,20 +336,20 @@
 {"seat_code":"Q-11","staff_name":"プロモーション"},
 {"seat_code":"Q-12","staff_name":"プロモーション"},
 {"seat_code":"Q-13","staff_name":"プロモーション"},
-{"seat_code":"Q-14","staff_name":"機材デッド"},
-{"seat_code":"Q-15","staff_name":"機材デッド"},
-{"seat_code":"Q-16","staff_name":"機材デッド"},
-{"seat_code":"Q-17","staff_name":"機材デッド"},
+
+
+
+
 
 {"seat_code":"Q-19","staff_name":"二次販売"},
 {"seat_code":"Q-20","staff_name":"二次販売"},
 {"seat_code":"Q-21","staff_name":"二次販売"},
 {"seat_code":"Q-22","staff_name":"プロモーション"},
 {"seat_code":"Q-23","staff_name":"プロモーション"},
-
-
-
-
+{"seat_code":"Q-24","staff_name":"機材デッド"},
+{"seat_code":"Q-25","staff_name":"機材デッド"},
+{"seat_code":"Q-26","staff_name":"機材デッド"},
+{"seat_code":"Q-27","staff_name":"機材デッド"},
 {"seat_code":"HC-1","staff_name":"機材デッド"},
 {"seat_code":"HC-2","staff_name":"機材デッド"}
 ]
