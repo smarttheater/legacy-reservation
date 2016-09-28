@@ -113,19 +113,34 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                             return this.res.send(GMONotificationResponseModel.RecvRes_NG);
                         }
 
-                        this.logger.info('processFixReservations processing... update:', update);
-                        this.processFixReservations(paymentNo, update, (err) => {
-                            this.logger.info('processFixReservations processed.', err);
-                            if (err) {
-                                // AccessPassが************なので、売上取消要求は行えない
-                                // 失敗した場合、約60分毎に5回再通知されるので、それをリトライとみなす
-                                this.logger.info('sending response RecvRes_NG...gmoNotificationModel.Status:', gmoNotificationModel.Status);
-                                this.res.send(GMONotificationResponseModel.RecvRes_NG);
-                            } else {
-                                this.logger.info('sending response RecvRes_OK...gmoNotificationModel.Status:', gmoNotificationModel.Status);
-                                this.res.send(GMONotificationResponseModel.RecvRes_OK);
+                        // 完了メールキュー削除
+                        // 仮予約メールキューが一度作成されていて、削除しないと完了メールキューを作成できない
+                        this.logger.info('removing reservationEmailCue...');
+                        Models.ReservationEmailCue.remove(
+                            {
+                                payment_no: paymentNo
+                            },
+                            (err) => {
+                                this.logger.info('reservationEmailCue removed.', err);
+                                if (err) {
+                                    // 失敗してもスルー(ログと運用でなんとかする)
+                                }
+
+                                this.logger.info('processFixReservations processing... update:', update);
+                                this.processFixReservations(paymentNo, update, (err) => {
+                                    this.logger.info('processFixReservations processed.', err);
+                                    if (err) {
+                                        // AccessPassが************なので、売上取消要求は行えない
+                                        // 失敗した場合、約60分毎に5回再通知されるので、それをリトライとみなす
+                                        this.logger.info('sending response RecvRes_NG...gmoNotificationModel.Status:', gmoNotificationModel.Status);
+                                        this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                                    } else {
+                                        this.logger.info('sending response RecvRes_OK...gmoNotificationModel.Status:', gmoNotificationModel.Status);
+                                        this.res.send(GMONotificationResponseModel.RecvRes_OK);
+                                    }
+                                });
                             }
-                        });
+                        );
                     }
                 );
 
