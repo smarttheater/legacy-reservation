@@ -80,7 +80,7 @@ $(function(){
             });
             html += 
                         '</div>'+
-                        '<p class="performance-copyrights">' + $('<div/>').text(performancesOnFilm[0].film_copyright).html().replace(/\\n/g, '<br>') + '</p>'+
+                        '<p class="performance-copyrights">' + $('<div/>').html(performancesOnFilm[0].film_copyright).text() + '</p>'+
                     '</div>'+
                 '</div>'
             ;

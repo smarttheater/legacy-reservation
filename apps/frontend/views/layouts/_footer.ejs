@@ -16,7 +16,7 @@ if (req.hasOwnProperty('route')) {
         <div class="inner">
             <!-- 購入フロー中で、パフォーマンスが確定していれば作品著作権をフッターに追加 -->
             <% if (typeof(reservationModel) !== 'undefined' && reservationModel.performance) { %>
-            <p class="film-copyright"><%- reservationModel.performance.film.copyright.replace(/\\n/g, '<br>') %></p>
+            <p class="film-copyright"><%- reservationModel.performance.film.copyright %></p>
             <% } %>
         </div>
     </div>
