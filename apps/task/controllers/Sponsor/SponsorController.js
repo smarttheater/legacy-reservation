@@ -43,6 +43,27 @@ class SponsorController extends BaseController_1.default {
             });
         });
     }
+    createPasswords() {
+        let file = `${__dirname}/../../../../data/${process.env.NODE_ENV}/sponsorPasswords.txt`;
+        let passwords = [];
+        let l = 8;
+        let c = "abcdefghijklmnopqrstuvwxyz0123456789";
+        let cl = c.length;
+        for (let i = 0; i < 300; i++) {
+            let password = '';
+            // 数字を含むパスワードが生成されるまで繰り返す
+            while (password.length < l || !password.match(/[0-9]+/g)) {
+                if (password.length >= l) {
+                    password = '';
+                }
+                password += c[Math.floor(Math.random() * cl)];
+            }
+            console.log(password);
+            passwords.push(password);
+        }
+        fs.writeFileSync(file, passwords.join("\n"), 'utf8');
+        process.exit(0);
+    }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = SponsorController;
