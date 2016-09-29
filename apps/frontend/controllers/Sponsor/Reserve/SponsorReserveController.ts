@@ -16,7 +16,6 @@ import conf = require('config');
 export default class SponsorReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_SPONSOR;
     public layout = 'layouts/sponsor/layout';
-    public static RESERVATION_LIMIT_PER_PERFORMANCE = 10; // パフォーマンスあたりの最大座席確保枚数
 
     public start(): void {
         // 期限指定
@@ -125,7 +124,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                     (err, reservationsCount) => {
                         // 一度に確保できる座席数は、残り可能枚数と、10の小さい方
                         let reservableCount = parseInt(this.req.sponsorUser.get('max_reservation_count')) - reservationsCount;
-                        let limit = Math.min(SponsorReserveController.RESERVATION_LIMIT_PER_PERFORMANCE, reservableCount);
+                        let limit = Math.min(reservationModel.getSeatsLimit(), reservableCount);
 
                         // すでに枚数制限に達している場合
                         if (limit <= 0) {

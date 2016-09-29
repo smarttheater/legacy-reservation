@@ -110,6 +110,39 @@ export default class ReservationModel {
     }
 
     /**
+     * 一度の購入で予約できる座席数を取得する
+     */
+    public getSeatsLimit(): number {
+        let limit = 4;
+
+        // 主体によっては、決済方法を強制的に固定で
+        switch (this.purchaserGroup) {
+            case ReservationUtil.PURCHASER_GROUP_SPONSOR:
+            case ReservationUtil.PURCHASER_GROUP_STAFF:
+            case ReservationUtil.PURCHASER_GROUP_WINDOW:
+                limit = 10;
+                break;
+
+            case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
+            case ReservationUtil.PURCHASER_GROUP_TEL:
+                if (this.performance) {
+                    // 制限枚数指定のパフォーマンスの場合
+                    let performanceIds4limit2 = conf.get<Array<string>>('performanceIds4limit2');
+                    if (performanceIds4limit2.indexOf(this.performance._id) >= 0) {
+                        limit = 2;
+                    }
+                }
+
+                break;
+
+            default:
+                break;
+        }
+
+        return limit;
+    }
+
+    /**
      * 合計金額を算出する
      */
     public getTotalCharge(): number {

@@ -115,7 +115,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                 }, (err, reservationsCount) => {
                     // 一度に確保できる座席数は、残り可能枚数と、10の小さい方
                     let reservableCount = parseInt(this.req.sponsorUser.get('max_reservation_count')) - reservationsCount;
-                    let limit = Math.min(SponsorReserveController.RESERVATION_LIMIT_PER_PERFORMANCE, reservableCount);
+                    let limit = Math.min(reservationModel.getSeatsLimit(), reservableCount);
                     // すでに枚数制限に達している場合
                     if (limit <= 0) {
                         lockFile.unlock(lockPath, (err) => {
@@ -308,6 +308,5 @@ class SponsorReserveController extends ReserveBaseController_1.default {
         });
     }
 }
-SponsorReserveController.RESERVATION_LIMIT_PER_PERFORMANCE = 10; // パフォーマンスあたりの最大座席確保枚数
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = SponsorReserveController;

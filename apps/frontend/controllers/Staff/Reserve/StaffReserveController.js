@@ -220,7 +220,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
-            let limit = StaffReserveController.RESERVATION_LIMIT_PER_PERFORMANCE;
+            let limit = reservationModel.getSeatsLimit();
             if (this.req.method === 'POST') {
                 reserveSeatForm_1.default(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
@@ -364,6 +364,5 @@ class StaffReserveController extends ReserveBaseController_1.default {
         });
     }
 }
-StaffReserveController.RESERVATION_LIMIT_PER_PERFORMANCE = 10; // パフォーマンスあたりの最大座席確保枚数
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = StaffReserveController;

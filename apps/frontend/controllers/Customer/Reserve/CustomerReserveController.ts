@@ -13,7 +13,6 @@ import conf = require('config');
 
 export default class CustomerReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_CUSTOMER;
-    public static RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数
 
     /**
      * スケジュール選択(本番では存在しない、実際はポータル側のページ)
@@ -84,7 +83,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
-            let limit = CustomerReserveController.RESERVATION_LIMIT_PER_PERFORMANCE;
+            let limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
                 reserveSeatForm(this.req, this.res, (err) => {

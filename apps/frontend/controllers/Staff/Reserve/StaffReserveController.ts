@@ -13,7 +13,6 @@ import conf = require('config');
 export default class StaffReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_STAFF;
     public layout = 'layouts/staff/layout';
-    public static RESERVATION_LIMIT_PER_PERFORMANCE = 10; // パフォーマンスあたりの最大座席確保枚数
 
     public start(): void {
         // 期限指定
@@ -246,7 +245,7 @@ export default class StaffReserveController extends ReserveBaseController implem
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
-            let limit = StaffReserveController.RESERVATION_LIMIT_PER_PERFORMANCE;
+            let limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
                 reserveSeatForm(this.req, this.res, (err) => {

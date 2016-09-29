@@ -14,8 +14,6 @@ export default class WindowReserveController extends ReserveBaseController imple
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_WINDOW;
     public layout = 'layouts/window/layout';
 
-    public static RESERVATION_LIMIT_PER_PERFORMANCE = 10; // パフォーマンスあたりの最大座席確保枚数
-
     public start(): void {
         this.processStart((err, reservationModel) => {
             if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -88,7 +86,7 @@ export default class WindowReserveController extends ReserveBaseController imple
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
-            let limit = WindowReserveController.RESERVATION_LIMIT_PER_PERFORMANCE;
+            let limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
                 reserveSeatForm(this.req, this.res, (err) => {

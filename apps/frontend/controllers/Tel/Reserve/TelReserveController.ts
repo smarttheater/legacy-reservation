@@ -15,8 +15,6 @@ export default class TelReserveController extends ReserveBaseController implemen
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_TEL;
     public layout = 'layouts/tel/layout';
 
-    public static RESERVATION_LIMIT_PER_PERFORMANCE = 4; // パフォーマンスあたりの最大座席確保枚数
-
     public start(): void {
         this.processStart((err, reservationModel) => {
             if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -96,7 +94,7 @@ export default class TelReserveController extends ReserveBaseController implemen
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
-            let limit = TelReserveController.RESERVATION_LIMIT_PER_PERFORMANCE;
+            let limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
                 reserveSeatForm(this.req, this.res, (err) => {
