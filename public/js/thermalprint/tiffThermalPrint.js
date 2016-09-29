@@ -114,7 +114,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
                 return (!reservation[item]);
             });
             if(missings[0]){
-                throw({message:'[!] 予約番号'+reservation.reservation_id+'の以下の情報が見つかりませんでした\n'+missings.join('\n')});
+                throw({message:'[!] 予約番号'+reservation._id+'の以下の情報が見つかりませんでした\n'+missings.join('\n')});
             }
 
 
