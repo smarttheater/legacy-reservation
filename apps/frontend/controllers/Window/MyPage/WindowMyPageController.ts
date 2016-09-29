@@ -20,8 +20,8 @@ export default class WindowMyPageController extends BaseController {
      * マイページ予約検索
      */
     public search(): void {
-        let limit = (this.req.query.limit) ? this.req.query.limit : 10;
-        let page = (this.req.query.page) ? this.req.query.page : 1;
+        let limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
+        let page: number = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
 
         let purchaserGroups: Array<string> = (this.req.query.purchaser_groups) ? this.req.query.purchaser_groups.split(',') : null;
         let purchasedDay: string = (this.req.query.purchased_day) ? this.req.query.purchased_day : null;

@@ -21,8 +21,8 @@ class WindowMyPageController extends BaseController_1.default {
      * マイページ予約検索
      */
     search() {
-        let limit = (this.req.query.limit) ? this.req.query.limit : 10;
-        let page = (this.req.query.page) ? this.req.query.page : 1;
+        let limit = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
+        let page = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
         let purchaserGroups = (this.req.query.purchaser_groups) ? this.req.query.purchaser_groups.split(',') : null;
         let purchasedDay = (this.req.query.purchased_day) ? this.req.query.purchased_day : null;
         let email = (this.req.query.email) ? this.req.query.email : null;

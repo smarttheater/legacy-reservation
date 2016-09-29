@@ -23,8 +23,8 @@ export default class StaffMyPageController extends BaseController {
      * マイページ予約検索
      */
     public search(): void {
-        let limit = (this.req.query.limit) ? this.req.query.limit : 10;
-        let page = (this.req.query.page) ? this.req.query.page : 1;
+        let limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
+        let page: number = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
         let day: string = (this.req.query.day) ? this.req.query.day : null;
         let startTime: string = (this.req.query.start_time) ? this.req.query.start_time : null;
         let theater: string = (this.req.query.theater) ? this.req.query.theater : null;
