@@ -169,7 +169,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
             });
 
             request += builder.createTextElement({
-                data: '時間-TIME-\n'
+                data: '日時-DATE-\n'
             });
             //日付と上映時刻を強調
             request += builder.createTextElement({
@@ -241,7 +241,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
 
 
             request += builder.createTextElement({
-                data: '\n購入番号-PAYMENT NUMBER-\n'
+                data: '\n購入番号-TRANSACTION NUMBER-\n'
             });
             //予約番号を強調
             request += builder.createTextElement({
