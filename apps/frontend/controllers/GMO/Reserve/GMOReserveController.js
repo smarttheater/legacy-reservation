@@ -1,5 +1,6 @@
 "use strict";
 const ReserveBaseController_1 = require('../../ReserveBaseController');
+const Util_1 = require('../../../../common/Util/Util');
 const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
 const Models_1 = require('../../../../common/models/Models');
 const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
@@ -21,21 +22,25 @@ class GMOReserveController extends ReserveBaseController_1.default {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
             // 予約情報セッション削除
-            reservationModel.remove(() => {
-                // 予約プロセス固有のログファイルをセット
-                this.setProcessLogger(reservationModel.paymentNo, () => {
-                    // GMOへ遷移画面
-                    this.res.locals.shopId = conf.get('gmo_payment_shop_id');
-                    this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(購入番号を使用)
-                    this.res.locals.amount = reservationModel.getTotalCharge().toString();
-                    this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
-                    this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CREDIT) ? '1' : '0';
-                    this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CVS) ? '1' : '0';
-                    this.res.locals.shopPassString = GMOUtil_1.default.createShopPassString(conf.get('gmo_payment_shop_id'), this.res.locals.orderID, this.res.locals.amount, conf.get('gmo_payment_shop_password'), this.res.locals.dateTime);
-                    this.logger.info('redirecting to GMO payment...');
-                    this.res.render('gmo/reserve/start');
-                });
+            // reservationModel.remove(() => {
+            // 予約プロセス固有のログファイルをセット
+            this.setProcessLogger(reservationModel.paymentNo, () => {
+                // GMOへ遷移画面
+                this.res.locals.registerDisp1 = Util_1.default.toFullWidth(reservationModel.performance.film.name.ja).substr(0, 32);
+                this.res.locals.registerDisp2 = Util_1.default.toFullWidth(`${reservationModel.performance.day.substr(0, 4)}／${reservationModel.performance.day.substr(4, 2)}／${reservationModel.performance.day.substr(6)}`);
+                this.res.locals.registerDisp3 = Util_1.default.toFullWidth(reservationModel.performance.theater.name.ja);
+                this.res.locals.registerDisp4 = Util_1.default.toFullWidth(`開場${reservationModel.performance.open_time.substr(0, 2)}:${reservationModel.performance.open_time.substr(2)}　開演${reservationModel.performance.start_time.substr(0, 2)}:${reservationModel.performance.start_time.substr(2)}`);
+                this.res.locals.shopId = conf.get('gmo_payment_shop_id');
+                this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(購入番号を使用)
+                this.res.locals.amount = reservationModel.getTotalCharge().toString();
+                this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
+                this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CREDIT) ? '1' : '0';
+                this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CVS) ? '1' : '0';
+                this.res.locals.shopPassString = GMOUtil_1.default.createShopPassString(conf.get('gmo_payment_shop_id'), this.res.locals.orderID, this.res.locals.amount, conf.get('gmo_payment_shop_password'), this.res.locals.dateTime);
+                this.logger.info('redirecting to GMO payment...');
+                this.res.render('gmo/reserve/start');
             });
+            // });
         });
     }
     /**

@@ -67,7 +67,16 @@ class Util {
     static toHalfWidth(str) {
         return str.split('').map((value) => {
             // 全角であれば変換
-            return value.replace(/[Ａ-Ｚａ-ｚ０-９]/g, String.fromCharCode(value.charCodeAt(0) - 0xFEE0));
+            return value.replace(/[！-～]/g, String.fromCharCode(value.charCodeAt(0) - 0xFEE0)).replace('　', ' ');
+        }).join('');
+    }
+    /**
+     * 半角→全角変換
+     */
+    static toFullWidth(str) {
+        return str.split('').map((value) => {
+            // 半角であれば変換
+            return value.replace(/[!-~]/g, String.fromCharCode(value.charCodeAt(0) + 0xFEE0)).replace(' ', '　');
         }).join('');
     }
     /**

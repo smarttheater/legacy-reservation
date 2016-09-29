@@ -22,10 +22,15 @@ export default class GMOReserveController extends ReserveBaseController {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             // 予約情報セッション削除
-            reservationModel.remove(() => {
+            // reservationModel.remove(() => {
                 // 予約プロセス固有のログファイルをセット
                 this.setProcessLogger(reservationModel.paymentNo, () => {
                     // GMOへ遷移画面
+                    this.res.locals.registerDisp1 = Util.toFullWidth(reservationModel.performance.film.name.ja).substr(0, 32);
+                    this.res.locals.registerDisp2 = Util.toFullWidth(`${reservationModel.performance.day.substr(0, 4)}／${reservationModel.performance.day.substr(4, 2)}／${reservationModel.performance.day.substr(6)}`);
+                    this.res.locals.registerDisp3 = Util.toFullWidth(reservationModel.performance.theater.name.ja);
+                    this.res.locals.registerDisp4 = Util.toFullWidth(`開場${reservationModel.performance.open_time.substr(0, 2)}:${reservationModel.performance.open_time.substr(2)}　開演${reservationModel.performance.start_time.substr(0, 2)}:${reservationModel.performance.start_time.substr(2)}`);
+
                     this.res.locals.shopId = conf.get<string>('gmo_payment_shop_id');
                     this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(購入番号を使用)
                     this.res.locals.amount = reservationModel.getTotalCharge().toString();
@@ -43,7 +48,7 @@ export default class GMOReserveController extends ReserveBaseController {
                     this.logger.info('redirecting to GMO payment...');
                     this.res.render('gmo/reserve/start');
                 });
-            });
+            // });
         });
     }
 
