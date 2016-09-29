@@ -4,6 +4,7 @@ for (let reservation of reservationDocuments) {
     let _reservation = reservation.toObject();
     _reservation['ticket_type_detail_str_ja'] = reservation.get('ticket_type_detail_str_ja');
     _reservation['ticket_type_detail_str_en'] = reservation.get('ticket_type_detail_str_en');
+    _reservation['qr_str'] = reservation.get('qr_str');
     reservationsById[reservation._id.toString()] = _reservation;
 }
 %>

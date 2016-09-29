@@ -82,7 +82,8 @@ $(function(){
             ticket_type_name_ja: _reservation.ticket_type_name_ja,
             ticket_type_name_en: _reservation.ticket_type_name_en,
             ticket_type_detail_str_ja: _reservation.ticket_type_detail_str_ja,
-            ticket_type_detail_str_en: _reservation.ticket_type_detail_str_en
+            ticket_type_detail_str_en: _reservation.ticket_type_detail_str_en,
+            qr_str: _reservation.qr_str
         };
 
         return tiffThermalPrint.printReservation(reservation);
@@ -116,7 +117,8 @@ $(function(){
                 ticket_type_name_ja:  _reservation.ticket_type_name_ja,
                 ticket_type_name_en:  _reservation.ticket_type_name_en,
                 ticket_type_detail_str_ja: _reservation.ticket_type_detail_str_ja,
-                ticket_type_detail_str_en: _reservation.ticket_type_detail_str_en
+                ticket_type_detail_str_en: _reservation.ticket_type_detail_str_en,
+                qr_str: _reservation.qr_str
             });
         });
 

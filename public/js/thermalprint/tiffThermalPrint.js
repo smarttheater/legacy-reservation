@@ -108,7 +108,8 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
                 'ticket_type_name_ja',
                 'ticket_type_name_en',
                 'ticket_type_detail_str_ja',
-                'ticket_type_detail_str_en'
+                'ticket_type_detail_str_en',
+                'qr_str'
             ].filter(function(item){
                 return (!reservation[item]);
             });
@@ -143,7 +144,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
                 model: 'model2',
                 level: 'level_m',
                 cell: 8,
-                data: reservation._id
+                data: reservation.qr_str
             });
 
             //中央揃え解除
