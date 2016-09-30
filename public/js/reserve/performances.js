@@ -49,8 +49,13 @@ $(function(){
                             '<div class="desc">' + performancesOnFilm[0].film_sections.join(',') + '</div>'+
                             '<div class="genreslength">'+
                                 '<div class="genres">'+
-                                '</div>'+
-                                ((locale === 'ja') ? '<span class="length">本編 ' + performancesOnFilm[0].film_minutes + '分</span>' : '<span class="length">Running time ' + performancesOnFilm[0].film_minutes + ' minutes</span>') +
+                                '</div>';
+
+            if (performancesOnFilm[0].film_minutes) {
+                html += ((locale === 'ja') ? '<span class="length">本編 ' + performancesOnFilm[0].film_minutes + '分</span>' : '<span class="length">Running time ' + performancesOnFilm[0].film_minutes + ' minutes</span>');
+            }
+
+            html +=
                             '</div>'+
                         '</div>'+
                         '<div class="performance-schedule">'
