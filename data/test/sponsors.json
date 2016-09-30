@@ -1,7 +1,5 @@
 [
-    {"user_id": "sponsor01","password": "sponsor01","name": "スポンサー01","email": "sponsor01@motionpicture.jp","performance": null,"max_reservation_count": 10},
-    {"user_id": "sponsor02","password": "sponsor02","name": "スポンサー02","email": "sponsor02@motionpicture.jp","performance": "000001","max_reservation_count": 20},
-    {"user_id": "sponsor03","password": "sponsor03","name": "スポンサー03","email": "sponsor03@motionpicture.jp","performance": null,"max_reservation_count": 10},
+    {"user_id": "motionpicture","password": "e&2|G#TuMiMY","name": "外部関係者モーションピクチャー","email": "tiff_mp@motionpicture.jp","performance": null,"max_reservation_count": 20},
 
     {"user_id": "gaibu001","password": "yjmw2xrc","name": "予備1","email": "tiffticket2016@gmail.com","performance": "","max_reservation_count": 10},
     {"user_id": "gaibu002","password": "qf6e1g8u","name": "予備2","email": "tiffticket2016@gmail.com","performance": "","max_reservation_count": 10},
