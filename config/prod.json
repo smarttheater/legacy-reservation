@@ -32,7 +32,7 @@
         "reservation_start_sponsors": "2016-10-07T00:00:00+09:00",
         "reservation_start_members": "2016-10-15T00:00:00+09:00",
         "reservation_end_members": "2016-10-18T23:59:59+09:00",
-        "reservation_start_customers_first": "2016-09-30T00:00:00+09:00",
+        "reservation_start_customers_first": "2016-10-15T00:00:00+09:00",
         "reservation_start_customers_second": "2016-10-22T00:00:00+09:00",
         "event_start": "2016-10-25T00:00:00+09:00",
         "event_end": "2016-11-03T23:59:59+09:00"
@@ -42,5 +42,6 @@
     "waiting_settlement_reservatioin_valid_period_hours": 96,
 
     "performanceIds4limit2": [
+        "000001","000004","000005","000033","000049","000058","000070","000082","000162","000183","000193","000198","000211"
     ]
 }

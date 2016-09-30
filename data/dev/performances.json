@@ -3,7 +3,7 @@
     {"_id":"999999","theater":"001","screen":"00107","film":"999999","day":"20161025","open_time":"0750","start_time":"0800","end_time":"0900","canceled":false},
     {"_id":"999998","theater":"001","screen":"00107","film":"000001","day":"20160930","open_time":"2300","start_time":"2310","end_time":"2330","canceled":false},
 
-    {"_id":"000001","theater":"001","screen":"00102","film":"000004","day":"20161025","open_time":"1210","start_time":"1230","end_time":"1428","canceled":true},
+    {"_id":"000001","theater":"001","screen":"00102","film":"000004","day":"20161025","open_time":"1210","start_time":"1230","end_time":"1428","canceled":false},
     {"_id":"000002","theater":"001","screen":"00103","film":"000045","day":"20161025","open_time":"1410","start_time":"1430","end_time":"1631","canceled":false},
     {"_id":"000003","theater":"001","screen":"00106","film":"000084","day":"20161025","open_time":"1300","start_time":"1320","end_time":"1507","canceled":false},
     {"_id":"000004","theater":"001","screen":"00107","film":"000001","day":"20161025","open_time":"1830","start_time":"1900","end_time":"2106","canceled":false},
