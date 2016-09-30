@@ -65,6 +65,15 @@ staff_1.default(app);
 tel_1.default(app);
 window_1.default(app);
 router_1.default(app);
+/*
+ * Mongoose by default sets the auto_reconnect option to true.
+ * We recommend setting socket options at both the server and replica set level.
+ * We recommend a 30 second connection timeout because it allows for
+ * plenty of time in most operating environments.
+ */
 let MONGOLAB_URI = conf.get('mongolab_uri');
-mongoose.connect(MONGOLAB_URI, {});
+mongoose.connect(MONGOLAB_URI, {
+    server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
+    replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }
+});
 module.exports = app;
