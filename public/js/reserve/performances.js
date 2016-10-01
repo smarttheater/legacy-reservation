@@ -39,9 +39,9 @@ $(function(){
 
         filmIds.forEach(function(filmId) {
             var performancesOnFilm = performancesByFilm[filmId];
-
+            var longTitleClassName = (performancesOnFilm[0].film_name.length > 63) ? 'performance-longtitle' : '';
             html += 
-                '<div class="performance accordion_mobile_toggle">'+
+                '<div class="performance '+longTitleClassName+' accordion_mobile_toggle">'+
                     '<div class="performance-image"><img src="/images/film/'+performancesOnFilm[0].film_id+'.jpg"></div>'+///images/temp_performance_thumb.jpg"></div>'+
                     '<div class="performance-title"><h3><span>'+performancesOnFilm[0].film_name+'</span></h3></div>'+
                     '<div class="performance-inner accordion_mobile_inner">'+

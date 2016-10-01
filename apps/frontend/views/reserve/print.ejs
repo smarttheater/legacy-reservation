@@ -39,9 +39,9 @@
 
             <h3>作品名<span class="smalltext">Title</span></h3>
 
-            <strong class="filmtitle"><%- reservation.get('film_name_ja') %></strong>
+            <strong class="filmtitle<%- (reservation.get('film_name_ja').length > 63) ? ' filmtitle-long' : '' %>"><%= reservation.get('film_name_ja') %></strong>
 
-            <span class="smalltext"><%- reservation.get('film_name_en') %></span>
+            <span class="smalltext"><%= reservation.get('film_name_en') %></span>
 
         </div>
 
@@ -70,9 +70,9 @@
                 <span class="smalltext"><%- reservation.get('theater_name_en') %> <%- reservation.get('screen_name_en') %></span>
 
                 <p class="theateraddress">
-                    <%- reservation.get('theater_address_ja') %>
+                    <%= reservation.get('theater_address_ja') %>
                     <span class="smalltext">
-                        <%- reservation.get('theater_address_en') %>
+                        <%= reservation.get('theater_address_en') %>
                     </span>
                 </p>
 
