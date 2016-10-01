@@ -1,5 +1,6 @@
 cd ../
 set NODE_ENV=dev
+node bin/command schema createCollections
 node bin/command schema dropIndexes
 node bin/command schema createIndexes
 

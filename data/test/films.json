@@ -1,6 +1,6 @@
 [
-    {"_id": "111111","name":{"ja":"[激安]1円の作品","en":"[Cheepest]1 yen Film"},"sections":[{"code":"14","name":{"ja":"みなと上映会","en":"Minato"}}],"ticket_type_group":"100","minutes":"60","is_mx4d":false,"copyright":"TM © Twentieth Century Fox Film Corporation. All rights reserved. © Twentieth Century Fox Home Entertainment LLC. All Rights Reserved."},
     {"_id": "999999","name":{"ja":"メルマガ会員先行予約用の作品","en":"Film for Email Members"},"sections":[{"code":"01","name":{"ja":"オープニング","en":"Opening"}}],"ticket_type_group":"01","minutes":"99","is_mx4d":false,"copyright":"TM © Twentieth Century Fox Film Corporation. All rights reserved. © Twentieth Century Fox Home Entertainment LLC. All Rights Reserved."},
+
     {"_id": "000001","name":{"ja":"マダム・フローレンス！　夢見るふたり","en":"Florence Foster Jenkins  "},"sections":[{"code":"01","name":{"ja":"オープニング作品","en":"Opening"}}],"ticket_type_group":"01","minutes":"111","is_mx4d":false,"copyright":"©2016 Pathé Productions Limited. All Rights Reserved"},
     {"_id": "000002","name":{"ja":"聖（さとし）の青春","en":"Satoshi: A Move for Tomorrow"},"sections":[{"code":"02","name":{"ja":"クロージング作品","en":"Closing"}}],"ticket_type_group":"02","minutes":"124","is_mx4d":false,"copyright":"©2016「聖の青春」製作委員会"},
     {"_id": "000003","name":{"ja":"授賞式＋東京グランプリ受賞作品上映","en":"Tokyo Grand-Prix Winner Screening + Award Ceremony"},"sections":[{"code":"03","name":{"ja":"授賞式＋東京グランプリ受賞作品上映","en":"Tokyo Grand-Prix Winner Screening + Award Ceremony"}}],"ticket_type_group":"03","minutes":"","is_mx4d":false,"copyright":""},

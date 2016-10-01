@@ -5,24 +5,26 @@ class ReservationUtil {
      * 購入管理番号生成
      */
     static publishPaymentNo(cb) {
-        Models_1.default.Sequence.findOneAndUpdate({ target: 'payment_no' }, { $inc: { no: 1 } }, { new: true }, (err, sequence) => {
-            if (err) {
-                cb(err, null);
+        Models_1.default.Sequence.findOneAndUpdate({ target: 'payment_no' }, {
+            $inc: { no: 1 }
+        }, {
+            upsert: true,
+            new: true
+        }, (err, sequence) => {
+            if (err)
+                return cb(err, null);
+            let no = sequence.get('no');
+            // 9桁になるように0で埋める
+            let source = no.toString();
+            while (source.length < 9) {
+                source = '0' + source;
             }
-            else {
-                let no = sequence.get('no');
-                // 9桁になるように0で埋める
-                let source = no.toString();
-                while (source.length < 9) {
-                    source = '0' + source;
-                }
-                let checKDigit = ReservationUtil.getCheckDigit(source);
-                let checKDigit2 = ReservationUtil.getCheckDigit2(source);
-                // sortTypes[checkDigit]で並べ替える
-                let sortType = ReservationUtil.SORT_TYPES_PAYMENT_NO[checKDigit];
-                let paymentNo = checKDigit2.toString() + sortType.map((index) => { return source.substr(index, 1); }).join('') + checKDigit.toString();
-                cb(err, paymentNo);
-            }
+            let checKDigit = ReservationUtil.getCheckDigit(source);
+            let checKDigit2 = ReservationUtil.getCheckDigit2(source);
+            // sortTypes[checkDigit]で並べ替える
+            let sortType = ReservationUtil.SORT_TYPES_PAYMENT_NO[checKDigit];
+            let paymentNo = checKDigit2.toString() + sortType.map((index) => { return source.substr(index, 1); }).join('') + checKDigit.toString();
+            cb(err, paymentNo);
         });
     }
     /**

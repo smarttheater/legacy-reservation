@@ -19,7 +19,7 @@
     {"user_id":"partner2016","password":"katsuyama","name":"パートナーシップ","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"hospitality2016","password":"kenjo","name":"ホスピタリティ","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"operation2016","password":"konishi","name":"オペレーション","email":"ticket2016@gmail.com","is_admin":false},
-    {"user_id":"kokusai2016","password":"takagi","name":"国際支援","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"kokusai2016","password":"maeda","name":"国際支援","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"kanri2016","password":"nishimura","name":"管理","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"system2016","password":"nishimura","name":"システム","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"2016douin1","password":"2016tiff","name":"動員用アカウント１","email":"ticket2016@gmail.com","is_admin":false},

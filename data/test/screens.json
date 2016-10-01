@@ -1908,7 +1908,7 @@
 {"code":"HC-1","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"HC-2","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}}
     ]}]},
-    {"_id":"00201","theater":"002","name":{"ja":"スクリーン 1","en":"Screen 1"},"sections":[{"code":"","name":{},"seats":[
+    {"_id":"00201","theater":"002","name":{"ja":" ","en":" "},"sections":[{"code":"","name":{},"seats":[
 {"code":"A-3","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"A-4","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},
 {"code":"A-5","grade":{"code":"00","name":{"ja":"ノーマルシート","en":"Normal Seat"},"additional_charge":0}},

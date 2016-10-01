@@ -28,12 +28,12 @@
     "gmo_payment_api_link_multi_entry": "https://pt01.mul-pay.jp/link/tshop00024743/Multi/Entry",
 
     "datetimes": {
-        "reservation_start_staffs": "2016-08-24T00:00:00+09:00",
-        "reservation_start_sponsors": "2016-08-24T00:00:00+09:00",
-        "reservation_start_members": "2016-08-24T00:00:00+09:00",
-        "reservation_end_members": "2016-10-25T23:59:59+09:00",
-        "reservation_start_customers_first": "2016-08-24T00:00:00+09:00",
-        "reservation_start_customers_second": "2016-08-24T00:00:00+09:00",
+        "reservation_start_staffs": "2016-09-28T00:00:00+09:00",
+        "reservation_start_sponsors": "2016-09-28T00:00:00+09:00",
+        "reservation_start_members": "2016-09-28T00:00:00+09:00",
+        "reservation_end_members": "2016-10-18T23:59:59+09:00",
+        "reservation_start_customers_first": "2016-09-28T00:00:00+09:00",
+        "reservation_start_customers_second": "2016-10-22T00:00:00+09:00",
         "event_start": "2016-10-25T00:00:00+09:00",
         "event_end": "2016-11-03T23:59:59+09:00"
     },
