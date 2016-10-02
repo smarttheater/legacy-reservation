@@ -11,6 +11,7 @@ const ReservationController_1 = require('./controllers/Reservation/ReservationCo
 const SchemaController_1 = require('./controllers/Schema/SchemaController');
 const TelController_1 = require('./controllers/Tel/TelController');
 const WindowController_1 = require('./controllers/Window/WindowController');
+const LogController_1 = require('./controllers/Log/LogController');
 let env = process.env.NODE_ENV || 'dev';
 program
     .version('0.0.1');
@@ -97,6 +98,13 @@ program
     .action((method) => {
     let logDir = `${__dirname}/../../logs/${env}/task/Schema${method.charAt(0).toUpperCase()}${method.slice(1)}`;
     (new SchemaController_1.default(logDir))[method]();
+});
+program
+    .command('log <method>')
+    .description('ログ関連タスク')
+    .action((method) => {
+    let logDir = `${__dirname}/../../logs/${env}/task/Log${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+    (new LogController_1.default(logDir))[method]();
 });
 // program
 //   .command('*')
