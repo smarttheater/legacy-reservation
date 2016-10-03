@@ -52,7 +52,11 @@ $(function(){
                     + '</div>'
                     + '<div class="form-group">'
                         + '<p class="btn update-watcher-name"><span>Update</span></p>'
-                    + '</div>';
+                    + '</div>'
+                    + '<p class="small">'
+                    + '※日本人の場合は「全角カタカナ」外国人の場合は「半角英字」で入力してください。<br>※セイとメイの間に半角スペースを入れないでください。'
+                    + '<br>* Use full-width katakana for the Japanese names and in half-width alphanumeric characters for foreign names.<br>* Do not leave a half-width space between the last name and the first name.'
+                    + '</p>';
             }
 
             html += ''
