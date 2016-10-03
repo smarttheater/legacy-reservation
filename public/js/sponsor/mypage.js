@@ -71,7 +71,7 @@ $(function(){
 
         if (page > 1) {
             html += ''
-            + '<span><a href="javascript:void(0)" class="change-page" data-page="1">&lt;</a></span>'
+            + '<span><a href="javascript:void(0)" class="change-page" data-page="' + (page - 1) +'">&lt;</a></span>'
             + '<span><a href="javascript:void(0)" class="change-page" data-page="1">最初</a></span>'
             ;
         }
@@ -83,14 +83,16 @@ $(function(){
             if (parseInt(page) === i + 1) {
                 html += '<span>' + _page + '</span>';
             } else {
-                html += '<span><a href="javascript:void(0)" class="change-page" data-page="' + _page + '">' + _page + '</a></span>';
+                if (page - 9 < _page  && _page < page + 9) {
+                    html += '<span><a href="javascript:void(0)" class="change-page" data-page="' + _page + '">' + _page + '</a></span>';
+                }
             }
         }
 
         if (parseInt(page) < pages) {
             html += ''
             + '<span><a href="javascript:void(0)" class="change-page" data-page="' + pages + '">最後</a></span>'
-            + '<span><a href="javascript:void(0)" class="change-page" data-page="' + pages + '">&gt;</a></span>';
+            + '<span><a href="javascript:void(0)" class="change-page" data-page="' + (page + 1) +'">&gt;</a></span>';
         }
 
         $('.navigation').html(html);
