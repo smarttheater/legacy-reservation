@@ -43,7 +43,7 @@ $(function(){
             html += 
                 '<div class="performance '+longTitleClassName+' accordion_mobile_toggle">'+
                     '<div class="performance-image"><img src="/images/film/'+performancesOnFilm[0].film_id+'.jpg"></div>'+///images/temp_performance_thumb.jpg"></div>'+
-                    '<div class="performance-title"><h3><span>'+performancesOnFilm[0].film_name+'</span></h3></div>'+
+                    '<div class="performance-title"><h3><span>'+$('<div/>').text(performancesOnFilm[0].film_name).html()+'</span></h3></div>'+
                     '<div class="performance-inner accordion_mobile_inner">'+
                         '<div class="performance-info">'+
                             '<div class="desc">' + performancesOnFilm[0].film_sections.join(',') + '</div>'+
@@ -85,7 +85,7 @@ $(function(){
             });
             html += 
                         '</div>'+
-                        '<p class="performance-copyrights">' + $('<div/>').html(performancesOnFilm[0].film_copyright).text() + '</p>'+
+                        '<p class="performance-copyrights">' + $('<div/>').text(performancesOnFilm[0].film_copyright.replace(/<br>/g, '')).html() + '</p>'+
                     '</div>'+
                 '</div>'
             ;
