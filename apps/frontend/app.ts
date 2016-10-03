@@ -40,6 +40,19 @@ namedRoutes.registerAppHelpers(app);
 
 
 
+if (process.env.NODE_ENV !== 'prod') {
+    // サーバーエラーテスト
+    app.get('/500', (req, res) => {
+        req.on('data', (chunk) => {
+        });
+
+        req.on('end', () => {
+            throw new Error('500 manually.');
+        })
+    });
+}
+
+
 // ペイデザイン連携のため
 payDesign(app);
 
