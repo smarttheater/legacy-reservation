@@ -39,7 +39,7 @@
     },
 
     "temporary_reservation_valid_period_seconds": 900,
-    "waiting_settlement_reservatioin_valid_period_hours": 96,
+    "waiting_settlement_reservatioin_valid_period_hours": 72,
 
     "performanceIds4limit2": [
         "000001","000004","000005","000033","000049","000058","000070","000082","000162","000183","000193","000198","000211"
