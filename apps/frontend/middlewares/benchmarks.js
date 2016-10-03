@@ -10,7 +10,7 @@ exports.default = (req, res, next) => {
             let endMemory = process.memoryUsage();
             let memoryUsage = endMemory.rss - startMemory.rss;
             let diff = process.hrtime(startTime);
-            logger.debug(`benchmark took ${diff[0]} seconds and ${diff[1]} nanoseconds. memoryUsage:${memoryUsage} (${startMemory.rss} - ${endMemory.rss})`);
+            logger.debug(`process.pid: ${process.pid}. benchmark took ${diff[0]} seconds and ${diff[1]} nanoseconds. memoryUsage:${memoryUsage} (${startMemory.rss} - ${endMemory.rss})`);
         });
     }
     next();
