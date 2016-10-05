@@ -9,7 +9,7 @@ class PerformanceController extends BaseController_1.default {
      * パフォーマンス検索API
      */
     search() {
-        let limit = (this.req.query.limit) ? parseInt(this.req.query.limit) : 100; // せいぜい100件までにしておく(レスポンスタイム的に)
+        let limit = (this.req.query.limit) ? parseInt(this.req.query.limit) : null;
         let page = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
         let day = (this.req.query.day) ? this.req.query.day : null; // 上映日
         let section = (this.req.query.section) ? this.req.query.section : null; // 部門
