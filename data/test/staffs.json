@@ -1,7 +1,6 @@
 [
     {"user_id":"motionpicture","password":"e&2|G#TuMiMY","name":"内部関係者モーションピクチャー","email":"tiff_mp@motionpicture.jp","is_admin":false},
     {"user_id":"seat_tiff2016","password":"7_ifuH48bNDN","name":"座席確認","email":"hello@motionpicture.jp","is_admin":false},
-
     {"user_id":"kizai2016","password":"tiff2016","name":"機材デッド","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"jiko2016","password":"tiff2016","name":"事故","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"gtc2016","password":"tiff2016","name":"GTC","email":"ticket2016@gmail.com","is_admin":false},
@@ -19,7 +18,7 @@
     {"user_id":"partner2016","password":"katsuyama","name":"パートナーシップ","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"hospitality2016","password":"kenjo","name":"ホスピタリティ","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"operation2016","password":"konishi","name":"オペレーション","email":"ticket2016@gmail.com","is_admin":false},
-    {"user_id":"kokusai2016","password":"maeda","name":"国際支援","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"kokusai2016","password":"takagi","name":"国際支援","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"kanri2016","password":"nishimura","name":"管理","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"system2016","password":"nishimura","name":"システム","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"2016douin1","password":"2016tiff","name":"動員用アカウント１","email":"ticket2016@gmail.com","is_admin":false},
@@ -33,5 +32,9 @@
     {"user_id":"2016douin9","password":"2016tiff","name":"動員用アカウント９","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"2016douin10","password":"2016tiff","name":"動員用アカウント１０","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"shikai2016","password":"gozu","name":"司会通訳","email":"ticket2016@gmail.com","is_admin":false},
-    {"user_id":"zaseki2016","password":"tiff2016","name":"座席設置なし","email":"ticket2016@gmail.com","is_admin":false}
+    {"user_id":"syahan2016","password":"2016tiff","name":"社販","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"merumaga2016","password":"tiff2016","name":"メルマガ先行用","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"2016sagyo1","password":"tiff2016","name":"作業用１","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"2016sagyo2","password":"tiff2016","name":"作業用２","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"2016sagyo3","password":"tiff2016","name":"作業用３","email":"ticket2016@gmail.com","is_admin":false}
 ]
