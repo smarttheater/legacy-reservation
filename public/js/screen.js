@@ -94,6 +94,7 @@ var ScreenSeatStatusesMap = (function () {
     ScreenSeatStatusesMap.prototype.seatMouseoverHandler = function (target) {
         var balloon = $('.balloon');
         var content = target.find('a').attr('data-baloon-content');
+        content = content.replace('-', ' - '); // Edgeブラウザーでハイフンの前にスペースを入れないとフリーズするため
         balloon.addClass('active');
         balloon.html(content);
         var inner = this.target.find('.screen-inner');
