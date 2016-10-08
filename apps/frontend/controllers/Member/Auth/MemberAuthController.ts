@@ -20,7 +20,7 @@ export default class MemberAuthController extends BaseController {
         // 期限指定
         let now = moment();
         if (now < moment(conf.get<string>('datetimes.reservation_start_members')) || moment(conf.get<string>('datetimes.reservation_end_members')) < now) {
-            return this.next(new Error('Message.Expired'));
+            return this.next(new Error(this.req.__('Message.OutOfTerm')));
         }
 
         if (this.req.memberUser.isAuthenticated()) {

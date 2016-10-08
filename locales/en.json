@@ -186,7 +186,7 @@
 		"Invalid": "Invalid.",
 		"InvalidSeatCode": "The seat number that you have selected is invalid.",
 		"ConfirmCancelSelectedTickets": "Cancel the selected reservation?",
-		"OutOfTerm": "Message.OutOfTerm",
+		"OutOfTerm": "Outside the period of reservation.",
 		"NoAvailableSeats": "No available seats.",
 		"UpdateWatcherNameHelp": "* Use full-width katakana for the Japanese names and in half-width alphanumeric characters for foreign names.<br>* Do not leave a half-width space between the last name and the first name.",
 		"invalidPaymentNoOrLast4DigitsOfTel": "There are some mistakes in a transaction number or last 4 digits of tel."

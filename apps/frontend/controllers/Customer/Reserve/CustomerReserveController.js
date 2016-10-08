@@ -41,6 +41,9 @@ class CustomerReserveController extends ReserveBaseController_1.default {
     start() {
         // 期限指定
         if (moment() < moment(conf.get('datetimes.reservation_start_customers_first'))) {
+            if (this.req.query.locale) {
+                this.req.setLocale(this.req.query.locale);
+            }
             return this.next(new Error(this.req.__('Message.OutOfTerm')));
         }
         this.processStart((err, reservationModel) => {
