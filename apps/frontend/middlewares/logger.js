@@ -30,7 +30,7 @@ log4js.configure({
         }
     ],
     levels: {
-        access: log4js.levels.ALL.toString(),
+        access: (env === 'dev') ? log4js.levels.ALL.toString() : log4js.levels.OFF.toString(),
         system: (env === 'prod') ? log4js.levels.INFO.toString() : log4js.levels.ALL.toString(),
         cancel: (env === 'prod') ? log4js.levels.INFO.toString() : log4js.levels.ALL.toString()
     },

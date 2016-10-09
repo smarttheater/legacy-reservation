@@ -13,7 +13,9 @@ const mongoose = require('mongoose');
 const i18n = require('i18n');
 let app = express();
 app.use(partials()); // レイアウト&パーシャルサポート
-app.use(logger_1.default); // ロガー
+if (process.env.NODE_ENV === 'dev') {
+    app.use(logger_1.default); // ロガー
+}
 app.use(benchmarks_1.default); // ベンチマーク的な
 app.use(session_1.default); // セッション
 // ルーティング

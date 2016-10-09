@@ -16,7 +16,11 @@ import log4js = require('log4js');
 let app = express();
 
 app.use(partials()); // レイアウト&パーシャルサポート
-app.use(logger); // ロガー
+
+if (process.env.NODE_ENV === 'dev') {
+    app.use(logger); // ロガー
+}
+
 app.use(benchmarks); // ベンチマーク的な
 app.use(session); // セッション
 
