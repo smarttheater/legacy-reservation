@@ -25,7 +25,9 @@ passport.use(new BearerStrategy((token, cb) => {
     });
 }));
 let app = express();
-app.use(logger_1.default); // ロガー
+if (process.env.NODE_ENV === 'dev') {
+    app.use(logger_1.default); // ロガー
+}
 app.use(benchmarks_1.default); // ベンチマーク的な
 // view engine setup
 app.set('views', `${__dirname}/views`);

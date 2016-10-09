@@ -31,7 +31,10 @@ passport.use(new BearerStrategy(
 
 let app = express();
 
-app.use(logger); // ロガー
+if (process.env.NODE_ENV === 'dev') {
+    app.use(logger); // ロガー
+}
+
 app.use(benchmarks); // ベンチマーク的な
 
 // view engine setup
