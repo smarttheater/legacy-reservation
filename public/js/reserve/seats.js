@@ -13,6 +13,13 @@ $(function(){
     /** 内部関係者フローかどうか */
     var isStaff = $('body').hasClass('page-staff');
 
+    /** 座席イベントタイプ */
+    var seatSelectEvantType = 'click';
+    var ua = window.navigator.userAgent.toLowerCase();
+    if (ua.indexOf('ipad') > -1) {
+        seatSelectEvantType = 'touchend';
+    }
+
     /**
      * 空席状況マップを表示する
      */
@@ -102,7 +109,7 @@ $(function(){
     /**
      * 座席クリックイベント
      */
-    $(document).on('click', '.select-seat', function(){
+    $(document).on(seatSelectEvantType, '.select-seat', function(){
         // スマホで拡大操作
         if (_screenSeatStatusesMap.isDeviceType('sp') && _screenSeatStatusesMap.state === ScreenSeatStatusesMap.STATE_DEFAULT) {
             return;
