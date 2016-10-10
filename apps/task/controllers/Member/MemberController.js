@@ -40,8 +40,31 @@ class MemberController extends BaseController_1.default {
                 throw err;
             let reservations = JSON.parse(data);
             this.logger.debug('creating reservations...');
-            Models_1.default.Reservation.create(reservations, (err) => {
-                this.logger.info('reservations created.', err);
+            let promises = reservations.map((reservationFromJson) => {
+                return new Promise((resolve, reject) => {
+                    this.logger.info('removing reservation...');
+                    // すでに予約があれば削除してから新規作成
+                    Models_1.default.Reservation.remove({
+                        performance: reservationFromJson.performance,
+                        seat_code: reservationFromJson.seat_code
+                    }, (err) => {
+                        this.logger.info('reservation removed.', err);
+                        if (err)
+                            return reject(err);
+                        this.logger.info('creating reservationFromJson...', reservationFromJson);
+                        Models_1.default.Reservation.create(reservationFromJson, (err) => {
+                            this.logger.info('reservationFromJson created.', err);
+                            (err) ? reject(err) : resolve();
+                        });
+                    });
+                });
+            });
+            Promise.all(promises).then(() => {
+                this.logger.info('promised.');
+                mongoose.disconnect();
+                process.exit(0);
+            }).catch((err) => {
+                this.logger.info('promised.', err);
                 mongoose.disconnect();
                 process.exit(0);
             });
