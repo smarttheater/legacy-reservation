@@ -9,8 +9,36 @@ import GMONotificationModel from '../../../models/Reserve/GMONotificationModel';
 import GMONotificationResponseModel from '../../../models/Reserve/GMONotificationResponseModel';
 import moment = require('moment');
 import conf = require('config');
+import querystring = require('querystring');
 import GMOReserveCreditController from './Credit/GMOReserveCreditController';
 import GMOReserveCvsController from './Cvs/GMOReserveCvsController';
+
+/**
+ * マルチバイト文字列対応String.substr
+ * 
+ * @params {string} text
+ * @params {number} length
+ */
+String.prototype['mbSubstr'] = function(from: number, length: number) {
+    let letters = this.split('');
+    let textLength = letters.length;
+    let count = 0;
+    let result = '';
+
+    for (let i = 0; i < textLength; i++) {
+        if (i + from > textLength - 1) break; 
+
+        // マルチバイト文字列かどうか
+        let letter = letters[i + from];
+        count += (querystring.escape(letter).length < 4) ? 1 : 2;
+
+        if (count > length) break;
+
+        result += letter;
+    }
+
+    return result;
+};
 
 export default class GMOReserveController extends ReserveBaseController {
     /**
@@ -22,11 +50,11 @@ export default class GMOReserveController extends ReserveBaseController {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             // 予約情報セッション削除
-            // reservationModel.remove(() => {
+            reservationModel.remove(() => {
                 // 予約プロセス固有のログファイルをセット
                 this.setProcessLogger(reservationModel.paymentNo, () => {
                     // GMOへ遷移画面
-                    this.res.locals.registerDisp1 = Util.toFullWidth(reservationModel.performance.film.name.ja).substr(0, 32);
+                    this.res.locals.registerDisp1 = Util.toFullWidth(reservationModel.performance.film.name.ja)['mbSubstr'](0, 32);
                     this.res.locals.registerDisp2 = Util.toFullWidth(`${reservationModel.performance.day.substr(0, 4)}／${reservationModel.performance.day.substr(4, 2)}／${reservationModel.performance.day.substr(6)}`);
                     this.res.locals.registerDisp3 = Util.toFullWidth(reservationModel.performance.theater.name.ja);
                     this.res.locals.registerDisp4 = Util.toFullWidth(`開場${reservationModel.performance.open_time.substr(0, 2)}:${reservationModel.performance.open_time.substr(2)}　開演${reservationModel.performance.start_time.substr(0, 2)}:${reservationModel.performance.start_time.substr(2)}`);
@@ -46,9 +74,13 @@ export default class GMOReserveController extends ReserveBaseController {
                     );
 
                     this.logger.info('redirecting to GMO payment...');
-                    this.res.render('gmo/reserve/start');
+                    // GMOへの送信データをログに残すために、一度htmlを取得してからrender
+                    this.res.render('gmo/reserve/start', (err, html) => {
+                        this.logger.info('rendering gmo/reserve/start...html:', html);
+                        this.res.render('gmo/reserve/start');
+                    });
                 });
-            // });
+            });
         });
     }
 
