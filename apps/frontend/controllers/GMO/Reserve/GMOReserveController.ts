@@ -54,7 +54,24 @@ export default class GMOReserveController extends ReserveBaseController {
                 // 予約プロセス固有のログファイルをセット
                 this.setProcessLogger(reservationModel.paymentNo, () => {
                     // GMOへ遷移画面
-                    this.res.locals.registerDisp1 = Util.toFullWidth(reservationModel.performance.film.name.ja)['mbSubstr'](0, 32);
+
+                    // 作品名から、特定文字以外を取り除く
+                    let filmNameFullWidth = Util.toFullWidth(reservationModel.performance.film.name.ja);
+                    let filmNameFullWidthLength = filmNameFullWidth.length;
+                    let registerDisp1 = '';
+                    for (let i = 0; i < filmNameFullWidthLength; i++) {
+                        let letter = filmNameFullWidth[i];
+                        if (
+                            letter.match(/[Ａ-Ｚａ-ｚ０-９]/) // 全角英数字
+                         || letter.match(/[\u3040-\u309F]/) // ひらがな
+                         || letter.match(/[\u30A0-\u30FF]/) // カタカナ
+                         || letter.match(/[一-龠]/) // 漢字
+                        ) {
+                            registerDisp1 += letter;
+                        }
+                    }
+
+                    this.res.locals.registerDisp1 = registerDisp1['mbSubstr'](0, 32);
                     this.res.locals.registerDisp2 = Util.toFullWidth(`${reservationModel.performance.day.substr(0, 4)}／${reservationModel.performance.day.substr(4, 2)}／${reservationModel.performance.day.substr(6)}`);
                     this.res.locals.registerDisp3 = Util.toFullWidth(reservationModel.performance.theater.name.ja);
                     this.res.locals.registerDisp4 = Util.toFullWidth(`開場${reservationModel.performance.open_time.substr(0, 2)}:${reservationModel.performance.open_time.substr(2)}　開演${reservationModel.performance.start_time.substr(0, 2)}:${reservationModel.performance.start_time.substr(2)}`);
