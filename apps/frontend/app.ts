@@ -8,6 +8,7 @@ import multer = require('multer');
 import logger from './middlewares/logger';
 import benchmarks from './middlewares/benchmarks';
 import session from './middlewares/session';
+import basicAuth from './middlewares/basicAuth';
 import conf = require('config');
 import mongoose = require('mongoose');
 import i18n = require('i18n');
@@ -23,6 +24,7 @@ if (process.env.NODE_ENV === 'dev') {
 
 app.use(benchmarks); // ベンチマーク的な
 app.use(session); // セッション
+app.use(basicAuth); // ベーシック認証
 
 
 

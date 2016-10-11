@@ -2,6 +2,7 @@
   "name": "tiff_src",
   "version": "0.0.0",
   "dependencies": {
+    "basic-auth": "registry:npm/basic-auth#1.0.4+20160811001003",
     "lockfile": "registry:npm/lockfile#1.0.0+20160723033700",
     "mongodb": "registry:npm/mongodb#2.1.0+20160721204323",
     "redis": "registry:npm/redis#2.6.0+20160901110043",

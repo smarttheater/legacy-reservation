@@ -23,8 +23,9 @@
                 <rule name="maintenance" stopProcessing="true">
                     <match url="(.*)" ignoreCase="false" />
                     <conditions>
+                        <add input="{REQUEST_URI}" pattern="/GMO/reserve/notify" negate="true"/>
                         <add input="{REMOTE_ADDR}" pattern="124\.155\.113\.9" ignoreCase="false" negate="true" />
-                        <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True"/>
+                        <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true"/>
                     </conditions>
                     <action type="Rewrite" url="maintenance.html" />
                 </rule>

@@ -8,6 +8,7 @@ const multer = require('multer');
 const logger_1 = require('./middlewares/logger');
 const benchmarks_1 = require('./middlewares/benchmarks');
 const session_1 = require('./middlewares/session');
+const basicAuth_1 = require('./middlewares/basicAuth');
 const conf = require('config');
 const mongoose = require('mongoose');
 const i18n = require('i18n');
@@ -18,6 +19,7 @@ if (process.env.NODE_ENV === 'dev') {
 }
 app.use(benchmarks_1.default); // ベンチマーク的な
 app.use(session_1.default); // セッション
+app.use(basicAuth_1.default); // ベーシック認証
 // ルーティング
 const NamedRoutes = require('named-routes');
 const payDesign_1 = require('./routes/payDesign');
