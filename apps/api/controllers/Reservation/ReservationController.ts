@@ -57,7 +57,8 @@ export default class ReservationController extends BaseController {
                     moment: moment,
                     conf: conf,
                     title_ja: title_ja,
-                    title_en: title_en
+                    title_en: title_en,
+                    ReservationUtil: ReservationUtil
                 }, (err, html) => {
                     if (err) {
                         return this.res.json({
