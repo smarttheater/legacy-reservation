@@ -30,6 +30,8 @@ class WindowMyPageController extends BaseController_1.default {
         let purchaserFirstName = (this.req.query.purchaser_first_name) ? this.req.query.purchaser_first_name : null;
         let purchaserLastName = (this.req.query.purchaser_last_name) ? this.req.query.purchaser_last_name : null;
         let paymentNo = (this.req.query.payment_no) ? this.req.query.payment_no : null;
+        let day = (this.req.query.day) ? this.req.query.day : null;
+        let filmName = (this.req.query.film_name) ? this.req.query.film_name : null;
         // 検索条件を作成
         let conditions = [];
         // 内部関係者以外がデフォルト
@@ -50,18 +52,22 @@ class WindowMyPageController extends BaseController_1.default {
             });
         }
         if (email) {
-            conditions.push({ purchaser_email: { $regex: `${email}` } });
+            // remove space characters
+            email = Util_1.default.toHalfWidth(email.replace(/\s/g, ''));
+            conditions.push({ purchaser_email: { $regex: new RegExp(email, 'i') } });
         }
         if (tel) {
-            conditions.push({ purchaser_tel: { $regex: `${tel}` } });
+            // remove space characters
+            tel = Util_1.default.toHalfWidth(tel.replace(/\s/g, ''));
+            conditions.push({ purchaser_tel: { $regex: new RegExp(tel, 'i') } });
         }
         // 空白つなぎでAND検索
         if (purchaserFirstName) {
             // trim and to half-width space
             purchaserFirstName = purchaserFirstName.replace(/(^\s+)|(\s+$)/g, '').replace(/\s/g, ' ');
-            purchaserFirstName.split(' ').forEach((regex) => {
-                if (regex.length > 0) {
-                    conditions.push({ purchaser_first_name: { $regex: `${regex}` } });
+            purchaserFirstName.split(' ').forEach((pattern) => {
+                if (pattern.length > 0) {
+                    conditions.push({ purchaser_first_name: { $regex: new RegExp(pattern, 'i') } });
                 }
             });
         }
@@ -69,16 +75,39 @@ class WindowMyPageController extends BaseController_1.default {
         if (purchaserLastName) {
             // trim and to half-width space
             purchaserLastName = purchaserLastName.replace(/(^\s+)|(\s+$)/g, '').replace(/\s/g, ' ');
-            purchaserLastName.split(' ').forEach((regex) => {
-                if (regex.length > 0) {
-                    conditions.push({ purchaser_last_name: { $regex: `${regex}` } });
+            purchaserLastName.split(' ').forEach((pattern) => {
+                if (pattern.length > 0) {
+                    conditions.push({ purchaser_last_name: { $regex: new RegExp(pattern, 'i') } });
                 }
             });
         }
         if (paymentNo) {
             // remove space characters
             paymentNo = Util_1.default.toHalfWidth(paymentNo.replace(/\s/g, ''));
-            conditions.push({ payment_no: { $regex: `${paymentNo}` } });
+            conditions.push({ payment_no: { $regex: new RegExp(paymentNo, 'i') } });
+        }
+        if (day) {
+            conditions.push({ performance_day: day });
+        }
+        // 空白つなぎでAND検索
+        if (filmName) {
+            // trim and to half-width space
+            filmName = filmName.replace(/(^\s+)|(\s+$)/g, '').replace(/\s/g, ' ');
+            filmName.split(' ').forEach((pattern) => {
+                if (pattern.length > 0) {
+                    let regex = new RegExp(pattern, 'i');
+                    conditions.push({
+                        $or: [
+                            {
+                                'film_name_ja': { $regex: regex }
+                            },
+                            {
+                                'film_name_en': { $regex: regex }
+                            }
+                        ]
+                    });
+                }
+            });
         }
         // 総数検索
         Models_1.default.Reservation.count({
