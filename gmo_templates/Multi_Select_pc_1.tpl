@@ -116,6 +116,7 @@
 				<div class="bl_body">
 
 					<div class="paytypelist">
+						<p>Please press “Credit =クレジット” button or “Pay at a convenience store=コンビニ” button to proceed to Next page</p>
 
 						{insert name="radio_paymentType"}
 
