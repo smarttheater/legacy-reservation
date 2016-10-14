@@ -225,6 +225,7 @@
 		}
 	},
 	"ConfirmNotesText": " - We will not refund, exchange, or re-issue tickets.<br> - Under the Tokyo Metropolitan Ordinance Regarding the Healthy Development of Youths, persons younger than 18 years old are prohibited to enter cinemas/theaters from 11:00 p.m. to 4:00 a.m.This also applies to cases where they are accompanied by a guardian.<br> - If you use a filter to limit messages to specified domains for you mobile phone, additionally set the domain \"@tiff-ticket.net\" <br> - If you use au (@ezweb.ne.jp), in addition to the above setting, additionally set the domain \"@tiff-ticket.net\" under the \"list for exemption from spam.\"",
+	"NoticeCredit": "*The following credit cards are available.",
 	"NoticeCVS": "*The time allotted for payment at the convenience store is three (3) days from the date of the completion of your order.<br>*In the case of payment at the convenience store, each seat purchased is subject to a processing fee of 150 yen per seat. This fee is included in the total price.<br>*Payment at a convenience store can be only made at FamilyMart locations in Japan.",
 	"NoticeCVSMember": "コンビニ決済をご希望の方は下記電話番号までお問い合わせください。<br>050-3786-8066"
 }

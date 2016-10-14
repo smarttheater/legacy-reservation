@@ -225,6 +225,13 @@
                                     <% } %>
                                 </div>
 
+                                <% if (reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CREDIT) >= 0) { %>
+                                    <p class="notice">
+                                        <%- __('NoticeCredit') %><br>
+                                        <img class="img-responsive" src="/images/common/available_credit_cards.png"><br>
+                                    </p>
+                                <% } %>
+
                                 <% if (reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CVS) >= 0) { %>
                                     <p class="notice"><span class="notice-cvs"><%- __('NoticeCVS') %></span></p>
                                 <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_MEMBER) { %>
