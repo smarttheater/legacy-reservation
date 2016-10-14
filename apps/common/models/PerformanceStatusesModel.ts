@@ -21,22 +21,19 @@ export default class PerformanceStatusesModel {
     }
 
     public save(cb: (err: Error | void) => void) {
-        let key = PerformanceStatusesModel.getRedisKey();
-        redisClient.setex(key, 3600, JSON.stringify(this), (err) => {
+        redisClient.setex(PerformanceStatusesModel.getRedisKey(), 3600, JSON.stringify(this), (err) => {
             cb(err);
         });
     }
 
     public remove(cb: (err: Error | void) => any) {
-        let key = PerformanceStatusesModel.getRedisKey();
-        redisClient.del(key, (err) => {
+        redisClient.del(PerformanceStatusesModel.getRedisKey(), (err) => {
             cb(err);
         });
     }
 
     public static find(cb: (err: Error | void, performanceStatusesModel: PerformanceStatusesModel) => any): void {
-        let key = PerformanceStatusesModel.getRedisKey();
-        redisClient.get(key, (err, reply) => {
+        redisClient.get(PerformanceStatusesModel.getRedisKey(), (err, reply) => {
             if (err) return cb(err, null);
             if (reply === null) return cb(new Error('Not Found'), null);
 
@@ -61,6 +58,6 @@ export default class PerformanceStatusesModel {
      * @return {string}
      */
     private static getRedisKey(): string {
-        return `TIFFPerformanceStatuses`;
+        return `TIFFSeatStatusesByPerformanceId`;
     }
 }

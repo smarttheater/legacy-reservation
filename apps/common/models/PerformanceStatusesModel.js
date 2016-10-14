@@ -18,20 +18,17 @@ class PerformanceStatusesModel {
         this[id] = status;
     }
     save(cb) {
-        let key = PerformanceStatusesModel.getRedisKey();
-        redisClient_1.default.setex(key, 3600, JSON.stringify(this), (err) => {
+        redisClient_1.default.setex(PerformanceStatusesModel.getRedisKey(), 3600, JSON.stringify(this), (err) => {
             cb(err);
         });
     }
     remove(cb) {
-        let key = PerformanceStatusesModel.getRedisKey();
-        redisClient_1.default.del(key, (err) => {
+        redisClient_1.default.del(PerformanceStatusesModel.getRedisKey(), (err) => {
             cb(err);
         });
     }
     static find(cb) {
-        let key = PerformanceStatusesModel.getRedisKey();
-        redisClient_1.default.get(key, (err, reply) => {
+        redisClient_1.default.get(PerformanceStatusesModel.getRedisKey(), (err, reply) => {
             if (err)
                 return cb(err, null);
             if (reply === null)
@@ -55,7 +52,7 @@ class PerformanceStatusesModel {
      * @return {string}
      */
     static getRedisKey() {
-        return `TIFFPerformanceStatuses`;
+        return `TIFFSeatStatusesByPerformanceId`;
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
