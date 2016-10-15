@@ -1,6 +1,5 @@
 import express = require('express');
 import partials = require('express-partials');
-import path = require('path');
 // import favicon = require('serve-favicon');
 import cookieParser = require('cookie-parser');
 import bodyParser = require('body-parser');
