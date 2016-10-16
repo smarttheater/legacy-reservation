@@ -30,7 +30,7 @@ $(function(){
                     if (index > 0) html += ', ';
                     html += reservation.seat_code;
                 });
-                html += '<br>※キャンセルは購入番号単位となります。<br>*You can cancel the reservation by the transaction number.';
+                html += '<br>※キャンセルは購入番号単位となります。<br>*You can cancel the reservation with the transaction number.';
                 html += '</td></tr>';
 
                 $('.table-reservation-confirm').html(html);

@@ -10,7 +10,7 @@ body {
     <h2>チケット返金(キャンセル)受付ページ<br>Online Ticket Cancel</h2>
     <p class="row">
     購入完了時に発行される購入番号と、購入時にご入力頂いた電話番号で<br>ご予約頂いた座席のキャンセルと返金リクエストを行うことができます。<br>
-    You can cancel your ticket reservation and request a repayment by using the transaction number issued when you complete your reservation and the telephone number which you enter in your reservation process.
+    You can cancel your ticket reservation and request a refund by using the transaction number issued when you completed your reservation and the telephone number which you entered in your reservation process.
     </p>
 
     <p class="errmsg"></p>
@@ -21,7 +21,7 @@ body {
             <input type="text" class="form-control" name="paymentNo" value="<%= paymentNo %>">
         </div>
         <div class="form-group form-inline">
-            <label>電話番号下4桁<br>Last 4 digits of tel</label>
+            <label>電話番号下4桁<br>Last 4 digits of telephone number</label>
             <input type="text" class="form-control" name="last4DigitsOfTel" value="<%= last4DigitsOfTel %>">
         </div>
         <p class="btn btn-big btn-confirmcancel confirm-cancel" data-url="<%- url('customer.cancel') %>"><span>照会<br>Confirm</span></p>
@@ -31,13 +31,14 @@ body {
         <p>
         <br>
         コンビニエンスストア決済されたお客様：<br>
-        To customers who paid at the convenience store.<br>
+        For customers who paid at a convenience store<br>
         <br>
         チケット代金及び発券手数料をお支払い頂きましたお客様につきましても<br>
         ご指定の銀行口座に返金させて頂きます。<br>
         返金方法につきましては１０月１９日にメールにてご案内致します。<br>
-        We will refund to your bank account if you paid both of the ticket charge and the handling charge.<br>
-        We will inform you with the email on October 19th about how you receive the repayment.
+        Your ticket fee, including ticketing commission,<br>
+        will be transferred to your bank account.<br>
+        Detailed information on this will be provided by e-mail on October 19th.
         </p>
     </div>
 </div>
@@ -48,25 +49,25 @@ body {
         <div class="modal-content">
             <p class="btn-circle-close" data-dismiss="modal"></p>
             <div class="modal-body">
-                <h2>チケット返金(キャンセル)内容照会<br>Ticket repayment(cancel) details</h2>
+                <h2>チケット返金(キャンセル)内容照会<br>Ticket refund(cancel) details</h2>
                 <p class="row">
                 以下の内容でご予約を承っております。<br>
                 キャンセルを行う場合は返金(キャンセル)を申し込むボタンを押してください。<br>
                 Your ticket reservation details are as follows.<br>
-                Please click the Button "Request for a repayment(cancel)" if you want to cancel.
+                Please click the Button "Request for a refund(cancel)" if you want to cancel.
                 </p>
                 <table class="table table-reservation-confirm">
                 </table>
 
 
                 <div class="btns2clm">
-                    <p class="btn btn-lg btn-next btn-exec execute-cancel" data-url="<%- url('customer.cancel.executeByPaymentNo') %>"><span><span>返金(キャンセル)を申し込む<br>Request for<br>a repayment(cancel)</span></p>
+                    <p class="btn btn-lg btn-next btn-exec execute-cancel" data-url="<%- url('customer.cancel.executeByPaymentNo') %>"><span><span>返金(キャンセル)を申し込む<br>Request for<br>a refund(cancel)</span></p>
                     <p class="btn btn-lg btn-back" data-dismiss="modal"><span><span>戻る<br><br>Back</span></p>
                 </div>
 
                 <p>
                 なお、一旦申込されますと申し込み取り消しはできませんのでご注意ください。<br>
-                If once you request you cannot cancel it. Please be careful.
+                Please note that once you submit your request, you cannot cancel it.
                 </p>
             </div>
         </div>
@@ -77,14 +78,14 @@ body {
         <div class="modal-content">
             <p class="btn-circle-close" data-dismiss="modal"></p>
             <div class="modal-body">
-                <h2>チケット返金(キャンセル)内容照会<br>Ticket repayment(cancel) details</h2>
+                <h2>チケット返金(キャンセル)内容照会<br>Ticket refund(cancel) details</h2>
                 <p>
                 返金(キャンセル)の手続きを受付けました。<br>
                 実際のキャンセル処理は申し込みの翌日に自動的に実施します<br>
                 お客様ならびに関係する皆様に多大なるご迷惑、ご心配をお掛けしたことを重ねてお詫び申し上げます。<br>
-                We have received your request for a repayment(cancel).<br>
-                The repayment will be executed automatically on the day following your request.<br>
-                We sincerely apologize to you and all Concerned for causing the inconvenience.
+                We have received your request for a refund (cancellation).<br>
+                Refund will be processed automatically in the following day upon your request.<br>
+                We are deeply sorry for the anxiety and inconvenience we caused you and all parties concerned
                 </p>
             </div>
             <div class="modal-footer">
