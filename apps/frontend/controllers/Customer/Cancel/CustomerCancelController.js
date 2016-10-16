@@ -146,7 +146,7 @@ class CustomerCancelController extends BaseController_1.default {
                                 bcc: ['tiff_mp@motionpicture.jp'],
                                 fromname: conf.get('email.fromname'),
                                 from: conf.get('email.from'),
-                                subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京国際映画祭チケット キャンセル完了のお知らせ`,
+                                subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京国際映画祭チケット キャンセル完了のお知らせ Notice of Completion of Cancel for TIFF Tickets`,
                                 html: html
                             });
                             // logo
