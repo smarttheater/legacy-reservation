@@ -144,7 +144,7 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                     if (err)
                         return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     if (reservations.length === 0)
-                        return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
+                        return this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK); // 予約なければもう通知必要ない
                     // チェック文字列
                     let shopPassString = GMOUtil_1.default.createShopPassString(gmoNotificationModel.ShopID, gmoNotificationModel.OrderID, gmoNotificationModel.Amount, conf.get('gmo_payment_shop_password'), moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss'));
                     this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
@@ -170,7 +170,6 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                         this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                     });
                 });
-                this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                 break;
             case GMOUtil_1.default.STATUS_CREDIT_RETURN:
                 this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);

@@ -4,8 +4,11 @@ const Models_1 = require('../../../common/models/Models');
 const mongoose = require('mongoose');
 const conf = require('config');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
+const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
 const Util_1 = require('../../../common/Util/Util');
 const fs = require('fs-extra');
+const request = require('request');
+const querystring = require('querystring');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class TestController extends BaseController_1.default {
     checkIfExist() {
@@ -166,6 +169,60 @@ class TestController extends BaseController_1.default {
             this.logger.info('paymentNo is', paymentNo);
             mongoose.disconnect();
             process.exit(0);
+        });
+    }
+    /**
+     * オーダーIDからGMO取消を行う
+     */
+    cancelGMO() {
+        let options;
+        let paymentNo = '50000001412';
+        // 取引状態参照
+        options = {
+            url: 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
+            form: {
+                ShopID: conf.get('gmo_payment_shop_id'),
+                ShopPass: conf.get('gmo_payment_shop_password'),
+                OrderID: paymentNo
+            }
+        };
+        this.logger.info('requesting... options:', options);
+        request.post(options, (error, response, body) => {
+            this.logger.info('request processed.', error, body);
+            if (error)
+                return process.exit(0);
+            if (response.statusCode !== 200)
+                return process.exit(0);
+            let searchTradeResult = querystring.parse(body);
+            if (searchTradeResult['ErrCode'])
+                return process.exit(0);
+            if (searchTradeResult.Status !== GMOUtil_1.default.STATUS_CREDIT_CAPTURE)
+                return process.exit(0); // 即時売上状態のみ先へ進める
+            this.logger.info('searchTradeResult is ', searchTradeResult);
+            // 決済変更
+            options = {
+                url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
+                form: {
+                    ShopID: conf.get('gmo_payment_shop_id'),
+                    ShopPass: conf.get('gmo_payment_shop_password'),
+                    AccessID: searchTradeResult.AccessID,
+                    AccessPass: searchTradeResult.AccessPass,
+                    JobCd: GMOUtil_1.default.STATUS_CREDIT_VOID
+                }
+            };
+            this.logger.info('requesting... options:', options);
+            request.post(options, (error, response, body) => {
+                this.logger.info('request processed.', error, body);
+                if (error)
+                    return process.exit(0);
+                if (response.statusCode !== 200)
+                    return process.exit(0);
+                let alterTranResult = querystring.parse(body);
+                if (alterTranResult['ErrCode'])
+                    return process.exit(0);
+                this.logger.info('alterTranResult is ', alterTranResult);
+                process.exit(0);
+            });
         });
     }
     checkFullWidthLetter() {

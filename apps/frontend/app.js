@@ -28,6 +28,7 @@ const sponsor_1 = require('./routes/sponsor');
 const staff_1 = require('./routes/staff');
 const tel_1 = require('./routes/tel');
 const window_1 = require('./routes/window');
+const customerSupport_1 = require('./routes/customerSupport');
 const router_1 = require('./routes/router');
 let namedRoutes = new NamedRoutes();
 namedRoutes.extendExpress(app);
@@ -78,6 +79,7 @@ sponsor_1.default(app);
 staff_1.default(app);
 tel_1.default(app);
 window_1.default(app);
+customerSupport_1.default(app);
 router_1.default(app);
 /*
  * Mongoose by default sets the auto_reconnect option to true.

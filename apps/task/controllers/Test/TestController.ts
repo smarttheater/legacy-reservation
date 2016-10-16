@@ -3,8 +3,11 @@ import Models from '../../../common/models/Models';
 import mongoose = require('mongoose');
 import conf = require('config');
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
+import GMOUtil from '../../../common/Util/GMO/GMOUtil';
 import Util from '../../../common/Util/Util';
 import fs = require('fs-extra');
+import request = require('request');
+import querystring = require('querystring');
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
@@ -186,6 +189,59 @@ export default class TestController extends BaseController {
             mongoose.disconnect();
             process.exit(0);
         });
+    }
+
+    /**
+     * オーダーIDからGMO取消を行う
+     */
+    public cancelGMO(): void {
+        let options: any;
+        let paymentNo = '50000001412';
+
+        // 取引状態参照
+        options = {
+            url: 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
+            form: {
+                ShopID: conf.get<string>('gmo_payment_shop_id'),
+                ShopPass: conf.get<string>('gmo_payment_shop_password'),
+                OrderID: paymentNo
+            }
+        };
+        this.logger.info('requesting... options:', options);
+        request.post(options, (error, response, body) => {
+            this.logger.info('request processed.', error, body);
+            if (error) return process.exit(0);
+            if (response.statusCode !== 200) return process.exit(0);
+            let searchTradeResult = querystring.parse(body);
+            if (searchTradeResult['ErrCode']) return process.exit(0);
+            if (searchTradeResult.Status !== GMOUtil.STATUS_CREDIT_CAPTURE) return process.exit(0); // 即時売上状態のみ先へ進める
+
+            this.logger.info('searchTradeResult is ', searchTradeResult);
+
+            // 決済変更
+            options = {
+                url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
+                form: {
+                    ShopID: conf.get<string>('gmo_payment_shop_id'),
+                    ShopPass: conf.get<string>('gmo_payment_shop_password'),
+                    AccessID: searchTradeResult.AccessID,
+                    AccessPass: searchTradeResult.AccessPass,
+                    JobCd: GMOUtil.STATUS_CREDIT_VOID
+                }
+            };
+            this.logger.info('requesting... options:', options);
+            request.post(options, (error, response, body) => {
+                this.logger.info('request processed.', error, body);
+                if (error) return process.exit(0);
+                if (response.statusCode !== 200) return process.exit(0);
+                let alterTranResult = querystring.parse(body);
+                if (alterTranResult['ErrCode']) return process.exit(0);
+
+                this.logger.info('alterTranResult is ', alterTranResult);
+
+                process.exit(0);
+            });
+        }); 
     }
 
     public checkFullWidthLetter() {

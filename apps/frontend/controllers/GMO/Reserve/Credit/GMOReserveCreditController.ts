@@ -172,7 +172,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                     (err, reservations) => {
                         this.logger.info('reservations found.', err, reservations.length);
                         if (err) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
-                        if (reservations.length === 0) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                        if (reservations.length === 0) return this.res.send(GMONotificationResponseModel.RecvRes_OK); // 予約なければもう通知必要ない
 
                         // チェック文字列
                         let shopPassString = GMOUtil.createShopPassString(
@@ -207,7 +207,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                         });
                     }
                 );
-                this.res.send(GMONotificationResponseModel.RecvRes_NG);
+
                 break;
 
             case GMOUtil.STATUS_CREDIT_RETURN:
