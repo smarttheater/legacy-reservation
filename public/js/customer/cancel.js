@@ -17,24 +17,20 @@ $(function(){
             }
         }).done(function(data) {
             if (data.success) {
-                var html;
-                if (locale === 'ja') {
-                    html = 
-                        '<tr><th>購入番号:</th><td>' + data.reservations[0].payment_no + '</td></tr>'
-                        + '<tr><th>タイトル:</th><td>' + data.reservations[0].film_name_ja + '</td></tr>'
-                        + '<tr><th>上映時間/場所:</th><td>' + data.reservations[0].performance_start_str_ja + '  ' + data.reservations[0].location_str_ja + '</td></tr>'
-                        + '<tr><th>座席</th><td>';
-                } else {
-                    html = 
-                        '<tr><th>Transaction number:</th><td>' + data.reservations[0].payment_no + '</td></tr>'
-                        + '<tr><th>Title:</th><td>' + data.reservations[0].film_name_en + '</td></tr>'
-                        + '<tr><th>Date/Location:</th><td>' + data.reservations[0].performance_start_str_en + '  ' + data.reservations[0].location_str_en + '</td></tr>'
-                        + '<tr><th>Seat</th><td>';
-                }
+                var html = ''
+                        + '<tr><th>購入番号<br>Transaction number</th><td>' + data.reservations[0].payment_no + '</td></tr>'
+                        + '<tr><th>タイトル<br>Title</th><td>' + data.reservations[0].film_name_ja + '<br>' + data.reservations[0].film_name_en + '</td></tr>'
+                        + '<tr><th>上映時間/場所<br>Date/Location</th><td>'
+                            + data.reservations[0].performance_start_str_ja + '  ' + data.reservations[0].location_str_ja
+                            + '<br>' + data.reservations[0].performance_start_str_en + '  ' + data.reservations[0].location_str_en
+                        + '</td></tr>'
+                        + '<tr><th>座席<br>Seat</th><td>';
 
                 data.reservations.forEach(function(reservation, index){
-                    html += reservation.seat_code + ', '
+                    if (index > 0) html += ', ';
+                    html += reservation.seat_code;
                 });
+                html += '<br>※キャンセルは購入番号単位となります。<br>XXXXXXXXXXX';
                 html += '</td></tr>';
 
                 $('.table-reservation-confirm').html(html);

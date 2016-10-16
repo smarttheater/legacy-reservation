@@ -2,7 +2,7 @@
 
 <div class="cancelform">
     <h2>チケットキャンセル受付ページ<br>Online Ticket Cancel</h2>
-    <h3>購入完了時に発行される購入番号と、購入時にご入力頂いた電話番号で<br>ご予約頂いた座席のキャンセルと返金リクエストを行うことができます。</h3>
+    <p class="row">購入完了時に発行される購入番号と、購入時にご入力頂いた電話番号で<br>ご予約頂いた座席のキャンセルと返金リクエストを行うことができます。</p>
 
     <p class="errmsg"></p>
 
@@ -17,6 +17,17 @@
         </div>
         <p class="btn btn-big btn-confirmcancel confirm-cancel" data-url="<%- url('customer.cancel') %>"><span>照会<br>Confirm</span></p>
     </form>
+
+    <div>
+        <p>
+        <br>
+        コンビニエンスストア決済されたお客様：<br>
+        <br>
+        チケット代金及び発券手数料をお支払い頂きましたお客様につきましても<br>
+        ご指定の銀行口座に返金させて頂きます。<br>
+        返金方法につきましては１０月１９日にメールにてご案内致します。
+        </p>
+    </div>
 </div>
 
 
@@ -25,40 +36,25 @@
         <div class="modal-content">
             <p class="btn-circle-close" data-dismiss="modal"></p>
             <div class="modal-body">
-                <h2><%- __('Label.ConfirmCancel') %></h2>
+                <h2>チケットキャンセル内容照会<br>XXXXXXXXXXXXXXXXXXXX</h2>
+                <p class="row">
+                以下の内容でご予約を承っております。<br>
+                キャンセルを行う場合はキャンセルを申し込むボタンを押してください。<br>
+                XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>
+                XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                </p>
                 <table class="table table-reservation-confirm">
                 </table>
 
-                <form class="accountForm">
-                    <div class="form-group form-inline">
-                        <label>金融機関名</label>
-                        <input type="text" class="form-control" name="" value="">
-                    </div>
-                    <div class="form-group form-inline">
-                        <label>支店名</label>
-                        <select class="form-control" name="">
-                            <option>1</option>
-                            <option>2</option>
-                        </select>
-                    </div>
-                    <div class="form-group form-inline">
-                        <label>口座種別</label>
-                        <input type="text" class="form-control" name="" value="">
-                    </div>
-                    <div class="form-group form-inline">
-                        <label>口座番号</label>
-                        <input type="text" class="form-control" name="" value="">
-                    </div>
-                    <div class="form-group form-inline">
-                        <label>名義</label>
-                        <input type="text" class="form-control" name="" value="">
-                    </div>
-                </form>
 
                 <div class="btns2clm">
-                    <p class="btn btn-lg btn-next btn-exec execute-cancel" data-url="<%- url('customer.cancel.executeByPaymentNo') %>"><span><span><%- __('Button.Cancel') %></span></p>
-                    <p class="btn btn-lg btn-back" data-dismiss="modal"><span><span><%- __('Button.Back') %></span></p>
+                    <p class="btn btn-lg btn-next btn-exec execute-cancel" data-url="<%- url('customer.cancel.executeByPaymentNo') %>"><span><span>キャンセルを申し込む<br>xxxxxxxxxxxx</span></p>
+                    <p class="btn btn-lg btn-back" data-dismiss="modal"><span><span>戻る<br>Back</span></p>
                 </div>
+
+                <p>
+                なお、一旦申込されますと申し込み取り消しはできませんのでご注意ください
+                </p>
             </div>
         </div>
     </div>
@@ -68,10 +64,16 @@
         <div class="modal-content">
             <p class="btn-circle-close" data-dismiss="modal"></p>
             <div class="modal-body">
-                <%- __('Message.CompleteCancel') %>
+                <h2>チケットキャンセル内容照会<br>XXXXXXXXXXXXXXXXXXXX</h2>
+                <p>
+                チケットのキャンセル及び返金の手続きを受付けました。<br>
+                XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>
+                実際のキャンセル処理は申し込みの翌日に自動的に実施します<br>
+                XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>
+                </p>
             </div>
             <div class="modal-footer">
-                <p class="btn btn-close" data-dismiss="modal"><span><span><%- __('Button.Close') %></span></p>
+                <p class="btn btn-close" data-dismiss="modal"><span><span>閉じる<br>Close</span></p>
             </div>
         </div>
     </div>
