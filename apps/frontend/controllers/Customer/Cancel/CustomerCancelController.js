@@ -84,12 +84,14 @@ class CustomerCancelController extends BaseController_1.default {
         this.logger = log4js.getLogger('cancel');
         let paymentNo = this.req.body.paymentNo;
         let last4DigitsOfTel = this.req.body.last4DigitsOfTel;
+        this.logger.info('finding reservations...');
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
             purchaser_tel: { $regex: `${last4DigitsOfTel}$` },
             purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER,
             status: ReservationUtil_1.default.STATUS_RESERVED
         }, (err, reservations) => {
+            this.logger.info('reservations found.', err, reservations);
             if (err)
                 return this.res.json({ success: false, message: 'A system error has occurred. Please try again later. Sorry for the inconvenience.' });
             if (reservations.length === 0) {

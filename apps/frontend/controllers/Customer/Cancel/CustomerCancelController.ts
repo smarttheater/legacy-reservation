@@ -98,6 +98,7 @@ export default class CustomerCancelController extends BaseController {
         let paymentNo = this.req.body.paymentNo;
         let last4DigitsOfTel = this.req.body.last4DigitsOfTel;
 
+        this.logger.info('finding reservations...');
         Models.Reservation.find(
             {
                 payment_no: paymentNo,
@@ -106,6 +107,7 @@ export default class CustomerCancelController extends BaseController {
                 status: ReservationUtil.STATUS_RESERVED
             },
             (err, reservations) => {
+                this.logger.info('reservations found.', err, reservations);
                 if (err) return this.res.json({success: false, message: 'A system error has occurred. Please try again later. Sorry for the inconvenience.'});
 
                 if (reservations.length === 0) {
