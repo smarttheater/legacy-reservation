@@ -162,7 +162,12 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 break;
 
             case GMOUtil.STATUS_CREDIT_VOID: // 取消し
-                // 空席に戻す
+                this.res.send(GMONotificationResponseModel.RecvRes_OK);
+                break;
+
+
+                // 空席に戻す(つくったけれども、連動しない方向で仕様決定)
+                /*
                 this.logger.info('finding reservations...payment_no:', paymentNo);
                 Models.Reservation.find(
                     {
@@ -209,6 +214,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 );
 
                 break;
+                */
 
             case GMOUtil.STATUS_CREDIT_RETURN:
                 this.res.send(GMONotificationResponseModel.RecvRes_NG);

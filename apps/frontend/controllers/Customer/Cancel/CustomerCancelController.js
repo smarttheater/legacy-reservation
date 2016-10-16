@@ -6,8 +6,6 @@ const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
 const customerCancelForm_1 = require('../../../forms/customer/customerCancelForm');
 const log4js = require('log4js');
 const conf = require('config');
-const request = require('request');
-const querystring = require('querystring');
 const sendgrid = require('sendgrid');
 const moment = require('moment');
 const numeral = require('numeral');
@@ -100,99 +98,71 @@ class CustomerCancelController extends BaseController_1.default {
                     message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
                 });
             }
-            // クレジットカードの場合、GMO取消しを行えば通知で空席になる
             if (reservations[0].get('payment_method') === GMOUtil_1.default.PAY_TYPE_CREDIT) {
-                // 取引状態参照
-                this.logger.info('SearchTrade processing...');
-                request.post({
-                    url: 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
-                    form: {
-                        ShopID: conf.get('gmo_payment_shop_id'),
-                        ShopPass: conf.get('gmo_payment_shop_password'),
-                        OrderID: paymentNo
+                this.logger.info('removing reservations by customer... payment_no:', paymentNo);
+                Models_1.default.Reservation.remove({
+                    payment_no: paymentNo,
+                    purchaser_tel: { $regex: `${last4DigitsOfTel}$` },
+                    purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER,
+                    status: ReservationUtil_1.default.STATUS_RESERVED
+                }, (err) => {
+                    this.logger.info('reservations removed by customer.', err, 'payment_no:', paymentNo);
+                    if (err) {
+                        return this.res.json({
+                            success: false,
+                            message: err.message
+                        });
                     }
-                }, (error, response, body) => {
-                    this.logger.info('SearchTrade processed.', error, body);
-                    if (error)
-                        return this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
-                    if (response.statusCode !== 200)
-                        return this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
-                    let searchTradeResult = querystring.parse(body);
-                    if (searchTradeResult['ErrCode'])
-                        return this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
-                    if (searchTradeResult.Status !== GMOUtil_1.default.STATUS_CREDIT_CAPTURE)
-                        return this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') }); // 即時売上状態のみ先へ進める
-                    this.logger.info('searchTradeResult is ', searchTradeResult);
-                    // 決済変更
-                    this.logger.info('AlterTran processing...');
-                    request.post({
-                        url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
-                        form: {
-                            ShopID: conf.get('gmo_payment_shop_id'),
-                            ShopPass: conf.get('gmo_payment_shop_password'),
-                            AccessID: searchTradeResult.AccessID,
-                            AccessPass: searchTradeResult.AccessPass,
-                            JobCd: GMOUtil_1.default.STATUS_CREDIT_VOID
-                        }
-                    }, (error, response, body) => {
-                        this.logger.info('AlterTran processed.', error, body);
-                        if (error)
-                            return this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
-                        if (response.statusCode !== 200)
-                            return this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
-                        let alterTranResult = querystring.parse(body);
-                        if (alterTranResult['ErrCode'])
-                            return this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
-                        this.logger.info('alterTranResult is ', alterTranResult);
-                        // キャンセルリクエスト保管
-                        Models_1.default.CustomerCancelRequest.create({
-                            payment_no: paymentNo,
-                            payment_method: reservations[0].get('payment_method'),
-                            email: reservations[0].get('purchaser_email'),
-                            tel: reservations[0].get('purchaser_tel')
-                        }, (err) => {
+                    // キャンセルリクエスト保管
+                    this.logger.info('creating CustomerCancelRequest...');
+                    Models_1.default.CustomerCancelRequest.create({
+                        payment_no: paymentNo,
+                        payment_method: reservations[0].get('payment_method'),
+                        email: reservations[0].get('purchaser_email'),
+                        tel: reservations[0].get('purchaser_tel')
+                    }, (err) => {
+                        this.logger.info('CustomerCancelRequest created.', err);
+                        if (err)
+                            return this.res.json({ success: false, message: err.message });
+                        // メール送信
+                        let to = reservations[0].get('purchaser_email');
+                        this.res.render('email/customer/cancel', {
+                            layout: false,
+                            to: to,
+                            reservations: reservations,
+                            moment: moment,
+                            numeral: numeral,
+                            conf: conf,
+                            GMOUtil: GMOUtil_1.default,
+                            ReservationUtil: ReservationUtil_1.default
+                        }, (err, html) => {
+                            this.logger.info('email rendered. html:', err, html);
+                            // メール失敗してもキャンセル成功
                             if (err)
-                                return this.res.json({ success: false, message: err.message });
-                            // TODO メール送信
-                            let to = reservations[0].get('purchaser_email');
-                            this.res.render('email/customer/cancel', {
-                                layout: false,
+                                return this.res.json({ success: true, message: null });
+                            let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
+                            let email = new _sendgrid.Email({
                                 to: to,
-                                reservations: reservations,
-                                moment: moment,
-                                numeral: numeral,
-                                conf: conf,
-                                GMOUtil: GMOUtil_1.default,
-                                ReservationUtil: ReservationUtil_1.default
-                            }, (err, html) => {
-                                this.logger.info('email rendered. html:', err, html);
-                                // メール失敗してもキャンセル成功
-                                if (err)
-                                    return this.res.json({ success: true, message: null });
-                                let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
-                                let email = new _sendgrid.Email({
-                                    to: to,
-                                    bcc: ['tiff_mp@motionpicture.jp'],
-                                    fromname: conf.get('email.fromname'),
-                                    from: conf.get('email.from'),
-                                    subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京国際映画祭チケット キャンセル完了のお知らせ`,
-                                    html: html
-                                });
-                                // logo
-                                email.addFile({
-                                    filename: `logo.png`,
-                                    contentType: 'image/png',
-                                    cid: 'logo',
-                                    content: fs.readFileSync(`${__dirname}/../../../../../public/images/email/logo.png`)
-                                });
-                                this.logger.info('sending an email...email:', email);
-                                _sendgrid.send(email, (err, json) => {
-                                    this.logger.info('an email sent.', err, json);
-                                    // メールが送れなくてもキャンセルは成功
-                                    this.res.json({
-                                        success: true,
-                                        message: null
-                                    });
+                                bcc: ['tiff_mp@motionpicture.jp'],
+                                fromname: conf.get('email.fromname'),
+                                from: conf.get('email.from'),
+                                subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京国際映画祭チケット キャンセル完了のお知らせ`,
+                                html: html
+                            });
+                            // logo
+                            email.addFile({
+                                filename: `logo.png`,
+                                contentType: 'image/png',
+                                cid: 'logo',
+                                content: fs.readFileSync(`${__dirname}/../../../../../public/images/email/logo.png`)
+                            });
+                            this.logger.info('sending an email...email:', email);
+                            _sendgrid.send(email, (err, json) => {
+                                this.logger.info('an email sent.', err, json);
+                                // メールが送れなくてもキャンセルは成功
+                                this.res.json({
+                                    success: true,
+                                    message: null
                                 });
                             });
                         });
@@ -200,36 +170,8 @@ class CustomerCancelController extends BaseController_1.default {
                 });
             }
             else if (reservations[0].get('payment_method') === GMOUtil_1.default.PAY_TYPE_CVS) {
-                // キャンセルリクエスト保管
-                Models_1.default.CustomerCancelRequest.create({
-                    payment_no: paymentNo,
-                    payment_method: reservations[0].get('payment_method'),
-                    email: reservations[0].get('purchaser_email'),
-                    tel: reservations[0].get('purchaser_tel')
-                }, (err) => {
-                    if (err)
-                        return this.res.json({ success: false, message: err.message });
-                    this.logger.info('removing reservation by customer... payment_no:', paymentNo);
-                    Models_1.default.Reservation.remove({
-                        payment_no: paymentNo,
-                        purchaser_tel: { $regex: `${last4DigitsOfTel}$` },
-                        purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER,
-                        status: ReservationUtil_1.default.STATUS_RESERVED
-                    }, (err) => {
-                        this.logger.info('reservation removed by customer.', err, 'payment_no:', paymentNo);
-                        if (err) {
-                            return this.res.json({
-                                success: false,
-                                message: err.message
-                            });
-                        }
-                        // TODO メール送信
-                        this.res.json({
-                            success: true,
-                            message: null
-                        });
-                    });
-                });
+                // TODO
+                return;
             }
             else {
                 this.res.json({

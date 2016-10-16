@@ -135,22 +135,34 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                 this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                 break;
             case GMOUtil_1.default.STATUS_CREDIT_VOID:
-                // 空席に戻す
-                this.logger.info('finding reservations...payment_no:', paymentNo);
-                Models_1.default.Reservation.find({
+                this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
+                break;
+            // 空席に戻す(つくったけれども、連動しない方向で仕様決定)
+            /*
+            this.logger.info('finding reservations...payment_no:', paymentNo);
+            Models.Reservation.find(
+                {
                     payment_no: paymentNo
-                }, '_id purchased_at gmo_shop_pass_string', (err, reservations) => {
+                },
+                '_id purchased_at gmo_shop_pass_string',
+                (err, reservations) => {
                     this.logger.info('reservations found.', err, reservations.length);
-                    if (err)
-                        return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
-                    if (reservations.length === 0)
-                        return this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK); // 予約なければもう通知必要ない
+                    if (err) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
+                    if (reservations.length === 0) return this.res.send(GMONotificationResponseModel.RecvRes_OK); // 予約なければもう通知必要ない
+
                     // チェック文字列
-                    let shopPassString = GMOUtil_1.default.createShopPassString(gmoNotificationModel.ShopID, gmoNotificationModel.OrderID, gmoNotificationModel.Amount, conf.get('gmo_payment_shop_password'), moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss'));
+                    let shopPassString = GMOUtil.createShopPassString(
+                        gmoNotificationModel.ShopID,
+                        gmoNotificationModel.OrderID,
+                        gmoNotificationModel.Amount,
+                        conf.get<string>('gmo_payment_shop_password'),
+                        moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss')
+                    );
                     this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
                     if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
-                        return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
+                        return this.res.send(GMONotificationResponseModel.RecvRes_NG);
                     }
+
                     // キャンセル
                     this.logger.info('removing reservations...payment_no:', paymentNo);
                     let promises = reservations.map((reservation) => {
@@ -164,13 +176,16 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                     });
                     Promise.all(promises).then(() => {
                         this.logger.info('sending response RecvRes_OK...');
-                        this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
+                        this.res.send(GMONotificationResponseModel.RecvRes_OK);
                     }, (err) => {
                         this.logger.info('sending response RecvRes_NG...');
-                        this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
+                        this.res.send(GMONotificationResponseModel.RecvRes_NG);
                     });
-                });
-                break;
+                }
+            );
+
+            break;
+            */
             case GMOUtil_1.default.STATUS_CREDIT_RETURN:
                 this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
                 break;

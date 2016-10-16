@@ -114,6 +114,17 @@
     <% } %>
 
 
+    <div style="margin-bottom:1em;page-break-inside:avoid;">
+        <h3 style="font-weight:normal;font-size:14px;margin:0;">座席番号 (Seat number) :</h3>
+
+        <% reservations.forEach((reservation) => { %>
+        <p>
+            <strong><%- reservation.get('seat_code') %></strong><br>
+        </p>
+        <% }) %>
+    </div>
+
+
     <strong style="font-size:14px;">東京国際映画祭  TOKYO INTERNATIONAL FILM FESTIVAL 2016</strong>
     <p style="font-size:14px;">
         本メールアドレスは送信専用です。返信はできませんのであらかじめご了承ください。<br>

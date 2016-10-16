@@ -115,139 +115,131 @@ export default class CustomerCancelController extends BaseController {
                     });
                 }
 
-                // クレジットカードの場合、GMO取消しを行えば通知で空席になる
                 if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CREDIT) {
-                    // 取引状態参照
-                    this.logger.info('SearchTrade processing...');
-                    request.post({
-                        url: 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
-                        form: {
-                            ShopID: conf.get<string>('gmo_payment_shop_id'),
-                            ShopPass: conf.get<string>('gmo_payment_shop_password'),
-                            OrderID: paymentNo
-                        }
-                    }, (error, response, body) => {
-                        this.logger.info('SearchTrade processed.', error, body);
-                        if (error) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
-                        if (response.statusCode !== 200) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
-                        let searchTradeResult = querystring.parse(body);
-                        if (searchTradeResult['ErrCode']) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
-                        if (searchTradeResult.Status !== GMOUtil.STATUS_CREDIT_CAPTURE) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')}); // 即時売上状態のみ先へ進める
-
-                        this.logger.info('searchTradeResult is ', searchTradeResult);
-
-                        // 決済変更
-                        this.logger.info('AlterTran processing...');
-                        request.post({
-                            url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
-                            form: {
-                                ShopID: conf.get<string>('gmo_payment_shop_id'),
-                                ShopPass: conf.get<string>('gmo_payment_shop_password'),
-                                AccessID: searchTradeResult.AccessID,
-                                AccessPass: searchTradeResult.AccessPass,
-                                JobCd: GMOUtil.STATUS_CREDIT_VOID
-                            }
-                        }, (error, response, body) => {
-                            this.logger.info('AlterTran processed.', error, body);
-                            if (error) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
-                            if (response.statusCode !== 200) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
-                            let alterTranResult = querystring.parse(body);
-                            if (alterTranResult['ErrCode']) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
-
-                            this.logger.info('alterTranResult is ', alterTranResult);
-
-                            // キャンセルリクエスト保管
-                            Models.CustomerCancelRequest.create({
-                                payment_no: paymentNo,
-                                payment_method: reservations[0].get('payment_method'),
-                                email: reservations[0].get('purchaser_email'),
-                                tel: reservations[0].get('purchaser_tel')
-                            }, (err) => {
-                                if (err) return this.res.json({success: false, message: err.message});
-
-                                // TODO メール送信
-                                let to = reservations[0].get('purchaser_email');
-
-                                this.res.render('email/customer/cancel', {
-                                    layout: false,
-                                    to: to,
-                                    reservations: reservations,
-                                    moment: moment,
-                                    numeral: numeral,
-                                    conf: conf,
-                                    GMOUtil: GMOUtil,
-                                    ReservationUtil: ReservationUtil
-                                }, (err, html) => {
-                                    this.logger.info('email rendered. html:', err, html);
-
-                                    // メール失敗してもキャンセル成功
-                                    if (err) return this.res.json({success: true, message: null});
-
-                                    let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
-                                    let email = new _sendgrid.Email({
-                                        to: to,
-                                        bcc: ['tiff_mp@motionpicture.jp'],
-                                        fromname: conf.get<string>('email.fromname'),
-                                        from: conf.get<string>('email.from'),
-                                        subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京国際映画祭チケット キャンセル完了のお知らせ`,
-                                        html: html
-                                    });
-
-                                    // logo
-                                    email.addFile({
-                                        filename: `logo.png`,
-                                        contentType: 'image/png',
-                                        cid: 'logo',
-                                        content: fs.readFileSync(`${__dirname}/../../../../../public/images/email/logo.png`)
-                                    });
-
-                                    this.logger.info('sending an email...email:', email);
-                                    _sendgrid.send(email, (err, json) => {
-                                        this.logger.info('an email sent.', err, json);
-                                        // メールが送れなくてもキャンセルは成功
-                                        this.res.json({
-                                            success: true,
-                                            message: null
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    }); 
-                // コンビニ決済の場合、口座情報を保管しつつ、同期的に予約削除
-                } else if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) {
-                    // キャンセルリクエスト保管
-                    Models.CustomerCancelRequest.create({
+                    this.logger.info('removing reservations by customer... payment_no:', paymentNo);
+                    Models.Reservation.remove({
                         payment_no: paymentNo,
-                        payment_method: reservations[0].get('payment_method'),
-                        email: reservations[0].get('purchaser_email'),
-                        tel: reservations[0].get('purchaser_tel')
+                        purchaser_tel: {$regex: `${last4DigitsOfTel}$`},
+                        purchaser_group: ReservationUtil.PURCHASER_GROUP_CUSTOMER,
+                        status: ReservationUtil.STATUS_RESERVED
                     }, (err) => {
-                        if (err) return this.res.json({success: false, message: err.message});
+                        this.logger.info('reservations removed by customer.', err, 'payment_no:', paymentNo);
+                        if (err) {
+                            return this.res.json({
+                                success: false,
+                                message: err.message
+                            });
+                        }
 
-                        this.logger.info('removing reservation by customer... payment_no:', paymentNo);
-                        Models.Reservation.remove({
+                        // キャンセルリクエスト保管
+                        this.logger.info('creating CustomerCancelRequest...');
+                        Models.CustomerCancelRequest.create({
                             payment_no: paymentNo,
-                            purchaser_tel: {$regex: `${last4DigitsOfTel}$`},
-                            purchaser_group: ReservationUtil.PURCHASER_GROUP_CUSTOMER,
-                            status: ReservationUtil.STATUS_RESERVED
+                            payment_method: reservations[0].get('payment_method'),
+                            email: reservations[0].get('purchaser_email'),
+                            tel: reservations[0].get('purchaser_tel')
                         }, (err) => {
-                            this.logger.info('reservation removed by customer.', err, 'payment_no:', paymentNo);
-                            if (err) {
-                                return this.res.json({
-                                    success: false,
-                                    message: err.message
+                            this.logger.info('CustomerCancelRequest created.', err);
+                            if (err) return this.res.json({success: false, message: err.message});
+
+                            // メール送信
+                            let to = reservations[0].get('purchaser_email');
+
+                            this.res.render('email/customer/cancel', {
+                                layout: false,
+                                to: to,
+                                reservations: reservations,
+                                moment: moment,
+                                numeral: numeral,
+                                conf: conf,
+                                GMOUtil: GMOUtil,
+                                ReservationUtil: ReservationUtil
+                            }, (err, html) => {
+                                this.logger.info('email rendered. html:', err, html);
+
+                                // メール失敗してもキャンセル成功
+                                if (err) return this.res.json({success: true, message: null});
+
+                                let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
+                                let email = new _sendgrid.Email({
+                                    to: to,
+                                    bcc: ['tiff_mp@motionpicture.jp'],
+                                    fromname: conf.get<string>('email.fromname'),
+                                    from: conf.get<string>('email.from'),
+                                    subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京国際映画祭チケット キャンセル完了のお知らせ`,
+                                    html: html
                                 });
-                            }
 
-                            // TODO メール送信
+                                // logo
+                                email.addFile({
+                                    filename: `logo.png`,
+                                    contentType: 'image/png',
+                                    cid: 'logo',
+                                    content: fs.readFileSync(`${__dirname}/../../../../../public/images/email/logo.png`)
+                                });
 
-                            this.res.json({
-                                success: true,
-                                message: null
+                                this.logger.info('sending an email...email:', email);
+                                _sendgrid.send(email, (err, json) => {
+                                    this.logger.info('an email sent.', err, json);
+                                    // メールが送れなくてもキャンセルは成功
+                                    this.res.json({
+                                        success: true,
+                                        message: null
+                                    });
+                                });
                             });
                         });
                     });
+
+                    // クレジットカードの場合、GMO取消しを行えば通知で空席になる(この方法は保留)
+                    // // 取引状態参照
+                    // this.logger.info('SearchTrade processing...');
+                    // request.post({
+                    //     url: 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
+                    //     form: {
+                    //         ShopID: conf.get<string>('gmo_payment_shop_id'),
+                    //         ShopPass: conf.get<string>('gmo_payment_shop_password'),
+                    //         OrderID: paymentNo
+                    //     }
+                    // }, (error, response, body) => {
+                    //     this.logger.info('SearchTrade processed.', error, body);
+                    //     if (error) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                    //     if (response.statusCode !== 200) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                    //     let searchTradeResult = querystring.parse(body);
+                    //     if (searchTradeResult['ErrCode']) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                    //     if (searchTradeResult.Status !== GMOUtil.STATUS_CREDIT_CAPTURE) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')}); // 即時売上状態のみ先へ進める
+
+                    //     this.logger.info('searchTradeResult is ', searchTradeResult);
+
+                    //     // 決済変更
+                    //     this.logger.info('AlterTran processing...');
+                    //     request.post({
+                    //         url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
+                    //         form: {
+                    //             ShopID: conf.get<string>('gmo_payment_shop_id'),
+                    //             ShopPass: conf.get<string>('gmo_payment_shop_password'),
+                    //             AccessID: searchTradeResult.AccessID,
+                    //             AccessPass: searchTradeResult.AccessPass,
+                    //             JobCd: GMOUtil.STATUS_CREDIT_VOID
+                    //         }
+                    //     }, (error, response, body) => {
+                    //         this.logger.info('AlterTran processed.', error, body);
+                    //         if (error) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                    //         if (response.statusCode !== 200) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                    //         let alterTranResult = querystring.parse(body);
+                    //         if (alterTranResult['ErrCode']) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+
+                    //         this.logger.info('alterTranResult is ', alterTranResult);
+
+
+
+
+                    //     });
+                    // }); 
+                // コンビニ決済の場合、口座情報を保管しつつ、同期的に予約削除
+                } else if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) {
+                    // TODO
+                    return;
                 } else {
                     this.res.json({
                         success: false,

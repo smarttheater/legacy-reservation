@@ -1,18 +1,21 @@
 <script src="/js/customer/cancel.js"></script>
 
 <div class="cancelform">
-    <h2><%- __('h2.Cancel') %></h2>
+    <h2>チケットキャンセル受付ページ<br>Online Ticket Cancel</h2>
+    <h3>購入完了時に発行される購入番号と、購入時にご入力頂いた電話番号で<br>ご予約頂いた座席のキャンセルと返金リクエストを行うことができます。</h3>
+
     <p class="errmsg"></p>
+
     <form>
         <div class="form-group form-inline">
-            <labeL><%- __('Form.FieldName.paymentNo') %></labeL>
+            <labeL>購入番号<br>Transaction number</labeL>
             <input type="text" class="form-control" name="paymentNo" value="<%= paymentNo %>">
         </div>
         <div class="form-group form-inline">
-            <label><%- __('Form.FieldName.last4DigitsOfTel') %></label>
+            <label>電話番号下4桁<br>Last 4 digits of tel</label>
             <input type="text" class="form-control" name="last4DigitsOfTel" value="<%= last4DigitsOfTel %>">
         </div>
-        <p class="btn btn-big btn-confirmcancel confirm-cancel" data-url="<%- url('customer.cancel') %>"><span><%- __('Button.Cancel') %></span></p>
+        <p class="btn btn-big btn-confirmcancel confirm-cancel" data-url="<%- url('customer.cancel') %>"><span>照会<br>Confirm</span></p>
     </form>
 </div>
 
