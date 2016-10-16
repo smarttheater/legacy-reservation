@@ -28,12 +28,20 @@
                     <action type="Rewrite" url="api.js" appendQueryString="true"/>
                 </rule>
 
-                <rule name="staff">
-                    <match url="^public/staff/(.*)$" />
+                <rule name="customer" stopProcessing="true">
+                    <match url="^public/customer/(.*)$" />
                     <conditions>
                         <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True"/>
                     </conditions>
-                    <action type="Rewrite" url="index.js" appendQueryString="true"/>
+                    <action type="Redirect" redirectType="Found" url="https://2016.tiff-ticket.net/" />
+                </rule>
+
+                <rule name="GMO" stopProcessing="true">
+                    <match url="^public/GMO/(.*)$" />
+                    <conditions>
+                        <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True"/>
+                    </conditions>
+                    <action type="Redirect" redirectType="Found" url="https://2016.tiff-ticket.net/" />
                 </rule>
 
                 <!-- All other URLs are mapped to the node.js site entry point -->
@@ -41,7 +49,7 @@
                     <conditions>
                         <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True"/>
                     </conditions>
-                    <action type="Redirect" redirectType="Found" url="https://2016.tiff-ticket.net/" />
+                    <action type="Rewrite" url="index.js" appendQueryString="true"/>
                 </rule>
             </rules>
         </rewrite>
