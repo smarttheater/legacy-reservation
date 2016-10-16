@@ -8,6 +8,10 @@ const log4js = require('log4js');
 const conf = require('config');
 const request = require('request');
 const querystring = require('querystring');
+const sendgrid = require('sendgrid');
+const moment = require('moment');
+const numeral = require('numeral');
+const fs = require('fs-extra');
 class CustomerCancelController extends BaseController_1.default {
     /**
      * チケットキャンセル
@@ -39,6 +43,12 @@ class CustomerCancelController extends BaseController_1.default {
                         return this.res.json({
                             success: false,
                             message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
+                        });
+                    }
+                    if (reservations[0].get('payment_method') === GMOUtil_1.default.PAY_TYPE_CVS) {
+                        return this.res.json({
+                            success: false,
+                            message: 'コンビニはダメよ'
                         });
                     }
                     let results = reservations.map((reservation) => {
@@ -144,9 +154,46 @@ class CustomerCancelController extends BaseController_1.default {
                             if (err)
                                 return this.res.json({ success: false, message: err.message });
                             // TODO メール送信
-                            this.res.json({
-                                success: true,
-                                message: null
+                            let to = reservations[0].get('purchaser_email');
+                            this.res.render('email/customer/cancel', {
+                                layout: false,
+                                to: to,
+                                reservations: reservations,
+                                moment: moment,
+                                numeral: numeral,
+                                conf: conf,
+                                GMOUtil: GMOUtil_1.default,
+                                ReservationUtil: ReservationUtil_1.default
+                            }, (err, html) => {
+                                this.logger.info('email rendered. html:', err, html);
+                                // メール失敗してもキャンセル成功
+                                if (err)
+                                    return this.res.json({ success: true, message: null });
+                                let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
+                                let email = new _sendgrid.Email({
+                                    to: to,
+                                    bcc: ['tiff_mp@motionpicture.jp'],
+                                    fromname: conf.get('email.fromname'),
+                                    from: conf.get('email.from'),
+                                    subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京国際映画祭チケット キャンセル完了のお知らせ`,
+                                    html: html
+                                });
+                                // logo
+                                email.addFile({
+                                    filename: `logo.png`,
+                                    contentType: 'image/png',
+                                    cid: 'logo',
+                                    content: fs.readFileSync(`${__dirname}/../../../../../public/images/email/logo.png`)
+                                });
+                                this.logger.info('sending an email...email:', email);
+                                _sendgrid.send(email, (err, json) => {
+                                    this.logger.info('an email sent.', err, json);
+                                    // メールが送れなくてもキャンセルは成功
+                                    this.res.json({
+                                        success: true,
+                                        message: null
+                                    });
+                                });
                             });
                         });
                     });

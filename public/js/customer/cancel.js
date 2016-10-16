@@ -66,12 +66,17 @@ $(function(){
             },
             beforeSend: function() {
                 $('.cancel-reservation-confirm').modal('hide');
+                $('.loading').modal();
             }
         }).done(function(data) {
+            $('.loading').modal('hide');
+
             if (data.success) {
+                $('input[name="paymentNo"]').val("");
+                $('input[name="last4DigitsOfTel"]').val("");
                 $('.cancel-reservation-complete').modal();
             } else {
-                alert('キャンセルできませんでした');
+                alert("キャンセルできませんでした\n" + data.message);
 
             }
         }).fail(function(jqxhr, textStatus, error) {
