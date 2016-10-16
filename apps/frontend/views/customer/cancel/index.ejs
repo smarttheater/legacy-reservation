@@ -25,6 +25,33 @@
                 <h2><%- __('Label.ConfirmCancel') %></h2>
                 <table class="table table-reservation-confirm">
                 </table>
+
+                <form class="accountForm">
+                    <div class="form-group form-inline">
+                        <label>金融機関名</label>
+                        <input type="text" class="form-control" name="" value="">
+                    </div>
+                    <div class="form-group form-inline">
+                        <label>支店名</label>
+                        <select class="form-control" name="">
+                            <option>1</option>
+                            <option>2</option>
+                        </select>
+                    </div>
+                    <div class="form-group form-inline">
+                        <label>口座種別</label>
+                        <input type="text" class="form-control" name="" value="">
+                    </div>
+                    <div class="form-group form-inline">
+                        <label>口座番号</label>
+                        <input type="text" class="form-control" name="" value="">
+                    </div>
+                    <div class="form-group form-inline">
+                        <label>名義</label>
+                        <input type="text" class="form-control" name="" value="">
+                    </div>
+                </form>
+
                 <div class="btns2clm">
                     <p class="btn btn-lg btn-next btn-exec execute-cancel" data-url="<%- url('customer.cancel.executeByPaymentNo') %>"><span><span><%- __('Button.Cancel') %></span></p>
                     <p class="btn btn-lg btn-back" data-dismiss="modal"><span><span><%- __('Button.Back') %></span></p>

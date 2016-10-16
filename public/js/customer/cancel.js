@@ -12,6 +12,7 @@ $(function(){
             beforeSend: function() {
                 $('.errmsg').text('');
                 $('.cancel-reservation-confirm').modal('hide');
+                $('.accountForm').hide();
                 reservationIds4cancel = [];
             }
         }).done(function(data) {
@@ -39,17 +40,11 @@ $(function(){
                 $('.table-reservation-confirm').html(html);
 
                 // コンビニ決済の場合、口座情報入力フォーム追加
-                // if (data.reservations[0].payment_method === '3') {
-                var  accountForm = ''
-                            + '<div class="form-group form-inline">'
-                                + '<label>口座番号</label>'
-                                + '<input type="text" class="form-control" name="" value="">'
-                            + '</div>'
-                            + '<div class="form-group form-inline">'
-                                + '<label>名義</label>'
-                                + '<input type="text" class="form-control" name="" value="">'
-                            + '</div>';
-                // }
+                if (data.reservations[0].payment_method === '3') {
+                    $('.accountForm').show();
+                }
+
+
                 $('.cancel-reservation-confirm').modal();
             } else {
                 $('.errmsg').text(data.message);
