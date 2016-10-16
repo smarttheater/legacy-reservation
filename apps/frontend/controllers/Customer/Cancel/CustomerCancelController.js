@@ -46,7 +46,7 @@ class CustomerCancelController extends BaseController_1.default {
                     if (reservations[0].get('payment_method') === GMOUtil_1.default.PAY_TYPE_CVS) {
                         return this.res.json({
                             success: false,
-                            message: 'コンビニ決済のお客様は書きをご確認ください。<br>Please check the following if you paid at the convenience store.'
+                            message: 'コンビニ決済のお客様は下記をご確認ください。<br>Please check the following if you paid at the convenience store.'
                         });
                     }
                     let results = reservations.map((reservation) => {
