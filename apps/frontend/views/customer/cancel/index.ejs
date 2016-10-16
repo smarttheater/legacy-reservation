@@ -1,8 +1,11 @@
 <script src="/js/customer/cancel.js"></script>
 
 <div class="cancelform">
-    <h2>チケットキャンセル受付ページ<br>Online Ticket Cancel</h2>
-    <p class="row">購入完了時に発行される購入番号と、購入時にご入力頂いた電話番号で<br>ご予約頂いた座席のキャンセルと返金リクエストを行うことができます。</p>
+    <h2>チケット返金(キャンセル)受付ページ<br>Online Ticket Cancel</h2>
+    <p class="row">
+    購入完了時に発行される購入番号と、購入時にご入力頂いた電話番号で<br>ご予約頂いた座席のキャンセルと返金リクエストを行うことができます。<br>
+    You can cancel your ticket reservation and request a repayment by using the transaction number issued when you complete your reservation and the telephone number which you enter in your reservation process.
+    </p>
 
     <p class="errmsg"></p>
 
@@ -22,10 +25,13 @@
         <p>
         <br>
         コンビニエンスストア決済されたお客様：<br>
+        To customers who paid at the convenience store.
         <br>
         チケット代金及び発券手数料をお支払い頂きましたお客様につきましても<br>
         ご指定の銀行口座に返金させて頂きます。<br>
-        返金方法につきましては１０月１９日にメールにてご案内致します。
+        返金方法につきましては１０月１９日にメールにてご案内致します。<br>
+        We will refund to your bank account if you paid both of the ticket charge and the handling charge.<br>
+        We will inform you with the email on October 19th about how you receive the repayment.
         </p>
     </div>
 </div>
@@ -36,24 +42,26 @@
         <div class="modal-content">
             <p class="btn-circle-close" data-dismiss="modal"></p>
             <div class="modal-body">
-                <h2>チケットキャンセル内容照会<br>XXXXXXXXXXXXXXXXXXXX</h2>
+                <h2>チケット返金(キャンセル)内容照会<br>Ticket repayment(cancel) details</h2>
                 <p class="row">
                 以下の内容でご予約を承っております。<br>
-                キャンセルを行う場合はキャンセルを申し込むボタンを押してください。<br>
-                XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>
-                XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                キャンセルを行う場合は返金(キャンセル)を申し込むボタンを押してください。<br>
+                Your ticket reservation details are as follows.<br>
+                Please click the Button "Request for a repayment(cancel)" if you want to cancel.
                 </p>
                 <table class="table table-reservation-confirm">
                 </table>
 
 
                 <div class="btns2clm">
-                    <p class="btn btn-lg btn-next btn-exec execute-cancel" data-url="<%- url('customer.cancel.executeByPaymentNo') %>"><span><span>キャンセルを申し込む<br>xxxxxxxxxxxx</span></p>
+                    <p class="btn btn-lg btn-next btn-exec execute-cancel" data-url="<%- url('customer.cancel.executeByPaymentNo') %>"><span><span>返金(キャンセル)を申し込む<br>Request for<br>a repayment(cancel)</span></p>
                     <p class="btn btn-lg btn-back" data-dismiss="modal"><span><span>戻る<br>Back</span></p>
                 </div>
 
                 <p>
-                なお、一旦申込されますと申し込み取り消しはできませんのでご注意ください
+                なお、一旦申込されますと申し込み取り消しはできませんのでご注意ください。<br>
+                If once you request you cannot cancel it. 
+                Please be careful.
                 </p>
             </div>
         </div>
@@ -64,12 +72,14 @@
         <div class="modal-content">
             <p class="btn-circle-close" data-dismiss="modal"></p>
             <div class="modal-body">
-                <h2>チケットキャンセル内容照会<br>XXXXXXXXXXXXXXXXXXXX</h2>
+                <h2>チケット返金(キャンセル)内容照会<br>Ticket repayment(cancel) details</h2>
                 <p>
-                チケットのキャンセル及び返金の手続きを受付けました。<br>
-                XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>
+                返金(キャンセル)の手続きを受付けました。<br>
                 実際のキャンセル処理は申し込みの翌日に自動的に実施します<br>
-                XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>
+                お客様ならびに関係する皆様に多大なるご迷惑、ご心配をお掛けしたことを重ねてお詫び申し上げます。<br>
+                We have received your request for a repayment(cancel).<br>
+                The repayment will be executed automatically on the day following your request.<br>
+                We sincerely apologize to you and all Concerned for causing the inconvenience.
                 </p>
             </div>
             <div class="modal-footer">
@@ -84,10 +94,10 @@
         <div class="modal-content">
             <p class="btn-circle-close" data-dismiss="modal"></p>
             <div class="modal-body">
-                <%- __('Message.Sending') %>
+                キャンセルしています...<br>Now canceling...
             </div>
             <div class="modal-footer">
-                <p class="btn btn-close" data-dismiss="modal"><span><%- __('Button.Close') %></span></p>
+                <p class="btn btn-close" data-dismiss="modal"><span>閉じる<br>Close</span></p>
             </div>
         </div>
     </div>

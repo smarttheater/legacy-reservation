@@ -30,7 +30,7 @@ $(function(){
                     if (index > 0) html += ', ';
                     html += reservation.seat_code;
                 });
-                html += '<br>※キャンセルは購入番号単位となります。<br>XXXXXXXXXXX';
+                html += '<br>※キャンセルは購入番号単位となります。<br>*You can cancel the reservation by the transaction number.';
                 html += '</td></tr>';
 
                 $('.table-reservation-confirm').html(html);
@@ -43,7 +43,7 @@ $(function(){
 
                 $('.cancel-reservation-confirm').modal();
             } else {
-                $('.errmsg').text(data.message);
+                $('.errmsg').html(data.message);
             }
         }).fail(function(jqxhr, textStatus, error) {
             $('.errmsg').text('Unexpected Error.');
@@ -72,11 +72,11 @@ $(function(){
                 $('input[name="last4DigitsOfTel"]').val("");
                 $('.cancel-reservation-complete').modal();
             } else {
-                alert("キャンセルできませんでした\n" + data.message);
+                alert("キャンセルできませんでした。\nFailed in canceling." + data.message);
 
             }
         }).fail(function(jqxhr, textStatus, error) {
-            alert('キャンセルできませんでした');
+            alert("キャンセルできませんでした。\nFailed in canceling.");
         }).always(function(data) {
         });
     });

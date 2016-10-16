@@ -21,7 +21,7 @@ class CustomerCancelController extends BaseController_1.default {
                 if (!this.req.form.isValid) {
                     return this.res.json({
                         success: false,
-                        message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
+                        message: '購入番号または電話番号下4ケタに誤りがあります<br>There are some mistakes in a transaction number or last 4 digits of tel.'
                     });
                 }
                 // 予約を取得(クレジットカード決済のみ)
@@ -34,19 +34,19 @@ class CustomerCancelController extends BaseController_1.default {
                     if (err) {
                         return this.res.json({
                             success: false,
-                            message: this.req.__('Message.UnexpectedError')
+                            message: 'A system error has occurred. Please try again later. Sorry for the inconvenience.'
                         });
                     }
                     if (reservations.length === 0) {
                         return this.res.json({
                             success: false,
-                            message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
+                            message: '購入番号または電話番号下4ケタに誤りがあります<br>There are some mistakes in a transaction number or last 4 digits of tel.'
                         });
                     }
                     if (reservations[0].get('payment_method') === GMOUtil_1.default.PAY_TYPE_CVS) {
                         return this.res.json({
                             success: false,
-                            message: 'コンビニはダメよ'
+                            message: 'コンビニ決済のお客様は書きをご確認ください。<br>Please check the following if you paid at the convenience store.'
                         });
                     }
                     let results = reservations.map((reservation) => {
@@ -91,7 +91,7 @@ class CustomerCancelController extends BaseController_1.default {
             status: ReservationUtil_1.default.STATUS_RESERVED
         }, (err, reservations) => {
             if (err)
-                return this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                return this.res.json({ success: false, message: 'A system error has occurred. Please try again later. Sorry for the inconvenience.' });
             if (reservations.length === 0) {
                 return this.res.json({
                     success: false,
@@ -176,7 +176,7 @@ class CustomerCancelController extends BaseController_1.default {
             else {
                 this.res.json({
                     success: false,
-                    message: this.req.__('Message.UnexpectedError')
+                    message: 'A system error has occurred. Please try again later. Sorry for the inconvenience.'
                 });
             }
         });
