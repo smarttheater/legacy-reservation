@@ -18,56 +18,57 @@ export default class CustomerCancelController extends BaseController {
         if (this.req.method === 'POST') {
             let form = customerCancelForm(this.req);
             form(this.req, this.res, (err) => {
-                if (this.req.form.isValid) {
-                    // 予約を取得
-                    Models.Reservation.find(
-                        {
-                            payment_no: this.req.form['paymentNo'],
-                            purchaser_tel: {$regex: `${this.req.form['last4DigitsOfTel']}$`},
-                            purchaser_group: ReservationUtil.PURCHASER_GROUP_CUSTOMER,
-                            status: ReservationUtil.STATUS_RESERVED
-                        },
-                        (err, reservations) => {
-                            if (err) {
-                                return this.res.json({
-                                    success: false,
-                                    message: this.req.__('Message.UnexpectedError')
-                                });
-                            }
-
-                            if (reservations.length === 0) {
-                                return this.res.json({
-                                    success: false,
-                                    message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
-                                });
-                            }
-
-                            let results = reservations.map((reservation) => {
-                                return {
-                                    _id: reservation.get('_id'),
-                                    seat_code: reservation.get('seat_code'),
-                                    payment_no: reservation.get('payment_no'),
-                                    film_name_ja: reservation.get('film_name_ja'),
-                                    film_name_en: reservation.get('film_name_en'),
-                                    performance_start_str_ja: reservation.get('performance_start_str_ja'),
-                                    performance_start_str_en: reservation.get('performance_start_str_en'),
-                                    location_str_ja: reservation.get('location_str_ja'),
-                                    location_str_en: reservation.get('location_str_en')
-                                };
-                            });
-                            this.res.json({
-                                success: true,
-                                message: null,
-                                reservations: results
-                            });
-                        }
-                    );
-                } else {
-                    this.res.json({
+                if (!this.req.form.isValid) {
+                    return this.res.json({
                         success: false,
                         message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
                     });
                 }
+
+                // 予約を取得(クレジットカード決済のみ)
+                Models.Reservation.find(
+                    {
+                        payment_no: this.req.form['paymentNo'],
+                        purchaser_tel: {$regex: `${this.req.form['last4DigitsOfTel']}$`},
+                        purchaser_group: ReservationUtil.PURCHASER_GROUP_CUSTOMER,
+                        status: ReservationUtil.STATUS_RESERVED
+                    },
+                    (err, reservations) => {
+                        if (err) {
+                            return this.res.json({
+                                success: false,
+                                message: this.req.__('Message.UnexpectedError')
+                            });
+                        }
+
+                        if (reservations.length === 0) {
+                            return this.res.json({
+                                success: false,
+                                message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
+                            });
+                        }
+
+                        let results = reservations.map((reservation) => {
+                            return {
+                                _id: reservation.get('_id'),
+                                seat_code: reservation.get('seat_code'),
+                                payment_no: reservation.get('payment_no'),
+                                film_name_ja: reservation.get('film_name_ja'),
+                                film_name_en: reservation.get('film_name_en'),
+                                performance_start_str_ja: reservation.get('performance_start_str_ja'),
+                                performance_start_str_en: reservation.get('performance_start_str_en'),
+                                location_str_ja: reservation.get('location_str_ja'),
+                                location_str_en: reservation.get('location_str_en'),
+                                payment_method: reservation.get('payment_method')
+                            };
+                        });
+                        this.res.json({
+                            success: true,
+                            message: null,
+                            reservations: results
+                        });
+                    }
+                );
             });
         } else {
             this.res.locals.paymentNo = '';
@@ -144,38 +145,58 @@ export default class CustomerCancelController extends BaseController {
 
                             this.logger.info('alterTranResult is ', alterTranResult);
 
-                            this.res.json({
-                                success: true,
-                                message: null
+                            // キャンセルリクエスト保管
+                            Models.CustomerCancelRequest.create({
+                                payment_no: paymentNo,
+                                payment_method: reservations[0].get('payment_method'),
+                                email: reservations[0].get('purchaser_email'),
+                                tel: reservations[0].get('purchaser_tel')
+                            }, (err) => {
+                                if (err) return this.res.json({success: false, message: err.message});
+
+                                // TODO メール送信
+
+                                this.res.json({
+                                    success: true,
+                                    message: null
+                                });
                             });
                         });
                     }); 
                 // コンビニ決済の場合、口座情報を保管しつつ、同期的に予約削除
                 } else if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) {
-                    // TODO 口座情報保管
-                    this.logger.info('removing reservation by customer... payment_no:', paymentNo);
-                    Models.Reservation.remove(
-                        {
+                    // キャンセルリクエスト保管
+                    Models.CustomerCancelRequest.create({
+                        payment_no: paymentNo,
+                        payment_method: reservations[0].get('payment_method'),
+                        email: reservations[0].get('purchaser_email'),
+                        tel: reservations[0].get('purchaser_tel')
+                    }, (err) => {
+                        if (err) return this.res.json({success: false, message: err.message});
+
+                        this.logger.info('removing reservation by customer... payment_no:', paymentNo);
+                        Models.Reservation.remove({
                             payment_no: paymentNo,
                             purchaser_tel: {$regex: `${last4DigitsOfTel}$`},
                             purchaser_group: ReservationUtil.PURCHASER_GROUP_CUSTOMER,
                             status: ReservationUtil.STATUS_RESERVED
-                        },
-                        (err) => {
+                        }, (err) => {
                             this.logger.info('reservation removed by customer.', err, 'payment_no:', paymentNo);
                             if (err) {
-                                this.res.json({
+                                return this.res.json({
                                     success: false,
                                     message: err.message
                                 });
-                            } else {
-                                this.res.json({
-                                    success: true,
-                                    message: null
-                                });
                             }
-                        }
-                    );
+
+                            // TODO メール送信
+
+                            this.res.json({
+                                success: true,
+                                message: null
+                            });
+                        });
+                    });
                 } else {
                     this.res.json({
                         success: false,

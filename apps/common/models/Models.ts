@@ -1,6 +1,7 @@
 import mongoose = require('mongoose');
 
 import AuthenticationSchema from '../models/Authentication/AuthenticationSchema';
+import CustomerCancelRequestSchema from '../models/CustomerCancelRequest/CustomerCancelRequestSchema';
 import FilmSchema from '../models/Film/FilmSchema';
 import MemberSchema from '../models/Member/MemberSchema';
 import PerformanceSchema from '../models/Performance/PerformanceSchema';
@@ -178,6 +179,7 @@ StaffSchema.post('findOneAndUpdate', function(doc, next){
 
 
 let Authentication = mongoose.model('Authentication', AuthenticationSchema);
+let CustomerCancelRequest = mongoose.model('CustomerCancelRequest', CustomerCancelRequestSchema);
 let Film = mongoose.model('Film', FilmSchema);
 let Member = mongoose.model('Member', MemberSchema);
 let Performance = mongoose.model('Performance', PerformanceSchema);
@@ -197,6 +199,7 @@ let Window = mongoose.model('Window', WindowSchema);
  */
 let Models = {
     Authentication,
+    CustomerCancelRequest,
     Film,
     Member,
     Performance,

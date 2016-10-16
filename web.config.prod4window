@@ -49,7 +49,7 @@
                     <conditions>
                         <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True"/>
                     </conditions>
-                    <action type="Redirect" redirectType="Found" url="https://2016.tiff-ticket.net/" />
+                    <action type="Rewrite" url="index.js" appendQueryString="true"/>
                 </rule>
             </rules>
         </rewrite>
