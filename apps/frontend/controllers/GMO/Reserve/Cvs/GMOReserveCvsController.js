@@ -116,6 +116,10 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                 });
                 break;
             case GMOUtil_1.default.STATUS_CVS_REQSUCCESS:
+                // 入金待ちステータスへの更新を一時停止
+                // TODO 調整
+                this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
+                break;
                 // 決済待ちステータスへ変更
                 update = {
                     gmo_shop_id: gmoNotificationModel.ShopID,
