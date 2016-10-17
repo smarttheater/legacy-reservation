@@ -152,11 +152,6 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                 break;
 
             case GMOUtil.STATUS_CVS_REQSUCCESS:
-                // 入金待ちステータスへの更新を一時停止
-                // TODO 調整
-                this.res.send(GMONotificationResponseModel.RecvRes_NG);
-                break;
-
                 // 決済待ちステータスへ変更
                 update = {
                     gmo_shop_id: gmoNotificationModel.ShopID,
@@ -277,7 +272,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
      * @param {Object} update 追加更新パラメータ
      */
     protected processChangeStatus2waitingSettlement(paymentNo: string, update: Object, cb: (err: Error) => void): void {
-        update['status'] = ReservationUtil.STATUS_WAITING_SETTLEMENT;
+        // update['status'] = ReservationUtil.STATUS_WAITING_SETTLEMENT;
         update['updated_user'] = 'GMOReserveCsvController';
 
         // 決済待ちステータスへ変更

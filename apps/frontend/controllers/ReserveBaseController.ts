@@ -532,8 +532,7 @@ export default class ReserveBaseController extends BaseController {
                 };
                 switch (this.purchaserGroup) {
                     case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-                        // GMO決済の場合、この時点で入金待ちにしてみる
-                        // TODO 調整
+                        // GMO決済の場合、この時点で決済中ステータスに変更
                         commonUpdate['status'] = ReservationUtil.STATUS_WAITING_SETTLEMENT;
                         commonUpdate['expired_at'] = null;
 

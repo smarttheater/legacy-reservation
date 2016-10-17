@@ -90,6 +90,16 @@ export default class GMOReserveController extends ReserveBaseController {
                         this.res.locals.dateTime
                     );
 
+                    if (process.env.NODE_ENV === 'prod') {
+                        this.res.locals.retURL = `https://${conf.get<string>('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.result')}`;
+                        // 決済キャンセル時に遷移する加盟店URL
+                        this.res.locals.cancelURL = `https://${conf.get<string>('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.cancel', {paymentNo: reservationModel.paymentNo})}`;
+                    } else {
+                        this.res.locals.retURL = `https://${this.req.headers['host']}${this.router.build('gmo.reserve.result')}`;
+                        // 決済キャンセル時に遷移する加盟店URL
+                        this.res.locals.cancelURL = `https://${this.req.headers['host']}${this.router.build('gmo.reserve.cancel', {paymentNo: reservationModel.paymentNo})}`;
+                    }
+
                     this.logger.info('redirecting to GMO payment...');
                     // GMOへの送信データをログに残すために、一度htmlを取得してからrender
                     this.res.render('gmo/reserve/start', (err, html) => {
@@ -226,7 +236,7 @@ export default class GMOReserveController extends ReserveBaseController {
             Models.Reservation.find(
                 {
                     payment_no: paymentNo,
-                    status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_WAITING_SETTLEMENT]}
+                    status: ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
                 },
                 'purchaser_group member'
             ).exec((err, reservations) => {
