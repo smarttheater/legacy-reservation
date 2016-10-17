@@ -97,6 +97,7 @@ export default class ReservationController extends BaseController {
         Models.Reservation.remove(
             {
                 status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
+                payment_method: GMOUtil.PAY_TYPE_CVS,
                 gmo_payment_term: {
                     $lt: moment().add(-hours, 'hours').format('YYYYMMDDHHmmss')
                 }

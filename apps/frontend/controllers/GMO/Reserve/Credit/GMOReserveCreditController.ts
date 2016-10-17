@@ -35,7 +35,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
             {
                 payment_no: gmoResultModel.OrderID
             },
-            '_id purchaser_group',
+            '_id purchaser_group pre_customer',
             (err, reservations) => {
                 this.logger.info('reservations found.', err, reservations.length);
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -67,7 +67,12 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                             this.res.redirect(this.router.build('member.reserve.complete', {paymentNo: gmoResultModel.OrderID}));
                             break;
                         default:
-                            this.res.redirect(this.router.build('customer.reserve.complete', {paymentNo: gmoResultModel.OrderID}));
+                            if (reservations[0].get('pre_customer')) {
+                                this.res.redirect(this.router.build('pre.reserve.complete', {paymentNo: gmoResultModel.OrderID}));
+                            } else {
+                                this.res.redirect(this.router.build('customer.reserve.complete', {paymentNo: gmoResultModel.OrderID}));
+                            }
+
                             break;
                     }
                 });

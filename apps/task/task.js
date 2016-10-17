@@ -12,6 +12,7 @@ const SchemaController_1 = require('./controllers/Schema/SchemaController');
 const TelController_1 = require('./controllers/Tel/TelController');
 const WindowController_1 = require('./controllers/Window/WindowController');
 const LogController_1 = require('./controllers/Log/LogController');
+const PreCustomerController_1 = require('./controllers/PreCustomer/PreCustomerController');
 let env = process.env.NODE_ENV || 'dev';
 program
     .version('0.0.1');
@@ -42,6 +43,13 @@ program
     .action((method) => {
     let logDir = `${__dirname}/../../logs/${env}/task/Sponsor${method.charAt(0).toUpperCase()}${method.slice(1)}`;
     (new SponsorController_1.default(logDir))[method]();
+});
+program
+    .command('preCustomer <method>')
+    .description('1.5次販売ユーザータスク')
+    .action((method) => {
+    let logDir = `${__dirname}/../../logs/${env}/task/PreCustomer${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+    (new PreCustomerController_1.default(logDir))[method]();
 });
 program
     .command('performance <method>')

@@ -75,6 +75,7 @@ class ReservationController extends BaseController_1.default {
         this.logger.info('removing STATUS_WAITING_SETTLEMENT reservations...');
         Models_1.default.Reservation.remove({
             status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
+            payment_method: GMOUtil_1.default.PAY_TYPE_CVS,
             gmo_payment_term: {
                 $lt: moment().add(-hours, 'hours').format('YYYYMMDDHHmmss')
             }

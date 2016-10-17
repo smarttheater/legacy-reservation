@@ -5,6 +5,7 @@ const CustomerCancelRequestSchema_1 = require('../models/CustomerCancelRequest/C
 const FilmSchema_1 = require('../models/Film/FilmSchema');
 const MemberSchema_1 = require('../models/Member/MemberSchema');
 const PerformanceSchema_1 = require('../models/Performance/PerformanceSchema');
+const PreCustomerSchema_1 = require('../models/PreCustomer/PreCustomerSchema');
 const ReservationSchema_1 = require('../models/Reservation/ReservationSchema');
 const ReservationEmailCueSchema_1 = require('../models/ReservationEmailCue/ReservationEmailCueSchema');
 const ScreenSchema_1 = require('../models/Screen/ScreenSchema');
@@ -129,6 +130,7 @@ let CustomerCancelRequest = mongoose.model('CustomerCancelRequest', CustomerCanc
 let Film = mongoose.model('Film', FilmSchema_1.default);
 let Member = mongoose.model('Member', MemberSchema_1.default);
 let Performance = mongoose.model('Performance', PerformanceSchema_1.default);
+let PreCustomer = mongoose.model('PreCustomer', PreCustomerSchema_1.default);
 let Reservation = mongoose.model('Reservation', ReservationSchema_1.default);
 let ReservationEmailCue = mongoose.model('ReservationEmailCue', ReservationEmailCueSchema_1.default);
 let Screen = mongoose.model('Screen', ScreenSchema_1.default);
@@ -148,6 +150,7 @@ let Models = {
     Film,
     Member,
     Performance,
+    PreCustomer,
     Reservation,
     ReservationEmailCue,
     Screen,

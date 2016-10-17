@@ -38,6 +38,7 @@ import staffRouter from './routes/staff';
 import telRouter from './routes/tel';
 import windowRouter from './routes/window';
 import customerSupport from './routes/customerSupport';
+import preRouter from './routes/pre';
 import router from './routes/router';
 
 let namedRoutes = new NamedRoutes();
@@ -117,6 +118,7 @@ staffRouter(app);
 telRouter(app);
 windowRouter(app);
 customerSupport(app);
+preRouter(app);
 router(app);
 
 

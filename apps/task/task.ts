@@ -11,6 +11,7 @@ import SchemaController from './controllers/Schema/SchemaController';
 import TelController from './controllers/Tel/TelController';
 import WindowController from './controllers/Window/WindowController';
 import LogController from './controllers/Log/LogController';
+import PreCustomerController from './controllers/PreCustomer/PreCustomerController';
 
 let env = process.env.NODE_ENV || 'dev';
 
@@ -47,6 +48,14 @@ program
     .action((method) => {
         let logDir = `${__dirname}/../../logs/${env}/task/Sponsor${method.charAt(0).toUpperCase()}${method.slice(1)}`;
         (new SponsorController(logDir))[method]();
+    });
+
+program
+    .command('preCustomer <method>')
+    .description('1.5次販売ユーザータスク')
+    .action((method) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/PreCustomer${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+        (new PreCustomerController(logDir))[method]();
     });
 
 program

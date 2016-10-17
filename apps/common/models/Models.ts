@@ -5,6 +5,7 @@ import CustomerCancelRequestSchema from '../models/CustomerCancelRequest/Custome
 import FilmSchema from '../models/Film/FilmSchema';
 import MemberSchema from '../models/Member/MemberSchema';
 import PerformanceSchema from '../models/Performance/PerformanceSchema';
+import PreCustomerSchema from '../models/PreCustomer/PreCustomerSchema';
 import ReservationSchema from '../models/Reservation/ReservationSchema';
 import ReservationEmailCueSchema from '../models/ReservationEmailCue/ReservationEmailCueSchema';
 import ScreenSchema from '../models/Screen/ScreenSchema';
@@ -183,6 +184,7 @@ let CustomerCancelRequest = mongoose.model('CustomerCancelRequest', CustomerCanc
 let Film = mongoose.model('Film', FilmSchema);
 let Member = mongoose.model('Member', MemberSchema);
 let Performance = mongoose.model('Performance', PerformanceSchema);
+let PreCustomer = mongoose.model('PreCustomer', PreCustomerSchema);
 let Reservation = mongoose.model('Reservation', ReservationSchema);
 let ReservationEmailCue = mongoose.model('ReservationEmailCue', ReservationEmailCueSchema);
 let Screen = mongoose.model('Screen', ScreenSchema);
@@ -203,6 +205,7 @@ let Models = {
     Film,
     Member,
     Performance,
+    PreCustomer,
     Reservation,
     ReservationEmailCue,
     Screen,

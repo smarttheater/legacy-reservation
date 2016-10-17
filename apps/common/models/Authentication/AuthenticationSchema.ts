@@ -25,6 +25,10 @@ let Schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Window,'
     },
+    pre_customer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'PreCustomer,'
+    },
     signature: String, // 署名
     locale: String // 使用言語
 },{

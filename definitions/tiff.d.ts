@@ -1,6 +1,7 @@
 declare namespace Express {
     export interface Request {
         memberUser?: MemberUser;
+        preCustomerUser?: PreCustomerUser;
         sponsorUser?: SponsorUser;
         staffUser?: StaffUser;
         telStaffUser?: TelStaffUser;
@@ -13,6 +14,8 @@ declare namespace Express {
     }
 
     export class MemberUser extends BaseUser {
+    }
+    export class PreCustomerUser extends BaseUser {
     }
     export class SponsorUser extends BaseUser {
     }

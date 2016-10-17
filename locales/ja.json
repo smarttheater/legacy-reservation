@@ -32,7 +32,8 @@
 		"Profile": "購入者情報",
 		"LoginForStaffs": "内部関係者向けログイン",
 		"LoginForSponsors": "外部関係者向けログイン",
-		"Cancel": "キャンセル"
+		"Cancel": "キャンセル",
+		"LoginForPreCustomers": "h2.LoginForPreCustomers"
 	},
 	"Label": {
 		"Agree": "同意する",

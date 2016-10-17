@@ -535,6 +535,14 @@ export default class ReserveBaseController extends BaseController {
                         // GMO決済の場合、この時点で入金待ちにしてみる
                         // TODO 調整
                         commonUpdate['status'] = ReservationUtil.STATUS_WAITING_SETTLEMENT;
+                        commonUpdate['expired_at'] = null;
+
+                        // 1.5次販売ユーザーの場合
+                        if (this.req.preCustomerUser) {
+                            commonUpdate['pre_customer'] = this.req.preCustomerUser.get('_id');
+                            commonUpdate['pre_customer_user_id'] = this.req.preCustomerUser.get('user_id');
+                        }
+
                         break;
 
                     case ReservationUtil.PURCHASER_GROUP_MEMBER:

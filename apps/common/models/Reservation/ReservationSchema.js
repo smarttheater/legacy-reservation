@@ -74,6 +74,11 @@ let Schema = new mongoose.Schema({
     watcher_name: String,
     watcher_name_updated_at: Date,
     charge: Number,
+    pre_customer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'PreCustomer'
+    },
+    pre_customer_user_id: String,
     sponsor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Sponsor'

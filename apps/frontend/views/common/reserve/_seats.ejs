@@ -9,6 +9,8 @@
 
 <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR) { %>
 <p class="remainingtickets"><%- __('Label.NumberOfTicketsAvailable') %>:<strong><span class="reservable-count"><%= reservableCount - reservationModel.seatCodes.length %></span><% if (req.locale === 'ja') { %>枚<% } %></strong></p>
+<% } else if (req.preCustomerUser) { %>
+<p class="remainingtickets"><%- __('Label.NumberOfTicketsAvailable') %>:<strong><span class="reservable-count"><%= reservableCount - reservationModel.seatCodes.length %></span><% if (req.locale === 'ja') { %>枚<% } %></strong></p>
 <% } %>
 
 <div class="wrapper-2clm">

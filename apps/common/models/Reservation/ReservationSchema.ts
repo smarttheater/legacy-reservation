@@ -86,6 +86,12 @@ let Schema = new mongoose.Schema({
 
     charge: Number, // 座席単体の料金
 
+    pre_customer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'PreCustomer'
+    },
+    pre_customer_user_id: String,
+
     sponsor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Sponsor'

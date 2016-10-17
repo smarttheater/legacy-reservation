@@ -32,7 +32,8 @@
 		"Profile": "Customer information",
 		"LoginForStaffs": "Log in for people inside TIFF",
 		"LoginForSponsors": "Log in for people related to TIFF",
-		"Cancel": "Cancel"
+		"Cancel": "Cancel",
+		"LoginForPreCustomers": "h2.LoginForPreCustomers"
 	},
 	"Label": {
 		"Agree": "Agree",
