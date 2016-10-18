@@ -192,10 +192,10 @@ export default class GMOReserveController extends ReserveBaseController {
      */
     public notify(): void {
         let gmoNotificationModel = GMONotificationModel.parse(this.req.body);
-        let paymenyNo = gmoNotificationModel.OrderID;
+        let paymentNo = gmoNotificationModel.OrderID;
 
         // 予約プロセス固有のログファイルをセット
-        this.setProcessLogger(paymenyNo, () => {
+        this.setProcessLogger(paymentNo, () => {
             this.logger.info('gmoNotificationModel is', gmoNotificationModel);
 
             switch (gmoNotificationModel.PayType) {

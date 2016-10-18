@@ -3,6 +3,8 @@ import PreCustomerUser from '../../../models/User/PreCustomerUser';
 import preCustomerLoginForm from '../../../forms/preCustomer/preCustomerLoginForm';
 import Util from '../../../../common/Util/Util';
 import Models from '../../../../common/models/Models';
+import moment = require('moment');
+import conf = require('config');
 
 export default class PreCustomerAuthController extends BaseController {
     public layout = 'layouts/preCustomer/layout';
@@ -11,6 +13,12 @@ export default class PreCustomerAuthController extends BaseController {
      * pre customer login
      */
     public login(): void {
+        // 期限指定
+        let now = moment();
+        if (now < moment(conf.get<string>('datetimes.reservation_start_pre_customers')) || moment(conf.get<string>('datetimes.reservation_end_pre_customers')) < now) {
+            return this.res.render('preCustomer/reserve/outOfTerm', {layout: false});
+        }
+
         if (this.req.preCustomerUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('pre.reserve.start'));
         }

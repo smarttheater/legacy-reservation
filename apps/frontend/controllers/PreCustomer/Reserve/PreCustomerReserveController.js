@@ -18,8 +18,9 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
     }
     start() {
         // 期限指定
-        if (moment() < moment(conf.get('datetimes.reservation_start_pre_customers'))) {
-            return this.next(new Error(this.req.__('Message.OutOfTerm')));
+        let now = moment();
+        if (now < moment(conf.get('datetimes.reservation_start_pre_customers')) || moment(conf.get('datetimes.reservation_end_pre_customers')) < now) {
+            return this.res.render('preCustomer/reserve/outOfTerm', { layout: false });
         }
         this.processStart((err, reservationModel) => {
             if (err)
