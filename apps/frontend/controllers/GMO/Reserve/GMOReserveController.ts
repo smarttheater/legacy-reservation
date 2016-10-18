@@ -130,27 +130,14 @@ export default class GMOReserveController extends ReserveBaseController {
                     {
                         payment_no: paymentNo
                     },
-                    '_id',
+                    'gmo_shop_pass_string purchased_at',
                     (err, reservations) => {
                         this.logger.info('reservations found.', err, reservations.length);
                         if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         if (reservations.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
-                        // キャンセル
-                        let promises = reservations.map((reservation) => {
-                            return new Promise((resolve, reject) => {
-                                this.logger.info('removing reservation...', reservation.get('_id'));
-                                reservation.remove((err) => {
-                                    this.logger.info('reservation removed.', reservation.get('_id'), err);
-                                    (err) ? reject(err) : resolve();
-                                });
-                            });
-                        });
-                        Promise.all(promises).then(() => {
-                            this.res.render('gmo/reserve/cancel');
-                        }, (err) => {
-                            this.res.render('gmo/reserve/cancel');
-                        });
+                        // 特に何もしない
+                        this.res.render('gmo/reserve/cancel');
                     }
                 );
             } else {
@@ -222,7 +209,7 @@ export default class GMOReserveController extends ReserveBaseController {
     }
 
     /**
-     * 決済キャンセル
+     * 決済キャンセル時に遷移
      */
     public cancel(): void {
         let paymentNo = this.req.params.paymentNo;
@@ -237,46 +224,14 @@ export default class GMOReserveController extends ReserveBaseController {
                     payment_no: paymentNo,
                     status: ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
                 },
-                'purchaser_group member'
+                'purchaser_group'
             ).exec((err, reservations) => {
                 this.logger.info('reservations found.', err, reservations);
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 if (reservations.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
 
-                // ログイン中ユーザーの決済かどうかチェック
-                let purchaserGroup = reservations[0].get('purchaser_group');
-                switch (purchaserGroup) {
-                    case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-                        break;
-
-                    case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                        if (!this.req.memberUser.isAuthenticated()) {
-                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        } else if (this.req.memberUser.get('_id') !== reservations[0].get('member').toString()) {
-                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        }
-
-                        break;
-
-                    default:
-                        break;
-                }
-
-                // キャンセル
-                let promises = reservations.map((reservation) => {
-                    return new Promise((resolve, reject) => {
-                        this.logger.info('removing reservation...', reservation.get('_id'));
-                        reservation.remove((err) => {
-                            this.logger.info('reservation removed.', reservation.get('_id'), err);
-                            (err) ? reject(err) : resolve();
-                        });
-                    });
-                });
-                Promise.all(promises).then(() => {
-                    this.res.render('gmo/reserve/cancel');
-                }, (err) => {
-                    this.res.render('gmo/reserve/cancel');
-                });
+                // 特に何もしない
+                this.res.render('gmo/reserve/cancel');
             });
         });
     }

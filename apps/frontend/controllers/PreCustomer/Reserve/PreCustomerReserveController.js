@@ -284,7 +284,6 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
             purchaser_group: this.purchaserGroup,
-            pre_customer: this.req.preCustomerUser.get('_id'),
             status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
             purchased_at: {
                 $gt: moment().add(-30, 'minutes').toISOString()
@@ -310,7 +309,6 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_RESERVED,
-            pre_customer: this.req.preCustomerUser.get('_id'),
             purchased_at: {
                 $gt: moment().add(-30, 'minutes').toISOString()
             }

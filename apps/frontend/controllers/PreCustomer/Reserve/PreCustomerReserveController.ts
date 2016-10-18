@@ -306,7 +306,6 @@ export default class PreCustomerReserveController extends ReserveBaseController 
             {
                 payment_no: paymentNo,
                 purchaser_group: this.purchaserGroup,
-                pre_customer: this.req.preCustomerUser.get('_id'),
                 status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
                 purchased_at: { // 購入確定から30分有効
                     $gt: moment().add(-30, 'minutes').toISOString()
@@ -336,7 +335,6 @@ export default class PreCustomerReserveController extends ReserveBaseController 
             {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
-                pre_customer: this.req.preCustomerUser.get('_id'),
                 purchased_at: { // 購入確定から30分有効
                     $gt: moment().add(-30, 'minutes').toISOString()
                 }

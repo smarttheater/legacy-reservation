@@ -184,7 +184,6 @@ export default class MemberReserveController extends ReserveBaseController imple
             {
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
-                member: this.req.memberUser.get('_id'),
                 purchased_at: { // 購入確定から30分有効
                     $gt: moment().add(-30, 'minutes').toISOString()
                 }

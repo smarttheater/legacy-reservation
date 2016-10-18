@@ -177,7 +177,6 @@ class MemberReserveController extends ReserveBaseController_1.default {
         Models_1.default.Reservation.find({
             payment_no: paymentNo,
             status: ReservationUtil_1.default.STATUS_RESERVED,
-            member: this.req.memberUser.get('_id'),
             purchased_at: {
                 $gt: moment().add(-30, 'minutes').toISOString()
             }
