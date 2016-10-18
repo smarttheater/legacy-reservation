@@ -57,10 +57,10 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                         break;
                     default:
                         if (reservations[0].get('pre_customer')) {
-                            this.res.redirect(this.router.build('customer.reserve.waitingSettlement', { paymentNo: gmoResultModel.OrderID }));
+                            this.res.redirect(this.router.build('pre.reserve.waitingSettlement', { paymentNo: gmoResultModel.OrderID }));
                         }
                         else {
-                            this.res.redirect(this.router.build('pre.reserve.waitingSettlement', { paymentNo: gmoResultModel.OrderID }));
+                            this.res.redirect(this.router.build('customer.reserve.waitingSettlement', { paymentNo: gmoResultModel.OrderID }));
                         }
                         break;
                 }
