@@ -28,12 +28,14 @@ let paymentTerm = moment(`${term.substr(0, 4)}-${term.substr(4, 2)}-${term.subst
     <p style="font-size:14px;">
         この度は東京国際映画祭チケットサイトをご利用いただき誠にありがとうございます。<br>
         下記の内容にて仮予約を承りました。<br>
-        ご確認の上、お支払期限までにお近くのファミリーマートにて購入された日を含む3日以内（<%- paymentTerm.format('M月DD日') %>まで）にお支払い下さい。
+        ご確認の上、お支払期限までにお近くのファミリーマートにて購入された日を含む3日以内（<%- paymentTerm.format('M月DD日') %>まで）にお支払い下さい。<br>
+        皆さまに大変ご迷惑をおかけしております事、深くお詫び申し上げます。
     </p>
     <p style="font-size:12px;">
         Thank you very much for using the Tokyo International Film Festival ticketing website.<br>
         We have accepted your tentative reservation as stated below.<br>
-        Please check the details and make a payment at your nearest FamilyMart store within 3 days including the date of your reservation(by <%- paymentTerm.format('MMMM D') %>).
+        Please check the details and make a payment at your nearest FamilyMart store within 3 days including the date of your reservation(by <%- paymentTerm.format('MMMM D') %>).<br>
+        We sincerely apologize for the inconvenience we caused you.
     </p>
 
 
@@ -128,6 +130,12 @@ let paymentTerm = moment(`${term.substr(0, 4)}-${term.substr(4, 2)}-${term.subst
         <span style="font-size:12px;"><%- numeral(totalCharge).format('0,0') %> yen (including tax)</span>
     </div>
     <% } %>
+
+
+    <p style="font-size:12px;">
+        お客様ならびに関係する皆様に多大なるご迷惑、ご心配をお掛けしたことを重ねてお詫び申し上げます。<br>
+        Again, we are deeply sorry for the anxiety and inconvenience we caused you and all parties concerned.
+    </p>
 
 
     <p style="font-size:12px;">
@@ -226,12 +234,14 @@ let paymentTerm = moment(`${term.substr(0, 4)}-${term.substr(4, 2)}-${term.subst
         本メールアドレスは送信専用です。返信はできませんのであらかじめご了承ください。<br>
         本メールに心当たりのない方やチケットに関してご不明な点は、下記電話番号までお問い合わせください。<br>
         チケットのお問合せ：050-3786-0368　/12:00～18:00（休業：土/日/祝日　東京国際映画祭開催期間中は無休）<br>
+        期間限定緊急お問合せ先：0120-587-020　/9:00～22:00<br>
         オフィシャルサイト： <a href="<%= conf.get('official_website_url') %>" target="_blank" style="color:#000;"><%= conf.get('official_website_url') %></a>
     </p>
     <p style="font-size:10px;">
         This email was sent from a send-only address. Please do not reply to this message.<br>
         If you are not the intended recipient of this email or have any questions about tickets, Please contact us at the telephone number below.
         For inquiries about tickets: 050-3786-0368/12:00 p.m. to 6:00 p.m. (Closed on Saturdays, Sundays, and national holidays, except during TIFF)
+        Toll-free: phone number for customers affected by the ticket system trouble : 0120-587-020/9:00 p.m. to 22:00 p.m.<br>
         Official website: <a href="<%= conf.get('official_website_url') %>" target="_blank" style="color:#000;"><%= conf.get('official_website_url') %></a>
     </p>
 

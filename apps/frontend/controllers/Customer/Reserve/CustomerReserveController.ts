@@ -216,7 +216,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
                     } else {
                         reservationModel.save(() => {
                             this.logger.info('starting GMO payment...');
-                            this.res.redirect(307, this.router.build('gmo.reserve.start', {token: token}));
+                            this.res.redirect(307, this.router.build('gmo.reserve.start', {token: token}) + `?locale=${this.req.getLocale()}`);
                         });
                     }
                 });

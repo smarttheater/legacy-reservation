@@ -103,6 +103,11 @@ app.use((req, res, next) => {
         req.setLocale(req.session['locale']);
     }
 
+    if (req.query.locale) {
+        req.setLocale(req.query.locale);
+        req.session['locale'] = req.query.locale;
+    }
+
     next();
 });
 

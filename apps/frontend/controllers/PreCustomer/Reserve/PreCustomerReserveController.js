@@ -295,7 +295,7 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                     else {
                         reservationModel.save(() => {
                             this.logger.info('starting GMO payment...');
-                            this.res.redirect(307, this.router.build('gmo.reserve.start', { token: token }));
+                            this.res.redirect(307, this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`);
                         });
                     }
                 });
@@ -327,7 +327,7 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             reservations.sort((a, b) => {
                 return ScreenUtil_1.default.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
-            this.res.render('customer/reserve/waitingSettlement', {
+            this.res.render('preCustomer/reserve/waitingSettlement', {
                 reservationDocuments: reservations
             });
         });

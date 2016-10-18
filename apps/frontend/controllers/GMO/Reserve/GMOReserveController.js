@@ -76,13 +76,13 @@ class GMOReserveController extends ReserveBaseController_1.default {
                     this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CVS) ? '1' : '0';
                     this.res.locals.shopPassString = GMOUtil_1.default.createShopPassString(conf.get('gmo_payment_shop_id'), this.res.locals.orderID, this.res.locals.amount, conf.get('gmo_payment_shop_password'), this.res.locals.dateTime);
                     if (process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'test') {
-                        this.res.locals.retURL = `https://${conf.get('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.result')}`;
+                        this.res.locals.retURL = `https://${conf.get('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
                         // 決済キャンセル時に遷移する加盟店URL
-                        this.res.locals.cancelURL = `https://${conf.get('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}`;
+                        this.res.locals.cancelURL = `https://${conf.get('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;
                     }
                     else {
-                        this.res.locals.retURL = `https://${this.req.headers['host']}${this.router.build('gmo.reserve.result')}`;
-                        this.res.locals.cancelURL = `https://${this.req.headers['host']}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}`;
+                        this.res.locals.retURL = `https://${this.req.headers['host']}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
+                        this.res.locals.cancelURL = `https://${this.req.headers['host']}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;
                     }
                     this.logger.info('redirecting to GMO payment...');
                     // GMOへの送信データをログに残すために、一度htmlを取得してからrender

@@ -25,7 +25,8 @@
 		"NotFound": "お探しのページが見つかりません",
 		"Privacy": "プライバシーポリシー",
 		"Policy": "利用規約",
-		"ActOnSpecifiedCommercialTransactions": "特定商取引法に基づく表示"
+		"ActOnSpecifiedCommercialTransactions": "特定商取引法に基づく表示",
+		"AdvanceTicketSalesWebsite": "システム事故対象のお客様向け先行販売ページ"
 	},
 	"h2": {
 		"SeatInformation": "座席情報",
@@ -84,12 +85,14 @@
 		"EnterProfileGuideTextWindow": "お支払い方法を選択して次へボタンを押してください。",
 		"ConfirmReservationGuideText": "内容をご確認のうえ、「決済へ進む」ボタンを押してください。",
 		"ConfirmReservationGuideTextNoPayment": "内容をご確認のうえ、「次へ」ボタンを押してください。",
-		"CompleteReservationGuideText": "ご購入ありがとうございました<br><br>!! 注意事項 !!<br>このページを閉じると再表示できません。<br>ご鑑賞当日はご入場の際にQRコードが必要となりますので、必ずご確認頂き、印刷または保存してください。<br>※QRコードは本ページと、ご入力いただいたメールアドレスにもお送りしています。",
+		"CompleteReservationGuideText": "ご購入ありがとうございました<br><br>!! 注意事項 !!<br>このページを閉じると再表示できません。<br>ご鑑賞当日はご入場の際にQRコードが必要となりますので、必ずご確認頂き、印刷または保存してください。<br>※QRコードは本ページと、ご入力いただいたメールアドレスにもお送りしています。<br>※メールの送信に時間がかかることがございますので予めご了承ください。",
 		"CompleteTemporaryReservationGuideText": "仮予約が完了しました。<br>仮予約内容は「仮予約完了メール」に記載して送信したしました。<br>まだ購入は完了しておりませんので最寄りのファミリーマートよりお支払いください。",
 		"SelectPerformanceGuideText": "以下より鑑賞作品の上映スケジュールを選択してください。",
 		"ReleaseSeatsGuideText": "座席開放を行う日付を選択して、開放するボタンを押してください。",
 		"GMOStartGuideText": "GMO決済へ遷移します...",
 		"NotFoundGuideText": "既に存在しないか、もしくはアドレスの入力が間違っている可能性があります。",
+		"AdvanceTicketSalesWebsiteGuideText": "お客様ならびに関係する皆様に多大なるご迷惑、ご心配をお掛けしたことを重ねてお詫び申し上げます。",
+		"AdvanceTicketSalesWebsiteGuideText2": "IDとパスワードを入力して利用規約を確認の上「利用規約に同意してログイン」ボタンを押してください。",
 		"Required": "必須項目",
 		"ConfirmNotes": "注意事項",
 		"RedirectToThirdPartyWebsite": "外部サイトへ移動します",

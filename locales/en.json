@@ -25,7 +25,8 @@
 		"NotFound": "Page not found",
 		"Privacy": "Privacy policy",
 		"Policy": "Terms of use",
-		"ActOnSpecifiedCommercialTransactions": "Representation under the Act on Specified Commercial Transactions"
+		"ActOnSpecifiedCommercialTransactions": "Representation under the Act on Specified Commercial Transactions",
+		"AdvanceTicketSalesWebsite": "Advance Ticket Sales Website for customers who were affected by the ticket system trouble."
 	},
 	"h2": {
 		"SeatInformation": "Seat information",
@@ -84,12 +85,14 @@
 		"EnterProfileGuideTextWindow": "Select a method of payment and click on the Next button.",
 		"ConfirmReservationGuideText": "Check the purchasing details details and click on the Proceed to Payment button.",
 		"ConfirmReservationGuideTextNoPayment": "Check the details and click on the Next button.",
-		"CompleteReservationGuideText": "Thank you for your purchase.<br><br>!! Notice !!<br>If you close this page, you cannot return to it later.<br>The QR code is necessary to enter the screen on the day of your movie.<br>Be sure to confirm it and print or save it.<br>*The QR code is displayed on this page and sent to the email address specified by you.",
+		"CompleteReservationGuideText": "Thank you for your purchase.<br><br>!! Notice !!<br>If you close this page, you cannot return to it later.<br>The QR code is necessary to enter the screen on the day of your movie.<br>Be sure to confirm it and print or save it.<br>*The QR code is displayed on this page and sent to the email address specified by you.<br>*It may take some time to send you an email with QR code. Thank you for your patience.",
 		"CompleteTemporaryReservationGuideText": "Now your tentative reservation is complete.<br>An email was sent to you that includes the details of the tentative reservation.<br>Make a payment at the nearest FamilyMart location to complete the purchase.",
 		"SelectPerformanceGuideText": "Select the show time below.",
 		"ReleaseSeatsGuideText": "Select the date to release cancelled seats and click on the Release cancelled seats button.",
 		"GMOStartGuideText": "proceeding to GMO payment...",
 		"NotFoundGuideText": "This page does not exist or the input of the URL may be incorrect.",
+		"AdvanceTicketSalesWebsiteGuideText": "We are deeply sorry for the anxiety and inconvenience we caused you and all parties concerned.",
+		"AdvanceTicketSalesWebsiteGuideText2": "Please read the terms and conditions above carefully and press the button to log in. Enter your ID and password.",
 		"Required": "Required",
 		"ConfirmNotes": "Notes",
 		"RedirectToThirdPartyWebsite": "You will be redirected<br>to a third-party website.",
