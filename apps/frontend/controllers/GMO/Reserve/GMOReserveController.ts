@@ -90,13 +90,12 @@ export default class GMOReserveController extends ReserveBaseController {
                         this.res.locals.dateTime
                     );
 
-                    if (process.env.NODE_ENV === 'prod') {
+                    if (process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'test') {
                         this.res.locals.retURL = `https://${conf.get<string>('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.result')}`;
                         // 決済キャンセル時に遷移する加盟店URL
                         this.res.locals.cancelURL = `https://${conf.get<string>('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.cancel', {paymentNo: reservationModel.paymentNo})}`;
                     } else {
                         this.res.locals.retURL = `https://${this.req.headers['host']}${this.router.build('gmo.reserve.result')}`;
-                        // 決済キャンセル時に遷移する加盟店URL
                         this.res.locals.cancelURL = `https://${this.req.headers['host']}${this.router.build('gmo.reserve.cancel', {paymentNo: reservationModel.paymentNo})}`;
                     }
 
