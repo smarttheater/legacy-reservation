@@ -331,7 +331,7 @@ class ReserveBaseController extends BaseController_1.default {
                     member: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_MEMBER) ? this.req.memberUser.get('_id') : undefined,
                     tel: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_TEL) ? this.req.telStaffUser.get('_id') : undefined,
                     window: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_WINDOW) ? this.req.windowUser.get('_id') : undefined,
-                    pre_customer: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER) ? this.req.preCustomerUser.get('_id') : undefined,
+                    pre_customer: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER && this.req.preCustomerUser) ? this.req.preCustomerUser.get('_id') : undefined,
                 };
                 // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
                 Models_1.default.Reservation.create(newReservation, (err, reservation) => {

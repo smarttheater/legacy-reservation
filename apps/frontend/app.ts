@@ -91,7 +91,8 @@ i18n.configure({
     locales: ['en', 'ja'],
     defaultLocale: 'ja',
     directory: __dirname + '/../../locales',
-    objectNotation: true
+    objectNotation: true,
+    updateFiles: false // ページのビューで自動的に言語ファイルを更新しない
 });
 // i18n の設定を有効化
 app.use(i18n.init);
