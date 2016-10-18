@@ -84,7 +84,7 @@
 		"ConfirmReservationGuideText": "内容をご確認のうえ、「決済へ進む」ボタンを押してください。",
 		"ConfirmReservationGuideTextNoPayment": "内容をご確認のうえ、「次へ」ボタンを押してください。",
 		"CompleteReservationGuideText": "ご購入ありがとうございました<br><br>!! 注意事項 !!<br>このページを閉じると再表示できません。<br>ご鑑賞当日はご入場の際にQRコードが必要となりますので、必ずご確認頂き、印刷または保存してください。<br>※QRコードは本ページと、ご入力いただいたメールアドレスにもお送りしています。<br>※メールの送信に時間がかかることがございますので予めご了承ください。",
-		"CompleteTemporaryReservationGuideText": "仮予約が完了しました。<br>仮予約内容は「仮予約完了メール」に記載して送信したしました。<br>まだ購入は完了しておりませんので最寄りのファミリーマートよりお支払いください。",
+		"CompleteTemporaryReservationGuideText": "仮予約が完了しました。<br>仮予約内容は「仮予約完了メール」に記載して送信したしました。<br>まだ購入は完了しておりませんので最寄りのファミリーマートよりお支払いください。<br>※メールの送信に時間がかかることがございますので予めご了承ください。",
 		"SelectPerformanceGuideText": "以下より鑑賞作品の上映スケジュールを選択してください。",
 		"ReleaseSeatsGuideText": "座席開放を行う日付を選択して、開放するボタンを押してください。",
 		"GMOStartGuideText": "GMO決済へ遷移します...",
@@ -131,6 +131,7 @@
 		"BackToOfficialSite": "公式サイトに戻る",
 		"ThermalPrint": "サーマル印刷",
 		"AcceptTermsAndNext": "利用規約に同意して次へ",
+		"AcceptTermsAndLogin": "利用規約に同意してログイン",
 		"ReserveTicketsAnotherMovie": "続けて他の作品を予約する",
 		"ReserveMoreSameShow": "同じ上映回で追加予約する",
 		"ReleaseSeats": "座席解放"

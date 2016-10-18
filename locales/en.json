@@ -84,7 +84,7 @@
 		"ConfirmReservationGuideText": "Check the purchasing details details and click on the Proceed to Payment button.",
 		"ConfirmReservationGuideTextNoPayment": "Check the details and click on the Next button.",
 		"CompleteReservationGuideText": "Thank you for your purchase.<br><br>!! Notice !!<br>If you close this page, you cannot return to it later.<br>The QR code is necessary to enter the screen on the day of your movie.<br>Be sure to confirm it and print or save it.<br>*The QR code is displayed on this page and sent to the email address specified by you.<br>*It may take some time to send you an email with QR code. Thank you for your patience.",
-		"CompleteTemporaryReservationGuideText": "Now your tentative reservation is complete.<br>An email was sent to you that includes the details of the tentative reservation.<br>Make a payment at the nearest FamilyMart location to complete the purchase.",
+		"CompleteTemporaryReservationGuideText": "Now your tentative reservation is complete.<br>An email was sent to you that includes the details of the tentative reservation.<br>Make a payment at the nearest FamilyMart location to complete the purchase.<br>*It may take some time to send you an email with QR code. Thank you for your patience.",
 		"SelectPerformanceGuideText": "Select the show time below.",
 		"ReleaseSeatsGuideText": "Select the date to release cancelled seats and click on the Release cancelled seats button.",
 		"GMOStartGuideText": "proceeding to GMO payment...",
@@ -131,6 +131,7 @@
 		"BackToOfficialSite": "Return to<br>the official website",
 		"ThermalPrint": "Thermal Print",
 		"AcceptTermsAndNext": "Accept the Terms of Use<br>and click on the Next",
+		"AcceptTermsAndLogin": "I agree – Login",
 		"ReserveTicketsAnotherMovie": "Reserve tickets<br>for another film.",
 		"ReserveMoreSameShow": "Reserve more tickets<br>for the same show.",
 		"ReleaseSeats": "Release cacelled seats"

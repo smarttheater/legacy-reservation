@@ -19,8 +19,8 @@ let term = reservations[0].get('gmo_payment_term');
 let paymentTerm = moment(`${term.substr(0, 4)}-${term.substr(4, 2)}-${term.substr(6, 2)}T${term.substr(8, 2)}:${term.substr(10, 2)}:${term.substr(12)}+09:00`);
 %>
 <div style="padding:0 30px;font-family:'游ゴシック',meiryo,sans-serif;">
-    <h1 style="margin:0;font-size:20px;text-align:center;">[1.5]<%= title_ja %></h1>
-    <h2 style="margin:0;font-size:16px;text-align:center;">[1.5]<%= title_en %></h2>
+    <h1 style="margin:0;font-size:20px;text-align:center;"><%= title_ja %></h1>
+    <h2 style="margin:0;font-size:16px;text-align:center;"><%= title_en %></h2>
 
     <p style="font-weight:bold;"><%= reservations[0].get('purchaser_name_ja') %> 様</p>
     <p style="font-weight:bold;font-size:12px;">Dear <%= reservations[0].get('purchaser_name_en') %>,</p>
@@ -234,7 +234,7 @@ let paymentTerm = moment(`${term.substr(0, 4)}-${term.substr(4, 2)}-${term.subst
         本メールアドレスは送信専用です。返信はできませんのであらかじめご了承ください。<br>
         本メールに心当たりのない方やチケットに関してご不明な点は、下記電話番号までお問い合わせください。<br>
         チケットのお問合せ：050-3786-0368　/12:00～18:00（休業：土/日/祝日　東京国際映画祭開催期間中は無休）<br>
-        期間限定緊急お問合せ先：0120-587-020　/9:00～22:00<br>
+        緊急お問合せ先：0120-587-020　/9:00～22:00<br>
         オフィシャルサイト： <a href="<%= conf.get('official_website_url') %>" target="_blank" style="color:#000;"><%= conf.get('official_website_url') %></a>
     </p>
     <p style="font-size:10px;">

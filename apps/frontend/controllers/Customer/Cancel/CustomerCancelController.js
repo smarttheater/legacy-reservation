@@ -49,6 +49,13 @@ class CustomerCancelController extends BaseController_1.default {
                             message: 'コンビニ決済のお客様は下記をご確認ください。<br>Please check the following if you paid at the convenience store.'
                         });
                     }
+                    // 購入日時が15日のものだけを受付ける
+                    if (moment(reservations[0].get('purchased_at')) >= moment('2016-10-16T00:00:00+9:00')) {
+                        return this.res.json({
+                            success: false,
+                            message: 'キャンセル受付対象外の座席です。<br>The cancel for you tickets is not applicable.'
+                        });
+                    }
                     let results = reservations.map((reservation) => {
                         return {
                             _id: reservation.get('_id'),
