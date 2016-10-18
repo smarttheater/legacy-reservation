@@ -187,14 +187,30 @@ class ReservationController extends BaseController_1.default {
                             let title_en;
                             switch (reservations[0].get('status')) {
                                 case ReservationUtil_1.default.STATUS_RESERVED:
-                                    dir = `${process.cwd()}/apps/task/views/email/reserve/complete`;
-                                    title_ja = '東京国際映画祭チケット 購入完了のお知らせ';
-                                    title_en = 'Notice of Completion of TIFF Ticket Purchase';
+                                    // 1.5次販売はメールテンプレート別
+                                    if (reservations[0].get('pre_customer')) {
+                                        dir = `${process.cwd()}/apps/task/views/email/reserve/complete4preCustomer`;
+                                        title_ja = '東京国際映画祭チケット 購入完了のお知らせ';
+                                        title_en = 'Notice of Completion of TIFF Ticket Purchase';
+                                    }
+                                    else {
+                                        dir = `${process.cwd()}/apps/task/views/email/reserve/complete`;
+                                        title_ja = '東京国際映画祭チケット 購入完了のお知らせ';
+                                        title_en = 'Notice of Completion of TIFF Ticket Purchase';
+                                    }
                                     break;
                                 case ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT:
-                                    dir = `${process.cwd()}/apps/task/views/email/reserve/waitingSettlement`;
-                                    title_ja = '東京国際映画祭チケット 仮予約完了のお知らせ';
-                                    title_en = 'Notice of Completion of Tentative Reservation for TIFF Tickets';
+                                    // 1.5次販売はメールテンプレート別
+                                    if (reservations[0].get('pre_customer')) {
+                                        dir = `${process.cwd()}/apps/task/views/email/reserve/waitingSettlement4preCustomer`;
+                                        title_ja = '東京国際映画祭チケット 仮予約完了のお知らせ';
+                                        title_en = 'Notice of Completion of Tentative Reservation for TIFF Tickets';
+                                    }
+                                    else {
+                                        dir = `${process.cwd()}/apps/task/views/email/reserve/waitingSettlement`;
+                                        title_ja = '東京国際映画祭チケット 仮予約完了のお知らせ';
+                                        title_en = 'Notice of Completion of Tentative Reservation for TIFF Tickets';
+                                    }
                                     break;
                                 default:
                                     break;
