@@ -8,9 +8,11 @@ class SchemaController extends BaseController_1.default {
         super(...arguments);
         this.collectionNames = [
             'authentications',
+            'customer_cancel_requests',
             'films',
             'members',
             'performances',
+            'pre_customers',
             'reservation_email_cues',
             'reservations',
             'screens',
@@ -103,6 +105,12 @@ class SchemaController extends BaseController_1.default {
             }));
             promises.push(new Promise((resolve, reject) => {
                 db.collection('sponsors').createIndex({ user_id: 1 }, { unique: true }, (err) => {
+                    this.logger.debug('index created.', err);
+                    (err) ? reject(err) : resolve();
+                });
+            }));
+            promises.push(new Promise((resolve, reject) => {
+                db.collection('pre_customers').createIndex({ user_id: 1 }, { unique: true }, (err) => {
                     this.logger.debug('index created.', err);
                     (err) ? reject(err) : resolve();
                 });

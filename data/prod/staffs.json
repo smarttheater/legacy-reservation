@@ -36,5 +36,6 @@
     {"user_id":"merumaga2016","password":"tiff2016","name":"メルマガ先行用","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"2016sagyo1","password":"tiff2016","name":"作業用１","email":"ticket2016@gmail.com","is_admin":false},
     {"user_id":"2016sagyo2","password":"tiff2016","name":"作業用２","email":"ticket2016@gmail.com","is_admin":false},
-    {"user_id":"2016sagyo3","password":"tiff2016","name":"作業用３","email":"ticket2016@gmail.com","is_admin":false}
+    {"user_id":"2016sagyo3","password":"tiff2016","name":"作業用３","email":"ticket2016@gmail.com","is_admin":false},
+    {"user_id":"zaseki2016","password":"tiff2016","name":"座席設置なし","email":"ticket2016@gmail.com","is_admin":false}
 ]

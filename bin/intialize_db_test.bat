@@ -16,8 +16,9 @@ node bin/command sponsor createFromJson
 node bin/command staff createFromJson
 node bin/command tel createFromJson
 node bin/command window createFromJson
+node bin/command preCustomer createFromJson
 
-node bin/command member createReservationsFromJson
 node bin/command staff createReservationsFromJson
+node bin/command member createReservationsFromJson
 
 pause

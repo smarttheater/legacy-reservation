@@ -9,9 +9,11 @@ let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 export default class SchemaController extends BaseController {
     private collectionNames = [
         'authentications',
+        'customer_cancel_requests',
         'films',
         'members',
         'performances',
+        'pre_customers',
         'reservation_email_cues',
         'reservations',
         'screens',
@@ -126,6 +128,17 @@ export default class SchemaController extends BaseController {
 
             promises.push(new Promise((resolve, reject) => {
                 db.collection('sponsors').createIndex(
+                    {user_id: 1},
+                    {unique: true},
+                    (err) => {
+                        this.logger.debug('index created.', err);
+                        (err) ? reject(err) : resolve();
+                    }
+                );
+            }));
+
+            promises.push(new Promise((resolve, reject) => {
+                db.collection('pre_customers').createIndex(
                     {user_id: 1},
                     {unique: true},
                     (err) => {
