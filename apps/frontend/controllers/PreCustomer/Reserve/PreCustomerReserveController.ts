@@ -19,10 +19,14 @@ export default class PreCustomerReserveController extends ReserveBaseController 
     public layout = 'layouts/preCustomer/layout';
 
     public start(): void {
-        // 期限指定
-        let now = moment();
-        if (now < moment(conf.get<string>('datetimes.reservation_start_pre_customers')) || moment(conf.get<string>('datetimes.reservation_end_pre_customers')) < now) {
-            return this.res.render('preCustomer/reserve/outOfTerm', {layout: false});
+        // MPのIPは許可
+        if (this.req.headers['x-forwarded-for'] && this.req.headers['x-forwarded-for'].substr(0, 13) === '124.155.113.9') {
+        } else {
+            // 期限指定
+            let now = moment();
+            if (now < moment(conf.get<string>('datetimes.reservation_start_pre_customers')) || moment(conf.get<string>('datetimes.reservation_end_pre_customers')) < now) {
+                return this.res.render('preCustomer/reserve/outOfTerm', {layout: false});
+            }
         }
 
         this.processStart((err, reservationModel) => {
