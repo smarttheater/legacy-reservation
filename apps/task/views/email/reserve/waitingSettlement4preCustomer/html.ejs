@@ -165,13 +165,13 @@ let paymentTerm = moment(`${term.substr(0, 4)}-${term.substr(4, 2)}-${term.subst
 
     <div style="margin-bottom:1em;">
         <h3 style="font-weight:normal;font-size:14px;margin:0;">お客様番号 (Reception number) :</h3>
-        <strong><%- reservations[0].get('gmo_cvs_receipt_no') %></strong>
+        <strong><%- reservations[0].get('gmo_cvs_conf_no') %></strong>
     </div>
 
 
     <div style="margin-bottom:1em;">
         <h3 style="font-weight:normal;font-size:14px;margin:0;">確認番号 (Confirmation number) :</h3>
-        <strong><%- reservations[0].get('gmo_cvs_conf_no') %></strong>
+        <strong><%- reservations[0].get('gmo_cvs_receipt_no') %></strong>
     </div>
 
 
