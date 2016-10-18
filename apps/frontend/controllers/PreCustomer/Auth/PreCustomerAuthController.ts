@@ -67,7 +67,7 @@ export default class PreCustomerAuthController extends BaseController {
                                         this.req.session[PreCustomerUser.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
 
                                         // if exist parameter cb, redirect to cb.
-                                        let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('pre.reserve.preformances');
+                                        let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('pre.reserve.start');
                                         this.res.redirect(cb);
                                     });
                                 }

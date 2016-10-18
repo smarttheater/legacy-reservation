@@ -1,7 +1,11 @@
-<div class="loginform loginform-mypage">
-    <h2><%- __('h2.LoginForPreCustomers') %></h2>
+<h1 class="pagetitle"><%- __('h1.Terms') %></h1>
+<p class="guidetext"><%- __('Label.TermsGuideText') %></p>
 
+<p class="termtext">
+<%- include('../../common/reserve/_termtext') %>
+</p>
 
+<div class="loginform loginform-member">
     <% if (req.form) { %>
     <% req.form.errors.forEach(function (error) { %>
     <p class="errmsg"><%- error %></p>
@@ -25,7 +29,7 @@
             </select>
         </div>
         <label for="id_remember"><input id="id_remember" name="remember" type="checkbox"><%- __('Form.FieldName.remember') %></label>
-        <a class="btn btn-big btn-login" href="javascript:void(0);"><span><%- __('Button.Login') %></span></a>
+        <a class="btn btn-big btn-login" href="javascript:void(0);"><span><%- __('Button.AcceptTermsAndNext') %></span></a>
     </form>
 </div>
 

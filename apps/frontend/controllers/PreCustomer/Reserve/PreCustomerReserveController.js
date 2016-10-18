@@ -25,15 +25,15 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             if (err)
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
             if (reservationModel.performance) {
+                // パフォーマンス指定で遷移してきたら座席選択へ
                 reservationModel.save(() => {
-                    let cb = this.router.build('pre.reserve.seats', { token: reservationModel.token });
-                    this.res.redirect(`${this.router.build('pre.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                    this.res.redirect(this.router.build('pre.reserve.seats', { token: reservationModel.token }));
                 });
             }
             else {
+                // パフォーマンス指定なければパフォーマンス選択へ
                 reservationModel.save(() => {
-                    let cb = this.router.build('pre.reserve.performances', { token: reservationModel.token });
-                    this.res.redirect(`${this.router.build('pre.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                    this.res.redirect(this.router.build('pre.reserve.performances', { token: reservationModel.token }));
                 });
             }
         });
@@ -42,18 +42,7 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
      * 規約
      */
     terms() {
-        let token = this.req.params.token;
-        ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
-                return this.next(new Error(this.req.__('Message.Expired')));
-            if (this.req.method === 'POST') {
-                let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('pre.reserve.performaces', { token: token });
-                this.res.redirect(cb);
-            }
-            else {
-                this.res.render('preCustomer/reserve/terms');
-            }
-        });
+        this.next(new Error('Message.NotFound'));
     }
     /**
      * スケジュール選択

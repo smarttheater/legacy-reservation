@@ -70,7 +70,7 @@ exports.default = (app) => {
         next();
     };
     // 外部関係者
-    app.all('/pre/login', 'pre.mypage.login', base, (req, res, next) => { (new PreCustomerAuthController_1.default(req, res, next)).login(); });
+    app.all('/pre/login', 'pre.reserve.terms', base, (req, res, next) => { (new PreCustomerAuthController_1.default(req, res, next)).login(); });
     app.all('/pre/logout', 'pre.logout', base, authentication, (req, res, next) => { (new PreCustomerAuthController_1.default(req, res, next)).logout(); });
     app.get('/pre/reserve/start', 'pre.reserve.start', base, authentication, (req, res, next) => { (new PreCustomerReserveController_1.default(req, res, next)).start(); });
     app.all('/pre/reserve/:token/terms', 'pre.reserve.terms', base, authentication, (req, res, next) => { (new PreCustomerReserveController_1.default(req, res, next)).terms(); });
