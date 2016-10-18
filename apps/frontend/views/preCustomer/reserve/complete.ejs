@@ -1,5 +1,20 @@
 <%- include('../../common/reserve/_complete') %>
 
+<%
+let preReserveStartUrl = url('pre.reserve.start');
+switch (process.env.NODE_ENV) {
+    case 'prod':
+        preReserveStartUrl = 'https://pre.tiff-ticket.net' + preReserveStartUrl;
+        break;
+    case 'test':
+        preReserveStartUrl = 'https://test4pretiffwebapp.azurewebsites.net' + preReserveStartUrl;
+        break;
+    case 'dev':
+        break;
+    default:
+        break;
+}
+%>
 <div class="center">
-    <a class="btn btn-lg btn-next" href="<%= url('pre.reserve.start') %>"><span><%- __('Button.BackToSelectPerformance') %></span></a>
+    <a class="btn btn-lg btn-next" href="<%= preReserveStartUrl %>"><span><%- __('Button.BackToSelectPerformance') %></span></a>
 </div>
