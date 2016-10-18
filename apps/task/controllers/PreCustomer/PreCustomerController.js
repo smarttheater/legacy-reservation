@@ -33,32 +33,20 @@ class PreCustomerController extends BaseController_1.default {
                 throw err;
             let preCustomers = JSON.parse(data);
             // あれば更新、なければ追加
-            let promises = preCustomers.map((preCustomer) => {
+            let docs = preCustomers.map((preCustomer) => {
                 // パスワードハッシュ化
                 let password_salt = Util_1.default.createToken();
                 preCustomer['password_salt'] = password_salt;
                 preCustomer['password_hash'] = Util_1.default.createHash(preCustomer.password, password_salt);
-                return new Promise((resolve, reject) => {
-                    this.logger.debug('updating preCustomer...');
-                    Models_1.default.PreCustomer.findOneAndUpdate({
-                        user_id: preCustomer.user_id
-                    }, preCustomer, {
-                        new: true,
-                        upsert: true
-                    }, (err) => {
-                        this.logger.debug('preCustomer updated', err);
-                        (err) ? reject(err) : resolve();
-                    });
-                });
+                return preCustomer;
             });
-            Promise.all(promises).then(() => {
-                this.logger.info('promised.');
-                mongoose.disconnect();
-                process.exit(0);
-            }, (err) => {
-                this.logger.error('promised.', err);
-                mongoose.disconnect();
-                process.exit(0);
+            Models_1.default.PreCustomer.remove((err) => {
+                this.logger.debug('creating perCustomers...length:', docs.length);
+                Models_1.default.PreCustomer.insertMany(docs, (err, docs) => {
+                    this.logger.debug('perCustomers created.', err);
+                    mongoose.disconnect();
+                    process.exit(0);
+                });
             });
         });
     }

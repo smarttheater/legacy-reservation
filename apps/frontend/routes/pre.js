@@ -73,12 +73,11 @@ exports.default = (app) => {
     app.all('/pre/login', 'pre.reserve.terms', base, (req, res, next) => { (new PreCustomerAuthController_1.default(req, res, next)).login(); });
     app.all('/pre/logout', 'pre.logout', base, authentication, (req, res, next) => { (new PreCustomerAuthController_1.default(req, res, next)).logout(); });
     app.get('/pre/reserve/start', 'pre.reserve.start', base, authentication, (req, res, next) => { (new PreCustomerReserveController_1.default(req, res, next)).start(); });
-    app.all('/pre/reserve/:token/terms', 'pre.reserve.terms', base, authentication, (req, res, next) => { (new PreCustomerReserveController_1.default(req, res, next)).terms(); });
     app.all('/pre/reserve/:token/performances', 'pre.reserve.performances', base, authentication, (req, res, next) => { (new PreCustomerReserveController_1.default(req, res, next)).performances(); });
     app.all('/pre/reserve/:token/seats', 'pre.reserve.seats', base, authentication, (req, res, next) => { (new PreCustomerReserveController_1.default(req, res, next)).seats(); });
     app.all('/pre/reserve/:token/tickets', 'pre.reserve.tickets', base, authentication, (req, res, next) => { (new PreCustomerReserveController_1.default(req, res, next)).tickets(); });
     app.all('/pre/reserve/:token/profile', 'pre.reserve.profile', base, authentication, (req, res, next) => { (new PreCustomerReserveController_1.default(req, res, next)).profile(); });
     app.all('/pre/reserve/:token/confirm', 'pre.reserve.confirm', base, authentication, (req, res, next) => { (new PreCustomerReserveController_1.default(req, res, next)).confirm(); });
     app.get('/pre/reserve/:paymentNo/waitingSettlement', 'pre.reserve.waitingSettlement', base, (req, res, next) => { (new PreCustomerReserveController_1.default(req, res, next)).waitingSettlement(); });
-    app.get('/pre/reserve/:paymentNo/complete', 'pre.reserve.complete', base, authentication, (req, res, next) => { (new PreCustomerReserveController_1.default(req, res, next)).complete(); });
+    app.get('/pre/reserve/:paymentNo/complete', 'pre.reserve.complete', base, (req, res, next) => { (new PreCustomerReserveController_1.default(req, res, next)).complete(); });
 };

@@ -1,5 +1,6 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
+import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import PreCustomerUser from '../../../models/User/PreCustomerUser';
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
@@ -60,14 +61,27 @@ export default class PreCustomerReserveController extends ReserveBaseController 
             this.processCancelSeats(reservationModel, (err, reservationModel) => {
                 reservationModel.save(() => {
 
-                    // 外部関係者による予約数を取得
+                    // 1.5次販売アカウントによる予約数を取得
+                    // 決済中ステータスは含めない
                     Models.Reservation.count(
                         {
-                            pre_customer: this.req.preCustomerUser.get('_id'),
-                            status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED]}
+                            $and: [
+                                {pre_customer: this.req.preCustomerUser.get('_id')},
+                                {
+                                    $or: [
+                                        {status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED]}},
+                                        {
+                                            status: ReservationUtil.STATUS_WAITING_SETTLEMENT, // コンビニ決済で入金待ちのもの
+                                            gmo_payment_term: {$exists: true}
+                                        },
+                                    ]
+                                }
+                            ]
                         },
                         (err, reservationsCount) => {
-                            if (parseInt(this.req.preCustomerUser.get('max_reservation_count')) <= reservationsCount) {
+                            let reservableCount = parseInt(this.req.preCustomerUser.get('max_reservation_count')) - reservationsCount;
+
+                            if (reservableCount <= 0) {
                                 return this.next(new Error(this.req.__('Message.NoMoreReservation')));
                             }
 
@@ -91,7 +105,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                             } else {
                                 this.res.render('preCustomer/reserve/performances', {
                                     FilmUtil: FilmUtil,
-                                    reservationsCount: reservationsCount
+                                    reservableCount: reservableCount
                                 });
                             }
                         }
@@ -109,17 +123,34 @@ export default class PreCustomerReserveController extends ReserveBaseController 
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
-            // 外部関係者による予約数を取得
+            // 1.5次販売アカウントによる予約数を取得
+            // 決済中ステータスは含めない
             let lockPath = `${__dirname}/../../../../../lock/PreCustomerFixSeats${this.req.preCustomerUser.get('_id')}.lock`;
             lockFile.lock(lockPath, {wait: 5000}, (err) => {
 
                 Models.Reservation.count(
                     {
-                        pre_customer: this.req.preCustomerUser.get('_id'),
-                        status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED]},
-                        seat_code: {
-                            $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
-                        }
+                        $and: [
+                            {pre_customer: this.req.preCustomerUser.get('_id')},
+                            {
+                                $or: [
+                                    {status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED]}},
+                                    {
+                                        status: ReservationUtil.STATUS_WAITING_SETTLEMENT, // コンビニ決済で入金待ちのもの
+                                        gmo_payment_term: {$exists: true}
+                                    },
+                                ]
+                            },
+                            {
+                                $or: [
+                                    {performance: {$ne: reservationModel.performance._id}}, // パフォーマンスの違うもの
+                                    { // 現在のフロー中の予約は除く
+                                        performance: reservationModel.performance._id,
+                                        seat_code: {$nin: reservationModel.seatCodes}
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     (err, reservationsCount) => {
                         // 一度に確保できる座席数は、残り可能枚数と、10の小さい方
@@ -209,6 +240,8 @@ export default class PreCustomerReserveController extends ReserveBaseController 
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
+            reservationModel.paymentMethod = null;
+
             if (this.req.method === 'POST') {
                 this.processFixTickets(reservationModel, (err, reservationModel) => {
                     if (err) {
@@ -259,7 +292,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                 this.res.locals.email = (email) ? email : '';
                 this.res.locals.emailConfirm = (email) ? email.substr(0, email.indexOf('@')) : '';
                 this.res.locals.emailConfirmDomain = (email) ? email.substr(email.indexOf('@') + 1) : '';
-                this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : '';
+                this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
 
                 this.res.render('preCustomer/reserve/profile', {
                     reservationModel: reservationModel,

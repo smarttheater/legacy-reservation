@@ -8,7 +8,7 @@
 <% if (isSponsor) { %>
 <p class="remainingtickets"><%- __('Label.NumberOfTicketsAvailable') %>:<strong><%= parseInt(req.sponsorUser.get('max_reservation_count')) - reservationsCount %><% if (req.locale === 'ja') { %>枚<% } %></strong></p>
 <% } else if (req.preCustomerUser) { %>
-<p class="remainingtickets"><%- __('Label.NumberOfTicketsAvailable') %>:<strong><%= parseInt(req.preCustomerUser.get('max_reservation_count')) - reservationsCount %><% if (req.locale === 'ja') { %>枚<% } %></strong></p>
+<p class="remainingtickets"><%- __('Label.NumberOfTicketsAvailable') %>:<strong><%= reservableCount %><% if (req.locale === 'ja') { %>枚<% } %></strong></p>
 <% } %>
 
 <div class="performancesearchform">
