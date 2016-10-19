@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const AuthenticationSchema_1 = require('../models/Authentication/AuthenticationSchema');
 const CustomerCancelRequestSchema_1 = require('../models/CustomerCancelRequest/CustomerCancelRequestSchema');
 const FilmSchema_1 = require('../models/Film/FilmSchema');
+const GMONotificationSchema_1 = require('../models/GMONotification/GMONotificationSchema');
 const MemberSchema_1 = require('../models/Member/MemberSchema');
 const PerformanceSchema_1 = require('../models/Performance/PerformanceSchema');
 const PreCustomerSchema_1 = require('../models/PreCustomer/PreCustomerSchema');
@@ -128,6 +129,7 @@ StaffSchema_1.default.post('findOneAndUpdate', function (doc, next) {
 let Authentication = mongoose.model('Authentication', AuthenticationSchema_1.default);
 let CustomerCancelRequest = mongoose.model('CustomerCancelRequest', CustomerCancelRequestSchema_1.default);
 let Film = mongoose.model('Film', FilmSchema_1.default);
+let GMONotification = mongoose.model('GMONotification', GMONotificationSchema_1.default);
 let Member = mongoose.model('Member', MemberSchema_1.default);
 let Performance = mongoose.model('Performance', PerformanceSchema_1.default);
 let PreCustomer = mongoose.model('PreCustomer', PreCustomerSchema_1.default);
@@ -148,6 +150,7 @@ let Models = {
     Authentication,
     CustomerCancelRequest,
     Film,
+    GMONotification,
     Member,
     Performance,
     PreCustomer,

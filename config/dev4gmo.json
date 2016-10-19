@@ -1,0 +1,50 @@
+{
+    "official_website_url": "http://2016.tiff-jp.net/",
+    "dns_name": "dev4gmotiffwebapp.azurewebsites.net",
+    "dns_name_for_gmo_result": "dev4gmotiffwebapp.azurewebsites.net",
+    "meta": {
+        "keywords": "東京国際映画祭, 2016, TIFF, コンペティション,Competiton,",
+        "description": "第29回東京国際映画祭は2016年10月25日（火）から11月3日（木・祝）の10日間開催いたします。"
+    },
+    "email": {
+        "from": "noreply@devtiffwebapp.azurewebsites.net",
+        "fromname": "第29回東京国際映画祭 29th Tokyo International Film Festival (2016) Online Ticket"
+    },
+
+    "storage_account_name": "devtiffstorage",
+    "storage_account_key": "bED6gjMShYo0RSIiXK4kCbtTIiX0nIr414+GckwED2DKDEBKk6GeSnbRl64f/Be8djV1E1PDXFfjzSSrRNamUA==",
+
+    "redis_host": "devtiffredis.redis.cache.windows.net",
+    "redis_port": 6380,
+    "redis_key": "WAmLeJlJrH3TPhF5CIdb6Zr6cxaqgTQtKY/OjjWX7Wg=",
+
+    "mongolab_uri": "mongodb://dev4gmotiffmlabmongodbuser:Yrpx-rPjr_Qjx79_R4HaknsfMEbyrQjp4NiF-XKj@ds048719.mlab.com:48719/dev4gmotiffmlabmongodb",
+
+    "sendgrid_username": "azure_b10efc2d22b683abd1652c6ad8d1e4ca@azure.com",
+    "sendgrid_password": "AF_BcFy_47JCWtea4aQzUrP3N7kXndPREmtSZ-U2",
+
+    "gmo_payment_site_id": "tsite00022126",
+    "gmo_payment_shop_id": "tshop00024743",
+    "gmo_payment_shop_password": "tawzswh4",
+    "gmo_payment_api_link_multi_entry": "https://pt01.mul-pay.jp/link/tshop00024743/Multi/Entry",
+
+    "datetimes": {
+        "reservation_start_staffs": "2016-09-28T00:00:00+09:00",
+        "reservation_start_sponsors": "2016-09-28T00:00:00+09:00",
+        "reservation_start_members": "2016-10-19T12:00:00+09:00",
+        "reservation_end_members": "2016-10-24T23:59:59+09:00",
+        "reservation_start_customers_first": "2016-09-28T00:00:00+09:00",
+        "reservation_start_customers_second": "2016-10-22T00:00:00+09:00",
+        "reservation_start_pre_customers": "2016-09-28T00:00:00+09:00",
+        "reservation_end_pre_customers": "2016-10-20T12:00:00+09:00",
+        "event_start": "2016-10-25T00:00:00+09:00",
+        "event_end": "2016-11-03T23:59:59+09:00"
+    },
+
+    "temporary_reservation_valid_period_seconds": 900,
+    "waiting_settlement_reservatioin_valid_period_hours": 72,
+
+    "performanceIds4limit2": [
+        "000001","000004","000005","000033","000049","000058","000070","000082","000162","000183","000193","000198","000211"
+    ]
+}

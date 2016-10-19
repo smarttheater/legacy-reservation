@@ -4,7 +4,9 @@ import basicAuth = require('basic-auth');
 export default (req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (process.env.NODE_ENV === 'prod') return next();
     if (process.env.NODE_ENV === 'test') return next();
-    if (req.originalUrl === '/GMO/reserve/notify') return next(); // GMO結果通知に対してはオープンにする
+    if (process.env.NODE_ENV === 'dev4gmo') return next(); // GMO結果通知に対してはオープンにする
+    if (process.env.NODE_ENV === 'test4gmo') return next(); // GMO結果通知に対してはオープンにする
+    if (process.env.NODE_ENV === 'prod4gmo') return next(); // GMO結果通知に対してはオープンにする
 
     let user = basicAuth(req);
 

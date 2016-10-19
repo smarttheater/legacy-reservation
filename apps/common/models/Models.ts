@@ -3,6 +3,7 @@ import mongoose = require('mongoose');
 import AuthenticationSchema from '../models/Authentication/AuthenticationSchema';
 import CustomerCancelRequestSchema from '../models/CustomerCancelRequest/CustomerCancelRequestSchema';
 import FilmSchema from '../models/Film/FilmSchema';
+import GMONotificationSchema from '../models/GMONotification/GMONotificationSchema';
 import MemberSchema from '../models/Member/MemberSchema';
 import PerformanceSchema from '../models/Performance/PerformanceSchema';
 import PreCustomerSchema from '../models/PreCustomer/PreCustomerSchema';
@@ -182,6 +183,7 @@ StaffSchema.post('findOneAndUpdate', function(doc, next){
 let Authentication = mongoose.model('Authentication', AuthenticationSchema);
 let CustomerCancelRequest = mongoose.model('CustomerCancelRequest', CustomerCancelRequestSchema);
 let Film = mongoose.model('Film', FilmSchema);
+let GMONotification = mongoose.model('GMONotification', GMONotificationSchema);
 let Member = mongoose.model('Member', MemberSchema);
 let Performance = mongoose.model('Performance', PerformanceSchema);
 let PreCustomer = mongoose.model('PreCustomer', PreCustomerSchema);
@@ -203,6 +205,7 @@ let Models = {
     Authentication,
     CustomerCancelRequest,
     Film,
+    GMONotification,
     Member,
     Performance,
     PreCustomer,
