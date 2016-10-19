@@ -18,7 +18,7 @@
     "redis_port": 6380,
     "redis_key": "q/AnbZRrPXF44HMGH63cR4LvcTFfwmFhHNVuUIorces=",
 
-    "mongolab_uri": "mongodb://prodtiffmlabmongodbuser:KX5ugtsHc4iPuHFR_myiMKQCeY4MDPD8cBB-77HE@ds048039-a0.mlab.com:48039,ds048039-a1.mlab.com:48032/prodtiffmlabmongodb?replicaSet=rs-ds048039",
+    "mongolab_uri": "mongodb://prodtiffmlabmongodbuser:QpE_PtQXuy7R9mgEDxeXgB9fDXfD-y7b8UEc8pVf@ds048699-a0.mlab.com:48699,ds048699-a1.mlab.com:48692/prodtiffmlabmongodb?replicaSet=rs-ds048699",
 
     "sendgrid_username": "azure_47c9caffcb52370cbd03330354b7209a@azure.com",
     "sendgrid_password": "KAO_j41tFH0BC11X5qnN6J3Mgw5-Q9zoMnLqd739",
