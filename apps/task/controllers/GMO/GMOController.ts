@@ -77,7 +77,7 @@ export default class GMOController extends BaseController {
                                     if (err) return this.processExit(notification);
 
                                     this.logger.info('sending an email...');
-                                    this.sendEmail(reservations, (err) => {
+                                    this.sendEmail(reservations, ReservationUtil.STATUS_RESERVED, (err) => {
                                         this.logger.info('an email sent.', err);
                                         if (err) return this.processExit(notification);
 
@@ -149,7 +149,7 @@ export default class GMOController extends BaseController {
                                     if (err) return this.processExit(notification);
 
                                     this.logger.info('sending an email...');
-                                    this.sendEmail(reservations, (err) => {
+                                    this.sendEmail(reservations, ReservationUtil.STATUS_RESERVED, (err) => {
                                         this.logger.info('an email sent.', err);
                                         if (err) return this.processExit(notification);
 
@@ -165,7 +165,7 @@ export default class GMOController extends BaseController {
                         case GMOUtil.STATUS_CVS_REQSUCCESS:
                             // メールだけ送信
                             this.logger.info('sending an email...');
-                            this.sendEmail(reservations, (err) => {
+                            this.sendEmail(reservations, ReservationUtil.STATUS_WAITING_SETTLEMENT, (err) => {
                                 this.logger.info('an email sent.', err);
                                 if (err) return this.processExit(notification);
 
@@ -247,26 +247,9 @@ export default class GMOController extends BaseController {
     /**
      * メール送信
      */
-    private sendEmail(reservations: Array<mongoose.Document>, cb: (err: Error) => void): void {
-        let to = '';
-        let purchaserGroup = reservations[0].get('purchaser_group');
-        switch (purchaserGroup) {
-            case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-            case ReservationUtil.PURCHASER_GROUP_MEMBER:
-            case ReservationUtil.PURCHASER_GROUP_SPONSOR:
-                to = reservations[0].get('purchaser_email')
-                break;
-
-            case ReservationUtil.PURCHASER_GROUP_STAFF:
-                to = reservations[0].get('staff_email')
-                break;
-
-            default:
-                break;
-        }
-
+    private sendEmail(reservations: Array<mongoose.Document>, status, cb: (err: Error) => void): void {
+        let to = reservations[0].get('purchaser_email');
         this.logger.info('to is', to);
-
         if (!to) return cb(null); // toがなければ終了
 
 
@@ -278,7 +261,7 @@ export default class GMOController extends BaseController {
         let dir: string;
         let title_ja: string;
         let title_en: string;
-        switch (reservations[0].get('status')) {
+        switch (status) {
             case ReservationUtil.STATUS_RESERVED:
                 // 1.5次販売はメールテンプレート別
                 if (reservations[0].get('pre_customer')) {

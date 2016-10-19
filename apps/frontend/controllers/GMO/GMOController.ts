@@ -1,15 +1,7 @@
 import BaseController from '../BaseController';
-import Util from '../../../common/Util/Util';
-import GMOUtil from '../../../common/Util/GMO/GMOUtil';
 import Models from '../../../common/models/Models';
-import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
-import ReservationModel from '../../models/Reserve/ReservationModel';
-import GMOResultModel from '../../models/Reserve/GMOResultModel';
 import GMONotificationModel from '../../models/Reserve/GMONotificationModel';
 import GMONotificationResponseModel from '../../models/Reserve/GMONotificationResponseModel';
-import moment = require('moment');
-import conf = require('config');
-import querystring = require('querystring');
 
 export default class GMOController extends BaseController {
     /**
