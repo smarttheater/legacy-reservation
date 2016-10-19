@@ -45,22 +45,28 @@ class ReserveBaseController extends BaseController_1.default {
         reservationModel.token = token;
         reservationModel.purchaserGroup = this.purchaserGroup;
         reservationModel = this.initializePayment(reservationModel);
-        // パフォーマンスFIX
-        if (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser.get('performance')) {
+        // この時点でトークンに対して購入番号を発行しておかないと、複数ウィンドウで購入番号がずれる可能性あり
+        ReservationUtil_1.default.publishPaymentNo((err, paymentNo) => {
+            if (err)
+                return this.next(new Error(this.req.__('Message.UnexpectedError')));
+            reservationModel.paymentNo = paymentNo;
             // パフォーマンスFIX
-            this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'), (err, reservationModel) => {
-                cb(err, reservationModel);
-            });
-        }
-        else if (performanceId) {
-            // パフォーマンスFIX
-            this.processFixPerformance(reservationModel, performanceId, (err, reservationModel) => {
-                cb(err, reservationModel);
-            });
-        }
-        else {
-            cb(null, reservationModel);
-        }
+            if (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser.get('performance')) {
+                // パフォーマンスFIX
+                this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'), (err, reservationModel) => {
+                    cb(err, reservationModel);
+                });
+            }
+            else if (performanceId) {
+                // パフォーマンスFIX
+                this.processFixPerformance(reservationModel, performanceId, (err, reservationModel) => {
+                    cb(err, reservationModel);
+                });
+            }
+            else {
+                cb(null, reservationModel);
+            }
+        });
     }
     /**
      * 購入情報を初期化する

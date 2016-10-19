@@ -3,6 +3,7 @@ const BaseController_1 = require('../BaseController');
 const Models_1 = require('../../../common/models/Models');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
+const mongodb = require('mongodb');
 const mongoose = require('mongoose');
 const conf = require('config');
 const fs = require('fs-extra');
@@ -15,178 +16,202 @@ let MONGOLAB_URI = conf.get('mongolab_uri');
 let MONGOLAB_URI_FOR_GMO = conf.get('mongolab_uri_for_gmo');
 class GMOController extends BaseController_1.default {
     /**
-     * GMO結果通知を処理する
+     * GMO結果通知を10個ずつ処理する
      */
-    processNotification() {
-        let db4gmo = mongoose.createConnection(MONGOLAB_URI_FOR_GMO);
-        this.logger.info('finding notification...');
-        db4gmo.collection('gmo_notifications').findOne({
-            processed: false
-        }, (err, notification) => {
-            this.logger.info('notification found.', err, notification);
-            db4gmo.close();
-            if (err)
-                return process.exit(0);
-            if (!notification)
-                return process.exit(0);
-            if (!notification.order_id)
-                return process.exit(0);
-            mongoose.connect(MONGOLAB_URI, {});
-            // 内容の整合性チェック
-            this.logger.info('finding reservations...payment_no:', notification.order_id);
-            Models_1.default.Reservation.find({
-                payment_no: notification.order_id
-            }, (err, reservations) => {
-                this.logger.info('reservations found.', err, reservations.length);
-                if (err)
-                    return this.processExit(notification);
-                if (reservations.length === 0)
-                    return this.processExit(notification);
-                // チェック文字列
-                let shopPassString = GMOUtil_1.default.createShopPassString(notification.shop_id, notification.order_id, notification.amount, conf.get('gmo_payment_shop_password'), moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss'));
-                this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
-                if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
-                    return this.processExit(notification);
-                }
-                // クレジットカード決済の場合
-                if (notification.pay_type === GMOUtil_1.default.PAY_TYPE_CREDIT) {
-                    switch (notification.status) {
-                        case GMOUtil_1.default.STATUS_CREDIT_CAPTURE:
-                            // 予約完了ステータスへ変更
-                            this.logger.info('updating reservations by paymentNo...', notification.order_id);
-                            Models_1.default.Reservation.update({ payment_no: notification.order_id }, {
-                                status: ReservationUtil_1.default.STATUS_RESERVED,
-                                updated_user: 'system'
-                            }, { multi: true }, (err, raw) => {
-                                this.logger.info('reservations updated.', err, raw);
-                                if (err)
-                                    return this.processExit(notification);
-                                this.logger.info('sending an email...');
-                                this.sendEmail(reservations, ReservationUtil_1.default.STATUS_RESERVED, (err) => {
-                                    this.logger.info('an email sent.', err);
-                                    if (err)
-                                        return this.processExit(notification);
-                                    // processedフラグをたてる
-                                    notification.processed = true;
-                                    this.processExit(notification);
-                                });
-                            });
-                            break;
-                        case GMOUtil_1.default.STATUS_CREDIT_UNPROCESSED:
-                            // 未決済の場合、放置
-                            // ユーザーが「戻る」フローでキャンセルされる、あるいは、時間経過で空席になる
-                            this.processExit(notification);
-                            break;
-                        case GMOUtil_1.default.STATUS_CREDIT_AUTHENTICATED:
-                        case GMOUtil_1.default.STATUS_CREDIT_CHECK:
-                            this.processExit(notification);
-                            break;
-                        case GMOUtil_1.default.STATUS_CREDIT_AUTH:
-                            this.processExit(notification);
-                            break;
-                        case GMOUtil_1.default.STATUS_CREDIT_SALES:
-                            this.processExit(notification);
-                            break;
-                        case GMOUtil_1.default.STATUS_CREDIT_VOID:
-                            // 空席に戻さない(つくったけれども、連動しない方向で仕様決定)
-                            this.processExit(notification);
-                            break;
-                        case GMOUtil_1.default.STATUS_CREDIT_RETURN:
-                            this.processExit(notification);
-                            break;
-                        case GMOUtil_1.default.STATUS_CREDIT_RETURNX:
-                            this.processExit(notification);
-                            break;
-                        case GMOUtil_1.default.STATUS_CREDIT_SAUTH:
-                            this.processExit(notification);
-                            break;
-                        default:
-                            this.processExit(notification);
-                            break;
-                    }
-                }
-                else if (notification.pay_type === GMOUtil_1.default.PAY_TYPE_CVS) {
-                    switch (notification.status) {
-                        case GMOUtil_1.default.STATUS_CVS_PAYSUCCESS:
-                            // 予約完了ステータスへ変更
-                            this.logger.info('updating reservations by paymentNo...', notification.order_id);
-                            Models_1.default.Reservation.update({ payment_no: notification.order_id }, {
-                                status: ReservationUtil_1.default.STATUS_RESERVED,
-                                updated_user: 'system'
-                            }, { multi: true }, (err, raw) => {
-                                this.logger.info('reservations updated.', err, raw);
-                                if (err)
-                                    return this.processExit(notification);
-                                this.logger.info('sending an email...');
-                                this.sendEmail(reservations, ReservationUtil_1.default.STATUS_RESERVED, (err) => {
-                                    this.logger.info('an email sent.', err);
-                                    if (err)
-                                        return this.processExit(notification);
-                                    // processedフラグをたてる
-                                    notification.processed = true;
-                                    this.processExit(notification);
-                                });
-                            });
-                            break;
-                        case GMOUtil_1.default.STATUS_CVS_REQSUCCESS:
-                            // メールだけ送信
-                            this.logger.info('sending an email...');
-                            this.sendEmail(reservations, ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT, (err) => {
-                                this.logger.info('an email sent.', err);
-                                if (err)
-                                    return this.processExit(notification);
-                                // processedフラグをたてる
-                                notification.processed = true;
-                                this.processExit(notification);
-                            });
-                            break;
-                        case GMOUtil_1.default.STATUS_CVS_UNPROCESSED:
-                            this.processExit(notification);
-                            break;
-                        case GMOUtil_1.default.STATUS_CVS_PAYFAIL: // 決済失敗
-                        case GMOUtil_1.default.STATUS_CVS_EXPIRED: // 期限切れ
-                        case GMOUtil_1.default.STATUS_CVS_CANCEL:
-                            // 空席に戻す
-                            this.logger.info('removing reservations...payment_no:', notification.order_id);
-                            let promises = reservations.map((reservation) => {
-                                return new Promise((resolve, reject) => {
-                                    this.logger.info('removing reservation...', reservation.get('_id'));
-                                    reservation.remove((err) => {
-                                        this.logger.info('reservation removed.', reservation.get('_id'), err);
-                                        (err) ? reject(err) : resolve();
-                                    });
-                                });
-                            });
-                            Promise.all(promises).then(() => {
-                                // processedフラグをたてる
-                                notification.processed = true;
-                                this.processExit(notification);
-                            }, (err) => {
-                                this.processExit(notification);
-                            });
-                            break;
-                        default:
-                            this.processExit(notification);
-                            break;
-                    }
-                }
-                else {
-                    // 他の決済は本案件では非対応
-                    return this.processExit(notification);
-                }
+    processNotifications() {
+        mongoose.connect(MONGOLAB_URI, {});
+        mongodb.MongoClient.connect(MONGOLAB_URI_FOR_GMO, (err, db) => {
+            db.collection('gmo_notifications').find({ processed: false }, { limit: 10 }).toArray((err, notifications) => {
+                db.close();
+                let promises = notifications.map((notification) => {
+                    return new Promise((resolve, reject) => {
+                        this.processOne(notification, () => {
+                            resolve();
+                        });
+                    });
+                });
+                Promise.all(promises).then(() => {
+                    mongoose.disconnect();
+                    process.exit(0);
+                }).catch((err) => {
+                    mongoose.disconnect();
+                    process.exit(0);
+                });
             });
         });
+    }
+    /**
+     * GMO結果通知を処理する
+     */
+    processOne(notification, cb) {
+        // let db4gmo = mongoose.createConnection(MONGOLAB_URI_FOR_GMO);
+        // this.logger.info('finding notification...');
+        // db4gmo.collection('gmo_notifications').findOne({
+        //     processed: false
+        // }, (err, notification) => {
+        //     this.logger.info('notification found.', err, notification);
+        //     db4gmo.close();
+        //     if (err) return process.exit(0);
+        //     if (!notification) return process.exit(0);
+        //     if (!notification.order_id) return process.exit(0);
+        // 内容の整合性チェック
+        this.logger.info('finding reservations...payment_no:', notification.order_id);
+        Models_1.default.Reservation.find({
+            payment_no: notification.order_id
+        }, (err, reservations) => {
+            this.logger.info('reservations found.', err, reservations.length);
+            if (err)
+                return this.processExit(notification, cb);
+            if (reservations.length === 0)
+                return this.processExit(notification, cb);
+            // チェック文字列
+            let shopPassString = GMOUtil_1.default.createShopPassString(notification.shop_id, notification.order_id, notification.amount, conf.get('gmo_payment_shop_password'), moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss'));
+            this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
+            if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
+                return this.processExit(notification, cb);
+            }
+            // すでに「予約済」ステータスであれば終了
+            // if (reservations[0].get('status') === ReservationUtil.STATUS_RESERVED) {
+            //     notification.processed = true;
+            //     return this.processExit(notification, cb);
+            // }
+            // クレジットカード決済の場合
+            if (notification.pay_type === GMOUtil_1.default.PAY_TYPE_CREDIT) {
+                switch (notification.status) {
+                    case GMOUtil_1.default.STATUS_CREDIT_CAPTURE:
+                        // 予約完了ステータスへ変更
+                        this.logger.info('updating reservations by paymentNo...', notification.order_id);
+                        Models_1.default.Reservation.update({ payment_no: notification.order_id }, {
+                            status: ReservationUtil_1.default.STATUS_RESERVED,
+                            updated_user: 'system'
+                        }, { multi: true }, (err, raw) => {
+                            this.logger.info('reservations updated.', err, raw);
+                            if (err)
+                                return this.processExit(notification, cb);
+                            this.logger.info('sending an email...');
+                            this.sendEmail(reservations, ReservationUtil_1.default.STATUS_RESERVED, (err) => {
+                                this.logger.info('an email sent.', err);
+                                if (err)
+                                    return this.processExit(notification, cb);
+                                // processedフラグをたてる
+                                notification.processed = true;
+                                this.processExit(notification, cb);
+                            });
+                        });
+                        break;
+                    case GMOUtil_1.default.STATUS_CREDIT_UNPROCESSED:
+                        // 未決済の場合、放置
+                        // ユーザーが「戻る」フローでキャンセルされる、あるいは、時間経過で空席になる
+                        this.processExit(notification, cb);
+                        break;
+                    case GMOUtil_1.default.STATUS_CREDIT_AUTHENTICATED:
+                    case GMOUtil_1.default.STATUS_CREDIT_CHECK:
+                        this.processExit(notification, cb);
+                        break;
+                    case GMOUtil_1.default.STATUS_CREDIT_AUTH:
+                        this.processExit(notification, cb);
+                        break;
+                    case GMOUtil_1.default.STATUS_CREDIT_SALES:
+                        this.processExit(notification, cb);
+                        break;
+                    case GMOUtil_1.default.STATUS_CREDIT_VOID:
+                        // 空席に戻さない(つくったけれども、連動しない方向で仕様決定)
+                        this.processExit(notification, cb);
+                        break;
+                    case GMOUtil_1.default.STATUS_CREDIT_RETURN:
+                        this.processExit(notification, cb);
+                        break;
+                    case GMOUtil_1.default.STATUS_CREDIT_RETURNX:
+                        this.processExit(notification, cb);
+                        break;
+                    case GMOUtil_1.default.STATUS_CREDIT_SAUTH:
+                        this.processExit(notification, cb);
+                        break;
+                    default:
+                        this.processExit(notification, cb);
+                        break;
+                }
+            }
+            else if (notification.pay_type === GMOUtil_1.default.PAY_TYPE_CVS) {
+                switch (notification.status) {
+                    case GMOUtil_1.default.STATUS_CVS_PAYSUCCESS:
+                        // 予約完了ステータスへ変更
+                        this.logger.info('updating reservations by paymentNo...', notification.order_id);
+                        Models_1.default.Reservation.update({ payment_no: notification.order_id }, {
+                            status: ReservationUtil_1.default.STATUS_RESERVED,
+                            updated_user: 'system'
+                        }, { multi: true }, (err, raw) => {
+                            this.logger.info('reservations updated.', err, raw);
+                            if (err)
+                                return this.processExit(notification, cb);
+                            this.logger.info('sending an email...');
+                            this.sendEmail(reservations, ReservationUtil_1.default.STATUS_RESERVED, (err) => {
+                                this.logger.info('an email sent.', err);
+                                if (err)
+                                    return this.processExit(notification, cb);
+                                // processedフラグをたてる
+                                notification.processed = true;
+                                this.processExit(notification, cb);
+                            });
+                        });
+                        break;
+                    case GMOUtil_1.default.STATUS_CVS_REQSUCCESS:
+                        // メールだけ送信
+                        this.logger.info('sending an email...');
+                        this.sendEmail(reservations, ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT, (err) => {
+                            this.logger.info('an email sent.', err);
+                            if (err)
+                                return this.processExit(notification, cb);
+                            // processedフラグをたてる
+                            notification.processed = true;
+                            this.processExit(notification, cb);
+                        });
+                        break;
+                    case GMOUtil_1.default.STATUS_CVS_UNPROCESSED:
+                        this.processExit(notification, cb);
+                        break;
+                    case GMOUtil_1.default.STATUS_CVS_PAYFAIL: // 決済失敗
+                    case GMOUtil_1.default.STATUS_CVS_EXPIRED: // 期限切れ
+                    case GMOUtil_1.default.STATUS_CVS_CANCEL:
+                        // 空席に戻す
+                        this.logger.info('removing reservations...payment_no:', notification.order_id);
+                        let promises = reservations.map((reservation) => {
+                            return new Promise((resolve, reject) => {
+                                this.logger.info('removing reservation...', reservation.get('_id'));
+                                reservation.remove((err) => {
+                                    this.logger.info('reservation removed.', reservation.get('_id'), err);
+                                    (err) ? reject(err) : resolve();
+                                });
+                            });
+                        });
+                        Promise.all(promises).then(() => {
+                            // processedフラグをたてる
+                            notification.processed = true;
+                            this.processExit(notification, cb);
+                        }, (err) => {
+                            this.processExit(notification, cb);
+                        });
+                        break;
+                    default:
+                        this.processExit(notification, cb);
+                        break;
+                }
+            }
+            else {
+                // 他の決済は本案件では非対応
+                return this.processExit(notification, cb);
+            }
+        });
+        // });
     }
     /**
      * プロセスを終了する
      *
      * @param {Object} notification
      */
-    processExit(notification) {
-        if (!notification.processed) {
-            mongoose.disconnect();
-            return process.exit(0);
-        }
+    processExit(notification, cb) {
+        if (!notification.processed)
+            return cb();
         // processedフラグをたてる
         this.logger.info('saving notificaton...');
         let db4gmo = mongoose.createConnection(MONGOLAB_URI_FOR_GMO);
@@ -196,8 +221,7 @@ class GMOController extends BaseController_1.default {
         }, notification, (err) => {
             this.logger.info('notification saved.', err);
             db4gmo.close();
-            mongoose.disconnect();
-            return process.exit(0);
+            cb();
         });
     }
     /**
