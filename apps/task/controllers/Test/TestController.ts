@@ -346,13 +346,15 @@ export default class TestController extends BaseController {
             });
         });
     }
+
     // public checkReservationUnique(): void {
     //     mongoose.connect(MONGOLAB_URI, {});
     //     Models.Reservation.findOne({
     //         performance: "000006",
-    //         seat_code: "A-3"
+    //         seat_code: "A-6",
+    //         status: "RESERVED"
     //     }, (err, reservation) => {
-    //         this.logger.info('reservations created.', reservation);
+    //         this.logger.info('reservations created.', err, reservation);
     //         mongoose.disconnect();
     //         process.exit(0);
     //     });
