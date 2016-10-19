@@ -1,10 +1,10 @@
 "use strict";
 const BaseController_1 = require('../BaseController');
 const Models_1 = require('../../../common/models/Models');
-const mongoose = require('mongoose');
-const conf = require('config');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
+const mongoose = require('mongoose');
+const conf = require('config');
 const fs = require('fs-extra');
 const moment = require('moment');
 const sendgrid = require('sendgrid');
@@ -24,19 +24,13 @@ class GMOController extends BaseController_1.default {
             processed: false
         }, (err, notification) => {
             this.logger.info('notification found.', err, notification);
-            if (err) {
-                db4gmo.close();
-                return process.exit(0);
-            }
-            if (!notification) {
-                db4gmo.close();
-                return process.exit(0);
-            }
-            if (!notification.order_id) {
-                db4gmo.close();
-                return process.exit(0);
-            }
             db4gmo.close();
+            if (err)
+                return process.exit(0);
+            if (!notification)
+                return process.exit(0);
+            if (!notification.order_id)
+                return process.exit(0);
             mongoose.connect(MONGOLAB_URI, {});
             // 内容の整合性チェック
             this.logger.info('finding reservations...payment_no:', notification.order_id);
@@ -44,20 +38,15 @@ class GMOController extends BaseController_1.default {
                 payment_no: notification.order_id
             }, (err, reservations) => {
                 this.logger.info('reservations found.', err, reservations.length);
-                if (err) {
-                    mongoose.disconnect();
-                    return process.exit(0);
-                }
-                if (reservations.length === 0) {
-                    mongoose.disconnect();
-                    return process.exit(0);
-                }
+                if (err)
+                    return this.processExit(notification);
+                if (reservations.length === 0)
+                    return this.processExit(notification);
                 // チェック文字列
                 let shopPassString = GMOUtil_1.default.createShopPassString(notification.shop_id, notification.order_id, notification.amount, conf.get('gmo_payment_shop_password'), moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss'));
                 this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
                 if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
-                    mongoose.disconnect();
-                    return process.exit(0);
+                    return this.processExit(notification);
                 }
                 // クレジットカード決済の場合
                 if (notification.pay_type === GMOUtil_1.default.PAY_TYPE_CREDIT) {
@@ -70,73 +59,49 @@ class GMOController extends BaseController_1.default {
                                 updated_user: 'system'
                             }, { multi: true }, (err, raw) => {
                                 this.logger.info('reservations updated.', err, raw);
-                                if (err) {
-                                    mongoose.disconnect();
-                                    return process.exit(0);
-                                }
+                                if (err)
+                                    return this.processExit(notification);
                                 this.logger.info('sending an email...');
                                 this.sendEmail(reservations, (err) => {
                                     this.logger.info('an email sent.', err);
-                                    if (err) {
-                                        mongoose.disconnect();
-                                        return process.exit(0);
-                                    }
-                                    else {
-                                        // processedフラグをたてる
-                                        this.logger.info('saving notificaton...');
-                                        db4gmo = mongoose.createConnection(MONGOLAB_URI_FOR_GMO);
-                                        notification.processed = true;
-                                        db4gmo.collection('gmo_notifications').updateOne({
-                                            _id: notification._id
-                                        }, notification, (err) => {
-                                            this.logger.info('notification saved.', err);
-                                            db4gmo.close();
-                                            mongoose.disconnect();
-                                            return process.exit(0);
-                                        });
-                                    }
+                                    if (err)
+                                        return this.processExit(notification);
+                                    // processedフラグをたてる
+                                    notification.processed = true;
+                                    this.processExit(notification);
                                 });
                             });
                             break;
                         case GMOUtil_1.default.STATUS_CREDIT_UNPROCESSED:
                             // 未決済の場合、放置
                             // ユーザーが「戻る」フローでキャンセルされる、あるいは、時間経過で空席になる
-                            mongoose.disconnect();
-                            process.exit(0);
+                            this.processExit(notification);
                             break;
                         case GMOUtil_1.default.STATUS_CREDIT_AUTHENTICATED:
                         case GMOUtil_1.default.STATUS_CREDIT_CHECK:
-                            mongoose.disconnect();
-                            process.exit(0);
+                            this.processExit(notification);
                             break;
                         case GMOUtil_1.default.STATUS_CREDIT_AUTH:
-                            mongoose.disconnect();
-                            process.exit(0);
+                            this.processExit(notification);
                             break;
                         case GMOUtil_1.default.STATUS_CREDIT_SALES:
-                            mongoose.disconnect();
-                            process.exit(0);
+                            this.processExit(notification);
                             break;
                         case GMOUtil_1.default.STATUS_CREDIT_VOID:
                             // 空席に戻さない(つくったけれども、連動しない方向で仕様決定)
-                            mongoose.disconnect();
-                            process.exit(0);
+                            this.processExit(notification);
                             break;
                         case GMOUtil_1.default.STATUS_CREDIT_RETURN:
-                            mongoose.disconnect();
-                            process.exit(0);
+                            this.processExit(notification);
                             break;
                         case GMOUtil_1.default.STATUS_CREDIT_RETURNX:
-                            mongoose.disconnect();
-                            process.exit(0);
+                            this.processExit(notification);
                             break;
                         case GMOUtil_1.default.STATUS_CREDIT_SAUTH:
-                            mongoose.disconnect();
-                            process.exit(0);
+                            this.processExit(notification);
                             break;
                         default:
-                            mongoose.disconnect();
-                            process.exit(0);
+                            this.processExit(notification);
                             break;
                     }
                 }
@@ -150,31 +115,16 @@ class GMOController extends BaseController_1.default {
                                 updated_user: 'system'
                             }, { multi: true }, (err, raw) => {
                                 this.logger.info('reservations updated.', err, raw);
-                                if (err) {
-                                    mongoose.disconnect();
-                                    return process.exit(0);
-                                }
+                                if (err)
+                                    return this.processExit(notification);
                                 this.logger.info('sending an email...');
                                 this.sendEmail(reservations, (err) => {
                                     this.logger.info('an email sent.', err);
-                                    if (err) {
-                                        mongoose.disconnect();
-                                        return process.exit(0);
-                                    }
-                                    else {
-                                        // processedフラグをたてる
-                                        this.logger.info('saving notificaton...');
-                                        db4gmo = mongoose.createConnection(MONGOLAB_URI_FOR_GMO);
-                                        notification.processed = true;
-                                        db4gmo.collection('gmo_notifications').updateOne({
-                                            _id: notification._id
-                                        }, notification, (err) => {
-                                            this.logger.info('notification saved.', err);
-                                            db4gmo.close();
-                                            mongoose.disconnect();
-                                            return process.exit(0);
-                                        });
-                                    }
+                                    if (err)
+                                        return this.processExit(notification);
+                                    // processedフラグをたてる
+                                    notification.processed = true;
+                                    this.processExit(notification);
                                 });
                             });
                             break;
@@ -183,29 +133,15 @@ class GMOController extends BaseController_1.default {
                             this.logger.info('sending an email...');
                             this.sendEmail(reservations, (err) => {
                                 this.logger.info('an email sent.', err);
-                                if (err) {
-                                    mongoose.disconnect();
-                                    return process.exit(0);
-                                }
-                                else {
-                                    // processedフラグをたてる
-                                    this.logger.info('saving notificaton...');
-                                    db4gmo = mongoose.createConnection(MONGOLAB_URI_FOR_GMO);
-                                    notification.processed = true;
-                                    db4gmo.collection('gmo_notifications').updateOne({
-                                        _id: notification._id
-                                    }, notification, (err) => {
-                                        this.logger.info('notification saved.', err);
-                                        db4gmo.close();
-                                        mongoose.disconnect();
-                                        return process.exit(0);
-                                    });
-                                }
+                                if (err)
+                                    return this.processExit(notification);
+                                // processedフラグをたてる
+                                notification.processed = true;
+                                this.processExit(notification);
                             });
                             break;
                         case GMOUtil_1.default.STATUS_CVS_UNPROCESSED:
-                            mongoose.disconnect();
-                            process.exit(0);
+                            this.processExit(notification);
                             break;
                         case GMOUtil_1.default.STATUS_CVS_PAYFAIL: // 決済失敗
                         case GMOUtil_1.default.STATUS_CVS_EXPIRED: // 期限切れ
@@ -223,34 +159,45 @@ class GMOController extends BaseController_1.default {
                             });
                             Promise.all(promises).then(() => {
                                 // processedフラグをたてる
-                                this.logger.info('saving notificaton...');
-                                db4gmo = mongoose.createConnection(MONGOLAB_URI_FOR_GMO);
                                 notification.processed = true;
-                                db4gmo.collection('gmo_notifications').updateOne({
-                                    _id: notification._id
-                                }, notification, (err) => {
-                                    this.logger.info('notification saved.', err);
-                                    db4gmo.close();
-                                    mongoose.disconnect();
-                                    return process.exit(0);
-                                });
+                                this.processExit(notification);
                             }, (err) => {
-                                mongoose.disconnect();
-                                return process.exit(0);
+                                this.processExit(notification);
                             });
                             break;
                         default:
-                            mongoose.disconnect();
-                            process.exit(0);
+                            this.processExit(notification);
                             break;
                     }
                 }
                 else {
                     // 他の決済は本案件では非対応
-                    mongoose.disconnect();
-                    process.exit(0);
+                    return this.processExit(notification);
                 }
             });
+        });
+    }
+    /**
+     * プロセスを終了する
+     *
+     * @param {Object} notification
+     */
+    processExit(notification) {
+        if (!notification.processed) {
+            mongoose.disconnect();
+            return process.exit(0);
+        }
+        // processedフラグをたてる
+        this.logger.info('saving notificaton...');
+        let db4gmo = mongoose.createConnection(MONGOLAB_URI_FOR_GMO);
+        notification.processed = true;
+        db4gmo.collection('gmo_notifications').updateOne({
+            _id: notification._id
+        }, notification, (err) => {
+            this.logger.info('notification saved.', err);
+            db4gmo.close();
+            mongoose.disconnect();
+            return process.exit(0);
         });
     }
     /**
