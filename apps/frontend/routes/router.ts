@@ -38,7 +38,7 @@ export default (app: any) => {
     app.post('/GMO/reserve/result', 'gmo.reserve.result', base, (req, res, next) => {(new GMOReserveController(req, res, next)).result()});
     app.get('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', base, (req, res, next) => {(new GMOReserveController(req, res, next)).cancel()});
     app.post('/GMO/reserve/notify', 'gmo.reserve.notify', base, (req, res, next) => {(new GMOReserveController(req, res, next)).notify()});
-    app.post('/GMO/notify', 'gmo.notify', base, (req, res, next) => {(new GMOController(req, res, next)).notify()});
+    app.all('/GMO/notify', 'gmo.notify', base, (req, res, next) => {(new GMOController(req, res, next)).notify()});
 
 
 

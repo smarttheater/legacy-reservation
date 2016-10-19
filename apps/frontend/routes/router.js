@@ -23,7 +23,7 @@ exports.default = (app) => {
     app.post('/GMO/reserve/result', 'gmo.reserve.result', base, (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).result(); });
     app.get('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', base, (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).cancel(); });
     app.post('/GMO/reserve/notify', 'gmo.reserve.notify', base, (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).notify(); });
-    app.post('/GMO/notify', 'gmo.notify', base, (req, res, next) => { (new GMOController_1.default(req, res, next)).notify(); });
+    app.all('/GMO/notify', 'gmo.notify', base, (req, res, next) => { (new GMOController_1.default(req, res, next)).notify(); });
     // admission
     app.all('/admission/performances', 'admission.performances', base, (req, res, next) => { (new AdmissionController_1.default(req, res, next)).performances(); });
     app.get('/admission/performance/:id/confirm', 'admission.confirm', base, (req, res, next) => { (new AdmissionController_1.default(req, res, next)).confirm(); });
