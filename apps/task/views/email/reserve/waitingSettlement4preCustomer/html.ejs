@@ -15,8 +15,8 @@
 </div>
 
 <%
-let term = reservations[0].get('gmo_payment_term');
-let paymentTerm = moment(`${term.substr(0, 4)}-${term.substr(4, 2)}-${term.substr(6, 2)}T${term.substr(8, 2)}:${term.substr(10, 2)}:${term.substr(12)}+09:00`);
+let paymentTerm = moment(reservations[0].get('purchased_at')).add(2, 'days');
+//let paymentTerm = moment(`${term.substr(0, 4)}-${term.substr(4, 2)}-${term.substr(6, 2)}T${term.substr(8, 2)}:${term.substr(10, 2)}:${term.substr(12)}+09:00`);
 %>
 <div style="padding:0 30px;font-family:'游ゴシック',meiryo,sans-serif;">
     <h1 style="margin:0;font-size:20px;text-align:center;"><%= title_ja %></h1>

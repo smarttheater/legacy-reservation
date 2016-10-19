@@ -12,6 +12,7 @@ import TelController from './controllers/Tel/TelController';
 import WindowController from './controllers/Window/WindowController';
 import LogController from './controllers/Log/LogController';
 import PreCustomerController from './controllers/PreCustomer/PreCustomerController';
+import GMOController from './controllers/GMO/GMOController';
 
 let env = process.env.NODE_ENV || 'dev';
 
@@ -24,6 +25,14 @@ program
     .action((method) => {
         let logDir = `${__dirname}/../../logs/${env}/task/Test${method.charAt(0).toUpperCase()}${method.slice(1)}`;
         (new TestController(logDir))[method]();
+    });
+
+program
+    .command('gmo <method>')
+    .description('GMO結果通知処理タスク')
+    .action((method, options) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/GMO${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+        (new GMOController(logDir))[method]();
     });
 
 program

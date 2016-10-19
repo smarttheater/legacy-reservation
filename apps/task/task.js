@@ -13,6 +13,7 @@ const TelController_1 = require('./controllers/Tel/TelController');
 const WindowController_1 = require('./controllers/Window/WindowController');
 const LogController_1 = require('./controllers/Log/LogController');
 const PreCustomerController_1 = require('./controllers/PreCustomer/PreCustomerController');
+const GMOController_1 = require('./controllers/GMO/GMOController');
 let env = process.env.NODE_ENV || 'dev';
 program
     .version('0.0.1');
@@ -22,6 +23,13 @@ program
     .action((method) => {
     let logDir = `${__dirname}/../../logs/${env}/task/Test${method.charAt(0).toUpperCase()}${method.slice(1)}`;
     (new TestController_1.default(logDir))[method]();
+});
+program
+    .command('gmo <method>')
+    .description('GMO結果通知処理タスク')
+    .action((method, options) => {
+    let logDir = `${__dirname}/../../logs/${env}/task/GMO${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+    (new GMOController_1.default(logDir))[method]();
 });
 program
     .command('staff <method>')
