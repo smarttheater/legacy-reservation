@@ -62,12 +62,15 @@ class GMOController extends BaseController_1.default {
             this.logger.info('reservations found.', err, reservations.length);
             if (err)
                 return this.processExit(notification, cb);
-            if (reservations.length === 0)
+            if (reservations.length === 0) {
+                notification.processed = true;
                 return this.processExit(notification, cb);
+            }
             // チェック文字列
             let shopPassString = GMOUtil_1.default.createShopPassString(notification.shop_id, notification.order_id, notification.amount, conf.get('gmo_payment_shop_password'), moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss'));
             this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
             if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
+                notification.processed = true;
                 return this.processExit(notification, cb);
             }
             // すでに「予約済」ステータスであれば終了
@@ -102,32 +105,41 @@ class GMOController extends BaseController_1.default {
                     case GMOUtil_1.default.STATUS_CREDIT_UNPROCESSED:
                         // 未決済の場合、放置
                         // ユーザーが「戻る」フローでキャンセルされる、あるいは、時間経過で空席になる
+                        notification.processed = true;
                         this.processExit(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_AUTHENTICATED:
                     case GMOUtil_1.default.STATUS_CREDIT_CHECK:
+                        notification.processed = true;
                         this.processExit(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_AUTH:
+                        notification.processed = true;
                         this.processExit(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_SALES:
+                        notification.processed = true;
                         this.processExit(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_VOID:
                         // 空席に戻さない(つくったけれども、連動しない方向で仕様決定)
+                        notification.processed = true;
                         this.processExit(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_RETURN:
+                        notification.processed = true;
                         this.processExit(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_RETURNX:
+                        notification.processed = true;
                         this.processExit(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_SAUTH:
+                        notification.processed = true;
                         this.processExit(notification, cb);
                         break;
                     default:
+                        notification.processed = true;
                         this.processExit(notification, cb);
                         break;
                 }
@@ -168,6 +180,7 @@ class GMOController extends BaseController_1.default {
                         });
                         break;
                     case GMOUtil_1.default.STATUS_CVS_UNPROCESSED:
+                        notification.processed = true;
                         this.processExit(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CVS_PAYFAIL: // 決済失敗
@@ -193,12 +206,14 @@ class GMOController extends BaseController_1.default {
                         });
                         break;
                     default:
+                        notification.processed = true;
                         this.processExit(notification, cb);
                         break;
                 }
             }
             else {
                 // 他の決済は本案件では非対応
+                notification.processed = true;
                 return this.processExit(notification, cb);
             }
         });
