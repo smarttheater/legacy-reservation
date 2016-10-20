@@ -69,6 +69,14 @@ export default class CustomerCancelController extends BaseController {
                             }
                         }
 
+                        // 上映日前日以前のみ受け付ける
+                        if (reservations[0].get('performance_day') <= moment().format('YYYYMMDD')) {
+                            return this.res.json({
+                                success: false,
+                                message: 'キャンセル受付対象外の座席です。<br>The cancel for you tickets is not applicable.'
+                            });
+                        }
+
                         let results = reservations.map((reservation) => {
                             return {
                                 _id: reservation.get('_id'),
@@ -142,6 +150,14 @@ export default class CustomerCancelController extends BaseController {
                             message: 'キャンセル受付対象外の座席です。 The cancel for you tickets is not applicable.'
                         });
                     }
+                }
+
+                // 上映日前日以前のみ受け付ける
+                if (reservations[0].get('performance_day') <= moment().format('YYYYMMDD')) {
+                    return this.res.json({
+                        success: false,
+                        message: 'キャンセル受付対象外の座席です。 The cancel for you tickets is not applicable.'
+                    });
                 }
 
                 if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CREDIT) {
