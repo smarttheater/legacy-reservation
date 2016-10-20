@@ -45,7 +45,7 @@
     "siege": "^0.2.0",
     "typescript": "^2.0.3",
     "typings": "^1.4.0",
-    "uniqid": "^3.0.0",
+    "uniqid": "^3.1.0",
     "validator": "^5.5.0"
   },
   "main": "index.js",
