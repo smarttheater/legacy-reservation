@@ -59,12 +59,14 @@ export default class CustomerCancelController extends BaseController {
                             });
                         }
 
-                        // 購入日時が15日のものだけを受付ける
+                        // 一次販売(15日)と先行販売(19日)のもののみ許可
                         if (moment(reservations[0].get('purchased_at')) >= moment('2016-10-16T00:00:00+9:00')) {
-                            return this.res.json({
-                                success: false,
-                                message: 'キャンセル受付対象外の座席です。<br>The cancel for you tickets is not applicable.'
-                            });
+                            if (!reservations[0].get('pre_customer')) {
+                                return this.res.json({
+                                    success: false,
+                                    message: 'キャンセル受付対象外の座席です。<br>The cancel for you tickets is not applicable.'
+                                });
+                            }
                         }
 
                         let results = reservations.map((reservation) => {
@@ -121,8 +123,25 @@ export default class CustomerCancelController extends BaseController {
                 if (reservations.length === 0) {
                     return this.res.json({
                         success: false,
-                        message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
+                        message: '購入番号または電話番号下4ケタに誤りがあります There are some mistakes in a transaction number or last 4 digits of tel.'
                     });
+                }
+
+                if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) {
+                    return this.res.json({
+                        success: false,
+                        message: 'コンビニ決済のお客様は下記をご確認ください。 Please check the following if you paid at the convenience store.'
+                    });
+                }
+
+                // 一次販売(15日)と先行販売(19日)のもののみ許可
+                if (moment(reservations[0].get('purchased_at')) >= moment('2016-10-16T00:00:00+9:00')) {
+                    if (!reservations[0].get('pre_customer')) {
+                        return this.res.json({
+                            success: false,
+                            message: 'キャンセル受付対象外の座席です。 The cancel for you tickets is not applicable.'
+                        });
+                    }
                 }
 
                 if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CREDIT) {
