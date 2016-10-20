@@ -39,12 +39,17 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      * ポータルからパフォーマンスと言語指定で遷移してくる
      */
     start() {
-        // 期限指定
-        if (moment() < moment(conf.get('datetimes.reservation_start_customers_first'))) {
-            if (this.req.query.locale) {
-                this.req.setLocale(this.req.query.locale);
+        // MPのIPは許可
+        if (this.req.headers['x-forwarded-for'] && this.req.headers['x-forwarded-for'].substr(0, 13) === '124.155.113.9') {
+        }
+        else {
+            // 期限指定
+            if (moment() < moment(conf.get('datetimes.reservation_start_customers_first'))) {
+                if (this.req.query.locale) {
+                    this.req.setLocale(this.req.query.locale);
+                }
+                return this.next(new Error(this.req.__('Message.OutOfTerm')));
             }
-            return this.next(new Error(this.req.__('Message.OutOfTerm')));
         }
         this.processStart((err, reservationModel) => {
             if (err)
