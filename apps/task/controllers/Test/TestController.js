@@ -892,7 +892,24 @@ class TestController extends BaseController_1.default {
                                     this.logger.info('updating...update:', update);
                                     Models_1.default.Reservation.findOneAndUpdate({
                                         _id: reservation.get('_id')
-                                    }, update, { new: true }, (err, reservation) => {
+                                    }, { $set: update, $unset: {
+                                            gmo_shop_id: '',
+                                            gmo_amount: '',
+                                            gmo_tax: '',
+                                            gmo_access_id: '',
+                                            gmo_forward: '',
+                                            gmo_method: '',
+                                            gmo_approve: '',
+                                            gmo_tran_id: '',
+                                            gmo_tran_date: '',
+                                            gmo_pay_type: '',
+                                            gmo_cvs_code: '',
+                                            gmo_cvs_conf_no: '',
+                                            gmo_cvs_receipt_no: '',
+                                            gmo_cvs_receipt_url: '',
+                                            gmo_payment_term: '',
+                                            gmo_status: ''
+                                        } }, { new: true }, (err, reservation) => {
                                         this.logger.info('updated', err, reservation);
                                         if (err)
                                             return reject2(err);
