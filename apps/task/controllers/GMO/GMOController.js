@@ -7,12 +7,7 @@ const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
 const mongodb = require('mongodb');
 const mongoose = require('mongoose');
 const conf = require('config');
-const fs = require('fs-extra');
 const moment = require('moment');
-const sendgrid = require('sendgrid');
-const emailTemplates = require('email-templates');
-const qr = require('qr-image');
-const numeral = require('numeral');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 let MONGOLAB_URI_FOR_GMO = conf.get('mongolab_uri_for_gmo');
 class GMOController extends BaseController_1.default {
@@ -45,16 +40,6 @@ class GMOController extends BaseController_1.default {
      * GMO結果通知を処理する
      */
     processOne(notification, cb) {
-        // let db4gmo = mongoose.createConnection(MONGOLAB_URI_FOR_GMO);
-        // this.logger.info('finding notification...');
-        // db4gmo.collection('gmo_notifications').findOne({
-        //     processed: false
-        // }, (err, notification) => {
-        //     this.logger.info('notification found.', err, notification);
-        //     db4gmo.close();
-        //     if (err) return process.exit(0);
-        //     if (!notification) return process.exit(0);
-        //     if (!notification.order_id) return process.exit(0);
         // 内容の整合性チェック
         this.logger.info('finding reservations...payment_no:', notification.order_id);
         Models_1.default.Reservation.find({
@@ -71,14 +56,10 @@ class GMOController extends BaseController_1.default {
             let shopPassString = GMOUtil_1.default.createShopPassString(notification.shop_id, notification.order_id, notification.amount, conf.get('gmo_payment_shop_password'), moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss'));
             this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
             if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
+                // 不正な結果通知なので、処理済みにする
                 notification.processed = true;
                 return this.next(notification, cb);
             }
-            // すでに「予約済」ステータスであれば終了
-            // if (reservations[0].get('status') === ReservationUtil.STATUS_RESERVED) {
-            //     notification.processed = true;
-            //     return this.next(notification, cb);
-            // }
             // クレジットカード決済の場合
             if (notification.pay_type === GMOUtil_1.default.PAY_TYPE_CREDIT) {
                 switch (notification.status) {
@@ -92,26 +73,25 @@ class GMOController extends BaseController_1.default {
                             this.logger.info('reservations updated.', err, raw);
                             if (err)
                                 return this.next(notification, cb);
-                            // 完了メールキュー追加
+                            // 完了メールキュー追加(あれば更新日時を更新するだけ)
                             this.logger.info('creating reservationEmailCue...');
-                            Models_1.default.ReservationEmailCue.create({
+                            Models_1.default.ReservationEmailCue.findOneAndUpdate({
                                 payment_no: notification.order_id,
                                 template: ReservationEmailCueUtil_1.default.TEMPLATE_COMPLETE,
-                                status: ReservationEmailCueUtil_1.default.STATUS_UNSENT
+                            }, {
+                                $set: { updated_at: Date.now() },
+                                $setOnInsert: { status: ReservationEmailCueUtil_1.default.STATUS_UNSENT }
+                            }, {
+                                upsert: true,
+                                new: true
                             }, (err, cue) => {
                                 this.logger.info('reservationEmailCue created.', err, cue);
-                                if (!err)
-                                    notification.processed = true;
+                                if (err)
+                                    return this.next(notification, cb);
+                                // あったにせよなかったにせよ処理済に
+                                notification.processed = true;
                                 this.next(notification, cb);
                             });
-                            // this.logger.info('sending an email...');
-                            // this.sendEmail(reservations, ReservationUtil.STATUS_RESERVED, (err) => {
-                            //     this.logger.info('an email sent.', err);
-                            //     if (err) return this.next(notification, cb);
-                            //     // processedフラグをたてる
-                            //     notification.processed = true;
-                            //     this.next(notification, cb);
-                            // });
                         });
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_UNPROCESSED:
@@ -176,8 +156,9 @@ class GMOController extends BaseController_1.default {
                                 status: ReservationEmailCueUtil_1.default.STATUS_UNSENT
                             }, (err, cue) => {
                                 this.logger.info('reservationEmailCue created.', err, cue);
-                                if (!err)
-                                    notification.processed = true;
+                                if (err)
+                                    return this.next(notification, cb);
+                                notification.processed = true;
                                 this.next(notification, cb);
                             });
                         });
@@ -191,8 +172,9 @@ class GMOController extends BaseController_1.default {
                             status: ReservationEmailCueUtil_1.default.STATUS_UNSENT
                         }, (err, cue) => {
                             this.logger.info('reservationEmailCue created.', err, cue);
-                            if (!err)
-                                notification.processed = true;
+                            if (err)
+                                return this.next(notification, cb);
+                            notification.processed = true;
                             this.next(notification, cb);
                         });
                         break;
@@ -234,7 +216,6 @@ class GMOController extends BaseController_1.default {
                 return this.next(notification, cb);
             }
         });
-        // });
     }
     /**
      * プロセスを終了する
@@ -254,108 +235,6 @@ class GMOController extends BaseController_1.default {
             this.logger.info('notification saved.', err);
             db4gmo.close();
             cb();
-        });
-    }
-    /**
-     * メール送信
-     */
-    sendEmail(reservations, status, cb) {
-        let to = reservations[0].get('purchaser_email');
-        this.logger.info('to is', to);
-        if (!to)
-            return cb(null); // toがなければ終了
-        let EmailTemplate = emailTemplates.EmailTemplate;
-        // __dirnameを使うとテンプレートを取得できないので注意
-        // http://stackoverflow.com/questions/38173996/azure-and-node-js-dirname
-        let dir;
-        let title_ja;
-        let title_en;
-        switch (status) {
-            case ReservationUtil_1.default.STATUS_RESERVED:
-                // 1.5次販売はメールテンプレート別
-                if (reservations[0].get('pre_customer')) {
-                    dir = `${process.cwd()}/apps/task/views/email/reserve/complete4preCustomer`;
-                    title_ja = '東京国際映画祭チケット 購入完了のお知らせ';
-                    title_en = 'Notice of Completion of TIFF Ticket Purchase';
-                }
-                else {
-                    dir = `${process.cwd()}/apps/task/views/email/reserve/complete`;
-                    title_ja = '東京国際映画祭チケット 購入完了のお知らせ';
-                    title_en = 'Notice of Completion of TIFF Ticket Purchase';
-                }
-                break;
-            case ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT:
-                // 1.5次販売はメールテンプレート別
-                if (reservations[0].get('pre_customer')) {
-                    dir = `${process.cwd()}/apps/task/views/email/reserve/waitingSettlement4preCustomer`;
-                    title_ja = '東京国際映画祭チケット 仮予約完了のお知らせ';
-                    title_en = 'Notice of Completion of Tentative Reservation for TIFF Tickets';
-                }
-                else {
-                    dir = `${process.cwd()}/apps/task/views/email/reserve/waitingSettlement`;
-                    title_ja = '東京国際映画祭チケット 仮予約完了のお知らせ';
-                    title_en = 'Notice of Completion of Tentative Reservation for TIFF Tickets';
-                }
-                break;
-            default:
-                break;
-        }
-        if (!dir)
-            return cb(null);
-        let template = new EmailTemplate(dir);
-        let locals = {
-            title_ja: title_ja,
-            title_en: title_en,
-            reservations: reservations,
-            moment: moment,
-            numeral: numeral,
-            conf: conf,
-            GMOUtil: GMOUtil_1.default,
-            ReservationUtil: ReservationUtil_1.default
-        };
-        this.logger.info('rendering template...dir:', dir);
-        template.render(locals, (err, result) => {
-            this.logger.info('email template rendered.', err);
-            if (err)
-                return cb(new Error('failed inf rendering an email.'));
-            let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
-            let email = new _sendgrid.Email({
-                to: to,
-                fromname: conf.get('email.fromname'),
-                from: conf.get('email.from'),
-                subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}${title_ja} ${title_en}`,
-                html: result.html
-            });
-            // 完了の場合、QRコードを添付
-            if (reservations[0].get('status') === ReservationUtil_1.default.STATUS_RESERVED) {
-                // add barcodes
-                for (let reservation of reservations) {
-                    let reservationId = reservation.get('_id').toString();
-                    let png = qr.imageSync(reservation.get('qr_str'), { type: 'png' });
-                    email.addFile({
-                        filename: `QR_${reservationId}.png`,
-                        contentType: 'image/png',
-                        cid: `qrcode_${reservationId}`,
-                        content: png
-                    });
-                }
-            }
-            // add logo
-            email.addFile({
-                filename: `logo.png`,
-                contentType: 'image/png',
-                cid: 'logo',
-                content: fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`)
-            });
-            this.logger.info('sending an email...email:', email);
-            _sendgrid.send(email, (err, json) => {
-                this.logger.info('an email sent.', err, json);
-                if (err)
-                    return cb(err);
-                // 送信済みフラグを立てる
-                this.logger.info('setting is_sent to true...');
-                return cb(null);
-            });
         });
     }
 }

@@ -25,9 +25,7 @@ let Schema = new mongoose.Schema({
 });
 Schema.index({
     payment_no: 1,
-    template: 1
-}, {
-    unique: true
+    status: 1
 });
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Schema;
