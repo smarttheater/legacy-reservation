@@ -751,6 +751,42 @@ class TestController extends BaseController_1.default {
             });
         });
     }
+    /**
+     * メール配信された購入番号リストを取得する
+     */
+    getPaymentNosWithEmail() {
+        mongoose.connect(MONGOLAB_URI);
+        Models_1.default.GMONotification.distinct('order_id', {
+            // status:{$in:["CAPTURE","PAYSUCCESS"]},
+            status: { $in: ["PAYSUCCESS"] },
+            processed: true
+        }, (err, orderIds) => {
+            console.log('orderIds length is ', orderIds.length);
+            let file = `${__dirname}/../../../../logs/${process.env.NODE_ENV}/orderIds.txt`;
+            console.log(file);
+            fs.writeFileSync(file, orderIds.join("\n"), 'utf8');
+            mongoose.disconnect();
+            process.exit(0);
+        });
+        // fs.readFile(`${process.cwd()}/logs/${process.env.NODE_ENV}/orderIds.json`, 'utf8', (err, data) => {
+        //     console.log(err);
+        //     let orderIds: Array<string> = JSON.parse(data);
+        //     console.log('orderIds length is ', orderIds.length);
+        //     mongoose.connect(MONGOLAB_URI);
+        //     this.logger.info('finding...');
+        //     Models.ReservationEmailCue.distinct('payment_no', {
+        //         is_sent: true,
+        //         payment_no: {$in: orderIds}
+        //     }, (err, paymentNos) => {
+        //         console.log('paymentNos length is ', paymentNos.length);
+        //         let file = `${__dirname}/../../../../logs/${process.env.NODE_ENV}/paymentNos.txt`;
+        //         console.log(file);
+        //         fs.writeFileSync(file, paymentNos.join("\n"), 'utf8');
+        //         mongoose.disconnect();
+        //         process.exit(0);
+        //     });
+        // });
+    }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = TestController;
