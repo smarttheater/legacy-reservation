@@ -674,12 +674,17 @@ export default class ReserveBaseController extends BaseController {
             this.logger.info('reservations updated.', err, raw);
             if (err) return cb(new Error('any reservations not updated.'));
 
-            // 完了メールキュー追加
+            // 完了メールキュー追加(あれば更新日時を更新するだけ)
             this.logger.info('creating reservationEmailCue...');
-            Models.ReservationEmailCue.create({
+            Models.ReservationEmailCue.findOneAndUpdate({
                 payment_no: paymentNo,
                 template: ReservationEmailCueUtil.TEMPLATE_COMPLETE,
-                status: ReservationEmailCueUtil.STATUS_UNSENT
+            }, {
+                $set: { updated_at: Date.now() },
+                $setOnInsert: { status: ReservationEmailCueUtil.STATUS_UNSENT }
+            }, {
+                upsert: true,
+                new: true
             }, (err, cue) => {
                 this.logger.info('reservationEmailCue created.', err, cue);
                 if (err) {

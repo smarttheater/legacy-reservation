@@ -5,8 +5,6 @@ import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import GMOResultModel from '../../../models/Reserve/GMOResultModel';
-import GMONotificationModel from '../../../models/Reserve/GMONotificationModel';
-import GMONotificationResponseModel from '../../../models/Reserve/GMONotificationResponseModel';
 import moment = require('moment');
 import conf = require('config');
 import querystring = require('querystring');
@@ -161,49 +159,6 @@ export default class GMOReserveController extends ReserveBaseController {
                         this.next(new Error(this.req.__('Message.UnexpectedError')));
                         break;
                 }
-            }
-        });
-    }
-
-    /**
-     * GMO結果通知受信
-     * 
-     * お客様は、受信したHTTPリクエストに対するHTTPレスポンスが必要となります。
-     * 返却値については、以下のいずれか
-     * 0：受信OK ／ 1：受信失敗
-     * 
-     * タイムアウトについて
-     * 結果通知プログラム機能によって、指定URLへデータ送信を行った場合に15秒以内に返信が無いとタイムアウトとして処理を行います。
-     * 加盟店様側からの正常応答が確認出来なかった場合は約60分毎に5回再送いたします。
-     * 
-     */
-    public notify(): void {
-        let gmoNotificationModel = GMONotificationModel.parse(this.req.body);
-        let paymentNo = gmoNotificationModel.OrderID;
-
-        // 予約プロセス固有のログファイルをセット
-        this.setProcessLogger(paymentNo, () => {
-            this.logger.info('gmoNotificationModel is', gmoNotificationModel);
-
-            switch (gmoNotificationModel.PayType) {
-                case GMOUtil.PAY_TYPE_CREDIT:
-                    this.logger.info('starting GMOReserveCreditController.notify...');
-                    let creditController = new GMOReserveCreditController(this.req, this.res, this.next);
-                    creditController.logger = this.logger;
-                    creditController.notify(gmoNotificationModel);
-                    break;
-
-                case GMOUtil.PAY_TYPE_CVS:
-                    this.logger.info('starting GMOReserveCsvController.notify...');
-                    let cvsController = new GMOReserveCvsController(this.req, this.res, this.next);
-                    cvsController.logger = this.logger;
-                    cvsController.notify(gmoNotificationModel);
-                    break;
-
-                default:
-                    // 他の決済は本案件では非対応
-                    this.res.send(GMONotificationResponseModel.RecvRes_OK);
-                    break;
             }
         });
     }

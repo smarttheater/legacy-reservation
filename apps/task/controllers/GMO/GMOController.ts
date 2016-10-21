@@ -88,6 +88,17 @@ export default class GMOController extends BaseController {
                         Models.Reservation.update(
                             {payment_no: notification.order_id},
                             {
+                                gmo_shop_id: notification.shop_id,
+                                gmo_amount: notification.amount,
+                                gmo_tax: notification.tax,
+                                gmo_access_id: notification.access_id,
+                                gmo_forward: notification.forward,
+                                gmo_method: notification.method,
+                                gmo_approve: notification.approve,
+                                gmo_tran_id: notification.tran_id,
+                                gmo_tran_date: notification.tran_date,
+                                gmo_pay_type: notification.pay_type,
+                                gmo_status: notification.status,
                                 status: ReservationUtil.STATUS_RESERVED,
                                 updated_user: 'system'
                             },
@@ -187,16 +198,22 @@ export default class GMOController extends BaseController {
                                 this.logger.info('reservations updated.', err, raw);
                                 if (err) return this.next(notification, cb);
 
-                                // 完了メールキュー追加
+                                // 完了メールキュー追加(あれば更新日時を更新するだけ)
                                 this.logger.info('creating reservationEmailCue...');
-                                Models.ReservationEmailCue.create({
+                                Models.ReservationEmailCue.findOneAndUpdate({
                                     payment_no: notification.order_id,
                                     template: ReservationEmailCueUtil.TEMPLATE_COMPLETE,
-                                    status: ReservationEmailCueUtil.STATUS_UNSENT
+                                }, {
+                                    $set: { updated_at: Date.now() },
+                                    $setOnInsert: { status: ReservationEmailCueUtil.STATUS_UNSENT }
+                                }, {
+                                    upsert: true,
+                                    new: true
                                 }, (err, cue) => {
                                     this.logger.info('reservationEmailCue created.', err, cue);
                                     if (err) return this.next(notification, cb);
 
+                                    // あったにせよなかったにせよ処理済に
                                     notification.processed = true;
                                     this.next(notification, cb);
                                 });
@@ -206,19 +223,46 @@ export default class GMOController extends BaseController {
                         break;
 
                     case GMOUtil.STATUS_CVS_REQSUCCESS:
-                        // メールだけ送信
-                        this.logger.info('creating reservationEmailCue...');
-                        Models.ReservationEmailCue.create({
-                            payment_no: notification.order_id,
-                            template: ReservationEmailCueUtil.TEMPLATE_TEMPORARY,
-                            status: ReservationEmailCueUtil.STATUS_UNSENT
-                        }, (err, cue) => {
-                            this.logger.info('reservationEmailCue created.', err, cue);
-                            if (err) return this.next(notification, cb);
+                        // GMOパラメータを予約に追加
+                        this.logger.info('updating reservations by paymentNo...', notification.order_id);
+                        Models.Reservation.update(
+                            {payment_no: notification.order_id},
+                            {
+                                gmo_shop_id: notification.shop_id,
+                                gmo_amount: notification.amount,
+                                gmo_tax: notification.tax,
+                                gmo_cvs_code: notification.cvs_code,
+                                gmo_cvs_conf_no: notification.cvs_conf_no,
+                                gmo_cvs_receipt_no: notification.cvs_receipt_no,
+                                gmo_payment_term: notification.payment_term,
+                                updated_user: 'system'
+                            },
+                            {multi: true},
+                            (err, raw) => {
+                                this.logger.info('reservations updated.', err, raw);
+                                if (err) return this.next(notification, cb);
 
-                            notification.processed = true;
-                            this.next(notification, cb);
-                        });
+                                // 仮予約完了メールキュー追加(あれば更新日時を更新するだけ)
+                                this.logger.info('creating reservationEmailCue...');
+                                Models.ReservationEmailCue.findOneAndUpdate({
+                                    payment_no: notification.order_id,
+                                    template: ReservationEmailCueUtil.TEMPLATE_TEMPORARY,
+                                }, {
+                                    $set: { updated_at: Date.now() },
+                                    $setOnInsert: { status: ReservationEmailCueUtil.STATUS_UNSENT }
+                                }, {
+                                    upsert: true,
+                                    new: true
+                                }, (err, cue) => {
+                                    this.logger.info('reservationEmailCue created.', err, cue);
+                                    if (err) return this.next(notification, cb);
+
+                                    // あったにせよなかったにせよ処理済に
+                                    notification.processed = true;
+                                    this.next(notification, cb);
+                                });
+                            }
+                        );
 
                         break;
 

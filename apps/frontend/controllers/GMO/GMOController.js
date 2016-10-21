@@ -82,6 +82,17 @@ class GMOController extends BaseController_1.default {
             job_cd: gmoNotificationModel.JobCd,
             amount: gmoNotificationModel.Amount,
             pay_type: gmoNotificationModel.PayType,
+            tax: gmoNotificationModel.Tax,
+            access_id: gmoNotificationModel.AccessID,
+            forward: gmoNotificationModel.Forward,
+            method: gmoNotificationModel.Method,
+            approve: gmoNotificationModel.Approve,
+            tran_id: gmoNotificationModel.TranID,
+            tran_date: gmoNotificationModel.TranDate,
+            cvs_code: gmoNotificationModel.CvsCode,
+            cvs_conf_no: gmoNotificationModel.CvsConfNo,
+            cvs_receipt_no: gmoNotificationModel.CvsReceiptNo,
+            payment_term: gmoNotificationModel.PaymentTerm,
             processed: false
         }, (err, count) => {
             this.logger.info('count is', count);
