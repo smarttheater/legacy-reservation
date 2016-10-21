@@ -2,6 +2,7 @@ import BaseController from '../BaseController';
 import Models from '../../../common/models/Models';
 import GMONotificationModel from '../../models/Reserve/GMONotificationModel';
 import GMONotificationResponseModel from '../../models/Reserve/GMONotificationResponseModel';
+import GMONotificationUtil from '../../../common/models/GMONotification/GMONotificationUtil';
 
 export default class GMOController extends BaseController {
     /**
@@ -47,7 +48,7 @@ export default class GMOController extends BaseController {
             cvs_receipt_no: gmoNotificationModel.CvsReceiptNo,
             payment_term: gmoNotificationModel.PaymentTerm,
 
-            processed: false
+            process_status: GMONotificationUtil.PROCESS_STATUS_UNPROCESSED
         }, (err, notification) => {
             this.logger.info('notification created.', notification);
             if (err) return this.res.send(GMONotificationResponseModel.RecvRes_NG);

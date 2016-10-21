@@ -21,7 +21,10 @@ let Schema = new mongoose.Schema({
     cvs_conf_no: String,
     cvs_receipt_no: String,
     payment_term: String,
-    processed: Boolean // 処理済フラグ(TIFF側で決済ステータスを変更して、メール送信まで完了したかどうか)
+    process_status: {
+        type: String,
+        required: true
+    }
 }, {
     collection: 'gmo_notifications',
     timestamps: {

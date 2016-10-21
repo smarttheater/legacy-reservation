@@ -3,6 +3,7 @@ const BaseController_1 = require('../BaseController');
 const Models_1 = require('../../../common/models/Models');
 const GMONotificationModel_1 = require('../../models/Reserve/GMONotificationModel');
 const GMONotificationResponseModel_1 = require('../../models/Reserve/GMONotificationResponseModel');
+const GMONotificationUtil_1 = require('../../../common/models/GMONotification/GMONotificationUtil');
 class GMOController extends BaseController_1.default {
     /**
      * GMO結果通知受信
@@ -42,7 +43,7 @@ class GMOController extends BaseController_1.default {
             cvs_conf_no: gmoNotificationModel.CvsConfNo,
             cvs_receipt_no: gmoNotificationModel.CvsReceiptNo,
             payment_term: gmoNotificationModel.PaymentTerm,
-            processed: false
+            process_status: GMONotificationUtil_1.default.PROCESS_STATUS_UNPROCESSED
         }, (err, notification) => {
             this.logger.info('notification created.', notification);
             if (err)
