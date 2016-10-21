@@ -806,6 +806,24 @@ class TestController extends BaseController_1.default {
             });
         });
     }
+    /**
+     * 座席解放
+     */
+    release() {
+        mongoose.connect(MONGOLAB_URI);
+        Models_1.default.Reservation.count({
+            status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+        }, (err, count) => {
+            console.log(count);
+            // Models.Reservation.remove({
+            //     status: ReservationUtil.STATUS_KEPT_BY_TIFF
+            // }, (err) => {
+            //     console.log(err);
+            mongoose.disconnect();
+            process.exit(0);
+            // });
+        });
+    }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = TestController;

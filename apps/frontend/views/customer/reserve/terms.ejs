@@ -1,3 +1,12 @@
+<% if (moment() < moment('2016-10-22T12:00:00+09:00')) { %>
+    <p class="guidetext" style="padding-bottom: 0;">
+    10/22(土) 12:00より２次販売を開始いたします。<br>
+    同日11:45より販売準備のためのメンテナンスをいたしますので、それまでに購入を完了ください。<br>
+    We will start the second ticket sales from 12:00PM Saturday, October 22th.<br>
+    Please complete your purchase process by 11:45AM because we will have a maintenance for preparation.
+    </p>
+<% } %>
+
 <h1 class="pagetitle"><%- __('h1.Terms') %></h1>
 <p class="guidetext"><%- __('Label.TermsGuideText') %></p>
 

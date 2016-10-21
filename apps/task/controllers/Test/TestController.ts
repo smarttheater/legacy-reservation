@@ -913,4 +913,23 @@ export default class TestController extends BaseController {
             });
         });
     }
+
+    /**
+     * 座席解放
+     */
+    public release(): void {
+        mongoose.connect(MONGOLAB_URI);
+        Models.Reservation.count({
+            status: ReservationUtil.STATUS_KEPT_BY_TIFF
+        }, (err, count) => {
+            console.log(count);
+            // Models.Reservation.remove({
+            //     status: ReservationUtil.STATUS_KEPT_BY_TIFF
+            // }, (err) => {
+            //     console.log(err);
+                mongoose.disconnect();
+                process.exit(0);
+            // });
+        });
+    }
 }
