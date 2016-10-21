@@ -24,4 +24,11 @@ let Schema = new mongoose.Schema({
     }
 });
 
+Schema.index(
+    {
+        payment_no: 1,
+        status: 1
+    }
+);
+
 export default Schema;

@@ -23,5 +23,9 @@ let Schema = new mongoose.Schema({
         updatedAt: 'updated_at',
     }
 });
+Schema.index({
+    payment_no: 1,
+    status: 1
+});
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Schema;
