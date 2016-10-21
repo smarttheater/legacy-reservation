@@ -17,57 +17,6 @@ class GMOController extends BaseController_1.default {
      *
      */
     notify() {
-        // for test
-        // let body = {
-        //     ShopID: 'tshop00024743',
-        //     ShopPass: '**********',
-        //     AccessID: '75340a34dde2a2f3d77c70a48cd815e3',
-        //     AccessPass: '********************************',
-        //     OrderID: '40019101113',
-        //     Status: 'CAPTURE',
-        //     JobCd: 'CAPTURE',
-        //     Amount: '1800',
-        //     Tax: '0',
-        //     Currency: 'JPN',
-        //     Forward: '2a99662',
-        //     Method: '1',
-        //     PayTimes: '',
-        //     TranID: '1610181733111111111111871056',
-        //     Approve: '8707831',
-        //     TranDate: '20161018173356',
-        //     ErrCode: '',
-        //     ErrInfo: '',
-        //     PayType: '0',
-        //     CvsCode: '',
-        //     CvsConfNo: '',
-        //     CvsReceiptNo: ''
-        // }
-        // for test
-        // let body = {
-        //     ShopID: 'tshop00024743',
-        //     ShopPass: '**********',
-        //     AccessID: '422a20615f52ae87a7572561d22a4f92',
-        //     AccessPass: '********************************',
-        //     OrderID: '40016201113',
-        //     Status: 'REQSUCCESS',
-        //     JobCd: '',
-        //     Amount: '1450',
-        //     Tax: '0',
-        //     Currency: 'JPN',
-        //     Forward: '',
-        //     Method: '',
-        //     PayTimes: '',
-        //     TranID: '16101900000002212555',
-        //     Approve: '',
-        //     TranDate: '20161019010112',
-        //     ErrCode: '',
-        //     ErrInfo: '',
-        //     PayType: '3',
-        //     CvsCode: '10002',
-        //     CvsConfNo: '12345',
-        //     CvsReceiptNo: 'FM6806472980',
-        // }
-        // let gmoNotificationModel = GMONotificationModel.parse(body);
         let gmoNotificationModel = GMONotificationModel_1.default.parse(this.req.body);
         this.logger.info('gmoNotificationModel is', gmoNotificationModel);
         if (!gmoNotificationModel.OrderID) {
@@ -94,8 +43,8 @@ class GMOController extends BaseController_1.default {
             cvs_receipt_no: gmoNotificationModel.CvsReceiptNo,
             payment_term: gmoNotificationModel.PaymentTerm,
             processed: false
-        }, (err, count) => {
-            this.logger.info('count is', count);
+        }, (err, notification) => {
+            this.logger.info('notification created.', notification);
             if (err)
                 return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
             this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);

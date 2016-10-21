@@ -17,11 +17,26 @@ let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
 export default class ReservationEmailCueController extends BaseController {
     /**
+     * キューを監視させる
+     */
+    public watch(): void {
+        mongoose.connect(MONGOLAB_URI);
+        let count = 0;
+
+        setInterval(() => {
+            if (count > 10) return;
+
+            count++;
+            this.sendOne(() => {
+                count--;
+            });
+        }, 500);
+    }
+
+    /**
      * 予約完了メールを送信する
      */
-    public sendOne(): void {
-        mongoose.connect(MONGOLAB_URI, {});
-
+    public sendOne(cb: () => void): void {
         this.logger.info('finding reservationEmailCue...');
         Models.ReservationEmailCue.findOneAndUpdate({
             status: ReservationEmailCueUtil.STATUS_UNSENT
@@ -29,8 +44,8 @@ export default class ReservationEmailCueController extends BaseController {
             status: ReservationEmailCueUtil.STATUS_SENDING
         }, {new: true}, (err, cue) => {
             this.logger.info('reservationEmailCue found.', err, cue);
-            if (err) return this.next(err, cue);
-            if (!cue) return this.next(null, cue);
+            if (err) return this.next(err, cue, cb);
+            if (!cue) return this.next(null, cue, cb);
 
             // 予約ロガーを取得
             Util.getReservationLogger(cue.get('payment_no'), (err, logger) => {
@@ -42,8 +57,8 @@ export default class ReservationEmailCueController extends BaseController {
                     payment_no: cue.get('payment_no')
                 }, (err, reservations) => {
                         this.logger.info('reservations for email found.', err, reservations.length);
-                        if (err) return this.next(err, cue);
-                        if (reservations.length === 0) return this.next(null, cue);
+                        if (err) return this.next(err, cue, cb);
+                        if (reservations.length === 0) return this.next(null, cue, cb);
 
                         let to = '';
                         switch (reservations[0].get('purchaser_group')) {
@@ -57,7 +72,7 @@ export default class ReservationEmailCueController extends BaseController {
                         }
 
                         this.logger.info('to is', to);
-                        if (!to) return this.next(null, cue);
+                        if (!to) return this.next(null, cue, cb);
 
                         let EmailTemplate = emailTemplates.EmailTemplate
                         // __dirnameを使うとテンプレートを取得できないので注意
@@ -111,7 +126,7 @@ export default class ReservationEmailCueController extends BaseController {
                         this.logger.info('rendering template...dir:', dir);
                         template.render(locals, (err, result) => {
                             this.logger.info('email template rendered.', err);
-                            if (err) return this.next(new Error('failed in rendering an email.'), cue);
+                            if (err) return this.next(new Error('failed in rendering an email.'), cue, cb);
 
                             let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
                             let email = new _sendgrid.Email({
@@ -148,7 +163,7 @@ export default class ReservationEmailCueController extends BaseController {
                             this.logger.info('sending an email...email:', email);
                             _sendgrid.send(email, (err, json) => {
                                 this.logger.info('an email sent.', err, json);
-                                this.next(err, cue);
+                                this.next(err, cue, cb);
                             });
                         });
                     }
@@ -157,12 +172,8 @@ export default class ReservationEmailCueController extends BaseController {
         });
     }
 
-    private next(err: Error, cue: mongoose.Document): void {
-        if (!cue) {
-            mongoose.disconnect();
-            process.exit(0);
-            return;
-        }
+    private next(err: Error, cue: mongoose.Document, cb: () => void): void {
+        if (!cue) return cb();
 
         let status = (err) ? ReservationEmailCueUtil.STATUS_UNSENT : ReservationEmailCueUtil.STATUS_SENT;
 
@@ -171,8 +182,7 @@ export default class ReservationEmailCueController extends BaseController {
         cue.set('status', status);
         cue.save((err, res) => {
             this.logger.info('cue saved.', err, res);
-            mongoose.disconnect();
-            process.exit(0);
+            cb();
         });
     }
 }

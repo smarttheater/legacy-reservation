@@ -16,10 +16,24 @@ const numeral = require('numeral');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class ReservationEmailCueController extends BaseController_1.default {
     /**
+     * キューを監視させる
+     */
+    watch() {
+        mongoose.connect(MONGOLAB_URI);
+        let count = 0;
+        setInterval(() => {
+            if (count > 10)
+                return;
+            count++;
+            this.sendOne(() => {
+                count--;
+            });
+        }, 500);
+    }
+    /**
      * 予約完了メールを送信する
      */
-    sendOne() {
-        mongoose.connect(MONGOLAB_URI, {});
+    sendOne(cb) {
         this.logger.info('finding reservationEmailCue...');
         Models_1.default.ReservationEmailCue.findOneAndUpdate({
             status: ReservationEmailCueUtil_1.default.STATUS_UNSENT
@@ -28,9 +42,9 @@ class ReservationEmailCueController extends BaseController_1.default {
         }, { new: true }, (err, cue) => {
             this.logger.info('reservationEmailCue found.', err, cue);
             if (err)
-                return this.next(err, cue);
+                return this.next(err, cue, cb);
             if (!cue)
-                return this.next(null, cue);
+                return this.next(null, cue, cb);
             // 予約ロガーを取得
             Util_1.default.getReservationLogger(cue.get('payment_no'), (err, logger) => {
                 if (!err) {
@@ -41,9 +55,9 @@ class ReservationEmailCueController extends BaseController_1.default {
                 }, (err, reservations) => {
                     this.logger.info('reservations for email found.', err, reservations.length);
                     if (err)
-                        return this.next(err, cue);
+                        return this.next(err, cue, cb);
                     if (reservations.length === 0)
-                        return this.next(null, cue);
+                        return this.next(null, cue, cb);
                     let to = '';
                     switch (reservations[0].get('purchaser_group')) {
                         case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
@@ -55,7 +69,7 @@ class ReservationEmailCueController extends BaseController_1.default {
                     }
                     this.logger.info('to is', to);
                     if (!to)
-                        return this.next(null, cue);
+                        return this.next(null, cue, cb);
                     let EmailTemplate = emailTemplates.EmailTemplate;
                     // __dirnameを使うとテンプレートを取得できないので注意
                     // http://stackoverflow.com/questions/38173996/azure-and-node-js-dirname
@@ -107,7 +121,7 @@ class ReservationEmailCueController extends BaseController_1.default {
                     template.render(locals, (err, result) => {
                         this.logger.info('email template rendered.', err);
                         if (err)
-                            return this.next(new Error('failed in rendering an email.'), cue);
+                            return this.next(new Error('failed in rendering an email.'), cue, cb);
                         let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
                         let email = new _sendgrid.Email({
                             to: to,
@@ -139,27 +153,23 @@ class ReservationEmailCueController extends BaseController_1.default {
                         this.logger.info('sending an email...email:', email);
                         _sendgrid.send(email, (err, json) => {
                             this.logger.info('an email sent.', err, json);
-                            this.next(err, cue);
+                            this.next(err, cue, cb);
                         });
                     });
                 });
             });
         });
     }
-    next(err, cue) {
-        if (!cue) {
-            mongoose.disconnect();
-            process.exit(0);
-            return;
-        }
+    next(err, cue, cb) {
+        if (!cue)
+            return cb();
         let status = (err) ? ReservationEmailCueUtil_1.default.STATUS_UNSENT : ReservationEmailCueUtil_1.default.STATUS_SENT;
         // 送信済みフラグを立てる
         this.logger.info('setting status...', status);
         cue.set('status', status);
         cue.save((err, res) => {
             this.logger.info('cue saved.', err, res);
-            mongoose.disconnect();
-            process.exit(0);
+            cb();
         });
     }
 }
