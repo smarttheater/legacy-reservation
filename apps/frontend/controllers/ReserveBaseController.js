@@ -5,6 +5,7 @@ const GMOUtil_1 = require('../../common/Util/GMO/GMOUtil');
 const ReservationUtil_1 = require('../../common/models/Reservation/ReservationUtil');
 const ScreenUtil_1 = require('../../common/models/Screen/ScreenUtil');
 const TicketTypeGroupUtil_1 = require('../../common/models/TicketTypeGroup/TicketTypeGroupUtil');
+const ReservationEmailCueUtil_1 = require('../../common/models/ReservationEmailCue/ReservationEmailCueUtil');
 const Models_1 = require('../../common/models/Models');
 const ReservationModel_1 = require('../models/Reserve/ReservationModel');
 const moment = require('moment');
@@ -566,17 +567,21 @@ class ReserveBaseController extends BaseController_1.default {
         this.logger.info('updating reservations by paymentNo...', paymentNo, update);
         Models_1.default.Reservation.update({
             payment_no: paymentNo
-        }, update, {
-            multi: true
-        }, (err, raw) => {
+        }, update, { multi: true }, (err, raw) => {
             this.logger.info('reservations updated.', err, raw);
             if (err)
                 return cb(new Error('any reservations not updated.'));
-            // 完了メールキュー追加
+            // 完了メールキュー追加(あれば更新日時を更新するだけ)
             this.logger.info('creating reservationEmailCue...');
-            Models_1.default.ReservationEmailCue.create({
+            Models_1.default.ReservationEmailCue.findOneAndUpdate({
                 payment_no: paymentNo,
-                is_sent: false
+                template: ReservationEmailCueUtil_1.default.TEMPLATE_COMPLETE,
+            }, {
+                $set: { updated_at: Date.now() },
+                $setOnInsert: { status: ReservationEmailCueUtil_1.default.STATUS_UNSENT }
+            }, {
+                upsert: true,
+                new: true
             }, (err, cue) => {
                 this.logger.info('reservationEmailCue created.', err, cue);
                 if (err) {

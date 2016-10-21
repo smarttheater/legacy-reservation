@@ -4,6 +4,7 @@ import GMOUtil from '../../common/Util/GMO/GMOUtil';
 import ReservationUtil from '../../common/models/Reservation/ReservationUtil';
 import ScreenUtil from '../../common/models/Screen/ScreenUtil';
 import TicketTypeGroupUtil from '../../common/models/TicketTypeGroup/TicketTypeGroupUtil';
+import ReservationEmailCueUtil from '../../common/models/ReservationEmailCue/ReservationEmailCueUtil';
 import Models from '../../common/models/Models';
 import ReservationModel from '../models/Reserve/ReservationModel';
 import moment = require('moment');
@@ -667,36 +668,32 @@ export default class ReserveBaseController extends BaseController {
 
         // 予約完了ステータスへ変更
         this.logger.info('updating reservations by paymentNo...', paymentNo, update);
-        Models.Reservation.update(
-            {
-                payment_no: paymentNo
-            },
-            update,
-            {
-                multi: true
-            },
-            (err, raw) => {
-                this.logger.info('reservations updated.', err, raw);
-                if (err) return cb(new Error('any reservations not updated.'));
+        Models.Reservation.update({
+            payment_no: paymentNo
+        }, update, {multi: true}, (err, raw) => {
+            this.logger.info('reservations updated.', err, raw);
+            if (err) return cb(new Error('any reservations not updated.'));
 
-                // 完了メールキュー追加
-                this.logger.info('creating reservationEmailCue...');
-                Models.ReservationEmailCue.create(
-                    {
-                        payment_no: paymentNo,
-                        is_sent: false
-                    },
-                    (err, cue) => {
-                        this.logger.info('reservationEmailCue created.', err, cue);
-                        if (err) {
-                            // 失敗してもスルー(ログと運用でなんとかする)
-                        }
+            // 完了メールキュー追加(あれば更新日時を更新するだけ)
+            this.logger.info('creating reservationEmailCue...');
+            Models.ReservationEmailCue.findOneAndUpdate({
+                payment_no: paymentNo,
+                template: ReservationEmailCueUtil.TEMPLATE_COMPLETE,
+            }, {
+                $set: { updated_at: Date.now() },
+                $setOnInsert: { status: ReservationEmailCueUtil.STATUS_UNSENT }
+            }, {
+                upsert: true,
+                new: true
+            }, (err, cue) => {
+                this.logger.info('reservationEmailCue created.', err, cue);
+                if (err) {
+                    // 失敗してもスルー(ログと運用でなんとかする)
+                }
 
-                        cb(null);
-                    }
-                );
-            }
-        );
+                cb(null);
+            });
+        });
     }
 
     /**

@@ -6,16 +6,22 @@ import mongoose = require('mongoose');
 let Schema = new mongoose.Schema({
     payment_no: { // 購入番号
         type: String,
-        unique: true,
         required: true
     },
-    is_sent: { // 送信済みフラグ
-        type: Boolean,
-        default: false,
+    template: { // メールテンプレートコード
+        type: String,
+        required: true
+    },
+    status: { // 送信ステータス(UNSENT|SENDING|SENT)
+        type: String,
         required: true
     }
 },{
     collection: 'reservation_email_cues',
+    timestamps: { 
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
+    }
 });
 
 export default Schema;

@@ -848,223 +848,68 @@ export default class TestController extends BaseController {
         });
     }
 
-    public sendTestEmail(): void {
-        let html = `<!DOCTYPE html>\r\n<html lang="ja">\r\n<head>\r\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">\r\n<title>東京国際映画祭チケット 購入完了のお知らせ Notice of Completion of TIFF Ticket Purchase</title>\r\n<!--\r\n    gmailはstyle要素とlink要素を無効にするので全タグにstyle属性を付けるしかない\r\n    https://www.campaignmonitor.com/css/\r\n-->\r\n</head>\r\n<body>\r\n\r\n<div style="background-color:#fff;height:80px;text-align:center;">\r\n    <img src="cid:logo" alt="東京国際映画祭" >\r\n</div>\r\n\r\n\r\n<div style="padding:0 30px;font-family:\'游ゴシック\',meiryo,sans-serif;">\r\n    <h1 style="margin:0;font-size:20px;text-align:center;">東京国際映画祭チケット 購入完了のお知らせ</h1>\r\n    <h2 style="margin:0;font-size:16px;text-align:center;">Notice of Completion of TIFF Ticket Purchase</h2>\r\n\r\n    <p style="font-weight:bold;">ヨシダ サチエ 様</p>\r\n    <p style="font-weight:bold;font-size:12px;">Dear サチエ ヨシダ,</p>\r\n\r\n    <p style="font-size:14px;">\r\n        この度はご購入いただき誠にありがとうございます。<br>\r\n        ご入場の際に本メールのQRコードが必要となりますので、ご鑑賞当日は必ずお持ちください。<br>\r\n        QRコードは画像保存もしくは印刷していただくと便利です。<br>\r\n        尚、お取り扱いには十分ご注意ください。<br>\r\n        \r\n        ＊本メールはご鑑賞後まで、大切に保管してください。\r\n    </p>\r\n    <p style="font-size:12px;">\r\n        Thank you very much for your purchase.<br>\r\n        Please be sure to bring the QR code attached to the email with you when attending your screening as it is required for admission. <br>\r\n        It is recommended to save the QR code as image data or to print it for your convenience. Please handle carefully.<br>\r\n        \r\n        *Please keep this email until your screening is finished.\r\n    </p>\r\n\r\n\r\n    <hr style="margin:1em 0;">\r\n\r\n\r\n    <div style="margin-bottom:1em;">\r\n        <h3 style="font-weight:normal;font-size:14px;margin:0;">作品名 (Title) :</h3>\r\n        <strong>CYBORG009 CALL OF JUSTICE　第1章</strong><br>\r\n        <span style="font-size:12px;">CYBORG009 CALL OF JUSTICE Chapter1</span>\r\n    </div>\r\n\r\n\r\n    <div style="margin-bottom:1em;">\r\n        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入番号 (Transaction number) :</h3>\r\n        <strong>70052007972</strong>\r\n    </div>\r\n\r\n\r\n    <div style="margin-bottom:1em;">\r\n        <h3 style="font-weight:normal;font-size:14px;margin:0;">劇場 (Location) :</h3>\r\n        <strong>TOHOシネマズ 六本木ヒルズ スクリーン 7</strong><br>\r\n        東京都港区六本木6-10-2　六本木ヒルズけやき坂コンプレックス内<br>\r\n        <p style="font-size:12px;">\r\n            TOHO CINEMAS Roppongi Hills Screen 7<br>\r\n            Roppongi Hills Keyakizaka Complex, 6-10-2 Roppongi, Minato-ku, Tokyo\r\n        </p>\r\n    </div>\r\n\r\n\r\n    <div style="margin-bottom:1em;">\r\n        <h3 style="font-weight:normal;font-size:14px;margin:0;">時間 (Date and time) :</h3>\r\n        <strong>2016/11/01 開場 17:55 開演 18:25</strong><br>\r\n        <span style="font-size:12px;">Open: 17:55/Start: 18:25 on November 01, 2016</span>\r\n    </div>\r\n\r\n\r\n    <div style="margin-bottom:1em;">\r\n        <h3 style="font-weight:normal;font-size:14px;margin:0;">券種 (Type of ticket) :</h3>\r\n\r\n        \r\n        \r\n        <strong>一般 / &yen;1,800(税込)\r\n        \r\n\r\n        <p style="font-size:12px;">\r\n            \r\n            \r\n            Adults / &yen;1,800(including tax)\r\n            \r\n        </p>\r\n\r\n    </div>\r\n\r\n    \r\n    <!-- 「コンビニ決済完了」の場合 -->\r\n    <div style="margin-bottom:1em;">\r\n        <h3 style="font-weight:normal;font-size:14px;margin:0;">コンビニ決済手数料 (Handling charge) :</h3>\r\n        <strong>&yen;150 x 1</strong>\r\n    </div>\r\n    <!-- /「コンビニ決済完了」の場合 -->\r\n    \r\n\r\n    <div style="margin-bottom:1em;">\r\n        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入枚数 (Number of tickets purchased) :</h3>\r\n        <strong>1枚</strong>\r\n        <span style="font-size:12px;">1 ticket(s)</span>\r\n    </div>\r\n\r\n\r\n    \r\n    \r\n    <div style="margin-bottom:1em;">\r\n        <h3 style="font-weight:normal;font-size:14px;margin:0;">合計金額 (Total) :</h3>\r\n        <strong>&yen;1,950(税込)</strong>\r\n        <span style="font-size:12px;">1,950 yen (including tax)</span>\r\n    </div>\r\n    \r\n\r\n\r\n    <div style="margin-bottom:1em;page-break-inside:avoid;">\r\n        <h3 style="font-weight:normal;font-size:14px;margin:0;">QRコード (QR-code) :</h3>\r\n\r\n        \r\n        <p>\r\n            <strong>K-27</strong><br>\r\n            <img src="cid:qrcode_5808355c6cba1a1110bec131" alt="K-27">\r\n        </p>\r\n        \r\n    </div>\r\n\r\n\r\n    <p style="font-size:12px;">\r\n        ※学生（小学生は除く）の方は、劇場へのご入場の際に、必ず学生証または生徒手帳のご提示をお願いします。<br>\r\n        \r\n        ※交通渋滞による来場遅延、その他いかなる場合でも、ご購入後のチケットの変更およびキャンセル・払い戻しはいたしません。なお不可抗力により表記公演の興行を中止する場合の払い戻しは、所定の期間内に所定の方法にて行います。<br>\r\n        \r\n        *Students (excluding elementary school students) are asked to show their student ID card or student handbook before entering the cinema.<br>\r\n        \r\n        *Once tickets are purchased, they cannot be changed, canceled or refunded under any circumstance, including delayed arrival due to traffic congestion. If the event is canceled due to any unforeseen causes, tickets will be refunded by the prescribed methods during the prescribed period of time.\r\n        \r\n    </p>\r\n\r\n\r\n    <hr>\r\n\r\n\r\n    <strong style="font-size:14px;">東京国際映画祭  TOKYO INTERNATIONAL FILM FESTIVAL 2016</strong>\r\n    <p style="font-size:14px;">\r\n        本メールアドレスは送信専用です。返信はできませんのであらかじめご了承ください。<br>\r\n        本メールに心当たりのない方やチケットに関してご不明な点は、下記電話番号までお問い合わせください。<br>\r\n        チケットのお問合せ：050-3786-0368　/12:00～18:00（休業：土/日/祝日　東京国際映画祭開催期間中は無休）<br>\r\n        オフィシャルサイト： <a href="http://2016.tiff-jp.net/" target="_blank" style="color:#000;">http://2016.tiff-jp.net/</a>\r\n    </p>\r\n    <p style="font-size:10px;">\r\n        This email was sent from a send-only address. Please do not reply to this message.<br>\r\n        If you are not the intended recipient of this email or have any questions about tickets, Please contact us at the telephone number below.\r\n        For inquiries about tickets: 050-3786-0368/12:00 p.m. to 6:00 p.m. (Closed on Saturdays, Sundays, and national holidays, except during TIFF)\r\n        Official website: <a href="http://2016.tiff-jp.net/" target="_blank" style="color:#000;">http://2016.tiff-jp.net/</a>\r\n    </p>\r\n</div>\r\n\r\n\r\n\r\n\r\n</body>\r\n</html>`;
+    /**
+     * メール配信された購入番号リストを取得する
+     */
+    public getPaymentNosWithEmail(): void {
+        mongoose.connect(MONGOLAB_URI);
+        Models.GMONotification.distinct('order_id', {
+            // status:{$in:["CAPTURE","PAYSUCCESS"]},
+            status:{$in:["PAYSUCCESS"]},
+            processed: true
+        }, (err, orderIds) => {
+            console.log('orderIds length is ', orderIds.length);
+            let file = `${__dirname}/../../../../logs/${process.env.NODE_ENV}/orderIds.txt`;
+            console.log(file);
+            fs.writeFileSync(file, orderIds.join("\n"), 'utf8');
 
-
-        let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
-        let email = new _sendgrid.Email({
-            to: "nock-japonika.crew@docomo.ne.jp",
-            // to: "ilovegadd@gmail.com",
-            fromname: conf.get<string>('email.fromname'),
-            from: conf.get<string>('email.from'),
-            subject: '[dev]東京国際映画祭チケット 購入完了のお知らせ Notice of Completion of TIFF Ticket Purchase',
-            html: html
-        });
-
-        // 完了の場合、QRコードを添付
-        let png = qr.imageSync(`70052007972-0`, {type: 'png'});
-
-        email.addFile({
-            filename: `QR_5808355c6cba1a1110bec131.png`,
-            contentType: 'image/png',
-            cid: `qrcode_5808355c6cba1a1110bec131`,
-            content: png
-        });
-
-        // add logo
-        email.addFile({
-            filename: `logo.png`,
-            contentType: 'image/png',
-            cid: 'logo',
-            content: fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`)
-        });
-
-        this.logger.info('sending an email...email:', email);
-        _sendgrid.send(email, (err, json) => {
-            this.logger.info('an email sent.', err, json);
+            mongoose.disconnect();
             process.exit(0);
         });
+
+
+        // fs.readFile(`${process.cwd()}/logs/${process.env.NODE_ENV}/orderIds.json`, 'utf8', (err, data) => {
+        //     console.log(err);
+        //     let orderIds: Array<string> = JSON.parse(data);
+        //     console.log('orderIds length is ', orderIds.length);
+
+        //     mongoose.connect(MONGOLAB_URI);
+        //     this.logger.info('finding...');
+        //     Models.ReservationEmailCue.distinct('payment_no', {
+        //         is_sent: true,
+        //         payment_no: {$in: orderIds}
+        //     }, (err, paymentNos) => {
+        //         console.log('paymentNos length is ', paymentNos.length);
+        //         let file = `${__dirname}/../../../../logs/${process.env.NODE_ENV}/paymentNos.txt`;
+        //         console.log(file);
+        //         fs.writeFileSync(file, paymentNos.join("\n"), 'utf8');
+
+        //         mongoose.disconnect();
+        //         process.exit(0);
+        //     });
+
+        // });
     }
 
-    public existByPaymentNos(): void {
-        mongoose.connect(MONGOLAB_URI);
-        // fs.readFile(`${process.cwd()}/logs/オーダーID差し替えの件/paymentNosOnlyInTIFF.json`, 'utf8', (err, data) => {
-        fs.readFile(`${process.cwd()}/logs/オーダーID差し替えの件/paymentNosOnlyInGMO.json`, 'utf8', (err, data) => {
-            let paymentNos: Array<string> = JSON.parse(data);
+    public createEmailCues(): void {
+        fs.readFile(`${__dirname}/../../../../logs/${process.env.NODE_ENV}/20161021_orderIds4reemail.json`, 'utf8', (err, data) => {
+            let orderIds: Array<string> = JSON.parse(data);
+            console.log('orderIds length is ', orderIds.length);
 
-            Models.Reservation.find({
-                payment_no: {$in: paymentNos}
-            }, (err, reservations) => {
-                console.log('reservations.length is', reservations.length);
-
-                mongoose.disconnect();
-                process.exit(0);  
-            });
-        });
-    }
-
-    public existInGMOByPaymentNos(): void {
-        mongoose.connect(MONGOLAB_URI);
-        // fs.readFile(`${process.cwd()}/logs/オーダーID差し替えの件/paymentNosOnlyInTIFF.json`, 'utf8', (err, data) => {
-        fs.readFile(`${process.cwd()}/logs/オーダーID差し替えの件/beforeAfter.json`, 'utf8', (err, data) => {
-            let changes: Array<any> = JSON.parse(data);
-
-            let promises = changes.map((change) => {
-                return new Promise((resolve, reject) => {
-                    // 取引状態参照
-                    this.logger.info('SearchTrade processing...');
-                    request.post({
-                        url: (process.env.NODE_ENV === 'prod') ? 'https://p01.mul-pay.jp/payment/SearchTradeMulti.idPass' : 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
-                        form: {
-                            ShopID: conf.get<string>('gmo_payment_shop_id'),
-                            ShopPass: conf.get<string>('gmo_payment_shop_password'),
-                            OrderID: change.after,
-                            PayType: change.pay_type,
-                        }
-                    }, (error, response, body) => {
-                        if (error) return reject(error); 
-
-                        let searchTradeResult = querystring.parse(body);
-                        this.logger.info('searchTradeResult is ', searchTradeResult);
-                        resolve();
-                    });
-                });
+            let cues = orderIds.map((orderId) => {
+                return {
+                    payment_no: orderId,
+                    is_sent: false
+                };
             });
 
-            Promise.all(promises).then(() => {
+            mongoose.connect(MONGOLAB_URI);
+            this.logger.info('creating ReservationEmailCues...length:', cues.length);
+            Models.ReservationEmailCue.insertMany(cues, (err, docs) => {
+                this.logger.info('ReservationEmailCues created.', err);
+
                 mongoose.disconnect();
-                process.exit(0);  
-            }).catch((err) => {
-                mongoose.disconnect();
-                process.exit(0);  
-            });
-        });
-    }
-
-    /**
-     * GMOと購入番号を差し替える
-     */
-    public changePaymentNos(): void {
-        mongoose.connect(MONGOLAB_URI);
-        fs.readFile(`${process.cwd()}/logs/オーダーID差し替えの件/beforeAfter.json`, 'utf8', (err, data) => {
-            let changes: Array<any> = JSON.parse(data);
-
-            let promises = changes.map((change) => {
-                return new Promise((resolve, reject) => {
-                    // 取引状態参照
-                    this.logger.info('SearchTrade processing...');
-                    request.post({
-                        url: (process.env.NODE_ENV === 'prod') ? 'https://p01.mul-pay.jp/payment/SearchTradeMulti.idPass' : 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
-                        form: {
-                            ShopID: conf.get<string>('gmo_payment_shop_id'),
-                            ShopPass: conf.get<string>('gmo_payment_shop_password'),
-                            OrderID: change.after,
-                            PayType: change.pay_type,
-                        }
-                    }, (error, response, body) => {
-                        if (error) return reject(error); 
-
-                        let searchTradeResult = querystring.parse(body);
-                        this.logger.info('searchTradeResult is ', searchTradeResult);
-
-                        // DB情報取得
-                        Models.Reservation.find({
-                            payment_no: change.before,
-                            status: ReservationUtil.STATUS_WAITING_SETTLEMENT
-                        }, (err, reservations) => {
-                            console.log('reservations.length is', reservations.length);
-                            if (reservations.length === 0) return resolve();
-
-                            let totalCharge = 0;
-                            reservations.forEach((reservation) => {
-                                totalCharge += reservation.get('charge');
-                            });
-
-                            this.logger.info('PayType is', change.pay_type);
-                            this.logger.info('payment_method is', reservations[0].get('payment_method'));
-                            this.logger.info('PayType = payment_method ?', (change.pay_type === reservations[0].get('payment_method')));
-
-                            this.logger.info('Amount is', searchTradeResult.Amount);
-                            this.logger.info('totalCharge is', totalCharge);
-                            this.logger.info('Amount = charge ?', (parseInt(searchTradeResult.Amount) === totalCharge));
-
-
-
-                            let promises2 = reservations.map((reservation) => {
-                                return new Promise((resolve2, reject2) => {
-
-                                    let update = {
-                                        payment_no: change.after,
-                                        payment_method: change.pay_type
-                                    };
-
-                                    if (change.pay_type === GMOUtil.PAY_TYPE_CREDIT && reservation.get('payment_method') === GMOUtil.PAY_TYPE_CVS) {
-                                        update['charge'] = reservation.get('charge') - 150;
-                                    } else if (change.pay_type === GMOUtil.PAY_TYPE_CVS && reservation.get('payment_method') === GMOUtil.PAY_TYPE_CREDIT) {
-                                        update['charge'] = reservation.get('charge') + 150;
-                                    }
-
-                                    if (searchTradeResult.Status === GMOUtil.STATUS_CREDIT_CAPTURE || searchTradeResult.Status === GMOUtil.STATUS_CVS_PAYSUCCESS) {
-                                        update['status'] = ReservationUtil.STATUS_RESERVED;
-                                    }
-
-                                    this.logger.info('updating...update:', update);
-                                    Models.Reservation.findOneAndUpdate({
-                                        _id: reservation.get('_id')
-                                    }, {$set: update, $unset: {
-                                        gmo_shop_id: '',
-                                        gmo_amount: '',
-                                        gmo_tax: '',
-                                        gmo_access_id: '',
-                                        gmo_forward: '',
-                                        gmo_method: '',
-                                        gmo_approve: '',
-                                        gmo_tran_id: '',
-                                        gmo_tran_date: '',
-                                        gmo_pay_type: '',
-                                        gmo_cvs_code: '',
-                                        gmo_cvs_conf_no: '',
-                                        gmo_cvs_receipt_no: '',
-                                        gmo_cvs_receipt_url: '',
-                                        gmo_payment_term: '',
-                                        gmo_status: ''
-                                    }}, {new: true}, (err, reservation) => {
-                                        this.logger.info('updated', err, reservation);
-                                        if (err) return reject2(err);
-
-                                        resolve2();
-
-                                        // メールキュー作成(いったん保留)
-                                        // Models.ReservationEmailCue.create({
-                                        //     payment_no: reservation.get('payment_no'),
-                                        //     is_sent: false
-                                        // }, (err, cue) => {
-                                        //     this.logger.info('reservationEmailCue created.', err, cue);
-                                        //     (err) ? reject2(err) : resolve2();
-                                        // });
-                                    });
-
-                                    // resolve2();
-                                });
-                            });
-
-                            Promise.all(promises2).then(() => {
-                                resolve();
-                            }).catch((err) => {
-                                reject(err);
-                            });
-                        });
-                    });
-                });
-            });
-
-            Promise.all(promises).then(() => {
-                mongoose.disconnect();
-                process.exit(0);  
-            }).catch((err) => {
-                mongoose.disconnect();
-                process.exit(0);  
+                process.exit(0);
             });
         });
     }

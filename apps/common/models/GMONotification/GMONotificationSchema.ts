@@ -10,6 +10,20 @@ let Schema = new mongoose.Schema({
     job_cd: String, // 処理区分
     amount: String, // 利用金額
     pay_type: String, // 決済方法
+
+    tax: String,
+    access_id: String,
+    forward: String,
+    method: String,
+    approve: String,
+    tran_id: String,
+    tran_date: String,
+
+    cvs_code: String,
+    cvs_conf_no: String,
+    cvs_receipt_no: String,
+    payment_term: String,
+
     processed: Boolean // 処理済フラグ(TIFF側で決済ステータスを変更して、メール送信まで完了したかどうか)
 },{
     collection: 'gmo_notifications',
