@@ -370,7 +370,7 @@ export default class GMOController extends BaseController {
             });
 
             // 完了の場合、QRコードを添付
-            if (reservations[0].get('status') === ReservationUtil.STATUS_RESERVED) {
+            if (status === ReservationUtil.STATUS_RESERVED) {
                 // add barcodes
                 for (let reservation of reservations) {
                     let reservationId = reservation.get('_id').toString();
