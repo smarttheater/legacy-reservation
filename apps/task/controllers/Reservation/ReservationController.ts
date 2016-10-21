@@ -2,6 +2,7 @@ import BaseController from '../BaseController';
 import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
+import ReservationEmailCueUtil from '../../../common/models/ReservationEmailCue/ReservationEmailCueUtil';
 import GMOUtil from '../../../common/Util/GMO/GMOUtil';
 import moment = require('moment');
 import conf = require('config');

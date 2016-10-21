@@ -2,6 +2,7 @@
 const BaseController_1 = require('../BaseController');
 const Models_1 = require('../../../common/models/Models');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
+const ReservationEmailCueUtil_1 = require('../../../common/models/ReservationEmailCue/ReservationEmailCueUtil');
 const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
 const mongodb = require('mongodb');
 const mongoose = require('mongoose');
@@ -61,22 +62,22 @@ class GMOController extends BaseController_1.default {
         }, (err, reservations) => {
             this.logger.info('reservations found.', err, reservations.length);
             if (err)
-                return this.processExit(notification, cb);
+                return this.next(notification, cb);
             if (reservations.length === 0) {
                 notification.processed = true;
-                return this.processExit(notification, cb);
+                return this.next(notification, cb);
             }
             // チェック文字列
             let shopPassString = GMOUtil_1.default.createShopPassString(notification.shop_id, notification.order_id, notification.amount, conf.get('gmo_payment_shop_password'), moment(reservations[0].get('purchased_at')).format('YYYYMMDDHHmmss'));
             this.logger.info('shopPassString must be ', reservations[0].get('gmo_shop_pass_string'));
             if (shopPassString !== reservations[0].get('gmo_shop_pass_string')) {
                 notification.processed = true;
-                return this.processExit(notification, cb);
+                return this.next(notification, cb);
             }
             // すでに「予約済」ステータスであれば終了
             // if (reservations[0].get('status') === ReservationUtil.STATUS_RESERVED) {
             //     notification.processed = true;
-            //     return this.processExit(notification, cb);
+            //     return this.next(notification, cb);
             // }
             // クレジットカード決済の場合
             if (notification.pay_type === GMOUtil_1.default.PAY_TYPE_CREDIT) {
@@ -90,57 +91,68 @@ class GMOController extends BaseController_1.default {
                         }, { multi: true }, (err, raw) => {
                             this.logger.info('reservations updated.', err, raw);
                             if (err)
-                                return this.processExit(notification, cb);
-                            this.logger.info('sending an email...');
-                            this.sendEmail(reservations, ReservationUtil_1.default.STATUS_RESERVED, (err) => {
-                                this.logger.info('an email sent.', err);
-                                if (err)
-                                    return this.processExit(notification, cb);
-                                // processedフラグをたてる
-                                notification.processed = true;
-                                this.processExit(notification, cb);
+                                return this.next(notification, cb);
+                            // 完了メールキュー追加
+                            this.logger.info('creating reservationEmailCue...');
+                            Models_1.default.ReservationEmailCue.create({
+                                payment_no: notification.order_id,
+                                template: ReservationEmailCueUtil_1.default.TEMPLATE_COMPLETE,
+                                status: ReservationEmailCueUtil_1.default.STATUS_UNSENT
+                            }, (err, cue) => {
+                                this.logger.info('reservationEmailCue created.', err, cue);
+                                if (!err)
+                                    notification.processed = true;
+                                this.next(notification, cb);
                             });
+                            // this.logger.info('sending an email...');
+                            // this.sendEmail(reservations, ReservationUtil.STATUS_RESERVED, (err) => {
+                            //     this.logger.info('an email sent.', err);
+                            //     if (err) return this.next(notification, cb);
+                            //     // processedフラグをたてる
+                            //     notification.processed = true;
+                            //     this.next(notification, cb);
+                            // });
                         });
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_UNPROCESSED:
                         // 未決済の場合、放置
                         // ユーザーが「戻る」フローでキャンセルされる、あるいは、時間経過で空席になる
                         notification.processed = true;
-                        this.processExit(notification, cb);
+                        this.next(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_AUTHENTICATED:
                     case GMOUtil_1.default.STATUS_CREDIT_CHECK:
                         notification.processed = true;
-                        this.processExit(notification, cb);
+                        this.next(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_AUTH:
                         notification.processed = true;
-                        this.processExit(notification, cb);
+                        this.next(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_SALES:
                         notification.processed = true;
-                        this.processExit(notification, cb);
+                        this.next(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_VOID:
                         // 空席に戻さない(つくったけれども、連動しない方向で仕様決定)
                         notification.processed = true;
-                        this.processExit(notification, cb);
+                        this.next(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_RETURN:
                         notification.processed = true;
-                        this.processExit(notification, cb);
+                        this.next(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_RETURNX:
                         notification.processed = true;
-                        this.processExit(notification, cb);
+                        this.next(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CREDIT_SAUTH:
                         notification.processed = true;
-                        this.processExit(notification, cb);
+                        this.next(notification, cb);
                         break;
                     default:
                         notification.processed = true;
-                        this.processExit(notification, cb);
+                        this.next(notification, cb);
                         break;
                 }
             }
@@ -155,33 +167,38 @@ class GMOController extends BaseController_1.default {
                         }, { multi: true }, (err, raw) => {
                             this.logger.info('reservations updated.', err, raw);
                             if (err)
-                                return this.processExit(notification, cb);
-                            this.logger.info('sending an email...');
-                            this.sendEmail(reservations, ReservationUtil_1.default.STATUS_RESERVED, (err) => {
-                                this.logger.info('an email sent.', err);
-                                if (err)
-                                    return this.processExit(notification, cb);
-                                // processedフラグをたてる
-                                notification.processed = true;
-                                this.processExit(notification, cb);
+                                return this.next(notification, cb);
+                            // 完了メールキュー追加
+                            this.logger.info('creating reservationEmailCue...');
+                            Models_1.default.ReservationEmailCue.create({
+                                payment_no: notification.order_id,
+                                template: ReservationEmailCueUtil_1.default.TEMPLATE_COMPLETE,
+                                status: ReservationEmailCueUtil_1.default.STATUS_UNSENT
+                            }, (err, cue) => {
+                                this.logger.info('reservationEmailCue created.', err, cue);
+                                if (!err)
+                                    notification.processed = true;
+                                this.next(notification, cb);
                             });
                         });
                         break;
                     case GMOUtil_1.default.STATUS_CVS_REQSUCCESS:
                         // メールだけ送信
-                        this.logger.info('sending an email...');
-                        this.sendEmail(reservations, ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT, (err) => {
-                            this.logger.info('an email sent.', err);
-                            if (err)
-                                return this.processExit(notification, cb);
-                            // processedフラグをたてる
-                            notification.processed = true;
-                            this.processExit(notification, cb);
+                        this.logger.info('creating reservationEmailCue...');
+                        Models_1.default.ReservationEmailCue.create({
+                            payment_no: notification.order_id,
+                            template: ReservationEmailCueUtil_1.default.TEMPLATE_TEMPORARY,
+                            status: ReservationEmailCueUtil_1.default.STATUS_UNSENT
+                        }, (err, cue) => {
+                            this.logger.info('reservationEmailCue created.', err, cue);
+                            if (!err)
+                                notification.processed = true;
+                            this.next(notification, cb);
                         });
                         break;
                     case GMOUtil_1.default.STATUS_CVS_UNPROCESSED:
                         notification.processed = true;
-                        this.processExit(notification, cb);
+                        this.next(notification, cb);
                         break;
                     case GMOUtil_1.default.STATUS_CVS_PAYFAIL: // 決済失敗
                     case GMOUtil_1.default.STATUS_CVS_EXPIRED: // 期限切れ
@@ -200,21 +217,21 @@ class GMOController extends BaseController_1.default {
                         Promise.all(promises).then(() => {
                             // processedフラグをたてる
                             notification.processed = true;
-                            this.processExit(notification, cb);
+                            this.next(notification, cb);
                         }, (err) => {
-                            this.processExit(notification, cb);
+                            this.next(notification, cb);
                         });
                         break;
                     default:
                         notification.processed = true;
-                        this.processExit(notification, cb);
+                        this.next(notification, cb);
                         break;
                 }
             }
             else {
                 // 他の決済は本案件では非対応
                 notification.processed = true;
-                return this.processExit(notification, cb);
+                return this.next(notification, cb);
             }
         });
         // });
@@ -224,7 +241,7 @@ class GMOController extends BaseController_1.default {
      *
      * @param {Object} notification
      */
-    processExit(notification, cb) {
+    next(notification, cb) {
         if (!notification.processed)
             return cb();
         // processedフラグをたてる

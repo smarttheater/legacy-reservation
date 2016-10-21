@@ -13,6 +13,7 @@ import WindowController from './controllers/Window/WindowController';
 import LogController from './controllers/Log/LogController';
 import PreCustomerController from './controllers/PreCustomer/PreCustomerController';
 import GMOController from './controllers/GMO/GMOController';
+import ReservationEmailCueController from './controllers/ReservationEmailCue/ReservationEmailCueController';
 
 let env = process.env.NODE_ENV || 'dev';
 
@@ -121,6 +122,14 @@ program
     .action((method) => {
         let logDir = `${__dirname}/../../logs/${env}/task/Reservation${method.charAt(0).toUpperCase()}${method.slice(1)}`;
         (new ReservationController(logDir))[method]();
+    });
+
+program
+    .command('reservationEmailCue <method>')
+    .description('予約メール関連タスク')
+    .action((method) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/ReservationEmailCue${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+        (new ReservationEmailCueController(logDir))[method]();
     });
 
 program

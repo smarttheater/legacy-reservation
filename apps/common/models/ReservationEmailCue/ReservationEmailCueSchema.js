@@ -6,19 +6,26 @@ const mongoose = require('mongoose');
 let Schema = new mongoose.Schema({
     payment_no: {
         type: String,
-        unique: true,
         required: true
     },
-    is_sent: {
-        type: Boolean,
-        default: false,
+    template: {
+        type: String,
+        required: true
+    },
+    status: {
+        type: String,
         required: true
     }
 }, {
     collection: 'reservation_email_cues',
+    timestamps: {
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
+    }
 });
 Schema.index({
     payment_no: 1,
+    template: 1
 }, {
     unique: true
 });
