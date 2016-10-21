@@ -14,39 +14,6 @@ let MONGOLAB_URI_FOR_GMO = conf.get<string>('mongolab_uri_for_gmo');
 
 export default class GMOController extends BaseController {
     /**
-     * GMO結果通知を10個ずつ処理する
-     */
-    // public processNotifications(): void {
-    //     mongoose.connect(MONGOLAB_URI, {});
-
-    //     mongodb.MongoClient.connect(MONGOLAB_URI_FOR_GMO, (err, db) => {
-    //         db.collection('gmo_notifications').find(
-    //             {processed: false},
-    //             {limit: 10}
-    //         ).toArray((err, notifications) => {
-    //             db.close();
-
-    //             let promises = notifications.map((notification) => {
-    //                 return new Promise((resolve, reject) => {
-    //                     this.processOne(notification, () => {
-    //                         resolve();
-    //                     });
-
-    //                 })
-    //             });
-
-    //             Promise.all(promises).then(() => {
-    //                 mongoose.disconnect();
-    //                 process.exit(0);
-    //             }).catch((err) => {
-    //                 mongoose.disconnect();
-    //                 process.exit(0);
-    //             });
-    //         });
-    //     });
-    // }
-
-    /**
      * 通知を監視させる
      */
     public watch(): void {
