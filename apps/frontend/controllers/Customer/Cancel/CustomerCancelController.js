@@ -50,13 +50,19 @@ class CustomerCancelController extends BaseController_1.default {
                         });
                     }
                     // 一次販売(15日)と先行販売(19日)のもののみ許可
+                    // if (moment(reservations[0].get('purchased_at')) >= moment('2016-10-16T00:00:00+9:00')) {
+                    //     if (!reservations[0].get('pre_customer')) {
+                    //         return this.res.json({
+                    //             success: false,
+                    //             message: 'キャンセル受付対象外の座席です。<br>The cancel for you tickets is not applicable.'
+                    //         });
+                    //     }
+                    // }
                     if (moment(reservations[0].get('purchased_at')) >= moment('2016-10-16T00:00:00+9:00')) {
-                        if (!reservations[0].get('pre_customer')) {
-                            return this.res.json({
-                                success: false,
-                                message: 'キャンセル受付対象外の座席です。<br>The cancel for you tickets is not applicable.'
-                            });
-                        }
+                        return this.res.json({
+                            success: false,
+                            message: 'キャンセル受付対象外の座席です。<br>The cancel for you tickets is not applicable.'
+                        });
                     }
                     // 上映日前日以前のみ受け付ける
                     if (reservations[0].get('performance_day') <= moment().format('YYYYMMDD')) {
@@ -123,13 +129,19 @@ class CustomerCancelController extends BaseController_1.default {
                 });
             }
             // 一次販売(15日)と先行販売(19日)のもののみ許可
+            // if (moment(reservations[0].get('purchased_at')) >= moment('2016-10-16T00:00:00+9:00')) {
+            //     if (!reservations[0].get('pre_customer')) {
+            //         return this.res.json({
+            //             success: false,
+            //             message: 'キャンセル受付対象外の座席です。 The cancel for you tickets is not applicable.'
+            //         });
+            //     }
+            // }
             if (moment(reservations[0].get('purchased_at')) >= moment('2016-10-16T00:00:00+9:00')) {
-                if (!reservations[0].get('pre_customer')) {
-                    return this.res.json({
-                        success: false,
-                        message: 'キャンセル受付対象外の座席です。 The cancel for you tickets is not applicable.'
-                    });
-                }
+                return this.res.json({
+                    success: false,
+                    message: 'キャンセル受付対象外の座席です。 The cancel for you tickets is not applicable.'
+                });
             }
             // 上映日前日以前のみ受け付ける
             if (reservations[0].get('performance_day') <= moment().format('YYYYMMDD')) {
