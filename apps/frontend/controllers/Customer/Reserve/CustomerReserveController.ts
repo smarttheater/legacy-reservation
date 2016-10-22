@@ -51,7 +51,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
 
             // 2次販売10分前より閉める
             if (moment() < moment(conf.get<string>('datetimes.reservation_start_customers_second'))
-             && moment() > moment(conf.get<string>('datetimes.reservation_start_customers_second')).add(-10, 'minutes')) {
+             && moment() > moment(conf.get<string>('datetimes.reservation_start_customers_second')).add(-15, 'minutes')) {
                 if (this.req.query.locale) {
                     this.req.setLocale(this.req.query.locale);
                 }
