@@ -1,6 +1,10 @@
 $(function(){
     var locale = $('html').attr('lang');    
+    var reservations4cancel = null; // キャンセルしようとしている予約リスト
+
     $('.confirm-cancel').on('click', function(){
+        reservations4cancel = null;
+
         $.ajax({
             dataType: 'json',
             type: 'POST',
@@ -17,6 +21,8 @@ $(function(){
             }
         }).done(function(data) {
             if (data.success) {
+                reservations4cancel = data.reservations;
+
                 var html = ''
                         + '<tr><th>購入番号<br>Transaction number</th><td>' + data.reservations[0].payment_no + '</td></tr>'
                         + '<tr><th>タイトル<br>Title</th><td>' + data.reservations[0].film_name_ja + '<br>' + data.reservations[0].film_name_en + '</td></tr>'
@@ -34,13 +40,6 @@ $(function(){
                 html += '</td></tr>';
 
                 $('.table-reservation-confirm').html(html);
-
-                // コンビニ決済の場合、口座情報入力フォーム追加
-                if (data.reservations[0].payment_method === '3') {
-                    $('.accountForm').show();
-                }
-
-
                 $('.cancel-reservation-confirm').modal();
             } else {
                 $('.errmsg').html(data.message);
@@ -52,6 +51,11 @@ $(function(){
     });
 
     $('.execute-cancel').on('click', function(){
+        // コンビニ決済の場合、EWフォームへリダイレクト
+        if (reservations4cancel[0].payment_method === '3') {
+            return location.href = "https://reg18.smp.ne.jp/regist/is?SMPFORM=lcld-nimgm-06e554249b87102fbffdf75273feefbf&ticket=" + reservations4cancel[0].payment_no;
+        }
+
         $.ajax({
             dataType: 'json',
             type: 'POST',
