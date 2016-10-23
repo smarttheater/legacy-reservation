@@ -212,7 +212,6 @@ class GMOController extends BaseController_1.default {
                             this.next(null, notification, cb);
                             break;
                         case GMOUtil_1.default.STATUS_CVS_PAYFAIL: // 決済失敗
-                        case GMOUtil_1.default.STATUS_CVS_EXPIRED: // 期限切れ
                         case GMOUtil_1.default.STATUS_CVS_CANCEL:
                             // 空席に戻す
                             this.logger.info('removing reservations...payment_no:', notification.order_id);
@@ -231,6 +230,10 @@ class GMOController extends BaseController_1.default {
                             }, (err) => {
                                 this.next(err, notification, cb);
                             });
+                            break;
+                        case GMOUtil_1.default.STATUS_CVS_EXPIRED:
+                            // 何もしない仕様に変更(20161023)
+                            this.next(null, notification, cb);
                             break;
                         default:
                             this.next(null, notification, cb);
