@@ -102,4 +102,11 @@ $(function(){
         }).always(function(data) {
         });
     });
+
+    $('.show-details-refund-procedure-ja').on('click', function(){
+        $('.details-refund-procedure-ja').modal();
+    });
+    $('.show-details-refund-procedure-en').on('click', function(){
+        $('.details-refund-procedure-en').modal();
+    });
 });
