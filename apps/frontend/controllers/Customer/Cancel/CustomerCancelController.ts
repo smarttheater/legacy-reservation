@@ -70,7 +70,8 @@ export default class CustomerCancelController extends BaseController {
                                     performance_start_str_en: reservation.get('performance_start_str_en'),
                                     location_str_ja: reservation.get('location_str_ja'),
                                     location_str_en: reservation.get('location_str_en'),
-                                    payment_method: reservation.get('payment_method')
+                                    payment_method: reservation.get('payment_method'),
+                                    charge: reservation.get('charge')
                                 };
                             });
                             this.res.json({

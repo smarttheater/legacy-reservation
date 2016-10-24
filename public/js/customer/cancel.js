@@ -39,6 +39,24 @@ $(function(){
                 html += '<br>※キャンセルは購入番号単位となります。<br>*You can cancel the reservation with the transaction number.';
                 html += '</td></tr>';
 
+                html += '<tr><th>お支払い方法<br>Method of payment</th><td>';
+                    if (data.reservations[0].payment_method === "0") {
+                        html += 'クレジット<br>credit'
+                    } else if (data.reservations[0].payment_method === "3") {
+                        html += 'コンビニ<br>convenience'
+                    }
+                html += '</td></tr>';
+
+                html += '<tr><th>合計金額<br>Total</th><td>';
+                    var total = 0;
+                    data.reservations.forEach(function(reservation, index){
+                        console.log(reservation);
+                        total += parseInt(reservation.charge);
+                    });
+                    var totalStr = total.toString().replace(/(\d)(?=(\d{3})+$)/g , '$1,');
+                    html += '\\' + totalStr;   
+                html += '</td></tr>';
+
                 $('.table-reservation-confirm').html(html);
                 $('.cancel-reservation-confirm').modal();
             } else {
