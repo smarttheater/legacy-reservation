@@ -1,4 +1,5 @@
 import program = require('commander');
+import AnalysisController from './controllers/Analysis/AnalysisController';
 import TestController from './controllers/Test/TestController';
 import StaffController from './controllers/Staff/StaffController';
 import SponsorController from './controllers/Sponsor/SponsorController';
@@ -26,6 +27,14 @@ program
     .action((method) => {
         let logDir = `${__dirname}/../../logs/${env}/task/Test${method.charAt(0).toUpperCase()}${method.slice(1)}`;
         (new TestController(logDir))[method]();
+    });
+
+program
+    .command('analysis <method>')
+    .description('分析タスク')
+    .action((method) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/Analysis${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+        (new AnalysisController(logDir))[method]();
     });
 
 program

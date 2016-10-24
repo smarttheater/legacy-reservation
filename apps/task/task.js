@@ -1,5 +1,6 @@
 "use strict";
 const program = require('commander');
+const AnalysisController_1 = require('./controllers/Analysis/AnalysisController');
 const TestController_1 = require('./controllers/Test/TestController');
 const StaffController_1 = require('./controllers/Staff/StaffController');
 const SponsorController_1 = require('./controllers/Sponsor/SponsorController');
@@ -24,6 +25,13 @@ program
     .action((method) => {
     let logDir = `${__dirname}/../../logs/${env}/task/Test${method.charAt(0).toUpperCase()}${method.slice(1)}`;
     (new TestController_1.default(logDir))[method]();
+});
+program
+    .command('analysis <method>')
+    .description('分析タスク')
+    .action((method) => {
+    let logDir = `${__dirname}/../../logs/${env}/task/Analysis${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+    (new AnalysisController_1.default(logDir))[method]();
 });
 program
     .command('gmo <method>')
