@@ -282,8 +282,49 @@ export default class GMOController extends BaseController {
                             break;
 
                         case GMOUtil.STATUS_CVS_EXPIRED: // 期限切れ
-                            // 何もしない仕様に変更(20161023)
-                            this.next(null, notification, cb);
+                            // 内部で確保する仕様の場合
+                            Models.Staff.findOne({
+                                user_id: "2016sagyo2"
+                            }, (err, staff) => {
+                                this.logger.info('staff found.', err, staff);
+                                if (err) return this.next(err, notification, cb);
+
+
+                                this.logger.info('updating reservations...');
+                                Models.Reservation.update({
+                                    payment_no: notification.order_id
+                                }, {
+                                    "status": ReservationUtil.STATUS_RESERVED,
+                                    "purchaser_group": ReservationUtil.PURCHASER_GROUP_STAFF,
+
+                                    "charge": 0,
+                                    "ticket_type_charge": 0,
+                                    "ticket_type_name_en": "Free",
+                                    "ticket_type_name_ja": "無料",
+                                    "ticket_type_code": "00",
+
+                                    "staff": staff.get('_id'),
+                                    "staff_user_id": staff.get('user_id'),
+                                    "staff_email": staff.get('email'),
+                                    "staff_name": staff.get('name'),
+                                    "staff_signature": "system",
+                                    "updated_user": "system",
+                                    // "purchased_at": Date.now(), // 購入日更新しない
+                                    "watcher_name_updated_at": null,
+                                    "watcher_name": ""
+                                }, {
+                                    multi: true
+                                }, (err, raw) => {
+                                    this.logger.info('updated.', err, raw);
+                                    this.next(err, notification, cb);
+                                });
+                            });
+
+
+
+                            // 何もしない仕様の場合
+                            // this.next(null, notification, cb);
+
                             break;
 
                         default:
