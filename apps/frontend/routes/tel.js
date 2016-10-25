@@ -86,4 +86,5 @@ exports.default = (app) => {
     app.all('/tel/reserve/:token/confirm', 'tel.reserve.confirm', base, authentication, (req, res, next) => { (new TelReserveController_1.default(req, res, next)).confirm(); });
     app.get('/tel/reserve/:paymentNo/complete', 'tel.reserve.complete', base, authentication, (req, res, next) => { (new TelReserveController_1.default(req, res, next)).complete(); });
     app.post('/tel/cancel/execute', 'tel.cancel.execute', base, authentication, (req, res, next) => { (new TelCancelController_1.default(req, res, next)).execute(); });
+    app.post('/tel/cancel2sagyo/execute', 'tel.cancel2sagyo.execute', base, authentication, (req, res, next) => { (new TelCancelController_1.default(req, res, next)).execute2sagyo(); });
 };

@@ -242,6 +242,32 @@ $(function(){
         });
     });
 
+    // 内部確保実行
+    $(document).on('click', '.execute-cancel2sagyo', function(){
+        $.ajax({
+            dataType: 'json',
+            url: $('input[name="urlCancel2sagyo"]').val(),
+            type: 'POST',
+            data: {
+                reservationIds: JSON.stringify(reservationsIds4cancel)
+            },
+            beforeSend: function() {
+                $('.cancel2sagyo-reservation-confirm').modal('hide');
+            }
+        }).done(function(data) {
+            if (data.success) {
+                // 再検索
+                search();
+
+                $('.cancel2sagyo-reservation-complete').modal();
+            } else {
+                alert('Failed canceling.');
+            }
+        }).fail(function(jqxhr, textStatus, error) {
+        }).always(function() {
+        });
+    });
+
     // 配布先更新
     $(document).on('click', '.update-watcher-name', function(){
         var reservationId = $(this).parent().parent().parent().attr('data-reservation-id');
@@ -308,6 +334,31 @@ $(function(){
             }
 
             window.open('/reserve/print?ids=' + JSON.stringify(ids));
+        } else if (action === 'cancel2sagyo') {
+
+            reservationsIds4cancel = [];
+            var _seatCodes = [];
+
+            // チェック予約リストを取得
+            $('.td-checkbox input[type="checkbox"]:checked').each(function(){
+                var reservationId = $(this).parent().parent().attr('data-reservation-id');
+                var seatCode = $(this).parent().parent().attr('data-seat-code');
+
+                if (reservationId) {
+                    reservationsIds4cancel.push(reservationId);
+                    _seatCodes.push(seatCode);
+                }
+            });
+
+            if (reservationsIds4cancel.length < 1) {
+                alert('Select reservations.');
+            } else {
+                // 確認モーダル表示
+                $('.cancel2sagyo-reservation-confirm .table-reservation-confirm').html('');
+                $('.cancel2sagyo-reservation-confirm .message').html($('input[name="messageConfirmCancel2sagyoSelectedTickets"]').val());
+                $('.cancel2sagyo-reservation-confirm').modal();
+            }
+
         } else {
             alert('Select Your Action.');
         }
