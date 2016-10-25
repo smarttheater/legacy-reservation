@@ -69,28 +69,6 @@ class ReservationController extends BaseController_1.default {
         });
     }
     /**
-     * GMOコンビニ決済入金待ちを時間切れで空席にする
-     */
-    removeWaiting() {
-        mongoose.connect(MONGOLAB_URI, {});
-        let hours = conf.get('waiting_settlement_reservatioin_valid_period_hours');
-        this.logger.info('removing STATUS_WAITING_SETTLEMENT reservations...');
-        Models_1.default.Reservation.remove({
-            status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
-            payment_method: GMOUtil_1.default.PAY_TYPE_CVS,
-            gmo_payment_term: {
-                $lt: moment().add(-hours, 'hours').format('YYYYMMDDHHmmss')
-            }
-        }, (err) => {
-            this.logger.info('STATUS_WAITING_SETTLEMENT reservations removed.', err);
-            // 失敗しても、次のタスクにまかせる(気にしない)
-            if (err) {
-            }
-            mongoose.disconnect();
-            process.exit(0);
-        });
-    }
-    /**
      * 固定日時を経過したら、空席ステータスにするバッチ
      */
     releaseSeatsKeptByMembers() {
@@ -210,7 +188,8 @@ class ReservationController extends BaseController_1.default {
         Models_1.default.Reservation.find({
             status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
             updated_at: { $lt: moment().add(-2, 'hours').toISOString() }
-        }, "payment_no payment_method", (err, reservations) => {
+        }, (err, reservations) => {
+            this.logger.info('reservations found.', err, reservations);
             if (err) {
                 mongoose.disconnect();
                 process.exit(0);
