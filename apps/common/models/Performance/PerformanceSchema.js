@@ -60,7 +60,7 @@ Schema.virtual('location_str_en').get(function () {
  */
 Schema.methods.getSeatStatus = function (reservationNumber) {
     // 開始時間を20分過ぎていればG
-    let now = parseInt(moment().add(20, 'minutes').format('YYYYMMDDHHmm'));
+    let now = parseInt(moment().add(-20, 'minutes').format('YYYYMMDDHHmm'));
     if (parseInt(this.day + this.start_time) < now)
         return PerformanceUtil_1.default.SEAT_STATUS_G;
     // 残席0以下なら問答無用に×
