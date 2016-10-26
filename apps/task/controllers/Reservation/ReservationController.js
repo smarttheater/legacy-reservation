@@ -218,7 +218,11 @@ class ReservationController extends BaseController_1.default {
                         let searchTradeResult = querystring.parse(body);
                         // GMOにない、あるいは、UNPROCESSEDであれば離脱データ
                         if (searchTradeResult['ErrCode']) {
-                            paymentNos4release.push(reservation.get('payment_no'));
+                            // M01-M01004002
+                            // 指定されたオーダーIDの取引は登録されていません。
+                            if (searchTradeResult['ErrCode'] === 'M01' && searchTradeResult['ErrInfo'] === 'M01004002') {
+                                paymentNos4release.push(reservation.get('payment_no'));
+                            }
                             resolve();
                         }
                         else {
