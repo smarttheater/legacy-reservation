@@ -167,7 +167,7 @@
 		"regexTelRange{{fieldName}}{{min}}{{max}}": "Check that the number of digits for {{fieldName}} is {{min}} or more but does not exceed {{max}}.",
 		"invalid{{fieldName}}": "{{fieldName}} is invalid.",
 		"match{{fieldName}}": "{{fieldName}} does not match.",
-		"EnterInFullWidthKatakana": "Enter in full-width katakana.",
+		"EnterInFullWidthKatakana": "Enter in half-width alphabets.",
 		"RetypeToConfirm": "Re-type to confirm.",
 		"SettingForLimitingEmailReception": "*Enter an email address that accepts HTML messages.<br>[If you use an email filter or setting for specified domains.]<br>* If you use a filter to limit messages to specified domains for you mobile phone, additionally set the domain \"@tiff-ticket.net\" <br>*If you use au (@ezweb.ne.jp), in addition to the above setting, additionally set the domain \"@tiff-ticket.net\" under the \"list for exemption from spam.\"",
 		"UseHalfWidthAlphanumericWithoutHyphens": "Use half-width alphanumeric. Do not use hyphens.",
