@@ -138,7 +138,7 @@
 	},
 	"Form": {
 		"FieldName": {
-			"name": "Name (in katakana)",
+			"name": "Name (in half-width alphabets)",
 			"lastName": "Family name",
 			"firstName": "Given name",
 			"tel": "Telephone number",
