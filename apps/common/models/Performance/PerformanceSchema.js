@@ -59,9 +59,8 @@ Schema.virtual('location_str_en').get(function () {
  * @param {string} reservationNumber 予約数
  */
 Schema.methods.getSeatStatus = function (reservationNumber) {
-    // 開始時間を20分過ぎていればG
-    let now = parseInt(moment().add(-20, 'minutes').format('YYYYMMDDHHmm'));
-    if (parseInt(this.day + this.start_time) < now)
+    // 上映日当日過ぎていればG
+    if (parseInt(this.day) < parseInt(moment().format('YYYYMMDD')))
         return PerformanceUtil_1.default.SEAT_STATUS_G;
     // 残席0以下なら問答無用に×
     let availableSeatNum = this.screen.seats_number - reservationNumber;
