@@ -1,5 +1,6 @@
 $(function(){
     var locale = $('html').attr('lang');
+    var userId = $('input[name="userId"]').val(); // 内部関係者ユーザーID
     // 購入番号ごとにまとめた予約ドキュメントリスト
     var reservations = [];
     var conditions = {
@@ -63,10 +64,15 @@ $(function(){
                 + '</td>'
                 + '<td class="td-actions">'
 
-            if (reservation.payment_no && !reservation.performance_canceled) {
+            if (userId === 'motionpicture') {
                 html += ''
-                    + '<p class="btn confirm-cancel"><span>Cancel</span></p>'
                     + '<p class="btn print"><span>Print</span></p>';
+            } else {
+                if (reservation.payment_no && !reservation.performance_canceled) {
+                    html += ''
+                        + '<p class="btn confirm-cancel"><span>Cancel</span></p>'
+                        + '<p class="btn print"><span>Print</span></p>';
+                }
             }
 
             html += ''
