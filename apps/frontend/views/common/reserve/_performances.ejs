@@ -13,15 +13,14 @@
 
 <div class="performancesearchform">
     <form class="form-inline">
-        <% if (!isStaff && !isWindow) { %>
-        <!-- 内部関係者以外では、開始20分後まで検索対象 -->
-        <input type="hidden" name="start_from" value="<%- moment().add(-20, 'minutes').valueOf() %>">
-        <% } %>
-
         <% if (isTel) { %>
-        <!-- 電話窓口では、開場時間が5日後00:00:00以降 -->
-        <% let now = moment() %>
-        <input type="hidden" name="start_from" value="<%- moment(now.format('YYYY-MM-DDT00:00:00+9:00')).add(+5, 'days').valueOf() %>">
+            <!-- 電話窓口では、開場時間が5日後00:00:00以降 -->
+            <input type="hidden" name="start_from" value="<%- moment(moment().add(+5, 'days').format('YYYY-MM-DDT00:00:00+9:00')).valueOf() %>">
+        <% } else { %>
+            <% if (!isStaff && !isWindow) { %>
+            <!-- 内部関係者と当日窓口以外では、上映日当日までが検索対象 -->
+            <input type="hidden" name="start_from" value="<%- moment(moment().format('YYYY-MM-DDT00:00:00+09:00')).valueOf() %>">
+            <% } %>
         <% } %>
 
         <div class="form-group">

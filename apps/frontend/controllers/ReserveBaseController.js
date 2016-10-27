@@ -194,16 +194,10 @@ class ReserveBaseController extends BaseController_1.default {
                 return cb(new Error(this.req.__('Message.NotFound')), reservationModel);
             if (performance.get('canceled'))
                 return cb(new Error('Performance Canceled.'), reservationModel); // 万が一上映中止だった場合
-            // 内部と当日以外は、上映開始20分過ぎていたらはじく
+            // 内部と当日以外は、上映日当日まで購入可能
             if (this.purchaserGroup !== ReservationUtil_1.default.PURCHASER_GROUP_WINDOW
                 && this.purchaserGroup !== ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
-                let now = moment().add(-20, 'minutes');
-                if (performance.get('day') === now.format('YYYYMMDD')) {
-                    if (performance.get('start') < now.format('HHmm')) {
-                        return cb(new Error('You cannot reserve this performance.'), reservationModel);
-                    }
-                }
-                else if (performance.get('day') < now.format('YYYYMMDD')) {
+                if (parseInt(performance.get('day')) < parseInt(moment().format('YYYYMMDD'))) {
                     return cb(new Error('You cannot reserve this performance.'), reservationModel);
                 }
             }
