@@ -193,7 +193,7 @@ class ReserveBaseController extends BaseController_1.default {
             if (!performance)
                 return cb(new Error(this.req.__('Message.NotFound')), reservationModel);
             if (performance.get('canceled'))
-                return cb(new Error('Performance Canceled.'), reservationModel); // 万が一上映中止だった場合
+                return cb(new Error(this.req.__('Message.OutOfTerm')), reservationModel); // 万が一上映中止だった場合
             // 内部と当日以外は、上映日当日まで購入可能
             if (this.purchaserGroup !== ReservationUtil_1.default.PURCHASER_GROUP_WINDOW
                 && this.purchaserGroup !== ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
