@@ -124,4 +124,25 @@ export default class PerformanceController extends BaseController {
             );
         });
     }
+
+    /**
+     * ID指定でパフォーマンスを公開する
+     */
+    public release(performanceId: string): void {
+        mongoose.connect(MONGOLAB_URI, {});
+
+        this.logger.info('updating performance..._id:', performanceId);
+        Models.Performance.findOneAndUpdate({
+            _id: performanceId
+        }, {
+            canceled: false
+        }, {
+            new: true,
+        }, (err, performance) => {
+                this.logger.info('performance updated', err, performance);
+                mongoose.disconnect();
+                process.exit(0);
+            }
+        );
+    }
 }

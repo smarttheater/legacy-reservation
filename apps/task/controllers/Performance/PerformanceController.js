@@ -100,6 +100,24 @@ class PerformanceController extends BaseController_1.default {
             });
         });
     }
+    /**
+     * ID指定でパフォーマンスを公開する
+     */
+    release(performanceId) {
+        mongoose.connect(MONGOLAB_URI, {});
+        this.logger.info('updating performance..._id:', performanceId);
+        Models_1.default.Performance.findOneAndUpdate({
+            _id: performanceId
+        }, {
+            canceled: false
+        }, {
+            new: true,
+        }, (err, performance) => {
+            this.logger.info('performance updated', err, performance);
+            mongoose.disconnect();
+            process.exit(0);
+        });
+    }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PerformanceController;

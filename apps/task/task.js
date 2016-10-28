@@ -76,6 +76,13 @@ program
     (new PerformanceController_1.default(logDir))[method]();
 });
 program
+    .command('releasePerformance <performanceId>')
+    .description('ID指定でパフォーマンスを公開するタスク')
+    .action((performanceId, options) => {
+    let logDir = `${__dirname}/../../logs/${env}/task/PerformanceRelease`;
+    (new PerformanceController_1.default(logDir)).release(performanceId);
+});
+program
     .command('theater <method>')
     .description('劇場タスク')
     .action((method) => {

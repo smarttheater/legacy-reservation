@@ -86,6 +86,14 @@ program
     });
 
 program
+    .command('releasePerformance <performanceId>')
+    .description('ID指定でパフォーマンスを公開するタスク')
+    .action((performanceId, options) => {
+        let logDir = `${__dirname}/../../logs/${env}/task/PerformanceRelease`;
+        (new PerformanceController(logDir)).release(performanceId);
+    });
+
+program
     .command('theater <method>')
     .description('劇場タスク')
     .action((method) => {
