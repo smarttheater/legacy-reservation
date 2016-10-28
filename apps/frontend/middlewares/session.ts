@@ -1,4 +1,3 @@
-import Util from '../../common/Util/Util';
 import session = require('express-session');
 import redisClient from '../../common/modules/redisClient';
 import connectRedis = require('connect-redis');
