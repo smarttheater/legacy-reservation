@@ -129,11 +129,12 @@ export default class ReservationEmailCueController extends BaseController {
                             if (err) return this.next(new Error('failed in rendering an email.'), cue, cb);
 
                             let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
+                            let performanceDateStr = `${moment(`${reservations[0].get('performance_day').substr(0, 4)}-${reservations[0].get('performance_day').substr(4, 2)}-${reservations[0].get('performance_day').substr(6)}T00:00:00+09:00`).format('DD MMMM')}`;
                             let email = new _sendgrid.Email({
                                 to: to,
                                 fromname: conf.get<string>('email.fromname'),
                                 from: conf.get<string>('email.from'),
-                                subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}${title_ja} ${title_en}`,
+                                subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}[${performanceDateStr}]${title_ja} ${title_en}`,
                                 html: result.html
                             });
 
