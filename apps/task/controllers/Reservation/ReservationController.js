@@ -416,11 +416,12 @@ class ReservationController extends BaseController_1.default {
                                 _logger.info('email template rendered.', err);
                                 if (err)
                                     return resolve();
+                                let performanceDateStr = `${moment(`${reservations[0].get('performance_day').substr(0, 4)}-${reservations[0].get('performance_day').substr(4, 2)}-${reservations[0].get('performance_day').substr(6)}T00:00:00+09:00`).format('DD MMMM')}`;
                                 let email = new _sendgrid.Email({
                                     to: to,
                                     fromname: conf.get('email.fromname'),
                                     from: conf.get('email.from'),
-                                    subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}${title_ja} ${title_en}`,
+                                    subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}[${performanceDateStr}]${title_ja} ${title_en}`,
                                     html: result.html
                                 });
                                 // 完了の場合、QRコードを添付
