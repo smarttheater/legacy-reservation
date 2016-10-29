@@ -30,6 +30,7 @@ const tel_1 = require('./routes/tel');
 const window_1 = require('./routes/window');
 const customerSupport_1 = require('./routes/customerSupport');
 const pre_1 = require('./routes/pre');
+const sendGrid_1 = require('./routes/sendGrid');
 const router_1 = require('./routes/router');
 let namedRoutes = new NamedRoutes();
 namedRoutes.extendExpress(app);
@@ -87,6 +88,7 @@ tel_1.default(app);
 window_1.default(app);
 customerSupport_1.default(app);
 pre_1.default(app);
+sendGrid_1.default(app);
 router_1.default(app);
 /*
  * Mongoose by default sets the auto_reconnect option to true.

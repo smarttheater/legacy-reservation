@@ -39,6 +39,7 @@ import telRouter from './routes/tel';
 import windowRouter from './routes/window';
 import customerSupport from './routes/customerSupport';
 import preRouter from './routes/pre';
+import sendGridRouter from './routes/sendGrid';
 import router from './routes/router';
 
 let namedRoutes = new NamedRoutes();
@@ -125,6 +126,7 @@ telRouter(app);
 windowRouter(app);
 customerSupport(app);
 preRouter(app);
+sendGridRouter(app);
 router(app);
 
 
