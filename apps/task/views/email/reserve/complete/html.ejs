@@ -1,8 +1,11 @@
+<%
+let performanceDateStr = `${moment(`${reservations[0].get('performance_day').substr(0, 4)}-${reservations[0].get('performance_day').substr(4, 2)}-${reservations[0].get('performance_day').substr(6)}T00:00:00+09:00`).format('DD MMMM')}`;
+%>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title><%= title_ja %> <%= title_en %></title>
+<title>[<%= performanceDateStr %>]<%= title_ja %> <%= title_en %></title>
 <!--
     gmailはstyle要素とlink要素を無効にするので全タグにstyle属性を付けるしかない
     https://www.campaignmonitor.com/css/
