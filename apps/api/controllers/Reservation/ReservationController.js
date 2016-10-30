@@ -82,9 +82,9 @@ class ReservationController extends BaseController_1.default {
                     cid: 'logo',
                     content: fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`)
                 });
-                this.logger.debug('sending an email...email:', email);
+                this.logger.info('sending an email...email:', email);
                 _sendgrid.send(email, (err, json) => {
-                    this.logger.debug('an email sent.', err, json);
+                    this.logger.info('an email sent.', err, json);
                     if (err) {
                         this.res.json({
                             success: false,

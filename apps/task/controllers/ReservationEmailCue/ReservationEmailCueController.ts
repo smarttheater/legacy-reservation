@@ -12,6 +12,7 @@ import emailTemplates = require('email-templates');
 import qr = require('qr-image');
 import fs = require('fs-extra');
 import numeral = require('numeral');
+import log4js = require('log4js');
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
@@ -44,21 +45,19 @@ export default class ReservationEmailCueController extends BaseController {
             status: ReservationEmailCueUtil.STATUS_SENDING
         }, {new: true}, (err, cue) => {
             this.logger.info('reservationEmailCue found.', err, cue);
-            if (err) return this.next(err, cue, cb);
-            if (!cue) return this.next(null, cue, cb);
+            if (err) return this.next(err, cue, this.logger, cb);
+            if (!cue) return this.next(null, cue, this.logger, cb);
 
             // 予約ロガーを取得
-            Util.getReservationLogger(cue.get('payment_no'), (err, logger) => {
-                if (!err) {
-                    this.logger = logger;
-                }
+            Util.getReservationLogger(cue.get('payment_no'), (err, _logger) => {
+                if (err) return this.next(err, cue, this.logger, cb);
 
                 Models.Reservation.find({
                     payment_no: cue.get('payment_no')
                 }, (err, reservations) => {
-                        this.logger.info('reservations for email found.', err, reservations.length);
-                        if (err) return this.next(err, cue, cb);
-                        if (reservations.length === 0) return this.next(null, cue, cb);
+                        _logger.info('reservations for email found.', err, reservations.length);
+                        if (err) return this.next(err, cue, _logger, cb);
+                        if (reservations.length === 0) return this.next(null, cue, _logger, cb);
 
                         let to = '';
                         switch (reservations[0].get('purchaser_group')) {
@@ -71,8 +70,8 @@ export default class ReservationEmailCueController extends BaseController {
                                 break;
                         }
 
-                        this.logger.info('to is', to);
-                        if (!to) return this.next(null, cue, cb);
+                        _logger.info('to is', to);
+                        if (!to) return this.next(null, cue, _logger, cb);
 
                         let EmailTemplate = emailTemplates.EmailTemplate
                         // __dirnameを使うとテンプレートを取得できないので注意
@@ -123,10 +122,10 @@ export default class ReservationEmailCueController extends BaseController {
                             ReservationUtil: ReservationUtil
                         };
 
-                        this.logger.info('rendering template...dir:', dir);
+                        _logger.info('rendering template...dir:', dir);
                         template.render(locals, (err, result) => {
-                            this.logger.info('email template rendered.', err);
-                            if (err) return this.next(new Error('failed in rendering an email.'), cue, cb);
+                            _logger.info('email template rendered.', err);
+                            if (err) return this.next(new Error('failed in rendering an email.'), cue, _logger, cb);
 
                             let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
                             let performanceDateStr = moment(`${reservations[0].get('performance_day').substr(0, 4)}-${reservations[0].get('performance_day').substr(4, 2)}-${reservations[0].get('performance_day').substr(6)}T00:00:00+09:00`).format('DD MMMM');
@@ -161,10 +160,10 @@ export default class ReservationEmailCueController extends BaseController {
                                 content: fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`)
                             });
 
-                            this.logger.info('sending an email...email:', email);
+                            _logger.info('sending an email...email:', email);
                             _sendgrid.send(email, (err, json) => {
-                                this.logger.info('an email sent.', err, json);
-                                this.next(err, cue, cb);
+                                _logger.info('an email sent.', err, json);
+                                this.next(err, cue, _logger, cb);
                             });
                         });
                     }
@@ -173,16 +172,24 @@ export default class ReservationEmailCueController extends BaseController {
         });
     }
 
-    private next(err: Error, cue: mongoose.Document, cb: () => void): void {
+    /**
+     * メール送信トライ後の処理
+     * 
+     * @param {Error} err
+     * @param {mongoose.Document} cue
+     * @param {log4js.Logger} logger
+     * @param {Function} cb
+     */
+    private next(err: Error, cue: mongoose.Document, logger: log4js.Logger, cb: () => void): void {
         if (!cue) return cb();
 
         let status = (err) ? ReservationEmailCueUtil.STATUS_UNSENT : ReservationEmailCueUtil.STATUS_SENT;
 
         // 送信済みフラグを立てる
-        this.logger.info('setting status...', status);
+        logger.info('setting status...', status);
         cue.set('status', status);
         cue.save((err, res) => {
-            this.logger.info('cue saved.', err, res);
+            logger.info('cue saved.', err, res);
             cb();
         });
     }
