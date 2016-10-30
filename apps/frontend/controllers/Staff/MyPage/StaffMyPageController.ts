@@ -9,8 +9,8 @@ export default class StaffMyPageController extends BaseController {
     public layout = 'layouts/staff/layout';
 
     public index(): void {
-        Models.Theater.find({}, 'name', (err, theaters) => {
-            Models.Film.find({}, 'name', (err, films) => {
+        Models.Theater.find({}, 'name', {sort: {_id: 1}}, (err, theaters) => {
+            Models.Film.find({}, 'name', {sort: {_id: 1}}, (err, films) => {
                 this.res.render('staff/mypage/index', {
                     theaters: theaters,
                     films: films
