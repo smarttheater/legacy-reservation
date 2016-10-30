@@ -123,12 +123,12 @@ class ReservationEmailCueController extends BaseController_1.default {
                         if (err)
                             return this.next(new Error('failed in rendering an email.'), cue, cb);
                         let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
-                        let performanceDateStr = `${moment(`${reservations[0].get('performance_day').substr(0, 4)}-${reservations[0].get('performance_day').substr(4, 2)}-${reservations[0].get('performance_day').substr(6)}T00:00:00+09:00`).format('DD MMMM')}`;
+                        let performanceDateStr = moment(`${reservations[0].get('performance_day').substr(0, 4)}-${reservations[0].get('performance_day').substr(4, 2)}-${reservations[0].get('performance_day').substr(6)}T00:00:00+09:00`).format('DD MMMM');
                         let email = new _sendgrid.Email({
                             to: to,
                             fromname: conf.get('email.fromname'),
                             from: conf.get('email.from'),
-                            subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}[${performanceDateStr}]${title_ja} ${title_en}`,
+                            subject: `[${performanceDateStr}]${title_ja} ${title_en}`,
                             html: result.html
                         });
                         // 完了の場合、QRコードを添付
