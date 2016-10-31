@@ -16,7 +16,7 @@
 
     <div class="pr-thanks">
         この度はご購入いただき誠にありがとうございます。鑑賞当日はこちらのチケットをご持参してQRコードをご提示頂いてご入場下さい。<br>
-        <span class="smalltext">Thank you very much for your purchase. Watching the day, please admission gotten presents a QR code to bring your own here ticket.</span>
+        <span class="smalltext">Thank you very much for your purchase. Please bring this ticket with you on the day of your purchased screening.</span>
     </div>
 
     <div class="pr-qrcode pr-bg">
@@ -24,7 +24,7 @@
         <div class="pr-bg-content inner">
             <h2>
                 こちらのQRコードを入場時リーダーにかざし、ご入場ください。
-                <span class="smalltext">Here the QR code held up to the entrance at the time the leader, please admission.</span>
+                <span class="smalltext">Please scan this QR code when entering the screen.</span>
             </h2>
             <div class="wrapper-qrimg pr-bg">
                 <img src="<%- url('reserve.qrcode', {reservationId: reservation.get('_id')}) %>">
@@ -64,7 +64,7 @@
 
             <tr><td class="pr-location">
 
-                <h3>劇場<span class="smalltext">Screening location</span></h3>
+                <h3>劇場<span class="smalltext">Venue</span></h3>
 
                 <strong><%- reservation.get('theater_name_ja') %> <%- reservation.get('screen_name_ja') %></strong>
                 <span class="smalltext"><%- reservation.get('theater_name_en') %> <%- reservation.get('screen_name_en') %></span>
@@ -81,7 +81,7 @@
 
             <tr><td class="pr-time">
 
-                <h3>時間<span class="smalltext">Screen time</span></h3>
+                <h3>時間<span class="smalltext">Screening Date</span></h3>
                 <table class="timetable"><tr>
 
                     <td><strong><%- reservation.get('performance_day').substr(0, 4) %>/<%- reservation.get('performance_day').substr(4, 2) %>/<%- reservation.get('performance_day').substr(6) %></strong></td>
@@ -109,7 +109,7 @@
 
             <tr><td class="pr-ticket">
 
-                <h3>券種・金額<span class="smalltext">Type of ticket / Charge</span></h3>
+                <h3>券種・金額<span class="smalltext">Type of ticket / Charge Amount</span></h3>
 
                 <strong><%- reservation.get('ticket_type_detail_str_ja').replace(/\\/g, '&yen;') %></strong>
                 <span class="smalltext"><%- reservation.get('ticket_type_detail_str_en').replace(/\\/g, '&yen;') %></span>
@@ -130,7 +130,7 @@
                     なお不可抗力により表記公演の興行を中止する場合の払い戻しは、所定の期間内に所定の方法にて行います。<br>
                     *Once tickets are purchased, they cannot be changed, canceled or refunded under any circumstance, including delayed arrival due to traffic congestion. If the event is canceled due to any unforeseen causes, tickets will be refunded by the prescribed methods during the prescribed period of time.<br>
                     ※本チケットは領収書としてご利用いただけます。<br>
-                    *This ticket is available as Purchase hope
+                    *This ticket can be used as a receipt.
                 </p>
 
             </td></tr>
