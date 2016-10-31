@@ -6,6 +6,7 @@ class SendGridController extends BaseController_1.default {
      */
     notifyEvent() {
         this.logger.info('SendGrid event notification is', this.req.body);
+        console.log('SendGrid event notification is', this.req.body);
         this.res.json({
             success: true,
             message: 'success'
