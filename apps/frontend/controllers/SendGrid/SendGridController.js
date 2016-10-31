@@ -1,15 +1,22 @@
 "use strict";
 const BaseController_1 = require('../BaseController');
+const Models_1 = require('../../../common/models/Models');
 class SendGridController extends BaseController_1.default {
     /**
      * SendGridイベントフック
      */
     notifyEvent() {
         this.logger.info('SendGrid event notification is', this.req.body);
-        console.log('SendGrid event notification is', this.req.body);
-        this.res.json({
-            success: true,
-            message: 'success'
+        if (this.req.method === 'GET') {
+            this.res.send('0');
+            return;
+        }
+        this.logger.info('creating sendgrid_event_notifications...');
+        Models_1.default.SendGridEventNotification.create(this.req.body, (err, notifications) => {
+            this.logger.info('sendgrid_event_notifications created.', err, notifications);
+            if (err)
+                return this.next(err);
+            this.res.send('0');
         });
     }
 }

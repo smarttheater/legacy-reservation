@@ -10,6 +10,7 @@ import PreCustomerSchema from '../models/PreCustomer/PreCustomerSchema';
 import ReservationSchema from '../models/Reservation/ReservationSchema';
 import ReservationEmailCueSchema from '../models/ReservationEmailCue/ReservationEmailCueSchema';
 import ScreenSchema from '../models/Screen/ScreenSchema';
+import SendGridEventNotificationSchema from '../models/SendGridEventNotification/SendGridEventNotificationSchema';
 import SequenceSchema from '../models/Sequence/SequenceSchema';
 import SponsorSchema from '../models/Sponsor/SponsorSchema';
 import StaffSchema from '../models/Staff/StaffSchema';
@@ -190,6 +191,7 @@ let PreCustomer = mongoose.model('PreCustomer', PreCustomerSchema);
 let Reservation = mongoose.model('Reservation', ReservationSchema);
 let ReservationEmailCue = mongoose.model('ReservationEmailCue', ReservationEmailCueSchema);
 let Screen = mongoose.model('Screen', ScreenSchema);
+let SendGridEventNotification = mongoose.model('SendGridEventNotification', SendGridEventNotificationSchema);
 let Sequence = mongoose.model('Sequence', SequenceSchema);
 let Sponsor = mongoose.model('Sponsor', SponsorSchema);
 let Staff = mongoose.model('Staff', StaffSchema);
@@ -212,6 +214,7 @@ let Models = {
     Reservation,
     ReservationEmailCue,
     Screen,
+    SendGridEventNotification,
     Sequence,
     Sponsor,
     Staff,

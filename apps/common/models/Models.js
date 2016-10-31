@@ -10,6 +10,7 @@ const PreCustomerSchema_1 = require('../models/PreCustomer/PreCustomerSchema');
 const ReservationSchema_1 = require('../models/Reservation/ReservationSchema');
 const ReservationEmailCueSchema_1 = require('../models/ReservationEmailCue/ReservationEmailCueSchema');
 const ScreenSchema_1 = require('../models/Screen/ScreenSchema');
+const SendGridEventNotificationSchema_1 = require('../models/SendGridEventNotification/SendGridEventNotificationSchema');
 const SequenceSchema_1 = require('../models/Sequence/SequenceSchema');
 const SponsorSchema_1 = require('../models/Sponsor/SponsorSchema');
 const StaffSchema_1 = require('../models/Staff/StaffSchema');
@@ -136,6 +137,7 @@ let PreCustomer = mongoose.model('PreCustomer', PreCustomerSchema_1.default);
 let Reservation = mongoose.model('Reservation', ReservationSchema_1.default);
 let ReservationEmailCue = mongoose.model('ReservationEmailCue', ReservationEmailCueSchema_1.default);
 let Screen = mongoose.model('Screen', ScreenSchema_1.default);
+let SendGridEventNotification = mongoose.model('SendGridEventNotification', SendGridEventNotificationSchema_1.default);
 let Sequence = mongoose.model('Sequence', SequenceSchema_1.default);
 let Sponsor = mongoose.model('Sponsor', SponsorSchema_1.default);
 let Staff = mongoose.model('Staff', StaffSchema_1.default);
@@ -157,6 +159,7 @@ let Models = {
     Reservation,
     ReservationEmailCue,
     Screen,
+    SendGridEventNotification,
     Sequence,
     Sponsor,
     Staff,
