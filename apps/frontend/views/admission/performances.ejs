@@ -4,8 +4,6 @@
 
 <div class="admissionsearchform">
     <form>
-        <!-- 開場時間が当日00:00:00以降 -->
-        <input type="hidden" name="start_from" value="<%- moment(moment().format('YYYY-MM-DDT00:00:00+9:00')).valueOf() %>">
 
         <div class="form-group">
             <select class="form-control" name="day">
@@ -16,13 +14,11 @@
                 let end = moment(conf.get('datetimes.event_end'));
                 let options = '';
                 while (start.format('YYYYMMDD') <= end.format('YYYYMMDD')) {
-                    // 当日以降のみ表示
-                    if (parseInt(start.format('YYYYMMDD')) >= parseInt(now.format('YYYYMMDD'))) {
-                        options += `<option value="${start.format('YYYYMMDD')}"`;
-                        if (now.format('YYYYMMDD') === start.format('YYYYMMDD')) options += ' selected="selected"';
-                        options += `>${start.format('MM/DD')}</option>`;
+                    options += `<option value="${start.format('YYYYMMDD')}"`;
+                    if (now.format('YYYYMMDD') === start.format('YYYYMMDD')) {
+                        options += ' selected="selected"';
                     }
-
+                    options += `>${start.format('MM/DD')}</option>`;
                     start = start.add(+1, 'days');
                     continue;
                 }
