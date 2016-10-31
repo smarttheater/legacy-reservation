@@ -8,6 +8,8 @@ export default (req: express.Request, res: express.Response, next: express.NextF
     if (process.env.NODE_ENV === 'test4gmo') return next(); // GMO結果通知に対してはオープンにする
     if (process.env.NODE_ENV === 'prod4gmo') return next(); // GMO結果通知に対してはオープンにする
 
+    if (req.originalUrl === '/sendGrid/event/notify') return next(); // SendGridイベント通知に対してはオープンにする
+
     let user = basicAuth(req);
 
     if (user && user['name'] === 'motionpicture' && user['pass'] === '4_CS/T|YG*Lz') return next();
