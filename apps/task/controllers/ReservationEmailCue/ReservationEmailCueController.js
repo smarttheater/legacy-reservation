@@ -126,7 +126,7 @@ class ReservationEmailCueController extends BaseController_1.default {
                             to: to,
                             fromname: conf.get('email.fromname'),
                             from: conf.get('email.from'),
-                            subject: `${title_ja} ${title_en}`,
+                            subject: `[QRコード付き]${title_ja} [QR CODE TICKET]${title_en}`,
                             html: result.html
                         });
                         // 完了の場合、QRコードを添付

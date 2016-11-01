@@ -132,7 +132,7 @@ export default class ReservationEmailCueController extends BaseController {
                                 to: to,
                                 fromname: conf.get<string>('email.fromname'),
                                 from: conf.get<string>('email.from'),
-                                subject: `${title_ja} ${title_en}`,
+                                subject: `[QRコード付き]${title_ja} [QR CODE TICKET]${title_en}`, // TODO 成り行き上、仮完了にもQRコード付き、と入ってしまったので、直すこと
                                 html: result.html
                             });
 
