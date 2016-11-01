@@ -60,12 +60,11 @@ class ReservationController extends BaseController_1.default {
                     });
                 }
                 let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
-                let performanceDateStr = moment(`${reservation.get('performance_day').substr(0, 4)}-${reservation.get('performance_day').substr(4, 2)}-${reservation.get('performance_day').substr(6)}T00:00:00+09:00`).format('DD MMMM');
                 let email = new _sendgrid.Email({
                     to: to,
                     fromname: conf.get('email.fromname'),
                     from: conf.get('email.from'),
-                    subject: `[${performanceDateStr}]${title_ja} ${title_en}`,
+                    subject: `${title_ja} ${title_en}`,
                     html: html
                 });
                 let reservationId = reservation.get('_id').toString();
