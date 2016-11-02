@@ -7,6 +7,8 @@ const conf = require('config');
 const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
 const Util_1 = require('../../../common/Util/Util');
 const fs = require('fs-extra');
+const request = require('request');
+const querystring = require('querystring');
 const moment = require('moment');
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class TestController extends BaseController_1.default {
@@ -179,6 +181,19 @@ class TestController extends BaseController_1.default {
         }, (err, raw) => {
             this.logger.info('GMONotification updated.', err, raw);
             mongoose.disconnect();
+            process.exit(0);
+        });
+    }
+    getBounces() {
+        let query = querystring.stringify({
+            api_user: conf.get('sendgrid_username'),
+            api_key: conf.get('sendgrid_password'),
+            date: "1",
+        });
+        request.get({
+            url: `https://api.sendgrid.com/api/bounces.get.json?${query}`
+        }, (error, response, body) => {
+            this.logger.info('request processed.', error, body);
             process.exit(0);
         });
     }

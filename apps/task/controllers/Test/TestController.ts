@@ -219,4 +219,23 @@ export default class TestController extends BaseController {
             process.exit(0);
         });
     }
+
+    public getBounces(): void {
+        let query = querystring.stringify({
+            api_user: conf.get<string>('sendgrid_username'),
+            api_key: conf.get<string>('sendgrid_password'),
+            date: "1",
+            // start_date: "2016-10-18",
+            // end_date: "2016-10-19"
+        });
+        request.get({
+            url: `https://api.sendgrid.com/api/bounces.get.json?${query}`
+            // url: `https://api.sendgrid.com/api/blocks.get.json?${query}`
+            // url: `https://api.sendgrid.com/api/invalidemails.get.json?${query}`
+            // url: `https://api.sendgrid.com/api/spamreports.get.json?${query}`
+        }, (error, response, body) => {
+            this.logger.info('request processed.', error, body);
+            process.exit(0);
+        }); 
+    }
 }
