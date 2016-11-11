@@ -28,6 +28,18 @@ let app = express();
 if (process.env.NODE_ENV === 'dev') {
     app.use(logger_1.default); // ロガー
 }
+if (process.env.NODE_ENV !== 'prod') {
+    app.get('/api/disconnect', (req, res) => {
+        mongoose.disconnect((err) => {
+            res.send('disconnected.');
+        });
+    });
+    app.get('/api/connect', (req, res) => {
+        mongoose.connect(MONGOLAB_URI, (err) => {
+            res.send('connected.');
+        });
+    });
+}
 app.use(benchmarks_1.default); // ベンチマーク的な
 // view engine setup
 app.set('views', `${__dirname}/views`);
@@ -52,16 +64,6 @@ router_1.default(app);
 let MONGOLAB_URI = conf.get('mongolab_uri');
 mongoose.connect(MONGOLAB_URI, {});
 if (process.env.NODE_ENV !== 'prod') {
-    app.get('/api/disconnect', (req, res) => {
-        mongoose.disconnect((err) => {
-            res.send('disconnected.');
-        });
-    });
-    app.get('/api/connect', (req, res) => {
-        mongoose.connect(MONGOLAB_URI, (err) => {
-            res.send('connected.');
-        });
-    });
     let db = mongoose.connection;
     db.on('connecting', function () {
         console.log('connecting');
