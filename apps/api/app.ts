@@ -75,4 +75,44 @@ let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
 mongoose.connect(MONGOLAB_URI, {});
 
+
+
+
+
+if (process.env.NODE_ENV !== 'prod') {
+    app.get('/api/disconnect', (req, res) => {
+        mongoose.disconnect((err) => {
+            res.send('disconnected.');
+        });
+    });
+
+    app.get('/api/connect', (req, res) => {
+        mongoose.connect(MONGOLAB_URI, (err) => {
+            res.send('connected.');
+        });
+    });
+
+    let db = mongoose.connection;
+    db.on('connecting', function() {
+        console.log('connecting');
+    });
+    db.on('error', function(error) {
+        console.error('Error in MongoDb connection: ', error);
+    });
+    db.on('connected', function() {
+        console.log('connected.');
+    });
+    db.once('open', function() {
+        console.log('connection open.');
+    });
+    db.on('reconnected', function () {
+        console.log('reconnected.');
+    });
+    db.on('disconnected', function() {
+        console.log('disconnected.');
+    });
+}
+
+
+
 export = app;
