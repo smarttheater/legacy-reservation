@@ -18,6 +18,10 @@ export default class CustomerCancelController extends BaseController {
      * チケットキャンセル
      */
     public index(): void {
+        if (moment('2016-11-19T00:00:00+09:00') <= moment()) {
+            return this.res.render('customer/cancel/outOfTerm', {layout: false});
+        }
+
         if (this.req.method === 'POST') {
             let form = customerCancelForm(this.req);
             form(this.req, this.res, (err) => {
@@ -95,6 +99,14 @@ export default class CustomerCancelController extends BaseController {
      * 購入番号からキャンセルする
      */
     public executeByPaymentNo(): void {
+        if (moment('2016-11-19T00:00:00+09:00') <= moment()) {
+            this.res.json({
+                success: false,
+                message: 'Out of term.'
+            });
+            return;
+        }
+
         this.logger = log4js.getLogger('cancel');
 
         let paymentNo = this.req.body.paymentNo;
