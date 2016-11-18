@@ -2,6 +2,8 @@
 const basicAuth = require('basic-auth');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (req, res, next) => {
+    if (process.env.NODE_ENV === 'dev')
+        return next();
     if (process.env.NODE_ENV === 'prod')
         return next();
     if (process.env.NODE_ENV === 'test')
