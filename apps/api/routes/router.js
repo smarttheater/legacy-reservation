@@ -5,6 +5,7 @@ const AuthController_1 = require('../controllers/Auth/AuthController');
 const PerformanceController_1 = require('../controllers/Performance/PerformanceController');
 const ReservationController_1 = require('../controllers/Reservation/ReservationController');
 const ScreenController_1 = require('../controllers/Screen/ScreenController');
+const OtherController_1 = require('../controllers/Other/OtherController');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     let router = new NamedRoutes();
@@ -22,6 +23,8 @@ exports.default = (app) => {
     app.all('/api/reservation/:id', 'reservation', passport.authenticate('bearer', { session: false }), (req, res, next) => { (new ReservationController_1.default(req, res, next)).findById(); });
     // enter
     app.post('/api/reservation/:id/enter', 'reservation.enter', (req, res, next) => { (new ReservationController_1.default(req, res, next)).enter(); });
+    // 環境変数
+    app.get('/api/environmentVariables', 'environmentVariables', (req, res, next) => { (new OtherController_1.default(req, res, next)).environmentVariables(); });
     // 404
     app.use((req, res, next) => {
         res.json({
