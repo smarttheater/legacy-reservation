@@ -2,12 +2,12 @@ import BaseController from '../BaseController';
 import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
-import sendgrid = require('sendgrid');
-import conf = require('config');
-import validator = require('validator');
-import qr = require('qr-image');
-import moment = require('moment');
-import fs = require('fs-extra');
+import Sendgrid = require('sendgrid');
+import Conf = require('config');
+import Validator = require('validator');
+import Qr = require('qr-image');
+import Moment = require('moment');
+import Fs = require('fs-extra');
 
 export default class ReservationController extends BaseController {
     /**
@@ -17,6 +17,7 @@ export default class ReservationController extends BaseController {
         let id = this.req.body.id;
         let to = this.req.body.to;
         // メールアドレスの有効性チェック
+        let validator: typeof Validator = require('validator');
         if (!validator.isEmail(to)) {
             this.res.json({
                 success: false,
@@ -45,10 +46,13 @@ export default class ReservationController extends BaseController {
                     });
                 }
 
+                let qr: typeof Qr = require('qr-image');
                 let qrcodeBuffer = qr.imageSync(reservation.get('qr_str'), {type: 'png'});
                 let title_ja = `${reservation.get('purchaser_name_ja')}様より東京国際映画祭のチケットが届いております`;
                 let title_en = `This is a notification that you have been invited to Tokyo International Film Festival by Mr./Ms. ${reservation.get('purchaser_name_en')}.`;
 
+                let moment: typeof Moment = require('moment');
+                let conf: typeof Conf = require('config');
                 this.res.render('email/resevation', {
                     layout: false,
                     reservations: [reservation],
@@ -67,6 +71,7 @@ export default class ReservationController extends BaseController {
                         });
                     }
 
+                    let sendgrid: typeof Sendgrid = require('sendgrid');
                     let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
                     let email = new _sendgrid.Email({
                         to: to,
@@ -86,6 +91,7 @@ export default class ReservationController extends BaseController {
                     });
 
                     // logo
+                    let fs: typeof Fs = require('fs-extra');
                     email.addFile({
                         filename: `logo.png`,
                         contentType: 'image/png',

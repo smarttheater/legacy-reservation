@@ -24,7 +24,7 @@
         // "outDir": "",
         // "outFile": "./bin/tiff.js",
         "preserveConstEnums": false,
-        "pretty": true,
+        "pretty": false,
         "sourceMap": false,
         "strictNullChecks": false,
         "stripInternal": false,

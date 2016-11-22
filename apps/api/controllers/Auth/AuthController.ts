@@ -7,7 +7,8 @@ export default class AuthController extends BaseController {
      * ログイン
      */
     public login(): void {
-        let token = Util.createToken();
+        let util: typeof Util = require('../../../common/Util/Util');
+        let token = util.createToken();
         Models.Authentication.findOneAndUpdate(
             {
                 mvtk_kiin_cd: '00000775' // テスト用会員コード

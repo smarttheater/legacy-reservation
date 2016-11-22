@@ -1,6 +1,6 @@
 import BaseController from '../BaseController';
 import Models from '../../../common/models/Models';
-import fs = require('fs-extra');
+import Fs = require('fs-extra');
 
 export default class ScreenController extends BaseController {
     /**
@@ -18,6 +18,7 @@ export default class ScreenController extends BaseController {
 
                 // スクリーン座席表HTMLを出力
                 this.res.type('txt');
+                let fs: typeof Fs = require('fs-extra');
                 fs.readFile(`${__dirname}/../../../common/views/screens/${this.req.params.id}.ejs`, 'utf8', (err, data) => {
                     this.res.send(data);
                 });
