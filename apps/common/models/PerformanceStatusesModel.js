@@ -1,5 +1,5 @@
 "use strict";
-const PerformanceUtil_1 = require('../../common/Models/Performance/PerformanceUtil');
+const PerformanceUtil_1 = require('../../common/models/Performance/PerformanceUtil');
 const redisClient_1 = require('../../common/modules/redisClient');
 /**
  * パフォーマンス情報モデル
