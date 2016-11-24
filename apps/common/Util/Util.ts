@@ -1,7 +1,7 @@
-import crypto = require('crypto');
-import fs = require('fs-extra');
-import log4js = require('log4js');
-import uniqid = require('uniqid');
+import Crypto = require('crypto');
+import Fs = require('fs-extra');
+import Log4js = require('log4js');
+import Uniqid = require('uniqid');
 import Models from '../../common/models/Models';
 
 /**
@@ -12,6 +12,9 @@ export default class Util {
      * ミリ秒とプロセスに対してユニークなトークンを生成する
      */
     public static createToken(): string {
+        let crypto: typeof Crypto = require('crypto');
+        let uniqid: typeof Uniqid = require('uniqid');
+
         let md5hash = crypto.createHash('md5');
         // console.log(uniqid()); // Generate 18 byte unique id's based on the time, process id and mac address. Works on multiple processes and machines.
         // console.log(uniqid.process()); // Generate 12 byte unique id's based on the time and the process id. Works on multiple processes within a single machine but not on multiple machines.
@@ -26,13 +29,15 @@ export default class Util {
      * 
      * @param {string} paymentNo 購入番号
      */
-    public static getReservationLogger(paymentNo: string, cb: (err: Error, logger: log4js.Logger) => void) {
+    public static getReservationLogger(paymentNo: string, cb: (err: Error, logger: Log4js.Logger) => void) {
         let env = process.env.NODE_ENV || 'dev';
         let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.substr(-1)}`;
 
+        let fs: typeof Fs = require('fs-extra');
         fs.mkdirs(logDir, (err) => {
             if (err) return cb(err, null);
 
+            let log4js: typeof Log4js = require('log4js');
             log4js.configure({
                 appenders: [
                     {
@@ -62,6 +67,7 @@ export default class Util {
      * @param {string} salt
      */
     public static createHash(password: string, salt: string): string {
+        let crypto: typeof Crypto = require('crypto');
         let sha512 = crypto.createHash('sha512');
         sha512.update(salt + password, 'utf8');
         return sha512.digest('hex');

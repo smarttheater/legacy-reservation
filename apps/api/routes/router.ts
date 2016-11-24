@@ -1,5 +1,4 @@
 import NamedRoutes = require('named-routes');
-import express = require('express');
 import passport = require('passport');
 
 import AuthController from '../controllers/Auth/AuthController';

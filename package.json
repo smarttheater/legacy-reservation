@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./index.js",
-    "postinstall": "typings install",
-    "typings": "typings"
+    "start": "node ./index.js"
+    // "postinstall": "typings install",
+    // "typings": "typings"
   },
   "dependencies": {
     "azure-storage": "^1.3.1",

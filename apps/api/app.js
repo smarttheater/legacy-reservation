@@ -1,6 +1,6 @@
 "use strict";
 const express = require('express');
-const cookieParser = require('cookie-parser');
+// import cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 // import multer = require('multer');
 const logger_1 = require('./middlewares/logger');
@@ -29,6 +29,14 @@ if (process.env.NODE_ENV === 'dev') {
     app.use(logger_1.default); // ロガー
 }
 if (process.env.NODE_ENV !== 'prod') {
+    // サーバーエラーテスト
+    app.get('/api/500', (req, res) => {
+        req.on('data', (chunk) => {
+        });
+        req.on('end', () => {
+            throw new Error('500 manually.');
+        });
+    });
     app.get('/api/disconnect', (req, res) => {
         mongoose.disconnect((err) => {
             res.send('disconnected.');
@@ -49,13 +57,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // for parsing multipart/form-data
 // let storage = multer.memoryStorage()
 // app.use(multer({ storage: storage }).any());
-app.use(cookieParser());
+// app.use(cookieParser());
 // i18n を利用する設定
 i18n.configure({
     locales: ['en', 'ja'],
     defaultLocale: 'en',
     directory: __dirname + '/../../locales',
-    objectNotation: true
+    objectNotation: true,
+    updateFiles: false // ページのビューで自動的に言語ファイルを更新しない
 });
 // i18n の設定を有効化
 app.use(i18n.init);

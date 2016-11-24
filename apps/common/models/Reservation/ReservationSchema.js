@@ -1,7 +1,5 @@
 "use strict";
 const mongoose = require('mongoose');
-const numeral = require('numeral');
-const moment = require('moment');
 const ReservationUtil_1 = require('./ReservationUtil');
 /**
  * 予約スキーマ
@@ -153,6 +151,7 @@ Schema.virtual('performance_start_str_ja').get(function () {
     return `${this.performance_day.substr(0, 4)}/${this.performance_day.substr(4, 2)}/${this.performance_day.substr(6)} 開場 ${this.performance_open_time.substr(0, 2)}:${this.performance_open_time.substr(2)} 開演 ${this.performance_start_time.substr(0, 2)}:${this.performance_start_time.substr(2)}`;
 });
 Schema.virtual('performance_start_str_en').get(function () {
+    let moment = require('moment');
     let date = `${moment(`${this.performance_day.substr(0, 4)}-${this.performance_day.substr(4, 2)}-${this.performance_day.substr(6)}T00:00:00+09:00`).format('MMMM DD, YYYY')}`;
     return `Open: ${this.performance_open_time.substr(0, 2)}:${this.performance_open_time.substr(2)}/Start: ${this.performance_start_time.substr(0, 2)}:${this.performance_start_time.substr(2)} on ${date}`;
 });
@@ -271,6 +270,7 @@ Schema.virtual('qr_str').get(function () {
 Schema.virtual('ticket_type_detail_str_ja').get(function () {
     let charge = 0;
     let str = this.get('ticket_type_name_ja');
+    let numeral = require('numeral');
     switch (this.get('purchaser_group')) {
         case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
         case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
