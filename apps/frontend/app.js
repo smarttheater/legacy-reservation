@@ -1,7 +1,7 @@
 "use strict";
 const express = require('express');
 const partials = require('express-partials');
-// import favicon = require('serve-favicon');
+const favicon = require('serve-favicon');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const multer = require('multer');
@@ -51,14 +51,14 @@ payDesign_1.default(app);
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
 // uncomment after placing your favicon in /public
-// app.use(favicon(path.join(__dirname, '../../public', 'favicon.ico')));
+app.use(favicon(__dirname + '/../../public/favicon.ico'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 // for parsing multipart/form-data
 let storage = multer.memoryStorage();
 app.use(multer({ storage: storage }).any());
 app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, '/../../public')));
+app.use(express.static(__dirname + '/../../public'));
 // i18n を利用する設定
 i18n.configure({
     locales: ['en', 'ja'],
