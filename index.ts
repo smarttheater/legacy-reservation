@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+// #!/usr/bin/env node
 /// <reference path='./typings/index.d.ts' />
 
 /**

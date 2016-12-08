@@ -1,5 +1,9 @@
-#!/usr/bin/env node
+// #!/usr/bin/env node
+/// <reference path='./typings/index.d.ts' />
 "use strict";
+/**
+ * Module dependencies.
+ */
 const app = require('./apps/frontend/app');
 const debugModule = require('debug');
 const http = require('http');
