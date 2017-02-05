@@ -3,7 +3,6 @@ import ReserveControllerInterface from '../../ReserveControllerInterface';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
-import Util from '../../../../common/Util/Util';
 import Models from '../../../../common/models/Models';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';

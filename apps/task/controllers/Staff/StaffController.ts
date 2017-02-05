@@ -62,6 +62,13 @@ export default class StaffController extends BaseController {
 
         // スクリーンごとに内部予約を追加する
         Models.Screen.distinct('_id', (err, screenIds) => {
+            if (err) {
+                this.logger.info('screen ids found.', err);
+                mongoose.disconnect();
+                process.exit(0);
+                return;
+            }
+
             let i = 0;
             let next = () => {
                 if (i < screenIds.length) {
@@ -91,6 +98,8 @@ export default class StaffController extends BaseController {
 
             // 内部関係者をすべて取得
             Models.Staff.find({}, (err, staffs) => {
+                if (err) throw err;
+
                 let staffsByName = {};
                 for (let staff of staffs) {
                     staffsByName[staff.get('name')] = staff;
@@ -168,7 +177,7 @@ export default class StaffController extends BaseController {
                             }
 
                             this.logger.debug('creating staff reservations...length:', reservations.length);
-                            Models.Reservation.insertMany(reservations, (err, docs) => {
+                            Models.Reservation.insertMany(reservations, (err) => {
                                 this.logger.debug('staff reservations created.', err);
                                 cb(err);
                             });
@@ -192,6 +201,8 @@ export default class StaffController extends BaseController {
         .populate('screen', 'name')
         .populate('theater', 'name address')
         .exec((err, performance) => {
+            if (err) throw err;
+
             if (!performance) {
                 this.logger.info('no performance.');
                 mongoose.disconnect();
@@ -209,6 +220,8 @@ export default class StaffController extends BaseController {
 
                 // 内部関係者をすべて取得
                 Models.Staff.find({}, (err, staffs) => {
+                    if (err) throw err;
+
                     let staffsByName = {};
                     for (let staff of staffs) {
                         staffsByName[staff.get('name')] = staff;
@@ -275,6 +288,8 @@ export default class StaffController extends BaseController {
                             return new Promise((resolve, reject) => {
                                 this.logger.info('creating reservation...');
                                 Models.Reservation.create(newReservation, (err) => {
+                                    if (err) return reject(err);
+
                                     this.logger.info('reservation created.', err);
                                     // 途中で終了しないように。最後まで予約渡来し続ける。
                                     resolve(err);

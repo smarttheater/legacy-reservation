@@ -1,8 +1,8 @@
 import BaseController from '../BaseController';
 import Models from '../../../common/models/Models';
 import PerformanceStatusesModel from '../../../common/models/PerformanceStatusesModel';
-import Moment = require('moment');
-import Conf = require('config');
+import moment = require('moment');
+import conf = require('config');
 
 export default class PerformanceController extends BaseController {
     /**
@@ -43,7 +43,6 @@ export default class PerformanceController extends BaseController {
         }
 
         if (startFrom) {
-            let moment: typeof Moment = require('moment');
             let now = moment(startFrom);
             let tomorrow = moment(startFrom).add(+24, 'hours');
 
@@ -138,7 +137,6 @@ export default class PerformanceController extends BaseController {
                             }
 
                             // 空席情報を追加
-                            let conf: typeof Conf = require('config');
                             PerformanceStatusesModel.find((err, performanceStatusesModel) => {
                                 let results = performances.map((performance) => {
                                     return {

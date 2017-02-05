@@ -1,6 +1,9 @@
 // read http://json.schemastore.org/tsconfig
 {
     "compilerOptions": {
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "charset": "utf8",
         "declaration": false,
         // "declarationDir": "./definitions",
         "diagnostics": false,
@@ -19,7 +22,7 @@
         "noImplicitThis": false,
         "noLib": false,
         "noResolve": false,
-        "noUnusedLocals": false,
+        "noUnusedLocals": true,
         "noUnusedParameters": false,
         // "outDir": "",
         // "outFile": "./bin/tiff.js",

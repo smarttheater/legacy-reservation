@@ -55,6 +55,11 @@ export default class ReservationController extends BaseController {
                 }
             },
             (err, ids) => {
+                if (err) {
+                    mongoose.disconnect();
+                    process.exit(0);
+                }
+
                 let promises = ids.map((id) => {
                     return new Promise((resolve, reject) => {
                         this.logger.info('updating to STATUS_KEPT_BY_TTTS...id:', id);
@@ -73,7 +78,7 @@ export default class ReservationController extends BaseController {
                 Promise.all(promises).then(() => {
                     mongoose.disconnect();
                     process.exit(0);
-                }, (err) => {
+                }, () => {
                     // 失敗しても、次のタスクにまかせる(気にしない)
                     mongoose.disconnect();
                     process.exit(0);

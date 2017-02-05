@@ -98,6 +98,8 @@ router(app);
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
+// Use native promises
+mongoose.Promise = global.Promise;
 mongoose.connect(MONGOLAB_URI, {});
 
 

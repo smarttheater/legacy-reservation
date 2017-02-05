@@ -1,4 +1,6 @@
 "use strict";
+const log4js = require("log4js");
+const moment = require("moment");
 /**
  * ベースコントローラー
  */
@@ -12,9 +14,7 @@ class BaseController {
         if (this.req.params.locale) {
             this.req.setLocale(req.params.locale);
         }
-        let log4js = require('log4js');
         this.logger = log4js.getLogger('system');
-        let moment = require('moment');
         this.res.locals.moment = moment;
     }
 }

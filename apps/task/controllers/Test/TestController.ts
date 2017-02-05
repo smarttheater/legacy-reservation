@@ -4,18 +4,11 @@ import mongodb = require('mongodb');
 import mongoose = require('mongoose');
 import conf = require('config');
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
-import GMOUtil from '../../../common/Util/GMO/GMOUtil';
 import Util from '../../../common/Util/Util';
 import fs = require('fs-extra');
 import request = require('request');
 import querystring = require('querystring');
 import moment = require('moment');
-import sendgrid = require('sendgrid');
-import emailTemplates = require('email-templates');
-import qr = require('qr-image');
-import numeral = require('numeral');
-import GMONotificationModel from '../../../frontend/models/Reserve/GMONotificationModel';
-import GMONotificationResponseModel from '../../../frontend/models/Reserve/GMONotificationResponseModel';
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
@@ -23,7 +16,7 @@ export default class TestController extends BaseController {
     public publishPaymentNo(): void {
         mongoose.connect(MONGOLAB_URI, {});
         ReservationUtil.publishPaymentNo((err, paymentNo) => {
-            this.logger.info('paymentNo is', paymentNo);
+            this.logger.info('paymentNo is', err, paymentNo);
             mongoose.disconnect();
             process.exit(0);
         });
@@ -51,6 +44,7 @@ export default class TestController extends BaseController {
 
     public listIndexes(): void {
         mongodb.MongoClient.connect(conf.get<string>('mongolab_uri'), (err, db) => {
+            console.log(err);
             let collectionNames = [
                 'authentications',
                 'customer_cancel_requests',
@@ -73,6 +67,8 @@ export default class TestController extends BaseController {
             let promises = collectionNames.map((collectionName) => {
                 return new Promise((resolve, reject) => {
                     db.collection(collectionName).indexInformation((err, info) => {
+                        if (err) return reject();
+
                         console.log(collectionName, 'indexInformation is', info);
                         resolve();
                     });
@@ -125,7 +121,7 @@ export default class TestController extends BaseController {
             status:{$in:["PAYSUCCESS"]},
             processed: true
         }, (err, orderIds) => {
-            console.log('orderIds length is ', orderIds.length);
+            console.log('orderIds length is ', err, orderIds.length);
             let file = `${__dirname}/../../../../logs/${process.env.NODE_ENV}/orderIds.txt`;
             console.log(file);
             fs.writeFileSync(file, orderIds.join("\n"), 'utf8');
@@ -161,7 +157,7 @@ export default class TestController extends BaseController {
     public createEmailCues(): void {
         fs.readFile(`${__dirname}/../../../../logs/${process.env.NODE_ENV}/20161021_orderIds4reemail.json`, 'utf8', (err, data) => {
             let orderIds: Array<string> = JSON.parse(data);
-            console.log('orderIds length is ', orderIds.length);
+            console.log('orderIds length is ', orderIds.length, err);
 
             let cues = orderIds.map((orderId) => {
                 return {
@@ -172,7 +168,7 @@ export default class TestController extends BaseController {
 
             mongoose.connect(MONGOLAB_URI);
             this.logger.info('creating ReservationEmailCues...length:', cues.length);
-            Models.ReservationEmailCue.insertMany(cues, (err, docs) => {
+            Models.ReservationEmailCue.insertMany(cues, (err) => {
                 this.logger.info('ReservationEmailCues created.', err);
 
                 mongoose.disconnect();
@@ -189,7 +185,7 @@ export default class TestController extends BaseController {
         Models.Reservation.count({
             status: ReservationUtil.STATUS_KEPT_BY_TTTS
         }, (err, count) => {
-            console.log(count);
+            console.log(err, count);
             // Models.Reservation.remove({
             //     status: ReservationUtil.STATUS_KEPT_BY_TTTS
             // }, (err) => {
@@ -234,7 +230,7 @@ export default class TestController extends BaseController {
             // url: `https://api.sendgrid.com/api/invalidemails.get.json?${query}`
             // url: `https://api.sendgrid.com/api/spamreports.get.json?${query}`
         }, (error, response, body) => {
-            this.logger.info('request processed.', error, body);
+            this.logger.info('request processed.', error, response, body);
             process.exit(0);
         }); 
     }

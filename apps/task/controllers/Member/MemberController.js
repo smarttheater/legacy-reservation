@@ -24,6 +24,8 @@ class MemberController extends BaseController_1.default {
             });
             this.logger.info('removing all members...');
             Models_1.default.Member.remove({}, (err) => {
+                if (err)
+                    throw err;
                 this.logger.debug('creating members...');
                 Models_1.default.Member.create(members, (err) => {
                     this.logger.info('members created.', err);

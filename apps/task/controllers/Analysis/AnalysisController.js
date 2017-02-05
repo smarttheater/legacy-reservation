@@ -13,6 +13,8 @@ let MONGOLAB_URI = conf.get('mongolab_uri');
 class AnalysisController extends BaseController_1.default {
     checkArrayUnique() {
         fs.readFile(`${process.cwd()}/logs/${process.env.NODE_ENV}/paymentNos4sagyo2.json`, 'utf8', (err, data) => {
+            if (err)
+                throw err;
             let paymentNos = JSON.parse(data);
             console.log(paymentNos.length);
             // 配列から重複削除
@@ -31,6 +33,8 @@ class AnalysisController extends BaseController_1.default {
     waiting2sagyo2() {
         mongoose.connect(MONGOLAB_URI);
         fs.readFile(`${process.cwd()}/logs/${process.env.NODE_ENV}/paymentNos4sagyo2.json`, 'utf8', (err, data) => {
+            if (err)
+                throw err;
             let paymentNos = JSON.parse(data);
             let gmoUrl = (process.env.NODE_ENV === "prod") ? "https://p01.mul-pay.jp/payment/SearchTradeMulti.idPass" : "https://pt01.mul-pay.jp/payment/SearchTradeMulti.idPass";
             let promises = paymentNos.map((paymentNo) => {
@@ -360,8 +364,9 @@ class AnalysisController extends BaseController_1.default {
         });
     }
     createReservationsFromLogs() {
-        // fs.readFile(`${process.cwd()}/logs/gmoOrderIdsCredit.json`, 'utf8', (err, data) => {
         fs.readFile(`${process.cwd()}/logs/gmoOrderIdsCVS.json`, 'utf8', (err, data) => {
+            if (err)
+                throw err;
             let paymentNos = JSON.parse(data);
             console.log(paymentNos.length);
             let promises = paymentNos.map((paymentNo) => {
@@ -469,6 +474,8 @@ class AnalysisController extends BaseController_1.default {
             // status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
             purchased_at: { $gt: moment('2016-10-20T12:00:00+9:00') }
         }, 'payment_no', (err, reservations) => {
+            if (err)
+                throw err;
             this.logger.info('reservations length is', reservations.length);
             let paymentNos = [];
             reservations.forEach((reservation) => {
@@ -486,6 +493,8 @@ class AnalysisController extends BaseController_1.default {
         Models_1.default.ReservationEmailCue.count({
             is_sent: false,
         }, (err, count) => {
+            if (err)
+                throw err;
             this.logger.info('count is', count);
             mongoose.disconnect();
             process.exit(0);
@@ -501,6 +510,8 @@ class AnalysisController extends BaseController_1.default {
             status: { $in: ["PAYSUCCESS"] },
             processed: true
         }, (err, orderIds) => {
+            if (err)
+                throw err;
             console.log('orderIds length is ', orderIds.length);
             let file = `${__dirname}/../../../../logs/${process.env.NODE_ENV}/orderIds.txt`;
             console.log(file);
@@ -529,6 +540,8 @@ class AnalysisController extends BaseController_1.default {
     }
     createEmailCues() {
         fs.readFile(`${__dirname}/../../../../logs/${process.env.NODE_ENV}/20161021_orderIds4reemail.json`, 'utf8', (err, data) => {
+            if (err)
+                throw err;
             let orderIds = JSON.parse(data);
             console.log('orderIds length is ', orderIds.length);
             let cues = orderIds.map((orderId) => {
@@ -539,7 +552,7 @@ class AnalysisController extends BaseController_1.default {
             });
             mongoose.connect(MONGOLAB_URI);
             this.logger.info('creating ReservationEmailCues...length:', cues.length);
-            Models_1.default.ReservationEmailCue.insertMany(cues, (err, docs) => {
+            Models_1.default.ReservationEmailCue.insertMany(cues, (err) => {
                 this.logger.info('ReservationEmailCues created.', err);
                 mongoose.disconnect();
                 process.exit(0);

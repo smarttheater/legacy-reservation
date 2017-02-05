@@ -1,5 +1,4 @@
 import ReserveBaseController from '../../../ReserveBaseController';
-import GMOUtil from '../../../../../common/Util/GMO/GMOUtil';
 import Models from '../../../../../common/models/Models';
 import ReservationUtil from '../../../../../common/models/Reservation/ReservationUtil';
 import GMOResultModel from '../../../../models/Reserve/GMOResultModel';

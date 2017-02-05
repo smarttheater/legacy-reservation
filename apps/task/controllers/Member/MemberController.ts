@@ -1,7 +1,6 @@
 import BaseController from '../BaseController';
 import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
-import moment = require('moment');
 import conf = require('config');
 import mongoose = require('mongoose');
 import fs = require('fs-extra');
@@ -27,6 +26,8 @@ export default class MemberController extends BaseController {
             });
             this.logger.info('removing all members...');
             Models.Member.remove({}, (err) => {
+                if (err) throw err;
+
                 this.logger.debug('creating members...');
                 Models.Member.create(
                     members,

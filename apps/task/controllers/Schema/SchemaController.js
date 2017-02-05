@@ -2,7 +2,6 @@
 const BaseController_1 = require("../BaseController");
 const conf = require("config");
 const mongodb = require("mongodb");
-let MONGOLAB_URI = conf.get('mongolab_uri');
 class SchemaController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -30,6 +29,8 @@ class SchemaController extends BaseController_1.default {
      */
     createCollections() {
         mongodb.MongoClient.connect(conf.get('mongolab_uri'), (err, db) => {
+            if (err)
+                throw err;
             let promises = this.collectionNames.map((collectionName) => {
                 return new Promise((resolve, reject) => {
                     this.logger.debug('dropping collection...', collectionName);
@@ -59,6 +60,8 @@ class SchemaController extends BaseController_1.default {
      */
     dropIndexes() {
         mongodb.MongoClient.connect(conf.get('mongolab_uri'), (err, db) => {
+            if (err)
+                throw err;
             let promises = this.collectionNames.map((collectionName) => {
                 return new Promise((resolve, reject) => {
                     this.logger.debug('dropping index.', collectionName);
@@ -84,6 +87,8 @@ class SchemaController extends BaseController_1.default {
      */
     createIndexes() {
         mongodb.MongoClient.connect(conf.get('mongolab_uri'), (err, db) => {
+            if (err)
+                throw err;
             let promises = [];
             promises.push(new Promise((resolve, reject) => {
                 db.collection('reservations').createIndex({ performance: 1, seat_code: 1 }, { unique: true }, (err) => {

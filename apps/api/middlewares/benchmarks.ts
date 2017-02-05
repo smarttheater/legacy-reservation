@@ -1,11 +1,10 @@
 import express = require('express');
-import Log4js = require('log4js');
+import log4js = require('log4js');
 
 export default (req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (process.env.NODE_ENV === 'dev') {
         let startMemory = process.memoryUsage();
         let startTime = process.hrtime();
-        let log4js: typeof Log4js = require('log4js');
         let logger = log4js.getLogger('system');
 
         req.on('end', () => {

@@ -15,7 +15,7 @@ class TestController extends BaseController_1.default {
     publishPaymentNo() {
         mongoose.connect(MONGOLAB_URI, {});
         ReservationUtil_1.default.publishPaymentNo((err, paymentNo) => {
-            this.logger.info('paymentNo is', paymentNo);
+            this.logger.info('paymentNo is', err, paymentNo);
             mongoose.disconnect();
             process.exit(0);
         });
@@ -39,6 +39,7 @@ class TestController extends BaseController_1.default {
     }
     listIndexes() {
         mongodb.MongoClient.connect(conf.get('mongolab_uri'), (err, db) => {
+            console.log(err);
             let collectionNames = [
                 'authentications',
                 'customer_cancel_requests',
@@ -60,6 +61,8 @@ class TestController extends BaseController_1.default {
             let promises = collectionNames.map((collectionName) => {
                 return new Promise((resolve, reject) => {
                     db.collection(collectionName).indexInformation((err, info) => {
+                        if (err)
+                            return reject();
                         console.log(collectionName, 'indexInformation is', info);
                         resolve();
                     });
@@ -103,7 +106,7 @@ class TestController extends BaseController_1.default {
             status: { $in: ["PAYSUCCESS"] },
             processed: true
         }, (err, orderIds) => {
-            console.log('orderIds length is ', orderIds.length);
+            console.log('orderIds length is ', err, orderIds.length);
             let file = `${__dirname}/../../../../logs/${process.env.NODE_ENV}/orderIds.txt`;
             console.log(file);
             fs.writeFileSync(file, orderIds.join("\n"), 'utf8');
@@ -132,7 +135,7 @@ class TestController extends BaseController_1.default {
     createEmailCues() {
         fs.readFile(`${__dirname}/../../../../logs/${process.env.NODE_ENV}/20161021_orderIds4reemail.json`, 'utf8', (err, data) => {
             let orderIds = JSON.parse(data);
-            console.log('orderIds length is ', orderIds.length);
+            console.log('orderIds length is ', orderIds.length, err);
             let cues = orderIds.map((orderId) => {
                 return {
                     payment_no: orderId,
@@ -141,7 +144,7 @@ class TestController extends BaseController_1.default {
             });
             mongoose.connect(MONGOLAB_URI);
             this.logger.info('creating ReservationEmailCues...length:', cues.length);
-            Models_1.default.ReservationEmailCue.insertMany(cues, (err, docs) => {
+            Models_1.default.ReservationEmailCue.insertMany(cues, (err) => {
                 this.logger.info('ReservationEmailCues created.', err);
                 mongoose.disconnect();
                 process.exit(0);
@@ -156,7 +159,7 @@ class TestController extends BaseController_1.default {
         Models_1.default.Reservation.count({
             status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS
         }, (err, count) => {
-            console.log(count);
+            console.log(err, count);
             // Models.Reservation.remove({
             //     status: ReservationUtil.STATUS_KEPT_BY_TTTS
             // }, (err) => {
@@ -193,7 +196,7 @@ class TestController extends BaseController_1.default {
         request.get({
             url: `https://api.sendgrid.com/api/bounces.get.json?${query}`
         }, (error, response, body) => {
-            this.logger.info('request processed.', error, body);
+            this.logger.info('request processed.', error, response, body);
             process.exit(0);
         });
     }

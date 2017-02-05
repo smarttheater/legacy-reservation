@@ -2,6 +2,12 @@
 const BaseController_1 = require("../BaseController");
 const Models_1 = require("../../../common/models/Models");
 const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const sendgrid = require("sendgrid");
+const conf = require("config");
+const validator = require("validator");
+const qr = require("qr-image");
+const moment = require("moment");
+const fs = require("fs-extra");
 class ReservationController extends BaseController_1.default {
     /**
      * 予約情報メールを送信する
@@ -10,7 +16,6 @@ class ReservationController extends BaseController_1.default {
         let id = this.req.body.id;
         let to = this.req.body.to;
         // メールアドレスの有効性チェック
-        let validator = require('validator');
         if (!validator.isEmail(to)) {
             this.res.json({
                 success: false,
@@ -34,12 +39,9 @@ class ReservationController extends BaseController_1.default {
                     message: this.req.__('Message.NotFound')
                 });
             }
-            let qr = require('qr-image');
             let qrcodeBuffer = qr.imageSync(reservation.get('qr_str'), { type: 'png' });
             let title_ja = `${reservation.get('purchaser_name_ja')}様より東京タワーのチケットが届いております`;
             let title_en = `This is a notification that you have been invited to Tokyo International Film Festival by Mr./Ms. ${reservation.get('purchaser_name_en')}.`;
-            let moment = require('moment');
-            let conf = require('config');
             this.res.render('email/resevation', {
                 layout: false,
                 reservations: [reservation],
@@ -57,7 +59,6 @@ class ReservationController extends BaseController_1.default {
                         message: this.req.__('Message.UnexpectedError')
                     });
                 }
-                let sendgrid = require('sendgrid');
                 let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
                 let email = new _sendgrid.Email({
                     to: to,
@@ -74,7 +75,6 @@ class ReservationController extends BaseController_1.default {
                     content: qrcodeBuffer
                 });
                 // logo
-                let fs = require('fs-extra');
                 email.addFile({
                     filename: `logo.png`,
                     contentType: 'image/png',

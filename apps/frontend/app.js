@@ -97,6 +97,8 @@ router_1.default(app);
  * plenty of time in most operating environments.
  */
 let MONGOLAB_URI = conf.get('mongolab_uri');
+// Use native promises
+mongoose.Promise = global.Promise;
 mongoose.connect(MONGOLAB_URI, {
     server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
     replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }

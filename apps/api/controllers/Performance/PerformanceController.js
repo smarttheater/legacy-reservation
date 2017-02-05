@@ -2,6 +2,8 @@
 const BaseController_1 = require("../BaseController");
 const Models_1 = require("../../../common/models/Models");
 const PerformanceStatusesModel_1 = require("../../../common/models/PerformanceStatusesModel");
+const moment = require("moment");
+const conf = require("config");
 class PerformanceController extends BaseController_1.default {
     /**
      * パフォーマンス検索API
@@ -35,7 +37,6 @@ class PerformanceController extends BaseController_1.default {
             });
         }
         if (startFrom) {
-            let moment = require('moment');
             let now = moment(startFrom);
             let tomorrow = moment(startFrom).add(+24, 'hours');
             andConditions.push({
@@ -117,7 +118,6 @@ class PerformanceController extends BaseController_1.default {
                             });
                         }
                         // 空席情報を追加
-                        let conf = require('config');
                         PerformanceStatusesModel_1.default.find((err, performanceStatusesModel) => {
                             let results = performances.map((performance) => {
                                 return {

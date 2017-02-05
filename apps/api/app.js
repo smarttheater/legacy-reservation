@@ -71,6 +71,8 @@ app.use(i18n.init);
 // ルーティング
 router_1.default(app);
 let MONGOLAB_URI = conf.get('mongolab_uri');
+// Use native promises
+mongoose.Promise = global.Promise;
 mongoose.connect(MONGOLAB_URI, {});
 if (process.env.NODE_ENV !== 'prod') {
     let db = mongoose.connection;

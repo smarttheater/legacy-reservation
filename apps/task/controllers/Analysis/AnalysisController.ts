@@ -1,21 +1,13 @@
 import BaseController from '../BaseController';
 import Models from '../../../common/models/Models';
-import mongodb = require('mongodb');
 import mongoose = require('mongoose');
 import conf = require('config');
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import GMOUtil from '../../../common/Util/GMO/GMOUtil';
-import Util from '../../../common/Util/Util';
 import fs = require('fs-extra');
 import request = require('request');
 import querystring = require('querystring');
 import moment = require('moment');
-import sendgrid = require('sendgrid');
-import emailTemplates = require('email-templates');
-import qr = require('qr-image');
-import numeral = require('numeral');
-import GMONotificationModel from '../../../frontend/models/Reserve/GMONotificationModel';
-import GMONotificationResponseModel from '../../../frontend/models/Reserve/GMONotificationResponseModel';
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
@@ -23,6 +15,8 @@ export default class AnalysisController extends BaseController {
 
     public checkArrayUnique(): void {
         fs.readFile(`${process.cwd()}/logs/${process.env.NODE_ENV}/paymentNos4sagyo2.json`, 'utf8', (err, data) => {
+            if (err) throw err;
+
             let paymentNos: Array<string> = JSON.parse(data);
             console.log(paymentNos.length);
 
@@ -45,6 +39,8 @@ export default class AnalysisController extends BaseController {
         mongoose.connect(MONGOLAB_URI);
 
         fs.readFile(`${process.cwd()}/logs/${process.env.NODE_ENV}/paymentNos4sagyo2.json`, 'utf8', (err, data) => {
+            if (err) throw err;
+
             let paymentNos: Array<string> = JSON.parse(data);
             let gmoUrl = (process.env.NODE_ENV === "prod") ? "https://p01.mul-pay.jp/payment/SearchTradeMulti.idPass" : "https://pt01.mul-pay.jp/payment/SearchTradeMulti.idPass";
 
@@ -404,8 +400,9 @@ export default class AnalysisController extends BaseController {
     }
 
     public createReservationsFromLogs(): void {
-        // fs.readFile(`${process.cwd()}/logs/gmoOrderIdsCredit.json`, 'utf8', (err, data) => {
         fs.readFile(`${process.cwd()}/logs/gmoOrderIdsCVS.json`, 'utf8', (err, data) => {
+            if (err) throw err;
+
             let paymentNos: Array<string> = JSON.parse(data);
             console.log(paymentNos.length);
 
@@ -520,6 +517,8 @@ export default class AnalysisController extends BaseController {
             // status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
             purchased_at: {$gt: moment('2016-10-20T12:00:00+9:00')}
         }, 'payment_no', (err, reservations) => {
+            if (err) throw err;
+
             this.logger.info('reservations length is', reservations.length);
             let paymentNos = [];
             reservations.forEach((reservation) => {
@@ -538,6 +537,8 @@ export default class AnalysisController extends BaseController {
         Models.ReservationEmailCue.count({
             is_sent: false,
         }, (err, count) => {
+            if (err) throw err;
+
             this.logger.info('count is', count);
             mongoose.disconnect();
             process.exit(0);
@@ -554,6 +555,8 @@ export default class AnalysisController extends BaseController {
             status:{$in:["PAYSUCCESS"]},
             processed: true
         }, (err, orderIds) => {
+            if (err) throw err;
+
             console.log('orderIds length is ', orderIds.length);
             let file = `${__dirname}/../../../../logs/${process.env.NODE_ENV}/orderIds.txt`;
             console.log(file);
@@ -589,6 +592,8 @@ export default class AnalysisController extends BaseController {
 
     public createEmailCues(): void {
         fs.readFile(`${__dirname}/../../../../logs/${process.env.NODE_ENV}/20161021_orderIds4reemail.json`, 'utf8', (err, data) => {
+            if (err) throw err;
+
             let orderIds: Array<string> = JSON.parse(data);
             console.log('orderIds length is ', orderIds.length);
 
@@ -601,7 +606,7 @@ export default class AnalysisController extends BaseController {
 
             mongoose.connect(MONGOLAB_URI);
             this.logger.info('creating ReservationEmailCues...length:', cues.length);
-            Models.ReservationEmailCue.insertMany(cues, (err, docs) => {
+            Models.ReservationEmailCue.insertMany(cues, (err) => {
                 this.logger.info('ReservationEmailCues created.', err);
 
                 mongoose.disconnect();

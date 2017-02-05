@@ -1,4 +1,3 @@
-import Util from '../../common/Util/Util';
 import PerformanceUtil from '../../common/models/Performance/PerformanceUtil';
 import redisClient from '../../common/modules/redisClient';
 

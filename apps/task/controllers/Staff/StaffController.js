@@ -51,6 +51,12 @@ class StaffController extends BaseController_1.default {
         mongoose.connect(MONGOLAB_URI, {});
         // スクリーンごとに内部予約を追加する
         Models_1.default.Screen.distinct('_id', (err, screenIds) => {
+            if (err) {
+                this.logger.info('screen ids found.', err);
+                mongoose.disconnect();
+                process.exit(0);
+                return;
+            }
             let i = 0;
             let next = () => {
                 if (i < screenIds.length) {
@@ -79,6 +85,8 @@ class StaffController extends BaseController_1.default {
             ;
             // 内部関係者をすべて取得
             Models_1.default.Staff.find({}, (err, staffs) => {
+                if (err)
+                    throw err;
                 let staffsByName = {};
                 for (let staff of staffs) {
                     staffsByName[staff.get('name')] = staff;
@@ -149,7 +157,7 @@ class StaffController extends BaseController_1.default {
                             reservations = reservations.concat(reservationsByPerformance);
                         }
                         this.logger.debug('creating staff reservations...length:', reservations.length);
-                        Models_1.default.Reservation.insertMany(reservations, (err, docs) => {
+                        Models_1.default.Reservation.insertMany(reservations, (err) => {
                             this.logger.debug('staff reservations created.', err);
                             cb(err);
                         });
@@ -170,6 +178,8 @@ class StaffController extends BaseController_1.default {
             .populate('screen', 'name')
             .populate('theater', 'name address')
             .exec((err, performance) => {
+            if (err)
+                throw err;
             if (!performance) {
                 this.logger.info('no performance.');
                 mongoose.disconnect();
@@ -186,6 +196,8 @@ class StaffController extends BaseController_1.default {
                 ;
                 // 内部関係者をすべて取得
                 Models_1.default.Staff.find({}, (err, staffs) => {
+                    if (err)
+                        throw err;
                     let staffsByName = {};
                     for (let staff of staffs) {
                         staffsByName[staff.get('name')] = staff;
@@ -249,6 +261,8 @@ class StaffController extends BaseController_1.default {
                             return new Promise((resolve, reject) => {
                                 this.logger.info('creating reservation...');
                                 Models_1.default.Reservation.create(newReservation, (err) => {
+                                    if (err)
+                                        return reject(err);
                                     this.logger.info('reservation created.', err);
                                     // 途中で終了しないように。最後まで予約渡来し続ける。
                                     resolve(err);

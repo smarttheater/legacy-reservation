@@ -21,7 +21,9 @@ const WindowSchema_1 = require("../models/Window/WindowSchema");
 /**
  * 作品と予約の整合性を保つ
  */
-FilmSchema_1.default.post('findOneAndUpdate', function (doc, next) {
+FilmSchema_1.default.post('findOneAndUpdate', function (err, doc, next) {
+    if (err)
+        return next(err);
     Models.Reservation.update({
         film: doc['_id']
     }, {
@@ -38,7 +40,9 @@ FilmSchema_1.default.post('findOneAndUpdate', function (doc, next) {
  * 劇場とパフォーマンスの整合性を保つ
  * 劇場と予約の整合性を保つ
  */
-TheaterSchema_1.default.post('findOneAndUpdate', function (doc, next) {
+TheaterSchema_1.default.post('findOneAndUpdate', function (err, doc, next) {
+    if (err)
+        return next(err);
     Models.Performance.update({
         theater: doc['_id']
     }, {
@@ -63,7 +67,9 @@ TheaterSchema_1.default.post('findOneAndUpdate', function (doc, next) {
  * スクリーンとパフォーマンスの整合性を保つ
  * スクリーンと予約の整合性を保つ
  */
-ScreenSchema_1.default.post('findOneAndUpdate', function (doc, next) {
+ScreenSchema_1.default.post('findOneAndUpdate', function (err, doc, next) {
+    if (err)
+        return next(err);
     Models.Performance.update({
         screen: doc['_id']
     }, {
@@ -85,7 +91,9 @@ ScreenSchema_1.default.post('findOneAndUpdate', function (doc, next) {
 /**
  * パフォーマンスと予約の整合性を保つ
  */
-PerformanceSchema_1.default.post('findOneAndUpdate', function (doc, next) {
+PerformanceSchema_1.default.post('findOneAndUpdate', function (err, doc, next) {
+    if (err)
+        return next(err);
     Models.Reservation.update({
         performance: doc['_id']
     }, {
@@ -102,7 +110,9 @@ PerformanceSchema_1.default.post('findOneAndUpdate', function (doc, next) {
 /**
  * 外部関係者と予約の整合性を保つ
  */
-SponsorSchema_1.default.post('findOneAndUpdate', function (doc, next) {
+SponsorSchema_1.default.post('findOneAndUpdate', function (err, doc, next) {
+    if (err)
+        return next(err);
     Models.Reservation.update({
         sponsor: doc['_id']
     }, {
@@ -116,7 +126,9 @@ SponsorSchema_1.default.post('findOneAndUpdate', function (doc, next) {
 /**
  * 内部関係者と予約の整合性を保つ
  */
-StaffSchema_1.default.post('findOneAndUpdate', function (doc, next) {
+StaffSchema_1.default.post('findOneAndUpdate', function (err, doc, next) {
+    if (err)
+        return next(err);
     Models.Reservation.update({
         staff: doc['_id']
     }, {

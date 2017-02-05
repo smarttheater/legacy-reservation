@@ -36,21 +36,21 @@ program
 program
     .command('gmo <method>')
     .description('GMO結果通知処理タスク')
-    .action((method, options) => {
+    .action((method) => {
     let logDir = `${__dirname}/../../logs/${env}/task/GMO${method.charAt(0).toUpperCase()}${method.slice(1)}`;
     (new GMOController_1.default(logDir))[method]();
 });
 program
     .command('staff <method>')
     .description('内部関係者タスク')
-    .action((method, options) => {
+    .action((method) => {
     let logDir = `${__dirname}/../../logs/${env}/task/Staff${method.charAt(0).toUpperCase()}${method.slice(1)}`;
     (new StaffController_1.default(logDir))[method]();
 });
 program
     .command('createStaffReservationsByPerformanceId <performanceId>')
     .description('パフォーマンス指定で内部関係者の先抑えを行うタスク')
-    .action((performanceId, options) => {
+    .action((performanceId) => {
     let logDir = `${__dirname}/../../logs/${env}/task/StaffCreateReservationsByPerformanceId`;
     (new StaffController_1.default(logDir)).createReservationsByPerformanceId(performanceId);
 });
@@ -78,7 +78,7 @@ program
 program
     .command('releasePerformance <performanceId>')
     .description('ID指定でパフォーマンスを公開するタスク')
-    .action((performanceId, options) => {
+    .action((performanceId) => {
     let logDir = `${__dirname}/../../logs/${env}/task/PerformanceRelease`;
     (new PerformanceController_1.default(logDir)).release(performanceId);
 });

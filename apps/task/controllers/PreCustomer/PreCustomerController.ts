@@ -1,5 +1,4 @@
 import BaseController from '../BaseController';
-import Constants from '../../../common/Util/Constants';
 import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import conf = require('config');
@@ -12,6 +11,8 @@ let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 export default class PreCustomerController extends BaseController {
     public createCollection() {
         mongodb.MongoClient.connect(conf.get<string>('mongolab_uri'), (err, db) => {
+            if (err) throw err;
+
             let collectionName = 'pre_customers';
             this.logger.debug('dropping collection...', collectionName);
             db.collection(collectionName).drop((err) => {
@@ -53,8 +54,10 @@ export default class PreCustomerController extends BaseController {
             });
 
             Models.PreCustomer.remove((err) => {
+                if (err) throw err;
+
                 this.logger.debug('creating perCustomers...length:', docs.length);
-                Models.PreCustomer.insertMany(docs, (err, docs) => {
+                Models.PreCustomer.insertMany(docs, (err) => {
                     this.logger.debug('perCustomers created.', err);
 
                     mongoose.disconnect();

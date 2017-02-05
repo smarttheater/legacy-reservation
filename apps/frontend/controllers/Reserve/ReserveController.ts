@@ -1,11 +1,9 @@
 import ReserveBaseController from '../ReserveBaseController';
-import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
 import ScreenUtil from '../../../common/models/Screen/ScreenUtil';
 import ReservationModel from '../../models/Reserve/ReservationModel';
 import qr = require('qr-image');
-import moment = require('moment');
 
 export default class ReserveController extends ReserveBaseController {
     /**

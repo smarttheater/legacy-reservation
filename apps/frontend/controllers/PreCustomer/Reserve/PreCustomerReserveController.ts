@@ -1,7 +1,6 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
-import PreCustomerUser from '../../../models/User/PreCustomerUser';
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
 import Models from '../../../../common/models/Models';

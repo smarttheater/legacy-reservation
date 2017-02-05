@@ -4,7 +4,6 @@ import ReservationUtil from '../../../common/models/Reservation/ReservationUtil'
 import ReservationEmailCueUtil from '../../../common/models/ReservationEmailCue/ReservationEmailCueUtil';
 import GMONotificationUtil from '../../../common/models/GMONotification/GMONotificationUtil';
 import GMOUtil from '../../../common/Util/GMO/GMOUtil';
-import mongodb = require('mongodb');
 import mongoose = require('mongoose');
 import conf = require('config');
 import moment = require('moment');

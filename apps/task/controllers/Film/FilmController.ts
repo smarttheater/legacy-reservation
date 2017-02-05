@@ -17,6 +17,8 @@ export default class FilmController extends BaseController {
 
             this.logger.info('removing all groups...');
             Models.TicketTypeGroup.remove({}, (err) => {
+                if (err) throw err;
+
                 this.logger.debug('creating groups...');
                 Models.TicketTypeGroup.create(
                     groups,
@@ -76,6 +78,8 @@ export default class FilmController extends BaseController {
         mongoose.connect(MONGOLAB_URI, {});
 
         Models.Film.find({}, 'name', {sort: {_id: 1}}, (err, films) => {
+            if (err) throw err;
+
             let next = (film: mongoose.Document) => {
                 let options = {
                     url: `https://api.cognitive.microsoft.com/bing/v5.0/images/search?q=${encodeURIComponent(film.get('name.ja'))}`,

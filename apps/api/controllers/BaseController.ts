@@ -1,6 +1,6 @@
 import express = require('express');
-import Log4js = require('log4js');
-import Moment = require('moment');
+import log4js = require('log4js');
+import moment = require('moment');
 
 /**
  * ベースコントローラー
@@ -13,7 +13,7 @@ export default class BaseController {
     /** 次に一致するルートメソッド */
     public next: express.NextFunction;
     /** ロガー */
-    public logger: Log4js.Logger;
+    public logger: log4js.Logger;
     /** ルーティング */
     public router: Express.NamedRoutes;
 
@@ -29,9 +29,7 @@ export default class BaseController {
             this.req.setLocale(req.params.locale);
         }
 
-        let log4js: typeof Log4js = require('log4js');
         this.logger = log4js.getLogger('system');
-        let moment: typeof Moment = require('moment');
         this.res.locals.moment = moment;
     }
 }

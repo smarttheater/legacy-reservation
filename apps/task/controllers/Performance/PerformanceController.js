@@ -1,7 +1,6 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
 const Models_1 = require("../../../common/models/Models");
-const moment = require("moment");
 const conf = require("config");
 const mongoose = require("mongoose");
 const fs = require("fs-extra");
@@ -15,6 +14,8 @@ class PerformanceController extends BaseController_1.default {
                 throw err;
             let performances = JSON.parse(data);
             Models_1.default.Screen.find({}, 'name theater').populate('theater', 'name').exec((err, screens) => {
+                if (err)
+                    throw err;
                 // あれば更新、なければ追加
                 let promises = performances.map((performance) => {
                     // 劇場とスクリーン名称を追加
@@ -61,7 +62,6 @@ class PerformanceController extends BaseController_1.default {
                 process.exit(0);
                 return;
             }
-            let now = parseInt(moment().format('YYYYMMDDHHmm'));
             let performanceStatusesModel = new PerformanceStatusesModel_1.default();
             this.logger.info('aggregating...');
             Models_1.default.Reservation.aggregate([

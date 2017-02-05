@@ -22,6 +22,12 @@ class TelController extends BaseController_1.default {
             });
             this.logger.info('removing all telStaffs...');
             Models_1.default.TelStaff.remove({}, (err) => {
+                if (err) {
+                    this.logger.info('telStaffs removed.', err);
+                    mongoose.disconnect();
+                    process.exit(0);
+                    return;
+                }
                 this.logger.debug('creating telStaffs...');
                 Models_1.default.TelStaff.create(telStaffs, (err) => {
                     this.logger.info('telStaffs created.', err);

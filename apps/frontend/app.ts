@@ -11,7 +11,6 @@ import basicAuth from './middlewares/basicAuth';
 import conf = require('config');
 import mongoose = require('mongoose');
 import i18n = require('i18n');
-import log4js = require('log4js');
 
 let app = express();
 
@@ -138,6 +137,8 @@ router(app);
  * plenty of time in most operating environments.
  */
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
+// Use native promises
+mongoose.Promise = global.Promise;
 mongoose.connect(
     MONGOLAB_URI,
     {

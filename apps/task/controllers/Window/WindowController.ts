@@ -25,6 +25,8 @@ export default class WindowController extends BaseController {
 
             this.logger.info('removing all windows...');
             Models.Window.remove({}, (err) => {
+                if (err) throw err;
+
                 this.logger.debug('creating windows...');
                 Models.Window.create(
                     windows,

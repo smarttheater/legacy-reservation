@@ -1,5 +1,4 @@
 import BaseController from '../../BaseController';
-import SponsorUser from '../../../models/User/SponsorUser';
 import Util from '../../../../common/Util/Util';
 import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';

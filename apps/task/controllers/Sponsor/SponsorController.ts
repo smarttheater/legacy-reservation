@@ -1,5 +1,4 @@
 import BaseController from '../BaseController';
-import Constants from '../../../common/Util/Constants';
 import Util from '../../../common/Util/Util';
 import Models from '../../../common/models/Models';
 import conf = require('config');

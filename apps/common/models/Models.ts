@@ -22,7 +22,9 @@ import WindowSchema from '../models/Window/WindowSchema';
 /**
  * 作品と予約の整合性を保つ
  */
-FilmSchema.post('findOneAndUpdate', function(doc, next){
+FilmSchema.post('findOneAndUpdate', function(err, doc, next){
+    if (err) return next(err);
+
     Models.Reservation.update(
         {
             film: doc['_id']
@@ -45,7 +47,9 @@ FilmSchema.post('findOneAndUpdate', function(doc, next){
  * 劇場とパフォーマンスの整合性を保つ
  * 劇場と予約の整合性を保つ
  */
-TheaterSchema.post('findOneAndUpdate', function(doc, next){
+TheaterSchema.post('findOneAndUpdate', function(err, doc, next){
+    if (err) return next(err);
+
     Models.Performance.update(
         {
             theater: doc['_id']
@@ -82,7 +86,9 @@ TheaterSchema.post('findOneAndUpdate', function(doc, next){
  * スクリーンとパフォーマンスの整合性を保つ
  * スクリーンと予約の整合性を保つ
  */
-ScreenSchema.post('findOneAndUpdate', function(doc, next){
+ScreenSchema.post('findOneAndUpdate', function(err, doc, next){
+    if (err) return next(err);
+
     Models.Performance.update(
         {
             screen: doc['_id']
@@ -116,7 +122,9 @@ ScreenSchema.post('findOneAndUpdate', function(doc, next){
 /**
  * パフォーマンスと予約の整合性を保つ
  */
-PerformanceSchema.post('findOneAndUpdate', function(doc, next){
+PerformanceSchema.post('findOneAndUpdate', function(err, doc, next){
+    if (err) return next(err);
+
     Models.Reservation.update(
         {
             performance: doc['_id']
@@ -139,7 +147,9 @@ PerformanceSchema.post('findOneAndUpdate', function(doc, next){
 /**
  * 外部関係者と予約の整合性を保つ
  */
-SponsorSchema.post('findOneAndUpdate', function(doc, next){
+SponsorSchema.post('findOneAndUpdate', function(err, doc, next){
+    if (err) return next(err);
+
     Models.Reservation.update(
         {
             sponsor: doc['_id']
@@ -159,7 +169,9 @@ SponsorSchema.post('findOneAndUpdate', function(doc, next){
 /**
  * 内部関係者と予約の整合性を保つ
  */
-StaffSchema.post('findOneAndUpdate', function(doc, next){
+StaffSchema.post('findOneAndUpdate', function(err, doc, next){
+    if (err) return next(err);
+
     Models.Reservation.update(
         {
             staff: doc['_id']

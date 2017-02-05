@@ -1,6 +1,7 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
 const Models_1 = require("../../../common/models/Models");
+const fs = require("fs-extra");
 class ScreenController extends BaseController_1.default {
     /**
      * スクリーンの座席マップを生成する
@@ -16,7 +17,6 @@ class ScreenController extends BaseController_1.default {
                 return this.res.send('false');
             // スクリーン座席表HTMLを出力
             this.res.type('txt');
-            let fs = require('fs-extra');
             fs.readFile(`${__dirname}/../../../common/views/screens/${this.req.params.id}.ejs`, 'utf8', (err, data) => {
                 this.res.send(data);
             });

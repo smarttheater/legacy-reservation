@@ -10,6 +10,8 @@ let MONGOLAB_URI = conf.get('mongolab_uri');
 class PreCustomerController extends BaseController_1.default {
     createCollection() {
         mongodb.MongoClient.connect(conf.get('mongolab_uri'), (err, db) => {
+            if (err)
+                throw err;
             let collectionName = 'pre_customers';
             this.logger.debug('dropping collection...', collectionName);
             db.collection(collectionName).drop((err) => {
@@ -41,8 +43,10 @@ class PreCustomerController extends BaseController_1.default {
                 return preCustomer;
             });
             Models_1.default.PreCustomer.remove((err) => {
+                if (err)
+                    throw err;
                 this.logger.debug('creating perCustomers...length:', docs.length);
-                Models_1.default.PreCustomer.insertMany(docs, (err, docs) => {
+                Models_1.default.PreCustomer.insertMany(docs, (err) => {
                     this.logger.debug('perCustomers created.', err);
                     mongoose.disconnect();
                     process.exit(0);

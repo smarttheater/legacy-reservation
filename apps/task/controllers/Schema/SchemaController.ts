@@ -1,10 +1,6 @@
 import BaseController from '../BaseController';
-import Models from '../../../common/models/Models';
 import conf = require('config');
 import mongodb = require('mongodb');
-import mongoose = require('mongoose');
-
-let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 
 export default class SchemaController extends BaseController {
     private collectionNames = [
@@ -31,6 +27,8 @@ export default class SchemaController extends BaseController {
      */
     public createCollections() {
         mongodb.MongoClient.connect(conf.get<string>('mongolab_uri'), (err, db) => {
+            if (err) throw err;
+
             let promises = this.collectionNames.map((collectionName) => {
                 return new Promise((resolve, reject) => {
                     this.logger.debug('dropping collection...', collectionName);
@@ -62,6 +60,8 @@ export default class SchemaController extends BaseController {
      */
     public dropIndexes() {
         mongodb.MongoClient.connect(conf.get<string>('mongolab_uri'), (err, db) => {
+            if (err) throw err;
+
             let promises = this.collectionNames.map((collectionName) => {
                 return new Promise((resolve, reject) => {
                     this.logger.debug('dropping index.', collectionName);
@@ -91,6 +91,8 @@ export default class SchemaController extends BaseController {
      */
     public createIndexes() {
         mongodb.MongoClient.connect(conf.get<string>('mongolab_uri'), (err, db) => {
+            if (err) throw err;
+
             let promises = [];
 
             promises.push(new Promise((resolve, reject) => {

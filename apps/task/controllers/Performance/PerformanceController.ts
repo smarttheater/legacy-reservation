@@ -1,7 +1,5 @@
 import BaseController from '../BaseController';
 import Models from '../../../common/models/Models';
-import PerformanceUtil from '../../../common/models/Performance/PerformanceUtil';
-import moment = require('moment');
 import conf = require('config');
 import mongoose = require('mongoose');
 import fs = require('fs-extra');
@@ -18,6 +16,8 @@ export default class PerformanceController extends BaseController {
             let performances: Array<any> = JSON.parse(data);
 
             Models.Screen.find({}, 'name theater').populate('theater', 'name').exec((err, screens) => {
+                if (err) throw err;
+ 
                 // あれば更新、なければ追加
                 let promises = performances.map((performance) => {
                     // 劇場とスクリーン名称を追加
@@ -77,7 +77,6 @@ export default class PerformanceController extends BaseController {
                 return;
             }
 
-            let now = parseInt(moment().format('YYYYMMDDHHmm'));
             let performanceStatusesModel = new PerformanceStatusesModel();
 
             this.logger.info('aggregating...');

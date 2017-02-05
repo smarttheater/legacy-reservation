@@ -1,6 +1,7 @@
 "use strict";
 const mongoose = require("mongoose");
 const numeral = require("numeral");
+const moment = require("moment");
 const ReservationUtil_1 = require("./ReservationUtil");
 /**
  * 予約スキーマ
@@ -152,7 +153,6 @@ Schema.virtual('performance_start_str_ja').get(function () {
     return `${this.performance_day.substr(0, 4)}/${this.performance_day.substr(4, 2)}/${this.performance_day.substr(6)} 開場 ${this.performance_open_time.substr(0, 2)}:${this.performance_open_time.substr(2)} 開演 ${this.performance_start_time.substr(0, 2)}:${this.performance_start_time.substr(2)}`;
 });
 Schema.virtual('performance_start_str_en').get(function () {
-    let moment = require('moment');
     let date = `${moment(`${this.performance_day.substr(0, 4)}-${this.performance_day.substr(4, 2)}-${this.performance_day.substr(6)}T00:00:00+09:00`).format('MMMM DD, YYYY')}`;
     return `Open: ${this.performance_open_time.substr(0, 2)}:${this.performance_open_time.substr(2)}/Start: ${this.performance_start_time.substr(0, 2)}:${this.performance_start_time.substr(2)} on ${date}`;
 });
@@ -317,7 +317,7 @@ Schema.virtual('ticket_type_detail_str_en').get(function () {
 /**
  * TTTS確保への更新の場合、パフォーマンス情報だけ残して、購入者情報は削除する
  */
-Schema.post('findOneAndUpdate', function (doc) {
+Schema.post('findOneAndUpdate', function (err, doc, next) {
     if (doc.get('status') === ReservationUtil_1.default.STATUS_KEPT_BY_TTTS) {
         let paths4set = [
             '_id', 'performance', 'seat_code', 'status', 'created_at', 'updated_at',

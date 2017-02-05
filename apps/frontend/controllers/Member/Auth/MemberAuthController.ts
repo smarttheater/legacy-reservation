@@ -1,12 +1,8 @@
 import BaseController from '../../BaseController';
-import SponsorUser from '../../../models/User/SponsorUser';
-import sponsorLoginForm from '../../../forms/sponsor/sponsorLoginForm';
 import Util from '../../../../common/Util/Util';
-import Constants from '../../../../common/Util/Constants';
 import Models from '../../../../common/models/Models';
 import moment = require('moment');
 import memberLoginForm from '../../../forms/member/memberLoginForm';
-import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
 import MemberUser from '../../../models/User/MemberUser';
 import conf = require('config');
 
