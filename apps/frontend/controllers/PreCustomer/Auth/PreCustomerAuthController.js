@@ -1,11 +1,11 @@
 "use strict";
-const BaseController_1 = require('../../BaseController');
-const PreCustomerUser_1 = require('../../../models/User/PreCustomerUser');
-const preCustomerLoginForm_1 = require('../../../forms/preCustomer/preCustomerLoginForm');
-const Util_1 = require('../../../../common/Util/Util');
-const Models_1 = require('../../../../common/models/Models');
-const moment = require('moment');
-const conf = require('config');
+const BaseController_1 = require("../../BaseController");
+const PreCustomerUser_1 = require("../../../models/User/PreCustomerUser");
+const preCustomerLoginForm_1 = require("../../../forms/preCustomer/preCustomerLoginForm");
+const Util_1 = require("../../../../common/Util/Util");
+const Models_1 = require("../../../../common/models/Models");
+const moment = require("moment");
+const conf = require("config");
 class PreCustomerAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);

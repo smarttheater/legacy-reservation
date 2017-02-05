@@ -1,17 +1,17 @@
 "use strict";
-const express = require('express');
-const partials = require('express-partials');
-const favicon = require('serve-favicon');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const multer = require('multer');
-const logger_1 = require('./middlewares/logger');
-const benchmarks_1 = require('./middlewares/benchmarks');
-const session_1 = require('./middlewares/session');
-const basicAuth_1 = require('./middlewares/basicAuth');
-const conf = require('config');
-const mongoose = require('mongoose');
-const i18n = require('i18n');
+const express = require("express");
+const partials = require("express-partials");
+const favicon = require("serve-favicon");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const multer = require("multer");
+const logger_1 = require("./middlewares/logger");
+const benchmarks_1 = require("./middlewares/benchmarks");
+const session_1 = require("./middlewares/session");
+const basicAuth_1 = require("./middlewares/basicAuth");
+const conf = require("config");
+const mongoose = require("mongoose");
+const i18n = require("i18n");
 let app = express();
 app.use(partials()); // レイアウト&パーシャルサポート
 if (process.env.NODE_ENV === 'dev') {
@@ -21,17 +21,17 @@ app.use(benchmarks_1.default); // ベンチマーク的な
 app.use(session_1.default); // セッション
 app.use(basicAuth_1.default); // ベーシック認証
 // ルーティング
-const NamedRoutes = require('named-routes');
-const payDesign_1 = require('./routes/payDesign');
-const member_1 = require('./routes/member');
-const sponsor_1 = require('./routes/sponsor');
-const staff_1 = require('./routes/staff');
-const tel_1 = require('./routes/tel');
-const window_1 = require('./routes/window');
-const customerSupport_1 = require('./routes/customerSupport');
-const pre_1 = require('./routes/pre');
-const sendGrid_1 = require('./routes/sendGrid');
-const router_1 = require('./routes/router');
+const NamedRoutes = require("named-routes");
+const payDesign_1 = require("./routes/payDesign");
+const member_1 = require("./routes/member");
+const sponsor_1 = require("./routes/sponsor");
+const staff_1 = require("./routes/staff");
+const tel_1 = require("./routes/tel");
+const window_1 = require("./routes/window");
+const customerSupport_1 = require("./routes/customerSupport");
+const pre_1 = require("./routes/pre");
+const sendGrid_1 = require("./routes/sendGrid");
+const router_1 = require("./routes/router");
 let namedRoutes = new NamedRoutes();
 namedRoutes.extendExpress(app);
 namedRoutes.registerAppHelpers(app);

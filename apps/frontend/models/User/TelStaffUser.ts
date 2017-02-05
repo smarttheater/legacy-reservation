@@ -4,7 +4,7 @@ import BaseUser from './BaseUser';
  * 電話窓口ユーザークラス
  */
 export default class TelStaffUser extends BaseUser {
-    public static AUTH_SESSION_NAME = 'TIFFFrontendTelStaffAuth';
+    public static AUTH_SESSION_NAME = 'TTTSFrontendTelStaffAuth';
 
     public static parse(session: Express.Session): TelStaffUser {
         let user = new TelStaffUser();

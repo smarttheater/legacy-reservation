@@ -11,15 +11,11 @@ log4js.configure({
     appenders: [
         {
             category: 'access', // アクセスログ
-            type: 'dateFile',
-            filename: `${logDir}/access.log`,
-            pattern: '-yyyy-MM-dd',
+            type: "console"
         },
         {
             category: 'system', // その他のアプリログ(DEBUG、INFO、ERRORなど)
-            type: 'dateFile',
-            filename: `${logDir}/system.log`,
-            pattern: '-yyyy-MM-dd',
+            type: "console"
         },
         {
             type: 'console'

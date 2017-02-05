@@ -1,10 +1,10 @@
 "use strict";
-const log4js = require('log4js');
-const moment = require('moment');
-const numeral = require('numeral');
-const conf = require('config');
-const Constants_1 = require('../../common/Util/Constants');
-const Util_1 = require('../../common/Util/Util');
+const log4js = require("log4js");
+const moment = require("moment");
+const numeral = require("numeral");
+const conf = require("config");
+const Constants_1 = require("../../common/Util/Constants");
+const Util_1 = require("../../common/Util/Util");
 /**
  * ベースコントローラー
  *

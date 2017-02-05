@@ -1,14 +1,14 @@
 "use strict";
-const ReserveBaseController_1 = require('../../ReserveBaseController');
-const reservePerformanceForm_1 = require('../../../forms/reserve/reservePerformanceForm');
-const reserveSeatForm_1 = require('../../../forms/reserve/reserveSeatForm');
-const Models_1 = require('../../../../common/models/Models');
-const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
-const ScreenUtil_1 = require('../../../../common/models/Screen/ScreenUtil');
-const FilmUtil_1 = require('../../../../common/models/Film/FilmUtil');
-const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
-const moment = require('moment');
-const conf = require('config');
+const ReserveBaseController_1 = require("../../ReserveBaseController");
+const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
+const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
+const Models_1 = require("../../../../common/models/Models");
+const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
+const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
+const FilmUtil_1 = require("../../../../common/models/Film/FilmUtil");
+const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
+const moment = require("moment");
+const conf = require("config");
 class StaffReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
@@ -55,14 +55,14 @@ class StaffReserveController extends ReserveBaseController_1.default {
             return cb(null, reservationModel);
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
-        // 仮予約をTIFF確保ステータスに戻す
+        // 仮予約をTTTS確保ステータスに戻す
         Models_1.default.Reservation.update({
             performance: reservationModel.performance._id,
             seat_code: { $in: seatCodesInSession },
-            status: ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TIFF
+            status: ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TTTS
         }, {
             $set: {
-                status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+                status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS
             },
             $unset: {
                 staff: ''
@@ -109,13 +109,13 @@ class StaffReserveController extends ReserveBaseController_1.default {
                     staff: this.req.staffUser.get('_id')
                 }, (err, reservation) => {
                     if (err) {
-                        // TIFF確保からの仮予約を試みる
+                        // TTTS確保からの仮予約を試みる
                         Models_1.default.Reservation.findOneAndUpdate({
                             performance: reservationModel.performance._id,
                             seat_code: seatCode,
-                            status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+                            status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS
                         }, {
-                            status: ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TIFF,
+                            status: ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TTTS,
                             expired_at: reservationModel.expiredAt,
                             staff: this.req.staffUser.get('_id')
                         }, {

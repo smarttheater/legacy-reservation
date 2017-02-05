@@ -1,21 +1,21 @@
 "use strict";
-const program = require('commander');
-const AnalysisController_1 = require('./controllers/Analysis/AnalysisController');
-const TestController_1 = require('./controllers/Test/TestController');
-const StaffController_1 = require('./controllers/Staff/StaffController');
-const SponsorController_1 = require('./controllers/Sponsor/SponsorController');
-const PerformanceController_1 = require('./controllers/Performance/PerformanceController');
-const TheaterController_1 = require('./controllers/Theater/TheaterController');
-const FilmController_1 = require('./controllers/Film/FilmController');
-const MemberController_1 = require('./controllers/Member/MemberController');
-const ReservationController_1 = require('./controllers/Reservation/ReservationController');
-const SchemaController_1 = require('./controllers/Schema/SchemaController');
-const TelController_1 = require('./controllers/Tel/TelController');
-const WindowController_1 = require('./controllers/Window/WindowController');
-const LogController_1 = require('./controllers/Log/LogController');
-const PreCustomerController_1 = require('./controllers/PreCustomer/PreCustomerController');
-const GMOController_1 = require('./controllers/GMO/GMOController');
-const ReservationEmailCueController_1 = require('./controllers/ReservationEmailCue/ReservationEmailCueController');
+const program = require("commander");
+const AnalysisController_1 = require("./controllers/Analysis/AnalysisController");
+const TestController_1 = require("./controllers/Test/TestController");
+const StaffController_1 = require("./controllers/Staff/StaffController");
+const SponsorController_1 = require("./controllers/Sponsor/SponsorController");
+const PerformanceController_1 = require("./controllers/Performance/PerformanceController");
+const TheaterController_1 = require("./controllers/Theater/TheaterController");
+const FilmController_1 = require("./controllers/Film/FilmController");
+const MemberController_1 = require("./controllers/Member/MemberController");
+const ReservationController_1 = require("./controllers/Reservation/ReservationController");
+const SchemaController_1 = require("./controllers/Schema/SchemaController");
+const TelController_1 = require("./controllers/Tel/TelController");
+const WindowController_1 = require("./controllers/Window/WindowController");
+// import LogController from './controllers/Log/LogController';
+const PreCustomerController_1 = require("./controllers/PreCustomer/PreCustomerController");
+const GMOController_1 = require("./controllers/GMO/GMOController");
+const ReservationEmailCueController_1 = require("./controllers/ReservationEmailCue/ReservationEmailCueController");
 let env = process.env.NODE_ENV || 'dev';
 program
     .version('0.0.1');
@@ -138,13 +138,13 @@ program
     let logDir = `${__dirname}/../../logs/${env}/task/Schema${method.charAt(0).toUpperCase()}${method.slice(1)}`;
     (new SchemaController_1.default(logDir))[method]();
 });
-program
-    .command('log <method>')
-    .description('ログ関連タスク')
-    .action((method) => {
-    let logDir = `${__dirname}/../../logs/${env}/task/Log${method.charAt(0).toUpperCase()}${method.slice(1)}`;
-    (new LogController_1.default(logDir))[method]();
-});
+// program
+//     .command('log <method>')
+//     .description('ログ関連タスク')
+//     .action((method) => {
+//         let logDir = `${__dirname}/../../logs/${env}/task/Log${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+//         (new LogController(logDir))[method]();
+//     });
 // program
 //   .command('*')
 //   .action(function(env){

@@ -1,13 +1,13 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Models_1 = require('../../../common/models/Models');
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
-const ReservationEmailCueUtil_1 = require('../../../common/models/ReservationEmailCue/ReservationEmailCueUtil');
-const GMONotificationUtil_1 = require('../../../common/models/GMONotification/GMONotificationUtil');
-const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
-const mongoose = require('mongoose');
-const conf = require('config');
-const moment = require('moment');
+const BaseController_1 = require("../BaseController");
+const Models_1 = require("../../../common/models/Models");
+const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const ReservationEmailCueUtil_1 = require("../../../common/models/ReservationEmailCue/ReservationEmailCueUtil");
+const GMONotificationUtil_1 = require("../../../common/models/GMONotification/GMONotificationUtil");
+const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
+const mongoose = require("mongoose");
+const conf = require("config");
+const moment = require("moment");
 let MONGOLAB_URI = conf.get('mongolab_uri');
 let MONGOLAB_URI_FOR_GMO = conf.get('mongolab_uri_for_gmo');
 class GMOController extends BaseController_1.default {

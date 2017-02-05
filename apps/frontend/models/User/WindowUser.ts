@@ -4,7 +4,7 @@ import BaseUser from './BaseUser';
  * 窓口ユーザークラス
  */
 export default class WindowUser extends BaseUser {
-    public static AUTH_SESSION_NAME = 'TIFFFrontendWindowAuth';
+    public static AUTH_SESSION_NAME = 'TTTSFrontendWindowAuth';
 
     public static parse(session: Express.Session): WindowUser {
         let user = new WindowUser();

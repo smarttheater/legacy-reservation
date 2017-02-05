@@ -57,16 +57,16 @@ export default class StaffReserveController extends ReserveBaseController implem
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
 
-        // 仮予約をTIFF確保ステータスに戻す
+        // 仮予約をTTTS確保ステータスに戻す
         Models.Reservation.update(
             {
                 performance: reservationModel.performance._id,
                 seat_code: {$in: seatCodesInSession},
-                status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TIFF
+                status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TTTS
             },
             {
                 $set: {
-                    status: ReservationUtil.STATUS_KEPT_BY_TIFF
+                    status: ReservationUtil.STATUS_KEPT_BY_TTTS
                 },
                 $unset: {
                     staff: ''
@@ -126,15 +126,15 @@ export default class StaffReserveController extends ReserveBaseController implem
                     },
                     (err, reservation) => {
                         if (err) {
-                            // TIFF確保からの仮予約を試みる
+                            // TTTS確保からの仮予約を試みる
                             Models.Reservation.findOneAndUpdate(
                                 {
                                     performance: reservationModel.performance._id,
                                     seat_code: seatCode,
-                                    status: ReservationUtil.STATUS_KEPT_BY_TIFF
+                                    status: ReservationUtil.STATUS_KEPT_BY_TTTS
                                 },
                                 {
-                                    status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TIFF,
+                                    status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TTTS,
                                     expired_at: reservationModel.expiredAt,
                                     staff: this.req.staffUser.get('_id')
                                 },

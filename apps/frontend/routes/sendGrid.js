@@ -1,5 +1,5 @@
 "use strict";
-const SendGridController_1 = require('../controllers/SendGrid/SendGridController');
+const SendGridController_1 = require("../controllers/SendGrid/SendGridController");
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     // イベントフック

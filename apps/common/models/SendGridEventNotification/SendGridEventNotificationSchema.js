@@ -1,5 +1,5 @@
 "use strict";
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 /**
  * SendGridイベント通知スキーマ
  */

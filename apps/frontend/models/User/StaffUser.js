@@ -1,5 +1,5 @@
 "use strict";
-const BaseUser_1 = require('./BaseUser');
+const BaseUser_1 = require("./BaseUser");
 /**
  * 内部関係者ユーザークラス
  */
@@ -15,6 +15,6 @@ class StaffUser extends BaseUser_1.default {
         return user;
     }
 }
-StaffUser.AUTH_SESSION_NAME = 'TIFFFrontendStaffAuth';
+StaffUser.AUTH_SESSION_NAME = 'TTTSFrontendStaffAuth';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = StaffUser;

@@ -1,14 +1,14 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Models_1 = require('../../../common/models/Models');
-const mongoose = require('mongoose');
-const conf = require('config');
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
-const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
-const fs = require('fs-extra');
-const request = require('request');
-const querystring = require('querystring');
-const moment = require('moment');
+const BaseController_1 = require("../BaseController");
+const Models_1 = require("../../../common/models/Models");
+const mongoose = require("mongoose");
+const conf = require("config");
+const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
+const fs = require("fs-extra");
+const request = require("request");
+const querystring = require("querystring");
+const moment = require("moment");
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class AnalysisController extends BaseController_1.default {
     checkArrayUnique() {

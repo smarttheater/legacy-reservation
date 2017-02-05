@@ -4,9 +4,9 @@
 /**
  * Module dependencies.
  */
-const app = require('./apps/api/app');
-const debugModule = require('debug');
-const http = require('http');
+const app = require("./apps/api/app");
+const debugModule = require("debug");
+const http = require("http");
 let debug = debugModule('app:server');
 /**
  * Get port from environment and store in Express.

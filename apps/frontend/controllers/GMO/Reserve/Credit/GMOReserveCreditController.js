@@ -1,9 +1,9 @@
 "use strict";
-const ReserveBaseController_1 = require('../../../ReserveBaseController');
-const Models_1 = require('../../../../../common/models/Models');
-const ReservationUtil_1 = require('../../../../../common/models/Reservation/ReservationUtil');
-const conf = require('config');
-const crypto = require('crypto');
+const ReserveBaseController_1 = require("../../../ReserveBaseController");
+const Models_1 = require("../../../../../common/models/Models");
+const ReservationUtil_1 = require("../../../../../common/models/Reservation/ReservationUtil");
+const conf = require("config");
+const crypto = require("crypto");
 class GMOReserveCreditController extends ReserveBaseController_1.default {
     /**
      * GMOからの結果受信

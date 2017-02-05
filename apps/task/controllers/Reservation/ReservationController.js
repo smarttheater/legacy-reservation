@@ -1,13 +1,13 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Models_1 = require('../../../common/models/Models');
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
-const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
-const moment = require('moment');
-const conf = require('config');
-const mongoose = require('mongoose');
-const request = require('request');
-const querystring = require('querystring');
+const BaseController_1 = require("../BaseController");
+const Models_1 = require("../../../common/models/Models");
+const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
+const moment = require("moment");
+const conf = require("config");
+const mongoose = require("mongoose");
+const request = require("request");
+const querystring = require("querystring");
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class ReservationController extends BaseController_1.default {
     /**
@@ -32,12 +32,12 @@ class ReservationController extends BaseController_1.default {
         });
     }
     /**
-     * TIFF確保上の仮予約をTIFF確保へ戻す
+     * TTTS確保上の仮予約をTTTS確保へ戻す
      */
     tmp2tiff() {
         mongoose.connect(MONGOLAB_URI, {});
         Models_1.default.Reservation.distinct('_id', {
-            status: ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TIFF,
+            status: ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TTTS,
             expired_at: {
                 // 念のため、仮予約有効期間より1分長めにしておく
                 $lt: moment().add(-60, 'seconds').toISOString()
@@ -45,9 +45,9 @@ class ReservationController extends BaseController_1.default {
         }, (err, ids) => {
             let promises = ids.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TIFF...id:', id);
-                    Models_1.default.Reservation.findOneAndUpdate({ _id: id }, { status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF }, { new: true }, (err, reservation) => {
-                        this.logger.info('updated to STATUS_KEPT_BY_TIFF. id:', id, err, reservation);
+                    this.logger.info('updating to STATUS_KEPT_BY_TTTS...id:', id);
+                    Models_1.default.Reservation.findOneAndUpdate({ _id: id }, { status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS }, { new: true }, (err, reservation) => {
+                        this.logger.info('updated to STATUS_KEPT_BY_TTTS. id:', id, err, reservation);
                         (err) ? reject(err) : resolve();
                     });
                 });

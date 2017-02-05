@@ -1,7 +1,7 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Models_1 = require('../../../common/models/Models');
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
+const BaseController_1 = require("../BaseController");
+const Models_1 = require("../../../common/models/Models");
+const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
 class ReservationController extends BaseController_1.default {
     /**
      * 予約情報メールを送信する
@@ -36,7 +36,7 @@ class ReservationController extends BaseController_1.default {
             }
             let qr = require('qr-image');
             let qrcodeBuffer = qr.imageSync(reservation.get('qr_str'), { type: 'png' });
-            let title_ja = `${reservation.get('purchaser_name_ja')}様より東京国際映画祭のチケットが届いております`;
+            let title_ja = `${reservation.get('purchaser_name_ja')}様より東京タワーのチケットが届いております`;
             let title_en = `This is a notification that you have been invited to Tokyo International Film Festival by Mr./Ms. ${reservation.get('purchaser_name_en')}.`;
             let moment = require('moment');
             let conf = require('config');

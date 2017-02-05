@@ -16,6 +16,6 @@ export default (req: express.Request, res: express.Response, next: express.NextF
     if (user && user['name'] === 'motionpicture' && user['pass'] === '4_CS/T|YG*Lz') return next();
 
     res.statusCode = 401;
-    res.setHeader('WWW-Authenticate', 'Basic realm="TIFF Authentication"');
+    res.setHeader('WWW-Authenticate', 'Basic realm="TTTS Authentication"');
     res.end('Unauthorized');
 };

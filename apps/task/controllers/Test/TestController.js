@@ -1,15 +1,15 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Models_1 = require('../../../common/models/Models');
-const mongodb = require('mongodb');
-const mongoose = require('mongoose');
-const conf = require('config');
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
-const Util_1 = require('../../../common/Util/Util');
-const fs = require('fs-extra');
-const request = require('request');
-const querystring = require('querystring');
-const moment = require('moment');
+const BaseController_1 = require("../BaseController");
+const Models_1 = require("../../../common/models/Models");
+const mongodb = require("mongodb");
+const mongoose = require("mongoose");
+const conf = require("config");
+const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const Util_1 = require("../../../common/Util/Util");
+const fs = require("fs-extra");
+const request = require("request");
+const querystring = require("querystring");
+const moment = require("moment");
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class TestController extends BaseController_1.default {
     publishPaymentNo() {
@@ -154,11 +154,11 @@ class TestController extends BaseController_1.default {
     release() {
         mongoose.connect(MONGOLAB_URI);
         Models_1.default.Reservation.count({
-            status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+            status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS
         }, (err, count) => {
             console.log(count);
             // Models.Reservation.remove({
-            //     status: ReservationUtil.STATUS_KEPT_BY_TIFF
+            //     status: ReservationUtil.STATUS_KEPT_BY_TTTS
             // }, (err) => {
             //     console.log(err);
             mongoose.disconnect();

@@ -58,6 +58,6 @@ export default class PerformanceStatusesModel {
      * @return {string}
      */
     private static getRedisKey(): string {
-        return `TIFFSeatStatusesByPerformanceId`;
+        return `TTTSSeatStatusesByPerformanceId`;
     }
 }

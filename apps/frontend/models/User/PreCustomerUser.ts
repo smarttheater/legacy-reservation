@@ -4,7 +4,7 @@ import BaseUser from './BaseUser';
  * 1.5次販売ユーザークラス
  */
 export default class PreCustomerUser extends BaseUser {
-    public static AUTH_SESSION_NAME = 'TIFFFrontendPreCustomerAuth';
+    public static AUTH_SESSION_NAME = 'TTTSFrontendPreCustomerAuth';
 
     public static parse(session: Express.Session): PreCustomerUser {
         let user = new PreCustomerUser();

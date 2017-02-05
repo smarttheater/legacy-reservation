@@ -1,5 +1,5 @@
 "use strict";
-const CustomerCancelController_1 = require('../controllers/Customer/Cancel/CustomerCancelController');
+const CustomerCancelController_1 = require("../controllers/Customer/Cancel/CustomerCancelController");
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     let base = (req, res, next) => {

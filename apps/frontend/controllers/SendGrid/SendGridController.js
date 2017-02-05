@@ -1,6 +1,6 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Models_1 = require('../../../common/models/Models');
+const BaseController_1 = require("../BaseController");
+const Models_1 = require("../../../common/models/Models");
 class SendGridController extends BaseController_1.default {
     /**
      * SendGridイベントフック

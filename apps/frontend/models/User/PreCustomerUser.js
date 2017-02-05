@@ -1,5 +1,5 @@
 "use strict";
-const BaseUser_1 = require('./BaseUser');
+const BaseUser_1 = require("./BaseUser");
 /**
  * 1.5次販売ユーザークラス
  */
@@ -15,6 +15,6 @@ class PreCustomerUser extends BaseUser_1.default {
         return user;
     }
 }
-PreCustomerUser.AUTH_SESSION_NAME = 'TIFFFrontendPreCustomerAuth';
+PreCustomerUser.AUTH_SESSION_NAME = 'TTTSFrontendPreCustomerAuth';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PreCustomerUser;

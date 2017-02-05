@@ -1,13 +1,22 @@
 "use strict";
-const AdmissionController_1 = require('../controllers/Admission/AdmissionController');
-const GMOController_1 = require('../controllers/GMO/GMOController');
-const GMOReserveController_1 = require('../controllers/GMO/Reserve/GMOReserveController');
-const ReserveController_1 = require('../controllers/Reserve/ReserveController');
-const LanguageController_1 = require('../controllers/Language/LanguageController');
-const OtherController_1 = require('../controllers/Other/OtherController');
-const CustomerReserveController_1 = require('../controllers/Customer/Reserve/CustomerReserveController');
-const ErrorController_1 = require('../controllers/Error/ErrorController');
+const AdmissionController_1 = require("../controllers/Admission/AdmissionController");
+const GMOController_1 = require("../controllers/GMO/GMOController");
+const GMOReserveController_1 = require("../controllers/GMO/Reserve/GMOReserveController");
+const ReserveController_1 = require("../controllers/Reserve/ReserveController");
+const LanguageController_1 = require("../controllers/Language/LanguageController");
+const OtherController_1 = require("../controllers/Other/OtherController");
+const CustomerReserveController_1 = require("../controllers/Customer/Reserve/CustomerReserveController");
+const ErrorController_1 = require("../controllers/Error/ErrorController");
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * URLルーティング
+ *
+ * app.get(パス, ルーティング名称, メソッド);
+ * といった形でルーティングを登録する
+ * ルーティング名称は、ejs側やコントローラーでURLを生成する際に用いたりするので、意識的にページ一意な値を定めること
+ *
+ * リクエスト毎に、req,res,nextでコントローラーインスタンスを生成して、URLに応じたメソッドを実行する、という考え方
+ */
 exports.default = (app) => {
     let base = (req, res, next) => {
         next();

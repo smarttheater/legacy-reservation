@@ -1,9 +1,9 @@
 "use strict";
-const BaseController_1 = require('../../BaseController');
-const WindowUser_1 = require('../../../models/User/WindowUser');
-const windowLoginForm_1 = require('../../../forms/window/windowLoginForm');
-const Util_1 = require('../../../../common/Util/Util');
-const Models_1 = require('../../../../common/models/Models');
+const BaseController_1 = require("../../BaseController");
+const WindowUser_1 = require("../../../models/User/WindowUser");
+const windowLoginForm_1 = require("../../../forms/window/windowLoginForm");
+const Util_1 = require("../../../../common/Util/Util");
+const Models_1 = require("../../../../common/models/Models");
 class WindowAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);

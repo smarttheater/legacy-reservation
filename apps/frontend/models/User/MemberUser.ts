@@ -4,7 +4,7 @@ import BaseUser from './BaseUser';
  * メルマガ会員ユーザークラス
  */
 export default class MemberUser extends BaseUser {
-    public static AUTH_SESSION_NAME = 'TIFFFrontendMemberAuth';
+    public static AUTH_SESSION_NAME = 'TTTSFrontendMemberAuth';
 
     public static parse(session: Express.Session): MemberUser {
         let user = new MemberUser();

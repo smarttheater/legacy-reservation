@@ -1,5 +1,5 @@
 "use strict";
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 /**
  * GMO結果通知スキーマ
  */

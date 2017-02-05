@@ -65,8 +65,8 @@ export default class ReserveController extends ReserveBaseController {
                         if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
                             baloonContent = reservation.get('baloon_content4staff');
 
-                            // 内部関係者はTIFF確保も予約できる
-                            if (reservation.get('status') === ReservationUtil.STATUS_KEPT_BY_TIFF) {
+                            // 内部関係者はTTTS確保も予約できる
+                            if (reservation.get('status') === ReservationUtil.STATUS_KEPT_BY_TTTS) {
                                 avalilable = true;
                             }
                         }

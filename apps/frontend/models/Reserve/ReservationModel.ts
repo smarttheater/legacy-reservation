@@ -106,7 +106,7 @@ export default class ReservationModel {
      * @return {string}
      */
     private static getRedisKey(token): string {
-        return `TIFFReservation_${token}`;
+        return `TTTSReservation_${token}`;
     }
 
     /**

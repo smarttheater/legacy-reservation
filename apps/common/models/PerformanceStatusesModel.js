@@ -1,6 +1,6 @@
 "use strict";
-const PerformanceUtil_1 = require('../../common/models/Performance/PerformanceUtil');
-const redisClient_1 = require('../../common/modules/redisClient');
+const PerformanceUtil_1 = require("../../common/models/Performance/PerformanceUtil");
+const redisClient_1 = require("../../common/modules/redisClient");
 /**
  * パフォーマンス情報モデル
  */
@@ -52,7 +52,7 @@ class PerformanceStatusesModel {
      * @return {string}
      */
     static getRedisKey() {
-        return `TIFFSeatStatusesByPerformanceId`;
+        return `TTTSSeatStatusesByPerformanceId`;
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

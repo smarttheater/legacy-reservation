@@ -1,5 +1,5 @@
 "use strict";
-const Models_1 = require('../Models');
+const Models_1 = require("../Models");
 class ReservationUtil {
     /**
      * 購入管理番号生成
@@ -84,14 +84,14 @@ class ReservationUtil {
 }
 /** 仮予約 */
 ReservationUtil.STATUS_TEMPORARY = 'TEMPORARY';
-/** TIFF確保上の仮予約 */
-ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TIFF = 'TEMPORARY_ON_KEPT_BY_TIFF';
+/** TTTS確保上の仮予約 */
+ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TTTS = 'TEMPORARY_ON_KEPT_BY_TTTS';
 /** 決済待ち */
 ReservationUtil.STATUS_WAITING_SETTLEMENT = 'WAITING_SETTLEMENT';
 /**  ペイデザイン決済待ち */
 ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN = 'WAITING_SETTLEMENT_PAY_DESIGN';
-/** TIFF確保 */
-ReservationUtil.STATUS_KEPT_BY_TIFF = 'KEPT_BY_TIFF';
+/** TTTS確保 */
+ReservationUtil.STATUS_KEPT_BY_TTTS = 'KEPT_BY_TTTS';
 /** メルマガ会員保留 */
 ReservationUtil.STATUS_KEPT_BY_MEMBER = 'KEPT_BY_MEMBER';
 /** 予約確定 */

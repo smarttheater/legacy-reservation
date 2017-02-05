@@ -187,11 +187,11 @@ export default class TestController extends BaseController {
     public release(): void {
         mongoose.connect(MONGOLAB_URI);
         Models.Reservation.count({
-            status: ReservationUtil.STATUS_KEPT_BY_TIFF
+            status: ReservationUtil.STATUS_KEPT_BY_TTTS
         }, (err, count) => {
             console.log(count);
             // Models.Reservation.remove({
-            //     status: ReservationUtil.STATUS_KEPT_BY_TIFF
+            //     status: ReservationUtil.STATUS_KEPT_BY_TTTS
             // }, (err) => {
             //     console.log(err);
                 mongoose.disconnect();

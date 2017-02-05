@@ -4,7 +4,7 @@ import BaseUser from './BaseUser';
  * 内部関係者ユーザークラス
  */
 export default class StaffUser extends BaseUser {
-    public static AUTH_SESSION_NAME = 'TIFFFrontendStaffAuth';
+    public static AUTH_SESSION_NAME = 'TTTSFrontendStaffAuth';
 
     public static parse(session: Express.Session): StaffUser {
         let user = new StaffUser();

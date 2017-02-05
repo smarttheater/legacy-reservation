@@ -1,15 +1,15 @@
 "use strict";
-const BaseController_1 = require('../../BaseController');
-const Models_1 = require('../../../../common/models/Models');
-const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
-const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
-const customerCancelForm_1 = require('../../../forms/customer/customerCancelForm');
-const log4js = require('log4js');
-const conf = require('config');
-const sendgrid = require('sendgrid');
-const moment = require('moment');
-const numeral = require('numeral');
-const fs = require('fs-extra');
+const BaseController_1 = require("../../BaseController");
+const Models_1 = require("../../../../common/models/Models");
+const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
+const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
+const customerCancelForm_1 = require("../../../forms/customer/customerCancelForm");
+const log4js = require("log4js");
+const conf = require("config");
+const sendgrid = require("sendgrid");
+const moment = require("moment");
+const numeral = require("numeral");
+const fs = require("fs-extra");
 class CustomerCancelController extends BaseController_1.default {
     /**
      * チケットキャンセル
@@ -168,7 +168,7 @@ class CustomerCancelController extends BaseController_1.default {
                                     bcc: ['tiff_mp@motionpicture.jp'],
                                     fromname: conf.get('email.fromname'),
                                     from: conf.get('email.from'),
-                                    subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京国際映画祭チケット キャンセル完了のお知らせ Notice of Completion of Cancel for TIFF Tickets`,
+                                    subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京タワーチケット キャンセル完了のお知らせ Notice of Completion of Cancel for TTTS Tickets`,
                                     html: html
                                 });
                                 // logo

@@ -1,9 +1,9 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const conf = require('config');
-const fs = require('fs-extra');
-const azure = require('azure-storage');
-const moment = require('moment');
+const BaseController_1 = require("../BaseController");
+const conf = require("config");
+const fs = require("fs-extra");
+const azure = require("azure-storage");
+const moment = require("moment");
 let blobService = azure.createBlobService(conf.get('storage_account_name'), conf.get('storage_account_key'));
 class LogController extends BaseController_1.default {
     /**

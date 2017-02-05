@@ -1,11 +1,11 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Util_1 = require('../../../common/Util/Util');
-const Models_1 = require('../../../common/models/Models');
-const conf = require('config');
-const mongodb = require('mongodb');
-const mongoose = require('mongoose');
-const fs = require('fs-extra');
+const BaseController_1 = require("../BaseController");
+const Util_1 = require("../../../common/Util/Util");
+const Models_1 = require("../../../common/models/Models");
+const conf = require("config");
+const mongodb = require("mongodb");
+const mongoose = require("mongoose");
+const fs = require("fs-extra");
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class PreCustomerController extends BaseController_1.default {
     createCollection() {

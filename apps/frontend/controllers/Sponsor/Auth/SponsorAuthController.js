@@ -1,9 +1,9 @@
 "use strict";
-const BaseController_1 = require('../../BaseController');
-const SponsorUser_1 = require('../../../models/User/SponsorUser');
-const sponsorLoginForm_1 = require('../../../forms/sponsor/sponsorLoginForm');
-const Util_1 = require('../../../../common/Util/Util');
-const Models_1 = require('../../../../common/models/Models');
+const BaseController_1 = require("../../BaseController");
+const SponsorUser_1 = require("../../../models/User/SponsorUser");
+const sponsorLoginForm_1 = require("../../../forms/sponsor/sponsorLoginForm");
+const Util_1 = require("../../../../common/Util/Util");
+const Models_1 = require("../../../../common/models/Models");
 class SponsorAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);

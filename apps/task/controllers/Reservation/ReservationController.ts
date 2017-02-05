@@ -40,7 +40,7 @@ export default class ReservationController extends BaseController {
     }
 
     /**
-     * TIFF確保上の仮予約をTIFF確保へ戻す
+     * TTTS確保上の仮予約をTTTS確保へ戻す
      */
     public tmp2tiff(): void {
         mongoose.connect(MONGOLAB_URI, {});
@@ -48,7 +48,7 @@ export default class ReservationController extends BaseController {
         Models.Reservation.distinct(
             '_id',
             {
-                status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TIFF,
+                status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TTTS,
                 expired_at: {
                     // 念のため、仮予約有効期間より1分長めにしておく
                     $lt: moment().add(-60, 'seconds').toISOString()
@@ -57,13 +57,13 @@ export default class ReservationController extends BaseController {
             (err, ids) => {
                 let promises = ids.map((id) => {
                     return new Promise((resolve, reject) => {
-                        this.logger.info('updating to STATUS_KEPT_BY_TIFF...id:', id);
+                        this.logger.info('updating to STATUS_KEPT_BY_TTTS...id:', id);
                         Models.Reservation.findOneAndUpdate(
                             {_id: id},
-                            {status: ReservationUtil.STATUS_KEPT_BY_TIFF},
+                            {status: ReservationUtil.STATUS_KEPT_BY_TTTS},
                             {new: true},
                             (err, reservation) => {
-                                this.logger.info('updated to STATUS_KEPT_BY_TIFF. id:', id, err, reservation);
+                                this.logger.info('updated to STATUS_KEPT_BY_TTTS. id:', id, err, reservation);
                                 (err) ? reject(err) : resolve();
                             }
                         );

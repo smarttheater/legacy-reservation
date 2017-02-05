@@ -1,9 +1,9 @@
 "use strict";
-const PreCustomerAuthController_1 = require('../controllers/PreCustomer/Auth/PreCustomerAuthController');
-const PreCustomerReserveController_1 = require('../controllers/PreCustomer/Reserve/PreCustomerReserveController');
-const Models_1 = require('../../common/models/Models');
-const Util_1 = require('../../common/Util/Util');
-const PreCustomerUser_1 = require('../models/User/PreCustomerUser');
+const PreCustomerAuthController_1 = require("../controllers/PreCustomer/Auth/PreCustomerAuthController");
+const PreCustomerReserveController_1 = require("../controllers/PreCustomer/Reserve/PreCustomerReserveController");
+const Models_1 = require("../../common/models/Models");
+const Util_1 = require("../../common/Util/Util");
+const PreCustomerUser_1 = require("../models/User/PreCustomerUser");
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     let authentication = (req, res, next) => {

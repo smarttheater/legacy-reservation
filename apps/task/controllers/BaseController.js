@@ -1,6 +1,6 @@
 "use strict";
-const fs = require('fs-extra');
-const log4js = require('log4js');
+const fs = require("fs-extra");
+const log4js = require("log4js");
 /**
  * ベースコントローラー
  */

@@ -1,6 +1,7 @@
 "use strict";
-const mongoose = require('mongoose');
-const ReservationUtil_1 = require('./ReservationUtil');
+const mongoose = require("mongoose");
+const numeral = require("numeral");
+const ReservationUtil_1 = require("./ReservationUtil");
 /**
  * 予約スキーマ
  */
@@ -240,15 +241,15 @@ Schema.virtual('status_str').get(function () {
             str = '予約済';
             break;
         case ReservationUtil_1.default.STATUS_TEMPORARY:
-        case ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TIFF:
+        case ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TTTS:
             str = '仮予約中';
             break;
         case ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT:
         case ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN:
             str = '決済中';
             break;
-        case ReservationUtil_1.default.STATUS_KEPT_BY_TIFF:
-            str = 'TIFF確保中';
+        case ReservationUtil_1.default.STATUS_KEPT_BY_TTTS:
+            str = 'TTTS確保中';
             break;
         case ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER:
             str = 'メルマガ保留中';
@@ -270,7 +271,6 @@ Schema.virtual('qr_str').get(function () {
 Schema.virtual('ticket_type_detail_str_ja').get(function () {
     let charge = 0;
     let str = this.get('ticket_type_name_ja');
-    let numeral = require('numeral');
     switch (this.get('purchaser_group')) {
         case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
         case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
@@ -315,10 +315,10 @@ Schema.virtual('ticket_type_detail_str_en').get(function () {
     return str;
 });
 /**
- * TIFF確保への更新の場合、パフォーマンス情報だけ残して、購入者情報は削除する
+ * TTTS確保への更新の場合、パフォーマンス情報だけ残して、購入者情報は削除する
  */
 Schema.post('findOneAndUpdate', function (doc) {
-    if (doc.get('status') === ReservationUtil_1.default.STATUS_KEPT_BY_TIFF) {
+    if (doc.get('status') === ReservationUtil_1.default.STATUS_KEPT_BY_TTTS) {
         let paths4set = [
             '_id', 'performance', 'seat_code', 'status', 'created_at', 'updated_at',
             'performance_day', 'performance_open_time', 'performance_start_time', 'performance_end_time', 'performance_canceled',

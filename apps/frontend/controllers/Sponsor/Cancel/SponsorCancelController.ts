@@ -91,7 +91,7 @@ export default class SponsorCancelController extends BaseController {
         if (Array.isArray(reservationIds)) {
             let promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TIFF by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                     Models.Reservation.findOneAndUpdate(
                         {
                             _id: id,
@@ -100,10 +100,10 @@ export default class SponsorCancelController extends BaseController {
                             purchaser_group: ReservationUtil.PURCHASER_GROUP_SPONSOR,
                             status: ReservationUtil.STATUS_RESERVED
                         },
-                        {status: ReservationUtil.STATUS_KEPT_BY_TIFF},
+                        {status: ReservationUtil.STATUS_KEPT_BY_TTTS},
                         {new: true},
                         (err, reservation) => {
-                            this.logger.info('updated to STATUS_KEPT_BY_TIFF.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                            this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                             (err) ? reject(err) : resolve();
                         }
                     );
@@ -137,13 +137,13 @@ export default class SponsorCancelController extends BaseController {
         if (Array.isArray(reservationIds)) {
             let promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TIFF by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                     Models.Reservation.findOneAndUpdate(
                         {_id: id},
-                        {status: ReservationUtil.STATUS_KEPT_BY_TIFF},
+                        {status: ReservationUtil.STATUS_KEPT_BY_TTTS},
                         {new: true},
                         (err, reservation) => {
-                            this.logger.info('updated to STATUS_KEPT_BY_TIFF.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                            this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                             (err) ? reject(err) : resolve();
                         }
                     );

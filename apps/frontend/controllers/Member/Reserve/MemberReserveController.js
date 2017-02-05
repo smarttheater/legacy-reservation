@@ -1,11 +1,11 @@
 "use strict";
-const ReserveBaseController_1 = require('../../ReserveBaseController');
-const GMOUtil_1 = require('../../../../common/Util/GMO/GMOUtil');
-const Models_1 = require('../../../../common/models/Models');
-const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
-const ScreenUtil_1 = require('../../../../common/models/Screen/ScreenUtil');
-const ReservationModel_1 = require('../../../models/Reserve/ReservationModel');
-const moment = require('moment');
+const ReserveBaseController_1 = require("../../ReserveBaseController");
+const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
+const Models_1 = require("../../../../common/models/Models");
+const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
+const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
+const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
+const moment = require("moment");
 class MemberReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);

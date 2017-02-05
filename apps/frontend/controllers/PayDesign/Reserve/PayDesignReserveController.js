@@ -1,7 +1,7 @@
 "use strict";
-const ReserveBaseController_1 = require('../../ReserveBaseController');
-const Models_1 = require('../../../../common/models/Models');
-const PayDesignNotificationModel_1 = require('../../../models/Reserve/PayDesignNotificationModel');
+const ReserveBaseController_1 = require("../../ReserveBaseController");
+const Models_1 = require("../../../../common/models/Models");
+const PayDesignNotificationModel_1 = require("../../../models/Reserve/PayDesignNotificationModel");
 class PayDesignReserveController extends ReserveBaseController_1.default {
     /**
      * ペイデザイン入金通知

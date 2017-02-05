@@ -12,13 +12,13 @@ export default class StaffCancelController extends BaseController {
         if (Array.isArray(reservationIds)) {
             let promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TIFF by staff... staff:', this.req.staffUser.get('user_id'), 'signature:', this.req.staffUser.get('signature'), 'id:', id);
+                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by staff... staff:', this.req.staffUser.get('user_id'), 'signature:', this.req.staffUser.get('signature'), 'id:', id);
                     Models.Reservation.findOneAndUpdate(
                         {_id: id},
-                        {status: ReservationUtil.STATUS_KEPT_BY_TIFF},
+                        {status: ReservationUtil.STATUS_KEPT_BY_TTTS},
                         {new: true},
                         (err, raw) => {
-                            this.logger.info('updated to STATUS_KEPT_BY_TIFF by staff.', err, raw, 'staff:', this.req.staffUser.get('user_id'), 'signature:', this.req.staffUser.get('signature'), 'id:', id);
+                            this.logger.info('updated to STATUS_KEPT_BY_TTTS by staff.', err, raw, 'staff:', this.req.staffUser.get('user_id'), 'signature:', this.req.staffUser.get('signature'), 'id:', id);
                             (err) ? reject(err) : resolve();
                         }
                     );

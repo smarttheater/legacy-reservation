@@ -1,6 +1,6 @@
 "use strict";
-const PayDesignReserveController_1 = require('../controllers/PayDesign/Reserve/PayDesignReserveController');
-const querystring = require('querystring');
+const PayDesignReserveController_1 = require("../controllers/PayDesign/Reserve/PayDesignReserveController");
+const querystring = require("querystring");
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     app.post('/PayDesign/reserve/notify', '', (req, res, next) => {

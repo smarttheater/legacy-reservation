@@ -1,18 +1,18 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Util_1 = require('../../../common/Util/Util');
-const Models_1 = require('../../../common/models/Models');
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
-const ReservationEmailCueUtil_1 = require('../../../common/models/ReservationEmailCue/ReservationEmailCueUtil');
-const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
-const moment = require('moment');
-const conf = require('config');
-const mongoose = require('mongoose');
-const sendgrid = require('sendgrid');
-const emailTemplates = require('email-templates');
-const qr = require('qr-image');
-const fs = require('fs-extra');
-const numeral = require('numeral');
+const BaseController_1 = require("../BaseController");
+const Util_1 = require("../../../common/Util/Util");
+const Models_1 = require("../../../common/models/Models");
+const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const ReservationEmailCueUtil_1 = require("../../../common/models/ReservationEmailCue/ReservationEmailCueUtil");
+const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
+const moment = require("moment");
+const conf = require("config");
+const mongoose = require("mongoose");
+const sendgrid = require("sendgrid");
+const emailTemplates = require("email-templates");
+const qr = require("qr-image");
+const fs = require("fs-extra");
+const numeral = require("numeral");
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class ReservationEmailCueController extends BaseController_1.default {
     /**
@@ -80,26 +80,26 @@ class ReservationEmailCueController extends BaseController_1.default {
                             // 1.5次販売はメールテンプレート別
                             if (reservations[0].get('pre_customer')) {
                                 dir = `${process.cwd()}/apps/task/views/email/reserve/complete4preCustomer`;
-                                title_ja = '東京国際映画祭チケット 購入完了のお知らせ';
-                                title_en = 'Notice of Completion of TIFF Ticket Purchase';
+                                title_ja = '東京タワーチケット 購入完了のお知らせ';
+                                title_en = 'Notice of Completion of TTTS Ticket Purchase';
                             }
                             else {
                                 dir = `${process.cwd()}/apps/task/views/email/reserve/complete`;
-                                title_ja = '東京国際映画祭チケット 購入完了のお知らせ';
-                                title_en = 'Notice of Completion of TIFF Ticket Purchase';
+                                title_ja = '東京タワーチケット 購入完了のお知らせ';
+                                title_en = 'Notice of Completion of TTTS Ticket Purchase';
                             }
                             break;
                         case ReservationEmailCueUtil_1.default.TEMPLATE_TEMPORARY:
                             // 1.5次販売はメールテンプレート別
                             if (reservations[0].get('pre_customer')) {
                                 dir = `${process.cwd()}/apps/task/views/email/reserve/waitingSettlement4preCustomer`;
-                                title_ja = '東京国際映画祭チケット 仮予約完了のお知らせ';
-                                title_en = 'Notice of Completion of Tentative Reservation for TIFF Tickets';
+                                title_ja = '東京タワーチケット 仮予約完了のお知らせ';
+                                title_en = 'Notice of Completion of Tentative Reservation for TTTS Tickets';
                             }
                             else {
                                 dir = `${process.cwd()}/apps/task/views/email/reserve/waitingSettlement`;
-                                title_ja = '東京国際映画祭チケット 仮予約完了のお知らせ';
-                                title_en = 'Notice of Completion of Tentative Reservation for TIFF Tickets';
+                                title_ja = '東京タワーチケット 仮予約完了のお知らせ';
+                                title_en = 'Notice of Completion of Tentative Reservation for TTTS Tickets';
                             }
                             break;
                         default:

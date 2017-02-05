@@ -1,9 +1,9 @@
 "use strict";
-const BaseController_1 = require('../../BaseController');
-const Models_1 = require('../../../../common/models/Models');
-const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
-const sponsorCancelForm_1 = require('../../../forms/sponsor/sponsorCancelForm');
-const log4js = require('log4js');
+const BaseController_1 = require("../../BaseController");
+const Models_1 = require("../../../../common/models/Models");
+const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
+const sponsorCancelForm_1 = require("../../../forms/sponsor/sponsorCancelForm");
+const log4js = require("log4js");
 class SponsorCancelController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -84,15 +84,15 @@ class SponsorCancelController extends BaseController_1.default {
         if (Array.isArray(reservationIds)) {
             let promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TIFF by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                     Models_1.default.Reservation.findOneAndUpdate({
                         _id: id,
                         payment_no: this.req.body.paymentNo,
                         purchaser_tel: { $regex: `${this.req.body.last4DigitsOfTel}$` },
                         purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR,
                         status: ReservationUtil_1.default.STATUS_RESERVED
-                    }, { status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF }, { new: true }, (err, reservation) => {
-                        this.logger.info('updated to STATUS_KEPT_BY_TIFF.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                    }, { status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS }, { new: true }, (err, reservation) => {
+                        this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                         (err) ? reject(err) : resolve();
                     });
                 });
@@ -123,9 +123,9 @@ class SponsorCancelController extends BaseController_1.default {
         if (Array.isArray(reservationIds)) {
             let promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TIFF by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
-                    Models_1.default.Reservation.findOneAndUpdate({ _id: id }, { status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF }, { new: true }, (err, reservation) => {
-                        this.logger.info('updated to STATUS_KEPT_BY_TIFF.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                    Models_1.default.Reservation.findOneAndUpdate({ _id: id }, { status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS }, { new: true }, (err, reservation) => {
+                        this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                         (err) ? reject(err) : resolve();
                     });
                 });

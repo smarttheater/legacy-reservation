@@ -45,7 +45,7 @@ export default class StaffMyPageController extends BaseController {
                             status: ReservationUtil.STATUS_RESERVED
                         },
                         {
-                            status: ReservationUtil.STATUS_KEPT_BY_TIFF
+                            status: ReservationUtil.STATUS_KEPT_BY_TTTS
                         }
                     ]
                 }
@@ -214,7 +214,7 @@ export default class StaffMyPageController extends BaseController {
             Models.Reservation.remove(
                 {
                     performance_day: day,
-                    status: ReservationUtil.STATUS_KEPT_BY_TIFF
+                    status: ReservationUtil.STATUS_KEPT_BY_TTTS
                 },
                 (err) => {
                     if (err) {
@@ -234,7 +234,7 @@ export default class StaffMyPageController extends BaseController {
             // 開放座席情報取得
             Models.Reservation.find(
                 {
-                    status: ReservationUtil.STATUS_KEPT_BY_TIFF
+                    status: ReservationUtil.STATUS_KEPT_BY_TTTS
                 },
                 'status seat_code performance_day',
                 (err, reservations) => {

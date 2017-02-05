@@ -1,9 +1,9 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Models_1 = require('../../../common/models/Models');
-const GMONotificationModel_1 = require('../../models/Reserve/GMONotificationModel');
-const GMONotificationResponseModel_1 = require('../../models/Reserve/GMONotificationResponseModel');
-const GMONotificationUtil_1 = require('../../../common/models/GMONotification/GMONotificationUtil');
+const BaseController_1 = require("../BaseController");
+const Models_1 = require("../../../common/models/Models");
+const GMONotificationModel_1 = require("../../models/Reserve/GMONotificationModel");
+const GMONotificationResponseModel_1 = require("../../models/Reserve/GMONotificationResponseModel");
+const GMONotificationUtil_1 = require("../../../common/models/GMONotification/GMONotificationUtil");
 class GMOController extends BaseController_1.default {
     /**
      * GMO結果通知受信

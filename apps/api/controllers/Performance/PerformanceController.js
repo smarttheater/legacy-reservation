@@ -1,7 +1,7 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Models_1 = require('../../../common/models/Models');
-const PerformanceStatusesModel_1 = require('../../../common/models/PerformanceStatusesModel');
+const BaseController_1 = require("../BaseController");
+const Models_1 = require("../../../common/models/Models");
+const PerformanceStatusesModel_1 = require("../../../common/models/PerformanceStatusesModel");
 class PerformanceController extends BaseController_1.default {
     /**
      * パフォーマンス検索API

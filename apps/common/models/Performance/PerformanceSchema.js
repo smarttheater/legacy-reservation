@@ -1,7 +1,7 @@
 "use strict";
-const mongoose = require('mongoose');
-const PerformanceUtil_1 = require('./PerformanceUtil');
-const moment = require('moment');
+const mongoose = require("mongoose");
+const PerformanceUtil_1 = require("./PerformanceUtil");
+const moment = require("moment");
 /**
  * パフォーマンススキーマ
  */

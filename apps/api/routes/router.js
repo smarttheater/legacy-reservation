@@ -1,12 +1,21 @@
 "use strict";
-const NamedRoutes = require('named-routes');
-const passport = require('passport');
-const AuthController_1 = require('../controllers/Auth/AuthController');
-const PerformanceController_1 = require('../controllers/Performance/PerformanceController');
-const ReservationController_1 = require('../controllers/Reservation/ReservationController');
-const ScreenController_1 = require('../controllers/Screen/ScreenController');
-const OtherController_1 = require('../controllers/Other/OtherController');
+const NamedRoutes = require("named-routes");
+const passport = require("passport");
+const AuthController_1 = require("../controllers/Auth/AuthController");
+const PerformanceController_1 = require("../controllers/Performance/PerformanceController");
+const ReservationController_1 = require("../controllers/Reservation/ReservationController");
+const ScreenController_1 = require("../controllers/Screen/ScreenController");
+const OtherController_1 = require("../controllers/Other/OtherController");
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * URLルーティング
+ *
+ * app.get(パス, ルーティング名称, メソッド);
+ * といった形でルーティングを登録する
+ * ルーティング名称は、ejs側やコントローラーでURLを生成する際に用いたりするので、意識的にページ一意な値を定めること
+ *
+ * リクエスト毎に、req,res,nextでコントローラーインスタンスを生成して、URLに応じたメソッドを実行する、という考え方
+ */
 exports.default = (app) => {
     let router = new NamedRoutes();
     router.extendExpress(app);

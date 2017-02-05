@@ -1,9 +1,9 @@
 "use strict";
-const BaseController_1 = require('../../BaseController');
-const Util_1 = require('../../../../common/Util/Util');
-const ReservationUtil_1 = require('../../../../common/models/Reservation/ReservationUtil');
-const ScreenUtil_1 = require('../../../../common/models/Screen/ScreenUtil');
-const Models_1 = require('../../../../common/models/Models');
+const BaseController_1 = require("../../BaseController");
+const Util_1 = require("../../../../common/Util/Util");
+const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
+const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
+const Models_1 = require("../../../../common/models/Models");
 class StaffMyPageController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -42,7 +42,7 @@ class StaffMyPageController extends BaseController_1.default {
                         status: ReservationUtil_1.default.STATUS_RESERVED
                     },
                     {
-                        status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+                        status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS
                     }
                 ]
             });
@@ -186,7 +186,7 @@ class StaffMyPageController extends BaseController_1.default {
             }
             Models_1.default.Reservation.remove({
                 performance_day: day,
-                status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+                status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS
             }, (err) => {
                 if (err) {
                     this.res.json({
@@ -205,7 +205,7 @@ class StaffMyPageController extends BaseController_1.default {
         else {
             // 開放座席情報取得
             Models_1.default.Reservation.find({
-                status: ReservationUtil_1.default.STATUS_KEPT_BY_TIFF
+                status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS
             }, 'status seat_code performance_day', (err, reservations) => {
                 if (err)
                     return this.next(new Error(this.req.__('Message.UnexpectedError')));

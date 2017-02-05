@@ -1,10 +1,10 @@
 "use strict";
-const ReserveBaseController_1 = require('../ReserveBaseController');
-const Models_1 = require('../../../common/models/Models');
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
-const ScreenUtil_1 = require('../../../common/models/Screen/ScreenUtil');
-const ReservationModel_1 = require('../../models/Reserve/ReservationModel');
-const qr = require('qr-image');
+const ReserveBaseController_1 = require("../ReserveBaseController");
+const Models_1 = require("../../../common/models/Models");
+const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const ScreenUtil_1 = require("../../../common/models/Screen/ScreenUtil");
+const ReservationModel_1 = require("../../models/Reserve/ReservationModel");
+const qr = require("qr-image");
 class ReserveController extends ReserveBaseController_1.default {
     /**
      * 座席の状態を取得する
@@ -46,8 +46,8 @@ class ReserveController extends ReserveBaseController_1.default {
                     // 内部関係者用
                     if (reservationModel.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
                         baloonContent = reservation.get('baloon_content4staff');
-                        // 内部関係者はTIFF確保も予約できる
-                        if (reservation.get('status') === ReservationUtil_1.default.STATUS_KEPT_BY_TIFF) {
+                        // 内部関係者はTTTS確保も予約できる
+                        if (reservation.get('status') === ReservationUtil_1.default.STATUS_KEPT_BY_TTTS) {
                             avalilable = true;
                         }
                     }

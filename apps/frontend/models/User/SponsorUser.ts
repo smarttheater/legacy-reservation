@@ -4,7 +4,7 @@ import BaseUser from './BaseUser';
  * 外部関係者ユーザークラス
  */
 export default class SponsorUser extends BaseUser {
-    public static AUTH_SESSION_NAME = 'TIFFFrontendSponsorAuth';
+    public static AUTH_SESSION_NAME = 'TTTSFrontendSponsorAuth';
 
     public static parse(session: Express.Session): SponsorUser {
         let user = new SponsorUser();

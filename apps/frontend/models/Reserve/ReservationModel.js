@@ -1,9 +1,9 @@
 "use strict";
-const ReservationUtil_1 = require('../../../common/models/Reservation/ReservationUtil');
-const GMOUtil_1 = require('../../../common/Util/GMO/GMOUtil');
-const conf = require('config');
-const moment = require('moment');
-const redisClient_1 = require('../../../common/modules/redisClient');
+const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
+const conf = require("config");
+const moment = require("moment");
+const redisClient_1 = require("../../../common/modules/redisClient");
 /**
  * 予約情報モデル
  *
@@ -64,7 +64,7 @@ class ReservationModel {
      * @return {string}
      */
     static getRedisKey(token) {
-        return `TIFFReservation_${token}`;
+        return `TTTSReservation_${token}`;
     }
     /**
      * 一度の購入で予約できる座席数を取得する

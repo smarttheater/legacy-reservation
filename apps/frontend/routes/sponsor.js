@@ -1,11 +1,11 @@
 "use strict";
-const SponsorAuthController_1 = require('../controllers/Sponsor/Auth/SponsorAuthController');
-const SponsorMyPageController_1 = require('../controllers/Sponsor/MyPage/SponsorMyPageController');
-const SponsorReserveController_1 = require('../controllers/Sponsor/Reserve/SponsorReserveController');
-const SponsorCancelController_1 = require('../controllers/Sponsor/Cancel/SponsorCancelController');
-const Models_1 = require('../../common/models/Models');
-const Util_1 = require('../../common/Util/Util');
-const SponsorUser_1 = require('../models/User/SponsorUser');
+const SponsorAuthController_1 = require("../controllers/Sponsor/Auth/SponsorAuthController");
+const SponsorMyPageController_1 = require("../controllers/Sponsor/MyPage/SponsorMyPageController");
+const SponsorReserveController_1 = require("../controllers/Sponsor/Reserve/SponsorReserveController");
+const SponsorCancelController_1 = require("../controllers/Sponsor/Cancel/SponsorCancelController");
+const Models_1 = require("../../common/models/Models");
+const Util_1 = require("../../common/Util/Util");
+const SponsorUser_1 = require("../models/User/SponsorUser");
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     let authentication = (req, res, next) => {

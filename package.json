@@ -56,5 +56,5 @@
     "node": ">=6.5.0",
     "npm": ">=3.10.0"
   },
-  "description": "This is a repogitory for TIFF online website."
+  "description": "This is a repogitory for TTTS online website."
 }

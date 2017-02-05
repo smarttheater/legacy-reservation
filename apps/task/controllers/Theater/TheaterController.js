@@ -1,10 +1,10 @@
 "use strict";
-const BaseController_1 = require('../BaseController');
-const Models_1 = require('../../../common/models/Models');
-const ScreenUtil_1 = require('../../../common/models/Screen/ScreenUtil');
-const conf = require('config');
-const mongoose = require('mongoose');
-const fs = require('fs-extra');
+const BaseController_1 = require("../BaseController");
+const Models_1 = require("../../../common/models/Models");
+const ScreenUtil_1 = require("../../../common/models/Screen/ScreenUtil");
+const conf = require("config");
+const mongoose = require("mongoose");
+const fs = require("fs-extra");
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class TheaterController extends BaseController_1.default {
     createScreensFromJson() {

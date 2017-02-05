@@ -11,7 +11,7 @@ import ReservationController from './controllers/Reservation/ReservationControll
 import SchemaController from './controllers/Schema/SchemaController';
 import TelController from './controllers/Tel/TelController';
 import WindowController from './controllers/Window/WindowController';
-import LogController from './controllers/Log/LogController';
+// import LogController from './controllers/Log/LogController';
 import PreCustomerController from './controllers/PreCustomer/PreCustomerController';
 import GMOController from './controllers/GMO/GMOController';
 import ReservationEmailCueController from './controllers/ReservationEmailCue/ReservationEmailCueController';
@@ -157,13 +157,13 @@ program
         (new SchemaController(logDir))[method]();
     });
 
-program
-    .command('log <method>')
-    .description('ログ関連タスク')
-    .action((method) => {
-        let logDir = `${__dirname}/../../logs/${env}/task/Log${method.charAt(0).toUpperCase()}${method.slice(1)}`;
-        (new LogController(logDir))[method]();
-    });
+// program
+//     .command('log <method>')
+//     .description('ログ関連タスク')
+//     .action((method) => {
+//         let logDir = `${__dirname}/../../logs/${env}/task/Log${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+//         (new LogController(logDir))[method]();
+//     });
 
 // program
 //   .command('*')
