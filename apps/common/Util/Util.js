@@ -1,6 +1,6 @@
 "use strict";
 const crypto = require("crypto");
-const fs = require("fs-extra");
+// import fs = require('fs-extra');
 const log4js = require("log4js");
 const uniqid = require("uniqid");
 /**
@@ -25,30 +25,31 @@ class Util {
      * @param {string} paymentNo 購入番号
      */
     static getReservationLogger(paymentNo, cb) {
-        let env = process.env.NODE_ENV || 'dev';
-        let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.substr(-1)}`;
-        fs.mkdirs(logDir, (err) => {
-            if (err)
-                return cb(err, null);
-            log4js.configure({
-                appenders: [
-                    {
-                        category: 'reservation',
-                        type: 'file',
-                        filename: `${logDir}/${paymentNo}.log`,
-                        pattern: '-yyyy-MM-dd'
-                    },
-                    {
-                        type: 'console'
-                    }
-                ],
-                levels: {
-                    reserve: 'ALL'
-                },
-                replaceConsole: true
-            });
-            cb(null, log4js.getLogger('reservation'));
-        });
+        // TODO 購入ログの出力方法を、ローカルファイルロガー以外で新たに考える
+        cb(null, log4js.getLogger('system'));
+        // let env = process.env.NODE_ENV || 'dev';
+        // let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.substr(-1)}`;
+        // fs.mkdirs(logDir, (err) => {
+        //     if (err) return cb(err, null);
+        //     log4js.configure({
+        //         appenders: [
+        //             {
+        //                 category: 'reservation',
+        //                 type: 'file',
+        //                 filename: `${logDir}/${paymentNo}.log`,
+        //                 pattern: '-yyyy-MM-dd'
+        //             },
+        //             {
+        //                 type: 'console'
+        //             }
+        //         ],
+        //         levels: {
+        //             reserve: 'ALL'
+        //         },
+        //         replaceConsole: true
+        //     });
+        //     cb(null, log4js.getLogger('reservation'));
+        // });
     }
     /**
      * ハッシュ値を作成する

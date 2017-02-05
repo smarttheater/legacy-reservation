@@ -1,5 +1,5 @@
 import crypto = require('crypto');
-import fs = require('fs-extra');
+// import fs = require('fs-extra');
 import log4js = require('log4js');
 import uniqid = require('uniqid');
 
@@ -26,32 +26,35 @@ export default class Util {
      * @param {string} paymentNo 購入番号
      */
     public static getReservationLogger(paymentNo: string, cb: (err: Error, logger: log4js.Logger) => void) {
-        let env = process.env.NODE_ENV || 'dev';
-        let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.substr(-1)}`;
+        // TODO 購入ログの出力方法を、ローカルファイルロガー以外で新たに考える
+        cb(null, log4js.getLogger('system'));
 
-        fs.mkdirs(logDir, (err) => {
-            if (err) return cb(err, null);
+        // let env = process.env.NODE_ENV || 'dev';
+        // let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.substr(-1)}`;
 
-            log4js.configure({
-                appenders: [
-                    {
-                        category: 'reservation',
-                        type: 'file',
-                        filename: `${logDir}/${paymentNo}.log`,
-                        pattern: '-yyyy-MM-dd'
-                    },
-                    {
-                        type: 'console'
-                    }
-                ],
-                levels: {
-                    reserve: 'ALL'
-                },
-                replaceConsole: true
-            });
+        // fs.mkdirs(logDir, (err) => {
+        //     if (err) return cb(err, null);
 
-            cb(null, log4js.getLogger('reservation'));
-        });
+        //     log4js.configure({
+        //         appenders: [
+        //             {
+        //                 category: 'reservation',
+        //                 type: 'file',
+        //                 filename: `${logDir}/${paymentNo}.log`,
+        //                 pattern: '-yyyy-MM-dd'
+        //             },
+        //             {
+        //                 type: 'console'
+        //             }
+        //         ],
+        //         levels: {
+        //             reserve: 'ALL'
+        //         },
+        //         replaceConsole: true
+        //     });
+
+        //     cb(null, log4js.getLogger('reservation'));
+        // });
     }
 
     /**

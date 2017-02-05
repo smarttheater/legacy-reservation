@@ -1,5 +1,5 @@
 "use strict";
-const fs = require("fs-extra");
+// import fs = require('fs-extra');
 const log4js = require("log4js");
 /**
  * ベースコントローラー
@@ -11,15 +11,13 @@ class BaseController {
      * @param {string} ログディレクトリ
      */
     constructor(logDir) {
-        fs.mkdirsSync(logDir);
+        // TDOO ログ出力方法考える
+        // fs.mkdirsSync(logDir);
         log4js.configure({
             appenders: [
                 {
                     category: 'system',
-                    type: 'dateFile',
-                    filename: `${logDir}/system.log`,
-                    pattern: '-yyyy-MM-dd',
-                    backups: 3
+                    type: 'console',
                 },
                 {
                     type: 'console'

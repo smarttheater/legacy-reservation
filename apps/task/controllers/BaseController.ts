@@ -1,4 +1,4 @@
-import fs = require('fs-extra');
+// import fs = require('fs-extra');
 import log4js = require('log4js');
 
 /**
@@ -15,15 +15,17 @@ export default class BaseController
      * @param {string} ログディレクトリ
      */
     constructor(logDir: string) {
-        fs.mkdirsSync(logDir);
+        // TDOO ログ出力方法考える
+        // fs.mkdirsSync(logDir);
         log4js.configure({
             appenders: [
                 {
                     category: 'system',
-                    type: 'dateFile',
-                    filename: `${logDir}/system.log`,
-                    pattern: '-yyyy-MM-dd',
-                    backups: 3
+                    type: 'console',
+                    // type: 'dateFile',
+                    // filename: `${logDir}/system.log`,
+                    // pattern: '-yyyy-MM-dd',
+                    // backups: 3
                 },
                 {
                     type: 'console'

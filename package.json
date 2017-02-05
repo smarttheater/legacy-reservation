@@ -74,8 +74,8 @@
   "author": "Tetsu Yamazaki <yamazaki@motionpicture.jp>",
   "license": "UNLICENSED",
   "engines": {
-    "node": ">=6.5.0",
-    "npm": ">=3.10.0"
+    "node": ">=7.4.0",
+    "npm": ">=4.0.0"
   },
   "description": "This is a repogitory for TTTS online website."
 }

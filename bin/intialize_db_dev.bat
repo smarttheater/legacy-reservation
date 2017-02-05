@@ -9,7 +9,6 @@ node bin/command film createFromJson
 node bin/command theater createFromJson
 node bin/command theater createScreensFromJson
 node bin/command performance createFromJson
-node bin/command reservation reset
 
 node bin/command member createFromJson
 node bin/command sponsor createFromJson

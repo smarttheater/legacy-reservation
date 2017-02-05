@@ -109,6 +109,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             // 外部関係者による予約数を取得
+            // TODO ローカルファイルロック以外の方法を考える
             let lockPath = `${__dirname}/../../../../../lock/SponsorFixSeats${this.req.sponsorUser.get('_id')}.lock`;
             lockFile.lock(lockPath, {wait: 5000}, (err) => {
 
