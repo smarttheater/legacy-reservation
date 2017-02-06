@@ -1,7 +1,7 @@
 "use strict";
 const ReserveBaseController_1 = require("../../../ReserveBaseController");
-const Models_1 = require("../../../../../common/models/Models");
-const ReservationUtil_1 = require("../../../../../common/models/Reservation/ReservationUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const crypto = require("crypto");
 class GMOReserveCreditController extends ReserveBaseController_1.default {
@@ -25,7 +25,7 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
         };
         // 内容の整合性チェック
         this.logger.info('finding reservations...payment_no:', gmoResultModel.OrderID);
-        Models_1.default.Reservation.find({
+        ttts_domain_1.Models.Reservation.find({
             payment_no: gmoResultModel.OrderID
         }, '_id purchaser_group pre_customer', (err, reservations) => {
             this.logger.info('reservations found.', err, reservations.length);
@@ -52,7 +52,7 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                 // 購入者区分による振り分け
                 let group = reservations[0].get('purchaser_group');
                 switch (group) {
-                    case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
+                    case ttts_domain_2.ReservationUtil.PURCHASER_GROUP_MEMBER:
                         this.res.redirect(this.router.build('member.reserve.complete', { paymentNo: gmoResultModel.OrderID }));
                         break;
                     default:

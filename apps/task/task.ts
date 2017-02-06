@@ -11,7 +11,6 @@ import ReservationController from './controllers/Reservation/ReservationControll
 import SchemaController from './controllers/Schema/SchemaController';
 import TelController from './controllers/Tel/TelController';
 import WindowController from './controllers/Window/WindowController';
-// import LogController from './controllers/Log/LogController';
 import PreCustomerController from './controllers/PreCustomer/PreCustomerController';
 import GMOController from './controllers/GMO/GMOController';
 import ReservationEmailCueController from './controllers/ReservationEmailCue/ReservationEmailCueController';

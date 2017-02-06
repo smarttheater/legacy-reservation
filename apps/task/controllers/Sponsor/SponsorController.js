@@ -1,7 +1,7 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
 const Util_1 = require("../../../common/Util/Util");
-const Models_1 = require("../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const mongoose = require("mongoose");
 const fs = require("fs-extra");
@@ -21,7 +21,7 @@ class SponsorController extends BaseController_1.default {
                 sponsor['password_hash'] = Util_1.default.createHash(sponsor.password, password_salt);
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating sponsor...');
-                    Models_1.default.Sponsor.findOneAndUpdate({
+                    ttts_domain_1.Models.Sponsor.findOneAndUpdate({
                         user_id: sponsor.user_id
                     }, sponsor, {
                         new: true,

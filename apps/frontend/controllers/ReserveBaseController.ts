@@ -1,11 +1,8 @@
 import BaseController from './BaseController';
 import Util from '../../common/Util/Util';
 import GMOUtil from '../../common/Util/GMO/GMOUtil';
-import ReservationUtil from '../../common/models/Reservation/ReservationUtil';
-import ScreenUtil from '../../common/models/Screen/ScreenUtil';
-import TicketTypeGroupUtil from '../../common/models/TicketTypeGroup/TicketTypeGroupUtil';
-import ReservationEmailCueUtil from '../../common/models/ReservationEmailCue/ReservationEmailCueUtil';
-import Models from '../../common/models/Models';
+import {ReservationUtil, ScreenUtil, TicketTypeGroupUtil, ReservationEmailCueUtil} from "@motionpicture/ttts-domain";
+import {Models} from "@motionpicture/ttts-domain";
 import ReservationModel from '../models/Reserve/ReservationModel';
 import moment = require('moment');
 import fs = require('fs-extra');

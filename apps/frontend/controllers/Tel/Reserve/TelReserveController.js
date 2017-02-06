@@ -3,16 +3,16 @@ const ReserveBaseController_1 = require("../../ReserveBaseController");
 const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
-const Models_1 = require("../../../../common/models/Models");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
-const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
-const FilmUtil_1 = require("../../../../common/models/Film/FilmUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const ttts_domain_3 = require("@motionpicture/ttts-domain");
+const ttts_domain_4 = require("@motionpicture/ttts-domain");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const moment = require("moment");
 class TelReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_TEL;
+        this.purchaserGroup = ttts_domain_2.ReservationUtil.PURCHASER_GROUP_TEL;
         this.layout = 'layouts/tel/layout';
     }
     start() {
@@ -20,7 +20,7 @@ class TelReserveController extends ReserveBaseController_1.default {
             if (err)
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
             // 購入番号発行(確認画面でペイデザイン川にコピーする際に必要になるので、事前に発行しておく)
-            ReservationUtil_1.default.publishPaymentNo((err, paymentNo) => {
+            ttts_domain_2.ReservationUtil.publishPaymentNo((err, paymentNo) => {
                 if (err)
                     return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 reservationModel.paymentNo = paymentNo;
@@ -79,7 +79,7 @@ class TelReserveController extends ReserveBaseController_1.default {
                 this.processCancelSeats(reservationModel, (err, reservationModel) => {
                     reservationModel.save(() => {
                         this.res.render('tel/reserve/performances', {
-                            FilmUtil: FilmUtil_1.default
+                            FilmUtil: ttts_domain_4.FilmUtil
                         });
                     });
                 });
@@ -224,10 +224,10 @@ class TelReserveController extends ReserveBaseController_1.default {
                     }
                     else {
                         // 予約確定
-                        Models_1.default.Reservation.update({
+                        ttts_domain_1.Models.Reservation.update({
                             payment_no: reservationModel.paymentNo
                         }, {
-                            status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN
+                            status: ttts_domain_2.ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN
                         }, {
                             multi: true
                         }, (err, raw) => {
@@ -257,9 +257,9 @@ class TelReserveController extends ReserveBaseController_1.default {
      */
     complete() {
         let paymentNo = this.req.params.paymentNo;
-        Models_1.default.Reservation.find({
+        ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
-            status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN,
+            status: ttts_domain_2.ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN,
             tel_staff: this.req.telStaffUser.get('_id'),
             purchased_at: {
                 $gt: moment().add(-30, 'minutes').toISOString()
@@ -270,7 +270,7 @@ class TelReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ScreenUtil_1.default.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return ttts_domain_3.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('tel/reserve/complete', {
                 reservationDocuments: reservations

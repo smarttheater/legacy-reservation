@@ -1,5 +1,5 @@
 import BaseController from '../BaseController';
-import Models from '../../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 
 export default class SendGridController extends BaseController {
     /**

@@ -2,8 +2,8 @@
 const ReserveBaseController_1 = require("../../ReserveBaseController");
 const Util_1 = require("../../../../common/Util/Util");
 const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
-const Models_1 = require("../../../../common/models/Models");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const GMOResultModel_1 = require("../../../models/Reserve/GMOResultModel");
 const moment = require("moment");
@@ -106,7 +106,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
             if (gmoResultModel.ErrCode) {
                 // 空席に戻す
                 this.logger.info('finding reservations...payment_no:', paymentNo);
-                Models_1.default.Reservation.find({
+                ttts_domain_1.Models.Reservation.find({
                     payment_no: paymentNo
                 }, 'gmo_shop_pass_string purchased_at', (err, reservations) => {
                     this.logger.info('reservations found.', err, reservations.length);
@@ -145,14 +145,14 @@ class GMOReserveController extends ReserveBaseController_1.default {
      */
     cancel() {
         let paymentNo = this.req.params.paymentNo;
-        if (!ReservationUtil_1.default.isValidPaymentNo(paymentNo))
+        if (!ttts_domain_2.ReservationUtil.isValidPaymentNo(paymentNo))
             return this.next(new Error(this.req.__('Message.Invalid')));
         this.setProcessLogger(paymentNo, () => {
             this.logger.info('start process GMOReserveController.cancel.');
             this.logger.info('finding reservations...');
-            Models_1.default.Reservation.find({
+            ttts_domain_1.Models.Reservation.find({
                 payment_no: paymentNo,
-                status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
+                status: ttts_domain_2.ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
             }, 'purchaser_group').exec((err, reservations) => {
                 this.logger.info('reservations found.', err, reservations);
                 if (err)

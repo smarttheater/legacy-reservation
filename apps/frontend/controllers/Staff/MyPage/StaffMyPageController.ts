@@ -1,8 +1,8 @@
 import BaseController from '../../BaseController';
 import Util from '../../../../common/Util/Util';
-import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
-import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
-import Models from '../../../../common/models/Models';
+import {ReservationUtil} from "@motionpicture/ttts-domain";
+import {ScreenUtil} from "@motionpicture/ttts-domain";
+import {Models} from "@motionpicture/ttts-domain";
 
 export default class StaffMyPageController extends BaseController {
     public layout = 'layouts/staff/layout';

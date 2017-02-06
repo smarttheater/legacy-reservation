@@ -3,10 +3,10 @@ const ReserveBaseController_1 = require("../../ReserveBaseController");
 const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
-const Models_1 = require("../../../../common/models/Models");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
-const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
-const FilmUtil_1 = require("../../../../common/models/Film/FilmUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const ttts_domain_3 = require("@motionpicture/ttts-domain");
+const ttts_domain_4 = require("@motionpicture/ttts-domain");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const lockFile = require("lockfile");
 const moment = require("moment");
@@ -14,7 +14,7 @@ const conf = require("config");
 class PreCustomerReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER;
+        this.purchaserGroup = ttts_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
         this.layout = 'layouts/preCustomer/layout';
     }
     start() {
@@ -64,14 +64,14 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                 reservationModel.save(() => {
                     // 1.5次販売アカウントによる予約数を取得
                     // 決済中ステータスは含めない
-                    Models_1.default.Reservation.count({
+                    ttts_domain_1.Models.Reservation.count({
                         $and: [
                             { pre_customer: this.req.preCustomerUser.get('_id') },
                             {
                                 $or: [
-                                    { status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_RESERVED] } },
+                                    { status: { $in: [ttts_domain_2.ReservationUtil.STATUS_TEMPORARY, ttts_domain_2.ReservationUtil.STATUS_RESERVED] } },
                                     {
-                                        status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
+                                        status: ttts_domain_2.ReservationUtil.STATUS_WAITING_SETTLEMENT,
                                         gmo_payment_term: { $exists: true }
                                     },
                                 ]
@@ -104,7 +104,7 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                         }
                         else {
                             this.res.render('preCustomer/reserve/performances', {
-                                FilmUtil: FilmUtil_1.default,
+                                FilmUtil: ttts_domain_4.FilmUtil,
                                 reservableCount: reservableCount
                             });
                         }
@@ -125,14 +125,14 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             // 決済中ステータスは含めない
             let lockPath = `${__dirname}/../../../../../lock/PreCustomerFixSeats${this.req.preCustomerUser.get('_id')}.lock`;
             lockFile.lock(lockPath, { wait: 5000 }, (err) => {
-                Models_1.default.Reservation.count({
+                ttts_domain_1.Models.Reservation.count({
                     $and: [
                         { pre_customer: this.req.preCustomerUser.get('_id') },
                         {
                             $or: [
-                                { status: { $in: [ReservationUtil_1.default.STATUS_TEMPORARY, ReservationUtil_1.default.STATUS_RESERVED] } },
+                                { status: { $in: [ttts_domain_2.ReservationUtil.STATUS_TEMPORARY, ttts_domain_2.ReservationUtil.STATUS_RESERVED] } },
                                 {
-                                    status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
+                                    status: ttts_domain_2.ReservationUtil.STATUS_WAITING_SETTLEMENT,
                                     gmo_payment_term: { $exists: true }
                                 },
                             ]
@@ -317,10 +317,10 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
      */
     waitingSettlement() {
         let paymentNo = this.req.params.paymentNo;
-        Models_1.default.Reservation.find({
+        ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
             purchaser_group: this.purchaserGroup,
-            status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
+            status: ttts_domain_2.ReservationUtil.STATUS_WAITING_SETTLEMENT,
             purchased_at: {
                 $gt: moment().add(-30, 'minutes').toISOString()
             }
@@ -330,7 +330,7 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ScreenUtil_1.default.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return ttts_domain_3.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('preCustomer/reserve/waitingSettlement', {
                 reservationDocuments: reservations
@@ -342,9 +342,9 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
      */
     complete() {
         let paymentNo = this.req.params.paymentNo;
-        Models_1.default.Reservation.find({
+        ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
-            status: ReservationUtil_1.default.STATUS_RESERVED,
+            status: ttts_domain_2.ReservationUtil.STATUS_RESERVED,
             purchased_at: {
                 $gt: moment().add(-30, 'minutes').toISOString()
             }
@@ -354,7 +354,7 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ScreenUtil_1.default.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return ttts_domain_3.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('preCustomer/reserve/complete', {
                 reservationDocuments: reservations

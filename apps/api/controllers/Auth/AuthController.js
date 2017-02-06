@@ -1,6 +1,6 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
-const Models_1 = require("../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 class AuthController extends BaseController_1.default {
     /**
      * ログイン
@@ -8,7 +8,7 @@ class AuthController extends BaseController_1.default {
     login() {
         let util = require('../../../common/Util/Util');
         let token = util.createToken();
-        Models_1.default.Authentication.findOneAndUpdate({
+        ttts_domain_1.Models.Authentication.findOneAndUpdate({
             mvtk_kiin_cd: '00000775' // テスト用会員コード
         }, {
             token: token,

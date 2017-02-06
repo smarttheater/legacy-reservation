@@ -1,9 +1,9 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
-const Models_1 = require("../../../common/models/Models");
-const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
-const ReservationEmailCueUtil_1 = require("../../../common/models/ReservationEmailCue/ReservationEmailCueUtil");
-const GMONotificationUtil_1 = require("../../../common/models/GMONotification/GMONotificationUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const ttts_domain_3 = require("@motionpicture/ttts-domain");
+const ttts_domain_4 = require("@motionpicture/ttts-domain");
 const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
 const mongoose = require("mongoose");
 const conf = require("config");
@@ -33,10 +33,10 @@ class GMOController extends BaseController_1.default {
         this.logger.info('finding notification...');
         let db4gmo = mongoose.createConnection(MONGOLAB_URI_FOR_GMO);
         db4gmo.collection('gmo_notifications').findOneAndUpdate({
-            process_status: GMONotificationUtil_1.default.PROCESS_STATUS_UNPROCESSED
+            process_status: ttts_domain_4.GMONotificationUtil.PROCESS_STATUS_UNPROCESSED
         }, {
             $set: {
-                process_status: GMONotificationUtil_1.default.PROCESS_STATUS_PROCESSING
+                process_status: ttts_domain_4.GMONotificationUtil.PROCESS_STATUS_PROCESSING
             }
         }, ((err, result) => {
             db4gmo.close();
@@ -48,7 +48,7 @@ class GMOController extends BaseController_1.default {
                 return this.next(null, notification, cb);
             // 内容の整合性チェック
             this.logger.info('finding reservations...payment_no:', notification.order_id);
-            Models_1.default.Reservation.find({
+            ttts_domain_1.Models.Reservation.find({
                 payment_no: notification.order_id
             }, (err, reservations) => {
                 this.logger.info('reservations found.', err, reservations.length);
@@ -69,7 +69,7 @@ class GMOController extends BaseController_1.default {
                         case GMOUtil_1.default.STATUS_CREDIT_CAPTURE:
                             // 予約完了ステータスへ変更
                             this.logger.info('updating reservations by paymentNo...', notification.order_id);
-                            Models_1.default.Reservation.update({ payment_no: notification.order_id }, {
+                            ttts_domain_1.Models.Reservation.update({ payment_no: notification.order_id }, {
                                 gmo_shop_id: notification.shop_id,
                                 gmo_amount: notification.amount,
                                 gmo_tax: notification.tax,
@@ -81,7 +81,7 @@ class GMOController extends BaseController_1.default {
                                 gmo_tran_date: notification.tran_date,
                                 gmo_pay_type: notification.pay_type,
                                 gmo_status: notification.status,
-                                status: ReservationUtil_1.default.STATUS_RESERVED,
+                                status: ttts_domain_2.ReservationUtil.STATUS_RESERVED,
                                 updated_user: 'system'
                             }, { multi: true }, (err, raw) => {
                                 this.logger.info('reservations updated.', err, raw);
@@ -89,12 +89,12 @@ class GMOController extends BaseController_1.default {
                                     return this.next(err, notification, cb);
                                 // 完了メールキュー追加(あれば更新日時を更新するだけ)
                                 this.logger.info('creating reservationEmailCue...');
-                                Models_1.default.ReservationEmailCue.findOneAndUpdate({
+                                ttts_domain_1.Models.ReservationEmailCue.findOneAndUpdate({
                                     payment_no: notification.order_id,
-                                    template: ReservationEmailCueUtil_1.default.TEMPLATE_COMPLETE,
+                                    template: ttts_domain_3.ReservationEmailCueUtil.TEMPLATE_COMPLETE,
                                 }, {
                                     $set: { updated_at: Date.now() },
-                                    $setOnInsert: { status: ReservationEmailCueUtil_1.default.STATUS_UNSENT }
+                                    $setOnInsert: { status: ttts_domain_3.ReservationEmailCueUtil.STATUS_UNSENT }
                                 }, {
                                     upsert: true,
                                     new: true
@@ -145,8 +145,8 @@ class GMOController extends BaseController_1.default {
                         case GMOUtil_1.default.STATUS_CVS_PAYSUCCESS:
                             // 予約完了ステータスへ変更
                             this.logger.info('updating reservations by paymentNo...', notification.order_id);
-                            Models_1.default.Reservation.update({ payment_no: notification.order_id }, {
-                                status: ReservationUtil_1.default.STATUS_RESERVED,
+                            ttts_domain_1.Models.Reservation.update({ payment_no: notification.order_id }, {
+                                status: ttts_domain_2.ReservationUtil.STATUS_RESERVED,
                                 updated_user: 'system'
                             }, { multi: true }, (err, raw) => {
                                 this.logger.info('reservations updated.', err, raw);
@@ -154,12 +154,12 @@ class GMOController extends BaseController_1.default {
                                     return this.next(err, notification, cb);
                                 // 完了メールキュー追加(あれば更新日時を更新するだけ)
                                 this.logger.info('creating reservationEmailCue...');
-                                Models_1.default.ReservationEmailCue.findOneAndUpdate({
+                                ttts_domain_1.Models.ReservationEmailCue.findOneAndUpdate({
                                     payment_no: notification.order_id,
-                                    template: ReservationEmailCueUtil_1.default.TEMPLATE_COMPLETE,
+                                    template: ttts_domain_3.ReservationEmailCueUtil.TEMPLATE_COMPLETE,
                                 }, {
                                     $set: { updated_at: Date.now() },
-                                    $setOnInsert: { status: ReservationEmailCueUtil_1.default.STATUS_UNSENT }
+                                    $setOnInsert: { status: ttts_domain_3.ReservationEmailCueUtil.STATUS_UNSENT }
                                 }, {
                                     upsert: true,
                                     new: true
@@ -175,7 +175,7 @@ class GMOController extends BaseController_1.default {
                         case GMOUtil_1.default.STATUS_CVS_REQSUCCESS:
                             // GMOパラメータを予約に追加
                             this.logger.info('updating reservations by paymentNo...', notification.order_id);
-                            Models_1.default.Reservation.update({ payment_no: notification.order_id }, {
+                            ttts_domain_1.Models.Reservation.update({ payment_no: notification.order_id }, {
                                 gmo_shop_id: notification.shop_id,
                                 gmo_amount: notification.amount,
                                 gmo_tax: notification.tax,
@@ -190,12 +190,12 @@ class GMOController extends BaseController_1.default {
                                     return this.next(err, notification, cb);
                                 // 仮予約完了メールキュー追加(あれば更新日時を更新するだけ)
                                 this.logger.info('creating reservationEmailCue...');
-                                Models_1.default.ReservationEmailCue.findOneAndUpdate({
+                                ttts_domain_1.Models.ReservationEmailCue.findOneAndUpdate({
                                     payment_no: notification.order_id,
-                                    template: ReservationEmailCueUtil_1.default.TEMPLATE_TEMPORARY,
+                                    template: ttts_domain_3.ReservationEmailCueUtil.TEMPLATE_TEMPORARY,
                                 }, {
                                     $set: { updated_at: Date.now() },
-                                    $setOnInsert: { status: ReservationEmailCueUtil_1.default.STATUS_UNSENT }
+                                    $setOnInsert: { status: ttts_domain_3.ReservationEmailCueUtil.STATUS_UNSENT }
                                 }, {
                                     upsert: true,
                                     new: true
@@ -233,18 +233,18 @@ class GMOController extends BaseController_1.default {
                             break;
                         case GMOUtil_1.default.STATUS_CVS_EXPIRED:
                             // 内部で確保する仕様の場合
-                            Models_1.default.Staff.findOne({
+                            ttts_domain_1.Models.Staff.findOne({
                                 user_id: "2016sagyo2"
                             }, (err, staff) => {
                                 this.logger.info('staff found.', err, staff);
                                 if (err)
                                     return this.next(err, notification, cb);
                                 this.logger.info('updating reservations...');
-                                Models_1.default.Reservation.update({
+                                ttts_domain_1.Models.Reservation.update({
                                     payment_no: notification.order_id
                                 }, {
-                                    "status": ReservationUtil_1.default.STATUS_RESERVED,
-                                    "purchaser_group": ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
+                                    "status": ttts_domain_2.ReservationUtil.STATUS_RESERVED,
+                                    "purchaser_group": ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF,
                                     "charge": 0,
                                     "ticket_type_charge": 0,
                                     "ticket_type_name_en": "Free",
@@ -289,7 +289,7 @@ class GMOController extends BaseController_1.default {
     next(err, notification, cb) {
         if (!notification)
             return cb();
-        let status = (err) ? GMONotificationUtil_1.default.PROCESS_STATUS_UNPROCESSED : GMONotificationUtil_1.default.PROCESS_STATUS_PROCESSED;
+        let status = (err) ? ttts_domain_4.GMONotificationUtil.PROCESS_STATUS_UNPROCESSED : ttts_domain_4.GMONotificationUtil.PROCESS_STATUS_PROCESSED;
         // processedフラグをたてる
         this.logger.info('setting process_status...', status);
         let db4gmo = mongoose.createConnection(MONGOLAB_URI_FOR_GMO);

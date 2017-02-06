@@ -1,7 +1,6 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
-const Models_1 = require("../../../common/models/Models");
-const PerformanceStatusesModel_1 = require("../../../common/models/PerformanceStatusesModel");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const moment = require("moment");
 const conf = require("config");
 class PerformanceController extends BaseController_1.default {
@@ -64,7 +63,7 @@ class PerformanceController extends BaseController_1.default {
                 };
             }
             // 作品件数取得
-            Models_1.default.Performance.distinct('film', conditions, (err, filmIds) => {
+            ttts_domain_1.Models.Performance.distinct('film', conditions, (err, filmIds) => {
                 if (err) {
                     return this.res.json({
                         success: false,
@@ -74,7 +73,7 @@ class PerformanceController extends BaseController_1.default {
                     });
                 }
                 // 総数検索
-                Models_1.default.Performance.count(conditions, (err, performances_count) => {
+                ttts_domain_1.Models.Performance.count(conditions, (err, performances_count) => {
                     if (err) {
                         return this.res.json({
                             success: false,
@@ -91,7 +90,7 @@ class PerformanceController extends BaseController_1.default {
                     else {
                         fields = 'day open_time start_time film screen screen_name.en theater theater_name.en';
                     }
-                    let query = Models_1.default.Performance.find(conditions, fields);
+                    let query = ttts_domain_1.Models.Performance.find(conditions, fields);
                     if (limit) {
                         query.skip(limit * (page - 1)).limit(limit);
                     }
@@ -118,7 +117,7 @@ class PerformanceController extends BaseController_1.default {
                             });
                         }
                         // 空席情報を追加
-                        PerformanceStatusesModel_1.default.find((err, performanceStatusesModel) => {
+                        ttts_domain_1.PerformanceStatusesModel.find((err, performanceStatusesModel) => {
                             let results = performances.map((performance) => {
                                 return {
                                     _id: performance['_id'],
@@ -178,7 +177,7 @@ class PerformanceController extends BaseController_1.default {
             let filmConditions = {
                 $and: filmAndConditions
             };
-            Models_1.default.Film.distinct('_id', filmConditions, (err, filmIds) => {
+            ttts_domain_1.Models.Film.distinct('_id', filmConditions, (err, filmIds) => {
                 if (err) {
                     // 検索結果のない条件を追加
                     andConditions.push({

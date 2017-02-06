@@ -1,9 +1,9 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
 const Util_1 = require("../../../common/Util/Util");
-const Models_1 = require("../../../common/models/Models");
-const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
-const ReservationEmailCueUtil_1 = require("../../../common/models/ReservationEmailCue/ReservationEmailCueUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const ttts_domain_3 = require("@motionpicture/ttts-domain");
 const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
 const moment = require("moment");
 const conf = require("config");
@@ -35,10 +35,10 @@ class ReservationEmailCueController extends BaseController_1.default {
      */
     sendOne(cb) {
         this.logger.info('finding reservationEmailCue...');
-        Models_1.default.ReservationEmailCue.findOneAndUpdate({
-            status: ReservationEmailCueUtil_1.default.STATUS_UNSENT
+        ttts_domain_1.Models.ReservationEmailCue.findOneAndUpdate({
+            status: ttts_domain_3.ReservationEmailCueUtil.STATUS_UNSENT
         }, {
-            status: ReservationEmailCueUtil_1.default.STATUS_SENDING
+            status: ttts_domain_3.ReservationEmailCueUtil.STATUS_SENDING
         }, { new: true }, (err, cue) => {
             this.logger.info('reservationEmailCue found.', err, cue);
             if (err)
@@ -49,7 +49,7 @@ class ReservationEmailCueController extends BaseController_1.default {
             Util_1.default.getReservationLogger(cue.get('payment_no'), (err, _logger) => {
                 if (err)
                     return this.next(err, cue, this.logger, cb);
-                Models_1.default.Reservation.find({
+                ttts_domain_1.Models.Reservation.find({
                     payment_no: cue.get('payment_no')
                 }, (err, reservations) => {
                     _logger.info('reservations for email found.', err, reservations.length);
@@ -59,7 +59,7 @@ class ReservationEmailCueController extends BaseController_1.default {
                         return this.next(null, cue, _logger, cb);
                     let to = '';
                     switch (reservations[0].get('purchaser_group')) {
-                        case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
+                        case ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF:
                             to = reservations[0].get('staff_email');
                             break;
                         default:
@@ -76,7 +76,7 @@ class ReservationEmailCueController extends BaseController_1.default {
                     let title_ja;
                     let title_en;
                     switch (cue.get('template')) {
-                        case ReservationEmailCueUtil_1.default.TEMPLATE_COMPLETE:
+                        case ttts_domain_3.ReservationEmailCueUtil.TEMPLATE_COMPLETE:
                             // 1.5次販売はメールテンプレート別
                             if (reservations[0].get('pre_customer')) {
                                 dir = `${process.cwd()}/apps/task/views/email/reserve/complete4preCustomer`;
@@ -89,7 +89,7 @@ class ReservationEmailCueController extends BaseController_1.default {
                                 title_en = 'Notice of Completion of TTTS Ticket Purchase';
                             }
                             break;
-                        case ReservationEmailCueUtil_1.default.TEMPLATE_TEMPORARY:
+                        case ttts_domain_3.ReservationEmailCueUtil.TEMPLATE_TEMPORARY:
                             // 1.5次販売はメールテンプレート別
                             if (reservations[0].get('pre_customer')) {
                                 dir = `${process.cwd()}/apps/task/views/email/reserve/waitingSettlement4preCustomer`;
@@ -114,7 +114,7 @@ class ReservationEmailCueController extends BaseController_1.default {
                         numeral: numeral,
                         conf: conf,
                         GMOUtil: GMOUtil_1.default,
-                        ReservationUtil: ReservationUtil_1.default
+                        ReservationUtil: ttts_domain_2.ReservationUtil
                     };
                     _logger.info('rendering template...dir:', dir);
                     template.render(locals, (err, result) => {
@@ -130,7 +130,7 @@ class ReservationEmailCueController extends BaseController_1.default {
                             html: result.html
                         });
                         // 完了の場合、QRコードを添付
-                        if (cue.get('template') === ReservationEmailCueUtil_1.default.TEMPLATE_COMPLETE) {
+                        if (cue.get('template') === ttts_domain_3.ReservationEmailCueUtil.TEMPLATE_COMPLETE) {
                             // add barcodes
                             for (let reservation of reservations) {
                                 let reservationId = reservation.get('_id').toString();
@@ -170,7 +170,7 @@ class ReservationEmailCueController extends BaseController_1.default {
     next(err, cue, logger, cb) {
         if (!cue)
             return cb();
-        let status = (err) ? ReservationEmailCueUtil_1.default.STATUS_UNSENT : ReservationEmailCueUtil_1.default.STATUS_SENT;
+        let status = (err) ? ttts_domain_3.ReservationEmailCueUtil.STATUS_UNSENT : ttts_domain_3.ReservationEmailCueUtil.STATUS_SENT;
         // 送信済みフラグを立てる
         logger.info('setting status...', status);
         cue.set('status', status);

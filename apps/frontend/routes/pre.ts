@@ -2,7 +2,7 @@ import express = require('express');
 
 import PreCustomerAuthController from '../controllers/PreCustomer/Auth/PreCustomerAuthController';
 import PreCustomerReserveController from '../controllers/PreCustomer/Reserve/PreCustomerReserveController';
-import Models from '../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 import Util from '../../common/Util/Util';
 
 import PreCustomerUser from '../models/User/PreCustomerUser';

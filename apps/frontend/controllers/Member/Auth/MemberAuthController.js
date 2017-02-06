@@ -1,7 +1,7 @@
 "use strict";
 const BaseController_1 = require("../../BaseController");
 const Util_1 = require("../../../../common/Util/Util");
-const Models_1 = require("../../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const moment = require("moment");
 const memberLoginForm_1 = require("../../../forms/member/memberLoginForm");
 const MemberUser_1 = require("../../../models/User/MemberUser");
@@ -28,7 +28,7 @@ class MemberAuthController extends BaseController_1.default {
                 if (this.req.form.isValid) {
                     // ユーザー認証
                     this.logger.debug('finding member... user_id:', this.req.form['userId']);
-                    Models_1.default.Member.findOne({
+                    ttts_domain_1.Models.Member.findOne({
                         user_id: this.req.form['userId']
                     }, (err, member) => {
                         if (err)

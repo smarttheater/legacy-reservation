@@ -3,10 +3,10 @@ import ReserveControllerInterface from '../../ReserveControllerInterface';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
-import Models from '../../../../common/models/Models';
-import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
-import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
-import FilmUtil from '../../../../common/models/Film/FilmUtil';
+import {Models} from "@motionpicture/ttts-domain";
+import {ReservationUtil} from "@motionpicture/ttts-domain";
+import {ScreenUtil} from "@motionpicture/ttts-domain";
+import {FilmUtil} from "@motionpicture/ttts-domain";
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import moment = require('moment');
 

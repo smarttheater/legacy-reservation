@@ -1,7 +1,7 @@
 "use strict";
 const BaseController_1 = require("../../BaseController");
-const Models_1 = require("../../../../common/models/Models");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const log4js = require("log4js");
 class TelCancelController extends BaseController_1.default {
     execute() {
@@ -10,9 +10,9 @@ class TelCancelController extends BaseController_1.default {
         let reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
             this.logger.info('removing reservation by tel_staff... tel:', this.req.telStaffUser.get('user_id'), 'reservationIds:', reservationIds);
-            Models_1.default.Reservation.remove({
+            ttts_domain_1.Models.Reservation.remove({
                 _id: { $in: reservationIds },
-                purchaser_group: { $ne: ReservationUtil_1.default.PURCHASER_GROUP_STAFF },
+                purchaser_group: { $ne: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF },
             }, (err) => {
                 this.logger.info('reservation removed by tel_staff.', err, 'tel:', this.req.telStaffUser.get('user_id'), 'reservationIds:', reservationIds);
                 if (err) {
@@ -47,19 +47,19 @@ class TelCancelController extends BaseController_1.default {
             this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
             return;
         }
-        Models_1.default.Staff.findOne({
+        ttts_domain_1.Models.Staff.findOne({
             user_id: "2016sagyo2"
         }, (err, staff) => {
             this.logger.info('staff found.', err, staff);
             if (err)
                 return this.res.json({ success: false, message: err.message });
             this.logger.info('updating reservations...');
-            Models_1.default.Reservation.update({
+            ttts_domain_1.Models.Reservation.update({
                 _id: { $in: reservationIds },
-                purchaser_group: { $ne: ReservationUtil_1.default.PURCHASER_GROUP_STAFF },
+                purchaser_group: { $ne: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF },
             }, {
-                "status": ReservationUtil_1.default.STATUS_RESERVED,
-                "purchaser_group": ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
+                "status": ttts_domain_2.ReservationUtil.STATUS_RESERVED,
+                "purchaser_group": ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF,
                 "charge": 0,
                 "ticket_type_charge": 0,
                 "ticket_type_name_en": "Free",

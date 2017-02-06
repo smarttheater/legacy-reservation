@@ -3,16 +3,16 @@ const ReserveBaseController_1 = require("../../ReserveBaseController");
 const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
-const Models_1 = require("../../../../common/models/Models");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
-const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
-const FilmUtil_1 = require("../../../../common/models/Film/FilmUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const ttts_domain_3 = require("@motionpicture/ttts-domain");
+const ttts_domain_4 = require("@motionpicture/ttts-domain");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const moment = require("moment");
 class WindowReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_WINDOW;
+        this.purchaserGroup = ttts_domain_2.ReservationUtil.PURCHASER_GROUP_WINDOW;
         this.layout = 'layouts/window/layout';
     }
     start() {
@@ -73,7 +73,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
                 this.processCancelSeats(reservationModel, (err, reservationModel) => {
                     reservationModel.save(() => {
                         this.res.render('window/reserve/performances', {
-                            FilmUtil: FilmUtil_1.default
+                            FilmUtil: ttts_domain_4.FilmUtil
                         });
                     });
                 });
@@ -245,9 +245,9 @@ class WindowReserveController extends ReserveBaseController_1.default {
      */
     complete() {
         let paymentNo = this.req.params.paymentNo;
-        Models_1.default.Reservation.find({
+        ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
-            status: ReservationUtil_1.default.STATUS_RESERVED,
+            status: ttts_domain_2.ReservationUtil.STATUS_RESERVED,
             window: this.req.windowUser.get('_id'),
             purchased_at: {
                 $gt: moment().add(-30, 'minutes').toISOString()
@@ -258,7 +258,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ScreenUtil_1.default.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return ttts_domain_3.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('window/reserve/complete', {
                 reservationDocuments: reservations

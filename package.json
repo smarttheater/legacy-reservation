@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./index.js"
+    "start": "node ./api.js"
   },
   "dependencies": {
+    "@motionpicture/ttts-domain": "^1.0.3",
     "@types/basic-auth": "0.0.30",
     "@types/body-parser": "0.0.33",
     "@types/commander": "^2.3.31",
@@ -44,7 +45,6 @@
     "fs-extra": "^0.28.0",
     "i18n": "^0.8.3",
     "jconv": "^0.1.5",
-    "jquery": "^2.2.4",
     "lockfile": "^1.0.1",
     "log4js": "^0.6.38",
     "moment": "^2.15.0",
@@ -62,8 +62,6 @@
     "sendgrid": "^2.0.0",
     "serve-favicon": "^2.3.0",
     "siege": "^0.2.0",
-    "typescript": "^2.0.3",
-    "typings": "^1.4.0",
     "uniqid": "^3.1.0",
     "validator": "^5.5.0"
   },

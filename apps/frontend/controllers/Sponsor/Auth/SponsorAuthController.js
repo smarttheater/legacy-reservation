@@ -3,7 +3,7 @@ const BaseController_1 = require("../../BaseController");
 const SponsorUser_1 = require("../../../models/User/SponsorUser");
 const sponsorLoginForm_1 = require("../../../forms/sponsor/sponsorLoginForm");
 const Util_1 = require("../../../../common/Util/Util");
-const Models_1 = require("../../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 class SponsorAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -22,7 +22,7 @@ class SponsorAuthController extends BaseController_1.default {
                 if (this.req.form.isValid) {
                     // ユーザー認証
                     this.logger.debug('finding sponsor... user_id:', this.req.form['userId']);
-                    Models_1.default.Sponsor.findOne({
+                    ttts_domain_1.Models.Sponsor.findOne({
                         user_id: this.req.form['userId']
                     }, (err, sponsor) => {
                         if (err)
@@ -42,7 +42,7 @@ class SponsorAuthController extends BaseController_1.default {
                                 let processRemember = (cb) => {
                                     if (this.req.form['remember']) {
                                         // トークン生成
-                                        Models_1.default.Authentication.create({
+                                        ttts_domain_1.Models.Authentication.create({
                                             token: Util_1.default.createToken(),
                                             sponsor: sponsor.get('_id'),
                                             locale: this.req.form['language']
@@ -82,7 +82,7 @@ class SponsorAuthController extends BaseController_1.default {
     }
     logout() {
         delete this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME];
-        Models_1.default.Authentication.remove({ token: this.req.cookies.remember_sponsor }, (err) => {
+        ttts_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_sponsor }, (err) => {
             this.res.clearCookie('remember_sponsor');
             this.res.redirect(this.router.build('sponsor.reserve.start'));
         });

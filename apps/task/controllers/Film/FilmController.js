@@ -1,6 +1,6 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
-const Models_1 = require("../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const mongoose = require("mongoose");
 const request = require("request");
@@ -14,11 +14,11 @@ class FilmController extends BaseController_1.default {
                 throw err;
             let groups = JSON.parse(data);
             this.logger.info('removing all groups...');
-            Models_1.default.TicketTypeGroup.remove({}, (err) => {
+            ttts_domain_1.Models.TicketTypeGroup.remove({}, (err) => {
                 if (err)
                     throw err;
                 this.logger.debug('creating groups...');
-                Models_1.default.TicketTypeGroup.create(groups, (err) => {
+                ttts_domain_1.Models.TicketTypeGroup.create(groups, (err) => {
                     this.logger.info('groups created.', err);
                     mongoose.disconnect();
                     process.exit(0);
@@ -35,7 +35,7 @@ class FilmController extends BaseController_1.default {
             let promises = films.map((film) => {
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating film...');
-                    Models_1.default.Film.findOneAndUpdate({
+                    ttts_domain_1.Models.Film.findOneAndUpdate({
                         _id: film._id
                     }, film, {
                         new: true,
@@ -62,7 +62,7 @@ class FilmController extends BaseController_1.default {
      */
     getImages() {
         mongoose.connect(MONGOLAB_URI, {});
-        Models_1.default.Film.find({}, 'name', { sort: { _id: 1 } }, (err, films) => {
+        ttts_domain_1.Models.Film.find({}, 'name', { sort: { _id: 1 } }, (err, films) => {
             if (err)
                 throw err;
             let next = (film) => {

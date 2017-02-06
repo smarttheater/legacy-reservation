@@ -12,9 +12,9 @@ const i18n = require("i18n");
 const passport = require("passport");
 const passportHttpBearer = require("passport-http-bearer");
 let BearerStrategy = passportHttpBearer.Strategy;
-const Models_1 = require("../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 passport.use(new BearerStrategy((token, cb) => {
-    Models_1.default.Authentication.findOne({
+    ttts_domain_1.Models.Authentication.findOne({
         token: token
     }, (err, authentication) => {
         if (err)

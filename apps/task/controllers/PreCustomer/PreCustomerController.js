@@ -1,7 +1,7 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
 const Util_1 = require("../../../common/Util/Util");
-const Models_1 = require("../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const mongodb = require("mongodb");
 const mongoose = require("mongoose");
@@ -42,11 +42,11 @@ class PreCustomerController extends BaseController_1.default {
                 preCustomer['password_hash'] = Util_1.default.createHash(preCustomer.password, password_salt);
                 return preCustomer;
             });
-            Models_1.default.PreCustomer.remove((err) => {
+            ttts_domain_1.Models.PreCustomer.remove((err) => {
                 if (err)
                     throw err;
                 this.logger.debug('creating perCustomers...length:', docs.length);
-                Models_1.default.PreCustomer.insertMany(docs, (err) => {
+                ttts_domain_1.Models.PreCustomer.insertMany(docs, (err) => {
                     this.logger.debug('perCustomers created.', err);
                     mongoose.disconnect();
                     process.exit(0);

@@ -1,7 +1,7 @@
 "use strict";
 const PreCustomerAuthController_1 = require("../controllers/PreCustomer/Auth/PreCustomerAuthController");
 const PreCustomerReserveController_1 = require("../controllers/PreCustomer/Reserve/PreCustomerReserveController");
-const Models_1 = require("../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const Util_1 = require("../../common/Util/Util");
 const PreCustomerUser_1 = require("../models/User/PreCustomerUser");
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -11,7 +11,7 @@ exports.default = (app) => {
             // 自動ログインチェック
             let checkRemember = (cb) => {
                 if (req.cookies.remember_pre_customer) {
-                    Models_1.default.Authentication.findOne({
+                    ttts_domain_1.Models.Authentication.findOne({
                         token: req.cookies.remember_pre_customer,
                         pre_customer: { $ne: null }
                     }, (err, authentication) => {
@@ -24,7 +24,7 @@ exports.default = (app) => {
                                 if (err)
                                     cb(null, null);
                                 res.cookie('remember_pre_customer', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                Models_1.default.PreCustomer.findOne({ _id: authentication.get('pre_customer') }, (err, preCustomer) => {
+                                ttts_domain_1.Models.PreCustomer.findOne({ _id: authentication.get('pre_customer') }, (err, preCustomer) => {
                                     cb(preCustomer, authentication.get('locale'));
                                 });
                             });

@@ -1,9 +1,8 @@
 import BaseController from '../BaseController';
-import Models from '../../../common/models/Models';
 import conf = require('config');
 import mongoose = require('mongoose');
 import fs = require('fs-extra');
-import PerformanceStatusesModel from '../../../common/models/PerformanceStatusesModel';
+import {Models, PerformanceStatusesModel} from "@motionpicture/ttts-domain";
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 

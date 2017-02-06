@@ -1,6 +1,6 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
-const Models_1 = require("../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const fs = require("fs-extra");
 class ScreenController extends BaseController_1.default {
     /**
@@ -8,7 +8,7 @@ class ScreenController extends BaseController_1.default {
      */
     show() {
         // スクリーンを取得
-        Models_1.default.Screen.count({
+        ttts_domain_1.Models.Screen.count({
             _id: this.req.params.id
         }, (err, count) => {
             if (err)

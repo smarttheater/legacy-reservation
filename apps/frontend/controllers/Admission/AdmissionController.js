@@ -1,8 +1,8 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
-const Models_1 = require("../../../common/models/Models");
-const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
-const FilmUtil_1 = require("../../../common/models/Film/FilmUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const ttts_domain_3 = require("@motionpicture/ttts-domain");
 class AdmissionController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -19,8 +19,8 @@ class AdmissionController extends BaseController_1.default {
         }
         else {
             // 劇場とスクリーンを取得
-            Models_1.default.Theater.find({}, 'name', (err, theaters) => {
-                Models_1.default.Screen.find({}, 'name theater', (err, screens) => {
+            ttts_domain_1.Models.Theater.find({}, 'name', (err, theaters) => {
+                ttts_domain_1.Models.Screen.find({}, 'name theater', (err, screens) => {
                     let screensByTheater = {};
                     for (let screen of screens) {
                         if (!screensByTheater.hasOwnProperty(screen.get('theater'))) {
@@ -29,7 +29,7 @@ class AdmissionController extends BaseController_1.default {
                         screensByTheater[screen.get('theater')].push(screen);
                     }
                     this.res.render('admission/performances', {
-                        FilmUtil: FilmUtil_1.default,
+                        FilmUtil: ttts_domain_3.FilmUtil,
                         theaters: theaters,
                         screensByTheater: screensByTheater
                     });
@@ -38,16 +38,16 @@ class AdmissionController extends BaseController_1.default {
         }
     }
     confirm() {
-        Models_1.default.Performance.findOne({ _id: this.req.params.id })
+        ttts_domain_1.Models.Performance.findOne({ _id: this.req.params.id })
             .populate('film', 'name')
             .populate('screen', 'name')
             .populate('theater', 'name')
             .exec((err, performance) => {
             if (err)
                 this.next(new Error('Message.UnexpectedError'));
-            Models_1.default.Reservation.find({
+            ttts_domain_1.Models.Reservation.find({
                 performance: performance.get('_id'),
-                status: ReservationUtil_1.default.STATUS_RESERVED
+                status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
             }, 'seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en entered payment_no payment_seat_index').exec((err, reservations) => {
                 if (err)
                     this.next(new Error('Message.UnexpectedError'));

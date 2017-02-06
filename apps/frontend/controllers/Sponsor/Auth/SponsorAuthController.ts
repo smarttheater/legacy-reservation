@@ -2,7 +2,7 @@ import BaseController from '../../BaseController';
 import SponsorUser from '../../../models/User/SponsorUser';
 import sponsorLoginForm from '../../../forms/sponsor/sponsorLoginForm';
 import Util from '../../../../common/Util/Util';
-import Models from '../../../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 
 export default class SponsorAuthController extends BaseController {
     public layout = 'layouts/sponsor/layout';

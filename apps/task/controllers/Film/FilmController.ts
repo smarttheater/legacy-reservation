@@ -1,5 +1,5 @@
 import BaseController from '../BaseController';
-import Models from '../../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 import conf = require('config');
 import mongoose = require('mongoose');
 import request = require('request');

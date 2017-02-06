@@ -4,7 +4,7 @@ import StaffAuthController from '../controllers/Staff/Auth/StaffAuthController';
 import StaffCancelController from '../controllers/Staff/Cancel/StaffCancelController';
 import StaffMyPageController from '../controllers/Staff/MyPage/StaffMyPageController';
 import StaffReserveController from '../controllers/Staff/Reserve/StaffReserveController';
-import Models from '../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 import Util from '../../common/Util/Util';
 
 import StaffUser from '../models/User/StaffUser';

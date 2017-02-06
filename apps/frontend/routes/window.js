@@ -3,7 +3,7 @@ const WindowAuthController_1 = require("../controllers/Window/Auth/WindowAuthCon
 const WindowMyPageController_1 = require("../controllers/Window/MyPage/WindowMyPageController");
 const WindowReserveController_1 = require("../controllers/Window/Reserve/WindowReserveController");
 const WindowCancelController_1 = require("../controllers/Window/Cancel/WindowCancelController");
-const Models_1 = require("../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const Util_1 = require("../../common/Util/Util");
 const WindowUser_1 = require("../models/User/WindowUser");
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -13,7 +13,7 @@ exports.default = (app) => {
             // 自動ログインチェック
             let checkRemember = (cb) => {
                 if (req.cookies.remember_window) {
-                    Models_1.default.Authentication.findOne({
+                    ttts_domain_1.Models.Authentication.findOne({
                         token: req.cookies.remember_window,
                         window: { $ne: null }
                     }, (err, authentication) => {
@@ -26,7 +26,7 @@ exports.default = (app) => {
                                 if (err)
                                     cb(null);
                                 res.cookie('remember_window', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                Models_1.default.Window.findOne({ _id: authentication.get('window') }, (err, window) => {
+                                ttts_domain_1.Models.Window.findOne({ _id: authentication.get('window') }, (err, window) => {
                                     cb(window);
                                 });
                             });

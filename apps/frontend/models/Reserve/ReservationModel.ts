@@ -1,8 +1,18 @@
-import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
+import {ReservationUtil} from "@motionpicture/ttts-domain";
 import GMOUtil from '../../../common/Util/GMO/GMOUtil';
 import conf = require('config');
 import moment = require('moment');
-import redisClient from '../../../common/modules/redisClient';
+import redis = require('redis');
+
+const redisClient = redis.createClient(
+    conf.get<number>("redis_port"),
+    conf.get<string>("redis_host"),
+    {
+        password: conf.get<string>("redis_key"),
+        tls: { servername: conf.get<string>("redis_host") },
+        return_buffers: true
+    }
+);
 
 /**
  * 予約情報モデル

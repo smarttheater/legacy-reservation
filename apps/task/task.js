@@ -12,7 +12,6 @@ const ReservationController_1 = require("./controllers/Reservation/ReservationCo
 const SchemaController_1 = require("./controllers/Schema/SchemaController");
 const TelController_1 = require("./controllers/Tel/TelController");
 const WindowController_1 = require("./controllers/Window/WindowController");
-// import LogController from './controllers/Log/LogController';
 const PreCustomerController_1 = require("./controllers/PreCustomer/PreCustomerController");
 const GMOController_1 = require("./controllers/GMO/GMOController");
 const ReservationEmailCueController_1 = require("./controllers/ReservationEmailCue/ReservationEmailCueController");

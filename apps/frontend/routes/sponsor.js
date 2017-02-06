@@ -3,7 +3,7 @@ const SponsorAuthController_1 = require("../controllers/Sponsor/Auth/SponsorAuth
 const SponsorMyPageController_1 = require("../controllers/Sponsor/MyPage/SponsorMyPageController");
 const SponsorReserveController_1 = require("../controllers/Sponsor/Reserve/SponsorReserveController");
 const SponsorCancelController_1 = require("../controllers/Sponsor/Cancel/SponsorCancelController");
-const Models_1 = require("../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const Util_1 = require("../../common/Util/Util");
 const SponsorUser_1 = require("../models/User/SponsorUser");
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -13,7 +13,7 @@ exports.default = (app) => {
             // 自動ログインチェック
             let checkRemember = (cb) => {
                 if (req.cookies.remember_sponsor) {
-                    Models_1.default.Authentication.findOne({
+                    ttts_domain_1.Models.Authentication.findOne({
                         token: req.cookies.remember_sponsor,
                         sponsor: { $ne: null }
                     }, (err, authentication) => {
@@ -26,7 +26,7 @@ exports.default = (app) => {
                                 if (err)
                                     cb(null, null);
                                 res.cookie('remember_sponsor', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                Models_1.default.Sponsor.findOne({ _id: authentication.get('sponsor') }, (err, sponsor) => {
+                                ttts_domain_1.Models.Sponsor.findOne({ _id: authentication.get('sponsor') }, (err, sponsor) => {
                                     cb(sponsor, authentication.get('locale'));
                                 });
                             });

@@ -2,7 +2,7 @@ import BaseController from '../../BaseController';
 import PreCustomerUser from '../../../models/User/PreCustomerUser';
 import preCustomerLoginForm from '../../../forms/preCustomer/preCustomerLoginForm';
 import Util from '../../../../common/Util/Util';
-import Models from '../../../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 import moment = require('moment');
 import conf = require('config');
 

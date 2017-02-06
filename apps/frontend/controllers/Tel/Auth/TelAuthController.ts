@@ -2,7 +2,7 @@ import BaseController from '../../BaseController';
 import TelStaffUser from '../../../models/User/TelStaffUser';
 import telLoginForm from '../../../forms/tel/telLoginForm';
 import Util from '../../../../common/Util/Util';
-import Models from '../../../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 
 export default class TelAuthController extends BaseController {
     public layout = 'layouts/tel/layout';

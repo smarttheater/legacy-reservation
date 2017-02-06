@@ -1,9 +1,9 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
-const Models_1 = require("../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const mongoose = require("mongoose");
 const conf = require("config");
-const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
 const fs = require("fs-extra");
 const request = require("request");
@@ -103,9 +103,9 @@ class AnalysisController extends BaseController_1.default {
                 let promises = paymentNos.map((paymentNo) => {
                     return new Promise((resolve, reject) => {
                         this.logger.info('counting not in WAITING_SETTLEMENT, WAITING_SETTLEMENT_PAY_DESIGN');
-                        Models_1.default.Reservation.count({
+                        ttts_domain_1.Models.Reservation.count({
                             payment_no: paymentNo,
-                            status: { $nin: [ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT, ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN] }
+                            status: { $nin: [ttts_domain_2.ReservationUtil.STATUS_WAITING_SETTLEMENT, ttts_domain_2.ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN] }
                         }, (err, count) => {
                             this.logger.info('counted.', err, count);
                             if (err)
@@ -118,7 +118,7 @@ class AnalysisController extends BaseController_1.default {
                     console.log(paymentNos.length);
                     this.logger.info('promised.');
                     // 内部関係者で確保する
-                    Models_1.default.Staff.findOne({
+                    ttts_domain_1.Models.Staff.findOne({
                         user_id: "2016sagyo2"
                     }, (err, staff) => {
                         this.logger.info('staff found.', err, staff);
@@ -128,11 +128,11 @@ class AnalysisController extends BaseController_1.default {
                             return;
                         }
                         this.logger.info('updating reservations...');
-                        Models_1.default.Reservation.update({
+                        ttts_domain_1.Models.Reservation.update({
                             payment_no: { $in: paymentNos }
                         }, {
-                            "status": ReservationUtil_1.default.STATUS_RESERVED,
-                            "purchaser_group": ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
+                            "status": ttts_domain_2.ReservationUtil.STATUS_RESERVED,
+                            "purchaser_group": ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF,
                             "charge": 0,
                             "ticket_type_charge": 0,
                             "ticket_type_name_en": "Free",
@@ -215,11 +215,11 @@ class AnalysisController extends BaseController_1.default {
             Promise.all(promises).then(() => {
                 console.log(paymentNos.length);
                 this.logger.info('counting not in WAITING_SETTLEMENT');
-                Models_1.default.Reservation.count({
+                ttts_domain_1.Models.Reservation.count({
                     payment_no: { $in: paymentNos },
                     $or: [
                         {
-                            status: { $nin: [ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT] }
+                            status: { $nin: [ttts_domain_2.ReservationUtil.STATUS_WAITING_SETTLEMENT] }
                         },
                         {
                             payment_method: { $nin: [GMOUtil_1.default.PAY_TYPE_CVS] }
@@ -237,10 +237,10 @@ class AnalysisController extends BaseController_1.default {
                         process.exit(0);
                         return;
                     }
-                    Models_1.default.Reservation.update({
+                    ttts_domain_1.Models.Reservation.update({
                         payment_no: { $in: paymentNos }
                     }, {
-                        "status": ReservationUtil_1.default.STATUS_RESERVED
+                        "status": ttts_domain_2.ReservationUtil.STATUS_RESERVED
                     }, {
                         multi: true
                     }, (err, raw) => {
@@ -267,11 +267,11 @@ class AnalysisController extends BaseController_1.default {
             this.logger.info('file read.', err);
             let paymentNos = JSON.parse(data);
             this.logger.info('counting not in WAITING_SETTLEMENT_PAY_DESIGN');
-            Models_1.default.Reservation.count({
+            ttts_domain_1.Models.Reservation.count({
                 payment_no: { $in: paymentNos },
                 $or: [
                     {
-                        status: { $nin: [ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN] }
+                        status: { $nin: [ttts_domain_2.ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN] }
                     },
                     {
                         payment_method: { $nin: [GMOUtil_1.default.PAY_TYPE_CVS] }
@@ -289,10 +289,10 @@ class AnalysisController extends BaseController_1.default {
                     process.exit(0);
                     return;
                 }
-                Models_1.default.Reservation.update({
+                ttts_domain_1.Models.Reservation.update({
                     payment_no: { $in: paymentNos }
                 }, {
-                    "status": ReservationUtil_1.default.STATUS_RESERVED
+                    "status": ttts_domain_2.ReservationUtil.STATUS_RESERVED
                 }, {
                     multi: true
                 }, (err, raw) => {
@@ -323,7 +323,7 @@ class AnalysisController extends BaseController_1.default {
                 return;
             }
             // 内部関係者で確保する
-            Models_1.default.Staff.findOne({
+            ttts_domain_1.Models.Staff.findOne({
                 user_id: "2016sagyo2"
             }, (err, staff) => {
                 this.logger.info('staff found.', err, staff);
@@ -333,11 +333,11 @@ class AnalysisController extends BaseController_1.default {
                     return;
                 }
                 this.logger.info('updating reservations...');
-                Models_1.default.Reservation.update({
+                ttts_domain_1.Models.Reservation.update({
                     payment_no: { $in: paymentNos }
                 }, {
-                    "status": ReservationUtil_1.default.STATUS_RESERVED,
-                    "purchaser_group": ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
+                    "status": ttts_domain_2.ReservationUtil.STATUS_RESERVED,
+                    "purchaser_group": ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF,
                     "charge": 0,
                     "ticket_type_charge": 0,
                     "ticket_type_name_en": "Free",
@@ -467,10 +467,10 @@ class AnalysisController extends BaseController_1.default {
     }
     countReservations() {
         mongoose.connect(MONGOLAB_URI, {});
-        Models_1.default.Reservation.find({
-            purchaser_group: { $in: [ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER, ReservationUtil_1.default.PURCHASER_GROUP_MEMBER] },
+        ttts_domain_1.Models.Reservation.find({
+            purchaser_group: { $in: [ttts_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER, ttts_domain_2.ReservationUtil.PURCHASER_GROUP_MEMBER] },
             // payment_no: "77000110810"
-            status: ReservationUtil_1.default.STATUS_RESERVED,
+            status: ttts_domain_2.ReservationUtil.STATUS_RESERVED,
             // status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
             purchased_at: { $gt: moment('2016-10-20T12:00:00+9:00') }
         }, 'payment_no', (err, reservations) => {
@@ -490,7 +490,7 @@ class AnalysisController extends BaseController_1.default {
     }
     countReservationCues() {
         mongoose.connect(MONGOLAB_URI, {});
-        Models_1.default.ReservationEmailCue.count({
+        ttts_domain_1.Models.ReservationEmailCue.count({
             is_sent: false,
         }, (err, count) => {
             if (err)
@@ -505,7 +505,7 @@ class AnalysisController extends BaseController_1.default {
      */
     getPaymentNosWithEmail() {
         mongoose.connect(MONGOLAB_URI);
-        Models_1.default.GMONotification.distinct('order_id', {
+        ttts_domain_1.Models.GMONotification.distinct('order_id', {
             // status:{$in:["CAPTURE","PAYSUCCESS"]},
             status: { $in: ["PAYSUCCESS"] },
             processed: true
@@ -552,7 +552,7 @@ class AnalysisController extends BaseController_1.default {
             });
             mongoose.connect(MONGOLAB_URI);
             this.logger.info('creating ReservationEmailCues...length:', cues.length);
-            Models_1.default.ReservationEmailCue.insertMany(cues, (err) => {
+            ttts_domain_1.Models.ReservationEmailCue.insertMany(cues, (err) => {
                 this.logger.info('ReservationEmailCues created.', err);
                 mongoose.disconnect();
                 process.exit(0);

@@ -1,5 +1,5 @@
 import ReserveBaseController from '../../ReserveBaseController';
-import Models from '../../../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 import PayDesignNotificationModel from '../../../models/Reserve/PayDesignNotificationModel';
 
 export default class PayDesignReserveController extends ReserveBaseController {

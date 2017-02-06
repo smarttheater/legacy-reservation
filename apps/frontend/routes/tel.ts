@@ -4,7 +4,7 @@ import TelAuthController from '../controllers/Tel/Auth/TelAuthController';
 import TelMyPageController from '../controllers/Tel/MyPage/TelMyPageController';
 import TelReserveController from '../controllers/Tel/Reserve/TelReserveController';
 import TelCancelController from '../controllers/Tel/Cancel/TelCancelController';
-import Models from '../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 import Util from '../../common/Util/Util';
 
 import TelStaffUser from '../models/User/TelStaffUser';

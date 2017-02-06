@@ -4,7 +4,7 @@ import SponsorAuthController from '../controllers/Sponsor/Auth/SponsorAuthContro
 import SponsorMyPageController from '../controllers/Sponsor/MyPage/SponsorMyPageController';
 import SponsorReserveController from '../controllers/Sponsor/Reserve/SponsorReserveController';
 import SponsorCancelController from '../controllers/Sponsor/Cancel/SponsorCancelController';
-import Models from '../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 import Util from '../../common/Util/Util';
 
 import SponsorUser from '../models/User/SponsorUser';

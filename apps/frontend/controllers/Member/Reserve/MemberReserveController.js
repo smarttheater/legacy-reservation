@@ -1,23 +1,23 @@
 "use strict";
 const ReserveBaseController_1 = require("../../ReserveBaseController");
 const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
-const Models_1 = require("../../../../common/models/Models");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
-const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const ttts_domain_3 = require("@motionpicture/ttts-domain");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const moment = require("moment");
 class MemberReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_MEMBER;
+        this.purchaserGroup = ttts_domain_2.ReservationUtil.PURCHASER_GROUP_MEMBER;
         this.layout = 'layouts/member/layout';
     }
     start() {
         // 予約状況を確認
-        Models_1.default.Reservation.find({
+        ttts_domain_1.Models.Reservation.find({
             member_user_id: this.req.memberUser.get('user_id'),
             purchaser_group: this.purchaserGroup,
-            status: ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER
+            status: ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_MEMBER
         }, 'performance seat_code status', (err, reservations) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -174,9 +174,9 @@ class MemberReserveController extends ReserveBaseController_1.default {
      */
     complete() {
         let paymentNo = this.req.params.paymentNo;
-        Models_1.default.Reservation.find({
+        ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
-            status: ReservationUtil_1.default.STATUS_RESERVED,
+            status: ttts_domain_2.ReservationUtil.STATUS_RESERVED,
             purchased_at: {
                 $gt: moment().add(-30, 'minutes').toISOString()
             }
@@ -186,7 +186,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ScreenUtil_1.default.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return ttts_domain_3.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('member/reserve/complete', {
                 reservationDocuments: reservations

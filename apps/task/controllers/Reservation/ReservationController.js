@@ -1,7 +1,7 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
-const Models_1 = require("../../../common/models/Models");
-const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
 const moment = require("moment");
 const conf = require("config");
@@ -16,8 +16,8 @@ class ReservationController extends BaseController_1.default {
     removeTmps() {
         mongoose.connect(MONGOLAB_URI, {});
         this.logger.info('removing temporary reservations...');
-        Models_1.default.Reservation.remove({
-            status: ReservationUtil_1.default.STATUS_TEMPORARY,
+        ttts_domain_1.Models.Reservation.remove({
+            status: ttts_domain_2.ReservationUtil.STATUS_TEMPORARY,
             expired_at: {
                 // 念のため、仮予約有効期間より1分長めにしておく
                 $lt: moment().add(-60, 'seconds').toISOString()
@@ -36,8 +36,8 @@ class ReservationController extends BaseController_1.default {
      */
     tmp2tiff() {
         mongoose.connect(MONGOLAB_URI, {});
-        Models_1.default.Reservation.distinct('_id', {
-            status: ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TTTS,
+        ttts_domain_1.Models.Reservation.distinct('_id', {
+            status: ttts_domain_2.ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TTTS,
             expired_at: {
                 // 念のため、仮予約有効期間より1分長めにしておく
                 $lt: moment().add(-60, 'seconds').toISOString()
@@ -50,7 +50,7 @@ class ReservationController extends BaseController_1.default {
             let promises = ids.map((id) => {
                 return new Promise((resolve, reject) => {
                     this.logger.info('updating to STATUS_KEPT_BY_TTTS...id:', id);
-                    Models_1.default.Reservation.findOneAndUpdate({ _id: id }, { status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS }, { new: true }, (err, reservation) => {
+                    ttts_domain_1.Models.Reservation.findOneAndUpdate({ _id: id }, { status: ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS }, { new: true }, (err, reservation) => {
                         this.logger.info('updated to STATUS_KEPT_BY_TTTS. id:', id, err, reservation);
                         (err) ? reject(err) : resolve();
                     });
@@ -73,7 +73,7 @@ class ReservationController extends BaseController_1.default {
         if (moment(conf.get('datetimes.reservation_end_members')) < moment()) {
             mongoose.connect(MONGOLAB_URI);
             // 内部関係者で確保する
-            Models_1.default.Staff.findOne({
+            ttts_domain_1.Models.Staff.findOne({
                 user_id: "2016sagyo2"
             }, (err, staff) => {
                 this.logger.info('staff found.', err, staff);
@@ -83,15 +83,15 @@ class ReservationController extends BaseController_1.default {
                     return;
                 }
                 // 購入番号発行
-                ReservationUtil_1.default.publishPaymentNo((err, paymentNo) => {
+                ttts_domain_2.ReservationUtil.publishPaymentNo((err, paymentNo) => {
                     this.logger.info('paymentNo is', paymentNo);
                     if (err) {
                         mongoose.disconnect();
                         process.exit(0);
                         return;
                     }
-                    Models_1.default.Reservation.find({
-                        status: ReservationUtil_1.default.STATUS_KEPT_BY_MEMBER
+                    ttts_domain_1.Models.Reservation.find({
+                        status: ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_MEMBER
                     }, (err, reservations) => {
                         if (err) {
                             mongoose.disconnect();
@@ -101,7 +101,7 @@ class ReservationController extends BaseController_1.default {
                         let promises = reservations.map((reservation, index) => {
                             return new Promise((resolve, reject) => {
                                 this.logger.info('finding performance...');
-                                Models_1.default.Performance.findOne({
+                                ttts_domain_1.Models.Performance.findOne({
                                     _id: reservation.get('performance')
                                 })
                                     .populate('film', 'name is_mx4d copyright')
@@ -112,7 +112,7 @@ class ReservationController extends BaseController_1.default {
                                         return reject(err);
                                     this.logger.info('updating reservation...');
                                     reservation.update({
-                                        "status": ReservationUtil_1.default.STATUS_RESERVED,
+                                        "status": ttts_domain_2.ReservationUtil.STATUS_RESERVED,
                                         "staff": staff.get('_id'),
                                         "staff_user_id": staff.get('user_id'),
                                         "staff_email": staff.get('email'),
@@ -142,7 +142,7 @@ class ReservationController extends BaseController_1.default {
                                         "performance_start_time": performance.get('start_time'),
                                         "performance_open_time": performance.get('open_time'),
                                         "performance_day": performance.get('day'),
-                                        "purchaser_group": ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
+                                        "purchaser_group": ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF,
                                         "payment_no": paymentNo,
                                         "payment_seat_index": index,
                                         "charge": 0,
@@ -183,8 +183,8 @@ class ReservationController extends BaseController_1.default {
     releaseGarbages() {
         mongoose.connect(MONGOLAB_URI);
         // 一定期間WAITING_SETTLEMENTの予約を抽出
-        Models_1.default.Reservation.find({
-            status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
+        ttts_domain_1.Models.Reservation.find({
+            status: ttts_domain_2.ReservationUtil.STATUS_WAITING_SETTLEMENT,
             updated_at: { $lt: moment().add(-2, 'hours').toISOString() }
         }, (err, reservations) => {
             this.logger.info('reservations found.', err, reservations);
@@ -240,7 +240,7 @@ class ReservationController extends BaseController_1.default {
                     return;
                 }
                 // 内部で確保する仕様の場合
-                Models_1.default.Staff.findOne({
+                ttts_domain_1.Models.Staff.findOne({
                     user_id: "2016sagyo2"
                 }, (err, staff) => {
                     this.logger.info('staff found.', err, staff);
@@ -250,11 +250,11 @@ class ReservationController extends BaseController_1.default {
                         return;
                     }
                     this.logger.info('updating reservations...');
-                    Models_1.default.Reservation.update({
+                    ttts_domain_1.Models.Reservation.update({
                         payment_no: { $in: paymentNos4release }
                     }, {
-                        "status": ReservationUtil_1.default.STATUS_RESERVED,
-                        "purchaser_group": ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
+                        "status": ttts_domain_2.ReservationUtil.STATUS_RESERVED,
+                        "purchaser_group": ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF,
                         "charge": 0,
                         "ticket_type_charge": 0,
                         "ticket_type_name_en": "Free",

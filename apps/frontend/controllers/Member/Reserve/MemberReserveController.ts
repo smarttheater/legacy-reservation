@@ -1,9 +1,9 @@
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
-import Models from '../../../../common/models/Models';
-import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
-import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
+import {Models} from "@motionpicture/ttts-domain";
+import {ReservationUtil} from "@motionpicture/ttts-domain";
+import {ScreenUtil} from "@motionpicture/ttts-domain";
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import moment = require('moment');
 

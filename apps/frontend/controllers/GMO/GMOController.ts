@@ -1,8 +1,8 @@
 import BaseController from '../BaseController';
-import Models from '../../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 import GMONotificationModel from '../../models/Reserve/GMONotificationModel';
 import GMONotificationResponseModel from '../../models/Reserve/GMONotificationResponseModel';
-import GMONotificationUtil from '../../../common/models/GMONotification/GMONotificationUtil';
+import {GMONotificationUtil} from "@motionpicture/ttts-domain";
 
 export default class GMOController extends BaseController {
     /**

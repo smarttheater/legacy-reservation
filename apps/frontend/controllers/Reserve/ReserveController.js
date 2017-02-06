@@ -1,8 +1,8 @@
 "use strict";
 const ReserveBaseController_1 = require("../ReserveBaseController");
-const Models_1 = require("../../../common/models/Models");
-const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
-const ScreenUtil_1 = require("../../../common/models/Screen/ScreenUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const ttts_domain_3 = require("@motionpicture/ttts-domain");
 const ReservationModel_1 = require("../../models/Reserve/ReservationModel");
 const qr = require("qr-image");
 class ReserveController extends ReserveBaseController_1.default {
@@ -11,7 +11,7 @@ class ReserveController extends ReserveBaseController_1.default {
      */
     getUnavailableSeatCodes() {
         let performanceId = this.req.params.performanceId;
-        Models_1.default.Reservation.distinct('seat_code', {
+        ttts_domain_1.Models.Reservation.distinct('seat_code', {
             performance: performanceId
         }, (err, seatCodes) => {
             if (err)
@@ -29,7 +29,7 @@ class ReserveController extends ReserveBaseController_1.default {
                 return this.res.json({ propertiesBySeatCode: {} });
             let propertiesBySeatCode = {};
             // 予約リストを取得
-            Models_1.default.Reservation.find({
+            ttts_domain_1.Models.Reservation.find({
                 performance: reservationModel.performance._id
             }, (err, reservations) => {
                 if (err)
@@ -44,10 +44,10 @@ class ReserveController extends ReserveBaseController_1.default {
                         avalilable = true;
                     }
                     // 内部関係者用
-                    if (reservationModel.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
+                    if (reservationModel.purchaserGroup === ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF) {
                         baloonContent = reservation.get('baloon_content4staff');
                         // 内部関係者はTTTS確保も予約できる
-                        if (reservation.get('status') === ReservationUtil_1.default.STATUS_KEPT_BY_TTTS) {
+                        if (reservation.get('status') === ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS) {
                             avalilable = true;
                         }
                     }
@@ -77,7 +77,7 @@ class ReserveController extends ReserveBaseController_1.default {
      * create qrcode by reservation token and reservation id.
      */
     qrcode() {
-        Models_1.default.Reservation.findOne({ _id: this.req.params.reservationId }, 'payment_no payment_seat_index', (err, reservation) => {
+        ttts_domain_1.Models.Reservation.findOne({ _id: this.req.params.reservationId }, 'payment_no payment_seat_index', (err, reservation) => {
             // this.res.setHeader('Content-Type', 'image/png');
             qr.image(reservation.get('qr_str'), { type: 'png' }).pipe(this.res);
         });
@@ -87,16 +87,16 @@ class ReserveController extends ReserveBaseController_1.default {
      */
     print() {
         let ids = JSON.parse(this.req.query.ids);
-        Models_1.default.Reservation.find({
+        ttts_domain_1.Models.Reservation.find({
             _id: { $in: ids },
-            status: ReservationUtil_1.default.STATUS_RESERVED
+            status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
         }, (err, reservations) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ScreenUtil_1.default.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return ttts_domain_3.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('reserve/print', {
                 layout: false,

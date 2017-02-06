@@ -4,7 +4,7 @@ import WindowAuthController from '../controllers/Window/Auth/WindowAuthControlle
 import WindowMyPageController from '../controllers/Window/MyPage/WindowMyPageController';
 import WindowReserveController from '../controllers/Window/Reserve/WindowReserveController';
 import WindowCancelController from '../controllers/Window/Cancel/WindowCancelController';
-import Models from '../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 import Util from '../../common/Util/Util';
 
 import WindowUser from '../models/User/WindowUser';

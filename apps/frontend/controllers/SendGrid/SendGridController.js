@@ -1,6 +1,6 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
-const Models_1 = require("../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 class SendGridController extends BaseController_1.default {
     /**
      * SendGridイベントフック
@@ -12,7 +12,7 @@ class SendGridController extends BaseController_1.default {
             return;
         }
         this.logger.info('creating sendgrid_event_notifications...');
-        Models_1.default.SendGridEventNotification.create(this.req.body, (err, notifications) => {
+        ttts_domain_1.Models.SendGridEventNotification.create(this.req.body, (err, notifications) => {
             this.logger.info('sendgrid_event_notifications created.', err, notifications);
             if (err)
                 return this.next(err);

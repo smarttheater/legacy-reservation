@@ -1,6 +1,5 @@
 import BaseController from '../BaseController';
-import Models from '../../../common/models/Models';
-import PerformanceStatusesModel from '../../../common/models/PerformanceStatusesModel';
+import {Models, PerformanceStatusesModel} from "@motionpicture/ttts-domain";
 import moment = require('moment');
 import conf = require('config');
 

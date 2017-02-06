@@ -1,7 +1,7 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
 const Util_1 = require("../../../common/Util/Util");
-const Models_1 = require("../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const mongoose = require("mongoose");
 const fs = require("fs-extra");
@@ -23,11 +23,11 @@ class MemberController extends BaseController_1.default {
                 };
             });
             this.logger.info('removing all members...');
-            Models_1.default.Member.remove({}, (err) => {
+            ttts_domain_1.Models.Member.remove({}, (err) => {
                 if (err)
                     throw err;
                 this.logger.debug('creating members...');
-                Models_1.default.Member.create(members, (err) => {
+                ttts_domain_1.Models.Member.create(members, (err) => {
                     this.logger.info('members created.', err);
                     mongoose.disconnect();
                     process.exit(0);
@@ -46,7 +46,7 @@ class MemberController extends BaseController_1.default {
                 return new Promise((resolve, reject) => {
                     this.logger.info('removing reservation...');
                     // すでに予約があれば削除してから新規作成
-                    Models_1.default.Reservation.remove({
+                    ttts_domain_1.Models.Reservation.remove({
                         performance: reservationFromJson.performance,
                         seat_code: reservationFromJson.seat_code
                     }, (err) => {
@@ -54,7 +54,7 @@ class MemberController extends BaseController_1.default {
                         if (err)
                             return reject(err);
                         this.logger.info('creating reservationFromJson...', reservationFromJson);
-                        Models_1.default.Reservation.create(reservationFromJson, (err) => {
+                        ttts_domain_1.Models.Reservation.create(reservationFromJson, (err) => {
                             this.logger.info('reservationFromJson created.', err);
                             (err) ? reject(err) : resolve();
                         });

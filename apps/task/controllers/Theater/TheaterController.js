@@ -1,7 +1,7 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
-const Models_1 = require("../../../common/models/Models");
-const ScreenUtil_1 = require("../../../common/models/Screen/ScreenUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const mongoose = require("mongoose");
 const fs = require("fs-extra");
@@ -18,10 +18,10 @@ class TheaterController extends BaseController_1.default {
                 screen.seats_number = screen.sections[0].seats.length;
                 // 座席グレードごとの座席数情報を追加
                 let seatsNumbersBySeatCode = {};
-                seatsNumbersBySeatCode[ScreenUtil_1.default.SEAT_GRADE_CODE_NORMAL] = 0;
-                seatsNumbersBySeatCode[ScreenUtil_1.default.SEAT_GRADE_CODE_PREMIERE_BOX] = 0;
-                seatsNumbersBySeatCode[ScreenUtil_1.default.SEAT_GRADE_CODE_PREMIERE_LUXURY] = 0;
-                seatsNumbersBySeatCode[ScreenUtil_1.default.SEAT_GRADE_CODE_FRONT_RECLINING] = 0;
+                seatsNumbersBySeatCode[ttts_domain_2.ScreenUtil.SEAT_GRADE_CODE_NORMAL] = 0;
+                seatsNumbersBySeatCode[ttts_domain_2.ScreenUtil.SEAT_GRADE_CODE_PREMIERE_BOX] = 0;
+                seatsNumbersBySeatCode[ttts_domain_2.ScreenUtil.SEAT_GRADE_CODE_PREMIERE_LUXURY] = 0;
+                seatsNumbersBySeatCode[ttts_domain_2.ScreenUtil.SEAT_GRADE_CODE_FRONT_RECLINING] = 0;
                 screen.sections[0].seats.forEach((seat) => {
                     seatsNumbersBySeatCode[seat.grade.code]++;
                 });
@@ -33,7 +33,7 @@ class TheaterController extends BaseController_1.default {
                 });
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating screen...');
-                    Models_1.default.Screen.findOneAndUpdate({
+                    ttts_domain_1.Models.Screen.findOneAndUpdate({
                         _id: screen._id
                     }, screen, {
                         new: true,
@@ -64,7 +64,7 @@ class TheaterController extends BaseController_1.default {
             let promises = theaters.map((theater) => {
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating theater...');
-                    Models_1.default.Theater.findOneAndUpdate({
+                    ttts_domain_1.Models.Theater.findOneAndUpdate({
                         _id: theater._id
                     }, theater, {
                         new: true,

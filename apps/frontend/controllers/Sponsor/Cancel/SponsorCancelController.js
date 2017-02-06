@@ -1,7 +1,7 @@
 "use strict";
 const BaseController_1 = require("../../BaseController");
-const Models_1 = require("../../../../common/models/Models");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const sponsorCancelForm_1 = require("../../../forms/sponsor/sponsorCancelForm");
 const log4js = require("log4js");
 class SponsorCancelController extends BaseController_1.default {
@@ -22,11 +22,11 @@ class SponsorCancelController extends BaseController_1.default {
             form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     // 予約を取得
-                    Models_1.default.Reservation.find({
+                    ttts_domain_1.Models.Reservation.find({
                         payment_no: this.req.form['paymentNo'],
                         purchaser_tel: { $regex: `${this.req.form['last4DigitsOfTel']}$` },
-                        purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR,
-                        status: ReservationUtil_1.default.STATUS_RESERVED
+                        purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_SPONSOR,
+                        status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
                     }, (err, reservations) => {
                         if (err) {
                             return this.res.json({
@@ -85,13 +85,13 @@ class SponsorCancelController extends BaseController_1.default {
             let promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
                     this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
-                    Models_1.default.Reservation.findOneAndUpdate({
+                    ttts_domain_1.Models.Reservation.findOneAndUpdate({
                         _id: id,
                         payment_no: this.req.body.paymentNo,
                         purchaser_tel: { $regex: `${this.req.body.last4DigitsOfTel}$` },
-                        purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR,
-                        status: ReservationUtil_1.default.STATUS_RESERVED
-                    }, { status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS }, { new: true }, (err, reservation) => {
+                        purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_SPONSOR,
+                        status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
+                    }, { status: ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS }, { new: true }, (err, reservation) => {
                         this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                         (err) ? reject(err) : resolve();
                     });
@@ -124,7 +124,7 @@ class SponsorCancelController extends BaseController_1.default {
             let promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
                     this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
-                    Models_1.default.Reservation.findOneAndUpdate({ _id: id }, { status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS }, { new: true }, (err, reservation) => {
+                    ttts_domain_1.Models.Reservation.findOneAndUpdate({ _id: id }, { status: ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS }, { new: true }, (err, reservation) => {
                         this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                         (err) ? reject(err) : resolve();
                     });

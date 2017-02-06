@@ -2,9 +2,9 @@
 const BaseController_1 = require("../../BaseController");
 const Util_1 = require("../../../../common/Util/Util");
 const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
-const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
-const Models_1 = require("../../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const ttts_domain_3 = require("@motionpicture/ttts-domain");
 const moment = require("moment");
 class TelMyPageController extends BaseController_1.default {
     constructor() {
@@ -14,7 +14,7 @@ class TelMyPageController extends BaseController_1.default {
     index() {
         this.res.render('tel/mypage/index', {
             GMOUtil: GMOUtil_1.default,
-            ReservationUtil: ReservationUtil_1.default
+            ReservationUtil: ttts_domain_1.ReservationUtil
         });
     }
     /**
@@ -36,8 +36,8 @@ class TelMyPageController extends BaseController_1.default {
         let conditions = [];
         // 内部関係者以外がデフォルト
         conditions.push({
-            purchaser_group: { $ne: ReservationUtil_1.default.PURCHASER_GROUP_STAFF },
-            status: { $in: [ReservationUtil_1.default.STATUS_RESERVED, ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT, ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT_PAY_DESIGN] }
+            purchaser_group: { $ne: ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF },
+            status: { $in: [ttts_domain_1.ReservationUtil.STATUS_RESERVED, ttts_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT, ttts_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN] }
         });
         if (purchaserGroups) {
             conditions.push({ purchaser_group: { $in: purchaserGroups } });
@@ -110,7 +110,7 @@ class TelMyPageController extends BaseController_1.default {
             });
         }
         // 総数検索
-        Models_1.default.Reservation.count({
+        ttts_domain_3.Models.Reservation.count({
             $and: conditions
         }, (err, count) => {
             if (err) {
@@ -120,7 +120,7 @@ class TelMyPageController extends BaseController_1.default {
                     count: 0
                 });
             }
-            Models_1.default.Reservation.find({ $and: conditions })
+            ttts_domain_3.Models.Reservation.find({ $and: conditions })
                 .skip(limit * (page - 1))
                 .limit(limit)
                 .lean(true)
@@ -141,7 +141,7 @@ class TelMyPageController extends BaseController_1.default {
                             return 1;
                         if (a.screen > b.screen)
                             return 1;
-                        return ScreenUtil_1.default.sortBySeatCode(a.seat_code, b.seat_code);
+                        return ttts_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
                     });
                     this.res.json({
                         success: true,

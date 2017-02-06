@@ -3,7 +3,7 @@ const StaffAuthController_1 = require("../controllers/Staff/Auth/StaffAuthContro
 const StaffCancelController_1 = require("../controllers/Staff/Cancel/StaffCancelController");
 const StaffMyPageController_1 = require("../controllers/Staff/MyPage/StaffMyPageController");
 const StaffReserveController_1 = require("../controllers/Staff/Reserve/StaffReserveController");
-const Models_1 = require("../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const Util_1 = require("../../common/Util/Util");
 const StaffUser_1 = require("../models/User/StaffUser");
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -13,7 +13,7 @@ exports.default = (app) => {
             // 自動ログインチェック
             let checkRemember = (cb) => {
                 if (req.cookies.remember_staff) {
-                    Models_1.default.Authentication.findOne({
+                    ttts_domain_1.Models.Authentication.findOne({
                         token: req.cookies.remember_staff,
                         staff: { $ne: null }
                     }, (err, authentication) => {
@@ -26,7 +26,7 @@ exports.default = (app) => {
                                 if (err)
                                     cb(null, null, null);
                                 res.cookie('remember_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                Models_1.default.Staff.findOne({ _id: authentication.get('staff') }, (err, staff) => {
+                                ttts_domain_1.Models.Staff.findOne({ _id: authentication.get('staff') }, (err, staff) => {
                                     cb(staff, authentication.get('signature'), authentication.get('locale'));
                                 });
                             });

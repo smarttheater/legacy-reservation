@@ -2,17 +2,17 @@
 const ReserveBaseController_1 = require("../../ReserveBaseController");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
-const Models_1 = require("../../../../common/models/Models");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
-const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
-const FilmUtil_1 = require("../../../../common/models/Film/FilmUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const ttts_domain_3 = require("@motionpicture/ttts-domain");
+const ttts_domain_4 = require("@motionpicture/ttts-domain");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const moment = require("moment");
 const conf = require("config");
 class StaffReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_STAFF;
+        this.purchaserGroup = ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF;
         this.layout = 'layouts/staff/layout';
     }
     start() {
@@ -56,13 +56,13 @@ class StaffReserveController extends ReserveBaseController_1.default {
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
         // 仮予約をTTTS確保ステータスに戻す
-        Models_1.default.Reservation.update({
+        ttts_domain_1.Models.Reservation.update({
             performance: reservationModel.performance._id,
             seat_code: { $in: seatCodesInSession },
-            status: ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TTTS
+            status: ttts_domain_2.ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TTTS
         }, {
             $set: {
-                status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS
+                status: ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS
             },
             $unset: {
                 staff: ''
@@ -72,10 +72,10 @@ class StaffReserveController extends ReserveBaseController_1.default {
         }, (err, raw) => {
             // 失敗したとしても時間経過で消えるので放置
             // 仮予約を空席ステータスに戻す
-            Models_1.default.Reservation.remove({
+            ttts_domain_1.Models.Reservation.remove({
                 performance: reservationModel.performance._id,
                 seat_code: { $in: seatCodesInSession },
-                status: ReservationUtil_1.default.STATUS_TEMPORARY
+                status: ttts_domain_2.ReservationUtil.STATUS_TEMPORARY
             }, (err) => {
                 // 失敗したとしても時間経過で消えるので放置
                 cb(null, reservationModel);
@@ -101,21 +101,21 @@ class StaffReserveController extends ReserveBaseController_1.default {
                 if (!seatInfo)
                     return reject(new Error(this.req.__('Message.InvalidSeatCode')));
                 // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
-                Models_1.default.Reservation.create({
+                ttts_domain_1.Models.Reservation.create({
                     performance: reservationModel.performance._id,
                     seat_code: seatCode,
-                    status: ReservationUtil_1.default.STATUS_TEMPORARY,
+                    status: ttts_domain_2.ReservationUtil.STATUS_TEMPORARY,
                     expired_at: reservationModel.expiredAt,
                     staff: this.req.staffUser.get('_id')
                 }, (err, reservation) => {
                     if (err) {
                         // TTTS確保からの仮予約を試みる
-                        Models_1.default.Reservation.findOneAndUpdate({
+                        ttts_domain_1.Models.Reservation.findOneAndUpdate({
                             performance: reservationModel.performance._id,
                             seat_code: seatCode,
-                            status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS
+                            status: ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS
                         }, {
-                            status: ReservationUtil_1.default.STATUS_TEMPORARY_ON_KEPT_BY_TTTS,
+                            status: ttts_domain_2.ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TTTS,
                             expired_at: reservationModel.expiredAt,
                             staff: this.req.staffUser.get('_id')
                         }, {
@@ -166,7 +166,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
         });
         Promise.all(promises).then(() => {
             // 座席コードのソート(文字列順に)
-            reservationModel.seatCodes.sort(ScreenUtil_1.default.sortBySeatCode);
+            reservationModel.seatCodes.sort(ttts_domain_3.ScreenUtil.sortBySeatCode);
             cb(null, reservationModel);
         }, (err) => {
             cb(err, reservationModel);
@@ -205,7 +205,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                 this.processCancelSeats(reservationModel, (err, reservationModel) => {
                     reservationModel.save(() => {
                         this.res.render('staff/reserve/performances', {
-                            FilmUtil: FilmUtil_1.default
+                            FilmUtil: ttts_domain_4.FilmUtil
                         });
                     });
                 });
@@ -343,9 +343,9 @@ class StaffReserveController extends ReserveBaseController_1.default {
     }
     complete() {
         let paymentNo = this.req.params.paymentNo;
-        Models_1.default.Reservation.find({
+        ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
-            status: ReservationUtil_1.default.STATUS_RESERVED,
+            status: ttts_domain_2.ReservationUtil.STATUS_RESERVED,
             staff: this.req.staffUser.get('_id'),
             purchased_at: {
                 $gt: moment().add(-30, 'minutes').toISOString()
@@ -356,7 +356,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ScreenUtil_1.default.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return ttts_domain_3.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('staff/reserve/complete', {
                 reservationDocuments: reservations

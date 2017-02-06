@@ -1,11 +1,11 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
 const Util_1 = require("../../../common/Util/Util");
-const Models_1 = require("../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const mongoose = require("mongoose");
 const fs = require("fs-extra");
-const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class StaffController extends BaseController_1.default {
     createFromJson() {
@@ -22,7 +22,7 @@ class StaffController extends BaseController_1.default {
                 staff['password_hash'] = Util_1.default.createHash(staff.password, password_salt);
                 return new Promise((resolve, reject) => {
                     this.logger.debug('updating staff...');
-                    Models_1.default.Staff.findOneAndUpdate({
+                    ttts_domain_1.Models.Staff.findOneAndUpdate({
                         user_id: staff.user_id
                     }, staff, {
                         new: true,
@@ -50,7 +50,7 @@ class StaffController extends BaseController_1.default {
     createReservationsFromJson() {
         mongoose.connect(MONGOLAB_URI, {});
         // スクリーンごとに内部予約を追加する
-        Models_1.default.Screen.distinct('_id', (err, screenIds) => {
+        ttts_domain_1.Models.Screen.distinct('_id', (err, screenIds) => {
             if (err) {
                 this.logger.info('screen ids found.', err);
                 mongoose.disconnect();
@@ -84,20 +84,20 @@ class StaffController extends BaseController_1.default {
             }
             ;
             // 内部関係者をすべて取得
-            Models_1.default.Staff.find({}, (err, staffs) => {
+            ttts_domain_1.Models.Staff.find({}, (err, staffs) => {
                 if (err)
                     throw err;
                 let staffsByName = {};
                 for (let staff of staffs) {
                     staffsByName[staff.get('name')] = staff;
                 }
-                ReservationUtil_1.default.publishPaymentNo((err, paymentNo) => {
+                ttts_domain_2.ReservationUtil.publishPaymentNo((err, paymentNo) => {
                     this.logger.debug('paymentNo is', paymentNo);
                     if (err)
                         return cb(err);
                     let reservations = [];
                     // スクリーンのパフォーマンスをすべて取得
-                    Models_1.default.Performance.find({ screen: screenId })
+                    ttts_domain_1.Models.Performance.find({ screen: screenId })
                         .populate('film', 'name is_mx4d copyright')
                         .populate('screen', 'name')
                         .populate('theater', 'name address')
@@ -111,7 +111,7 @@ class StaffController extends BaseController_1.default {
                                 return {
                                     "performance": performance.get('_id'),
                                     "seat_code": reservation.seat_code,
-                                    "status": ReservationUtil_1.default.STATUS_RESERVED,
+                                    "status": ttts_domain_2.ReservationUtil.STATUS_RESERVED,
                                     "staff": _staff.get('_id'),
                                     "staff_user_id": _staff.get('user_id'),
                                     "staff_email": _staff.get('email'),
@@ -141,7 +141,7 @@ class StaffController extends BaseController_1.default {
                                     "performance_start_time": performance.get('start_time'),
                                     "performance_open_time": performance.get('open_time'),
                                     "performance_day": performance.get('day'),
-                                    "purchaser_group": ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
+                                    "purchaser_group": ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF,
                                     "payment_no": paymentNo,
                                     "payment_seat_index": index,
                                     "charge": 0,
@@ -157,7 +157,7 @@ class StaffController extends BaseController_1.default {
                             reservations = reservations.concat(reservationsByPerformance);
                         }
                         this.logger.debug('creating staff reservations...length:', reservations.length);
-                        Models_1.default.Reservation.insertMany(reservations, (err) => {
+                        ttts_domain_1.Models.Reservation.insertMany(reservations, (err) => {
                             this.logger.debug('staff reservations created.', err);
                             cb(err);
                         });
@@ -173,7 +173,7 @@ class StaffController extends BaseController_1.default {
      */
     createReservationsByPerformanceId(performanceId) {
         mongoose.connect(MONGOLAB_URI, {});
-        Models_1.default.Performance.findOne({ _id: performanceId })
+        ttts_domain_1.Models.Performance.findOne({ _id: performanceId })
             .populate('film', 'name is_mx4d copyright')
             .populate('screen', 'name')
             .populate('theater', 'name address')
@@ -195,14 +195,14 @@ class StaffController extends BaseController_1.default {
                 }
                 ;
                 // 内部関係者をすべて取得
-                Models_1.default.Staff.find({}, (err, staffs) => {
+                ttts_domain_1.Models.Staff.find({}, (err, staffs) => {
                     if (err)
                         throw err;
                     let staffsByName = {};
                     for (let staff of staffs) {
                         staffsByName[staff.get('name')] = staff;
                     }
-                    ReservationUtil_1.default.publishPaymentNo((err, paymentNo) => {
+                    ttts_domain_2.ReservationUtil.publishPaymentNo((err, paymentNo) => {
                         this.logger.info('paymentNo published.', err, paymentNo);
                         if (err) {
                             mongoose.disconnect();
@@ -216,7 +216,7 @@ class StaffController extends BaseController_1.default {
                             let newReservation = {
                                 "performance": performance.get('_id'),
                                 "seat_code": reservation.seat_code,
-                                "status": ReservationUtil_1.default.STATUS_RESERVED,
+                                "status": ttts_domain_2.ReservationUtil.STATUS_RESERVED,
                                 "staff": _staff.get('_id'),
                                 "staff_user_id": _staff.get('user_id'),
                                 "staff_email": _staff.get('email'),
@@ -246,7 +246,7 @@ class StaffController extends BaseController_1.default {
                                 "performance_start_time": performance.get('start_time'),
                                 "performance_open_time": performance.get('open_time'),
                                 "performance_day": performance.get('day'),
-                                "purchaser_group": ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
+                                "purchaser_group": ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF,
                                 "payment_no": paymentNo,
                                 "payment_seat_index": index,
                                 "charge": 0,
@@ -260,7 +260,7 @@ class StaffController extends BaseController_1.default {
                             };
                             return new Promise((resolve, reject) => {
                                 this.logger.info('creating reservation...');
-                                Models_1.default.Reservation.create(newReservation, (err) => {
+                                ttts_domain_1.Models.Reservation.create(newReservation, (err) => {
                                     if (err)
                                         return reject(err);
                                     this.logger.info('reservation created.', err);

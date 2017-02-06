@@ -1,10 +1,10 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
-const Models_1 = require("../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const mongodb = require("mongodb");
 const mongoose = require("mongoose");
 const conf = require("config");
-const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const Util_1 = require("../../../common/Util/Util");
 const fs = require("fs-extra");
 const request = require("request");
@@ -14,7 +14,7 @@ let MONGOLAB_URI = conf.get('mongolab_uri');
 class TestController extends BaseController_1.default {
     publishPaymentNo() {
         mongoose.connect(MONGOLAB_URI, {});
-        ReservationUtil_1.default.publishPaymentNo((err, paymentNo) => {
+        ttts_domain_2.ReservationUtil.publishPaymentNo((err, paymentNo) => {
             this.logger.info('paymentNo is', err, paymentNo);
             mongoose.disconnect();
             process.exit(0);
@@ -82,13 +82,13 @@ class TestController extends BaseController_1.default {
     testCreateConnection() {
         let uri = "mongodb://dev4gmotiffmlabmongodbuser:Yrpx-rPjr_Qjx79_R4HaknsfMEbyrQjp4NiF-XKj@ds048719.mlab.com:48719/dev4gmotiffmlabmongodb";
         mongoose.connect(MONGOLAB_URI, {});
-        Models_1.default.Reservation.count({}, (err, count) => {
+        ttts_domain_1.Models.Reservation.count({}, (err, count) => {
             this.logger.info('count', err, count);
             let db4gmo = mongoose.createConnection(uri);
             db4gmo.collection('reservations').count({}, (err, count) => {
                 this.logger.info('count', err, count);
                 db4gmo.close();
-                Models_1.default.Reservation.count({}, (err, count) => {
+                ttts_domain_1.Models.Reservation.count({}, (err, count) => {
                     this.logger.info('count', err, count);
                     mongoose.disconnect();
                     process.exit(0);
@@ -101,7 +101,7 @@ class TestController extends BaseController_1.default {
      */
     getPaymentNosWithEmail() {
         mongoose.connect(MONGOLAB_URI);
-        Models_1.default.GMONotification.distinct('order_id', {
+        ttts_domain_1.Models.GMONotification.distinct('order_id', {
             // status:{$in:["CAPTURE","PAYSUCCESS"]},
             status: { $in: ["PAYSUCCESS"] },
             processed: true
@@ -144,7 +144,7 @@ class TestController extends BaseController_1.default {
             });
             mongoose.connect(MONGOLAB_URI);
             this.logger.info('creating ReservationEmailCues...length:', cues.length);
-            Models_1.default.ReservationEmailCue.insertMany(cues, (err) => {
+            ttts_domain_1.Models.ReservationEmailCue.insertMany(cues, (err) => {
                 this.logger.info('ReservationEmailCues created.', err);
                 mongoose.disconnect();
                 process.exit(0);
@@ -156,8 +156,8 @@ class TestController extends BaseController_1.default {
      */
     release() {
         mongoose.connect(MONGOLAB_URI);
-        Models_1.default.Reservation.count({
-            status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS
+        ttts_domain_1.Models.Reservation.count({
+            status: ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS
         }, (err, count) => {
             console.log(err, count);
             // Models.Reservation.remove({
@@ -172,7 +172,7 @@ class TestController extends BaseController_1.default {
     gmoNotificationProcessing2unprocess() {
         mongoose.connect(MONGOLAB_URI);
         this.logger.info('updating GMONotification...');
-        Models_1.default.GMONotification.update({
+        ttts_domain_1.Models.GMONotification.update({
             process_status: "PROCESSING",
             updated_at: {
                 $lt: moment().add(-1, 'hour').toISOString()

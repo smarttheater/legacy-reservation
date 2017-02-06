@@ -1,5 +1,5 @@
 import BaseController from '../BaseController';
-import Models from '../../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 import fs = require('fs-extra');
 
 export default class ScreenController extends BaseController {

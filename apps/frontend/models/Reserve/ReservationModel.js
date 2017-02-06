@@ -1,9 +1,14 @@
 "use strict";
-const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
 const conf = require("config");
 const moment = require("moment");
-const redisClient_1 = require("../../../common/modules/redisClient");
+const redis = require("redis");
+const redisClient = redis.createClient(conf.get("redis_port"), conf.get("redis_host"), {
+    password: conf.get("redis_key"),
+    tls: { servername: conf.get("redis_host") },
+    return_buffers: true
+});
 /**
  * 予約情報モデル
  *
@@ -19,7 +24,7 @@ class ReservationModel {
     save(cb, ttl) {
         let key = ReservationModel.getRedisKey(this.token);
         let _ttl = (ttl) ? ttl : 1800;
-        redisClient_1.default.setex(key, _ttl, JSON.stringify(this), (err) => {
+        redisClient.setex(key, _ttl, JSON.stringify(this), (err) => {
             if (err)
                 throw err;
             cb();
@@ -30,7 +35,7 @@ class ReservationModel {
      */
     remove(cb) {
         let key = ReservationModel.getRedisKey(this.token);
-        redisClient_1.default.del(key, (err) => {
+        redisClient.del(key, (err) => {
             cb(err);
         });
     }
@@ -39,7 +44,7 @@ class ReservationModel {
      */
     static find(token, cb) {
         let key = ReservationModel.getRedisKey(token);
-        redisClient_1.default.get(key, (err, reply) => {
+        redisClient.get(key, (err, reply) => {
             if (err)
                 return cb(err, null);
             if (reply === null)
@@ -73,13 +78,13 @@ class ReservationModel {
         let limit = 4;
         // 主体によっては、決済方法を強制的に固定で
         switch (this.purchaserGroup) {
-            case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
-            case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
-            case ReservationUtil_1.default.PURCHASER_GROUP_WINDOW:
+            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
+            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
+            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
                 limit = 10;
                 break;
-            case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
-            case ReservationUtil_1.default.PURCHASER_GROUP_TEL:
+            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER:
+            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
                 if (this.performance) {
                     // 制限枚数指定のパフォーマンスの場合
                     let performanceIds4limit2 = conf.get('performanceIds4limit2');
@@ -119,9 +124,9 @@ class ReservationModel {
     }
     getChargeExceptTicketTypeBySeatCode(seatCode) {
         let charge = 0;
-        if (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER
-            || this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_WINDOW
-            || this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_TEL) {
+        if (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER
+            || this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW
+            || this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_TEL) {
             let reservation = this.getReservation(seatCode);
             // 座席グレード分加算
             if (reservation.seat_grade_additional_charge > 0) {
@@ -129,11 +134,11 @@ class ReservationModel {
             }
             // MX4D分加算
             if (this.performance.film.is_mx4d) {
-                charge += ReservationUtil_1.default.CHARGE_MX4D;
+                charge += ttts_domain_1.ReservationUtil.CHARGE_MX4D;
             }
             // コンビニ手数料加算
             if (this.paymentMethod === GMOUtil_1.default.PAY_TYPE_CVS) {
-                charge += ReservationUtil_1.default.CHARGE_CVS;
+                charge += ttts_domain_1.ReservationUtil.CHARGE_CVS;
             }
         }
         return charge;

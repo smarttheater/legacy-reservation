@@ -3,7 +3,7 @@ const TelAuthController_1 = require("../controllers/Tel/Auth/TelAuthController")
 const TelMyPageController_1 = require("../controllers/Tel/MyPage/TelMyPageController");
 const TelReserveController_1 = require("../controllers/Tel/Reserve/TelReserveController");
 const TelCancelController_1 = require("../controllers/Tel/Cancel/TelCancelController");
-const Models_1 = require("../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const Util_1 = require("../../common/Util/Util");
 const TelStaffUser_1 = require("../models/User/TelStaffUser");
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -13,7 +13,7 @@ exports.default = (app) => {
             // 自動ログインチェック
             let checkRemember = (cb) => {
                 if (req.cookies.remember_tel_staff) {
-                    Models_1.default.Authentication.findOne({
+                    ttts_domain_1.Models.Authentication.findOne({
                         token: req.cookies.remember_tel_staff,
                         tel_staff: { $ne: null }
                     }, (err, authentication) => {
@@ -26,7 +26,7 @@ exports.default = (app) => {
                                 if (err)
                                     cb(null);
                                 res.cookie('remember_tel_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                Models_1.default.TelStaff.findOne({ _id: authentication.get('tel_staff') }, (err, telStaff) => {
+                                ttts_domain_1.Models.TelStaff.findOne({ _id: authentication.get('tel_staff') }, (err, telStaff) => {
                                     cb(telStaff);
                                 });
                             });

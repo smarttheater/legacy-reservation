@@ -3,7 +3,7 @@ const BaseController_1 = require("../../BaseController");
 const StaffUser_1 = require("../../../models/User/StaffUser");
 const staffLoginForm_1 = require("../../../forms/staff/staffLoginForm");
 const Util_1 = require("../../../../common/Util/Util");
-const Models_1 = require("../../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 class StaffAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -22,7 +22,7 @@ class StaffAuthController extends BaseController_1.default {
                 if (this.req.form.isValid) {
                     // ユーザー認証
                     this.logger.debug('finding staff... user_id:', this.req.form['userId']);
-                    Models_1.default.Staff.findOne({
+                    ttts_domain_1.Models.Staff.findOne({
                         user_id: this.req.form['userId']
                     }, (err, staff) => {
                         if (err)
@@ -42,7 +42,7 @@ class StaffAuthController extends BaseController_1.default {
                                 let processRemember = (cb) => {
                                     if (this.req.form['remember']) {
                                         // トークン生成
-                                        Models_1.default.Authentication.create({
+                                        ttts_domain_1.Models.Authentication.create({
                                             token: Util_1.default.createToken(),
                                             staff: staff.get('_id'),
                                             signature: this.req.form['signature'],
@@ -84,7 +84,7 @@ class StaffAuthController extends BaseController_1.default {
     }
     logout() {
         delete this.req.session[StaffUser_1.default.AUTH_SESSION_NAME];
-        Models_1.default.Authentication.remove({ token: this.req.cookies.remember_staff }, (err) => {
+        ttts_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_staff }, (err) => {
             this.res.clearCookie('remember_staff');
             this.res.redirect(this.router.build('staff.mypage'));
         });

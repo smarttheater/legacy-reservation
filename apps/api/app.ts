@@ -11,7 +11,7 @@ import i18n = require('i18n');
 import passport = require('passport');
 import passportHttpBearer = require('passport-http-bearer');
 let BearerStrategy = passportHttpBearer.Strategy;
-import Models from '../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 
 passport.use(new BearerStrategy(
     (token, cb) => {

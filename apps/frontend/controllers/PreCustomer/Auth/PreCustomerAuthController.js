@@ -3,7 +3,7 @@ const BaseController_1 = require("../../BaseController");
 const PreCustomerUser_1 = require("../../../models/User/PreCustomerUser");
 const preCustomerLoginForm_1 = require("../../../forms/preCustomer/preCustomerLoginForm");
 const Util_1 = require("../../../../common/Util/Util");
-const Models_1 = require("../../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const moment = require("moment");
 const conf = require("config");
 class PreCustomerAuthController extends BaseController_1.default {
@@ -34,7 +34,7 @@ class PreCustomerAuthController extends BaseController_1.default {
                 if (this.req.form.isValid) {
                     // ユーザー認証
                     this.logger.debug('finding preCustomer... user_id:', this.req.form['userId']);
-                    Models_1.default.PreCustomer.findOne({
+                    ttts_domain_1.Models.PreCustomer.findOne({
                         user_id: this.req.form['userId']
                     }, (err, preCustomer) => {
                         if (err)
@@ -54,7 +54,7 @@ class PreCustomerAuthController extends BaseController_1.default {
                                 let processRemember = (cb) => {
                                     if (this.req.form['remember']) {
                                         // トークン生成
-                                        Models_1.default.Authentication.create({
+                                        ttts_domain_1.Models.Authentication.create({
                                             token: Util_1.default.createToken(),
                                             pre_customer: preCustomer.get('_id'),
                                             locale: this.req.form['language']
@@ -94,7 +94,7 @@ class PreCustomerAuthController extends BaseController_1.default {
     }
     logout() {
         delete this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME];
-        Models_1.default.Authentication.remove({ token: this.req.cookies.remember_pre_customer }, (err) => {
+        ttts_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_pre_customer }, (err) => {
             this.res.clearCookie('remember_pre_customer');
             this.res.redirect(this.router.build('pre.reserve.start'));
         });

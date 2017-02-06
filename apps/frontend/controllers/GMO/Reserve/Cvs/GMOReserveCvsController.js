@@ -1,8 +1,8 @@
 "use strict";
 const ReserveBaseController_1 = require("../../../ReserveBaseController");
-const Models_1 = require("../../../../../common/models/Models");
-const ReservationUtil_1 = require("../../../../../common/models/Reservation/ReservationUtil");
-const ReservationEmailCueUtil_1 = require("../../../../../common/models/ReservationEmailCue/ReservationEmailCueUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const ttts_domain_3 = require("@motionpicture/ttts-domain");
 const crypto = require("crypto");
 const conf = require("config");
 class GMOReserveCvsController extends ReserveBaseController_1.default {
@@ -12,7 +12,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
     result(gmoResultModel) {
         // 内容の整合性チェック
         this.logger.info('finding reservations...payment_no:', gmoResultModel.OrderID);
-        Models_1.default.Reservation.find({
+        ttts_domain_1.Models.Reservation.find({
             payment_no: gmoResultModel.OrderID
         }, '_id purchaser_group pre_customer', (err, reservations) => {
             this.logger.info('reservations found.', err, reservations.length);
@@ -31,7 +31,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
             }
             // 決済待ちステータスへ変更
             this.logger.info('updating reservations by paymentNo...', gmoResultModel.OrderID);
-            Models_1.default.Reservation.update({ payment_no: gmoResultModel.OrderID }, {
+            ttts_domain_1.Models.Reservation.update({ payment_no: gmoResultModel.OrderID }, {
                 gmo_shop_id: gmoResultModel.ShopID,
                 gmo_amount: gmoResultModel.Amount,
                 gmo_tax: gmoResultModel.Tax,
@@ -47,12 +47,12 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                     return this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
                 // 仮予約完了メールキュー追加(あれば更新日時を更新するだけ)
                 this.logger.info('creating reservationEmailCue...');
-                Models_1.default.ReservationEmailCue.findOneAndUpdate({
+                ttts_domain_1.Models.ReservationEmailCue.findOneAndUpdate({
                     payment_no: gmoResultModel.OrderID,
-                    template: ReservationEmailCueUtil_1.default.TEMPLATE_TEMPORARY,
+                    template: ttts_domain_3.ReservationEmailCueUtil.TEMPLATE_TEMPORARY,
                 }, {
                     $set: { updated_at: Date.now() },
-                    $setOnInsert: { status: ReservationEmailCueUtil_1.default.STATUS_UNSENT }
+                    $setOnInsert: { status: ttts_domain_3.ReservationEmailCueUtil.STATUS_UNSENT }
                 }, {
                     upsert: true,
                     new: true
@@ -64,7 +64,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                     // 購入者区分による振り分け
                     let group = reservations[0].get('purchaser_group');
                     switch (group) {
-                        case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
+                        case ttts_domain_2.ReservationUtil.PURCHASER_GROUP_MEMBER:
                             this.res.redirect(this.router.build('member.reserve.waitingSettlement', { paymentNo: gmoResultModel.OrderID }));
                             break;
                         default:

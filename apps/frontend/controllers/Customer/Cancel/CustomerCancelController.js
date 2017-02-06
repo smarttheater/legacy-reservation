@@ -1,7 +1,7 @@
 "use strict";
 const BaseController_1 = require("../../BaseController");
-const Models_1 = require("../../../../common/models/Models");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
 const customerCancelForm_1 = require("../../../forms/customer/customerCancelForm");
 const log4js = require("log4js");
@@ -28,11 +28,11 @@ class CustomerCancelController extends BaseController_1.default {
                     });
                 }
                 // 予約を取得(クレジットカード決済のみ)
-                Models_1.default.Reservation.find({
+                ttts_domain_1.Models.Reservation.find({
                     payment_no: this.req.form['paymentNo'],
                     purchaser_tel: { $regex: `${this.req.form['last4DigitsOfTel']}$` },
-                    purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER,
-                    status: ReservationUtil_1.default.STATUS_RESERVED
+                    purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
+                    status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
                 }, (err, reservations) => {
                     if (err) {
                         return this.res.json({
@@ -98,11 +98,11 @@ class CustomerCancelController extends BaseController_1.default {
         let paymentNo = this.req.body.paymentNo;
         let last4DigitsOfTel = this.req.body.last4DigitsOfTel;
         this.logger.info('finding reservations...');
-        Models_1.default.Reservation.find({
+        ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
             purchaser_tel: { $regex: `${last4DigitsOfTel}$` },
-            purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER,
-            status: ReservationUtil_1.default.STATUS_RESERVED
+            purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
+            status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
         }, (err, reservations) => {
             this.logger.info('reservations found.', err, reservations);
             if (err)
@@ -122,11 +122,11 @@ class CustomerCancelController extends BaseController_1.default {
                 }
                 if (reservations[0].get('payment_method') === GMOUtil_1.default.PAY_TYPE_CREDIT) {
                     this.logger.info('removing reservations by customer... payment_no:', paymentNo);
-                    Models_1.default.Reservation.remove({
+                    ttts_domain_1.Models.Reservation.remove({
                         payment_no: paymentNo,
                         purchaser_tel: { $regex: `${last4DigitsOfTel}$` },
-                        purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER,
-                        status: ReservationUtil_1.default.STATUS_RESERVED
+                        purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
+                        status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
                     }, (err) => {
                         this.logger.info('reservations removed by customer.', err, 'payment_no:', paymentNo);
                         if (err) {
@@ -137,7 +137,7 @@ class CustomerCancelController extends BaseController_1.default {
                         }
                         // キャンセルリクエスト保管
                         this.logger.info('creating CustomerCancelRequest...');
-                        Models_1.default.CustomerCancelRequest.create({
+                        ttts_domain_1.Models.CustomerCancelRequest.create({
                             payment_no: paymentNo,
                             payment_method: reservations[0].get('payment_method'),
                             email: reservations[0].get('purchaser_email'),
@@ -156,7 +156,7 @@ class CustomerCancelController extends BaseController_1.default {
                                 numeral: numeral,
                                 conf: conf,
                                 GMOUtil: GMOUtil_1.default,
-                                ReservationUtil: ReservationUtil_1.default
+                                ReservationUtil: ttts_domain_2.ReservationUtil
                             }, (err, html) => {
                                 this.logger.info('email rendered. html:', err, html);
                                 // メール失敗してもキャンセル成功

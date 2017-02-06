@@ -1,9 +1,9 @@
 "use strict";
 const BaseController_1 = require("../../BaseController");
 const Util_1 = require("../../../../common/Util/Util");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
-const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
-const Models_1 = require("../../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const ttts_domain_3 = require("@motionpicture/ttts-domain");
 class SponsorMyPageController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -24,9 +24,9 @@ class SponsorMyPageController extends BaseController_1.default {
         // 検索条件を作成
         let conditions = [];
         conditions.push({
-            purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR,
+            purchaser_group: ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR,
             sponsor: this.req.sponsorUser.get('_id'),
-            status: ReservationUtil_1.default.STATUS_RESERVED
+            status: ttts_domain_1.ReservationUtil.STATUS_RESERVED
         });
         if (tel) {
             conditions.push({
@@ -55,7 +55,7 @@ class SponsorMyPageController extends BaseController_1.default {
             conditions.push({ payment_no: { $regex: `${paymentNo}` } });
         }
         // 総数検索
-        Models_1.default.Reservation.count({
+        ttts_domain_3.Models.Reservation.count({
             $and: conditions
         }, (err, count) => {
             if (err) {
@@ -65,7 +65,7 @@ class SponsorMyPageController extends BaseController_1.default {
                     count: 0
                 });
             }
-            Models_1.default.Reservation.find({ $and: conditions })
+            ttts_domain_3.Models.Reservation.find({ $and: conditions })
                 .skip(limit * (page - 1))
                 .limit(limit)
                 .lean(true)
@@ -86,7 +86,7 @@ class SponsorMyPageController extends BaseController_1.default {
                             return 1;
                         if (a.screen > b.screen)
                             return 1;
-                        return ScreenUtil_1.default.sortBySeatCode(a.seat_code, b.seat_code);
+                        return ttts_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
                     });
                     this.res.json({
                         success: true,

@@ -1,17 +1,17 @@
 "use strict";
 const BaseController_1 = require("../../BaseController");
 const Util_1 = require("../../../../common/Util/Util");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
-const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
-const Models_1 = require("../../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const ttts_domain_3 = require("@motionpicture/ttts-domain");
 class StaffMyPageController extends BaseController_1.default {
     constructor() {
         super(...arguments);
         this.layout = 'layouts/staff/layout';
     }
     index() {
-        Models_1.default.Theater.find({}, 'name', { sort: { _id: 1 } }, (err, theaters) => {
-            Models_1.default.Film.find({}, 'name', { sort: { _id: 1 } }, (err, films) => {
+        ttts_domain_3.Models.Theater.find({}, 'name', { sort: { _id: 1 } }, (err, theaters) => {
+            ttts_domain_3.Models.Film.find({}, 'name', { sort: { _id: 1 } }, (err, films) => {
                 this.res.render('staff/mypage/index', {
                     theaters: theaters,
                     films: films
@@ -38,20 +38,20 @@ class StaffMyPageController extends BaseController_1.default {
             conditions.push({
                 $or: [
                     {
-                        purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
-                        status: ReservationUtil_1.default.STATUS_RESERVED
+                        purchaser_group: ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF,
+                        status: ttts_domain_1.ReservationUtil.STATUS_RESERVED
                     },
                     {
-                        status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS
+                        status: ttts_domain_1.ReservationUtil.STATUS_KEPT_BY_TTTS
                     }
                 ]
             });
         }
         else {
             conditions.push({
-                purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_STAFF,
+                purchaser_group: ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF,
                 staff: this.req.staffUser.get('_id'),
-                status: ReservationUtil_1.default.STATUS_RESERVED
+                status: ttts_domain_1.ReservationUtil.STATUS_RESERVED
             });
         }
         if (film) {
@@ -88,7 +88,7 @@ class StaffMyPageController extends BaseController_1.default {
             conditions.push({ payment_no: { $regex: `${paymentNo}` } });
         }
         // 総数検索
-        Models_1.default.Reservation.count({
+        ttts_domain_3.Models.Reservation.count({
             $and: conditions
         }, (err, count) => {
             if (err) {
@@ -98,7 +98,7 @@ class StaffMyPageController extends BaseController_1.default {
                     count: 0
                 });
             }
-            Models_1.default.Reservation.find({ $and: conditions })
+            ttts_domain_3.Models.Reservation.find({ $and: conditions })
                 .skip(limit * (page - 1))
                 .limit(limit)
                 .lean(true)
@@ -119,7 +119,7 @@ class StaffMyPageController extends BaseController_1.default {
                             return 1;
                         if (a.screen > b.screen)
                             return 1;
-                        return ScreenUtil_1.default.sortBySeatCode(a.seat_code, b.seat_code);
+                        return ttts_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
                     });
                     this.res.json({
                         success: true,
@@ -138,13 +138,13 @@ class StaffMyPageController extends BaseController_1.default {
         let watcherName = this.req.body.watcherName;
         let condition = {
             _id: reservationId,
-            status: ReservationUtil_1.default.STATUS_RESERVED
+            status: ttts_domain_1.ReservationUtil.STATUS_RESERVED
         };
         // 管理者でない場合は自分の予約のみ
         if (!this.req.staffUser.get('is_admin')) {
             condition['staff'] = this.req.staffUser.get('_id');
         }
-        Models_1.default.Reservation.findOneAndUpdate(condition, {
+        ttts_domain_3.Models.Reservation.findOneAndUpdate(condition, {
             watcher_name: watcherName,
             watcher_name_updated_at: Date.now(),
             staff_signature: this.req.staffUser.get('signature'),
@@ -184,9 +184,9 @@ class StaffMyPageController extends BaseController_1.default {
                 });
                 return;
             }
-            Models_1.default.Reservation.remove({
+            ttts_domain_3.Models.Reservation.remove({
                 performance_day: day,
-                status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS
+                status: ttts_domain_1.ReservationUtil.STATUS_KEPT_BY_TTTS
             }, (err) => {
                 if (err) {
                     this.res.json({
@@ -204,8 +204,8 @@ class StaffMyPageController extends BaseController_1.default {
         }
         else {
             // 開放座席情報取得
-            Models_1.default.Reservation.find({
-                status: ReservationUtil_1.default.STATUS_KEPT_BY_TTTS
+            ttts_domain_3.Models.Reservation.find({
+                status: ttts_domain_1.ReservationUtil.STATUS_KEPT_BY_TTTS
             }, 'status seat_code performance_day', (err, reservations) => {
                 if (err)
                     return this.next(new Error(this.req.__('Message.UnexpectedError')));

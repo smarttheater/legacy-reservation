@@ -3,7 +3,7 @@ const BaseController_1 = require("../../BaseController");
 const TelStaffUser_1 = require("../../../models/User/TelStaffUser");
 const telLoginForm_1 = require("../../../forms/tel/telLoginForm");
 const Util_1 = require("../../../../common/Util/Util");
-const Models_1 = require("../../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 class TelAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -21,7 +21,7 @@ class TelAuthController extends BaseController_1.default {
             form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
-                    Models_1.default.TelStaff.findOne({
+                    ttts_domain_1.Models.TelStaff.findOne({
                         user_id: this.req.form['userId']
                     }, (err, telStaff) => {
                         if (err)
@@ -41,7 +41,7 @@ class TelAuthController extends BaseController_1.default {
                                 let processRemember = (cb) => {
                                     if (this.req.form['remember']) {
                                         // トークン生成
-                                        Models_1.default.Authentication.create({
+                                        ttts_domain_1.Models.Authentication.create({
                                             token: Util_1.default.createToken(),
                                             tel_staff: telStaff.get('_id')
                                         }, (err, authentication) => {
@@ -79,7 +79,7 @@ class TelAuthController extends BaseController_1.default {
     }
     logout() {
         delete this.req.session[TelStaffUser_1.default.AUTH_SESSION_NAME];
-        Models_1.default.Authentication.remove({ token: this.req.cookies.remember_tel_staff }, (err) => {
+        ttts_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_tel_staff }, (err) => {
             this.res.clearCookie('remember_tel_staff');
             this.res.redirect(this.router.build('tel.mypage'));
         });

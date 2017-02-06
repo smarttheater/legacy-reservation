@@ -2,7 +2,7 @@ import BaseController from '../../BaseController';
 import StaffUser from '../../../models/User/StaffUser';
 import staffLoginForm from '../../../forms/staff/staffLoginForm';
 import Util from '../../../../common/Util/Util';
-import Models from '../../../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 
 export default class StaffAuthController extends BaseController {
     public layout = 'layouts/staff/layout';

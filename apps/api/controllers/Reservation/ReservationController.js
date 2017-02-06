@@ -1,7 +1,7 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
-const Models_1 = require("../../../common/models/Models");
-const ReservationUtil_1 = require("../../../common/models/Reservation/ReservationUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const sendgrid = require("sendgrid");
 const conf = require("config");
 const validator = require("validator");
@@ -23,9 +23,9 @@ class ReservationController extends BaseController_1.default {
             });
             return;
         }
-        Models_1.default.Reservation.findOne({
+        ttts_domain_1.Models.Reservation.findOne({
             _id: id,
-            status: ReservationUtil_1.default.STATUS_RESERVED
+            status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
         }, (err, reservation) => {
             if (err) {
                 return this.res.json({
@@ -51,7 +51,7 @@ class ReservationController extends BaseController_1.default {
                 conf: conf,
                 title_ja: title_ja,
                 title_en: title_en,
-                ReservationUtil: ReservationUtil_1.default
+                ReservationUtil: ttts_domain_2.ReservationUtil
             }, (err, html) => {
                 if (err) {
                     return this.res.json({
@@ -103,7 +103,7 @@ class ReservationController extends BaseController_1.default {
      * 入場グラグをたてる
      */
     enter() {
-        Models_1.default.Reservation.update({
+        ttts_domain_1.Models.Reservation.update({
             _id: this.req.params.id
         }, {
             entered: true,
@@ -123,9 +123,9 @@ class ReservationController extends BaseController_1.default {
     }
     findByMvtkUser() {
         // ひとまずデモ段階では、一般予約を10件返す
-        Models_1.default.Reservation.find({
-            purchaser_group: ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER,
-            status: ReservationUtil_1.default.STATUS_RESERVED
+        ttts_domain_1.Models.Reservation.find({
+            purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
+            status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
         }).limit(10).exec((err, reservations) => {
             if (err) {
                 this.res.json({
@@ -143,9 +143,9 @@ class ReservationController extends BaseController_1.default {
     }
     findById() {
         let id = this.req.params.id;
-        Models_1.default.Reservation.findOne({
+        ttts_domain_1.Models.Reservation.findOne({
             _id: id,
-            status: ReservationUtil_1.default.STATUS_RESERVED
+            status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
         }, (err, reservation) => {
             if (err) {
                 this.res.json({

@@ -2,7 +2,7 @@ import BaseController from '../../BaseController';
 import WindowUser from '../../../models/User/WindowUser';
 import windowLoginForm from '../../../forms/window/windowLoginForm';
 import Util from '../../../../common/Util/Util';
-import Models from '../../../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 
 export default class WindowAuthController extends BaseController {
     public layout = 'layouts/window/layout';

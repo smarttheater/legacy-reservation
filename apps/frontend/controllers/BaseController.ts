@@ -3,7 +3,6 @@ import log4js = require('log4js');
 import moment = require('moment');
 import numeral = require('numeral');
 import conf = require('config');
-import Constants from '../../common/Util/Constants';
 import Util from '../../common/Util/Util';
 
 /**
@@ -41,7 +40,6 @@ export default class BaseController {
         this.res.locals.moment = moment;
         this.res.locals.numeral = numeral;
         this.res.locals.conf = conf;
-        this.res.locals.Constants = Constants;
         this.res.locals.Util = Util;
 
 

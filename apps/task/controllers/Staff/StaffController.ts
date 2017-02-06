@@ -1,10 +1,10 @@
 import BaseController from '../BaseController';
 import Util from '../../../common/Util/Util';
-import Models from '../../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 import conf = require('config');
 import mongoose = require('mongoose');
 import fs = require('fs-extra');
-import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
+import {ReservationUtil} from "@motionpicture/ttts-domain";
 
 let MONGOLAB_URI = conf.get<string>('mongolab_uri');
 

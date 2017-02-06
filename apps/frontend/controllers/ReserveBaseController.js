@@ -2,11 +2,8 @@
 const BaseController_1 = require("./BaseController");
 const Util_1 = require("../../common/Util/Util");
 const GMOUtil_1 = require("../../common/Util/GMO/GMOUtil");
-const ReservationUtil_1 = require("../../common/models/Reservation/ReservationUtil");
-const ScreenUtil_1 = require("../../common/models/Screen/ScreenUtil");
-const TicketTypeGroupUtil_1 = require("../../common/models/TicketTypeGroup/TicketTypeGroupUtil");
-const ReservationEmailCueUtil_1 = require("../../common/models/ReservationEmailCue/ReservationEmailCueUtil");
-const Models_1 = require("../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const ReservationModel_1 = require("../models/Reserve/ReservationModel");
 const moment = require("moment");
 const fs = require("fs-extra");
@@ -20,9 +17,9 @@ class ReserveBaseController extends BaseController_1.default {
     constructor(req, res, next) {
         super(req, res, next);
         this.res.locals.GMOUtil = GMOUtil_1.default;
-        this.res.locals.ReservationUtil = ReservationUtil_1.default;
-        this.res.locals.ScreenUtil = ScreenUtil_1.default;
-        this.res.locals.Models = Models_1.default;
+        this.res.locals.ReservationUtil = ttts_domain_1.ReservationUtil;
+        this.res.locals.ScreenUtil = ttts_domain_1.ScreenUtil;
+        this.res.locals.Models = ttts_domain_2.Models;
     }
     /**
      * 購入開始プロセス
@@ -47,12 +44,12 @@ class ReserveBaseController extends BaseController_1.default {
         reservationModel.purchaserGroup = this.purchaserGroup;
         reservationModel = this.initializePayment(reservationModel);
         // この時点でトークンに対して購入番号を発行しておかないと、複数ウィンドウで購入番号がずれる可能性あり
-        ReservationUtil_1.default.publishPaymentNo((err, paymentNo) => {
+        ttts_domain_1.ReservationUtil.publishPaymentNo((err, paymentNo) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
             reservationModel.paymentNo = paymentNo;
             // パフォーマンスFIX
-            if (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser.get('performance')) {
+            if (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser.get('performance')) {
                 // パフォーマンスFIX
                 this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'), (err, reservationModel) => {
                     cb(err, reservationModel);
@@ -85,7 +82,7 @@ class ReserveBaseController extends BaseController_1.default {
         reservationModel.purchaserGender = '1';
         reservationModel.paymentMethodChoices = [];
         switch (this.purchaserGroup) {
-            case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
+            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER:
                 purchaserFromSession = this.findPurchaser();
                 if (purchaserFromSession) {
                     reservationModel.purchaserLastName = purchaserFromSession.lastName;
@@ -98,7 +95,7 @@ class ReserveBaseController extends BaseController_1.default {
                 }
                 reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CREDIT, GMOUtil_1.default.PAY_TYPE_CVS];
                 break;
-            case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
+            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
                 if (purchaserFromSession) {
                     reservationModel.purchaserLastName = purchaserFromSession.lastName;
                     reservationModel.purchaserFirstName = purchaserFromSession.firstName;
@@ -110,7 +107,7 @@ class ReserveBaseController extends BaseController_1.default {
                 }
                 reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CREDIT];
                 break;
-            case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
+            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
                 if (purchaserFromSession) {
                     reservationModel.purchaserLastName = purchaserFromSession.lastName;
                     reservationModel.purchaserFirstName = purchaserFromSession.firstName;
@@ -121,7 +118,7 @@ class ReserveBaseController extends BaseController_1.default {
                     reservationModel.purchaserGender = purchaserFromSession.gender;
                 }
                 break;
-            case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
+            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
                 reservationModel.purchaserLastName = 'ナイブ';
                 reservationModel.purchaserFirstName = 'カンケイシャ';
                 reservationModel.purchaserTel = '0362263025';
@@ -130,7 +127,7 @@ class ReserveBaseController extends BaseController_1.default {
                 reservationModel.purchaserAddress = '';
                 reservationModel.purchaserGender = '1';
                 break;
-            case ReservationUtil_1.default.PURCHASER_GROUP_TEL:
+            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
                 reservationModel.purchaserLastName = '';
                 reservationModel.purchaserFirstName = '';
                 reservationModel.purchaserTel = '';
@@ -140,7 +137,7 @@ class ReserveBaseController extends BaseController_1.default {
                 reservationModel.purchaserGender = '1';
                 reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CVS];
                 break;
-            case ReservationUtil_1.default.PURCHASER_GROUP_WINDOW:
+            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
                 reservationModel.purchaserLastName = 'マドグチ';
                 reservationModel.purchaserFirstName = 'タントウシャ';
                 reservationModel.purchaserTel = '0362263025';
@@ -167,7 +164,7 @@ class ReserveBaseController extends BaseController_1.default {
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
         // 仮予約を空席ステータスに戻す
-        Models_1.default.Reservation.remove({
+        ttts_domain_2.Models.Reservation.remove({
             _id: { $in: ids }
         }, (err) => {
             // 失敗したとしても時間経過で消えるので放置
@@ -180,7 +177,7 @@ class ReserveBaseController extends BaseController_1.default {
      */
     processFixPerformance(reservationModel, perfomanceId, cb) {
         // パフォーマンス取得
-        Models_1.default.Performance.findOne({
+        ttts_domain_2.Models.Performance.findOne({
             _id: perfomanceId
         }, 'day open_time start_time end_time canceled film screen screen_name theater theater_name' // 必要な項目だけ指定すること
         )
@@ -195,31 +192,31 @@ class ReserveBaseController extends BaseController_1.default {
             if (performance.get('canceled'))
                 return cb(new Error(this.req.__('Message.OutOfTerm')), reservationModel); // 万が一上映中止だった場合
             // 内部と当日以外は、上映日当日まで購入可能
-            if (this.purchaserGroup !== ReservationUtil_1.default.PURCHASER_GROUP_WINDOW
-                && this.purchaserGroup !== ReservationUtil_1.default.PURCHASER_GROUP_STAFF) {
+            if (this.purchaserGroup !== ttts_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW
+                && this.purchaserGroup !== ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF) {
                 if (parseInt(performance.get('day')) < parseInt(moment().format('YYYYMMDD'))) {
                     return cb(new Error('You cannot reserve this performance.'), reservationModel);
                 }
             }
             // 券種取得
-            Models_1.default.TicketTypeGroup.findOne({ _id: performance.get('film').get('ticket_type_group') }, (err, ticketTypeGroup) => {
+            ttts_domain_2.Models.TicketTypeGroup.findOne({ _id: performance.get('film').get('ticket_type_group') }, (err, ticketTypeGroup) => {
                 if (err)
                     return cb(err, reservationModel);
                 reservationModel.seatCodes = [];
                 // 券種リストは、予約する主体によって異なる
                 // 内部関係者の場合
                 switch (this.purchaserGroup) {
-                    case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
-                        reservationModel.ticketTypes = TicketTypeGroupUtil_1.default.getOne4staff();
+                    case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
+                        reservationModel.ticketTypes = ttts_domain_1.TicketTypeGroupUtil.getOne4staff();
                         break;
-                    case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
-                        reservationModel.ticketTypes = TicketTypeGroupUtil_1.default.getOne4sponsor();
+                    case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
+                        reservationModel.ticketTypes = ttts_domain_1.TicketTypeGroupUtil.getOne4sponsor();
                         break;
-                    case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
+                    case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
                         // メルマガ当選者の場合、一般だけ
                         reservationModel.ticketTypes = [];
                         for (let ticketType of ticketTypeGroup.get('types')) {
-                            if (ticketType.get('code') === TicketTypeGroupUtil_1.default.TICKET_TYPE_CODE_ADULTS) {
+                            if (ticketType.get('code') === ttts_domain_1.TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS) {
                                 reservationModel.ticketTypes.push(ticketType);
                             }
                         }
@@ -230,12 +227,12 @@ class ReserveBaseController extends BaseController_1.default {
                         for (let ticketType of ticketTypeGroup.get('types')) {
                             switch (ticketType.get('code')) {
                                 // 学生当日は、当日だけ
-                                case TicketTypeGroupUtil_1.default.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY:
+                                case ttts_domain_1.TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY:
                                     if (moment().format('YYYYMMDD') === performance.get('day')) {
                                         reservationModel.ticketTypes.push(ticketType);
                                     }
                                     break;
-                                case TicketTypeGroupUtil_1.default.TICKET_TYPE_CODE_STUDENTS:
+                                case ttts_domain_1.TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS:
                                     if (moment().format('YYYYMMDD') !== performance.get('day')) {
                                         reservationModel.ticketTypes.push(ticketType);
                                     }
@@ -325,17 +322,17 @@ class ReserveBaseController extends BaseController_1.default {
                 let newReservation = {
                     performance: reservationModel.performance._id,
                     seat_code: seatCode,
-                    status: ReservationUtil_1.default.STATUS_TEMPORARY,
+                    status: ttts_domain_1.ReservationUtil.STATUS_TEMPORARY,
                     expired_at: reservationModel.expiredAt,
-                    staff: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_STAFF) ? this.req.staffUser.get('_id') : undefined,
-                    sponsor: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR) ? this.req.sponsorUser.get('_id') : undefined,
-                    member: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_MEMBER) ? this.req.memberUser.get('_id') : undefined,
-                    tel: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_TEL) ? this.req.telStaffUser.get('_id') : undefined,
-                    window: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_WINDOW) ? this.req.windowUser.get('_id') : undefined,
-                    pre_customer: (this.purchaserGroup === ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER && this.req.preCustomerUser) ? this.req.preCustomerUser.get('_id') : undefined,
+                    staff: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF) ? this.req.staffUser.get('_id') : undefined,
+                    sponsor: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR) ? this.req.sponsorUser.get('_id') : undefined,
+                    member: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER) ? this.req.memberUser.get('_id') : undefined,
+                    tel: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_TEL) ? this.req.telStaffUser.get('_id') : undefined,
+                    window: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW) ? this.req.windowUser.get('_id') : undefined,
+                    pre_customer: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER && this.req.preCustomerUser) ? this.req.preCustomerUser.get('_id') : undefined,
                 };
                 // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
-                Models_1.default.Reservation.create(newReservation, (err, reservation) => {
+                ttts_domain_2.Models.Reservation.create(newReservation, (err, reservation) => {
                     if (err)
                         return reject(err);
                     // ステータス更新に成功したらセッションに保管
@@ -359,7 +356,7 @@ class ReserveBaseController extends BaseController_1.default {
         });
         Promise.all(promises).then(() => {
             // 座席コードのソート(文字列順に)
-            reservationModel.seatCodes.sort(ScreenUtil_1.default.sortBySeatCode);
+            reservationModel.seatCodes.sort(ttts_domain_1.ScreenUtil.sortBySeatCode);
             cb(null, reservationModel);
         }, (err) => {
             cb(err, reservationModel);
@@ -414,14 +411,14 @@ class ReserveBaseController extends BaseController_1.default {
             reservationModel.paymentMethod = this.req.form['paymentMethod'];
             // 主体によっては、決済方法を強制的に固定で
             switch (this.purchaserGroup) {
-                case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
-                case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
+                case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
+                case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
                     reservationModel.paymentMethod = '';
                     break;
-                case ReservationUtil_1.default.PURCHASER_GROUP_TEL:
+                case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
                     reservationModel.paymentMethod = GMOUtil_1.default.PAY_TYPE_CVS;
                     break;
-                case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
+                case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
                     reservationModel.paymentMethod = GMOUtil_1.default.PAY_TYPE_CREDIT;
                     break;
                 default:
@@ -451,9 +448,9 @@ class ReserveBaseController extends BaseController_1.default {
                     'expired_at': moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').valueOf()
                 };
                 switch (this.purchaserGroup) {
-                    case ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER:
+                    case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER:
                         // GMO決済の場合、この時点で決済中ステータスに変更
-                        commonUpdate['status'] = ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT;
+                        commonUpdate['status'] = ttts_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT;
                         commonUpdate['expired_at'] = null;
                         // 1.5次販売ユーザーの場合
                         if (this.req.preCustomerUser) {
@@ -461,16 +458,16 @@ class ReserveBaseController extends BaseController_1.default {
                             commonUpdate['pre_customer_user_id'] = this.req.preCustomerUser.get('user_id');
                         }
                         break;
-                    case ReservationUtil_1.default.PURCHASER_GROUP_MEMBER:
+                    case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
                         commonUpdate['member'] = this.req.memberUser.get('_id');
                         commonUpdate['member_user_id'] = this.req.memberUser.get('user_id');
                         break;
-                    case ReservationUtil_1.default.PURCHASER_GROUP_SPONSOR:
+                    case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
                         commonUpdate['sponsor'] = this.req.sponsorUser.get('_id');
                         commonUpdate['sponsor_user_id'] = this.req.sponsorUser.get('user_id');
                         commonUpdate['sponsor_name'] = this.req.sponsorUser.get('name');
                         break;
-                    case ReservationUtil_1.default.PURCHASER_GROUP_STAFF:
+                    case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
                         commonUpdate['staff'] = this.req.staffUser.get('_id');
                         commonUpdate['staff_user_id'] = this.req.staffUser.get('user_id');
                         commonUpdate['staff_name'] = this.req.staffUser.get('name');
@@ -484,7 +481,7 @@ class ReserveBaseController extends BaseController_1.default {
                         commonUpdate['purchaser_address'] = '';
                         commonUpdate['purchaser_gender'] = '';
                         break;
-                    case ReservationUtil_1.default.PURCHASER_GROUP_TEL:
+                    case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
                         commonUpdate['tel_staff'] = this.req.telStaffUser.get('_id');
                         commonUpdate['tel_staff_user_id'] = this.req.telStaffUser.get('user_id');
                         commonUpdate['purchaser_email'] = '';
@@ -492,7 +489,7 @@ class ReserveBaseController extends BaseController_1.default {
                         commonUpdate['purchaser_address'] = '';
                         commonUpdate['purchaser_gender'] = '';
                         break;
-                    case ReservationUtil_1.default.PURCHASER_GROUP_WINDOW:
+                    case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
                         commonUpdate['window'] = this.req.windowUser.get('_id');
                         commonUpdate['window_user_id'] = this.req.windowUser.get('user_id');
                         commonUpdate['purchaser_last_name'] = '';
@@ -514,7 +511,7 @@ class ReserveBaseController extends BaseController_1.default {
                     update['payment_seat_index'] = index;
                     return new Promise((resolve, reject) => {
                         this.logger.info('updating reservation all infos...update:', update);
-                        Models_1.default.Reservation.findOneAndUpdate({
+                        ttts_domain_2.Models.Reservation.findOneAndUpdate({
                             _id: update['_id']
                         }, update, {
                             new: true
@@ -540,7 +537,7 @@ class ReserveBaseController extends BaseController_1.default {
         }
         else {
             // 購入番号発行
-            ReservationUtil_1.default.publishPaymentNo((err, paymentNo) => {
+            ttts_domain_1.ReservationUtil.publishPaymentNo((err, paymentNo) => {
                 if (err)
                     return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
                 reservationModel.paymentNo = paymentNo;
@@ -555,11 +552,11 @@ class ReserveBaseController extends BaseController_1.default {
      * @param {Object} update 追加更新パラメータ
      */
     processFixReservations(paymentNo, update, cb) {
-        update['status'] = ReservationUtil_1.default.STATUS_RESERVED;
+        update['status'] = ttts_domain_1.ReservationUtil.STATUS_RESERVED;
         update['updated_user'] = 'ReserveBaseController';
         // 予約完了ステータスへ変更
         this.logger.info('updating reservations by paymentNo...', paymentNo, update);
-        Models_1.default.Reservation.update({
+        ttts_domain_2.Models.Reservation.update({
             payment_no: paymentNo
         }, update, { multi: true }, (err, raw) => {
             this.logger.info('reservations updated.', err, raw);
@@ -567,12 +564,12 @@ class ReserveBaseController extends BaseController_1.default {
                 return cb(new Error('any reservations not updated.'));
             // 完了メールキュー追加(あれば更新日時を更新するだけ)
             this.logger.info('creating reservationEmailCue...');
-            Models_1.default.ReservationEmailCue.findOneAndUpdate({
+            ttts_domain_2.Models.ReservationEmailCue.findOneAndUpdate({
                 payment_no: paymentNo,
-                template: ReservationEmailCueUtil_1.default.TEMPLATE_COMPLETE,
+                template: ttts_domain_1.ReservationEmailCueUtil.TEMPLATE_COMPLETE,
             }, {
                 $set: { updated_at: Date.now() },
-                $setOnInsert: { status: ReservationEmailCueUtil_1.default.STATUS_UNSENT }
+                $setOnInsert: { status: ttts_domain_1.ReservationEmailCueUtil.STATUS_UNSENT }
             }, {
                 upsert: true,
                 new: true

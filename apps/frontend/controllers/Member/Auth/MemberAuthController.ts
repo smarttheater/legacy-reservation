@@ -1,6 +1,6 @@
 import BaseController from '../../BaseController';
 import Util from '../../../../common/Util/Util';
-import Models from '../../../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 import moment = require('moment');
 import memberLoginForm from '../../../forms/member/memberLoginForm';
 import MemberUser from '../../../models/User/MemberUser';

@@ -1,7 +1,7 @@
 import BaseController from '../BaseController';
-import Models from '../../../common/models/Models';
-import ReservationUtil from '../../../common/models/Reservation/ReservationUtil';
-import FilmUtil from '../../../common/models/Film/FilmUtil';
+import {Models} from "@motionpicture/ttts-domain";
+import {ReservationUtil} from "@motionpicture/ttts-domain";
+import {FilmUtil} from "@motionpicture/ttts-domain";
 
 export default class AdmissionController extends BaseController {
     public layout = 'layouts/admission/layout';

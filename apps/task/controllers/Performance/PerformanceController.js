@@ -1,10 +1,9 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
-const Models_1 = require("../../../common/models/Models");
 const conf = require("config");
 const mongoose = require("mongoose");
 const fs = require("fs-extra");
-const PerformanceStatusesModel_1 = require("../../../common/models/PerformanceStatusesModel");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 let MONGOLAB_URI = conf.get('mongolab_uri');
 class PerformanceController extends BaseController_1.default {
     createFromJson() {
@@ -13,7 +12,7 @@ class PerformanceController extends BaseController_1.default {
             if (err)
                 throw err;
             let performances = JSON.parse(data);
-            Models_1.default.Screen.find({}, 'name theater').populate('theater', 'name').exec((err, screens) => {
+            ttts_domain_1.Models.Screen.find({}, 'name theater').populate('theater', 'name').exec((err, screens) => {
                 if (err)
                     throw err;
                 // あれば更新、なければ追加
@@ -26,7 +25,7 @@ class PerformanceController extends BaseController_1.default {
                     performance.theater_name = _screen.get('theater').get('name');
                     return new Promise((resolve, reject) => {
                         this.logger.debug('updating performance...');
-                        Models_1.default.Performance.findOneAndUpdate({ _id: performance._id }, performance, {
+                        ttts_domain_1.Models.Performance.findOneAndUpdate({ _id: performance._id }, performance, {
                             new: true,
                             upsert: true
                         }, (err) => {
@@ -53,7 +52,7 @@ class PerformanceController extends BaseController_1.default {
     updateStatuses() {
         mongoose.connect(MONGOLAB_URI, {});
         this.logger.info('finding performances...');
-        Models_1.default.Performance.find({}, 'day start_time screen')
+        ttts_domain_1.Models.Performance.find({}, 'day start_time screen')
             .populate('screen', 'seats_number')
             .exec((err, performances) => {
             this.logger.info('performances found.', err);
@@ -62,9 +61,9 @@ class PerformanceController extends BaseController_1.default {
                 process.exit(0);
                 return;
             }
-            let performanceStatusesModel = new PerformanceStatusesModel_1.default();
+            let performanceStatusesModel = new ttts_domain_1.PerformanceStatusesModel();
             this.logger.info('aggregating...');
-            Models_1.default.Reservation.aggregate([
+            ttts_domain_1.Models.Reservation.aggregate([
                 {
                     $group: {
                         _id: "$performance",
@@ -106,7 +105,7 @@ class PerformanceController extends BaseController_1.default {
     release(performanceId) {
         mongoose.connect(MONGOLAB_URI, {});
         this.logger.info('updating performance..._id:', performanceId);
-        Models_1.default.Performance.findOneAndUpdate({
+        ttts_domain_1.Models.Performance.findOneAndUpdate({
             _id: performanceId
         }, {
             canceled: false

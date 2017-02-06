@@ -1,7 +1,7 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
 const Util_1 = require("../../../common/Util/Util");
-const Models_1 = require("../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const mongoose = require("mongoose");
 const fs = require("fs-extra");
@@ -21,7 +21,7 @@ class TelController extends BaseController_1.default {
                 return telStaff;
             });
             this.logger.info('removing all telStaffs...');
-            Models_1.default.TelStaff.remove({}, (err) => {
+            ttts_domain_1.Models.TelStaff.remove({}, (err) => {
                 if (err) {
                     this.logger.info('telStaffs removed.', err);
                     mongoose.disconnect();
@@ -29,7 +29,7 @@ class TelController extends BaseController_1.default {
                     return;
                 }
                 this.logger.debug('creating telStaffs...');
-                Models_1.default.TelStaff.create(telStaffs, (err) => {
+                ttts_domain_1.Models.TelStaff.create(telStaffs, (err) => {
                     this.logger.info('telStaffs created.', err);
                     mongoose.disconnect();
                     process.exit(0);

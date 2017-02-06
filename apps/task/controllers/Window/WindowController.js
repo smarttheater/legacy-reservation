@@ -1,7 +1,7 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
 const Util_1 = require("../../../common/Util/Util");
-const Models_1 = require("../../../common/models/Models");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const mongoose = require("mongoose");
 const fs = require("fs-extra");
@@ -21,11 +21,11 @@ class WindowController extends BaseController_1.default {
                 return window;
             });
             this.logger.info('removing all windows...');
-            Models_1.default.Window.remove({}, (err) => {
+            ttts_domain_1.Models.Window.remove({}, (err) => {
                 if (err)
                     throw err;
                 this.logger.debug('creating windows...');
-                Models_1.default.Window.create(windows, (err) => {
+                ttts_domain_1.Models.Window.create(windows, (err) => {
                     this.logger.info('windows created.', err);
                     mongoose.disconnect();
                     process.exit(0);

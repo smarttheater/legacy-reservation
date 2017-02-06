@@ -1,9 +1,9 @@
 import BaseController from '../../BaseController';
 import Util from '../../../../common/Util/Util';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
-import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
-import ScreenUtil from '../../../../common/models/Screen/ScreenUtil';
-import Models from '../../../../common/models/Models';
+import {ReservationUtil} from "@motionpicture/ttts-domain";
+import {ScreenUtil} from "@motionpicture/ttts-domain";
+import {Models} from "@motionpicture/ttts-domain";
 import moment = require('moment');
 
 export default class TelMyPageController extends BaseController {

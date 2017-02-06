@@ -3,17 +3,17 @@ const ReserveBaseController_1 = require("../../ReserveBaseController");
 const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
-const Models_1 = require("../../../../common/models/Models");
-const ReservationUtil_1 = require("../../../../common/models/Reservation/ReservationUtil");
-const ScreenUtil_1 = require("../../../../common/models/Screen/ScreenUtil");
-const FilmUtil_1 = require("../../../../common/models/Film/FilmUtil");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const ttts_domain_3 = require("@motionpicture/ttts-domain");
+const ttts_domain_4 = require("@motionpicture/ttts-domain");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const moment = require("moment");
 const conf = require("config");
 class CustomerReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = ReservationUtil_1.default.PURCHASER_GROUP_CUSTOMER;
+        this.purchaserGroup = ttts_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
     }
     /**
      * スケジュール選択(本番では存在しない、実際はポータル側のページ)
@@ -31,7 +31,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         }
         else {
             this.res.render('customer/reserve/performances', {
-                FilmUtil: FilmUtil_1.default
+                FilmUtil: ttts_domain_4.FilmUtil
             });
         }
     }
@@ -245,10 +245,10 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      */
     waitingSettlement() {
         let paymentNo = this.req.params.paymentNo;
-        Models_1.default.Reservation.find({
+        ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
             purchaser_group: this.purchaserGroup,
-            status: ReservationUtil_1.default.STATUS_WAITING_SETTLEMENT,
+            status: ttts_domain_2.ReservationUtil.STATUS_WAITING_SETTLEMENT,
             purchased_at: {
                 $gt: moment().add(-30, 'minutes').toISOString()
             }
@@ -258,7 +258,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ScreenUtil_1.default.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return ttts_domain_3.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('customer/reserve/waitingSettlement', {
                 reservationDocuments: reservations
@@ -270,10 +270,10 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      */
     complete() {
         let paymentNo = this.req.params.paymentNo;
-        Models_1.default.Reservation.find({
+        ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
             purchaser_group: this.purchaserGroup,
-            status: ReservationUtil_1.default.STATUS_RESERVED,
+            status: ttts_domain_2.ReservationUtil.STATUS_RESERVED,
             purchased_at: {
                 $gt: moment().add(-30, 'minutes').toISOString()
             }
@@ -283,7 +283,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ScreenUtil_1.default.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return ttts_domain_3.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('customer/reserve/complete', {
                 reservationDocuments: reservations

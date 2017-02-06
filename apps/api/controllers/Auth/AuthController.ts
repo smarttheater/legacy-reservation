@@ -1,5 +1,5 @@
 import BaseController from '../BaseController';
-import Models from '../../../common/models/Models';
+import {Models} from "@motionpicture/ttts-domain";
 import Util from '../../../common/Util/Util';
 
 export default class AuthController extends BaseController {

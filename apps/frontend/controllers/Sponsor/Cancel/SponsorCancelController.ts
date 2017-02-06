@@ -1,6 +1,6 @@
 import BaseController from '../../BaseController';
-import Models from '../../../../common/models/Models';
-import ReservationUtil from '../../../../common/models/Reservation/ReservationUtil';
+import {Models} from "@motionpicture/ttts-domain";
+import {ReservationUtil} from "@motionpicture/ttts-domain";
 import sponsorCancelForm from '../../../forms/sponsor/sponsorCancelForm';
 import log4js = require('log4js');
 
