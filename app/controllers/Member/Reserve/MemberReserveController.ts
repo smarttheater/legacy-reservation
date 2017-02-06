@@ -163,7 +163,7 @@ export default class MemberReserveController extends ReserveBaseController imple
                     } else {
                         reservationModel.save(() => {
                             this.logger.info('starting GMO payment...');
-                            this.res.redirect(307, this.router.build('gmo.reserve.start', {token: token}) + `?locale=${this.req.getLocale()}`);
+                            this.res.redirect(308, this.router.build('gmo.reserve.start', {token: token}) + `?locale=${this.req.getLocale()}`);
                         });
                     }
                 });
