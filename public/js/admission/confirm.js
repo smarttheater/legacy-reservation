@@ -1,4 +1,6 @@
 $(function(){
+    var API_ENDPOINT = "https://devtttsapiprototype.azurewebsites.net";
+
     /** 全予約リスト */
     var reservationsById = JSON.parse($('input[name="reservationsById"]').val());
     var reservationIdsByQrStr = JSON.parse($('input[name="reservationIdsByQrStr"]').val());
@@ -118,7 +120,7 @@ $(function(){
             var id = enteringReservation._id;
             $.ajax({
                 dataType: 'json',
-                url: '/api/reservation/' + id + '/enter',
+                url: API_ENDPOINT + '/reservation/' + id + '/enter',
                 type: 'POST',
                 data: {
                     entered_at: enteringReservation.entered_at

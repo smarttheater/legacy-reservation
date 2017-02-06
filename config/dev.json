@@ -11,6 +11,8 @@
         "fromname": "TOKYO TOWER Online Ticket"
     },
 
+    "api_endpoint": "https://devtttsapiprototype.azurewebsites.net",
+
     "storage_account_name": "",
     "storage_account_key": "",
 

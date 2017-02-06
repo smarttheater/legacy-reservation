@@ -1,9 +1,9 @@
 {
-  "name": "tiff_src",
+  "name": "ttts_src",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./api.js"
+    "start": "node ./index.js"
   },
   "dependencies": {
     "@motionpicture/ttts-domain": "^1.0.3",
@@ -35,7 +35,6 @@
     "config": "^1.21.0",
     "connect-redis": "^3.1.0",
     "cookie-parser": "^1.4.1",
-    "debug": "^2.2.0",
     "ejs": "^2.5.2",
     "email-templates": "^2.4.1",
     "express": "^4.14.0",
@@ -48,9 +47,8 @@
     "lockfile": "^1.0.1",
     "log4js": "^0.6.38",
     "moment": "^2.15.0",
-    "mongo-express": "^0.30.59",
-    "mongodb": "^2.2.9",
-    "mongoose": "^4.6.0",
+    "mongodb": "^2.2.22",
+    "mongoose": "^4.8.1",
     "multer": "^1.1.0",
     "named-routes": "^2.0.6",
     "numeral": "^1.5.3",

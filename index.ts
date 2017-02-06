@@ -5,7 +5,7 @@
  * Module dependencies.
  */
 
-import app = require('./apps/frontend/app');
+import app = require('./app/app');
 // import debugModule = require('debug');
 import http = require('http');
 

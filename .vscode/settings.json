@@ -3,7 +3,7 @@
     "files.eol": "\n",
     // ファイルとフォルダーを除外するための glob パターンを構成します。
     "files.exclude": {
-        "apps/**/*.js": true,
+        "app/**/*.js": true,
         "bin/**/*.js": true,
         "test/**/*.js": true,
         "*.js": true

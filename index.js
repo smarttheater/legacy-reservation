@@ -4,7 +4,7 @@
 /**
  * Module dependencies.
  */
-const app = require("./apps/frontend/app");
+const app = require("./app/app");
 // import debugModule = require('debug');
 const http = require("http");
 // let debug = debugModule('app:server');

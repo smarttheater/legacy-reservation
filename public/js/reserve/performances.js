@@ -3,6 +3,8 @@ String.prototype.splice = function(idx, str) { //※日時整形用(Stringのidx
 };
 
 $(function(){
+    var API_ENDPOINT = "https://devtttsapiprototype.azurewebsites.net";
+
     var locale = $('html').attr('lang');
     var performances = [];
     var conditions = {
@@ -113,7 +115,7 @@ $(function(){
     function search() {
         $.ajax({
             dataType: 'json',
-            url: '/api/' + locale + '/performance/search',
+            url: API_ENDPOINT + '/' + locale + '/performance/search',
             type: 'GET',
             data: conditions,
             beforeSend: function() {
