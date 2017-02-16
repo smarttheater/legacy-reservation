@@ -17,7 +17,7 @@ export default class WindowAuthController extends BaseController {
 
         if (this.req.method === 'POST') {
             const form = windowLoginForm(this.req);
-            form(this.req, this.res, (err) => {
+            form(this.req, this.res, () => {
                 if (this.req.form.isValid) {
 
                     // ユーザー認証
@@ -57,7 +57,7 @@ export default class WindowAuthController extends BaseController {
                                         }
                                     };
 
-                                    processRemember((processRememberErr, token) => {
+                                    processRemember((processRememberErr) => {
                                         if (processRememberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                                         // ログイン
@@ -86,6 +86,8 @@ export default class WindowAuthController extends BaseController {
     public logout(): void {
         delete this.req.session[WindowUser.AUTH_SESSION_NAME];
         Models.Authentication.remove({ token: this.req.cookies.remember_window }, (err) => {
+            if (err) return this.next(err);
+
             this.res.clearCookie('remember_window');
             this.res.redirect(this.router.build('window.mypage'));
         });

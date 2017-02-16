@@ -12,7 +12,11 @@ class StaffMyPageController extends BaseController_1.default {
     }
     index() {
         ttts_domain_3.Models.Theater.find({}, 'name', { sort: { _id: 1 } }, (findTheaterErr, theaters) => {
+            if (findTheaterErr)
+                return this.next(findTheaterErr);
             ttts_domain_3.Models.Film.find({}, 'name', { sort: { _id: 1 } }, (findFilmErr, films) => {
+                if (findFilmErr)
+                    return this.next(findFilmErr);
                 this.res.render('staff/mypage/index', {
                     theaters: theaters,
                     films: films
@@ -95,42 +99,44 @@ class StaffMyPageController extends BaseController_1.default {
             $and: conditions
         }, (err, count) => {
             if (err) {
-                return this.res.json({
+                this.res.json({
                     success: false,
                     results: [],
                     count: 0
                 });
             }
-            ttts_domain_3.Models.Reservation.find({ $and: conditions })
-                .skip(limit * (page - 1))
-                .limit(limit)
-                .lean(true)
-                .exec((findReservationErr, reservations) => {
-                if (findReservationErr) {
-                    this.res.json({
-                        success: false,
-                        results: [],
-                        count: 0
-                    });
-                }
-                else {
-                    // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
-                    reservations.sort((a, b) => {
-                        if (a.performance_day > b.performance_day)
-                            return 1;
-                        if (a.performance_start_time > b.performance_start_time)
-                            return 1;
-                        if (a.screen > b.screen)
-                            return 1;
-                        return ttts_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
-                    });
-                    this.res.json({
-                        success: true,
-                        results: reservations,
-                        count: count
-                    });
-                }
-            });
+            else {
+                ttts_domain_3.Models.Reservation.find({ $and: conditions })
+                    .skip(limit * (page - 1))
+                    .limit(limit)
+                    .lean(true)
+                    .exec((findReservationErr, reservations) => {
+                    if (findReservationErr) {
+                        this.res.json({
+                            success: false,
+                            results: [],
+                            count: 0
+                        });
+                    }
+                    else {
+                        // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
+                        reservations.sort((a, b) => {
+                            if (a.performance_day > b.performance_day)
+                                return 1;
+                            if (a.performance_start_time > b.performance_start_time)
+                                return 1;
+                            if (a.screen > b.screen)
+                                return 1;
+                            return ttts_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                        });
+                        this.res.json({
+                            success: true,
+                            results: reservations,
+                            count: count
+                        });
+                    }
+                });
+            }
         });
     }
     /**
@@ -155,23 +161,27 @@ class StaffMyPageController extends BaseController_1.default {
             new: true
         }, (err, reservation) => {
             if (err) {
-                return this.res.json({
+                this.res.json({
                     success: false,
                     message: this.req.__('Message.UnexpectedError'),
                     reservationId: null
                 });
             }
-            if (!reservation) {
-                return this.res.json({
-                    success: false,
-                    message: this.req.__('Message.NotFound'),
-                    reservationId: null
-                });
+            else {
+                if (!reservation) {
+                    this.res.json({
+                        success: false,
+                        message: this.req.__('Message.NotFound'),
+                        reservationId: null
+                    });
+                }
+                else {
+                    this.res.json({
+                        success: true,
+                        reservation: reservation.toObject()
+                    });
+                }
             }
-            this.res.json({
-                success: true,
-                reservation: reservation.toObject()
-            });
         });
     }
     /**

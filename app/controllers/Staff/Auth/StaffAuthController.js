@@ -18,7 +18,7 @@ class StaffAuthController extends BaseController_1.default {
         }
         if (this.req.method === 'POST') {
             const form = staffLoginForm_1.default(this.req);
-            form(this.req, this.res, (err) => {
+            form(this.req, this.res, () => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
                     this.logger.debug('finding staff... user_id:', this.req.form.userId);
@@ -56,7 +56,7 @@ class StaffAuthController extends BaseController_1.default {
                                         cb(null, null);
                                     }
                                 };
-                                processRemember((processRememberErr, token) => {
+                                processRemember((processRememberErr) => {
                                     if (processRememberErr)
                                         return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                     this.req.session[StaffUser_1.default.AUTH_SESSION_NAME] = staff.toObject();
@@ -85,6 +85,8 @@ class StaffAuthController extends BaseController_1.default {
     logout() {
         delete this.req.session[StaffUser_1.default.AUTH_SESSION_NAME];
         ttts_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_staff }, (err) => {
+            if (err)
+                return this.next(err);
             this.res.clearCookie('remember_staff');
             this.res.redirect(this.router.build('staff.mypage'));
         });

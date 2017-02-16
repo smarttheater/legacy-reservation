@@ -18,7 +18,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * リクエスト毎に、req,res,nextでコントローラーインスタンスを生成して、URLに応じたメソッドを実行する、という考え方
  */
 exports.default = (app) => {
-    const base = (req, res, next) => {
+    // tslint:disable-next-line:variable-name
+    const base = (_req, _res, next) => {
         next();
     };
     // 言語
@@ -53,7 +54,8 @@ exports.default = (app) => {
     app.get('/customer/reserve/:paymentNo/complete', 'customer.reserve.complete', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).complete(); });
     app.get('/error/notFound', 'error.notFound', base, (req, res, next) => { (new ErrorController_1.default(req, res, next)).notFound(); });
     // 404
-    app.use((req, res, next) => {
+    // tslint:disable-next-line:variable-name
+    app.use((_req, res) => {
         return res.redirect('/error/notFound');
     });
     // error handlers

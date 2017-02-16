@@ -112,6 +112,8 @@ export default class GMOReserveController extends ReserveBaseController {
                     this.logger.info('redirecting to GMO payment...');
                     // GMOへの送信データをログに残すために、一度htmlを取得してからrender
                     this.res.render('gmo/reserve/start', (renderErr, html) => {
+                        if (renderErr) return this.next(renderErr);
+
                         this.logger.info('rendering gmo/reserve/start...html:', html);
                         this.res.render('gmo/reserve/start');
                     });

@@ -22,6 +22,8 @@ export default (app: any) => {
                             tel_staff: { $ne: null }
                         },
                         (err, authentication) => {
+                            if (err) return cb(null);
+
                             if (authentication) {
                                 // トークン再生成
                                 const token = Util.createToken();
@@ -29,12 +31,12 @@ export default (app: any) => {
                                     {
                                         token: token
                                     },
-                                    (updateRrr, raw) => {
-                                        if (updateRrr) cb(null);
+                                    (updateRrr) => {
+                                        if (updateRrr) return cb(null);
 
                                         res.cookie('remember_tel_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
                                         Models.TelStaff.findOne({ _id: authentication.get('tel_staff') }, (findErr, telStaff) => {
-                                            cb(telStaff);
+                                            (findErr) ? cb(null) : cb(telStaff);
                                         });
                                     }
                                 );
@@ -74,7 +76,8 @@ export default (app: any) => {
         }
     };
 
-    const baseMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // tslint:disable-next-line:variable-name
+    const baseMiddleware = (req: express.Request, _res: express.Response, next: express.NextFunction) => {
         // 基本的に日本語
         req.setLocale('ja');
         req.telStaffUser = TelStaffUser.parse(req.session);

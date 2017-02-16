@@ -1,5 +1,5 @@
-import {Models} from '@motionpicture/ttts-domain';
-import {GMONotificationUtil} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
+import { GMONotificationUtil } from '@motionpicture/ttts-domain';
 import GMONotificationModel from '../../models/Reserve/GMONotificationModel';
 import GMONotificationResponseModel from '../../models/Reserve/GMONotificationResponseModel';
 import BaseController from '../BaseController';
@@ -27,32 +27,38 @@ export default class GMOController extends BaseController {
         }
 
         // 何を最低限保管する？
-        Models.GMONotification.create({
-            shop_id: gmoNotificationModel.ShopID,
-            order_id: gmoNotificationModel.OrderID,
-            status: gmoNotificationModel.Status,
-            job_cd: gmoNotificationModel.JobCd,
-            amount: gmoNotificationModel.Amount,
-            pay_type: gmoNotificationModel.PayType,
+        Models.GMONotification.create(
+            {
+                shop_id: gmoNotificationModel.ShopID,
+                order_id: gmoNotificationModel.OrderID,
+                status: gmoNotificationModel.Status,
+                job_cd: gmoNotificationModel.JobCd,
+                amount: gmoNotificationModel.Amount,
+                pay_type: gmoNotificationModel.PayType,
 
-            tax: gmoNotificationModel.Tax,
-            access_id: gmoNotificationModel.AccessID,
-            forward: gmoNotificationModel.Forward,
-            method: gmoNotificationModel.Method,
-            approve: gmoNotificationModel.Approve,
-            tran_id: gmoNotificationModel.TranID,
-            tran_date: gmoNotificationModel.TranDate,
+                tax: gmoNotificationModel.Tax,
+                access_id: gmoNotificationModel.AccessID,
+                forward: gmoNotificationModel.Forward,
+                method: gmoNotificationModel.Method,
+                approve: gmoNotificationModel.Approve,
+                tran_id: gmoNotificationModel.TranID,
+                tran_date: gmoNotificationModel.TranDate,
 
-            cvs_code: gmoNotificationModel.CvsCode,
-            cvs_conf_no: gmoNotificationModel.CvsConfNo,
-            cvs_receipt_no: gmoNotificationModel.CvsReceiptNo,
-            payment_term: gmoNotificationModel.PaymentTerm,
+                cvs_code: gmoNotificationModel.CvsCode,
+                cvs_conf_no: gmoNotificationModel.CvsConfNo,
+                cvs_receipt_no: gmoNotificationModel.CvsReceiptNo,
+                payment_term: gmoNotificationModel.PaymentTerm,
 
-            process_status: GMONotificationUtil.PROCESS_STATUS_UNPROCESSED
-        },                            (err, notification) => {
-            this.logger.info('notification created.', notification);
-            if (err) return this.res.send(GMONotificationResponseModel.RECV_RES_NG);
-            this.res.send(GMONotificationResponseModel.RECV_RES_OK);
-        });
+                process_status: GMONotificationUtil.PROCESS_STATUS_UNPROCESSED
+            },
+            (err, notification) => {
+                this.logger.info('notification created.', notification);
+                if (err) {
+                    this.res.send(GMONotificationResponseModel.RECV_RES_NG);
+                } else {
+                    this.res.send(GMONotificationResponseModel.RECV_RES_OK);
+                }
+            }
+        );
     }
 }

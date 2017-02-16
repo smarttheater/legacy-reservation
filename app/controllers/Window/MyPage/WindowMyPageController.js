@@ -119,42 +119,44 @@ class WindowMyPageController extends BaseController_1.default {
             $and: conditions
         }, (err, count) => {
             if (err) {
-                return this.res.json({
+                this.res.json({
                     success: false,
                     results: [],
                     count: 0
                 });
             }
-            ttts_domain_3.Models.Reservation.find({ $and: conditions })
-                .skip(limit * (page - 1))
-                .limit(limit)
-                .lean(true)
-                .exec((findReservationErr, reservations) => {
-                if (findReservationErr) {
-                    this.res.json({
-                        success: false,
-                        results: [],
-                        count: 0
-                    });
-                }
-                else {
-                    // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
-                    reservations.sort((a, b) => {
-                        if (a.performance_day > b.performance_day)
-                            return 1;
-                        if (a.performance_start_time > b.performance_start_time)
-                            return 1;
-                        if (a.screen > b.screen)
-                            return 1;
-                        return ttts_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
-                    });
-                    this.res.json({
-                        success: true,
-                        results: reservations,
-                        count: count
-                    });
-                }
-            });
+            else {
+                ttts_domain_3.Models.Reservation.find({ $and: conditions })
+                    .skip(limit * (page - 1))
+                    .limit(limit)
+                    .lean(true)
+                    .exec((findReservationErr, reservations) => {
+                    if (findReservationErr) {
+                        this.res.json({
+                            success: false,
+                            results: [],
+                            count: 0
+                        });
+                    }
+                    else {
+                        // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
+                        reservations.sort((a, b) => {
+                            if (a.performance_day > b.performance_day)
+                                return 1;
+                            if (a.performance_start_time > b.performance_start_time)
+                                return 1;
+                            if (a.screen > b.screen)
+                                return 1;
+                            return ttts_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                        });
+                        this.res.json({
+                            success: true,
+                            results: reservations,
+                            count: count
+                        });
+                    }
+                });
+            }
         });
     }
 }

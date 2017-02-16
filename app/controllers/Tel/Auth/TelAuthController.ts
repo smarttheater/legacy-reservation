@@ -17,7 +17,7 @@ export default class TelAuthController extends BaseController {
 
         if (this.req.method === 'POST') {
             const form = telLoginForm(this.req);
-            form(this.req, this.res, (err) => {
+            form(this.req, this.res, () => {
                 if (this.req.form.isValid) {
 
                     // ユーザー認証
@@ -57,7 +57,7 @@ export default class TelAuthController extends BaseController {
                                         }
                                     };
 
-                                    processRemember((processRememberErr, token) => {
+                                    processRemember((processRememberErr) => {
                                         if (processRememberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                                         // ログイン
@@ -86,6 +86,8 @@ export default class TelAuthController extends BaseController {
     public logout(): void {
         delete this.req.session[TelStaffUser.AUTH_SESSION_NAME];
         Models.Authentication.remove({ token: this.req.cookies.remember_tel_staff }, (err) => {
+            if (err) return this.next(err);
+
             this.res.clearCookie('remember_tel_staff');
             this.res.redirect(this.router.build('tel.mypage'));
         });

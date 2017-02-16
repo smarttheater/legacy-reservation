@@ -19,7 +19,7 @@ export default class SponsorCancelController extends BaseController {
 
         if (this.req.method === 'POST') {
             const form = sponsorCancelForm(this.req);
-            form(this.req, this.res, (err) => {
+            form(this.req, this.res, () => {
                 if (this.req.form.isValid) {
                     // 予約を取得
                     Models.Reservation.find(
@@ -31,37 +31,38 @@ export default class SponsorCancelController extends BaseController {
                         },
                         (findReservationErr, reservations) => {
                             if (findReservationErr) {
-                                return this.res.json({
+                                this.res.json({
                                     success: false,
                                     message: this.req.__('Message.UnexpectedError')
                                 });
-                            }
+                            } else {
+                                if (reservations.length === 0) {
+                                    this.res.json({
+                                        success: false,
+                                        message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
+                                    });
+                                } else {
+                                    const results = reservations.map((reservation) => {
+                                        return {
+                                            _id: reservation.get('_id'),
+                                            seat_code: reservation.get('seat_code'),
+                                            payment_no: reservation.get('payment_no'),
+                                            film_name_ja: reservation.get('film_name_ja'),
+                                            film_name_en: reservation.get('film_name_en'),
+                                            performance_start_str_ja: reservation.get('performance_start_str_ja'),
+                                            performance_start_str_en: reservation.get('performance_start_str_en'),
+                                            location_str_ja: reservation.get('location_str_ja'),
+                                            location_str_en: reservation.get('location_str_en')
+                                        };
+                                    });
 
-                            if (reservations.length === 0) {
-                                return this.res.json({
-                                    success: false,
-                                    message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
-                                });
+                                    this.res.json({
+                                        success: true,
+                                        message: null,
+                                        reservations: results
+                                    });
+                                }
                             }
-
-                            const results = reservations.map((reservation) => {
-                                return {
-                                    _id: reservation.get('_id'),
-                                    seat_code: reservation.get('seat_code'),
-                                    payment_no: reservation.get('payment_no'),
-                                    film_name_ja: reservation.get('film_name_ja'),
-                                    film_name_en: reservation.get('film_name_en'),
-                                    performance_start_str_ja: reservation.get('performance_start_str_ja'),
-                                    performance_start_str_en: reservation.get('performance_start_str_en'),
-                                    location_str_ja: reservation.get('location_str_ja'),
-                                    location_str_en: reservation.get('location_str_en')
-                                };
-                            });
-                            this.res.json({
-                                success: true,
-                                message: null,
-                                reservations: results
-                            });
                         }
                     );
                 } else {

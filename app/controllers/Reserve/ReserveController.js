@@ -14,9 +14,12 @@ class ReserveController extends ReserveBaseController_1.default {
         ttts_domain_1.Models.Reservation.distinct('seat_code', {
             performance: performanceId
         }, (err, seatCodes) => {
-            if (err)
-                return this.res.json([]);
-            this.res.json(seatCodes);
+            if (err) {
+                this.res.json([]);
+            }
+            else {
+                this.res.json(seatCodes);
+            }
         });
     }
     /**
@@ -25,52 +28,58 @@ class ReserveController extends ReserveBaseController_1.default {
     getSeatProperties() {
         const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
-                return this.res.json({ propertiesBySeatCode: {} });
-            const propertiesBySeatCode = {};
-            // 予約リストを取得
-            ttts_domain_1.Models.Reservation.find({
-                performance: reservationModel.performance._id
-            }, (findReservationErr, reservations) => {
-                if (findReservationErr)
-                    return this.res.json({ propertiesBySeatCode: {} });
-                // 予約データが存在すれば、現在仮押さえ中の座席を除いて予約不可(disabled)
-                for (const reservation of reservations) {
-                    const seatCode = reservation.get('seat_code');
-                    let avalilable = false;
-                    let baloonContent = seatCode;
-                    if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
-                        // 仮押さえ中
-                        avalilable = true;
+            if (err) {
+                this.res.json({ propertiesBySeatCode: {} });
+            }
+            else {
+                const propertiesBySeatCode = {};
+                // 予約リストを取得
+                ttts_domain_1.Models.Reservation.find({
+                    performance: reservationModel.performance._id
+                }, (findReservationErr, reservations) => {
+                    if (findReservationErr) {
+                        this.res.json({ propertiesBySeatCode: {} });
                     }
-                    // 内部関係者用
-                    if (reservationModel.purchaserGroup === ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF) {
-                        baloonContent = reservation.get('baloon_content4staff');
-                        // 内部関係者はTTTS確保も予約できる
-                        if (reservation.get('status') === ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS) {
-                            avalilable = true;
+                    else {
+                        // 予約データが存在すれば、現在仮押さえ中の座席を除いて予約不可(disabled)
+                        for (const reservation of reservations) {
+                            const seatCode = reservation.get('seat_code');
+                            let avalilable = false;
+                            let baloonContent = seatCode;
+                            if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
+                                // 仮押さえ中
+                                avalilable = true;
+                            }
+                            // 内部関係者用
+                            if (reservationModel.purchaserGroup === ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF) {
+                                baloonContent = reservation.get('baloon_content4staff');
+                                // 内部関係者はTTTS確保も予約できる
+                                if (reservation.get('status') === ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS) {
+                                    avalilable = true;
+                                }
+                            }
+                            propertiesBySeatCode[seatCode] = {
+                                avalilable: avalilable,
+                                baloonContent: baloonContent,
+                                entered: reservation.get('entered')
+                            };
                         }
+                        // 予約のない座席は全て空席
+                        for (const seat of reservationModel.performance.screen.sections[0].seats) {
+                            if (!propertiesBySeatCode.hasOwnProperty(seat.code)) {
+                                propertiesBySeatCode[seat.code] = {
+                                    avalilable: true,
+                                    baloonContent: seat.code,
+                                    entered: false
+                                };
+                            }
+                        }
+                        this.res.json({
+                            propertiesBySeatCode: propertiesBySeatCode
+                        });
                     }
-                    propertiesBySeatCode[seatCode] = {
-                        avalilable: avalilable,
-                        baloonContent: baloonContent,
-                        entered: reservation.get('entered')
-                    };
-                }
-                // 予約のない座席は全て空席
-                for (const seat of reservationModel.performance.screen.sections[0].seats) {
-                    if (!propertiesBySeatCode.hasOwnProperty(seat.code)) {
-                        propertiesBySeatCode[seat.code] = {
-                            avalilable: true,
-                            baloonContent: seat.code,
-                            entered: false
-                        };
-                    }
-                }
-                this.res.json({
-                    propertiesBySeatCode: propertiesBySeatCode
                 });
-            });
+            }
         });
     }
     /**
@@ -78,6 +87,8 @@ class ReserveController extends ReserveBaseController_1.default {
      */
     qrcode() {
         ttts_domain_1.Models.Reservation.findOne({ _id: this.req.params.reservationId }, 'payment_no payment_seat_index', (err, reservation) => {
+            if (err)
+                return this.next(err);
             // this.res.setHeader('Content-Type', 'image/png');
             qr.image(reservation.get('qr_str'), { type: 'png' }).pipe(this.res);
         });

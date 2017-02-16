@@ -17,7 +17,7 @@ export default class StaffAuthController extends BaseController {
 
         if (this.req.method === 'POST') {
             const form = staffLoginForm(this.req);
-            form(this.req, this.res, (err) => {
+            form(this.req, this.res, () => {
                 if (this.req.form.isValid) {
 
                     // ユーザー認証
@@ -60,7 +60,7 @@ export default class StaffAuthController extends BaseController {
                                         }
                                     };
 
-                                    processRemember((processRememberErr, token) => {
+                                    processRemember((processRememberErr) => {
                                         if (processRememberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                                         this.req.session[StaffUser.AUTH_SESSION_NAME] = staff.toObject();
@@ -95,6 +95,8 @@ export default class StaffAuthController extends BaseController {
     public logout(): void {
         delete this.req.session[StaffUser.AUTH_SESSION_NAME];
         Models.Authentication.remove({ token: this.req.cookies.remember_staff }, (err) => {
+            if (err) return this.next(err);
+
             this.res.clearCookie('remember_staff');
             this.res.redirect(this.router.build('staff.mypage'));
         });

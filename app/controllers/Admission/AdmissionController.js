@@ -3,11 +3,23 @@ const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const ttts_domain_3 = require("@motionpicture/ttts-domain");
 const BaseController_1 = require("../BaseController");
+/**
+ * 入場コントローラー
+ *
+ * 上映当日入場画面から使う機能はここにあります。
+ *
+ * @class AdmissionController
+ */
 class AdmissionController extends BaseController_1.default {
     constructor() {
         super(...arguments);
         this.layout = 'layouts/admission/layout';
     }
+    /**
+     * 入場画面のパフォーマンス検索
+     *
+     * @memberOf AdmissionController
+     */
     performances() {
         if (this.req.method === 'POST') {
             if (this.req.body.performanceId) {
@@ -20,7 +32,11 @@ class AdmissionController extends BaseController_1.default {
         else {
             // 劇場とスクリーンを取得
             ttts_domain_1.Models.Theater.find({}, 'name', (err, theaters) => {
+                if (err)
+                    return this.next(err);
                 ttts_domain_1.Models.Screen.find({}, 'name theater', (findScreenErr, screens) => {
+                    if (findScreenErr)
+                        return this.next(findScreenErr);
                     const screensByTheater = {};
                     for (const screen of screens) {
                         if (!screensByTheater.hasOwnProperty(screen.get('theater'))) {
@@ -37,6 +53,13 @@ class AdmissionController extends BaseController_1.default {
             });
         }
     }
+    /**
+     * QRコード認証画面
+     *
+     * QRコードを読み取って結果を表示するための画面
+     *
+     * @memberOf AdmissionController
+     */
     confirm() {
         ttts_domain_1.Models.Performance.findOne({ _id: this.req.params.id })
             .populate('film', 'name')

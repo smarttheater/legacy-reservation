@@ -2,7 +2,8 @@ import * as express from 'express';
 import CustomerCancelController from '../controllers/Customer/Cancel/CustomerCancelController';
 
 export default (app: any) => {
-    const base = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // tslint:disable-next-line:variable-name
+    const base = (_req: express.Request, _res: express.Response, next: express.NextFunction) => {
         next();
     };
 

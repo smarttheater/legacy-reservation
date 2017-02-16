@@ -199,7 +199,7 @@ export default class ReserveBaseController extends BaseController {
             {
                 _id: { $in: ids }
             },
-            (err) => {
+            () => {
                 // 失敗したとしても時間経過で消えるので放置
                 cb(null, reservationModel);
             }
@@ -440,7 +440,7 @@ export default class ReserveBaseController extends BaseController {
      * 券種FIXプロセス
      */
     public processFixTickets(reservationModel: ReservationModel, cb: (err: Error, reservationModel: ReservationModel) => void): void {
-        reserveTicketForm(this.req, this.res, (err) => {
+        reserveTicketForm(this.req, this.res, () => {
             if (!this.req.form.isValid) cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
 
             // 座席選択情報を保存して座席選択へ

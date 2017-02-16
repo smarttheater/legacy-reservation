@@ -32,21 +32,25 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
                 payment_no: paymentNo
             }, '_id', (err, reservations) => {
                 this.logger.info('reservations found.', err, reservations);
-                if (err)
-                    return this.res.send('1');
-                if (reservations.length === 0)
-                    return this.res.send('1');
-                this.logger.info('processFixReservations processing... update:', update);
-                this.processFixReservations(paymentNo, update, (fixReservationsErr) => {
-                    this.logger.info('processFixReservations processed.', fixReservationsErr);
-                    if (fixReservationsErr) {
-                        // 失敗した場合、再通知されるので、それをリトライとみなす
-                        this.res.send('1');
-                    }
-                    else {
-                        this.res.send('0');
-                    }
-                });
+                if (err) {
+                    this.res.send('1');
+                }
+                else if (reservations.length === 0) {
+                    this.res.send('1');
+                }
+                else {
+                    this.logger.info('processFixReservations processing... update:', update);
+                    this.processFixReservations(paymentNo, update, (fixReservationsErr) => {
+                        this.logger.info('processFixReservations processed.', fixReservationsErr);
+                        if (fixReservationsErr) {
+                            // 失敗した場合、再通知されるので、それをリトライとみなす
+                            this.res.send('1');
+                        }
+                        else {
+                            this.res.send('0');
+                        }
+                    });
+                }
             });
         });
     }
@@ -69,27 +73,31 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
                 payment_no: paymentNo
             }, '_id', (err, reservations) => {
                 this.logger.info('reservations found.', err, reservations);
-                if (err)
-                    return this.res.send('1');
-                if (reservations.length === 0)
-                    return this.res.send('1');
-                this.logger.info('removing reservations...payment_no:', paymentNo);
-                const promises = reservations.map((reservation) => {
-                    return new Promise((resolve, reject) => {
-                        this.logger.info('removing reservation...', reservation.get('_id'));
-                        reservation.remove((removeReservationErr) => {
-                            this.logger.info('reservation removed.', reservation.get('_id'), removeReservationErr);
-                            if (removeReservationErr)
-                                return reject(removeReservationErr);
-                            resolve();
+                if (err) {
+                    this.res.send('1');
+                }
+                else if (reservations.length === 0) {
+                    this.res.send('1');
+                }
+                else {
+                    this.logger.info('removing reservations...payment_no:', paymentNo);
+                    const promises = reservations.map((reservation) => {
+                        return new Promise((resolve, reject) => {
+                            this.logger.info('removing reservation...', reservation.get('_id'));
+                            reservation.remove((removeReservationErr) => {
+                                this.logger.info('reservation removed.', reservation.get('_id'), removeReservationErr);
+                                if (removeReservationErr)
+                                    return reject(removeReservationErr);
+                                resolve();
+                            });
                         });
                     });
-                });
-                Promise.all(promises).then(() => {
-                    this.res.send('0');
-                }, (cancelErr) => {
-                    this.res.send('1');
-                });
+                    Promise.all(promises).then(() => {
+                        this.res.send('0');
+                    }, () => {
+                        this.res.send('1');
+                    });
+                }
             });
         });
     }

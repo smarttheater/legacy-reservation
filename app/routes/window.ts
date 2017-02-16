@@ -22,6 +22,8 @@ export default (app: any) => {
                             window: { $ne: null }
                         },
                         (err, authentication) => {
+                            if (err) return cb(null);
+
                             if (authentication) {
                                 // トークン再生成
                                 const token = Util.createToken();
@@ -29,12 +31,12 @@ export default (app: any) => {
                                     {
                                         token: token
                                     },
-                                    (updateErr, raw) => {
-                                        if (updateErr) cb(null);
+                                    (updateErr) => {
+                                        if (updateErr) return cb(null);
 
                                         res.cookie('remember_window', token, { path: '/', httpOnly: true, maxAge: 604800000 });
                                         Models.Window.findOne({ _id: authentication.get('window') }, (findErr, window) => {
-                                            cb(window);
+                                            (findErr) ? cb(null) : cb(window);
                                         });
                                     }
                                 );
@@ -74,7 +76,8 @@ export default (app: any) => {
         }
     };
 
-    const baseMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // tslint:disable-next-line:variable-name
+    const baseMiddleware = (req: express.Request, _res: express.Response, next: express.NextFunction) => {
         // 基本的に日本語
         req.setLocale('ja');
         req.windowUser = WindowUser.parse(req.session);

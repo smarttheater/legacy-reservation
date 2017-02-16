@@ -20,7 +20,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      */
     performances() {
         if (this.req.method === 'POST') {
-            reservePerformanceForm_1.default(this.req, this.res, (err) => {
+            reservePerformanceForm_1.default(this.req, this.res, () => {
                 if (this.req.form.isValid) {
                     const performaceId = this.req.form.performanceId;
                     this.res.redirect(this.router.build('customer.reserve.start') + `?performance=${performaceId}&locale=${this.req.getLocale()}`);
@@ -80,7 +80,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      */
     terms() {
         const token = this.req.params.token;
-        ReservationModel_1.default.find(token, (err, reservationModel) => {
+        ReservationModel_1.default.find(token, (err) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
@@ -113,6 +113,8 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                             // 仮予約あればキャンセルする
                             // tslint:disable-next-line:no-shadowed-variable
                             this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
+                                if (cancelSeatsErr)
+                                    return this.next(cancelSeatsErr);
                                 // 座席FIX
                                 // tslint:disable-next-line:no-shadowed-variable
                                 this.processFixSeats(reservationModel, seatCodes, (fixSeatsErr, reservationModel) => {

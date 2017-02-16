@@ -46,9 +46,12 @@ class GMOController extends BaseController_1.default {
             process_status: ttts_domain_2.GMONotificationUtil.PROCESS_STATUS_UNPROCESSED
         }, (err, notification) => {
             this.logger.info('notification created.', notification);
-            if (err)
-                return this.res.send(GMONotificationResponseModel_1.default.RECV_RES_NG);
-            this.res.send(GMONotificationResponseModel_1.default.RECV_RES_OK);
+            if (err) {
+                this.res.send(GMONotificationResponseModel_1.default.RECV_RES_NG);
+            }
+            else {
+                this.res.send(GMONotificationResponseModel_1.default.RECV_RES_OK);
+            }
         });
     }
 }

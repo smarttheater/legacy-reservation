@@ -15,17 +15,19 @@ exports.default = (app) => {
                         token: req.cookies.remember_pre_customer,
                         pre_customer: { $ne: null }
                     }, (err, authentication) => {
+                        if (err)
+                            return cb(null, null);
                         if (authentication) {
                             // トークン再生成
                             const token = Util_1.default.createToken();
                             authentication.update({
                                 token: token
-                            }, (updateErr, raw) => {
+                            }, (updateErr) => {
                                 if (updateErr)
                                     cb(null, null);
                                 res.cookie('remember_pre_customer', token, { path: '/', httpOnly: true, maxAge: 604800000 });
                                 ttts_domain_1.Models.PreCustomer.findOne({ _id: authentication.get('pre_customer') }, (findErr, preCustomer) => {
-                                    cb(preCustomer, authentication.get('locale'));
+                                    (findErr) ? cb(null, null) : cb(preCustomer, authentication.get('locale'));
                                 });
                             });
                         }
@@ -65,7 +67,8 @@ exports.default = (app) => {
             next();
         }
     };
-    const baseMiddleware = (req, res, next) => {
+    // tslint:disable-next-line:variable-name
+    const baseMiddleware = (req, _res, next) => {
         req.preCustomerUser = PreCustomerUser_1.default.parse(req.session);
         next();
     };

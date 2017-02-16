@@ -47,6 +47,8 @@ class SponsorAuthController extends BaseController_1.default {
                                             sponsor: sponsor.get('_id'),
                                             locale: this.req.form.language
                                         }, (createAuthenticationErr, authentication) => {
+                                            if (createAuthenticationErr)
+                                                return cb(createAuthenticationErr, null);
                                             this.res.cookie('remember_sponsor', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
                                             cb(err, authentication.get('token'));
                                         });
@@ -55,8 +57,8 @@ class SponsorAuthController extends BaseController_1.default {
                                         cb(null, null);
                                     }
                                 };
-                                processRemember((processRememberErr, token) => {
-                                    if (err)
+                                processRemember((processRememberErr) => {
+                                    if (processRememberErr)
                                         return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                     // ログイン
                                     this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME] = sponsor.toObject();
@@ -83,6 +85,8 @@ class SponsorAuthController extends BaseController_1.default {
     logout() {
         delete this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME];
         ttts_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_sponsor }, (err) => {
+            if (err)
+                return this.next(err);
             this.res.clearCookie('remember_sponsor');
             this.res.redirect(this.router.build('sponsor.reserve.start'));
         });

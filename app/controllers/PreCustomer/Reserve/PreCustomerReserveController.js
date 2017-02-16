@@ -64,6 +64,8 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             // 仮予約あればキャンセルする
             // tslint:disable-next-line:no-shadowed-variable
             this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
+                if (cancelSeatsErr)
+                    return this.next(cancelSeatsErr);
                 reservationModel.save(() => {
                     // 1.5次販売アカウントによる予約数を取得
                     // 決済中ステータスは含めない
@@ -81,6 +83,8 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                             }
                         ]
                     }, (countReservationErr, reservationsCount) => {
+                        if (countReservationErr)
+                            return this.next(countReservationErr);
                         const reservableCount = parseInt(this.req.preCustomerUser.get('max_reservation_count'), DEFAULT_RADIX) - reservationsCount;
                         if (reservableCount <= 0) {
                             return this.next(new Error(this.req.__('Message.NoMoreReservation')));
@@ -131,6 +135,8 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             const lockPath = `${__dirname}/../../../../../lock/PreCustomerFixSeats${this.req.preCustomerUser.get('_id')}.lock`;
             // tslint:disable-next-line:max-func-body-length
             lockFile.lock(lockPath, { wait: 5000 }, (lockErr) => {
+                if (lockErr)
+                    return this.next(lockErr);
                 ttts_domain_1.Models.Reservation.count({
                     $and: [
                         { pre_customer: this.req.preCustomerUser.get('_id') },
@@ -154,12 +160,14 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                         }
                     ]
                 }, (countReservationErr, reservationsCount) => {
+                    if (countReservationErr)
+                        return this.next(countReservationErr);
                     // 一度に確保できる座席数は、残り可能枚数と、10の小さい方
                     const reservableCount = parseInt(this.req.preCustomerUser.get('max_reservation_count'), DEFAULT_RADIX) - reservationsCount;
                     const limit = Math.min(reservationModel.getSeatsLimit(), reservableCount);
                     // すでに枚数制限に達している場合
                     if (limit <= 0) {
-                        lockFile.unlock(lockPath, (unlockErr) => {
+                        lockFile.unlock(lockPath, () => {
                             this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() })));
                         });
                     }
@@ -170,7 +178,7 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                                     const seatCodes = JSON.parse(this.req.form.seatCodes);
                                     // 追加指定席を合わせて制限枚数を超過した場合
                                     if (seatCodes.length > limit) {
-                                        lockFile.unlock(lockPath, (unlockErr) => {
+                                        lockFile.unlock(lockPath, () => {
                                             const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
                                             this.res.redirect(`${this.router.build('pre.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                                         });
@@ -179,6 +187,8 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                                         // 仮予約あればキャンセルする
                                         // tslint:disable-next-line:no-shadowed-variable
                                         this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
+                                            if (cancelSeatsErr)
+                                                return this.next(cancelSeatsErr);
                                             // 座席FIX
                                             // tslint:disable-next-line:no-shadowed-variable
                                             this.processFixSeats(reservationModel, seatCodes, (fixSeatsErr, reservationModel) => {
@@ -201,14 +211,14 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                                     }
                                 }
                                 else {
-                                    lockFile.unlock(lockPath, (unlockErr) => {
+                                    lockFile.unlock(lockPath, () => {
                                         this.res.redirect(this.router.build('pre.reserve.seats', { token: token }));
                                     });
                                 }
                             });
                         }
                         else {
-                            lockFile.unlock(lockPath, (unlockErr) => {
+                            lockFile.unlock(lockPath, () => {
                                 this.res.render('preCustomer/reserve/seats', {
                                     reservationModel: reservationModel,
                                     limit: limit,

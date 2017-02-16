@@ -17,17 +17,19 @@ exports.default = (app) => {
                         token: req.cookies.remember_window,
                         window: { $ne: null }
                     }, (err, authentication) => {
+                        if (err)
+                            return cb(null);
                         if (authentication) {
                             // トークン再生成
                             const token = Util_1.default.createToken();
                             authentication.update({
                                 token: token
-                            }, (updateErr, raw) => {
+                            }, (updateErr) => {
                                 if (updateErr)
-                                    cb(null);
+                                    return cb(null);
                                 res.cookie('remember_window', token, { path: '/', httpOnly: true, maxAge: 604800000 });
                                 ttts_domain_1.Models.Window.findOne({ _id: authentication.get('window') }, (findErr, window) => {
-                                    cb(window);
+                                    (findErr) ? cb(null) : cb(window);
                                 });
                             });
                         }
@@ -66,7 +68,8 @@ exports.default = (app) => {
             next();
         }
     };
-    const baseMiddleware = (req, res, next) => {
+    // tslint:disable-next-line:variable-name
+    const baseMiddleware = (req, _res, next) => {
         // 基本的に日本語
         req.setLocale('ja');
         req.windowUser = WindowUser_1.default.parse(req.session);

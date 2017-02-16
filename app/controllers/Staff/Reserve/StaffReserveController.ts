@@ -75,7 +75,7 @@ export default class StaffReserveController extends ReserveBaseController implem
             {
                 multi: true
             },
-            (err, raw) => {
+            () => {
                 // 失敗したとしても時間経過で消えるので放置
 
                 // 仮予約を空席ステータスに戻す
@@ -85,7 +85,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                         seat_code: { $in: seatCodesInSession },
                         status: ReservationUtil.STATUS_TEMPORARY
                     },
-                    (removeReservationErr) => {
+                    () => {
                         // 失敗したとしても時間経過で消えるので放置
 
                         cb(null, reservationModel);
@@ -143,7 +143,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                                 },
                                 // tslint:disable-next-line:no-shadowed-variable
                                 (findReservationErr, reservation) => {
-                                    if (err) return reject(err);
+                                    if (findReservationErr) return reject(findReservationErr);
                                     if (!reservation) return reject(new Error(this.req.__('Message.UnexpectedError')));
 
                                     // ステータス更新に成功したらセッションに保管
@@ -234,6 +234,8 @@ export default class StaffReserveController extends ReserveBaseController implem
                 // 仮予約あればキャンセルする
                 // tslint:disable-next-line:no-shadowed-variable
                 this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
+                    if (cancelSeatsErr) return this.next(cancelSeatsErr);
+
                     reservationModel.save(() => {
                         this.res.render('staff/reserve/performances', {
                             FilmUtil: FilmUtil
@@ -269,6 +271,8 @@ export default class StaffReserveController extends ReserveBaseController implem
                             // 仮予約あればキャンセルする
                             // tslint:disable-next-line:no-shadowed-variable
                             this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
+                                if (cancelSeatsErr) return this.next(cancelSeatsErr);
+
                                 // 座席FIX
                                 // tslint:disable-next-line:no-shadowed-variable
                                 this.processFixSeats(reservationModel, seatCodes, (fixSeatsErr, reservationModel) => {
@@ -331,7 +335,7 @@ export default class StaffReserveController extends ReserveBaseController implem
      */
     public profile(): void {
         const token = this.req.params.token;
-        ReservationModel.find(token, (err, reservationModel) => {
+        ReservationModel.find(token, (err) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             this.res.redirect(this.router.build('staff.reserve.confirm', { token: token }));

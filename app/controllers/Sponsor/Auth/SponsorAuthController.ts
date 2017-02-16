@@ -50,6 +50,8 @@ export default class SponsorAuthController extends BaseController {
                                                     locale: (<any>this.req.form).language
                                                 },
                                                 (createAuthenticationErr, authentication) => {
+                                                    if (createAuthenticationErr) return cb(createAuthenticationErr, null);
+
                                                     this.res.cookie('remember_sponsor', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
                                                     cb(err, authentication.get('token'));
                                                 }
@@ -59,8 +61,8 @@ export default class SponsorAuthController extends BaseController {
                                         }
                                     };
 
-                                    processRemember((processRememberErr, token) => {
-                                        if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                                    processRemember((processRememberErr) => {
+                                        if (processRememberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                                         // ログイン
                                         this.req.session[SponsorUser.AUTH_SESSION_NAME] = sponsor.toObject();
@@ -89,6 +91,8 @@ export default class SponsorAuthController extends BaseController {
     public logout(): void {
         delete this.req.session[SponsorUser.AUTH_SESSION_NAME];
         Models.Authentication.remove({ token: this.req.cookies.remember_sponsor }, (err) => {
+            if (err) return this.next(err);
+
             this.res.clearCookie('remember_sponsor');
             this.res.redirect(this.router.build('sponsor.reserve.start'));
         });

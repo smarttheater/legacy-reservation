@@ -18,7 +18,7 @@ class TelAuthController extends BaseController_1.default {
         }
         if (this.req.method === 'POST') {
             const form = telLoginForm_1.default(this.req);
-            form(this.req, this.res, (err) => {
+            form(this.req, this.res, () => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
                     ttts_domain_1.Models.TelStaff.findOne({
@@ -53,7 +53,7 @@ class TelAuthController extends BaseController_1.default {
                                         cb(null, null);
                                     }
                                 };
-                                processRemember((processRememberErr, token) => {
+                                processRemember((processRememberErr) => {
                                     if (processRememberErr)
                                         return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                     // ログイン
@@ -80,6 +80,8 @@ class TelAuthController extends BaseController_1.default {
     logout() {
         delete this.req.session[TelStaffUser_1.default.AUTH_SESSION_NAME];
         ttts_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_tel_staff }, (err) => {
+            if (err)
+                return this.next(err);
             this.res.clearCookie('remember_tel_staff');
             this.res.redirect(this.router.build('tel.mypage'));
         });

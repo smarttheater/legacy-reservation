@@ -22,6 +22,8 @@ export default (app: any) => {
                             sponsor: { $ne: null }
                         },
                         (err, authentication) => {
+                            if (err) return cb(null, null);
+
                             if (authentication) {
                                 // トークン再生成
                                 const token = Util.createToken();
@@ -29,12 +31,12 @@ export default (app: any) => {
                                     {
                                         token: token
                                     },
-                                    (updateErr, raw) => {
-                                        if (updateErr) cb(null, null);
+                                    (updateErr) => {
+                                        if (updateErr) return cb(null, null);
 
                                         res.cookie('remember_sponsor', token, { path: '/', httpOnly: true, maxAge: 604800000 });
                                         Models.Sponsor.findOne({ _id: authentication.get('sponsor') }, (findErr, sponsor) => {
-                                            cb(sponsor, authentication.get('locale'));
+                                            (findErr) ? cb(null, null) : cb(sponsor, authentication.get('locale'));
                                         });
                                     }
                                 );
@@ -75,7 +77,8 @@ export default (app: any) => {
         }
     };
 
-    const baseMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // tslint:disable-next-line:variable-name
+    const baseMiddleware = (req: express.Request, _res: express.Response, next: express.NextFunction) => {
         req.sponsorUser = SponsorUser.parse(req.session);
         next();
     };

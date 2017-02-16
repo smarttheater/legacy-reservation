@@ -24,7 +24,7 @@ export default class MemberAuthController extends BaseController {
         }
 
         if (this.req.method === 'POST') {
-            memberLoginForm(this.req, this.res, (err) => {
+            memberLoginForm(this.req, this.res, () => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
                     this.logger.debug('finding member... user_id:', (<any>this.req.form).userId);

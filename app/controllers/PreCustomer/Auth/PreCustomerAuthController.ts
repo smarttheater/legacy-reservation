@@ -30,7 +30,7 @@ export default class PreCustomerAuthController extends BaseController {
 
         if (this.req.method === 'POST') {
             const form = preCustomerLoginForm(this.req);
-            form(this.req, this.res, (err) => {
+            form(this.req, this.res, () => {
                 if (this.req.form.isValid) {
 
                     // ユーザー認証
@@ -72,7 +72,7 @@ export default class PreCustomerAuthController extends BaseController {
                                         }
                                     };
 
-                                    processRemember((processRememberErr, token) => {
+                                    processRemember((processRememberErr) => {
                                         if (processRememberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                                         // ログイン
@@ -102,6 +102,8 @@ export default class PreCustomerAuthController extends BaseController {
     public logout(): void {
         delete this.req.session[PreCustomerUser.AUTH_SESSION_NAME];
         Models.Authentication.remove({ token: this.req.cookies.remember_pre_customer }, (err) => {
+            if (err) return this.next(err);
+
             this.res.clearCookie('remember_pre_customer');
             this.res.redirect(this.router.build('pre.reserve.start'));
         });

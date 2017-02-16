@@ -169,7 +169,7 @@ class ReserveBaseController extends BaseController_1.default {
         // 仮予約を空席ステータスに戻す
         ttts_domain_2.Models.Reservation.remove({
             _id: { $in: ids }
-        }, (err) => {
+        }, () => {
             // 失敗したとしても時間経過で消えるので放置
             cb(null, reservationModel);
         });
@@ -373,7 +373,7 @@ class ReserveBaseController extends BaseController_1.default {
      * 券種FIXプロセス
      */
     processFixTickets(reservationModel, cb) {
-        reserveTicketForm_1.default(this.req, this.res, (err) => {
+        reserveTicketForm_1.default(this.req, this.res, () => {
             if (!this.req.form.isValid)
                 cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
             // 座席選択情報を保存して座席選択へ

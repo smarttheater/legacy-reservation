@@ -17,17 +17,19 @@ exports.default = (app) => {
                         token: req.cookies.remember_sponsor,
                         sponsor: { $ne: null }
                     }, (err, authentication) => {
+                        if (err)
+                            return cb(null, null);
                         if (authentication) {
                             // トークン再生成
                             const token = Util_1.default.createToken();
                             authentication.update({
                                 token: token
-                            }, (updateErr, raw) => {
+                            }, (updateErr) => {
                                 if (updateErr)
-                                    cb(null, null);
+                                    return cb(null, null);
                                 res.cookie('remember_sponsor', token, { path: '/', httpOnly: true, maxAge: 604800000 });
                                 ttts_domain_1.Models.Sponsor.findOne({ _id: authentication.get('sponsor') }, (findErr, sponsor) => {
-                                    cb(sponsor, authentication.get('locale'));
+                                    (findErr) ? cb(null, null) : cb(sponsor, authentication.get('locale'));
                                 });
                             });
                         }
@@ -67,7 +69,8 @@ exports.default = (app) => {
             next();
         }
     };
-    const baseMiddleware = (req, res, next) => {
+    // tslint:disable-next-line:variable-name
+    const baseMiddleware = (req, _res, next) => {
         req.sponsorUser = SponsorUser_1.default.parse(req.session);
         next();
     };

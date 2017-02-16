@@ -17,9 +17,11 @@ export default class ReserveController extends ReserveBaseController {
                 performance: performanceId
             },
             (err, seatCodes) => {
-                if (err) return this.res.json([]);
-
-                this.res.json(seatCodes);
+                if (err) {
+                    this.res.json([]);
+                } else {
+                    this.res.json(seatCodes);
+                }
             }
         );
     }
@@ -30,68 +32,72 @@ export default class ReserveController extends ReserveBaseController {
     public getSeatProperties() {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.res.json({ propertiesBySeatCode: {} });
+            if (err) {
+                this.res.json({ propertiesBySeatCode: {} });
+            } else {
+                const propertiesBySeatCode: {
+                    [seatCode: string]: {
+                        avalilable: boolean, // 予約可能かどうか
+                        baloonContent: string, // バルーン内容
+                        entered: boolean // 入場済みかどうか
+                    };
+                } = {};
 
-            const propertiesBySeatCode: {
-                [seatCode: string]: {
-                    avalilable: boolean, // 予約可能かどうか
-                    baloonContent: string, // バルーン内容
-                    entered: boolean // 入場済みかどうか
-                };
-            } = {};
+                // 予約リストを取得
+                Models.Reservation.find(
+                    {
+                        performance: reservationModel.performance._id
+                    },
+                    (findReservationErr, reservations) => {
+                        if (findReservationErr) {
+                            this.res.json({ propertiesBySeatCode: {} });
+                        } else {
+                            // 予約データが存在すれば、現在仮押さえ中の座席を除いて予約不可(disabled)
+                            for (const reservation of reservations) {
+                                const seatCode = reservation.get('seat_code');
+                                let avalilable = false;
+                                let baloonContent = seatCode;
 
-            // 予約リストを取得
-            Models.Reservation.find(
-                {
-                    performance: reservationModel.performance._id
-                },
-                (findReservationErr, reservations) => {
-                    if (findReservationErr) return this.res.json({ propertiesBySeatCode: {} });
+                                if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
+                                    // 仮押さえ中
+                                    avalilable = true;
+                                }
 
-                    // 予約データが存在すれば、現在仮押さえ中の座席を除いて予約不可(disabled)
-                    for (const reservation of reservations) {
-                        const seatCode = reservation.get('seat_code');
-                        let avalilable = false;
-                        let baloonContent = seatCode;
+                                // 内部関係者用
+                                if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
+                                    baloonContent = reservation.get('baloon_content4staff');
 
-                        if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
-                            // 仮押さえ中
-                            avalilable = true;
-                        }
+                                    // 内部関係者はTTTS確保も予約できる
+                                    if (reservation.get('status') === ReservationUtil.STATUS_KEPT_BY_TTTS) {
+                                        avalilable = true;
+                                    }
+                                }
 
-                        // 内部関係者用
-                        if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
-                            baloonContent = reservation.get('baloon_content4staff');
-
-                            // 内部関係者はTTTS確保も予約できる
-                            if (reservation.get('status') === ReservationUtil.STATUS_KEPT_BY_TTTS) {
-                                avalilable = true;
+                                propertiesBySeatCode[seatCode] = {
+                                    avalilable: avalilable,
+                                    baloonContent: baloonContent,
+                                    entered: reservation.get('entered')
+                                };
                             }
-                        }
 
-                        propertiesBySeatCode[seatCode] = {
-                            avalilable: avalilable,
-                            baloonContent: baloonContent,
-                            entered: reservation.get('entered')
-                        };
-                    }
+                            // 予約のない座席は全て空席
+                            for (const seat of reservationModel.performance.screen.sections[0].seats) {
+                                if (!propertiesBySeatCode.hasOwnProperty(seat.code)) {
+                                    propertiesBySeatCode[seat.code] = {
+                                        avalilable: true,
+                                        baloonContent: seat.code,
+                                        entered: false
+                                    };
+                                }
+                            }
 
-                    // 予約のない座席は全て空席
-                    for (const seat of reservationModel.performance.screen.sections[0].seats) {
-                        if (!propertiesBySeatCode.hasOwnProperty(seat.code)) {
-                            propertiesBySeatCode[seat.code] = {
-                                avalilable: true,
-                                baloonContent: seat.code,
-                                entered: false
-                            };
+                            this.res.json({
+                                propertiesBySeatCode: propertiesBySeatCode
+                            });
                         }
                     }
-
-                    this.res.json({
-                        propertiesBySeatCode: propertiesBySeatCode
-                    });
-                }
-            );
+                );
+            }
         });
     }
 
@@ -100,6 +106,8 @@ export default class ReserveController extends ReserveBaseController {
      */
     public qrcode() {
         Models.Reservation.findOne({ _id: this.req.params.reservationId }, 'payment_no payment_seat_index', (err, reservation) => {
+            if (err) return this.next(err);
+
             // this.res.setHeader('Content-Type', 'image/png');
             qr.image(reservation.get('qr_str'), { type: 'png' }).pipe(this.res);
         });

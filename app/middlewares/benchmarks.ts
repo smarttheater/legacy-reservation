@@ -1,7 +1,8 @@
 import * as express from 'express';
 import * as log4js from 'log4js';
 
-export default (req: express.Request, res: express.Response, next: express.NextFunction) => {
+// tslint:disable-next-line:variable-name
+export default (req: express.Request, _res: express.Response, next: express.NextFunction) => {
     if (process.env.NODE_ENV === 'dev') {
         const startMemory = process.memoryUsage();
         const startTime = process.hrtime();

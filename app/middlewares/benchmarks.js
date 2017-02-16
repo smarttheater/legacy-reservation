@@ -1,7 +1,8 @@
 "use strict";
 const log4js = require("log4js");
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = (req, res, next) => {
+// tslint:disable-next-line:variable-name
+exports.default = (req, _res, next) => {
     if (process.env.NODE_ENV === 'dev') {
         const startMemory = process.memoryUsage();
         const startTime = process.hrtime();

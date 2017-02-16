@@ -80,6 +80,8 @@ class TelReserveController extends ReserveBaseController_1.default {
                 // 仮予約あればキャンセルする
                 // tslint:disable-next-line:no-shadowed-variable
                 this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
+                    if (cancelSeatsErr)
+                        return this.next(cancelSeatsErr);
                     reservationModel.save(() => {
                         this.res.render('tel/reserve/performances', {
                             FilmUtil: ttts_domain_3.FilmUtil
@@ -111,6 +113,8 @@ class TelReserveController extends ReserveBaseController_1.default {
                             // 仮予約あればキャンセルする
                             // tslint:disable-next-line:no-shadowed-variable
                             this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
+                                if (cancelSeatsErr)
+                                    return this.next(cancelSeatsErr);
                                 // 座席FIX
                                 // tslint:disable-next-line:no-shadowed-variable
                                 this.processFixSeats(reservationModel, seatCodes, (fixSeatsErr, reservationModel) => {
@@ -238,7 +242,7 @@ class TelReserveController extends ReserveBaseController_1.default {
                             status: ttts_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN
                         }, {
                             multi: true
-                        }, (updateReservationErr, raw) => {
+                        }, (updateReservationErr) => {
                             if (updateReservationErr) {
                                 const message = updateReservationErr.message;
                                 this.res.redirect(`${this.router.build('tel.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);

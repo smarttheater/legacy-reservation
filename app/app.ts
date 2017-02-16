@@ -44,7 +44,7 @@ namedRoutes.registerAppHelpers(app);
 
 if (process.env.NODE_ENV !== 'prod') {
     // サーバーエラーテスト
-    app.get('/500', (req, res) => {
+    app.get('/500', (req) => {
         // req.on('data', (chunk) => {
         // });
 
@@ -85,7 +85,8 @@ i18n.configure({
 app.use(i18n.init);
 
 // セッションで言語管理
-app.use((req, res, next) => {
+// tslint:disable-next-line:variable-name
+app.use((req, _res, next) => {
     if ((<any>req.session).locale) {
         req.setLocale((<any>req.session).locale);
     }

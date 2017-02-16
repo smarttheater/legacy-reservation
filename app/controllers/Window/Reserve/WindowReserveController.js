@@ -74,6 +74,8 @@ class WindowReserveController extends ReserveBaseController_1.default {
                 // 仮予約あればキャンセルする
                 // tslint:disable-next-line:no-shadowed-variable
                 this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
+                    if (cancelSeatsErr)
+                        return this.next(cancelSeatsErr);
                     reservationModel.save(() => {
                         this.res.render('window/reserve/performances', {
                             FilmUtil: ttts_domain_3.FilmUtil
@@ -105,10 +107,12 @@ class WindowReserveController extends ReserveBaseController_1.default {
                             // 仮予約あればキャンセルする
                             // tslint:disable-next-line:no-shadowed-variable
                             this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
+                                if (cancelSeatsErr)
+                                    return this.next(cancelSeatsErr);
                                 // 座席FIX
                                 // tslint:disable-next-line:no-shadowed-variable
                                 this.processFixSeats(reservationModel, seatCodes, (fixSeatsErr, reservationModel) => {
-                                    if (err) {
+                                    if (fixSeatsErr) {
                                         reservationModel.save(() => {
                                             const message = this.req.__('Message.SelectedSeatsUnavailable');
                                             this.res.redirect(`${this.router.build('window.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
@@ -149,7 +153,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
                 this.processFixTickets(reservationModel, (fixTicketsErr, reservationModel) => {
-                    if (err) {
+                    if (fixTicketsErr) {
                         this.res.redirect(this.router.build('window.reserve.tickets', { token: token }));
                     }
                     else {

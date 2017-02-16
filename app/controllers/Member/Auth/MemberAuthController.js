@@ -24,7 +24,7 @@ class MemberAuthController extends BaseController_1.default {
             return this.res.redirect(this.router.build('member.reserve.start'));
         }
         if (this.req.method === 'POST') {
-            memberLoginForm_1.default(this.req, this.res, (err) => {
+            memberLoginForm_1.default(this.req, this.res, () => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
                     this.logger.debug('finding member... user_id:', this.req.form.userId);

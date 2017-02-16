@@ -19,7 +19,8 @@ exports.default = (app) => {
             next();
         }
     };
-    const baseMiddleware = (req, res, next) => {
+    // tslint:disable-next-line:variable-name
+    const baseMiddleware = (req, _res, next) => {
         req.memberUser = MemberUser_1.default.parse(req.session);
         next();
     };

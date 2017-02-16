@@ -22,6 +22,8 @@ export default (app: any) => {
                             staff: { $ne: null }
                         },
                         (err, authentication) => {
+                            if (err) return cb(null, null, null);
+
                             if (authentication) {
                                 // トークン再生成
                                 const token = Util.createToken();
@@ -29,12 +31,12 @@ export default (app: any) => {
                                     {
                                         token: token
                                     },
-                                    (updateErr, raw) => {
-                                        if (updateErr) cb(null, null, null);
+                                    (updateErr) => {
+                                        if (updateErr) return cb(null, null, null);
 
                                         res.cookie('remember_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
                                         Models.Staff.findOne({ _id: authentication.get('staff') }, (findErr, staff) => {
-                                            cb(staff, authentication.get('signature'), authentication.get('locale'));
+                                            (findErr) ? cb(null, null, null) : cb(staff, authentication.get('signature'), authentication.get('locale'));
                                         });
                                     }
                                 );
@@ -77,7 +79,8 @@ export default (app: any) => {
         }
     };
 
-    const baseMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // tslint:disable-next-line:variable-name
+    const baseMiddleware = (req: express.Request, _res: express.Response, next: express.NextFunction) => {
         req.staffUser = StaffUser.parse(req.session);
         next();
     };

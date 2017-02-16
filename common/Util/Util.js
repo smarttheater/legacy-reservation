@@ -6,15 +6,18 @@ const uniqid = require("uniqid");
 /**
  * 共通ユーティリティ
  */
+// tslint:disable-next-line:no-stateless-class
 class Util {
     /**
      * ミリ秒とプロセスに対してユニークなトークンを生成する
      */
+    // tslint:disable-next-line:function-name
     static createToken() {
-        let md5hash = crypto.createHash('md5');
+        const md5hash = crypto.createHash('md5');
         // console.log(uniqid()); // Generate 18 byte unique id's based on the time, process id and mac address. Works on multiple processes and machines.
         // console.log(uniqid.process()); // Generate 12 byte unique id's based on the time and the process id. Works on multiple processes within a single machine but not on multiple machines.
         // console.log(uniqid.time()); // Generate 8 byte unique id's based on the current time only. Recommended only on a single process on a single machine.
+        // tslint:disable-next-line:no-magic-numbers insecure-random
         md5hash.update(Math.floor(Math.random() * 10000) + 1000 + uniqid(), 'utf8');
         return md5hash.digest('hex');
     }
@@ -24,8 +27,9 @@ class Util {
      *
      * @param {string} paymentNo 購入番号
      */
-    static getReservationLogger(paymentNo, cb) {
-        // TODO 購入ログの出力方法を、ローカルファイルロガー以外で新たに考える
+    // tslint:disable-next-line:variable-name function-name
+    static getReservationLogger(_paymentNo, cb) {
+        // todo 購入ログの出力方法を、ローカルファイルロガー以外で新たに考える
         cb(null, log4js.getLogger('system'));
         // let env = process.env.NODE_ENV || 'dev';
         // let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.substr(-1)}`;
@@ -57,32 +61,38 @@ class Util {
      * @param {string} password
      * @param {string} salt
      */
+    // tslint:disable-next-line:function-name
     static createHash(password, salt) {
-        let sha512 = crypto.createHash('sha512');
+        const sha512 = crypto.createHash('sha512');
         sha512.update(salt + password, 'utf8');
         return sha512.digest('hex');
     }
     /**
      * 全角→半角変換
      */
+    // tslint:disable-next-line:function-name
     static toHalfWidth(str) {
         return str.split('').map((value) => {
             // 全角であれば変換
+            // tslint:disable-next-line:no-magic-numbers
             return value.replace(/[！-～]/g, String.fromCharCode(value.charCodeAt(0) - 0xFEE0)).replace('　', ' ');
         }).join('');
     }
     /**
      * 半角→全角変換
      */
+    // tslint:disable-next-line:function-name
     static toFullWidth(str) {
         return str.split('').map((value) => {
             // 半角であれば変換
+            // tslint:disable-next-line:no-magic-numbers
             return value.replace(/[!-~]/g, String.fromCharCode(value.charCodeAt(0) + 0xFEE0)).replace(' ', '　');
         }).join('');
     }
     /**
      * 都道府県リスト
      */
+    // tslint:disable-next-line:function-name
     static getPrefectrues() {
         return [
             { code: '01', name: { ja: '北海道', en: 'Hokkaido Government' } },

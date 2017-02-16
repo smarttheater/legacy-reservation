@@ -17,17 +17,19 @@ exports.default = (app) => {
                         token: req.cookies.remember_staff,
                         staff: { $ne: null }
                     }, (err, authentication) => {
+                        if (err)
+                            return cb(null, null, null);
                         if (authentication) {
                             // トークン再生成
                             const token = Util_1.default.createToken();
                             authentication.update({
                                 token: token
-                            }, (updateErr, raw) => {
+                            }, (updateErr) => {
                                 if (updateErr)
-                                    cb(null, null, null);
+                                    return cb(null, null, null);
                                 res.cookie('remember_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
                                 ttts_domain_1.Models.Staff.findOne({ _id: authentication.get('staff') }, (findErr, staff) => {
-                                    cb(staff, authentication.get('signature'), authentication.get('locale'));
+                                    (findErr) ? cb(null, null, null) : cb(staff, authentication.get('signature'), authentication.get('locale'));
                                 });
                             });
                         }
@@ -69,7 +71,8 @@ exports.default = (app) => {
             next();
         }
     };
-    const baseMiddleware = (req, res, next) => {
+    // tslint:disable-next-line:variable-name
+    const baseMiddleware = (req, _res, next) => {
         req.staffUser = StaffUser_1.default.parse(req.session);
         next();
     };

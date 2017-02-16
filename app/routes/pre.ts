@@ -20,6 +20,8 @@ export default (app: any) => {
                             pre_customer: { $ne: null }
                         },
                         (err, authentication) => {
+                            if (err) return cb(null, null);
+
                             if (authentication) {
                                 // トークン再生成
                                 const token = Util.createToken();
@@ -27,12 +29,12 @@ export default (app: any) => {
                                     {
                                         token: token
                                     },
-                                    (updateErr, raw) => {
+                                    (updateErr) => {
                                         if (updateErr) cb(null, null);
 
                                         res.cookie('remember_pre_customer', token, { path: '/', httpOnly: true, maxAge: 604800000 });
                                         Models.PreCustomer.findOne({ _id: authentication.get('pre_customer') }, (findErr, preCustomer) => {
-                                            cb(preCustomer, authentication.get('locale'));
+                                            (findErr) ? cb(null, null) : cb(preCustomer, authentication.get('locale'));
                                         });
                                     }
                                 );
@@ -73,7 +75,8 @@ export default (app: any) => {
         }
     };
 
-    const baseMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // tslint:disable-next-line:variable-name
+    const baseMiddleware = (req: express.Request, _res: express.Response, next: express.NextFunction) => {
         req.preCustomerUser = PreCustomerUser.parse(req.session);
         next();
     };

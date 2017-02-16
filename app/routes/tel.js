@@ -17,17 +17,19 @@ exports.default = (app) => {
                         token: req.cookies.remember_tel_staff,
                         tel_staff: { $ne: null }
                     }, (err, authentication) => {
+                        if (err)
+                            return cb(null);
                         if (authentication) {
                             // トークン再生成
                             const token = Util_1.default.createToken();
                             authentication.update({
                                 token: token
-                            }, (updateRrr, raw) => {
+                            }, (updateRrr) => {
                                 if (updateRrr)
-                                    cb(null);
+                                    return cb(null);
                                 res.cookie('remember_tel_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
                                 ttts_domain_1.Models.TelStaff.findOne({ _id: authentication.get('tel_staff') }, (findErr, telStaff) => {
-                                    cb(telStaff);
+                                    (findErr) ? cb(null) : cb(telStaff);
                                 });
                             });
                         }
@@ -66,7 +68,8 @@ exports.default = (app) => {
             next();
         }
     };
-    const baseMiddleware = (req, res, next) => {
+    // tslint:disable-next-line:variable-name
+    const baseMiddleware = (req, _res, next) => {
         // 基本的に日本語
         req.setLocale('ja');
         req.telStaffUser = TelStaffUser_1.default.parse(req.session);

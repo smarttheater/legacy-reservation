@@ -3,9 +3,21 @@ import { ReservationUtil } from '@motionpicture/ttts-domain';
 import { FilmUtil } from '@motionpicture/ttts-domain';
 import BaseController from '../BaseController';
 
+/**
+ * 入場コントローラー
+ *
+ * 上映当日入場画面から使う機能はここにあります。
+ *
+ * @class AdmissionController
+ */
 export default class AdmissionController extends BaseController {
     public layout = 'layouts/admission/layout';
 
+    /**
+     * 入場画面のパフォーマンス検索
+     *
+     * @memberOf AdmissionController
+     */
     public performances(): void {
         if (this.req.method === 'POST') {
             if (this.req.body.performanceId) {
@@ -19,10 +31,14 @@ export default class AdmissionController extends BaseController {
                 {},
                 'name',
                 (err, theaters) => {
+                    if (err) return this.next(err);
+
                     Models.Screen.find(
                         {},
                         'name theater',
                         (findScreenErr, screens) => {
+                            if (findScreenErr) return this.next(findScreenErr);
+
                             const screensByTheater = {};
                             for (const screen of screens) {
                                 if (!screensByTheater.hasOwnProperty(screen.get('theater'))) {
@@ -44,6 +60,13 @@ export default class AdmissionController extends BaseController {
         }
     }
 
+    /**
+     * QRコード認証画面
+     *
+     * QRコードを読み取って結果を表示するための画面
+     *
+     * @memberOf AdmissionController
+     */
     public confirm(): void {
         Models.Performance.findOne({ _id: this.req.params.id })
             .populate('film', 'name')

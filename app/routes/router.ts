@@ -19,7 +19,8 @@ import ReserveController from '../controllers/Reserve/ReserveController';
  * リクエスト毎に、req,res,nextでコントローラーインスタンスを生成して、URLに応じたメソッドを実行する、という考え方
  */
 export default (app: any) => {
-    const base = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // tslint:disable-next-line:variable-name
+    const base = (_req: express.Request, _res: express.Response, next: express.NextFunction) => {
         next();
     };
 
@@ -62,7 +63,8 @@ export default (app: any) => {
     app.get('/error/notFound', 'error.notFound', base, (req, res, next) => { (new ErrorController(req, res, next)).notFound(); });
 
     // 404
-    app.use((req, res, next) => {
+    // tslint:disable-next-line:variable-name
+    app.use((_req, res) => {
         return res.redirect('/error/notFound');
     });
 
