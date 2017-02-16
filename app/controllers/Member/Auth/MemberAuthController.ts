@@ -1,10 +1,10 @@
-import BaseController from '../../BaseController';
+import {Models} from '@motionpicture/ttts-domain';
+import * as conf from 'config';
+import * as moment from 'moment';
 import Util from '../../../../common/Util/Util';
-import {Models} from "@motionpicture/ttts-domain";
-import moment = require('moment');
 import memberLoginForm from '../../../forms/member/memberLoginForm';
 import MemberUser from '../../../models/User/MemberUser';
-import conf = require('config');
+import BaseController from '../../BaseController';
 
 export default class MemberAuthController extends BaseController {
     public layout = 'layouts/member/layout';
@@ -14,7 +14,7 @@ export default class MemberAuthController extends BaseController {
      */
     public login(): void {
         // 期限指定
-        let now = moment();
+        const now = moment();
         if (now < moment(conf.get<string>('datetimes.reservation_start_members')) || moment(conf.get<string>('datetimes.reservation_end_members')) < now) {
             return this.next(new Error(this.req.__('Message.OutOfTerm')));
         }

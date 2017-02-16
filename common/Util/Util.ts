@@ -1,7 +1,7 @@
-import crypto = require('crypto');
-// import fs = require('fs-extra');
-import log4js = require('log4js');
-import uniqid = require('uniqid');
+import * as crypto from 'crypto';
+// import * as fs from 'fs-extra';
+import * as log4js from 'log4js';
+import * as uniqid from 'uniqid';
 
 /**
  * 共通ユーティリティ

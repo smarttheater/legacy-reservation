@@ -5,9 +5,9 @@ class LanguageController extends BaseController_1.default {
      * 言語切り替え
      */
     update() {
-        let locale = this.req.params.locale;
+        const locale = this.req.params.locale;
         this.req.session['locale'] = locale;
-        let cb = (this.req.query.cb) ? this.req.query.cb : '/';
+        const cb = (this.req.query.cb) ? this.req.query.cb : '/';
         this.res.redirect(cb);
     }
 }

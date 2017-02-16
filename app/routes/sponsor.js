@@ -1,17 +1,17 @@
 "use strict";
-const SponsorAuthController_1 = require("../controllers/Sponsor/Auth/SponsorAuthController");
-const SponsorMyPageController_1 = require("../controllers/Sponsor/MyPage/SponsorMyPageController");
-const SponsorReserveController_1 = require("../controllers/Sponsor/Reserve/SponsorReserveController");
-const SponsorCancelController_1 = require("../controllers/Sponsor/Cancel/SponsorCancelController");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const Util_1 = require("../../common/Util/Util");
+const SponsorAuthController_1 = require("../controllers/Sponsor/Auth/SponsorAuthController");
+const SponsorCancelController_1 = require("../controllers/Sponsor/Cancel/SponsorCancelController");
+const SponsorMyPageController_1 = require("../controllers/Sponsor/MyPage/SponsorMyPageController");
+const SponsorReserveController_1 = require("../controllers/Sponsor/Reserve/SponsorReserveController");
 const SponsorUser_1 = require("../models/User/SponsorUser");
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
-    let authentication = (req, res, next) => {
+    const authenticationMiddleware = (req, res, next) => {
         if (!req.sponsorUser.isAuthenticated()) {
             // 自動ログインチェック
-            let checkRemember = (cb) => {
+            const checkRemember = (cb) => {
                 if (req.cookies.remember_sponsor) {
                     ttts_domain_1.Models.Authentication.findOne({
                         token: req.cookies.remember_sponsor,
@@ -19,14 +19,14 @@ exports.default = (app) => {
                     }, (err, authentication) => {
                         if (authentication) {
                             // トークン再生成
-                            let token = Util_1.default.createToken();
+                            const token = Util_1.default.createToken();
                             authentication.update({
                                 token: token
-                            }, (err, raw) => {
-                                if (err)
+                            }, (updateErr, raw) => {
+                                if (updateErr)
                                     cb(null, null);
                                 res.cookie('remember_sponsor', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                ttts_domain_1.Models.Sponsor.findOne({ _id: authentication.get('sponsor') }, (err, sponsor) => {
+                                ttts_domain_1.Models.Sponsor.findOne({ _id: authentication.get('sponsor') }, (findErr, sponsor) => {
                                     cb(sponsor, authentication.get('locale'));
                                 });
                             });
@@ -45,7 +45,7 @@ exports.default = (app) => {
                 if (user) {
                     // ログインしてリダイレクト
                     req.session[SponsorUser_1.default.AUTH_SESSION_NAME] = user.toObject();
-                    req.session[SponsorUser_1.default.AUTH_SESSION_NAME]['locale'] = locale;
+                    req.session[SponsorUser_1.default.AUTH_SESSION_NAME].locale = locale;
                     // if exist parameter cb, redirect to cb.
                     res.redirect(req.originalUrl);
                 }
@@ -67,25 +67,25 @@ exports.default = (app) => {
             next();
         }
     };
-    let base = (req, res, next) => {
+    const baseMiddleware = (req, res, next) => {
         req.sponsorUser = SponsorUser_1.default.parse(req.session);
         next();
     };
     // 外部関係者
-    app.all('/sponsor/login', 'sponsor.mypage.login', base, (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).login(); });
-    app.all('/sponsor/logout', 'sponsor.logout', base, authentication, (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).logout(); });
-    app.all('/sponsor/mypage', 'sponsor.mypage', base, authentication, (req, res, next) => { (new SponsorMyPageController_1.default(req, res, next)).index(); });
-    app.get('/sponsor/mypage/search', 'sponsor.mypage.search', base, authentication, (req, res, next) => { (new SponsorMyPageController_1.default(req, res, next)).search(); });
-    app.get('/sponsor/reserve/start', 'sponsor.reserve.start', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).start(); });
-    app.all('/sponsor/reserve/:token/terms', 'sponsor.reserve.terms', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).terms(); });
-    app.all('/sponsor/reserve/:token/performances', 'sponsor.reserve.performances', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).performances(); });
-    app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).seats(); });
-    app.all('/sponsor/reserve/:token/tickets', 'sponsor.reserve.tickets', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).tickets(); });
-    app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).profile(); });
-    app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).confirm(); });
-    app.get('/sponsor/reserve/:paymentNo/complete', 'sponsor.reserve.complete', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).complete(); });
-    app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', base, authentication, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).execute(); });
+    app.all('/sponsor/login', 'sponsor.mypage.login', baseMiddleware, (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).login(); });
+    app.all('/sponsor/logout', 'sponsor.logout', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).logout(); });
+    app.all('/sponsor/mypage', 'sponsor.mypage', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new SponsorMyPageController_1.default(req, res, next)).index(); });
+    app.get('/sponsor/mypage/search', 'sponsor.mypage.search', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new SponsorMyPageController_1.default(req, res, next)).search(); });
+    app.get('/sponsor/reserve/start', 'sponsor.reserve.start', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).start(); });
+    app.all('/sponsor/reserve/:token/terms', 'sponsor.reserve.terms', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).terms(); });
+    app.all('/sponsor/reserve/:token/performances', 'sponsor.reserve.performances', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).performances(); });
+    app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).seats(); });
+    app.all('/sponsor/reserve/:token/tickets', 'sponsor.reserve.tickets', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).tickets(); });
+    app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).profile(); });
+    app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).confirm(); });
+    app.get('/sponsor/reserve/:paymentNo/complete', 'sponsor.reserve.complete', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).complete(); });
+    app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).execute(); });
     // ↓ログイン不要
-    app.all('/sponsor/cancel', 'sponsor.cancel', base, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).index(); });
-    app.post('/sponsor/cancel/executeByPaymentNo', 'sponsor.cancel.executeByPaymentNo', base, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).executeByPaymentNo(); });
+    app.all('/sponsor/cancel', 'sponsor.cancel', baseMiddleware, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).index(); });
+    app.post('/sponsor/cancel/executeByPaymentNo', 'sponsor.cancel.executeByPaymentNo', baseMiddleware, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).executeByPaymentNo(); });
 };

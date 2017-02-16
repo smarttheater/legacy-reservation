@@ -1,15 +1,15 @@
 "use strict";
-const BaseController_1 = require("../../BaseController");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
-const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
-const customerCancelForm_1 = require("../../../forms/customer/customerCancelForm");
-const log4js = require("log4js");
 const conf = require("config");
-const sendgrid = require("sendgrid");
+const fs = require("fs-extra");
+const log4js = require("log4js");
 const moment = require("moment");
 const numeral = require("numeral");
-const fs = require("fs-extra");
+const sendgrid = require("sendgrid");
+const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
+const customerCancelForm_1 = require("../../../forms/customer/customerCancelForm");
+const BaseController_1 = require("../../BaseController");
 class CustomerCancelController extends BaseController_1.default {
     /**
      * チケットキャンセル
@@ -19,7 +19,7 @@ class CustomerCancelController extends BaseController_1.default {
             return this.res.render('customer/cancel/outOfTerm', { layout: false });
         }
         if (this.req.method === 'POST') {
-            let form = customerCancelForm_1.default(this.req);
+            const form = customerCancelForm_1.default(this.req);
             form(this.req, this.res, (err) => {
                 if (!this.req.form.isValid) {
                     return this.res.json({
@@ -53,7 +53,7 @@ class CustomerCancelController extends BaseController_1.default {
                                 message: err.message
                             });
                         }
-                        let results = reservations.map((reservation) => {
+                        const results = reservations.map((reservation) => {
                             return {
                                 _id: reservation.get('_id'),
                                 seat_code: reservation.get('seat_code'),
@@ -95,8 +95,8 @@ class CustomerCancelController extends BaseController_1.default {
             return;
         }
         this.logger = log4js.getLogger('cancel');
-        let paymentNo = this.req.body.paymentNo;
-        let last4DigitsOfTel = this.req.body.last4DigitsOfTel;
+        const paymentNo = this.req.body.paymentNo;
+        const last4DigitsOfTel = this.req.body.last4DigitsOfTel;
         this.logger.info('finding reservations...');
         ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
@@ -147,7 +147,7 @@ class CustomerCancelController extends BaseController_1.default {
                             if (err)
                                 return this.res.json({ success: false, message: err.message });
                             // メール送信
-                            let to = reservations[0].get('purchaser_email');
+                            const to = reservations[0].get('purchaser_email');
                             this.res.render('email/customer/cancel', {
                                 layout: false,
                                 to: to,
@@ -162,8 +162,8 @@ class CustomerCancelController extends BaseController_1.default {
                                 // メール失敗してもキャンセル成功
                                 if (err)
                                     return this.res.json({ success: true, message: null });
-                                let _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
-                                let email = new _sendgrid.Email({
+                                const _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
+                                const email = new _sendgrid.Email({
                                     to: to,
                                     bcc: ['tiff_mp@motionpicture.jp'],
                                     fromname: conf.get('email.fromname'),
@@ -211,7 +211,7 @@ class CustomerCancelController extends BaseController_1.default {
      */
     validate(reservations, cb) {
         // 入場済みの座席があるかどうか確認
-        let notEntered = reservations.every((reservation) => { return !reservation.get('entered'); });
+        const notEntered = reservations.every((reservation) => !reservation.get('entered'));
         if (!notEntered)
             return cb(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable.'));
         // 一次販売(15日)許可

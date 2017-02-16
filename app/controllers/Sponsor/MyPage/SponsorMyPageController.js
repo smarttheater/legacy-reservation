@@ -1,9 +1,9 @@
 "use strict";
-const BaseController_1 = require("../../BaseController");
-const Util_1 = require("../../../../common/Util/Util");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const ttts_domain_3 = require("@motionpicture/ttts-domain");
+const Util_1 = require("../../../../common/Util/Util");
+const BaseController_1 = require("../../BaseController");
 class SponsorMyPageController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -16,13 +16,13 @@ class SponsorMyPageController extends BaseController_1.default {
      * マイページ予約検索
      */
     search() {
-        let limit = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
-        let page = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
-        let tel = (this.req.query.tel) ? this.req.query.tel : null;
-        let purchaserName = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
+        const limit = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
+        const page = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
+        const tel = (this.req.query.tel) ? this.req.query.tel : null;
+        const purchaserName = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
         let paymentNo = (this.req.query.payment_no) ? this.req.query.payment_no : null;
         // 検索条件を作成
-        let conditions = [];
+        const conditions = [];
         conditions.push({
             purchaser_group: ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR,
             sponsor: this.req.sponsorUser.get('_id'),

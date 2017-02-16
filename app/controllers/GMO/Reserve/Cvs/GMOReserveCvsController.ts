@@ -1,10 +1,10 @@
-import ReserveBaseController from '../../../ReserveBaseController';
-import {Models} from "@motionpicture/ttts-domain";
-import {ReservationUtil} from "@motionpicture/ttts-domain";
-import {ReservationEmailCueUtil} from "@motionpicture/ttts-domain";
+import {Models} from '@motionpicture/ttts-domain';
+import {ReservationUtil} from '@motionpicture/ttts-domain';
+import {ReservationEmailCueUtil} from '@motionpicture/ttts-domain';
+import * as conf from 'config';
+import * as crypto from 'crypto';
 import GMOResultModel from '../../../../models/Reserve/GMOResultModel';
-import crypto = require('crypto');
-import conf = require('config');
+import ReserveBaseController from '../../../ReserveBaseController';
 
 export default class GMOReserveCvsController extends ReserveBaseController {
     /**
@@ -25,9 +25,9 @@ export default class GMOReserveCvsController extends ReserveBaseController {
 
                 // チェック文字列
                 // 8 ＋ 23 ＋ 24 ＋ 25 ＋ 39 + 14 ＋ショップパスワード
-                let md5hash = crypto.createHash('md5');
+                const md5hash = crypto.createHash('md5');
                 md5hash.update(`${gmoResultModel.OrderID}${gmoResultModel.CvsCode}${gmoResultModel.CvsConfNo}${gmoResultModel.CvsReceiptNo}${gmoResultModel.PaymentTerm}${gmoResultModel.TranDate}${conf.get<string>('gmo_payment_shop_password')}`, 'utf8');
-                let checkString = md5hash.digest('hex');
+                const checkString = md5hash.digest('hex');
 
                 this.logger.info('CheckString must be ', checkString);
                 if (checkString !== gmoResultModel.CheckString) {
@@ -58,14 +58,14 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                         this.logger.info('creating reservationEmailCue...');
                         Models.ReservationEmailCue.findOneAndUpdate({
                             payment_no: gmoResultModel.OrderID,
-                            template: ReservationEmailCueUtil.TEMPLATE_TEMPORARY,
-                        }, {
+                            template: ReservationEmailCueUtil.TEMPLATE_TEMPORARY
+                        },                                          {
                             $set: { updated_at: Date.now() },
                             $setOnInsert: { status: ReservationEmailCueUtil.STATUS_UNSENT }
-                        }, {
+                        },                                          {
                             upsert: true,
                             new: true
-                        }, (err, cue) => {
+                        },                                          (err, cue) => {
                             this.logger.info('reservationEmailCue created.', err, cue);
                             if (err) {
                                 // 失敗してもスルー(ログと運用でなんとかする)
@@ -74,7 +74,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                             this.logger.info('redirecting to waitingSettlement...');
 
                             // 購入者区分による振り分け
-                            let group = reservations[0].get('purchaser_group');
+                            const group = reservations[0].get('purchaser_group');
                             switch (group) {
                                 case ReservationUtil.PURCHASER_GROUP_MEMBER:
                                     this.res.redirect(this.router.build('member.reserve.waitingSettlement', {paymentNo: gmoResultModel.OrderID}));

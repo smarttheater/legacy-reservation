@@ -1,8 +1,8 @@
-import BaseController from '../../BaseController';
-import SponsorUser from '../../../models/User/SponsorUser';
-import sponsorLoginForm from '../../../forms/sponsor/sponsorLoginForm';
+import {Models} from '@motionpicture/ttts-domain';
 import Util from '../../../../common/Util/Util';
-import {Models} from "@motionpicture/ttts-domain";
+import sponsorLoginForm from '../../../forms/sponsor/sponsorLoginForm';
+import SponsorUser from '../../../models/User/SponsorUser';
+import BaseController from '../../BaseController';
 
 export default class SponsorAuthController extends BaseController {
     public layout = 'layouts/sponsor/layout';
@@ -16,7 +16,7 @@ export default class SponsorAuthController extends BaseController {
         }
 
         if (this.req.method === 'POST') {
-            let form = sponsorLoginForm(this.req);
+            const form = sponsorLoginForm(this.req);
             form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
 
@@ -40,7 +40,7 @@ export default class SponsorAuthController extends BaseController {
 
                                 } else {
                                     // ログイン記憶
-                                    let processRemember = (cb: (err: Error, token: string) => void) => {
+                                    const processRemember = (cb: (err: Error, token: string) => void) => {
                                         if (this.req.form['remember']) {
                                             // トークン生成
                                             Models.Authentication.create(
@@ -57,7 +57,7 @@ export default class SponsorAuthController extends BaseController {
                                         } else {
                                             cb(null, null);
                                         }
-                                    }
+                                    };
 
                                     processRemember((err, token) => {
                                         if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -67,7 +67,7 @@ export default class SponsorAuthController extends BaseController {
                                         this.req.session[SponsorUser.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
 
                                         // if exist parameter cb, redirect to cb.
-                                        let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');
+                                        const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');
                                         this.res.redirect(cb);
                                     });
                                 }

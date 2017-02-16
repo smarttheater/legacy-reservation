@@ -1,19 +1,19 @@
 "use strict";
-const ReserveBaseController_1 = require("../../ReserveBaseController");
-const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
-const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
-const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const ttts_domain_3 = require("@motionpicture/ttts-domain");
 const ttts_domain_4 = require("@motionpicture/ttts-domain");
-const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
-const moment = require("moment");
 const conf = require("config");
+const moment = require("moment");
+const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
+const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
+const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
+const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
+const ReserveBaseController_1 = require("../../ReserveBaseController");
 class CustomerReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = ttts_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
+        this.purchaserGroup = ttts_domain_4.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
     }
     /**
      * スケジュール選択(本番では存在しない、実際はポータル側のページ)
@@ -31,7 +31,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         }
         else {
             this.res.render('customer/reserve/performances', {
-                FilmUtil: ttts_domain_4.FilmUtil
+                FilmUtil: ttts_domain_3.FilmUtil
             });
         }
     }
@@ -77,7 +77,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      * 規約
      */
     terms() {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
@@ -93,18 +93,18 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      * 座席選択
      */
     seats() {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
-            let limit = reservationModel.getSeatsLimit();
+            const limit = reservationModel.getSeatsLimit();
             if (this.req.method === 'POST') {
                 reserveSeatForm_1.default(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
-                        let seatCodes = JSON.parse(this.req.form['seatCodes']);
+                        const seatCodes = JSON.parse(this.req.form['seatCodes']);
                         // 追加指定席を合わせて制限枚数を超過した場合
                         if (seatCodes.length > limit) {
-                            let message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
+                            const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
                             this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                         }
                         else {
@@ -114,7 +114,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                                 this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                     if (err) {
                                         reservationModel.save(() => {
-                                            let message = this.req.__('Message.SelectedSeatsUnavailable');
+                                            const message = this.req.__('Message.SelectedSeatsUnavailable');
                                             this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                                         });
                                     }
@@ -145,7 +145,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      * 券種選択
      */
     tickets() {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
@@ -164,7 +164,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             }
             else {
                 this.res.render('customer/reserve/tickets', {
-                    reservationModel: reservationModel,
+                    reservationModel: reservationModel
                 });
             }
         });
@@ -173,7 +173,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      * 購入者情報
      */
     profile() {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
@@ -193,7 +193,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             }
             else {
                 // セッションに情報があれば、フォーム初期値設定
-                let email = reservationModel.purchaserEmail;
+                const email = reservationModel.purchaserEmail;
                 this.res.locals.lastName = reservationModel.purchaserLastName;
                 this.res.locals.firstName = reservationModel.purchaserFirstName;
                 this.res.locals.tel = reservationModel.purchaserTel;
@@ -214,7 +214,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      * 予約内容確認
      */
     confirm() {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
@@ -244,11 +244,11 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      * 仮予約完了
      */
     waitingSettlement() {
-        let paymentNo = this.req.params.paymentNo;
+        const paymentNo = this.req.params.paymentNo;
         ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
             purchaser_group: this.purchaserGroup,
-            status: ttts_domain_2.ReservationUtil.STATUS_WAITING_SETTLEMENT,
+            status: ttts_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT,
             purchased_at: {
                 $gt: moment().add(-30, 'minutes').toISOString()
             }
@@ -258,7 +258,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ttts_domain_3.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return ttts_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('customer/reserve/waitingSettlement', {
                 reservationDocuments: reservations
@@ -269,11 +269,11 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      * 予約完了
      */
     complete() {
-        let paymentNo = this.req.params.paymentNo;
+        const paymentNo = this.req.params.paymentNo;
         ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
             purchaser_group: this.purchaserGroup,
-            status: ttts_domain_2.ReservationUtil.STATUS_RESERVED,
+            status: ttts_domain_4.ReservationUtil.STATUS_RESERVED,
             purchased_at: {
                 $gt: moment().add(-30, 'minutes').toISOString()
             }
@@ -283,7 +283,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ttts_domain_3.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return ttts_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('customer/reserve/complete', {
                 reservationDocuments: reservations

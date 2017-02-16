@@ -1,22 +1,22 @@
 "use strict";
-const ReserveBaseController_1 = require("../../ReserveBaseController");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const PayDesignNotificationModel_1 = require("../../../models/Reserve/PayDesignNotificationModel");
+const ReserveBaseController_1 = require("../../ReserveBaseController");
 class PayDesignReserveController extends ReserveBaseController_1.default {
     /**
      * ペイデザイン入金通知
      */
     notify() {
         this.logger.info('PayDesignReserveController notify start. this.req.body:', this.req.body);
-        let payDesignNotificationModel = PayDesignNotificationModel_1.default.parse(this.req.body);
-        let paymentNo = payDesignNotificationModel.FUKA;
+        const payDesignNotificationModel = PayDesignNotificationModel_1.default.parse(this.req.body);
+        const paymentNo = payDesignNotificationModel.FUKA;
         if (!paymentNo) {
             this.res.send('1');
             return;
         }
         this.setProcessLogger(paymentNo, () => {
             this.logger.info('payDesignNotificationModel is', payDesignNotificationModel);
-            let update = {
+            const update = {
                 paydesign_seq: payDesignNotificationModel.SEQ,
                 paydesign_date: payDesignNotificationModel.DATE,
                 paydesign_time: payDesignNotificationModel.TIME,
@@ -55,8 +55,8 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
      */
     cancel() {
         this.logger.info('PayDesignReserveController cancel start. this.req.body:', this.req.body);
-        let payDesignNotificationModel = PayDesignNotificationModel_1.default.parse(this.req.body);
-        let paymentNo = payDesignNotificationModel.FUKA;
+        const payDesignNotificationModel = PayDesignNotificationModel_1.default.parse(this.req.body);
+        const paymentNo = payDesignNotificationModel.FUKA;
         if (!paymentNo) {
             this.res.send('1');
             return;
@@ -74,7 +74,7 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
                 if (reservations.length === 0)
                     return this.res.send('1');
                 this.logger.info('removing reservations...payment_no:', paymentNo);
-                let promises = reservations.map((reservation) => {
+                const promises = reservations.map((reservation) => {
                     return new Promise((resolve, reject) => {
                         this.logger.info('removing reservation...', reservation.get('_id'));
                         reservation.remove((err) => {

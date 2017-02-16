@@ -1,15 +1,15 @@
-import ReserveBaseController from '../../ReserveBaseController';
-import ReserveControllerInterface from '../../ReserveControllerInterface';
+import {Models} from '@motionpicture/ttts-domain';
+import {ScreenUtil} from '@motionpicture/ttts-domain';
+import {FilmUtil} from '@motionpicture/ttts-domain';
+import {ReservationUtil} from '@motionpicture/ttts-domain';
+import * as conf from 'config';
+import * as lockFile from 'lockfile';
+import * as moment from 'moment';
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
-import {Models} from "@motionpicture/ttts-domain";
-import {ReservationUtil} from "@motionpicture/ttts-domain";
-import {ScreenUtil} from "@motionpicture/ttts-domain";
-import {FilmUtil} from "@motionpicture/ttts-domain";
 import ReservationModel from '../../../models/Reserve/ReservationModel';
-import lockFile = require('lockfile');
-import moment = require('moment');
-import conf = require('config');
+import ReserveBaseController from '../../ReserveBaseController';
+import ReserveControllerInterface from '../../ReserveControllerInterface';
 
 
 export default class SponsorReserveController extends ReserveBaseController implements ReserveControllerInterface {
@@ -27,12 +27,12 @@ export default class SponsorReserveController extends ReserveBaseController impl
 
             if (reservationModel.performance) {
                 reservationModel.save(() => {
-                    let cb = this.router.build('sponsor.reserve.seats', {token: reservationModel.token});
+                    const cb = this.router.build('sponsor.reserve.seats', {token: reservationModel.token});
                     this.res.redirect(`${this.router.build('sponsor.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
                 });
             } else {
                 reservationModel.save(() => {
-                    let cb = this.router.build('sponsor.reserve.performances', {token: reservationModel.token});
+                    const cb = this.router.build('sponsor.reserve.performances', {token: reservationModel.token});
                     this.res.redirect(`${this.router.build('sponsor.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
                 });
             }
@@ -43,7 +43,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
      * 規約(スキップ)
      */
     public terms(): void {
-        let cb = (this.req.query.cb) ? this.req.query.cb : '/';
+        const cb = (this.req.query.cb) ? this.req.query.cb : '/';
         this.res.redirect(cb);
     }
 
@@ -51,7 +51,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
      * スケジュール選択
      */
     public performances(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -104,13 +104,13 @@ export default class SponsorReserveController extends ReserveBaseController impl
      * 座席選択
      */
     public seats(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             // 外部関係者による予約数を取得
             // TODO ローカルファイルロック以外の方法を考える
-            let lockPath = `${__dirname}/../../../../../lock/SponsorFixSeats${this.req.sponsorUser.get('_id')}.lock`;
+            const lockPath = `${__dirname}/../../../../../lock/SponsorFixSeats${this.req.sponsorUser.get('_id')}.lock`;
             lockFile.lock(lockPath, {wait: 5000}, (err) => {
 
                 Models.Reservation.count(
@@ -123,8 +123,8 @@ export default class SponsorReserveController extends ReserveBaseController impl
                     },
                     (err, reservationsCount) => {
                         // 一度に確保できる座席数は、残り可能枚数と、10の小さい方
-                        let reservableCount = parseInt(this.req.sponsorUser.get('max_reservation_count')) - reservationsCount;
-                        let limit = Math.min(reservationModel.getSeatsLimit(), reservableCount);
+                        const reservableCount = parseInt(this.req.sponsorUser.get('max_reservation_count')) - reservationsCount;
+                        const limit = Math.min(reservationModel.getSeatsLimit(), reservableCount);
 
                         // すでに枚数制限に達している場合
                         if (limit <= 0) {
@@ -137,13 +137,13 @@ export default class SponsorReserveController extends ReserveBaseController impl
                             if (this.req.method === 'POST') {
                                 reserveSeatForm(this.req, this.res, (err) => {
                                     if (this.req.form.isValid) {
-                                        let seatCodes: Array<string> = JSON.parse(this.req.form['seatCodes']);
+                                        const seatCodes: string[] = JSON.parse(this.req.form['seatCodes']);
 
                                         // 追加指定席を合わせて制限枚数を超過した場合
                                         if (seatCodes.length > limit) {
 
                                             lockFile.unlock(lockPath, (err) => {
-                                                let message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
+                                                const message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
                                                 this.res.redirect(`${this.router.build('sponsor.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
 
                                             });
@@ -157,7 +157,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
 
                                                         if (err) {
                                                             reservationModel.save(() => {
-                                                                let message = this.req.__('Message.SelectedSeatsUnavailable');
+                                                                const message = this.req.__('Message.SelectedSeatsUnavailable');
                                                                 this.res.redirect(`${this.router.build('sponsor.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
                                                             });
                                                         } else {
@@ -205,7 +205,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
      * 券種選択
      */
     public tickets(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -221,7 +221,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                 });
             } else {
                 this.res.render('sponsor/reserve/tickets', {
-                    reservationModel: reservationModel,
+                    reservationModel: reservationModel
                 });
             }
         });
@@ -231,7 +231,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
      * 購入者情報
      */
     public profile(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -249,7 +249,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                 });
             } else {
                 // セッションに情報があれば、フォーム初期値設定
-                let email = reservationModel.purchaserEmail;
+                const email = reservationModel.purchaserEmail;
                 this.res.locals.lastName = reservationModel.purchaserLastName;
                 this.res.locals.firstName = reservationModel.purchaserFirstName;
                 this.res.locals.tel = reservationModel.purchaserTel;
@@ -262,7 +262,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                 this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : '';
 
                 this.res.render('sponsor/reserve/profile', {
-                    reservationModel: reservationModel,
+                    reservationModel: reservationModel
                 });
             }
         });
@@ -272,7 +272,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
      * 予約内容確認
      */
     public confirm(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -286,7 +286,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                         // 予約確定
                         this.processFixReservations(reservationModel.paymentNo, {}, (err) => {
                             if (err) {
-                                let message = err.message;
+                                const message = err.message;
                                 this.res.redirect(`${this.router.build('sponsor.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
                             } else {
                                 reservationModel.remove(() => {
@@ -306,7 +306,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
     }
 
     public complete(): void {
-        let paymentNo = this.req.params.paymentNo;
+        const paymentNo = this.req.params.paymentNo;
         Models.Reservation.find(
             {
                 payment_no: paymentNo,

@@ -1,16 +1,16 @@
-import ReserveBaseController from '../ReserveBaseController';
-import {Models} from "@motionpicture/ttts-domain";
-import {ReservationUtil} from "@motionpicture/ttts-domain";
-import {ScreenUtil} from "@motionpicture/ttts-domain";
+import {Models} from '@motionpicture/ttts-domain';
+import {ReservationUtil} from '@motionpicture/ttts-domain';
+import {ScreenUtil} from '@motionpicture/ttts-domain';
+import * as qr from 'qr-image';
 import ReservationModel from '../../models/Reserve/ReservationModel';
-import qr = require('qr-image');
+import ReserveBaseController from '../ReserveBaseController';
 
 export default class ReserveController extends ReserveBaseController {
     /**
      * 座席の状態を取得する
      */
     public getUnavailableSeatCodes() {
-        let performanceId = this.req.params.performanceId;
+        const performanceId = this.req.params.performanceId;
         Models.Reservation.distinct(
             'seat_code',
             {
@@ -28,11 +28,11 @@ export default class ReserveController extends ReserveBaseController {
      * 座席の状態を取得する
      */
     public getSeatProperties() {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.res.json({propertiesBySeatCode: {}});
 
-            let propertiesBySeatCode: {
+            const propertiesBySeatCode: {
                 [seatCode: string]: {
                     avalilable: boolean, // 予約可能かどうか
                     baloonContent: string, // バルーン内容
@@ -49,8 +49,8 @@ export default class ReserveController extends ReserveBaseController {
                     if (err) return  this.res.json({propertiesBySeatCode: {}});
 
                     // 予約データが存在すれば、現在仮押さえ中の座席を除いて予約不可(disabled)
-                    for (let reservation of reservations) {
-                        let seatCode = reservation.get('seat_code');
+                    for (const reservation of reservations) {
+                        const seatCode = reservation.get('seat_code');
                         let avalilable = false;
                         let baloonContent = seatCode;
 
@@ -77,7 +77,7 @@ export default class ReserveController extends ReserveBaseController {
                     }
 
                     // 予約のない座席は全て空席
-                    for (let seat of reservationModel.performance.screen.sections[0].seats) {
+                    for (const seat of reservationModel.performance.screen.sections[0].seats) {
                         if (!propertiesBySeatCode.hasOwnProperty(seat.code)) {
                             propertiesBySeatCode[seat.code] = {
                                 avalilable: true,
@@ -109,7 +109,7 @@ export default class ReserveController extends ReserveBaseController {
      * 印刷
      */
     public print(): void {
-        let ids: Array<string> = JSON.parse(this.req.query.ids);
+        const ids: string[] = JSON.parse(this.req.query.ids);
         Models.Reservation.find(
             {
                 _id: {$in: ids},

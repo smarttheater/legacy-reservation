@@ -4,13 +4,14 @@ const BaseUser_1 = require("./BaseUser");
  * 窓口ユーザークラス
  */
 class WindowUser extends BaseUser_1.default {
+    // tslint:disable-next-line:function-name
     static parse(session) {
-        let user = new WindowUser();
+        const user = new WindowUser();
         // セッション値からオブジェクトにセット
         if (session.hasOwnProperty(WindowUser.AUTH_SESSION_NAME)) {
-            for (let propertyName in session[WindowUser.AUTH_SESSION_NAME]) {
+            Object.keys(session[WindowUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
                 user[propertyName] = session[WindowUser.AUTH_SESSION_NAME][propertyName];
-            }
+            });
         }
         return user;
     }

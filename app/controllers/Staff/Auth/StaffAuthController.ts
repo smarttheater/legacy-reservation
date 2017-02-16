@@ -1,8 +1,8 @@
-import BaseController from '../../BaseController';
-import StaffUser from '../../../models/User/StaffUser';
-import staffLoginForm from '../../../forms/staff/staffLoginForm';
+import {Models} from '@motionpicture/ttts-domain';
 import Util from '../../../../common/Util/Util';
-import {Models} from "@motionpicture/ttts-domain";
+import staffLoginForm from '../../../forms/staff/staffLoginForm';
+import StaffUser from '../../../models/User/StaffUser';
+import BaseController from '../../BaseController';
 
 export default class StaffAuthController extends BaseController {
     public layout = 'layouts/staff/layout';
@@ -16,7 +16,7 @@ export default class StaffAuthController extends BaseController {
         }
 
         if (this.req.method === 'POST') {
-            let form = staffLoginForm(this.req);
+            const form = staffLoginForm(this.req);
             form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
 
@@ -40,7 +40,7 @@ export default class StaffAuthController extends BaseController {
 
                                 } else {
                                     // ログイン記憶
-                                    let processRemember = (cb: (err: Error, token: string) => void) => {
+                                    const processRemember = (cb: (err: Error, token: string) => void) => {
                                         if (this.req.form['remember']) {
                                             // トークン生成
                                             Models.Authentication.create(
@@ -58,7 +58,7 @@ export default class StaffAuthController extends BaseController {
                                         } else {
                                             cb(null, null);
                                         }
-                                    }
+                                    };
 
                                     processRemember((err, token) => {
                                         if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -68,7 +68,7 @@ export default class StaffAuthController extends BaseController {
                                         this.req.session[StaffUser.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
 
                                         // if exist parameter cb, redirect to cb.
-                                        let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('staff.mypage');
+                                        const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('staff.mypage');
                                         this.res.redirect(cb);
                                     });
                                 }

@@ -1,14 +1,18 @@
 "use strict";
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
 const conf = require("config");
 const moment = require("moment");
 const redis = require("redis");
-const redisClient = redis.createClient(conf.get("redis_port"), conf.get("redis_host"), {
-    password: conf.get("redis_key"),
-    tls: { servername: conf.get("redis_host") },
+const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
+const DEFAULT_REDIS_TTL = 1800;
+const redisClient = redis.createClient(conf.get('redis_port'), conf.get('redis_host'), {
+    password: conf.get('redis_key'),
+    tls: { servername: conf.get('redis_host') },
     return_buffers: true
 });
+const MAX_RESERVATION_SEATS_DEFAULT = 4;
+const MAX_RESERVATION_SEATS_STAFFS = 10;
+const MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES = 10;
 /**
  * 予約情報モデル
  *
@@ -22,9 +26,8 @@ class ReservationModel {
      * @param {number} ttl 有効期間(default: 1800)
      */
     save(cb, ttl) {
-        let key = ReservationModel.getRedisKey(this.token);
-        let _ttl = (ttl) ? ttl : 1800;
-        redisClient.setex(key, _ttl, JSON.stringify(this), (err) => {
+        const key = ReservationModel.getRedisKey(this.token);
+        redisClient.setex(key, (ttl) ? ttl : DEFAULT_REDIS_TTL, JSON.stringify(this), (err) => {
             if (err)
                 throw err;
             cb();
@@ -34,7 +37,7 @@ class ReservationModel {
      * プロセス中の購入情報をセッションから削除する
      */
     remove(cb) {
-        let key = ReservationModel.getRedisKey(this.token);
+        const key = ReservationModel.getRedisKey(this.token);
         redisClient.del(key, (err) => {
             cb(err);
         });
@@ -42,19 +45,20 @@ class ReservationModel {
     /**
      * プロセス中の購入情報をセッションから取得する
      */
+    // tslint:disable-next-line:function-name
     static find(token, cb) {
-        let key = ReservationModel.getRedisKey(token);
+        const key = ReservationModel.getRedisKey(token);
         redisClient.get(key, (err, reply) => {
             if (err)
                 return cb(err, null);
             if (reply === null)
                 return cb(new Error('Not Found'), null);
-            let reservationModel = new ReservationModel();
+            const reservationModel = new ReservationModel();
             try {
-                let reservationModelInRedis = JSON.parse(reply.toString());
-                for (let propertyName in reservationModelInRedis) {
+                const reservationModelInRedis = JSON.parse(reply.toString());
+                Object.keys(reservationModelInRedis).forEach((propertyName) => {
                     reservationModel[propertyName] = reservationModelInRedis[propertyName];
-                }
+                });
             }
             catch (error) {
                 return cb(err, null);
@@ -75,21 +79,21 @@ class ReservationModel {
      * 一度の購入で予約できる座席数を取得する
      */
     getSeatsLimit() {
-        let limit = 4;
+        let limit = MAX_RESERVATION_SEATS_DEFAULT;
         // 主体によっては、決済方法を強制的に固定で
         switch (this.purchaserGroup) {
             case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
             case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
             case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
-                limit = 10;
+                limit = MAX_RESERVATION_SEATS_STAFFS;
                 break;
             case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER:
             case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
                 if (this.performance) {
                     // 制限枚数指定のパフォーマンスの場合
-                    let performanceIds4limit2 = conf.get('performanceIds4limit2');
+                    const performanceIds4limit2 = conf.get('performanceIds4limit2');
                     if (performanceIds4limit2.indexOf(this.performance._id) >= 0) {
-                        limit = 2;
+                        limit = MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES;
                     }
                 }
                 break;
@@ -115,7 +119,7 @@ class ReservationModel {
      */
     getChargeBySeatCode(seatCode) {
         let charge = 0;
-        let reservation = this.getReservation(seatCode);
+        const reservation = this.getReservation(seatCode);
         if (reservation.ticket_type_charge) {
             charge += reservation.ticket_type_charge;
             charge += this.getChargeExceptTicketTypeBySeatCode(seatCode);
@@ -127,7 +131,7 @@ class ReservationModel {
         if (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER
             || this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW
             || this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_TEL) {
-            let reservation = this.getReservation(seatCode);
+            const reservation = this.getReservation(seatCode);
             // 座席グレード分加算
             if (reservation.seat_grade_additional_charge > 0) {
                 charge += reservation.seat_grade_additional_charge;
@@ -159,7 +163,7 @@ class ReservationModel {
      * フロー中の予約IDリストを取得する
      */
     getReservationIds() {
-        return (this.seatCodes) ? this.seatCodes.map((seatCode) => { return this.getReservation(seatCode)._id; }) : [];
+        return (this.seatCodes) ? this.seatCodes.map((seatCode) => this.getReservation(seatCode)._id) : [];
     }
     /**
      * 座席コードから予約(確定)ドキュメントを作成する
@@ -167,8 +171,8 @@ class ReservationModel {
      * @param {string} seatCode 座席コード
      */
     seatCode2reservationDocument(seatCode) {
-        let reservation = this.getReservation(seatCode);
-        let doc = {
+        const reservation = this.getReservation(seatCode);
+        return {
             _id: reservation._id,
             status: reservation.status,
             seat_code: seatCode,
@@ -215,7 +219,6 @@ class ReservationModel {
             gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil_1.default.createShopPassString(conf.get('gmo_payment_shop_id'), this.paymentNo, this.getTotalCharge().toString(), conf.get('gmo_payment_shop_password'), moment(this.purchasedAt).format('YYYYMMDDHHmmss')) : '',
             updated_user: 'ReservationModel'
         };
-        return doc;
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

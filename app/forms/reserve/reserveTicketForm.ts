@@ -1,4 +1,4 @@
-import form = require('express-form');
+import * as form from 'express-form';
 
 export default form(
     form.field('choices').trim().required()

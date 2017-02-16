@@ -1,5 +1,6 @@
 "use strict";
 const basicAuth = require("basic-auth");
+const STATUS_CODE_UNAUTHORIZED = 401;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (req, res, next) => {
     if (process.env.NODE_ENV === 'dev')
@@ -16,10 +17,10 @@ exports.default = (req, res, next) => {
         return next(); // GMO結果通知に対してはオープンにする
     if (req.originalUrl === '/sendGrid/event/notify')
         return next(); // SendGridイベント通知に対してはオープンにする
-    let user = basicAuth(req);
-    if (user && user['name'] === 'motionpicture' && user['pass'] === '4_CS/T|YG*Lz')
+    const user = basicAuth(req);
+    if (user && user.name === 'motionpicture' && user.pass === '4_CS/T|YG*Lz')
         return next();
-    res.statusCode = 401;
+    res.statusCode = STATUS_CODE_UNAUTHORIZED;
     res.setHeader('WWW-Authenticate', 'Basic realm="TTTS Authentication"');
     res.end('Unauthorized');
 };

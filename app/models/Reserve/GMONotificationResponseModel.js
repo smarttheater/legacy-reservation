@@ -2,9 +2,10 @@
 /**
  * GMOコンビニ決済結果通知に対する返却モデル(加盟店様⇒本サービス)
  */
+// tslint:disable-next-line:no-stateless-class
 class GMONotificationResponseModel {
 }
-GMONotificationResponseModel.RecvRes_OK = '0';
-GMONotificationResponseModel.RecvRes_NG = '1';
+GMONotificationResponseModel.RECV_RES_OK = '0';
+GMONotificationResponseModel.RECV_RES_NG = '1';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = GMONotificationResponseModel;

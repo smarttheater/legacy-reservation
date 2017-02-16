@@ -1,14 +1,14 @@
 "use strict";
-const ReserveBaseController_1 = require("../../ReserveBaseController");
-const Util_1 = require("../../../../common/Util/Util");
-const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
-const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
-const GMOResultModel_1 = require("../../../models/Reserve/GMOResultModel");
-const moment = require("moment");
 const conf = require("config");
+const moment = require("moment");
 const querystring = require("querystring");
+const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
+const Util_1 = require("../../../../common/Util/Util");
+const GMOResultModel_1 = require("../../../models/Reserve/GMOResultModel");
+const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
+const ReserveBaseController_1 = require("../../ReserveBaseController");
 const GMOReserveCreditController_1 = require("./Credit/GMOReserveCreditController");
 const GMOReserveCvsController_1 = require("./Cvs/GMOReserveCvsController");
 /**
@@ -18,15 +18,15 @@ const GMOReserveCvsController_1 = require("./Cvs/GMOReserveCvsController");
  * @params {number} length
  */
 String.prototype['mbSubstr'] = function (from, length) {
-    let letters = this.split('');
-    let textLength = letters.length;
+    const letters = this.split('');
+    const textLength = letters.length;
     let count = 0;
     let result = '';
     for (let i = 0; i < textLength; i++) {
         if (i + from > textLength - 1)
             break;
         // マルチバイト文字列かどうか
-        let letter = letters[i + from];
+        const letter = letters[i + from];
         count += (querystring.escape(letter).length < 4) ? 1 : 2;
         if (count > length)
             break;
@@ -39,7 +39,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
      * GMO決済を開始する
      */
     start() {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
@@ -49,11 +49,11 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 this.setProcessLogger(reservationModel.paymentNo, () => {
                     // GMOへ遷移画面
                     // 作品名から、特定文字以外を取り除く
-                    let filmNameFullWidth = Util_1.default.toFullWidth(reservationModel.performance.film.name.ja);
-                    let filmNameFullWidthLength = filmNameFullWidth.length;
+                    const filmNameFullWidth = Util_1.default.toFullWidth(reservationModel.performance.film.name.ja);
+                    const filmNameFullWidthLength = filmNameFullWidth.length;
                     let registerDisp1 = '';
                     for (let i = 0; i < filmNameFullWidthLength; i++) {
-                        let letter = filmNameFullWidth[i];
+                        const letter = filmNameFullWidth[i];
                         if (letter.match(/[Ａ-Ｚａ-ｚ０-９]/) // 全角英数字
                             || letter.match(/[\u3040-\u309F]/) // ひらがな
                             || letter.match(/[\u30A0-\u30FF]/) // カタカナ
@@ -73,7 +73,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
                     this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CREDIT) ? '1' : '0';
                     this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CVS) ? '1' : '0';
                     this.res.locals.shopPassString = GMOUtil_1.default.createShopPassString(conf.get('gmo_payment_shop_id'), this.res.locals.orderID, this.res.locals.amount, conf.get('gmo_payment_shop_password'), this.res.locals.dateTime);
-                    let protocol = (this.req.headers['host'].substr(0, 9) === "localhost") ? "http" : "https";
+                    const protocol = (this.req.headers['host'].substr(0, 9) === 'localhost') ? 'http' : 'https';
                     if (process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'test') {
                         this.res.locals.retURL = `${protocol}://${conf.get('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
                         // 決済キャンセル時に遷移する加盟店URL
@@ -98,8 +98,8 @@ class GMOReserveController extends ReserveBaseController_1.default {
      * GMOで何かしらエラーが発生して「決済をやめる」ボタンから遷移してくることもある
      */
     result() {
-        let gmoResultModel = GMOResultModel_1.default.parse(this.req.body);
-        let paymentNo = gmoResultModel.OrderID;
+        const gmoResultModel = GMOResultModel_1.default.parse(this.req.body);
+        const paymentNo = gmoResultModel.OrderID;
         // 予約プロセス固有のログファイルをセット
         this.setProcessLogger(paymentNo, () => {
             this.logger.info('gmoResultModel is', gmoResultModel);
@@ -124,13 +124,13 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 switch (gmoResultModel.PayType) {
                     case GMOUtil_1.default.PAY_TYPE_CREDIT:
                         this.logger.info('starting GMOReserveCreditController.result...');
-                        let creditController = new GMOReserveCreditController_1.default(this.req, this.res, this.next);
+                        const creditController = new GMOReserveCreditController_1.default(this.req, this.res, this.next);
                         creditController.logger = this.logger;
                         creditController.result(gmoResultModel);
                         break;
                     case GMOUtil_1.default.PAY_TYPE_CVS:
                         this.logger.info('starting GMOReserveCsvController.result...');
-                        let cvsController = new GMOReserveCvsController_1.default(this.req, this.res, this.next);
+                        const cvsController = new GMOReserveCvsController_1.default(this.req, this.res, this.next);
                         cvsController.logger = this.logger;
                         cvsController.result(gmoResultModel);
                         break;
@@ -145,7 +145,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
      * 決済キャンセル時に遷移
      */
     cancel() {
-        let paymentNo = this.req.params.paymentNo;
+        const paymentNo = this.req.params.paymentNo;
         if (!ttts_domain_2.ReservationUtil.isValidPaymentNo(paymentNo))
             return this.next(new Error(this.req.__('Message.Invalid')));
         this.setProcessLogger(paymentNo, () => {

@@ -1,8 +1,8 @@
 "use strict";
+const conf = require("config");
 const log4js = require("log4js");
 const moment = require("moment");
 const numeral = require("numeral");
-const conf = require("config");
 const Util_1 = require("../../common/Util/Util");
 /**
  * ベースコントローラー
@@ -23,10 +23,10 @@ class BaseController {
         this.res.locals.conf = conf;
         this.res.locals.Util = Util_1.default;
         // レイアウト指定があれば変更
-        let _render = this.res.render;
+        const render = this.res.render;
         this.res.render = (view, options, cb) => {
             if (this.layout) {
-                if (typeof options === 'undefined') {
+                if (options === undefined) {
                     options = {};
                 }
                 else if (typeof options === 'function') {
@@ -34,10 +34,10 @@ class BaseController {
                     options = {};
                 }
                 if (!options.hasOwnProperty('layout')) {
-                    options['layout'] = this.layout;
+                    options.layout = this.layout;
                 }
             }
-            _render(view, options, cb);
+            render(view, options, cb);
         };
     }
 }

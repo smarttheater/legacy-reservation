@@ -1,16 +1,16 @@
+import {Models} from '@motionpicture/ttts-domain';
+import {ReservationUtil} from '@motionpicture/ttts-domain';
+import * as log4js from 'log4js';
 import BaseController from '../../BaseController';
-import {Models} from "@motionpicture/ttts-domain";
-import {ReservationUtil} from "@motionpicture/ttts-domain";
-import log4js = require('log4js');
 
 export default class StaffCancelController extends BaseController {
     public execute(): void {
         this.logger = log4js.getLogger('cancel');
 
         // 予約IDリストをjson形式で受け取る
-        let reservationIds = JSON.parse(this.req.body.reservationIds);
+        const reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
-            let promises = reservationIds.map((id) => {
+            const promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
                     this.logger.info('updating to STATUS_KEPT_BY_TTTS by staff... staff:', this.req.staffUser.get('user_id'), 'signature:', this.req.staffUser.get('signature'), 'id:', id);
                     Models.Reservation.findOneAndUpdate(
@@ -30,7 +30,7 @@ export default class StaffCancelController extends BaseController {
                     success: true,
                     message: null
                 });
-            }, (err) => {
+            },                         (err) => {
                 this.res.json({
                     success: false,
                     message: err.message

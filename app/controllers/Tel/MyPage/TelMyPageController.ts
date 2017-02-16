@@ -1,10 +1,10 @@
-import BaseController from '../../BaseController';
-import Util from '../../../../common/Util/Util';
+import {ReservationUtil} from '@motionpicture/ttts-domain';
+import {ScreenUtil} from '@motionpicture/ttts-domain';
+import {Models} from '@motionpicture/ttts-domain';
+import * as moment from 'moment';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
-import {ReservationUtil} from "@motionpicture/ttts-domain";
-import {ScreenUtil} from "@motionpicture/ttts-domain";
-import {Models} from "@motionpicture/ttts-domain";
-import moment = require('moment');
+import Util from '../../../../common/Util/Util';
+import BaseController from '../../BaseController';
 
 export default class TelMyPageController extends BaseController {
     public layout = 'layouts/tel/layout';
@@ -20,21 +20,21 @@ export default class TelMyPageController extends BaseController {
      * マイページ予約検索
      */
     public search(): void {
-        let limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
-        let page: number = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
+        const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
+        const page: number = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
 
-        let purchaserGroups: Array<string> = (this.req.query.purchaser_groups) ? this.req.query.purchaser_groups.split(',') : null;
-        let purchasedDay: string = (this.req.query.purchased_day) ? this.req.query.purchased_day : null;
+        const purchaserGroups: string[] = (this.req.query.purchaser_groups) ? this.req.query.purchaser_groups.split(',') : null;
+        const purchasedDay: string = (this.req.query.purchased_day) ? this.req.query.purchased_day : null;
         let email: string = (this.req.query.email) ? this.req.query.email : null;
         let tel: string = (this.req.query.tel) ? this.req.query.tel : null;
         let purchaserFirstName: string = (this.req.query.purchaser_first_name) ? this.req.query.purchaser_first_name : null;
         let purchaserLastName: string = (this.req.query.purchaser_last_name) ? this.req.query.purchaser_last_name : null;
         let paymentNo: string = (this.req.query.payment_no) ? this.req.query.payment_no : null;
-        let day: string = (this.req.query.day) ? this.req.query.day : null;
+        const day: string = (this.req.query.day) ? this.req.query.day : null;
         let filmName: string = (this.req.query.film_name) ? this.req.query.film_name : null;
 
         // 検索条件を作成
-        let conditions: Array<Object> = [];
+        const conditions: Object[] = [];
 
         // 内部関係者以外がデフォルト
         conditions.push(
@@ -109,14 +109,14 @@ export default class TelMyPageController extends BaseController {
             filmName = filmName.replace(/(^\s+)|(\s+$)/g, '').replace(/\s/g, ' ');
             filmName.split(' ').forEach((pattern) => {
                 if (pattern.length > 0) {
-                    let regex = new RegExp(pattern, 'i');
+                    const regex = new RegExp(pattern, 'i');
                     conditions.push({
                         $or: [
                             {
-                                'film_name_ja': {$regex: regex}
+                                film_name_ja: {$regex: regex}
                             },
                             {
-                                'film_name_en': {$regex: regex}
+                                film_name_en: {$regex: regex}
                             }
                         ]
                     });
@@ -143,7 +143,7 @@ export default class TelMyPageController extends BaseController {
                 .skip(limit * (page - 1))
                 .limit(limit)
                 .lean(true)
-                .exec((err, reservations: Array<any>) => {
+                .exec((err, reservations: any[]) => {
                     if (err) {
                         this.res.json({
                             success: false,

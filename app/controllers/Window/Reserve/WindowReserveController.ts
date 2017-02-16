@@ -1,14 +1,14 @@
-import ReserveBaseController from '../../ReserveBaseController';
-import ReserveControllerInterface from '../../ReserveControllerInterface';
+import {Models} from '@motionpicture/ttts-domain';
+import {ScreenUtil} from '@motionpicture/ttts-domain';
+import {FilmUtil} from '@motionpicture/ttts-domain';
+import {ReservationUtil} from '@motionpicture/ttts-domain';
+import * as moment from 'moment';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
-import {Models} from "@motionpicture/ttts-domain";
-import {ReservationUtil} from "@motionpicture/ttts-domain";
-import {ScreenUtil} from "@motionpicture/ttts-domain";
-import {FilmUtil} from "@motionpicture/ttts-domain";
 import ReservationModel from '../../../models/Reserve/ReservationModel';
-import moment = require('moment');
+import ReserveBaseController from '../../ReserveBaseController';
+import ReserveControllerInterface from '../../ReserveControllerInterface';
 
 export default class WindowReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_WINDOW;
@@ -20,12 +20,12 @@ export default class WindowReserveController extends ReserveBaseController imple
 
             if (reservationModel.performance) {
                 reservationModel.save(() => {
-                    let cb = this.router.build('window.reserve.seats', {token: reservationModel.token});
+                    const cb = this.router.build('window.reserve.seats', {token: reservationModel.token});
                     this.res.redirect(`${this.router.build('window.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
                 });
             } else {
                 reservationModel.save(() => {
-                    let cb = this.router.build('window.reserve.performances', {token: reservationModel.token});
+                    const cb = this.router.build('window.reserve.performances', {token: reservationModel.token});
                     this.res.redirect(`${this.router.build('window.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
                 });
             }
@@ -36,7 +36,7 @@ export default class WindowReserveController extends ReserveBaseController imple
      * 規約(スキップ)
      */
     public terms(): void {
-        let cb = (this.req.query.cb) ? this.req.query.cb : '/';
+        const cb = (this.req.query.cb) ? this.req.query.cb : '/';
         this.res.redirect(cb);
     }
 
@@ -44,7 +44,7 @@ export default class WindowReserveController extends ReserveBaseController imple
      * スケジュール選択
      */
     public performances(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -82,21 +82,21 @@ export default class WindowReserveController extends ReserveBaseController imple
      * 座席選択
      */
     public seats(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
-            let limit = reservationModel.getSeatsLimit();
+            const limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
                 reserveSeatForm(this.req, this.res, (err) => {
                     if (this.req.form.isValid) {
 
-                        let seatCodes: Array<string> = JSON.parse(this.req.form['seatCodes']);
+                        const seatCodes: string[] = JSON.parse(this.req.form['seatCodes']);
 
                         // 追加指定席を合わせて制限枚数を超過した場合
                         if (seatCodes.length > limit) {
-                            let message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
+                            const message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
                             this.res.redirect(`${this.router.build('window.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
 
                         } else {
@@ -106,7 +106,7 @@ export default class WindowReserveController extends ReserveBaseController imple
                                 this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
                                     if (err) {
                                         reservationModel.save(() => {
-                                            let message = this.req.__('Message.SelectedSeatsUnavailable');
+                                            const message = this.req.__('Message.SelectedSeatsUnavailable');
                                             this.res.redirect(`${this.router.build('window.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
                                         });
                                     } else {
@@ -135,7 +135,7 @@ export default class WindowReserveController extends ReserveBaseController imple
      * 券種選択
      */
     public tickets(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -153,7 +153,7 @@ export default class WindowReserveController extends ReserveBaseController imple
                 });
             } else {
                 this.res.render('window/reserve/tickets', {
-                    reservationModel: reservationModel,
+                    reservationModel: reservationModel
                 });
             }
         });
@@ -163,7 +163,7 @@ export default class WindowReserveController extends ReserveBaseController imple
      * 購入者情報
      */
     public profile(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -181,7 +181,7 @@ export default class WindowReserveController extends ReserveBaseController imple
                 });
             } else {
                 // セッションに情報があれば、フォーム初期値設定
-                let email = reservationModel.purchaserEmail;
+                const email = reservationModel.purchaserEmail;
                 this.res.locals.lastName = reservationModel.purchaserLastName;
                 this.res.locals.firstName = reservationModel.purchaserFirstName;
                 this.res.locals.tel = reservationModel.purchaserTel;
@@ -204,7 +204,7 @@ export default class WindowReserveController extends ReserveBaseController imple
      * 予約内容確認
      */
     public confirm(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -218,7 +218,7 @@ export default class WindowReserveController extends ReserveBaseController imple
                         // 予約確定
                         this.processFixReservations(reservationModel.paymentNo, {}, (err) => {
                             if (err) {
-                                let message = err.message;
+                                const message = err.message;
                                 this.res.redirect(`${this.router.build('window.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
                             } else {
                                 reservationModel.remove(() => {
@@ -241,7 +241,7 @@ export default class WindowReserveController extends ReserveBaseController imple
      * 予約完了
      */
     public complete(): void {
-        let paymentNo = this.req.params.paymentNo;
+        const paymentNo = this.req.params.paymentNo;
         Models.Reservation.find(
             {
                 payment_no: paymentNo,

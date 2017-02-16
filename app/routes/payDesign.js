@@ -1,6 +1,6 @@
 "use strict";
-const PayDesignReserveController_1 = require("../controllers/PayDesign/Reserve/PayDesignReserveController");
 const querystring = require("querystring");
+const PayDesignReserveController_1 = require("../controllers/PayDesign/Reserve/PayDesignReserveController");
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     app.post('/PayDesign/reserve/notify', '', (req, res, next) => {
@@ -9,9 +9,10 @@ exports.default = (app) => {
             content = Buffer.concat([content, chunk]);
         });
         req.on('end', () => {
-            let jconv = require('jconv');
+            // tslint:disable-next-line:no-require-imports
+            const jconv = require('jconv');
             // utf8変換
-            let converted = jconv.convert(content, 'SJIS', 'UTF8');
+            const converted = jconv.convert(content, 'SJIS', 'UTF8');
             req.body = querystring.parse(converted.toString('utf8'));
             (new PayDesignReserveController_1.default(req, res, next)).notify();
         });
@@ -22,9 +23,10 @@ exports.default = (app) => {
             content = Buffer.concat([content, chunk]);
         });
         req.on('end', () => {
-            let jconv = require('jconv');
+            // tslint:disable-next-line:no-require-imports
+            const jconv = require('jconv');
             // utf8変換
-            let converted = jconv.convert(content, 'SJIS', 'UTF8');
+            const converted = jconv.convert(content, 'SJIS', 'UTF8');
             req.body = querystring.parse(converted.toString('utf8'));
             (new PayDesignReserveController_1.default(req, res, next)).cancel();
         });

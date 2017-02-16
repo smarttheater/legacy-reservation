@@ -5,7 +5,7 @@ class ErrorController extends BaseController_1.default {
      * Not Found
      */
     notFound() {
-        let status = 404;
+        const status = 404;
         if (this.req.xhr) {
             this.res.status(status).send({ error: 'Not Found.' });
         }
@@ -19,7 +19,7 @@ class ErrorController extends BaseController_1.default {
      */
     index(err) {
         this.logger.error(err.stack);
-        let status = 500;
+        const status = 500;
         if (this.req.xhr) {
             this.res.status(status).json({
                 success: false,

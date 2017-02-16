@@ -12,7 +12,7 @@ declare namespace Express {
 }
 
 declare module "named-routes" {
-    import express = require('express');
+    import * as express from 'express';
 
     let n: Express.NamedRoutes;
 

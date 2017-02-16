@@ -1,60 +1,115 @@
+// tslint:disable:variable-name
 /**
  * GMO決済結果モデル
  */
 export default class GMOResultModel {
-    /** ショップID */
+    /**
+     * ショップID
+     */
     public ShopID: string;
-    /** 処理区分 */
+    /**
+     * 処理区分
+     */
     public JobCd: string;
-    /** 利用金額 */
+    /**
+     * 利用金額
+     */
     public Amount: string;
-    /** 税送料 */
+    /**
+     * 税送料
+     */
     public Tax: string;
-    /** 通貨コード */
+    /**
+     * 通貨コード
+     */
     public Currency: string;
-    /** 取引ID */
+    /**
+     * 取引ID
+     */
     public AccessID: string;
-    /** 取引パスワード */
+    /**
+     * 取引パスワード
+     */
     public AccessPass: string;
-    /** オーダーID */
+    /**
+     * オーダーID
+     */
     public OrderID: string;
-    /** 結果仕向先コード */
+    /**
+     * 結果仕向先コード
+     */
     public Forwarded: string;
-    /** 支払方法 */
+    /**
+     * 支払方法
+     */
     public Method: string;
-    /** 分割回数 */
+    /**
+     * 分割回数
+     */
     public PayTimes: string;
-    /** カード会社承認番号 */
+    /**
+     * カード会社承認番号
+     */
     public Approve: string;
-    /** トランザクションID */
+    /**
+     * トランザクションID
+     */
     public TranID: string;
-    /** 処理日時 */
+    /**
+     * 処理日時
+     */
     public TranDate: string;
-    /** 決済結果チェック文字列 */
+    /**
+     * 決済結果チェック文字列
+     */
     public CheckString: string;
-    /** エラーコード */
+    /**
+     * エラーコード
+     */
     public ErrCode: string;
-    /** エラー詳細 */
+    /**
+     * エラー詳細
+     */
     public ErrInfo: string;
-    /** 加盟店自由項目１(リンク決済呼び出し時の設定値) */
+    /**
+     * 加盟店自由項目１(リンク決済呼び出し時の設定値)
+     */
     public ClientField1: string;
-    /** 加盟店自由項目２(リンク決済呼び出し時の設定値) */
+    /**
+     * 加盟店自由項目２(リンク決済呼び出し時の設定値)
+     */
     public ClientField2: string;
-    /** 加盟店自由項目３(リンク決済呼び出し時の設定値) */
+    /**
+     * 加盟店自由項目３(リンク決済呼び出し時の設定値)
+     */
     public ClientField3: string;
-    /** 未登録カード利用フラグ */
+    /**
+     * 未登録カード利用フラグ
+     */
     public NewCardFlag: string;
-    /** 決済方法 */
+    /**
+     * 決済方法
+     */
     public PayType: string;
-    /** 支払先コンビニ */
+    /**
+     * 支払先コンビニ
+     */
     public CvsCode: string;
-    /** 確認番号 */
+    /**
+     * 確認番号
+     */
     public CvsConfNo: string;
-    /** コンビニ受付番号 */
+    /**
+     * コンビニ受付番号
+     */
     public CvsReceiptNo: string;
-    /** 払込票URL */
+    /**
+     * 払込票URL
+     */
     public CvsReceiptUrl: string;
-    /** 支払期限日時((yyyyMMddHHmmss 形式)) */
+    /**
+     * 支払期限日時((yyyyMMddHHmmss 形式))
+     */
     public PaymentTerm: string;
     // /** Edy 受付番号 */
     // public EdyReceiptNo: string;
@@ -161,12 +216,12 @@ export default class GMOResultModel {
     // /**  */
     // public VaTradeCode: string;
 
+    // tslint:disable-next-line:function-name
     public static parse(postParameters: Object): GMOResultModel {
-        let model = new GMOResultModel();
-
-        for (let propertyName in postParameters) {
-            model[propertyName] = postParameters[propertyName];
-        }
+        const model = new GMOResultModel();
+        Object.keys(postParameters).forEach((key) => {
+            model[key] = postParameters[key];
+        });
 
         return model;
     }

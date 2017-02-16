@@ -1,7 +1,7 @@
+import {Models} from '@motionpicture/ttts-domain';
+import {ReservationUtil} from '@motionpicture/ttts-domain';
+import {FilmUtil} from '@motionpicture/ttts-domain';
 import BaseController from '../BaseController';
-import {Models} from "@motionpicture/ttts-domain";
-import {ReservationUtil} from "@motionpicture/ttts-domain";
-import {FilmUtil} from "@motionpicture/ttts-domain";
 
 export default class AdmissionController extends BaseController {
     public layout = 'layouts/admission/layout';
@@ -23,8 +23,8 @@ export default class AdmissionController extends BaseController {
                         {},
                         'name theater',
                         (err, screens) => {
-                            let screensByTheater = {};
-                            for (let screen of screens) {
+                            const screensByTheater = {};
+                            for (const screen of screens) {
                                 if (!screensByTheater.hasOwnProperty(screen.get('theater'))) {
                                     screensByTheater[screen.get('theater')] = [];
                                 }
@@ -61,9 +61,9 @@ export default class AdmissionController extends BaseController {
             ).exec((err, reservations) => {
                 if (err) this.next(new Error('Message.UnexpectedError'));
 
-                let reservationsById = {};
-                let reservationIdsByQrStr = {};
-                for (let reservation of reservations) {
+                const reservationsById = {};
+                const reservationIdsByQrStr = {};
+                for (const reservation of reservations) {
                     reservationsById[reservation.get('_id')] = reservation;
                     reservationIdsByQrStr[reservation.get('qr_str')] = reservation.get('_id').toString();
                 }

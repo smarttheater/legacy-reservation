@@ -1,11 +1,11 @@
 "use strict";
-const BaseController_1 = require("../../BaseController");
-const Util_1 = require("../../../../common/Util/Util");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const conf = require("config");
 const moment = require("moment");
+const Util_1 = require("../../../../common/Util/Util");
 const memberLoginForm_1 = require("../../../forms/member/memberLoginForm");
 const MemberUser_1 = require("../../../models/User/MemberUser");
-const conf = require("config");
+const BaseController_1 = require("../../BaseController");
 class MemberAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -16,7 +16,7 @@ class MemberAuthController extends BaseController_1.default {
      */
     login() {
         // 期限指定
-        let now = moment();
+        const now = moment();
         if (now < moment(conf.get('datetimes.reservation_start_members')) || moment(conf.get('datetimes.reservation_end_members')) < now) {
             return this.next(new Error(this.req.__('Message.OutOfTerm')));
         }

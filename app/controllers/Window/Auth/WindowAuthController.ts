@@ -1,8 +1,8 @@
-import BaseController from '../../BaseController';
-import WindowUser from '../../../models/User/WindowUser';
-import windowLoginForm from '../../../forms/window/windowLoginForm';
+import {Models} from '@motionpicture/ttts-domain';
 import Util from '../../../../common/Util/Util';
-import {Models} from "@motionpicture/ttts-domain";
+import windowLoginForm from '../../../forms/window/windowLoginForm';
+import WindowUser from '../../../models/User/WindowUser';
+import BaseController from '../../BaseController';
 
 export default class WindowAuthController extends BaseController {
     public layout = 'layouts/window/layout';
@@ -16,7 +16,7 @@ export default class WindowAuthController extends BaseController {
         }
 
         if (this.req.method === 'POST') {
-            let form = windowLoginForm(this.req);
+            const form = windowLoginForm(this.req);
             form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
 
@@ -39,7 +39,7 @@ export default class WindowAuthController extends BaseController {
 
                                 } else {
                                     // ログイン記憶
-                                    let processRemember = (cb: (err: Error, token: string) => void) => {
+                                    const processRemember = (cb: (err: Error, token: string) => void) => {
                                         if (this.req.form['remember']) {
                                             // トークン生成
                                             Models.Authentication.create(
@@ -55,7 +55,7 @@ export default class WindowAuthController extends BaseController {
                                         } else {
                                             cb(null, null);
                                         }
-                                    }
+                                    };
 
                                     processRemember((err, token) => {
                                         if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -64,7 +64,7 @@ export default class WindowAuthController extends BaseController {
                                         this.req.session[WindowUser.AUTH_SESSION_NAME] = window.toObject();
 
                                         // if exist parameter cb, redirect to cb.
-                                        let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('window.mypage');
+                                        const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('window.mypage');
                                         this.res.redirect(cb);
                                     });
                                 }

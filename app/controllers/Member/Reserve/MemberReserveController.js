@@ -1,11 +1,11 @@
 "use strict";
-const ReserveBaseController_1 = require("../../ReserveBaseController");
-const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const ttts_domain_3 = require("@motionpicture/ttts-domain");
-const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const moment = require("moment");
+const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
+const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
+const ReserveBaseController_1 = require("../../ReserveBaseController");
 class MemberReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
@@ -34,8 +34,8 @@ class MemberReserveController extends ReserveBaseController_1.default {
                         if (err)
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         // 座席FIX
-                        for (let reservation of reservations) {
-                            let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
+                        for (const reservation of reservations) {
+                            const seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
                                 return (seat.code === reservation.get('seat_code'));
                             });
                             reservationModel.seatCodes.push(reservation.get('seat_code'));
@@ -75,7 +75,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
      * 券種選択
      */
     tickets() {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
@@ -93,7 +93,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
             }
             else {
                 this.res.render('member/reserve/tickets', {
-                    reservationModel: reservationModel,
+                    reservationModel: reservationModel
                 });
             }
         });
@@ -102,7 +102,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
      * 購入者情報
      */
     profile() {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
@@ -122,7 +122,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
             }
             else {
                 // セッションに情報があれば、フォーム初期値設定
-                let email = reservationModel.purchaserEmail;
+                const email = reservationModel.purchaserEmail;
                 this.res.locals.lastName = reservationModel.purchaserLastName;
                 this.res.locals.firstName = reservationModel.purchaserFirstName;
                 this.res.locals.tel = reservationModel.purchaserTel;
@@ -143,7 +143,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
      * 予約内容確認
      */
     confirm() {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
@@ -173,7 +173,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
      * 予約完了
      */
     complete() {
-        let paymentNo = this.req.params.paymentNo;
+        const paymentNo = this.req.params.paymentNo;
         ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
             status: ttts_domain_2.ReservationUtil.STATUS_RESERVED,

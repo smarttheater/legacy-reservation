@@ -1,6 +1,6 @@
-import log4js = require('log4js');
+import * as log4js from 'log4js';
 
-let env = process.env.NODE_ENV || 'dev';
+const env = process.env.NODE_ENV || 'dev';
 
 // ディレクトリなければ作成(初回アクセス時だけ)
 // let fs = require('fs-extra');
@@ -11,15 +11,15 @@ log4js.configure({
     appenders: [
         {
             category: 'access', // アクセスログ
-            type: "console"
+            type: 'console'
         },
         {
             category: 'system', // その他のアプリログ(DEBUG、INFO、ERRORなど)
-            type: "console"
+            type: 'console'
         },
         {
             category: 'cancel', // 予約キャンセルログ
-            type: "console"
+            type: 'console'
         },
         {
             type: 'console'

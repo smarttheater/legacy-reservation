@@ -1,8 +1,8 @@
-import BaseController from '../../BaseController';
+import {ReservationUtil} from '@motionpicture/ttts-domain';
+import {ScreenUtil} from '@motionpicture/ttts-domain';
+import {Models} from '@motionpicture/ttts-domain';
 import Util from '../../../../common/Util/Util';
-import {ReservationUtil} from "@motionpicture/ttts-domain";
-import {ScreenUtil} from "@motionpicture/ttts-domain";
-import {Models} from "@motionpicture/ttts-domain";
+import BaseController from '../../BaseController';
 
 export default class SponsorMyPageController extends BaseController {
     public layout = 'layouts/sponsor/layout';
@@ -15,14 +15,14 @@ export default class SponsorMyPageController extends BaseController {
      * マイページ予約検索
      */
     public search(): void {
-        let limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
-        let page: number = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
-        let tel: string = (this.req.query.tel) ? this.req.query.tel : null;
-        let purchaserName: string = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
+        const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
+        const page: number = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
+        const tel: string = (this.req.query.tel) ? this.req.query.tel : null;
+        const purchaserName: string = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
         let paymentNo: string = (this.req.query.payment_no) ? this.req.query.payment_no : null;
 
         // 検索条件を作成
-        let conditions: Array<Object> = [];
+        const conditions: Object[] = [];
 
         conditions.push(
             {
@@ -81,7 +81,7 @@ export default class SponsorMyPageController extends BaseController {
                 .skip(limit * (page - 1))
                 .limit(limit)
                 .lean(true)
-                .exec((err, reservations: Array<any>) => {
+                .exec((err, reservations: any[]) => {
                     if (err) {
                         this.res.json({
                             success: false,

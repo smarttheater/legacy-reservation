@@ -4,13 +4,14 @@ const BaseUser_1 = require("./BaseUser");
  * 外部関係者ユーザークラス
  */
 class SponsorUser extends BaseUser_1.default {
+    // tslint:disable-next-line:function-name
     static parse(session) {
-        let user = new SponsorUser();
+        const user = new SponsorUser();
         // セッション値からオブジェクトにセット
         if (session.hasOwnProperty(SponsorUser.AUTH_SESSION_NAME)) {
-            for (let propertyName in session[SponsorUser.AUTH_SESSION_NAME]) {
+            Object.keys(session[SponsorUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
                 user[propertyName] = session[SponsorUser.AUTH_SESSION_NAME][propertyName];
-            }
+            });
         }
         return user;
     }

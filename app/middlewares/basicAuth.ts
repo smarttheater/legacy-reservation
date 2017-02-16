@@ -1,5 +1,7 @@
-import express = require('express');
-import basicAuth = require('basic-auth');
+import * as basicAuth from 'basic-auth';
+import * as express from 'express';
+
+const STATUS_CODE_UNAUTHORIZED = 401;
 
 export default (req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (process.env.NODE_ENV === 'dev') return next();
@@ -11,11 +13,11 @@ export default (req: express.Request, res: express.Response, next: express.NextF
 
     if (req.originalUrl === '/sendGrid/event/notify') return next(); // SendGridイベント通知に対してはオープンにする
 
-    let user = basicAuth(req);
+    const user = basicAuth(req);
 
-    if (user && user['name'] === 'motionpicture' && user['pass'] === '4_CS/T|YG*Lz') return next();
+    if (user && user.name === 'motionpicture' && user.pass === '4_CS/T|YG*Lz') return next();
 
-    res.statusCode = 401;
+    res.statusCode = STATUS_CODE_UNAUTHORIZED;
     res.setHeader('WWW-Authenticate', 'Basic realm="TTTS Authentication"');
     res.end('Unauthorized');
 };

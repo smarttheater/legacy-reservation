@@ -1,9 +1,9 @@
 "use strict";
-const BaseController_1 = require("../BaseController");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const GMONotificationModel_1 = require("../../models/Reserve/GMONotificationModel");
 const GMONotificationResponseModel_1 = require("../../models/Reserve/GMONotificationResponseModel");
-const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const BaseController_1 = require("../BaseController");
 class GMOController extends BaseController_1.default {
     /**
      * GMO結果通知受信
@@ -18,10 +18,10 @@ class GMOController extends BaseController_1.default {
      *
      */
     notify() {
-        let gmoNotificationModel = GMONotificationModel_1.default.parse(this.req.body);
+        const gmoNotificationModel = GMONotificationModel_1.default.parse(this.req.body);
         this.logger.info('gmoNotificationModel is', gmoNotificationModel);
         if (!gmoNotificationModel.OrderID) {
-            this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
+            this.res.send(GMONotificationResponseModel_1.default.RECV_RES_OK);
             return;
         }
         // 何を最低限保管する？
@@ -47,8 +47,8 @@ class GMOController extends BaseController_1.default {
         }, (err, notification) => {
             this.logger.info('notification created.', notification);
             if (err)
-                return this.res.send(GMONotificationResponseModel_1.default.RecvRes_NG);
-            this.res.send(GMONotificationResponseModel_1.default.RecvRes_OK);
+                return this.res.send(GMONotificationResponseModel_1.default.RECV_RES_NG);
+            this.res.send(GMONotificationResponseModel_1.default.RECV_RES_OK);
         });
     }
 }

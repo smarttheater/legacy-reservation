@@ -1,11 +1,11 @@
+import {Models} from '@motionpicture/ttts-domain';
+import {ReservationUtil} from '@motionpicture/ttts-domain';
+import {ScreenUtil} from '@motionpicture/ttts-domain';
+import * as moment from 'moment';
+import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
+import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
-import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
-import {Models} from "@motionpicture/ttts-domain";
-import {ReservationUtil} from "@motionpicture/ttts-domain";
-import {ScreenUtil} from "@motionpicture/ttts-domain";
-import ReservationModel from '../../../models/Reserve/ReservationModel';
-import moment = require('moment');
 
 export default class MemberReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_MEMBER;
@@ -34,8 +34,8 @@ export default class MemberReserveController extends ReserveBaseController imple
                             if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                             // 座席FIX
-                            for (let reservation of reservations) {
-                                let seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
+                            for (const reservation of reservations) {
+                                const seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
                                     return (seat.code === reservation.get('seat_code'));
                                 });
 
@@ -83,7 +83,7 @@ export default class MemberReserveController extends ReserveBaseController imple
      * 券種選択
      */
     public tickets(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -99,7 +99,7 @@ export default class MemberReserveController extends ReserveBaseController imple
                 });
             } else {
                 this.res.render('member/reserve/tickets', {
-                    reservationModel: reservationModel,
+                    reservationModel: reservationModel
                 });
             }
         });
@@ -109,7 +109,7 @@ export default class MemberReserveController extends ReserveBaseController imple
      * 購入者情報
      */
     public profile(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -127,7 +127,7 @@ export default class MemberReserveController extends ReserveBaseController imple
                 });
             } else {
                 // セッションに情報があれば、フォーム初期値設定
-                let email = reservationModel.purchaserEmail;
+                const email = reservationModel.purchaserEmail;
                 this.res.locals.lastName = reservationModel.purchaserLastName;
                 this.res.locals.firstName = reservationModel.purchaserFirstName;
                 this.res.locals.tel = reservationModel.purchaserTel;
@@ -150,7 +150,7 @@ export default class MemberReserveController extends ReserveBaseController imple
      * 予約内容確認
      */
     public confirm(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -179,7 +179,7 @@ export default class MemberReserveController extends ReserveBaseController imple
      * 予約完了
      */
     public complete(): void {
-        let paymentNo = this.req.params.paymentNo;
+        const paymentNo = this.req.params.paymentNo;
         Models.Reservation.find(
             {
                 payment_no: paymentNo,

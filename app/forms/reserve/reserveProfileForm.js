@@ -1,13 +1,14 @@
 "use strict";
 const form = require("express-form");
+const NAME_MAX_LENGTH = 15;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (req) => {
     return form(form.field('lastName', req.__('Form.FieldName.lastName')).trim()
         .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
-        .maxLength(15, req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: '15' }))
+        .maxLength(NAME_MAX_LENGTH, req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: NAME_MAX_LENGTH.toString() }))
         .regex(/^[ァ-ロワヲンーa-zA-Z]*$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })), form.field('firstName', req.__('Form.FieldName.firstName')).trim()
         .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
-        .maxLength(15, req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: '15' }))
+        .maxLength(NAME_MAX_LENGTH, req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: NAME_MAX_LENGTH.toString() }))
         .regex(/^[ァ-ロワヲンーa-zA-Z]*$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })), form.field('tel', req.__('Form.FieldName.tel')).trim()
         .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
         .regex(/^[0-9]{7,13}$/, req.__('Message.regexTel')), form.field('email', req.__('Form.FieldName.email')).trim()

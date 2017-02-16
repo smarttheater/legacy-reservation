@@ -1,16 +1,16 @@
-import ReserveBaseController from '../../ReserveBaseController';
-import ReserveControllerInterface from '../../ReserveControllerInterface';
+import {Models} from '@motionpicture/ttts-domain';
+import {ScreenUtil} from '@motionpicture/ttts-domain';
+import {FilmUtil} from '@motionpicture/ttts-domain';
+import {ReservationUtil} from '@motionpicture/ttts-domain';
+import * as conf from 'config';
+import * as lockFile from 'lockfile';
+import * as moment from 'moment';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
-import {Models} from "@motionpicture/ttts-domain";
-import {ReservationUtil} from "@motionpicture/ttts-domain";
-import {ScreenUtil} from "@motionpicture/ttts-domain";
-import {FilmUtil} from "@motionpicture/ttts-domain";
 import ReservationModel from '../../../models/Reserve/ReservationModel';
-import lockFile = require('lockfile');
-import moment = require('moment');
-import conf = require('config');
+import ReserveBaseController from '../../ReserveBaseController';
+import ReserveControllerInterface from '../../ReserveControllerInterface';
 
 
 export default class PreCustomerReserveController extends ReserveBaseController implements ReserveControllerInterface {
@@ -22,7 +22,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
         if (this.req.headers['x-forwarded-for'] && this.req.headers['x-forwarded-for'].substr(0, 13) === '124.155.113.9') {
         } else {
             // 期限指定
-            let now = moment();
+            const now = moment();
             if (now < moment(conf.get<string>('datetimes.reservation_start_pre_customers')) || moment(conf.get<string>('datetimes.reservation_end_pre_customers')) < now) {
                 return this.res.render('preCustomer/reserve/outOfTerm', {layout: false});
             }
@@ -56,7 +56,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
      * スケジュール選択
      */
     public performances(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -76,13 +76,13 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                                         {
                                             status: ReservationUtil.STATUS_WAITING_SETTLEMENT, // コンビニ決済で入金待ちのもの
                                             gmo_payment_term: {$exists: true}
-                                        },
+                                        }
                                     ]
                                 }
                             ]
                         },
                         (err, reservationsCount) => {
-                            let reservableCount = parseInt(this.req.preCustomerUser.get('max_reservation_count')) - reservationsCount;
+                            const reservableCount = parseInt(this.req.preCustomerUser.get('max_reservation_count')) - reservationsCount;
 
                             if (reservableCount <= 0) {
                                 return this.next(new Error(this.req.__('Message.NoMoreReservation')));
@@ -122,13 +122,13 @@ export default class PreCustomerReserveController extends ReserveBaseController 
      * 座席選択
      */
     public seats(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             // 1.5次販売アカウントによる予約数を取得
             // 決済中ステータスは含めない
-            let lockPath = `${__dirname}/../../../../../lock/PreCustomerFixSeats${this.req.preCustomerUser.get('_id')}.lock`;
+            const lockPath = `${__dirname}/../../../../../lock/PreCustomerFixSeats${this.req.preCustomerUser.get('_id')}.lock`;
             lockFile.lock(lockPath, {wait: 5000}, (err) => {
 
                 Models.Reservation.count(
@@ -141,7 +141,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                                     {
                                         status: ReservationUtil.STATUS_WAITING_SETTLEMENT, // コンビニ決済で入金待ちのもの
                                         gmo_payment_term: {$exists: true}
-                                    },
+                                    }
                                 ]
                             },
                             {
@@ -157,8 +157,8 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                     },
                     (err, reservationsCount) => {
                         // 一度に確保できる座席数は、残り可能枚数と、10の小さい方
-                        let reservableCount = parseInt(this.req.preCustomerUser.get('max_reservation_count')) - reservationsCount;
-                        let limit = Math.min(reservationModel.getSeatsLimit(), reservableCount);
+                        const reservableCount = parseInt(this.req.preCustomerUser.get('max_reservation_count')) - reservationsCount;
+                        const limit = Math.min(reservationModel.getSeatsLimit(), reservableCount);
 
                         // すでに枚数制限に達している場合
                         if (limit <= 0) {
@@ -171,13 +171,13 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                             if (this.req.method === 'POST') {
                                 reserveSeatForm(this.req, this.res, (err) => {
                                     if (this.req.form.isValid) {
-                                        let seatCodes: Array<string> = JSON.parse(this.req.form['seatCodes']);
+                                        const seatCodes: string[] = JSON.parse(this.req.form['seatCodes']);
 
                                         // 追加指定席を合わせて制限枚数を超過した場合
                                         if (seatCodes.length > limit) {
 
                                             lockFile.unlock(lockPath, (err) => {
-                                                let message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
+                                                const message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
                                                 this.res.redirect(`${this.router.build('pre.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
 
                                             });
@@ -191,7 +191,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
 
                                                         if (err) {
                                                             reservationModel.save(() => {
-                                                                let message = this.req.__('Message.SelectedSeatsUnavailable');
+                                                                const message = this.req.__('Message.SelectedSeatsUnavailable');
                                                                 this.res.redirect(`${this.router.build('pre.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
                                                             });
                                                         } else {
@@ -239,7 +239,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
      * 券種選択
      */
     public tickets(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -257,7 +257,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                 });
             } else {
                 this.res.render('preCustomer/reserve/tickets', {
-                    reservationModel: reservationModel,
+                    reservationModel: reservationModel
                 });
             }
         });
@@ -267,7 +267,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
      * 購入者情報
      */
     public profile(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -285,7 +285,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                 });
             } else {
                 // セッションに情報があれば、フォーム初期値設定
-                let email = reservationModel.purchaserEmail;
+                const email = reservationModel.purchaserEmail;
                 this.res.locals.lastName = reservationModel.purchaserLastName;
                 this.res.locals.firstName = reservationModel.purchaserFirstName;
                 this.res.locals.tel = reservationModel.purchaserTel;
@@ -298,7 +298,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                 this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
 
                 this.res.render('preCustomer/reserve/profile', {
-                    reservationModel: reservationModel,
+                    reservationModel: reservationModel
                 });
             }
         });
@@ -308,7 +308,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
      * 予約内容確認
      */
     public confirm(): void {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
@@ -337,7 +337,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
      * 仮予約完了
      */
     public waitingSettlement(): void {
-        let paymentNo = this.req.params.paymentNo;
+        const paymentNo = this.req.params.paymentNo;
         Models.Reservation.find(
             {
                 payment_no: paymentNo,
@@ -366,7 +366,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
      * 予約完了
      */
     public complete(): void {
-        let paymentNo = this.req.params.paymentNo;
+        const paymentNo = this.req.params.paymentNo;
         Models.Reservation.find(
             {
                 payment_no: paymentNo,

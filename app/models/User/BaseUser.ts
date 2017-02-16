@@ -9,6 +9,7 @@ export default class BaseUser {
         return (this.get('_id') !== null);
     }
 
+    // tslint:disable-next-line:no-reserved-keywords
     public get(key: string): any {
         return (this[key]) ? this[key] : null;
     }

@@ -1,30 +1,42 @@
-import express = require('express');
-import log4js = require('log4js');
-import moment = require('moment');
-import numeral = require('numeral');
-import conf = require('config');
+import * as conf from 'config';
+import * as express from 'express';
+import * as log4js from 'log4js';
+import * as moment from 'moment';
+import * as numeral from 'numeral';
 import Util from '../../common/Util/Util';
 
 /**
  * ベースコントローラー
- * 
+ *
  * 基本的にコントローラークラスはルーティングクラスより呼ばれる
  * あらゆるルーティングで実行されるメソッドは、このクラスがベースとなるので、メソッド共通の処理はここで実装するとよい
  */
 export default class BaseController {
-    /** httpリクエストオブジェクト */
+    /**
+     * httpリクエストオブジェクト
+     */
     public req: express.Request;
-    /**httpレスポンスオブジェクト */
+    /**
+     * httpレスポンスオブジェクト
+     */
     public res: express.Response;
-    /** 次に一致するルートメソッド */
+    /**
+     * 次に一致するルートメソッド
+     */
     public next: express.NextFunction;
 
-    /** ロガー */
+    /**
+     * ロガー
+     */
     public logger: log4js.Logger;
-    /** ルーティング */
+    /**
+     * ルーティング
+     */
     public router: Express.NamedRoutes;
 
-    /** レイアウトファイル */
+    /**
+     * レイアウトファイル
+     */
     public layout: string;
 
     constructor(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -35,31 +47,29 @@ export default class BaseController {
         this.logger = log4js.getLogger('system');
         this.router = this.req.app.namedRoutes;
 
-
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;
         this.res.locals.numeral = numeral;
         this.res.locals.conf = conf;
         this.res.locals.Util = Util;
 
-
         // レイアウト指定があれば変更
-        let _render = this.res.render;
+        const render = this.res.render;
         this.res.render = (view, options?, cb?) => {
             if (this.layout) {
-                if (typeof options === 'undefined') {
-                    options = {}
+                if (options === undefined) {
+                    options = {};
                 } else if (typeof options === 'function') {
                     cb = options;
-                    options = {}
+                    options = {};
                 }
 
                 if (!options.hasOwnProperty('layout')) {
-                    options['layout'] = this.layout;
+                    options.layout = this.layout;
                 }
             }
 
-            _render(view, options, cb);
+            render(view, options, cb);
         };
     }
 }

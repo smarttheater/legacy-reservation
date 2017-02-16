@@ -1,9 +1,9 @@
-import ReserveBaseController from '../../../ReserveBaseController';
-import {Models} from "@motionpicture/ttts-domain";
-import {ReservationUtil} from "@motionpicture/ttts-domain";
+import {Models} from '@motionpicture/ttts-domain';
+import {ReservationUtil} from '@motionpicture/ttts-domain';
+import * as conf from 'config';
+import * as crypto from 'crypto';
 import GMOResultModel from '../../../../models/Reserve/GMOResultModel';
-import conf = require('config');
-import crypto = require('crypto');
+import ReserveBaseController from '../../../ReserveBaseController';
 
 export default class GMOReserveCreditController extends ReserveBaseController {
     /**
@@ -11,7 +11,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
      */
     public result(gmoResultModel: GMOResultModel): void {
         // 予約完了ステータスへ変更
-        let update = {
+        const update = {
             gmo_shop_id: gmoResultModel.ShopID,
             gmo_amount: gmoResultModel.Amount,
             gmo_tax: gmoResultModel.Tax,
@@ -39,9 +39,9 @@ export default class GMOReserveCreditController extends ReserveBaseController {
 
                 // チェック文字列
                 // 8 ＋ 9 ＋ 10 ＋ 11 ＋ 12 ＋ 13 ＋ 14 ＋ ショップパスワード
-                let md5hash = crypto.createHash('md5');
+                const md5hash = crypto.createHash('md5');
                 md5hash.update(`${gmoResultModel.OrderID}${gmoResultModel.Forwarded}${gmoResultModel.Method}${gmoResultModel.PayTimes}${gmoResultModel.Approve}${gmoResultModel.TranID}${gmoResultModel.TranDate}${conf.get<string>('gmo_payment_shop_password')}`, 'utf8');
-                let checkString = md5hash.digest('hex');
+                const checkString = md5hash.digest('hex');
 
                 this.logger.info('CheckString must be ', checkString);
                 if (checkString !== gmoResultModel.CheckString) {
@@ -57,7 +57,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
 
                     this.logger.info('redirecting to complete...');
                     // 購入者区分による振り分け
-                    let group = reservations[0].get('purchaser_group');
+                    const group = reservations[0].get('purchaser_group');
                     switch (group) {
                         case ReservationUtil.PURCHASER_GROUP_MEMBER:
                             this.res.redirect(this.router.build('member.reserve.complete', {paymentNo: gmoResultModel.OrderID}));

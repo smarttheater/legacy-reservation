@@ -1,28 +1,28 @@
-import BaseController from '../BaseController';
-import {Models} from "@motionpicture/ttts-domain";
+import {Models} from '@motionpicture/ttts-domain';
+import {GMONotificationUtil} from '@motionpicture/ttts-domain';
 import GMONotificationModel from '../../models/Reserve/GMONotificationModel';
 import GMONotificationResponseModel from '../../models/Reserve/GMONotificationResponseModel';
-import {GMONotificationUtil} from "@motionpicture/ttts-domain";
+import BaseController from '../BaseController';
 
 export default class GMOController extends BaseController {
     /**
      * GMO結果通知受信
-     * 
+     *
      * お客様は、受信したHTTPリクエストに対するHTTPレスポンスが必要となります。
      * 返却値については、以下のいずれか
      * 0：受信OK ／ 1：受信失敗
-     * 
+     *
      * タイムアウトについて
      * 結果通知プログラム機能によって、指定URLへデータ送信を行った場合に15秒以内に返信が無いとタイムアウトとして処理を行います。
      * 加盟店様側からの正常応答が確認出来なかった場合は約60分毎に5回再送いたします。
-     * 
+     *
      */
     public notify(): void {
-        let gmoNotificationModel = GMONotificationModel.parse(this.req.body);
+        const gmoNotificationModel = GMONotificationModel.parse(this.req.body);
         this.logger.info('gmoNotificationModel is', gmoNotificationModel);
 
         if (!gmoNotificationModel.OrderID) {
-            this.res.send(GMONotificationResponseModel.RecvRes_OK);
+            this.res.send(GMONotificationResponseModel.RECV_RES_OK);
             return;
         }
 
@@ -49,10 +49,10 @@ export default class GMOController extends BaseController {
             payment_term: gmoNotificationModel.PaymentTerm,
 
             process_status: GMONotificationUtil.PROCESS_STATUS_UNPROCESSED
-        }, (err, notification) => {
+        },                            (err, notification) => {
             this.logger.info('notification created.', notification);
-            if (err) return this.res.send(GMONotificationResponseModel.RecvRes_NG);
-            this.res.send(GMONotificationResponseModel.RecvRes_OK);
+            if (err) return this.res.send(GMONotificationResponseModel.RECV_RES_NG);
+            this.res.send(GMONotificationResponseModel.RECV_RES_OK);
         });
     }
 }

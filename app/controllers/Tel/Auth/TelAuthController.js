@@ -1,9 +1,9 @@
 "use strict";
-const BaseController_1 = require("../../BaseController");
-const TelStaffUser_1 = require("../../../models/User/TelStaffUser");
-const telLoginForm_1 = require("../../../forms/tel/telLoginForm");
-const Util_1 = require("../../../../common/Util/Util");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const Util_1 = require("../../../../common/Util/Util");
+const telLoginForm_1 = require("../../../forms/tel/telLoginForm");
+const TelStaffUser_1 = require("../../../models/User/TelStaffUser");
+const BaseController_1 = require("../../BaseController");
 class TelAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -17,7 +17,7 @@ class TelAuthController extends BaseController_1.default {
             return this.res.redirect(this.router.build('tel.mypage'));
         }
         if (this.req.method === 'POST') {
-            let form = telLoginForm_1.default(this.req);
+            const form = telLoginForm_1.default(this.req);
             form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
@@ -38,7 +38,7 @@ class TelAuthController extends BaseController_1.default {
                             }
                             else {
                                 // ログイン記憶
-                                let processRemember = (cb) => {
+                                const processRemember = (cb) => {
                                     if (this.req.form['remember']) {
                                         // トークン生成
                                         ttts_domain_1.Models.Authentication.create({
@@ -59,7 +59,7 @@ class TelAuthController extends BaseController_1.default {
                                     // ログイン
                                     this.req.session[TelStaffUser_1.default.AUTH_SESSION_NAME] = telStaff.toObject();
                                     // if exist parameter cb, redirect to cb.
-                                    let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('tel.mypage');
+                                    const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('tel.mypage');
                                     this.res.redirect(cb);
                                 });
                             }

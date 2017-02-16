@@ -1,9 +1,9 @@
 "use strict";
-const BaseController_1 = require("../../BaseController");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
-const sponsorCancelForm_1 = require("../../../forms/sponsor/sponsorCancelForm");
 const log4js = require("log4js");
+const sponsorCancelForm_1 = require("../../../forms/sponsor/sponsorCancelForm");
+const BaseController_1 = require("../../BaseController");
 class SponsorCancelController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -18,7 +18,7 @@ class SponsorCancelController extends BaseController_1.default {
         else {
         }
         if (this.req.method === 'POST') {
-            let form = sponsorCancelForm_1.default(this.req);
+            const form = sponsorCancelForm_1.default(this.req);
             form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     // 予約を取得
@@ -40,7 +40,7 @@ class SponsorCancelController extends BaseController_1.default {
                                 message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
                             });
                         }
-                        let results = reservations.map((reservation) => {
+                        const results = reservations.map((reservation) => {
                             return {
                                 _id: reservation.get('_id'),
                                 seat_code: reservation.get('seat_code'),
@@ -80,9 +80,9 @@ class SponsorCancelController extends BaseController_1.default {
     executeByPaymentNo() {
         this.logger = log4js.getLogger('cancel');
         // 予約IDリストをjson形式で受け取る
-        let reservationIds = JSON.parse(this.req.body.reservationIds);
+        const reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
-            let promises = reservationIds.map((id) => {
+            const promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
                     this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                     ttts_domain_1.Models.Reservation.findOneAndUpdate({
@@ -119,9 +119,9 @@ class SponsorCancelController extends BaseController_1.default {
     execute() {
         this.logger = log4js.getLogger('cancel');
         // 予約IDリストをjson形式で受け取る
-        let reservationIds = JSON.parse(this.req.body.reservationIds);
+        const reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
-            let promises = reservationIds.map((id) => {
+            const promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
                     this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                     ttts_domain_1.Models.Reservation.findOneAndUpdate({ _id: id }, { status: ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS }, { new: true }, (err, reservation) => {

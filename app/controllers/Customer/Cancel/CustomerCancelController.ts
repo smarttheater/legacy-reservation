@@ -1,15 +1,15 @@
-import BaseController from '../../BaseController';
-import {Models} from "@motionpicture/ttts-domain";
-import {ReservationUtil} from "@motionpicture/ttts-domain";
+import {Models} from '@motionpicture/ttts-domain';
+import {ReservationUtil} from '@motionpicture/ttts-domain';
+import * as conf from 'config';
+import * as fs from 'fs-extra';
+import * as log4js from 'log4js';
+import * as moment from 'moment';
+import * as mongoose from 'mongoose';
+import * as numeral from 'numeral';
+import * as sendgrid from 'sendgrid';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import customerCancelForm from '../../../forms/customer/customerCancelForm';
-import log4js = require('log4js');
-import conf = require('config');
-import sendgrid = require('sendgrid');
-import moment = require('moment');
-import numeral = require('numeral');
-import fs = require('fs-extra');
-import mongoose = require('mongoose');
+import BaseController from '../../BaseController';
 
 export default class CustomerCancelController extends BaseController {
 
@@ -22,7 +22,7 @@ export default class CustomerCancelController extends BaseController {
         }
 
         if (this.req.method === 'POST') {
-            let form = customerCancelForm(this.req);
+            const form = customerCancelForm(this.req);
             form(this.req, this.res, (err) => {
                 if (!this.req.form.isValid) {
                     return this.res.json({
@@ -62,7 +62,7 @@ export default class CustomerCancelController extends BaseController {
                                 });
                             }
 
-                            let results = reservations.map((reservation) => {
+                            const results = reservations.map((reservation) => {
                                 return {
                                     _id: reservation.get('_id'),
                                     seat_code: reservation.get('seat_code'),
@@ -108,8 +108,8 @@ export default class CustomerCancelController extends BaseController {
 
         this.logger = log4js.getLogger('cancel');
 
-        let paymentNo = this.req.body.paymentNo;
-        let last4DigitsOfTel = this.req.body.last4DigitsOfTel;
+        const paymentNo = this.req.body.paymentNo;
+        const last4DigitsOfTel = this.req.body.last4DigitsOfTel;
 
         this.logger.info('finding reservations...');
         Models.Reservation.find(
@@ -145,7 +145,7 @@ export default class CustomerCancelController extends BaseController {
                             purchaser_tel: {$regex: `${last4DigitsOfTel}$`},
                             purchaser_group: ReservationUtil.PURCHASER_GROUP_CUSTOMER,
                             status: ReservationUtil.STATUS_RESERVED
-                        }, (err) => {
+                        },                        (err) => {
                             this.logger.info('reservations removed by customer.', err, 'payment_no:', paymentNo);
                             if (err) {
                                 return this.res.json({
@@ -161,12 +161,12 @@ export default class CustomerCancelController extends BaseController {
                                 payment_method: reservations[0].get('payment_method'),
                                 email: reservations[0].get('purchaser_email'),
                                 tel: reservations[0].get('purchaser_tel')
-                            }, (err) => {
+                            },                                  (err) => {
                                 this.logger.info('CustomerCancelRequest created.', err);
                                 if (err) return this.res.json({success: false, message: err.message});
 
                                 // メール送信
-                                let to = reservations[0].get('purchaser_email');
+                                const to = reservations[0].get('purchaser_email');
 
                                 this.res.render('email/customer/cancel', {
                                     layout: false,
@@ -177,14 +177,14 @@ export default class CustomerCancelController extends BaseController {
                                     conf: conf,
                                     GMOUtil: GMOUtil,
                                     ReservationUtil: ReservationUtil
-                                }, (err, html) => {
+                                },              (err, html) => {
                                     this.logger.info('email rendered. html:', err, html);
 
                                     // メール失敗してもキャンセル成功
                                     if (err) return this.res.json({success: true, message: null});
 
-                                    let _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
-                                    let email = new _sendgrid.Email({
+                                    const _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
+                                    const email = new _sendgrid.Email({
                                         to: to,
                                         bcc: ['tiff_mp@motionpicture.jp'],
                                         fromname: conf.get<string>('email.fromname'),
@@ -258,7 +258,7 @@ export default class CustomerCancelController extends BaseController {
 
 
                         //     });
-                        // }); 
+                        // });
                     // コンビニ決済の場合
                     } else if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) {
                         this.res.json({
@@ -279,9 +279,9 @@ export default class CustomerCancelController extends BaseController {
     /**
      * キャンセル受付対象かどうか確認する
      */
-    private validate(reservations: Array<mongoose.Document>, cb: (err) => void): void {
+    private validate(reservations: mongoose.Document[], cb: (err) => void): void {
         // 入場済みの座席があるかどうか確認
-        let notEntered = reservations.every((reservation) => {return !reservation.get('entered');});
+        const notEntered = reservations.every((reservation) => !reservation.get('entered'));
         if (!notEntered) return cb(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable.'));
 
         // 一次販売(15日)許可

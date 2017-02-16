@@ -1,4 +1,5 @@
 "use strict";
+// tslint:disable:variable-name
 /**
  * GMO決済結果モデル
  */
@@ -107,11 +108,12 @@ class GMOResultModel {
     // public VaAvailableDate: string;
     // /**  */
     // public VaTradeCode: string;
+    // tslint:disable-next-line:function-name
     static parse(postParameters) {
-        let model = new GMOResultModel();
-        for (let propertyName in postParameters) {
-            model[propertyName] = postParameters[propertyName];
-        }
+        const model = new GMOResultModel();
+        Object.keys(postParameters).forEach((key) => {
+            model[key] = postParameters[key];
+        });
         return model;
     }
 }

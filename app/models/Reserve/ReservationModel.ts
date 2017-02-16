@@ -1,74 +1,131 @@
-import {ReservationUtil} from "@motionpicture/ttts-domain";
+import { ReservationUtil } from '@motionpicture/ttts-domain';
+import * as conf from 'config';
+import * as moment from 'moment';
+import * as redis from 'redis';
 import GMOUtil from '../../../common/Util/GMO/GMOUtil';
-import conf = require('config');
-import moment = require('moment');
-import redis = require('redis');
 
+const DEFAULT_REDIS_TTL = 1800;
 const redisClient = redis.createClient(
-    conf.get<number>("redis_port"),
-    conf.get<string>("redis_host"),
+    conf.get<number>('redis_port'),
+    conf.get<string>('redis_host'),
     {
-        password: conf.get<string>("redis_key"),
-        tls: { servername: conf.get<string>("redis_host") },
+        password: conf.get<string>('redis_key'),
+        tls: { servername: conf.get<string>('redis_host') },
         return_buffers: true
     }
 );
 
+const MAX_RESERVATION_SEATS_DEFAULT = 4;
+const MAX_RESERVATION_SEATS_STAFFS = 10;
+const MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES = 10;
+
+interface Seat {
+    code: string; // 座席コード
+    grade: {
+        code: string;
+        name: {
+            ja: string;
+            en: string;
+        };
+        additional_charge: number; // 追加料金
+    };
+}
+interface Section {
+    seats: Seat[];
+}
+
 /**
  * 予約情報モデル
- * 
+ *
  * 予約プロセス中の情報を全て管理するためのモデルです
  * この情報をセッションで引き継くことで、予約プロセスを管理しています
  */
 export default class ReservationModel {
-    /** 予約トークン */
+    /**
+     * 予約トークン
+     */
     public token: string;
-    /** 購入管理番号 */
+    /**
+     * 購入管理番号
+     */
     public paymentNo: string;
-    /** 購入確定日時タイムスタンプ */
+    /**
+     * 購入確定日時タイムスタンプ
+     */
     public purchasedAt: number;
-    /** 座席仮予約有効期限タイムスタンプ */
+    /**
+     * 座席仮予約有効期限タイムスタンプ
+     */
     public expiredAt: number;
-    /** パフォーマンス */
+    /**
+     * パフォーマンス
+     */
     public performance: Performance;
-    /** 決済方法選択肢 */
-    public paymentMethodChoices: Array<string>;
-    /** 券種リスト */
-    public ticketTypes: Array<TicketType>;
-    /** スクリーン内の座席グレードリスト */
-    public seatGradeCodesInScreen: Array<string>;
-    /** スクリーンの座席表HTML */
+    /**
+     * 決済方法選択肢
+     */
+    public paymentMethodChoices: string[];
+    /**
+     * 券種リスト
+     */
+    public ticketTypes: TicketType[];
+    /**
+     * スクリーン内の座席グレードリスト
+     */
+    public seatGradeCodesInScreen: string[];
+    /**
+     * スクリーンの座席表HTML
+     */
     public screenHtml: string;
-    /** 予約座席コードリスト */
-    public seatCodes: Array<string>;
-    /** 購入者セイ */
+    /**
+     * 予約座席コードリスト
+     */
+    public seatCodes: string[];
+    /**
+     * 購入者セイ
+     */
     public purchaserLastName: string;
-    /** 購入者メイ */
+    /**
+     * 購入者メイ
+     */
     public purchaserFirstName: string;
-    /** 購入者メールアドレス */
+    /**
+     * 購入者メールアドレス
+     */
     public purchaserEmail: string;
-    /** 購入者電話番号 */
+    /**
+     * 購入者電話番号
+     */
     public purchaserTel: string;
-    /** 年代 */
+    /**
+     * 年代
+     */
     public purchaserAge: string;
-    /** 住所 */
+    /**
+     * 住所
+     */
     public purchaserAddress: string;
-    /** 性別 */
+    /**
+     * 性別
+     */
     public purchaserGender: string;
-    /** 決済方法 */
+    /**
+     * 決済方法
+     */
     public paymentMethod: string;
-    /** 購入者区分 */
+    /**
+     * 購入者区分
+     */
     public purchaserGroup: string;
 
     /**
      * プロセス中の購入情報をセッションに保存する
-     * 
+     *
      * @param {number} ttl 有効期間(default: 1800)
      */
     public save(cb: () => void, ttl?: number) {
-        let key = ReservationModel.getRedisKey(this.token);
-        let _ttl = (ttl) ? ttl : 1800;
-        redisClient.setex(key, _ttl, JSON.stringify(this), (err) => {
+        const key = ReservationModel.getRedisKey(this.token);
+        redisClient.setex(key, (ttl) ? ttl : DEFAULT_REDIS_TTL, JSON.stringify(this), (err) => {
             if (err) throw err;
             cb();
         });
@@ -78,7 +135,7 @@ export default class ReservationModel {
      * プロセス中の購入情報をセッションから削除する
      */
     public remove(cb: (err: Error | void) => void) {
-        let key = ReservationModel.getRedisKey(this.token);
+        const key = ReservationModel.getRedisKey(this.token);
         redisClient.del(key, (err) => {
             cb(err);
         });
@@ -87,19 +144,20 @@ export default class ReservationModel {
     /**
      * プロセス中の購入情報をセッションから取得する
      */
+    // tslint:disable-next-line:function-name
     public static find(token: string, cb: (err: Error | void, reservationModel: ReservationModel) => void): void {
-        let key = ReservationModel.getRedisKey(token);
+        const key = ReservationModel.getRedisKey(token);
         redisClient.get(key, (err, reply) => {
             if (err) return cb(err, null);
             if (reply === null) return cb(new Error('Not Found'), null);
 
-            let reservationModel = new ReservationModel();
+            const reservationModel = new ReservationModel();
 
             try {
-                let reservationModelInRedis = JSON.parse(reply.toString());
-                for (let propertyName in reservationModelInRedis) {
+                const reservationModelInRedis = JSON.parse(reply.toString());
+                Object.keys(reservationModelInRedis).forEach((propertyName) => {
                     reservationModel[propertyName] = reservationModelInRedis[propertyName];
-                }
+                });
             } catch (error) {
                 return cb(err, null);
             }
@@ -114,7 +172,7 @@ export default class ReservationModel {
      * @param {string} token
      * @return {string}
      */
-    private static getRedisKey(token): string {
+    private static getRedisKey(token: string): string {
         return `TTTSReservation_${token}`;
     }
 
@@ -122,23 +180,23 @@ export default class ReservationModel {
      * 一度の購入で予約できる座席数を取得する
      */
     public getSeatsLimit(): number {
-        let limit = 4;
+        let limit = MAX_RESERVATION_SEATS_DEFAULT;
 
         // 主体によっては、決済方法を強制的に固定で
         switch (this.purchaserGroup) {
             case ReservationUtil.PURCHASER_GROUP_SPONSOR:
             case ReservationUtil.PURCHASER_GROUP_STAFF:
             case ReservationUtil.PURCHASER_GROUP_WINDOW:
-                limit = 10;
+                limit = MAX_RESERVATION_SEATS_STAFFS;
                 break;
 
             case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
             case ReservationUtil.PURCHASER_GROUP_TEL:
                 if (this.performance) {
                     // 制限枚数指定のパフォーマンスの場合
-                    let performanceIds4limit2 = conf.get<Array<string>>('performanceIds4limit2');
+                    const performanceIds4limit2 = conf.get<string[]>('performanceIds4limit2');
                     if (performanceIds4limit2.indexOf(this.performance._id) >= 0) {
-                        limit = 2;
+                        limit = MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES;
                     }
                 }
 
@@ -172,7 +230,7 @@ export default class ReservationModel {
     public getChargeBySeatCode(seatCode: string): number {
         let charge = 0;
 
-        let reservation = this.getReservation(seatCode);
+        const reservation = this.getReservation(seatCode);
         if (reservation.ticket_type_charge) {
             charge += reservation.ticket_type_charge;
             charge += this.getChargeExceptTicketTypeBySeatCode(seatCode);
@@ -185,10 +243,10 @@ export default class ReservationModel {
         let charge = 0;
 
         if (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER
-         || this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW
-         || this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL
+            || this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW
+            || this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL
         ) {
-            let reservation = this.getReservation(seatCode);
+            const reservation = this.getReservation(seatCode);
 
             // 座席グレード分加算
             if (reservation.seat_grade_additional_charge > 0) {
@@ -226,18 +284,18 @@ export default class ReservationModel {
     /**
      * フロー中の予約IDリストを取得する
      */
-    public getReservationIds(): Array<string> {
-        return (this.seatCodes) ? this.seatCodes.map((seatCode) => {return this.getReservation(seatCode)._id;}) : [];
+    public getReservationIds(): string[] {
+        return (this.seatCodes) ? this.seatCodes.map((seatCode) => this.getReservation(seatCode)._id) : [];
     }
 
     /**
      * 座席コードから予約(確定)ドキュメントを作成する
-     * 
+     *
      * @param {string} seatCode 座席コード
      */
     public seatCode2reservationDocument(seatCode: string) {
-        let reservation = this.getReservation(seatCode);
-        let doc =  {
+        const reservation = this.getReservation(seatCode);
+        return {
             _id: reservation._id,
             status: reservation.status,
             seat_code: seatCode,
@@ -300,21 +358,19 @@ export default class ReservationModel {
 
             updated_user: 'ReservationModel'
         };
-
-        return doc;
     }
 }
 
 interface Performance {
-    _id: string,
-    day: string,
-    open_time: string,
-    start_time: string,
-    end_time: string,
-    start_str_ja: string,
-    start_str_en: string,
-    location_str_ja: string,
-    location_str_en: string,
+    _id: string;
+    day: string;
+    open_time: string;
+    start_time: string;
+    end_time: string;
+    start_str_ja: string;
+    start_str_en: string;
+    location_str_ja: string;
+    location_str_en: string;
     theater: {
         _id: string,
         name: {
@@ -325,27 +381,15 @@ interface Performance {
             ja: string,
             en: string
         }
-    },
+    };
     screen: {
         _id: string,
         name: {
             ja: string,
             en: string
         },
-        sections: Array<{
-            seats: Array<{
-                code: string, // 座席コード
-                grade: {
-                    code: string,
-                    name: {
-                        ja: string,
-                        en: string
-                    },
-                    additional_charge: number // 追加料金
-                }
-            }>
-        }>
-    },
+        sections: Section[]
+    };
     film: {
         _id: string,
         name: {
@@ -355,30 +399,30 @@ interface Performance {
         image: string,
         is_mx4d: boolean,
         copyright: string
-    },
+    };
 }
 
 interface TicketType {
-    code: string,
+    code: string;
     name: {
         ja: string,
         en: string
-    },
-    charge: number // 料金
+    };
+    charge: number; // 料金
 }
 
 interface Reservation {
     _id: string;
     status: string;
-    seat_code: string,
-    seat_grade_name_ja: string,
-    seat_grade_name_en: string,
-    seat_grade_additional_charge: number,
+    seat_code: string;
+    seat_grade_name_ja: string;
+    seat_grade_name_en: string;
+    seat_grade_additional_charge: number;
 
-    ticket_type_code: string,
-    ticket_type_name_ja: string,
-    ticket_type_name_en: string,
-    ticket_type_charge: number,
+    ticket_type_code: string;
+    ticket_type_name_ja: string;
+    ticket_type_name_en: string;
+    ticket_type_charge: number;
 
-    watcher_name: string
+    watcher_name: string;
 }

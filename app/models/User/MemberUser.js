@@ -4,13 +4,14 @@ const BaseUser_1 = require("./BaseUser");
  * メルマガ会員ユーザークラス
  */
 class MemberUser extends BaseUser_1.default {
+    // tslint:disable-next-line:function-name
     static parse(session) {
-        let user = new MemberUser();
+        const user = new MemberUser();
         // セッション値からオブジェクトにセット
         if (session.hasOwnProperty(MemberUser.AUTH_SESSION_NAME)) {
-            for (let propertyName in session[MemberUser.AUTH_SESSION_NAME]) {
+            Object.keys(session[MemberUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
                 user[propertyName] = session[MemberUser.AUTH_SESSION_NAME][propertyName];
-            }
+            });
         }
         return user;
     }

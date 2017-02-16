@@ -14,7 +14,7 @@ declare namespace Express {
 }
 
 declare module "express-form" {
-    import express = require('express');
+    import * as express from 'express';
 
     function form(...args: any[]): express.RequestHandler;
 

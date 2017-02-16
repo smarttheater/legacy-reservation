@@ -3,11 +3,12 @@
  * ペイデザイン結果通知モデル
  */
 class PayDesignNotificationModel {
+    // tslint:disable-next-line:function-name
     static parse(postParameters) {
-        let model = new PayDesignNotificationModel();
-        for (let propertyName in postParameters) {
-            model[propertyName] = postParameters[propertyName];
-        }
+        const model = new PayDesignNotificationModel();
+        Object.keys(postParameters).forEach((key) => {
+            model[key] = postParameters[key];
+        });
         return model;
     }
 }

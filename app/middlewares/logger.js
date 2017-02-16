@@ -1,6 +1,6 @@
 "use strict";
 const log4js = require("log4js");
-let env = process.env.NODE_ENV || 'dev';
+const env = process.env.NODE_ENV || 'dev';
 // ディレクトリなければ作成(初回アクセス時だけ)
 // let fs = require('fs-extra');
 // let logDir = `${__dirname}/../../../logs/${env}/frontend`;
@@ -9,15 +9,15 @@ log4js.configure({
     appenders: [
         {
             category: 'access',
-            type: "console"
+            type: 'console'
         },
         {
             category: 'system',
-            type: "console"
+            type: 'console'
         },
         {
             category: 'cancel',
-            type: "console"
+            type: 'console'
         },
         {
             type: 'console'

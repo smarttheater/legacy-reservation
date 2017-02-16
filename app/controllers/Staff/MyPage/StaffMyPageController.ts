@@ -1,8 +1,8 @@
-import BaseController from '../../BaseController';
+import {ReservationUtil} from '@motionpicture/ttts-domain';
+import {ScreenUtil} from '@motionpicture/ttts-domain';
+import {Models} from '@motionpicture/ttts-domain';
 import Util from '../../../../common/Util/Util';
-import {ReservationUtil} from "@motionpicture/ttts-domain";
-import {ScreenUtil} from "@motionpicture/ttts-domain";
-import {Models} from "@motionpicture/ttts-domain";
+import BaseController from '../../BaseController';
 
 export default class StaffMyPageController extends BaseController {
     public layout = 'layouts/staff/layout';
@@ -22,17 +22,17 @@ export default class StaffMyPageController extends BaseController {
      * マイページ予約検索
      */
     public search(): void {
-        let limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
-        let page: number = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
-        let day: string = (this.req.query.day) ? this.req.query.day : null;
-        let startTime: string = (this.req.query.start_time) ? this.req.query.start_time : null;
-        let theater: string = (this.req.query.theater) ? this.req.query.theater : null;
-        let film: string = (this.req.query.film) ? this.req.query.film : null;
-        let updater: string = (this.req.query.updater) ? this.req.query.updater : null;
+        const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
+        const page: number = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
+        const day: string = (this.req.query.day) ? this.req.query.day : null;
+        const startTime: string = (this.req.query.start_time) ? this.req.query.start_time : null;
+        const theater: string = (this.req.query.theater) ? this.req.query.theater : null;
+        const film: string = (this.req.query.film) ? this.req.query.film : null;
+        const updater: string = (this.req.query.updater) ? this.req.query.updater : null;
         let paymentNo: string = (this.req.query.payment_no) ? this.req.query.payment_no : null;
 
         // 検索条件を作成
-        let conditions: Array<Object> = [];
+        const conditions: Object[] = [];
 
         // 管理者の場合、内部関係者の予約全て&確保中
         if (this.req.staffUser.get('is_admin')) {
@@ -74,7 +74,7 @@ export default class StaffMyPageController extends BaseController {
         if (startTime) {
             conditions.push({
                 performance_start_time: {
-                    $gte: startTime,
+                    $gte: startTime
                 }
             });
         }
@@ -118,7 +118,7 @@ export default class StaffMyPageController extends BaseController {
                 .skip(limit * (page - 1))
                 .limit(limit)
                 .lean(true)
-                .exec((err, reservations: Array<any>) => {
+                .exec((err, reservations: any[]) => {
                     if (err) {
                         this.res.json({
                             success: false,
@@ -149,10 +149,10 @@ export default class StaffMyPageController extends BaseController {
      * 配布先を更新する
      */
     public updateWatcherName(): void {
-        let reservationId = this.req.body.reservationId;
-        let watcherName = this.req.body.watcherName;
+        const reservationId = this.req.body.reservationId;
+        const watcherName = this.req.body.watcherName;
 
-        let condition = {
+        const condition = {
             _id: reservationId,
             status: ReservationUtil.STATUS_RESERVED
         };
@@ -165,7 +165,7 @@ export default class StaffMyPageController extends BaseController {
             {
                 watcher_name: watcherName,
                 watcher_name_updated_at: Date.now(),
-                staff_signature: this.req.staffUser.get('signature'),
+                staff_signature: this.req.staffUser.get('signature')
             },
             {
                 new: true
@@ -200,7 +200,7 @@ export default class StaffMyPageController extends BaseController {
      */
     public release(): void {
         if (this.req.method === 'POST') {
-            let day = this.req.body.day;
+            const day = this.req.body.day;
             if (!day) {
                 this.res.json({
                     success: false,
@@ -240,8 +240,8 @@ export default class StaffMyPageController extends BaseController {
                     if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                     // 日付ごとに
-                    let reservationsByDay = {};
-                    for (let reservation of reservations) {
+                    const reservationsByDay = {};
+                    for (const reservation of reservations) {
                         if (!reservationsByDay.hasOwnProperty(reservation.get('performance_day'))) {
                             reservationsByDay[reservation.get('performance_day')] = [];
                         }

@@ -1,11 +1,11 @@
 "use strict";
-const BaseController_1 = require("../../BaseController");
-const PreCustomerUser_1 = require("../../../models/User/PreCustomerUser");
-const preCustomerLoginForm_1 = require("../../../forms/preCustomer/preCustomerLoginForm");
-const Util_1 = require("../../../../common/Util/Util");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const moment = require("moment");
 const conf = require("config");
+const moment = require("moment");
+const Util_1 = require("../../../../common/Util/Util");
+const preCustomerLoginForm_1 = require("../../../forms/preCustomer/preCustomerLoginForm");
+const PreCustomerUser_1 = require("../../../models/User/PreCustomerUser");
+const BaseController_1 = require("../../BaseController");
 class PreCustomerAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -20,7 +20,7 @@ class PreCustomerAuthController extends BaseController_1.default {
         }
         else {
             // 期限指定
-            let now = moment();
+            const now = moment();
             if (now < moment(conf.get('datetimes.reservation_start_pre_customers')) || moment(conf.get('datetimes.reservation_end_pre_customers')) < now) {
                 return this.res.render('preCustomer/reserve/outOfTerm', { layout: false });
             }
@@ -29,7 +29,7 @@ class PreCustomerAuthController extends BaseController_1.default {
             return this.res.redirect(this.router.build('pre.reserve.start'));
         }
         if (this.req.method === 'POST') {
-            let form = preCustomerLoginForm_1.default(this.req);
+            const form = preCustomerLoginForm_1.default(this.req);
             form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
@@ -51,7 +51,7 @@ class PreCustomerAuthController extends BaseController_1.default {
                             }
                             else {
                                 // ログイン記憶
-                                let processRemember = (cb) => {
+                                const processRemember = (cb) => {
                                     if (this.req.form['remember']) {
                                         // トークン生成
                                         ttts_domain_1.Models.Authentication.create({
@@ -74,7 +74,7 @@ class PreCustomerAuthController extends BaseController_1.default {
                                     this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME] = preCustomer.toObject();
                                     this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
                                     // if exist parameter cb, redirect to cb.
-                                    let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('pre.reserve.start');
+                                    const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('pre.reserve.start');
                                     this.res.redirect(cb);
                                 });
                             }

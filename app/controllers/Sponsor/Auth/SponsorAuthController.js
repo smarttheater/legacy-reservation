@@ -1,9 +1,9 @@
 "use strict";
-const BaseController_1 = require("../../BaseController");
-const SponsorUser_1 = require("../../../models/User/SponsorUser");
-const sponsorLoginForm_1 = require("../../../forms/sponsor/sponsorLoginForm");
-const Util_1 = require("../../../../common/Util/Util");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const Util_1 = require("../../../../common/Util/Util");
+const sponsorLoginForm_1 = require("../../../forms/sponsor/sponsorLoginForm");
+const SponsorUser_1 = require("../../../models/User/SponsorUser");
+const BaseController_1 = require("../../BaseController");
 class SponsorAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -17,7 +17,7 @@ class SponsorAuthController extends BaseController_1.default {
             return this.res.redirect(this.router.build('sponsor.reserve.start'));
         }
         if (this.req.method === 'POST') {
-            let form = sponsorLoginForm_1.default(this.req);
+            const form = sponsorLoginForm_1.default(this.req);
             form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
@@ -39,7 +39,7 @@ class SponsorAuthController extends BaseController_1.default {
                             }
                             else {
                                 // ログイン記憶
-                                let processRemember = (cb) => {
+                                const processRemember = (cb) => {
                                     if (this.req.form['remember']) {
                                         // トークン生成
                                         ttts_domain_1.Models.Authentication.create({
@@ -62,7 +62,7 @@ class SponsorAuthController extends BaseController_1.default {
                                     this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME] = sponsor.toObject();
                                     this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
                                     // if exist parameter cb, redirect to cb.
-                                    let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');
+                                    const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');
                                     this.res.redirect(cb);
                                 });
                             }

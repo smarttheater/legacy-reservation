@@ -1,8 +1,8 @@
-import BaseController from '../../BaseController';
-import {Models} from "@motionpicture/ttts-domain";
-import {ReservationUtil} from "@motionpicture/ttts-domain";
+import {Models} from '@motionpicture/ttts-domain';
+import {ReservationUtil} from '@motionpicture/ttts-domain';
+import * as log4js from 'log4js';
 import sponsorCancelForm from '../../../forms/sponsor/sponsorCancelForm';
-import log4js = require('log4js');
+import BaseController from '../../BaseController';
 
 export default class SponsorCancelController extends BaseController {
     public layout = 'layouts/sponsor/layout';
@@ -18,7 +18,7 @@ export default class SponsorCancelController extends BaseController {
         }
 
         if (this.req.method === 'POST') {
-            let form = sponsorCancelForm(this.req);
+            const form = sponsorCancelForm(this.req);
             form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     // 予約を取得
@@ -44,7 +44,7 @@ export default class SponsorCancelController extends BaseController {
                                 });
                             }
 
-                            let results = reservations.map((reservation) => {
+                            const results = reservations.map((reservation) => {
                                 return {
                                     _id: reservation.get('_id'),
                                     seat_code: reservation.get('seat_code'),
@@ -86,9 +86,9 @@ export default class SponsorCancelController extends BaseController {
         this.logger = log4js.getLogger('cancel');
 
         // 予約IDリストをjson形式で受け取る
-        let reservationIds = JSON.parse(this.req.body.reservationIds);
+        const reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
-            let promises = reservationIds.map((id) => {
+            const promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
                     this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                     Models.Reservation.findOneAndUpdate(
@@ -114,7 +114,7 @@ export default class SponsorCancelController extends BaseController {
                     success: true,
                     message: null
                 });
-            }, (err) => {
+            },                         (err) => {
                 this.res.json({
                     success: false,
                     message: err.message
@@ -132,9 +132,9 @@ export default class SponsorCancelController extends BaseController {
         this.logger = log4js.getLogger('cancel');
 
         // 予約IDリストをjson形式で受け取る
-        let reservationIds = JSON.parse(this.req.body.reservationIds);
+        const reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
-            let promises = reservationIds.map((id) => {
+            const promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
                     this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
                     Models.Reservation.findOneAndUpdate(
@@ -154,7 +154,7 @@ export default class SponsorCancelController extends BaseController {
                     success: true,
                     message: null
                 });
-            }, (err) => {
+            },                         (err) => {
                 this.res.json({
                     success: false,
                     message: err.message

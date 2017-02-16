@@ -1,9 +1,9 @@
 "use strict";
-const BaseController_1 = require("../../BaseController");
-const Util_1 = require("../../../../common/Util/Util");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const ttts_domain_3 = require("@motionpicture/ttts-domain");
+const Util_1 = require("../../../../common/Util/Util");
+const BaseController_1 = require("../../BaseController");
 class StaffMyPageController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -23,16 +23,16 @@ class StaffMyPageController extends BaseController_1.default {
      * マイページ予約検索
      */
     search() {
-        let limit = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
-        let page = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
-        let day = (this.req.query.day) ? this.req.query.day : null;
-        let startTime = (this.req.query.start_time) ? this.req.query.start_time : null;
-        let theater = (this.req.query.theater) ? this.req.query.theater : null;
-        let film = (this.req.query.film) ? this.req.query.film : null;
-        let updater = (this.req.query.updater) ? this.req.query.updater : null;
+        const limit = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
+        const page = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
+        const day = (this.req.query.day) ? this.req.query.day : null;
+        const startTime = (this.req.query.start_time) ? this.req.query.start_time : null;
+        const theater = (this.req.query.theater) ? this.req.query.theater : null;
+        const film = (this.req.query.film) ? this.req.query.film : null;
+        const updater = (this.req.query.updater) ? this.req.query.updater : null;
         let paymentNo = (this.req.query.payment_no) ? this.req.query.payment_no : null;
         // 検索条件を作成
-        let conditions = [];
+        const conditions = [];
         // 管理者の場合、内部関係者の予約全て&確保中
         if (this.req.staffUser.get('is_admin')) {
             conditions.push({
@@ -66,7 +66,7 @@ class StaffMyPageController extends BaseController_1.default {
         if (startTime) {
             conditions.push({
                 performance_start_time: {
-                    $gte: startTime,
+                    $gte: startTime
                 }
             });
         }
@@ -134,9 +134,9 @@ class StaffMyPageController extends BaseController_1.default {
      * 配布先を更新する
      */
     updateWatcherName() {
-        let reservationId = this.req.body.reservationId;
-        let watcherName = this.req.body.watcherName;
-        let condition = {
+        const reservationId = this.req.body.reservationId;
+        const watcherName = this.req.body.watcherName;
+        const condition = {
             _id: reservationId,
             status: ttts_domain_1.ReservationUtil.STATUS_RESERVED
         };
@@ -147,7 +147,7 @@ class StaffMyPageController extends BaseController_1.default {
         ttts_domain_3.Models.Reservation.findOneAndUpdate(condition, {
             watcher_name: watcherName,
             watcher_name_updated_at: Date.now(),
-            staff_signature: this.req.staffUser.get('signature'),
+            staff_signature: this.req.staffUser.get('signature')
         }, {
             new: true
         }, (err, reservation) => {
@@ -176,7 +176,7 @@ class StaffMyPageController extends BaseController_1.default {
      */
     release() {
         if (this.req.method === 'POST') {
-            let day = this.req.body.day;
+            const day = this.req.body.day;
             if (!day) {
                 this.res.json({
                     success: false,
@@ -210,8 +210,8 @@ class StaffMyPageController extends BaseController_1.default {
                 if (err)
                     return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 // 日付ごとに
-                let reservationsByDay = {};
-                for (let reservation of reservations) {
+                const reservationsByDay = {};
+                for (const reservation of reservations) {
                     if (!reservationsByDay.hasOwnProperty(reservation.get('performance_day'))) {
                         reservationsByDay[reservation.get('performance_day')] = [];
                     }

@@ -1,10 +1,10 @@
-import BaseController from '../../BaseController';
-import PreCustomerUser from '../../../models/User/PreCustomerUser';
-import preCustomerLoginForm from '../../../forms/preCustomer/preCustomerLoginForm';
+import {Models} from '@motionpicture/ttts-domain';
+import * as conf from 'config';
+import * as moment from 'moment';
 import Util from '../../../../common/Util/Util';
-import {Models} from "@motionpicture/ttts-domain";
-import moment = require('moment');
-import conf = require('config');
+import preCustomerLoginForm from '../../../forms/preCustomer/preCustomerLoginForm';
+import PreCustomerUser from '../../../models/User/PreCustomerUser';
+import BaseController from '../../BaseController';
 
 export default class PreCustomerAuthController extends BaseController {
     public layout = 'layouts/preCustomer/layout';
@@ -17,7 +17,7 @@ export default class PreCustomerAuthController extends BaseController {
         if (this.req.headers['x-forwarded-for'] && this.req.headers['x-forwarded-for'].substr(0, 13) === '124.155.113.9') {
         } else {
             // 期限指定
-            let now = moment();
+            const now = moment();
             if (now < moment(conf.get<string>('datetimes.reservation_start_pre_customers')) || moment(conf.get<string>('datetimes.reservation_end_pre_customers')) < now) {
                 return this.res.render('preCustomer/reserve/outOfTerm', {layout: false});
             }
@@ -28,7 +28,7 @@ export default class PreCustomerAuthController extends BaseController {
         }
 
         if (this.req.method === 'POST') {
-            let form = preCustomerLoginForm(this.req);
+            const form = preCustomerLoginForm(this.req);
             form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
 
@@ -52,7 +52,7 @@ export default class PreCustomerAuthController extends BaseController {
 
                                 } else {
                                     // ログイン記憶
-                                    let processRemember = (cb: (err: Error, token: string) => void) => {
+                                    const processRemember = (cb: (err: Error, token: string) => void) => {
                                         if (this.req.form['remember']) {
                                             // トークン生成
                                             Models.Authentication.create(
@@ -69,7 +69,7 @@ export default class PreCustomerAuthController extends BaseController {
                                         } else {
                                             cb(null, null);
                                         }
-                                    }
+                                    };
 
                                     processRemember((err, token) => {
                                         if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -79,7 +79,7 @@ export default class PreCustomerAuthController extends BaseController {
                                         this.req.session[PreCustomerUser.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
 
                                         // if exist parameter cb, redirect to cb.
-                                        let cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('pre.reserve.start');
+                                        const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('pre.reserve.start');
                                         this.res.redirect(cb);
                                     });
                                 }

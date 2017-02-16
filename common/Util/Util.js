@@ -1,6 +1,6 @@
 "use strict";
 const crypto = require("crypto");
-// import fs = require('fs-extra');
+// import * as fs from 'fs-extra';
 const log4js = require("log4js");
 const uniqid = require("uniqid");
 /**

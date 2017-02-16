@@ -6,14 +6,15 @@ import BaseUser from './BaseUser';
 export default class StaffUser extends BaseUser {
     public static AUTH_SESSION_NAME = 'TTTSFrontendStaffAuth';
 
+    // tslint:disable-next-line:function-name
     public static parse(session: Express.Session): StaffUser {
-        let user = new StaffUser();
+        const user = new StaffUser();
 
         // セッション値からオブジェクトにセット
         if (session.hasOwnProperty(StaffUser.AUTH_SESSION_NAME)) {
-            for (let propertyName in session[StaffUser.AUTH_SESSION_NAME]) {
+            Object.keys(session[StaffUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
                 user[propertyName] = session[StaffUser.AUTH_SESSION_NAME][propertyName];
-            }
+            });
         }
 
         return user;

@@ -1,11 +1,11 @@
 "use strict";
-const BaseController_1 = require("../../BaseController");
-const Util_1 = require("../../../../common/Util/Util");
-const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const ttts_domain_3 = require("@motionpicture/ttts-domain");
 const moment = require("moment");
+const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
+const Util_1 = require("../../../../common/Util/Util");
+const BaseController_1 = require("../../BaseController");
 class TelMyPageController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -21,19 +21,19 @@ class TelMyPageController extends BaseController_1.default {
      * マイページ予約検索
      */
     search() {
-        let limit = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
-        let page = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
-        let purchaserGroups = (this.req.query.purchaser_groups) ? this.req.query.purchaser_groups.split(',') : null;
-        let purchasedDay = (this.req.query.purchased_day) ? this.req.query.purchased_day : null;
+        const limit = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
+        const page = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
+        const purchaserGroups = (this.req.query.purchaser_groups) ? this.req.query.purchaser_groups.split(',') : null;
+        const purchasedDay = (this.req.query.purchased_day) ? this.req.query.purchased_day : null;
         let email = (this.req.query.email) ? this.req.query.email : null;
         let tel = (this.req.query.tel) ? this.req.query.tel : null;
         let purchaserFirstName = (this.req.query.purchaser_first_name) ? this.req.query.purchaser_first_name : null;
         let purchaserLastName = (this.req.query.purchaser_last_name) ? this.req.query.purchaser_last_name : null;
         let paymentNo = (this.req.query.payment_no) ? this.req.query.payment_no : null;
-        let day = (this.req.query.day) ? this.req.query.day : null;
+        const day = (this.req.query.day) ? this.req.query.day : null;
         let filmName = (this.req.query.film_name) ? this.req.query.film_name : null;
         // 検索条件を作成
-        let conditions = [];
+        const conditions = [];
         // 内部関係者以外がデフォルト
         conditions.push({
             purchaser_group: { $ne: ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF },
@@ -95,14 +95,14 @@ class TelMyPageController extends BaseController_1.default {
             filmName = filmName.replace(/(^\s+)|(\s+$)/g, '').replace(/\s/g, ' ');
             filmName.split(' ').forEach((pattern) => {
                 if (pattern.length > 0) {
-                    let regex = new RegExp(pattern, 'i');
+                    const regex = new RegExp(pattern, 'i');
                     conditions.push({
                         $or: [
                             {
-                                'film_name_ja': { $regex: regex }
+                                film_name_ja: { $regex: regex }
                             },
                             {
-                                'film_name_en': { $regex: regex }
+                                film_name_en: { $regex: regex }
                             }
                         ]
                     });

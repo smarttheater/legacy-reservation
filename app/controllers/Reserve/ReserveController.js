@@ -1,16 +1,16 @@
 "use strict";
-const ReserveBaseController_1 = require("../ReserveBaseController");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const ttts_domain_3 = require("@motionpicture/ttts-domain");
-const ReservationModel_1 = require("../../models/Reserve/ReservationModel");
 const qr = require("qr-image");
+const ReservationModel_1 = require("../../models/Reserve/ReservationModel");
+const ReserveBaseController_1 = require("../ReserveBaseController");
 class ReserveController extends ReserveBaseController_1.default {
     /**
      * 座席の状態を取得する
      */
     getUnavailableSeatCodes() {
-        let performanceId = this.req.params.performanceId;
+        const performanceId = this.req.params.performanceId;
         ttts_domain_1.Models.Reservation.distinct('seat_code', {
             performance: performanceId
         }, (err, seatCodes) => {
@@ -23,11 +23,11 @@ class ReserveController extends ReserveBaseController_1.default {
      * 座席の状態を取得する
      */
     getSeatProperties() {
-        let token = this.req.params.token;
+        const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
             if (err)
                 return this.res.json({ propertiesBySeatCode: {} });
-            let propertiesBySeatCode = {};
+            const propertiesBySeatCode = {};
             // 予約リストを取得
             ttts_domain_1.Models.Reservation.find({
                 performance: reservationModel.performance._id
@@ -35,8 +35,8 @@ class ReserveController extends ReserveBaseController_1.default {
                 if (err)
                     return this.res.json({ propertiesBySeatCode: {} });
                 // 予約データが存在すれば、現在仮押さえ中の座席を除いて予約不可(disabled)
-                for (let reservation of reservations) {
-                    let seatCode = reservation.get('seat_code');
+                for (const reservation of reservations) {
+                    const seatCode = reservation.get('seat_code');
                     let avalilable = false;
                     let baloonContent = seatCode;
                     if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
@@ -58,7 +58,7 @@ class ReserveController extends ReserveBaseController_1.default {
                     };
                 }
                 // 予約のない座席は全て空席
-                for (let seat of reservationModel.performance.screen.sections[0].seats) {
+                for (const seat of reservationModel.performance.screen.sections[0].seats) {
                     if (!propertiesBySeatCode.hasOwnProperty(seat.code)) {
                         propertiesBySeatCode[seat.code] = {
                             avalilable: true,
@@ -86,7 +86,7 @@ class ReserveController extends ReserveBaseController_1.default {
      * 印刷
      */
     print() {
-        let ids = JSON.parse(this.req.query.ids);
+        const ids = JSON.parse(this.req.query.ids);
         ttts_domain_1.Models.Reservation.find({
             _id: { $in: ids },
             status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
