@@ -1,4 +1,4 @@
-import {Models} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
 import Util from '../../../../common/Util/Util';
 import telLoginForm from '../../../forms/tel/telLoginForm';
 import TelStaffUser from '../../../models/User/TelStaffUser';
@@ -23,33 +23,33 @@ export default class TelAuthController extends BaseController {
                     // ユーザー認証
                     Models.TelStaff.findOne(
                         {
-                            user_id: this.req.form['userId']
+                            user_id: (<any>this.req.form).userId
                         },
-                        (err, telStaff) => {
-                            if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                        (findTelStaffErr, telStaff) => {
+                            if (findTelStaffErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                             if (!telStaff) {
-                                this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
+                                this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('tel/auth/login');
                             } else {
                                 // パスワードチェック
-                                if (telStaff.get('password_hash') !== Util.createHash(this.req.form['password'], telStaff.get('password_salt'))) {
-                                    this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
+                                if (telStaff.get('password_hash') !== Util.createHash((<any>this.req.form).password, telStaff.get('password_salt'))) {
+                                    this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                     this.res.render('tel/auth/login');
 
                                 } else {
                                     // ログイン記憶
                                     const processRemember = (cb: (err: Error, token: string) => void) => {
-                                        if (this.req.form['remember']) {
+                                        if ((<any>this.req.form).remember) {
                                             // トークン生成
                                             Models.Authentication.create(
                                                 {
                                                     token: Util.createToken(),
                                                     tel_staff: telStaff.get('_id')
                                                 },
-                                                (err, authentication) => {
+                                                (createAuthenticationErr, authentication) => {
                                                     this.res.cookie('remember_tel_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
-                                                    cb(err, authentication.get('token'));
+                                                    cb(createAuthenticationErr, authentication.get('token'));
                                                 }
                                             );
                                         } else {
@@ -57,8 +57,8 @@ export default class TelAuthController extends BaseController {
                                         }
                                     };
 
-                                    processRemember((err, token) => {
-                                        if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                                    processRemember((processRememberErr, token) => {
+                                        if (processRememberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                                         // ログイン
                                         this.req.session[TelStaffUser.AUTH_SESSION_NAME] = telStaff.toObject();
@@ -85,7 +85,7 @@ export default class TelAuthController extends BaseController {
 
     public logout(): void {
         delete this.req.session[TelStaffUser.AUTH_SESSION_NAME];
-        Models.Authentication.remove({token: this.req.cookies.remember_tel_staff}, (err) => {
+        Models.Authentication.remove({ token: this.req.cookies.remember_tel_staff }, (err) => {
             this.res.clearCookie('remember_tel_staff');
             this.res.redirect(this.router.build('tel.mypage'));
         });

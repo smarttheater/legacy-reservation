@@ -31,8 +31,8 @@ class ReserveController extends ReserveBaseController_1.default {
             // 予約リストを取得
             ttts_domain_1.Models.Reservation.find({
                 performance: reservationModel.performance._id
-            }, (err, reservations) => {
-                if (err)
+            }, (findReservationErr, reservations) => {
+                if (findReservationErr)
                     return this.res.json({ propertiesBySeatCode: {} });
                 // 予約データが存在すれば、現在仮押さえ中の座席を除いて予約不可(disabled)
                 for (const reservation of reservations) {

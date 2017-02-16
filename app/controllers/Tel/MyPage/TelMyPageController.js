@@ -6,6 +6,7 @@ const moment = require("moment");
 const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
 const Util_1 = require("../../../../common/Util/Util");
 const BaseController_1 = require("../../BaseController");
+const DEFAULT_RADIX = 10;
 class TelMyPageController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -20,9 +21,11 @@ class TelMyPageController extends BaseController_1.default {
     /**
      * マイページ予約検索
      */
+    // tslint:disable-next-line:max-func-body-length
     search() {
-        const limit = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
-        const page = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
+        // tslint:disable-next-line:no-magic-numbers
+        const limit = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+        const page = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
         const purchaserGroups = (this.req.query.purchaser_groups) ? this.req.query.purchaser_groups.split(',') : null;
         const purchasedDay = (this.req.query.purchased_day) ? this.req.query.purchased_day : null;
         let email = (this.req.query.email) ? this.req.query.email : null;
@@ -46,7 +49,9 @@ class TelMyPageController extends BaseController_1.default {
         if (purchasedDay) {
             conditions.push({
                 purchased_at: {
+                    // tslint:disable-next-line:no-magic-numbers
                     $gte: moment(`${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T00:00:00+9:00`),
+                    // tslint:disable-next-line:no-magic-numbers
                     $lte: moment(`${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T23:59:59+9:00`)
                 }
             });
@@ -124,8 +129,8 @@ class TelMyPageController extends BaseController_1.default {
                 .skip(limit * (page - 1))
                 .limit(limit)
                 .lean(true)
-                .exec((err, reservations) => {
-                if (err) {
+                .exec((findReservationErr, reservations) => {
+                if (findReservationErr) {
                     this.res.json({
                         success: false,
                         results: [],

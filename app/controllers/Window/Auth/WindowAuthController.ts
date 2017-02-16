@@ -1,4 +1,4 @@
-import {Models} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
 import Util from '../../../../common/Util/Util';
 import windowLoginForm from '../../../forms/window/windowLoginForm';
 import WindowUser from '../../../models/User/WindowUser';
@@ -23,33 +23,33 @@ export default class WindowAuthController extends BaseController {
                     // ユーザー認証
                     Models.Window.findOne(
                         {
-                            user_id: this.req.form['userId']
+                            user_id: (<any>this.req.form).userId
                         },
-                        (err, window) => {
-                            if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                        (findWindowErr, window) => {
+                            if (findWindowErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                             if (!window) {
-                                this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
+                                this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('window/auth/login');
                             } else {
                                 // パスワードチェック
-                                if (window.get('password_hash') !== Util.createHash(this.req.form['password'], window.get('password_salt'))) {
-                                    this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
+                                if (window.get('password_hash') !== Util.createHash((<any>this.req.form).password, window.get('password_salt'))) {
+                                    this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                     this.res.render('window/auth/login');
 
                                 } else {
                                     // ログイン記憶
                                     const processRemember = (cb: (err: Error, token: string) => void) => {
-                                        if (this.req.form['remember']) {
+                                        if ((<any>this.req.form).remember) {
                                             // トークン生成
                                             Models.Authentication.create(
                                                 {
                                                     token: Util.createToken(),
                                                     window: window.get('_id')
                                                 },
-                                                (err, authentication) => {
+                                                (createAuthenticationErr, authentication) => {
                                                     this.res.cookie('remember_window', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
-                                                    cb(err, authentication.get('token'));
+                                                    cb(createAuthenticationErr, authentication.get('token'));
                                                 }
                                             );
                                         } else {
@@ -57,8 +57,8 @@ export default class WindowAuthController extends BaseController {
                                         }
                                     };
 
-                                    processRemember((err, token) => {
-                                        if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                                    processRemember((processRememberErr, token) => {
+                                        if (processRememberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                                         // ログイン
                                         this.req.session[WindowUser.AUTH_SESSION_NAME] = window.toObject();
@@ -85,7 +85,7 @@ export default class WindowAuthController extends BaseController {
 
     public logout(): void {
         delete this.req.session[WindowUser.AUTH_SESSION_NAME];
-        Models.Authentication.remove({token: this.req.cookies.remember_window}, (err) => {
+        Models.Authentication.remove({ token: this.req.cookies.remember_window }, (err) => {
             this.res.clearCookie('remember_window');
             this.res.redirect(this.router.build('window.mypage'));
         });

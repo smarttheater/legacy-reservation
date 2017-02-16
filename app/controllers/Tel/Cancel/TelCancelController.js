@@ -76,10 +76,10 @@ class TelCancelController extends BaseController_1.default {
                 watcher_name: ''
             }, {
                 multi: true
-            }, (err, raw) => {
-                this.logger.info('reservation 2sagyo by tel_staff.', err, raw, 'tel:', this.req.telStaffUser.get('user_id'), 'reservationIds:', reservationIds);
-                if (err)
-                    return this.res.json({ success: false, message: err.message });
+            }, (updateReservationErr, raw) => {
+                this.logger.info('reservation 2sagyo by tel_staff.', updateReservationErr, raw, 'tel:', this.req.telStaffUser.get('user_id'), 'reservationIds:', reservationIds);
+                if (updateReservationErr)
+                    return this.res.json({ success: false, message: updateReservationErr.message });
                 this.res.json({
                     success: true,
                     message: null

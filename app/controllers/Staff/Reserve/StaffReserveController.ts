@@ -1,7 +1,7 @@
-import {Models} from '@motionpicture/ttts-domain';
-import {ScreenUtil} from '@motionpicture/ttts-domain';
-import {FilmUtil} from '@motionpicture/ttts-domain';
-import {ReservationUtil} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
+import { ScreenUtil } from '@motionpicture/ttts-domain';
+import { FilmUtil } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
@@ -25,13 +25,13 @@ export default class StaffReserveController extends ReserveBaseController implem
 
             if (reservationModel.performance) {
                 reservationModel.save(() => {
-                    const cb = this.router.build('staff.reserve.seats', {token: reservationModel.token});
-                    this.res.redirect(`${this.router.build('staff.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
+                    const cb = this.router.build('staff.reserve.seats', { token: reservationModel.token });
+                    this.res.redirect(`${this.router.build('staff.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
                 });
             } else {
                 reservationModel.save(() => {
-                    const cb = this.router.build('staff.reserve.performances', {token: reservationModel.token});
-                    this.res.redirect(`${this.router.build('staff.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
+                    const cb = this.router.build('staff.reserve.performances', { token: reservationModel.token });
+                    this.res.redirect(`${this.router.build('staff.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
                 });
             }
         });
@@ -61,7 +61,7 @@ export default class StaffReserveController extends ReserveBaseController implem
         Models.Reservation.update(
             {
                 performance: reservationModel.performance._id,
-                seat_code: {$in: seatCodesInSession},
+                seat_code: { $in: seatCodesInSession },
                 status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TTTS
             },
             {
@@ -82,10 +82,10 @@ export default class StaffReserveController extends ReserveBaseController implem
                 Models.Reservation.remove(
                     {
                         performance: reservationModel.performance._id,
-                        seat_code: {$in: seatCodesInSession},
+                        seat_code: { $in: seatCodesInSession },
                         status: ReservationUtil.STATUS_TEMPORARY
                     },
-                    (err) => {
+                    (removeReservationErr) => {
                         // 失敗したとしても時間経過で消えるので放置
 
                         cb(null, reservationModel);
@@ -141,7 +141,8 @@ export default class StaffReserveController extends ReserveBaseController implem
                                 {
                                     new: true
                                 },
-                                (err, reservation) => {
+                                // tslint:disable-next-line:no-shadowed-variable
+                                (findReservationErr, reservation) => {
                                     if (err) return reject(err);
                                     if (!reservation) return reject(new Error(this.req.__('Message.UnexpectedError')));
 
@@ -188,14 +189,17 @@ export default class StaffReserveController extends ReserveBaseController implem
             });
         });
 
-        Promise.all(promises).then(() => {
-            // 座席コードのソート(文字列順に)
-            reservationModel.seatCodes.sort(ScreenUtil.sortBySeatCode);
+        Promise.all(promises).then(
+            () => {
+                // 座席コードのソート(文字列順に)
+                reservationModel.seatCodes.sort(ScreenUtil.sortBySeatCode);
 
-            cb(null, reservationModel);
-        },                         (err) => {
-            cb(err, reservationModel);
-        });
+                cb(null, reservationModel);
+            },
+            (err) => {
+                cb(err, reservationModel);
+            }
+        );
     }
 
     /**
@@ -207,15 +211,17 @@ export default class StaffReserveController extends ReserveBaseController implem
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                reservePerformanceForm(this.req, this.res, (err) => {
+                reservePerformanceForm(this.req, this.res, () => {
                     if (this.req.form.isValid) {
                         // パフォーマンスFIX
-                        this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
-                            if (err) {
-                                this.next(err);
+                        const performanceId = (<any>this.req.form).performanceId;
+                        // tslint:disable-next-line:no-shadowed-variable
+                        this.processFixPerformance(reservationModel, performanceId, (fixPerformanceErr, reservationModel) => {
+                            if (fixPerformanceErr) {
+                                this.next(fixPerformanceErr);
                             } else {
                                 reservationModel.save(() => {
-                                    this.res.redirect(this.router.build('staff.reserve.seats', {token: token}));
+                                    this.res.redirect(this.router.build('staff.reserve.seats', { token: token }));
                                 });
                             }
                         });
@@ -226,7 +232,8 @@ export default class StaffReserveController extends ReserveBaseController implem
                 });
             } else {
                 // 仮予約あればキャンセルする
-                this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
                     reservationModel.save(() => {
                         this.res.render('staff/reserve/performances', {
                             FilmUtil: FilmUtil
@@ -248,37 +255,39 @@ export default class StaffReserveController extends ReserveBaseController implem
             const limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
-                reserveSeatForm(this.req, this.res, (err) => {
+                reserveSeatForm(this.req, this.res, () => {
                     if (this.req.form.isValid) {
 
-                        const seatCodes: string[] = JSON.parse(this.req.form['seatCodes']);
+                        const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
 
                         // 追加指定席を合わせて制限枚数を超過した場合
                         if (seatCodes.length > limit) {
-                            const message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
-                            this.res.redirect(`${this.router.build('staff.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+                            const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
+                            this.res.redirect(`${this.router.build('staff.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
 
                         } else {
                             // 仮予約あればキャンセルする
-                            this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                            // tslint:disable-next-line:no-shadowed-variable
+                            this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
                                 // 座席FIX
-                                this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
-                                    if (err) {
+                                // tslint:disable-next-line:no-shadowed-variable
+                                this.processFixSeats(reservationModel, seatCodes, (fixSeatsErr, reservationModel) => {
+                                    if (fixSeatsErr) {
                                         reservationModel.save(() => {
                                             const message = this.req.__('Message.SelectedSeatsUnavailable');
-                                            this.res.redirect(`${this.router.build('staff.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+                                            this.res.redirect(`${this.router.build('staff.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                                         });
                                     } else {
                                         reservationModel.save(() => {
                                             // 券種選択へ
-                                            this.res.redirect(this.router.build('staff.reserve.tickets', {token: token}));
+                                            this.res.redirect(this.router.build('staff.reserve.tickets', { token: token }));
                                         });
                                     }
                                 });
                             });
                         }
                     } else {
-                        this.res.redirect(this.router.build('staff.reserve.seats', {token: token}));
+                        this.res.redirect(this.router.build('staff.reserve.seats', { token: token }));
                     }
                 });
             } else {
@@ -299,12 +308,13 @@ export default class StaffReserveController extends ReserveBaseController implem
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                this.processFixTickets(reservationModel, (err, reservationModel) => {
-                    if (err) {
-                        this.res.redirect(this.router.build('staff.reserve.tickets', {token: token}));
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processFixTickets(reservationModel, (fixTicketsErr, reservationModel) => {
+                    if (fixTicketsErr) {
+                        this.res.redirect(this.router.build('staff.reserve.tickets', { token: token }));
                     } else {
                         reservationModel.save(() => {
-                            this.res.redirect(this.router.build('staff.reserve.profile', {token: token}));
+                            this.res.redirect(this.router.build('staff.reserve.profile', { token: token }));
                         });
                     }
                 });
@@ -324,7 +334,7 @@ export default class StaffReserveController extends ReserveBaseController implem
         ReservationModel.find(token, (err, reservationModel) => {
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
-            this.res.redirect(this.router.build('staff.reserve.confirm', {token: token}));
+            this.res.redirect(this.router.build('staff.reserve.confirm', { token: token }));
         });
     }
 
@@ -337,21 +347,22 @@ export default class StaffReserveController extends ReserveBaseController implem
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                this.processConfirm(reservationModel, (err, reservationModel) => {
-                    if (err) {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processConfirm(reservationModel, (processConfirmErr, reservationModel) => {
+                    if (processConfirmErr) {
                         reservationModel.remove(() => {
-                            this.next(err);
+                            this.next(processConfirmErr);
                         });
                     } else {
                         // 予約確定
-                        this.processFixReservations(reservationModel.paymentNo, {}, (err) => {
-                            if (err) {
-                                const message = err.message;
-                                this.res.redirect(`${this.router.build('staff.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
+                        this.processFixReservations(reservationModel.paymentNo, {}, (fixReservationsErr) => {
+                            if (fixReservationsErr) {
+                                const message = fixReservationsErr.message;
+                                this.res.redirect(`${this.router.build('staff.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
                             } else {
                                 reservationModel.remove(() => {
                                     this.logger.info('redirecting to complete...');
-                                    this.res.redirect(this.router.build('staff.reserve.complete', {paymentNo: reservationModel.paymentNo}));
+                                    this.res.redirect(this.router.build('staff.reserve.complete', { paymentNo: reservationModel.paymentNo }));
                                 });
                             }
                         });
@@ -373,6 +384,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                 status: ReservationUtil.STATUS_RESERVED,
                 staff: this.req.staffUser.get('_id'),
                 purchased_at: { // 購入確定から30分有効
+                    // tslint:disable-next-line:no-magic-numbers
                     $gt: moment().add(-30, 'minutes').toISOString()
                 }
             },

@@ -1,6 +1,6 @@
-import {Models} from '@motionpicture/ttts-domain';
-import {ReservationUtil} from '@motionpicture/ttts-domain';
-import {ScreenUtil} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
+import { ScreenUtil } from '@motionpicture/ttts-domain';
 import * as qr from 'qr-image';
 import ReservationModel from '../../models/Reserve/ReservationModel';
 import ReserveBaseController from '../ReserveBaseController';
@@ -17,7 +17,7 @@ export default class ReserveController extends ReserveBaseController {
                 performance: performanceId
             },
             (err, seatCodes) => {
-                if (err) return  this.res.json([]);
+                if (err) return this.res.json([]);
 
                 this.res.json(seatCodes);
             }
@@ -30,7 +30,7 @@ export default class ReserveController extends ReserveBaseController {
     public getSeatProperties() {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.res.json({propertiesBySeatCode: {}});
+            if (err) return this.res.json({ propertiesBySeatCode: {} });
 
             const propertiesBySeatCode: {
                 [seatCode: string]: {
@@ -45,8 +45,8 @@ export default class ReserveController extends ReserveBaseController {
                 {
                     performance: reservationModel.performance._id
                 },
-                (err, reservations) => {
-                    if (err) return  this.res.json({propertiesBySeatCode: {}});
+                (findReservationErr, reservations) => {
+                    if (findReservationErr) return this.res.json({ propertiesBySeatCode: {} });
 
                     // 予約データが存在すれば、現在仮押さえ中の座席を除いて予約不可(disabled)
                     for (const reservation of reservations) {
@@ -99,9 +99,9 @@ export default class ReserveController extends ReserveBaseController {
      * create qrcode by reservation token and reservation id.
      */
     public qrcode() {
-        Models.Reservation.findOne({_id: this.req.params.reservationId}, 'payment_no payment_seat_index', (err, reservation) => {
+        Models.Reservation.findOne({ _id: this.req.params.reservationId }, 'payment_no payment_seat_index', (err, reservation) => {
             // this.res.setHeader('Content-Type', 'image/png');
-            qr.image(reservation.get('qr_str'), {type: 'png'}).pipe(this.res);
+            qr.image(reservation.get('qr_str'), { type: 'png' }).pipe(this.res);
         });
     }
 
@@ -112,7 +112,7 @@ export default class ReserveController extends ReserveBaseController {
         const ids: string[] = JSON.parse(this.req.query.ids);
         Models.Reservation.find(
             {
-                _id: {$in: ids},
+                _id: { $in: ids },
                 status: ReservationUtil.STATUS_RESERVED
             },
             (err, reservations) => {

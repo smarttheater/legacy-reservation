@@ -1,7 +1,7 @@
-import {Models} from '@motionpicture/ttts-domain';
-import {ScreenUtil} from '@motionpicture/ttts-domain';
-import {FilmUtil} from '@motionpicture/ttts-domain';
-import {ReservationUtil} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
+import { ScreenUtil } from '@motionpicture/ttts-domain';
+import { FilmUtil } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as lockFile from 'lockfile';
 import * as moment from 'moment';
@@ -11,6 +11,7 @@ import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
 
+const DEFAULT_RADIX = 10;
 
 export default class SponsorReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_SPONSOR;
@@ -27,13 +28,13 @@ export default class SponsorReserveController extends ReserveBaseController impl
 
             if (reservationModel.performance) {
                 reservationModel.save(() => {
-                    const cb = this.router.build('sponsor.reserve.seats', {token: reservationModel.token});
-                    this.res.redirect(`${this.router.build('sponsor.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
+                    const cb = this.router.build('sponsor.reserve.seats', { token: reservationModel.token });
+                    this.res.redirect(`${this.router.build('sponsor.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
                 });
             } else {
                 reservationModel.save(() => {
-                    const cb = this.router.build('sponsor.reserve.performances', {token: reservationModel.token});
-                    this.res.redirect(`${this.router.build('sponsor.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
+                    const cb = this.router.build('sponsor.reserve.performances', { token: reservationModel.token });
+                    this.res.redirect(`${this.router.build('sponsor.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
                 });
             }
         });
@@ -56,30 +57,34 @@ export default class SponsorReserveController extends ReserveBaseController impl
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             // 仮予約あればキャンセルする
-            this.processCancelSeats(reservationModel, (err, reservationModel) => {
+            // tslint:disable-next-line:no-shadowed-variable
+            this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
                 reservationModel.save(() => {
 
                     // 外部関係者による予約数を取得
                     Models.Reservation.count(
                         {
                             sponsor: this.req.sponsorUser.get('_id'),
-                            status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED]}
+                            status: { $in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED] }
                         },
-                        (err, reservationsCount) => {
-                            if (parseInt(this.req.sponsorUser.get('max_reservation_count')) <= reservationsCount) {
+                        (countReservationErr, reservationsCount) => {
+                            if (parseInt(this.req.sponsorUser.get('max_reservation_count'), DEFAULT_RADIX) <= reservationsCount) {
                                 return this.next(new Error(this.req.__('Message.NoMoreReservation')));
                             }
 
                             if (this.req.method === 'POST') {
-                                reservePerformanceForm(this.req, this.res, (err) => {
+                                reservePerformanceForm(this.req, this.res, () => {
                                     if (this.req.form.isValid) {
                                         // パフォーマンスFIX
-                                        this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
-                                            if (err) {
+                                        // tslint:disable-next-line:no-shadowed-variable
+                                        const performanceId = (<any>this.req.form).performanceId;
+                                        // tslint:disable-next-line:no-shadowed-variable
+                                        this.processFixPerformance(reservationModel, performanceId, (fixPerformanceErr, reservationModel) => {
+                                            if (fixPerformanceErr) {
                                                 this.next(new Error(this.req.__('Message.UnexpectedError')));
                                             } else {
                                                 reservationModel.save(() => {
-                                                    this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
+                                                    this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
                                                 });
                                             }
                                         });
@@ -111,59 +116,61 @@ export default class SponsorReserveController extends ReserveBaseController impl
             // 外部関係者による予約数を取得
             // TODO ローカルファイルロック以外の方法を考える
             const lockPath = `${__dirname}/../../../../../lock/SponsorFixSeats${this.req.sponsorUser.get('_id')}.lock`;
-            lockFile.lock(lockPath, {wait: 5000}, (err) => {
+            lockFile.lock(lockPath, { wait: 5000 }, (lockErr) => {
 
                 Models.Reservation.count(
                     {
                         sponsor: this.req.sponsorUser.get('_id'),
-                        status: {$in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED]},
+                        status: { $in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED] },
                         seat_code: {
                             $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
                         }
                     },
-                    (err, reservationsCount) => {
+                    (countReservationErr, reservationsCount) => {
                         // 一度に確保できる座席数は、残り可能枚数と、10の小さい方
-                        const reservableCount = parseInt(this.req.sponsorUser.get('max_reservation_count')) - reservationsCount;
+                        const reservableCount = parseInt(this.req.sponsorUser.get('max_reservation_count'), DEFAULT_RADIX) - reservationsCount;
                         const limit = Math.min(reservationModel.getSeatsLimit(), reservableCount);
 
                         // すでに枚数制限に達している場合
                         if (limit <= 0) {
-                            lockFile.unlock(lockPath, (err) => {
-                                this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()})));
+                            lockFile.unlock(lockPath, (unlockErr) => {
+                                this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() })));
                             });
 
                         } else {
 
                             if (this.req.method === 'POST') {
-                                reserveSeatForm(this.req, this.res, (err) => {
+                                reserveSeatForm(this.req, this.res, () => {
                                     if (this.req.form.isValid) {
-                                        const seatCodes: string[] = JSON.parse(this.req.form['seatCodes']);
+                                        const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
 
                                         // 追加指定席を合わせて制限枚数を超過した場合
                                         if (seatCodes.length > limit) {
 
-                                            lockFile.unlock(lockPath, (err) => {
-                                                const message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
-                                                this.res.redirect(`${this.router.build('sponsor.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+                                            lockFile.unlock(lockPath, (unnlockErr) => {
+                                                const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
+                                                this.res.redirect(`${this.router.build('sponsor.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
 
                                             });
 
                                         } else {
                                             // 仮予約あればキャンセルする
-                                            this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                                            // tslint:disable-next-line:no-shadowed-variable
+                                            this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
                                                 // 座席FIX
-                                                this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
+                                                // tslint:disable-next-line:no-shadowed-variable
+                                                this.processFixSeats(reservationModel, seatCodes, (fixSeatsErr, reservationModel) => {
                                                     lockFile.unlock(lockPath, () => {
 
-                                                        if (err) {
+                                                        if (fixSeatsErr) {
                                                             reservationModel.save(() => {
                                                                 const message = this.req.__('Message.SelectedSeatsUnavailable');
-                                                                this.res.redirect(`${this.router.build('sponsor.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+                                                                this.res.redirect(`${this.router.build('sponsor.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                                                             });
                                                         } else {
                                                             reservationModel.save(() => {
                                                                 // 券種選択へ
-                                                                this.res.redirect(this.router.build('sponsor.reserve.tickets', {token: token}));
+                                                                this.res.redirect(this.router.build('sponsor.reserve.tickets', { token: token }));
                                                             });
                                                         }
 
@@ -175,8 +182,8 @@ export default class SponsorReserveController extends ReserveBaseController impl
                                         }
 
                                     } else {
-                                        lockFile.unlock(lockPath, (err) => {
-                                            this.res.redirect(this.router.build('sponsor.reserve.seats', {token: token}));
+                                        lockFile.unlock(lockPath, (unlockErr) => {
+                                            this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
 
                                         });
 
@@ -184,8 +191,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
 
                                 });
                             } else {
-
-                                lockFile.unlock(lockPath, (err) => {
+                                lockFile.unlock(lockPath, (unlockErr) => {
                                     this.res.render('sponsor/reserve/seats', {
                                         reservationModel: reservationModel,
                                         limit: limit,
@@ -210,12 +216,13 @@ export default class SponsorReserveController extends ReserveBaseController impl
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                this.processFixTickets(reservationModel, (err, reservationModel) => {
-                    if (err) {
-                        this.res.redirect(this.router.build('sponsor.reserve.tickets', {token: token}));
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processFixTickets(reservationModel, (fixTicketsErr, reservationModel) => {
+                    if (fixTicketsErr) {
+                        this.res.redirect(this.router.build('sponsor.reserve.tickets', { token: token }));
                     } else {
                         reservationModel.save(() => {
-                            this.res.redirect(this.router.build('sponsor.reserve.profile', {token: token}));
+                            this.res.redirect(this.router.build('sponsor.reserve.profile', { token: token }));
                         });
                     }
                 });
@@ -236,14 +243,15 @@ export default class SponsorReserveController extends ReserveBaseController impl
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                this.processFixProfile(reservationModel, (err, reservationModel) => {
-                    if (err) {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processFixProfile(reservationModel, (fixProfileErr, reservationModel) => {
+                    if (fixProfileErr) {
                         this.res.render('sponsor/reserve/profile', {
                             reservationModel: reservationModel
                         });
                     } else {
                         reservationModel.save(() => {
-                            this.res.redirect(this.router.build('sponsor.reserve.confirm', {token: token}));
+                            this.res.redirect(this.router.build('sponsor.reserve.confirm', { token: token }));
                         });
                     }
                 });
@@ -277,21 +285,22 @@ export default class SponsorReserveController extends ReserveBaseController impl
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                this.processConfirm(reservationModel, (err, reservationModel) => {
-                    if (err) {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processConfirm(reservationModel, (processConfirmErr, reservationModel) => {
+                    if (processConfirmErr) {
                         reservationModel.remove(() => {
-                            this.next(err);
+                            this.next(processConfirmErr);
                         });
                     } else {
                         // 予約確定
-                        this.processFixReservations(reservationModel.paymentNo, {}, (err) => {
-                            if (err) {
-                                const message = err.message;
-                                this.res.redirect(`${this.router.build('sponsor.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
+                        this.processFixReservations(reservationModel.paymentNo, {}, (fixReservationsErr) => {
+                            if (fixReservationsErr) {
+                                const message = fixReservationsErr.message;
+                                this.res.redirect(`${this.router.build('sponsor.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
                             } else {
                                 reservationModel.remove(() => {
                                     this.logger.info('redirecting to complete...');
-                                    this.res.redirect(this.router.build('sponsor.reserve.complete', {paymentNo: reservationModel.paymentNo}));
+                                    this.res.redirect(this.router.build('sponsor.reserve.complete', { paymentNo: reservationModel.paymentNo }));
                                 });
                             }
                         });
@@ -313,6 +322,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                 status: ReservationUtil.STATUS_RESERVED,
                 sponsor: this.req.sponsorUser.get('_id'),
                 purchased_at: { // 購入確定から30分有効
+                    // tslint:disable-next-line:no-magic-numbers
                     $gt: moment().add(-30, 'minutes').toISOString()
                 }
             },

@@ -49,12 +49,14 @@ class WindowReserveController extends ReserveBaseController_1.default {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
-                reservePerformanceForm_1.default(this.req, this.res, (err) => {
+                reservePerformanceForm_1.default(this.req, this.res, () => {
                     if (this.req.form.isValid) {
                         // パフォーマンスFIX
-                        this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
-                            if (err) {
-                                this.next(err);
+                        const performanceId = this.req.form.performanceId;
+                        // tslint:disable-next-line:no-shadowed-variable
+                        this.processFixPerformance(reservationModel, performanceId, (fixPerformanceErr, reservationModel) => {
+                            if (fixPerformanceErr) {
+                                this.next(fixPerformanceErr);
                             }
                             else {
                                 reservationModel.save(() => {
@@ -70,7 +72,8 @@ class WindowReserveController extends ReserveBaseController_1.default {
             }
             else {
                 // 仮予約あればキャンセルする
-                this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
                     reservationModel.save(() => {
                         this.res.render('window/reserve/performances', {
                             FilmUtil: ttts_domain_3.FilmUtil
@@ -90,9 +93,9 @@ class WindowReserveController extends ReserveBaseController_1.default {
                 return this.next(new Error(this.req.__('Message.Expired')));
             const limit = reservationModel.getSeatsLimit();
             if (this.req.method === 'POST') {
-                reserveSeatForm_1.default(this.req, this.res, (err) => {
+                reserveSeatForm_1.default(this.req, this.res, () => {
                     if (this.req.form.isValid) {
-                        const seatCodes = JSON.parse(this.req.form['seatCodes']);
+                        const seatCodes = JSON.parse(this.req.form.seatCodes);
                         // 追加指定席を合わせて制限枚数を超過した場合
                         if (seatCodes.length > limit) {
                             const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
@@ -100,9 +103,11 @@ class WindowReserveController extends ReserveBaseController_1.default {
                         }
                         else {
                             // 仮予約あればキャンセルする
-                            this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                            // tslint:disable-next-line:no-shadowed-variable
+                            this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
                                 // 座席FIX
-                                this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
+                                // tslint:disable-next-line:no-shadowed-variable
+                                this.processFixSeats(reservationModel, seatCodes, (fixSeatsErr, reservationModel) => {
                                     if (err) {
                                         reservationModel.save(() => {
                                             const message = this.req.__('Message.SelectedSeatsUnavailable');
@@ -142,7 +147,8 @@ class WindowReserveController extends ReserveBaseController_1.default {
                 return this.next(new Error(this.req.__('Message.Expired')));
             reservationModel.paymentMethod = null;
             if (this.req.method === 'POST') {
-                this.processFixTickets(reservationModel, (err, reservationModel) => {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processFixTickets(reservationModel, (fixTicketsErr, reservationModel) => {
                     if (err) {
                         this.res.redirect(this.router.build('window.reserve.tickets', { token: token }));
                     }
@@ -169,8 +175,9 @@ class WindowReserveController extends ReserveBaseController_1.default {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
-                this.processFixProfile(reservationModel, (err, reservationModel) => {
-                    if (err) {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processFixProfile(reservationModel, (fixProfileErr, reservationModel) => {
+                    if (fixProfileErr) {
                         this.res.render('window/reserve/profile', {
                             reservationModel: reservationModel
                         });
@@ -210,17 +217,18 @@ class WindowReserveController extends ReserveBaseController_1.default {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
-                this.processConfirm(reservationModel, (err, reservationModel) => {
-                    if (err) {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processConfirm(reservationModel, (processConfirmErr, reservationModel) => {
+                    if (processConfirmErr) {
                         reservationModel.remove(() => {
-                            this.next(err);
+                            this.next(processConfirmErr);
                         });
                     }
                     else {
                         // 予約確定
-                        this.processFixReservations(reservationModel.paymentNo, {}, (err) => {
-                            if (err) {
-                                const message = err.message;
+                        this.processFixReservations(reservationModel.paymentNo, {}, (fixReservationErr) => {
+                            if (fixReservationErr) {
+                                const message = fixReservationErr.message;
                                 this.res.redirect(`${this.router.build('window.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
                             }
                             else {
@@ -250,6 +258,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
             status: ttts_domain_4.ReservationUtil.STATUS_RESERVED,
             window: this.req.windowUser.get('_id'),
             purchased_at: {
+                // tslint:disable-next-line:no-magic-numbers
                 $gt: moment().add(-30, 'minutes').toISOString()
             }
         }, (err, reservations) => {

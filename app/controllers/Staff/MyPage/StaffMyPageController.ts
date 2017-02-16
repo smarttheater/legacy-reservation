@@ -1,15 +1,17 @@
-import {ReservationUtil} from '@motionpicture/ttts-domain';
-import {ScreenUtil} from '@motionpicture/ttts-domain';
-import {Models} from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
+import { ScreenUtil } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
 import Util from '../../../../common/Util/Util';
 import BaseController from '../../BaseController';
+
+const DEFAULT_RADIX = 10;
 
 export default class StaffMyPageController extends BaseController {
     public layout = 'layouts/staff/layout';
 
     public index(): void {
-        Models.Theater.find({}, 'name', {sort: {_id: 1}}, (err, theaters) => {
-            Models.Film.find({}, 'name', {sort: {_id: 1}}, (err, films) => {
+        Models.Theater.find({}, 'name', { sort: { _id: 1 } }, (findTheaterErr, theaters) => {
+            Models.Film.find({}, 'name', { sort: { _id: 1 } }, (findFilmErr, films) => {
                 this.res.render('staff/mypage/index', {
                     theaters: theaters,
                     films: films
@@ -21,9 +23,11 @@ export default class StaffMyPageController extends BaseController {
     /**
      * マイページ予約検索
      */
+    // tslint:disable-next-line:max-func-body-length
     public search(): void {
-        const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
-        const page: number = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
+        // tslint:disable-next-line:no-magic-numbers
+        const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+        const page: number = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
         const day: string = (this.req.query.day) ? this.req.query.day : null;
         const startTime: string = (this.req.query.start_time) ? this.req.query.start_time : null;
         const theater: string = (this.req.query.theater) ? this.req.query.theater : null;
@@ -60,15 +64,15 @@ export default class StaffMyPageController extends BaseController {
         }
 
         if (film) {
-            conditions.push({film: film});
+            conditions.push({ film: film });
         }
 
         if (theater) {
-            conditions.push({theater: theater});
+            conditions.push({ theater: theater });
         }
 
         if (day) {
-            conditions.push({performance_day: day});
+            conditions.push({ performance_day: day });
         }
 
         if (startTime) {
@@ -83,10 +87,10 @@ export default class StaffMyPageController extends BaseController {
             conditions.push({
                 $or: [
                     {
-                        staff_signature: {$regex: `${updater}`}
+                        staff_signature: { $regex: `${updater}` }
                     },
                     {
-                        watcher_name: {$regex: `${updater}`}
+                        watcher_name: { $regex: `${updater}` }
                     }
                 ]
             });
@@ -95,10 +99,8 @@ export default class StaffMyPageController extends BaseController {
         if (paymentNo) {
             // remove space characters
             paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
-            conditions.push({payment_no: {$regex: `${paymentNo}`}});
+            conditions.push({ payment_no: { $regex: `${paymentNo}` } });
         }
-
-
 
         // 総数検索
         Models.Reservation.count(
@@ -114,33 +116,33 @@ export default class StaffMyPageController extends BaseController {
                     });
                 }
 
-                Models.Reservation.find({$and: conditions})
-                .skip(limit * (page - 1))
-                .limit(limit)
-                .lean(true)
-                .exec((err, reservations: any[]) => {
-                    if (err) {
-                        this.res.json({
-                            success: false,
-                            results: [],
-                            count: 0
-                        });
-                    } else {
-                        // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
-                        reservations.sort((a, b) => {
-                            if (a.performance_day > b.performance_day) return 1;
-                            if (a.performance_start_time > b.performance_start_time) return 1;
-                            if (a.screen > b.screen) return 1;
-                            return ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
-                        });
+                Models.Reservation.find({ $and: conditions })
+                    .skip(limit * (page - 1))
+                    .limit(limit)
+                    .lean(true)
+                    .exec((findReservationErr, reservations: any[]) => {
+                        if (findReservationErr) {
+                            this.res.json({
+                                success: false,
+                                results: [],
+                                count: 0
+                            });
+                        } else {
+                            // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
+                            reservations.sort((a, b) => {
+                                if (a.performance_day > b.performance_day) return 1;
+                                if (a.performance_start_time > b.performance_start_time) return 1;
+                                if (a.screen > b.screen) return 1;
+                                return ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                            });
 
-                        this.res.json({
-                            success: true,
-                            results: reservations,
-                            count: count
-                        });
-                    }
-                });
+                            this.res.json({
+                                success: true,
+                                results: reservations,
+                                count: count
+                            });
+                        }
+                    });
             }
         );
     }
@@ -158,7 +160,7 @@ export default class StaffMyPageController extends BaseController {
         };
         // 管理者でない場合は自分の予約のみ
         if (!this.req.staffUser.get('is_admin')) {
-            condition['staff'] = this.req.staffUser.get('_id');
+            (<any>condition).staff = this.req.staffUser.get('_id');
         }
         Models.Reservation.findOneAndUpdate(
             condition,

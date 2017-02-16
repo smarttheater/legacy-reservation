@@ -22,9 +22,9 @@ class WindowAuthController extends BaseController_1.default {
                 if (this.req.form.isValid) {
                     // ユーザー認証
                     ttts_domain_1.Models.Window.findOne({
-                        user_id: this.req.form['userId']
-                    }, (err, window) => {
-                        if (err)
+                        user_id: this.req.form.userId
+                    }, (findWindowErr, window) => {
+                        if (findWindowErr)
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         if (!window) {
                             this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
@@ -32,29 +32,29 @@ class WindowAuthController extends BaseController_1.default {
                         }
                         else {
                             // パスワードチェック
-                            if (window.get('password_hash') !== Util_1.default.createHash(this.req.form['password'], window.get('password_salt'))) {
+                            if (window.get('password_hash') !== Util_1.default.createHash(this.req.form.password, window.get('password_salt'))) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('window/auth/login');
                             }
                             else {
                                 // ログイン記憶
                                 const processRemember = (cb) => {
-                                    if (this.req.form['remember']) {
+                                    if (this.req.form.remember) {
                                         // トークン生成
                                         ttts_domain_1.Models.Authentication.create({
                                             token: Util_1.default.createToken(),
                                             window: window.get('_id')
-                                        }, (err, authentication) => {
+                                        }, (createAuthenticationErr, authentication) => {
                                             this.res.cookie('remember_window', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
-                                            cb(err, authentication.get('token'));
+                                            cb(createAuthenticationErr, authentication.get('token'));
                                         });
                                     }
                                     else {
                                         cb(null, null);
                                     }
                                 };
-                                processRemember((err, token) => {
-                                    if (err)
+                                processRemember((processRememberErr, token) => {
+                                    if (processRememberErr)
                                         return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                     // ログイン
                                     this.req.session[WindowUser_1.default.AUTH_SESSION_NAME] = window.toObject();

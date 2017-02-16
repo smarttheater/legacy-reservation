@@ -16,7 +16,8 @@ class PreCustomerAuthController extends BaseController_1.default {
      */
     login() {
         // MPのIPは許可
-        if (this.req.headers['x-forwarded-for'] && this.req.headers['x-forwarded-for'].substr(0, 13) === '124.155.113.9') {
+        // tslint:disable-next-line:no-empty
+        if (this.req.headers['x-forwarded-for'] && /^124\.155\.113\.9$/.test(this.req.headers['x-forwarded-for'])) {
         }
         else {
             // 期限指定
@@ -33,11 +34,11 @@ class PreCustomerAuthController extends BaseController_1.default {
             form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
-                    this.logger.debug('finding preCustomer... user_id:', this.req.form['userId']);
+                    this.logger.debug('finding preCustomer... user_id:', this.req.form.userId);
                     ttts_domain_1.Models.PreCustomer.findOne({
-                        user_id: this.req.form['userId']
-                    }, (err, preCustomer) => {
-                        if (err)
+                        user_id: this.req.form.userId
+                    }, (findPreCustomerErr, preCustomer) => {
+                        if (findPreCustomerErr)
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         if (!preCustomer) {
                             this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
@@ -45,34 +46,34 @@ class PreCustomerAuthController extends BaseController_1.default {
                         }
                         else {
                             // パスワードチェック
-                            if (preCustomer.get('password_hash') !== Util_1.default.createHash(this.req.form['password'], preCustomer.get('password_salt'))) {
+                            if (preCustomer.get('password_hash') !== Util_1.default.createHash(this.req.form.password, preCustomer.get('password_salt'))) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('preCustomer/auth/login');
                             }
                             else {
                                 // ログイン記憶
                                 const processRemember = (cb) => {
-                                    if (this.req.form['remember']) {
+                                    if (this.req.form.remember) {
                                         // トークン生成
                                         ttts_domain_1.Models.Authentication.create({
                                             token: Util_1.default.createToken(),
                                             pre_customer: preCustomer.get('_id'),
-                                            locale: this.req.form['language']
-                                        }, (err, authentication) => {
+                                            locale: this.req.form.language
+                                        }, (createAuthenticationErr, authentication) => {
                                             this.res.cookie('remember_pre_customer', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
-                                            cb(err, authentication.get('token'));
+                                            cb(createAuthenticationErr, authentication.get('token'));
                                         });
                                     }
                                     else {
                                         cb(null, null);
                                     }
                                 };
-                                processRemember((err, token) => {
-                                    if (err)
+                                processRemember((processRememberErr, token) => {
+                                    if (processRememberErr)
                                         return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                     // ログイン
                                     this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME] = preCustomer.toObject();
-                                    this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
+                                    this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME].locale = this.req.form.language;
                                     // if exist parameter cb, redirect to cb.
                                     const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('pre.reserve.start');
                                     this.res.redirect(cb);

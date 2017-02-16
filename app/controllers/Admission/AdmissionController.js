@@ -20,7 +20,7 @@ class AdmissionController extends BaseController_1.default {
         else {
             // 劇場とスクリーンを取得
             ttts_domain_1.Models.Theater.find({}, 'name', (err, theaters) => {
-                ttts_domain_1.Models.Screen.find({}, 'name theater', (err, screens) => {
+                ttts_domain_1.Models.Screen.find({}, 'name theater', (findScreenErr, screens) => {
                     const screensByTheater = {};
                     for (const screen of screens) {
                         if (!screensByTheater.hasOwnProperty(screen.get('theater'))) {
@@ -48,8 +48,8 @@ class AdmissionController extends BaseController_1.default {
             ttts_domain_1.Models.Reservation.find({
                 performance: performance.get('_id'),
                 status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
-            }, 'seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en entered payment_no payment_seat_index').exec((err, reservations) => {
-                if (err)
+            }, 'seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en entered payment_no payment_seat_index').exec((findReservationErr, reservations) => {
+                if (findReservationErr)
                     this.next(new Error('Message.UnexpectedError'));
                 const reservationsById = {};
                 const reservationIdsByQrStr = {};

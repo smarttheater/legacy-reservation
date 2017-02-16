@@ -27,11 +27,11 @@ class MemberAuthController extends BaseController_1.default {
             memberLoginForm_1.default(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
-                    this.logger.debug('finding member... user_id:', this.req.form['userId']);
+                    this.logger.debug('finding member... user_id:', this.req.form.userId);
                     ttts_domain_1.Models.Member.findOne({
-                        user_id: this.req.form['userId']
-                    }, (err, member) => {
-                        if (err)
+                        user_id: this.req.form.userId
+                    }, (findMemberErr, member) => {
+                        if (findMemberErr)
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         if (!member) {
                             this.req.form.errors.push('ログイン番号またはパスワードに誤りがあります');
@@ -39,7 +39,7 @@ class MemberAuthController extends BaseController_1.default {
                         }
                         else {
                             // パスワードチェック
-                            if (member.get('password_hash') !== Util_1.default.createHash(this.req.form['password'], member.get('password_salt'))) {
+                            if (member.get('password_hash') !== Util_1.default.createHash(this.req.form.password, member.get('password_salt'))) {
                                 this.req.form.errors.push('ログイン番号またはパスワードに誤りがあります');
                                 this.res.render('member/auth/login');
                             }

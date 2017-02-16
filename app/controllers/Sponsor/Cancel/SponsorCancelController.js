@@ -23,12 +23,12 @@ class SponsorCancelController extends BaseController_1.default {
                 if (this.req.form.isValid) {
                     // 予約を取得
                     ttts_domain_1.Models.Reservation.find({
-                        payment_no: this.req.form['paymentNo'],
-                        purchaser_tel: { $regex: `${this.req.form['last4DigitsOfTel']}$` },
+                        payment_no: this.req.form.paymentNo,
+                        purchaser_tel: { $regex: `${this.req.form.last4DigitsOfTel}$` },
                         purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_SPONSOR,
                         status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
-                    }, (err, reservations) => {
-                        if (err) {
+                    }, (findReservationErr, reservations) => {
+                        if (findReservationErr) {
                             return this.res.json({
                                 success: false,
                                 message: this.req.__('Message.UnexpectedError')

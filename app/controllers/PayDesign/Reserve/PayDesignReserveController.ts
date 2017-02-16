@@ -1,4 +1,4 @@
-import {Models} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
 import PayDesignNotificationModel from '../../../models/Reserve/PayDesignNotificationModel';
 import ReserveBaseController from '../../ReserveBaseController';
 
@@ -42,9 +42,9 @@ export default class PayDesignReserveController extends ReserveBaseController {
                     if (reservations.length === 0) return this.res.send('1');
 
                     this.logger.info('processFixReservations processing... update:', update);
-                    this.processFixReservations(paymentNo, update, (err) => {
-                        this.logger.info('processFixReservations processed.', err);
-                        if (err) {
+                    this.processFixReservations(paymentNo, update, (fixReservationsErr) => {
+                        this.logger.info('processFixReservations processed.', fixReservationsErr);
+                        if (fixReservationsErr) {
                             // 失敗した場合、再通知されるので、それをリトライとみなす
                             this.res.send('1');
                         } else {
@@ -87,18 +87,21 @@ export default class PayDesignReserveController extends ReserveBaseController {
                     const promises = reservations.map((reservation) => {
                         return new Promise((resolve, reject) => {
                             this.logger.info('removing reservation...', reservation.get('_id'));
-                            reservation.remove((err) => {
-                                this.logger.info('reservation removed.', reservation.get('_id'), err);
-                                if (err) return reject(err);
+                            reservation.remove((removeReservationErr) => {
+                                this.logger.info('reservation removed.', reservation.get('_id'), removeReservationErr);
+                                if (removeReservationErr) return reject(removeReservationErr);
                                 resolve();
                             });
                         });
                     });
-                    Promise.all(promises).then(() => {
-                        this.res.send('0');
-                    },                         (err) => {
-                        this.res.send('1');
-                    });
+                    Promise.all(promises).then(
+                        () => {
+                            this.res.send('0');
+                        },
+                        (cancelErr) => {
+                            this.res.send('1');
+                        }
+                    );
                 }
             );
         });

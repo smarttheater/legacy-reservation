@@ -29,12 +29,12 @@ class CustomerCancelController extends BaseController_1.default {
                 }
                 // 予約を取得(クレジットカード決済のみ)
                 ttts_domain_1.Models.Reservation.find({
-                    payment_no: this.req.form['paymentNo'],
-                    purchaser_tel: { $regex: `${this.req.form['last4DigitsOfTel']}$` },
+                    payment_no: this.req.form.paymentNo,
+                    purchaser_tel: { $regex: `${this.req.form.last4DigitsOfTel}$` },
                     purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
                     status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
-                }, (err, reservations) => {
-                    if (err) {
+                }, (findReservationErr, reservations) => {
+                    if (findReservationErr) {
                         return this.res.json({
                             success: false,
                             message: 'A system error has occurred. Please try again later. Sorry for the inconvenience.'
@@ -46,11 +46,11 @@ class CustomerCancelController extends BaseController_1.default {
                             message: '購入番号または電話番号下4ケタに誤りがあります<br>There are some mistakes in a transaction number or last 4 digits of tel.'
                         });
                     }
-                    this.validate(reservations, (err) => {
-                        if (err) {
+                    this.validate(reservations, (validateErr) => {
+                        if (validateErr) {
                             return this.res.json({
                                 success: false,
-                                message: err.message
+                                message: validateErr.message
                             });
                         }
                         const results = reservations.map((reservation) => {
@@ -113,11 +113,12 @@ class CustomerCancelController extends BaseController_1.default {
                     message: '購入番号または電話番号下4ケタに誤りがあります There are some mistakes in a transaction number or last 4 digits of tel.'
                 });
             }
-            this.validate(reservations, (err) => {
-                if (err) {
+            // tslint:disable-next-line:max-func-body-length
+            this.validate(reservations, (validateErr) => {
+                if (validateErr) {
                     return this.res.json({
                         success: false,
-                        message: err.message
+                        message: validateErr.message
                     });
                 }
                 if (reservations[0].get('payment_method') === GMOUtil_1.default.PAY_TYPE_CREDIT) {
@@ -127,12 +128,12 @@ class CustomerCancelController extends BaseController_1.default {
                         purchaser_tel: { $regex: `${last4DigitsOfTel}$` },
                         purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
                         status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
-                    }, (err) => {
-                        this.logger.info('reservations removed by customer.', err, 'payment_no:', paymentNo);
-                        if (err) {
+                    }, (removeReservationErr) => {
+                        this.logger.info('reservations removed by customer.', removeReservationErr, 'payment_no:', paymentNo);
+                        if (removeReservationErr) {
                             return this.res.json({
                                 success: false,
-                                message: err.message
+                                message: removeReservationErr.message
                             });
                         }
                         // キャンセルリクエスト保管
@@ -142,10 +143,10 @@ class CustomerCancelController extends BaseController_1.default {
                             payment_method: reservations[0].get('payment_method'),
                             email: reservations[0].get('purchaser_email'),
                             tel: reservations[0].get('purchaser_tel')
-                        }, (err) => {
-                            this.logger.info('CustomerCancelRequest created.', err);
-                            if (err)
-                                return this.res.json({ success: false, message: err.message });
+                        }, (createReservationErr) => {
+                            this.logger.info('CustomerCancelRequest created.', createReservationErr);
+                            if (createReservationErr)
+                                return this.res.json({ success: false, message: createReservationErr.message });
                             // メール送信
                             const to = reservations[0].get('purchaser_email');
                             this.res.render('email/customer/cancel', {
@@ -157,13 +158,13 @@ class CustomerCancelController extends BaseController_1.default {
                                 conf: conf,
                                 GMOUtil: GMOUtil_1.default,
                                 ReservationUtil: ttts_domain_2.ReservationUtil
-                            }, (err, html) => {
-                                this.logger.info('email rendered. html:', err, html);
+                            }, (renderErr, html) => {
+                                this.logger.info('email rendered. html:', renderErr, html);
                                 // メール失敗してもキャンセル成功
-                                if (err)
+                                if (renderErr)
                                     return this.res.json({ success: true, message: null });
-                                const _sendgrid = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
-                                const email = new _sendgrid.Email({
+                                const sg = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
+                                const email = new sg.Email({
                                     to: to,
                                     bcc: ['tiff_mp@motionpicture.jp'],
                                     fromname: conf.get('email.fromname'),
@@ -173,14 +174,14 @@ class CustomerCancelController extends BaseController_1.default {
                                 });
                                 // logo
                                 email.addFile({
-                                    filename: `logo.png`,
+                                    filename: 'logo.png',
                                     contentType: 'image/png',
                                     cid: 'logo',
                                     content: fs.readFileSync(`${__dirname}/../../../../../public/images/email/logo.png`)
                                 });
                                 this.logger.info('sending an email...email:', email);
-                                _sendgrid.send(email, (err, json) => {
-                                    this.logger.info('an email sent.', err, json);
+                                sg.send(email, (sendErr, json) => {
+                                    this.logger.info('an email sent.', sendErr, json);
                                     // メールが送れなくてもキャンセルは成功
                                     this.res.json({
                                         success: true,

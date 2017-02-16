@@ -1,6 +1,6 @@
-import {Models} from '@motionpicture/ttts-domain';
-import {ReservationUtil} from '@motionpicture/ttts-domain';
-import {ReservationEmailCueUtil} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
+import { ReservationEmailCueUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as crypto from 'crypto';
 import GMOResultModel from '../../../../models/Reserve/GMOResultModel';
@@ -37,7 +37,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                 // 決済待ちステータスへ変更
                 this.logger.info('updating reservations by paymentNo...', gmoResultModel.OrderID);
                 Models.Reservation.update(
-                    {payment_no: gmoResultModel.OrderID},
+                    { payment_no: gmoResultModel.OrderID },
                     {
                         gmo_shop_id: gmoResultModel.ShopID,
                         gmo_amount: gmoResultModel.Amount,
@@ -49,47 +49,52 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                         gmo_payment_term: gmoResultModel.PaymentTerm,
                         updated_user: 'GMOReserveCsvController'
                     },
-                    {multi: true},
-                    (err, raw) => {
-                        this.logger.info('reservations updated.', err, raw);
-                        if (err) return this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
+                    { multi: true },
+                    (updateReservationErr, raw) => {
+                        this.logger.info('reservations updated.', updateReservationErr, raw);
+                        if (updateReservationErr) return this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
 
                         // 仮予約完了メールキュー追加(あれば更新日時を更新するだけ)
                         this.logger.info('creating reservationEmailCue...');
-                        Models.ReservationEmailCue.findOneAndUpdate({
-                            payment_no: gmoResultModel.OrderID,
-                            template: ReservationEmailCueUtil.TEMPLATE_TEMPORARY
-                        },                                          {
-                            $set: { updated_at: Date.now() },
-                            $setOnInsert: { status: ReservationEmailCueUtil.STATUS_UNSENT }
-                        },                                          {
-                            upsert: true,
-                            new: true
-                        },                                          (err, cue) => {
-                            this.logger.info('reservationEmailCue created.', err, cue);
-                            if (err) {
-                                // 失敗してもスルー(ログと運用でなんとかする)
+                        Models.ReservationEmailCue.findOneAndUpdate(
+                            {
+                                payment_no: gmoResultModel.OrderID,
+                                template: ReservationEmailCueUtil.TEMPLATE_TEMPORARY
+                            },
+                            {
+                                $set: { updated_at: Date.now() },
+                                $setOnInsert: { status: ReservationEmailCueUtil.STATUS_UNSENT }
+                            },
+                            {
+                                upsert: true,
+                                new: true
+                            },
+                            (updateCueErr, cue) => {
+                                this.logger.info('reservationEmailCue created.', updateCueErr, cue);
+                                if (updateCueErr) {
+                                    // 失敗してもスルー(ログと運用でなんとかする)
+                                }
+
+                                this.logger.info('redirecting to waitingSettlement...');
+
+                                // 購入者区分による振り分け
+                                const group = reservations[0].get('purchaser_group');
+                                switch (group) {
+                                    case ReservationUtil.PURCHASER_GROUP_MEMBER:
+                                        this.res.redirect(this.router.build('member.reserve.waitingSettlement', { paymentNo: gmoResultModel.OrderID }));
+                                        break;
+
+                                    default:
+                                        if (reservations[0].get('pre_customer')) {
+                                            this.res.redirect(this.router.build('pre.reserve.waitingSettlement', { paymentNo: gmoResultModel.OrderID }));
+                                        } else {
+                                            this.res.redirect(this.router.build('customer.reserve.waitingSettlement', { paymentNo: gmoResultModel.OrderID }));
+                                        }
+
+                                        break;
+                                }
                             }
-
-                            this.logger.info('redirecting to waitingSettlement...');
-
-                            // 購入者区分による振り分け
-                            const group = reservations[0].get('purchaser_group');
-                            switch (group) {
-                                case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                                    this.res.redirect(this.router.build('member.reserve.waitingSettlement', {paymentNo: gmoResultModel.OrderID}));
-                                    break;
-
-                                default:
-                                    if (reservations[0].get('pre_customer')) {
-                                        this.res.redirect(this.router.build('pre.reserve.waitingSettlement', {paymentNo: gmoResultModel.OrderID}));
-                                    } else {
-                                        this.res.redirect(this.router.build('customer.reserve.waitingSettlement', {paymentNo: gmoResultModel.OrderID}));
-                                    }
-
-                                    break;
-                            }
-                        });
+                        );
                     }
                 );
             }

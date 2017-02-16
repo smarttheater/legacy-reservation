@@ -1,4 +1,4 @@
-import {Models} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
 import Util from '../../../../common/Util/Util';
@@ -27,20 +27,20 @@ export default class MemberAuthController extends BaseController {
             memberLoginForm(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
-                    this.logger.debug('finding member... user_id:', this.req.form['userId']);
+                    this.logger.debug('finding member... user_id:', (<any>this.req.form).userId);
                     Models.Member.findOne(
                         {
-                            user_id: this.req.form['userId']
+                            user_id: (<any>this.req.form).userId
                         },
-                        (err, member) => {
-                            if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                        (findMemberErr, member) => {
+                            if (findMemberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                             if (!member) {
                                 this.req.form.errors.push('ログイン番号またはパスワードに誤りがあります');
                                 this.res.render('member/auth/login');
                             } else {
                                 // パスワードチェック
-                                if (member.get('password_hash') !== Util.createHash(this.req.form['password'], member.get('password_salt'))) {
+                                if (member.get('password_hash') !== Util.createHash((<any>this.req.form).password, member.get('password_salt'))) {
                                     this.req.form.errors.push('ログイン番号またはパスワードに誤りがあります');
                                     this.res.render('member/auth/login');
                                 } else {

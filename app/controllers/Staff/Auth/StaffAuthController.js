@@ -21,11 +21,11 @@ class StaffAuthController extends BaseController_1.default {
             form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
-                    this.logger.debug('finding staff... user_id:', this.req.form['userId']);
+                    this.logger.debug('finding staff... user_id:', this.req.form.userId);
                     ttts_domain_1.Models.Staff.findOne({
-                        user_id: this.req.form['userId']
-                    }, (err, staff) => {
-                        if (err)
+                        user_id: this.req.form.userId
+                    }, (findStaffErr, staff) => {
+                        if (findStaffErr)
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         if (!staff) {
                             this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
@@ -33,35 +33,35 @@ class StaffAuthController extends BaseController_1.default {
                         }
                         else {
                             // パスワードチェック
-                            if (staff.get('password_hash') !== Util_1.default.createHash(this.req.form['password'], staff.get('password_salt'))) {
+                            if (staff.get('password_hash') !== Util_1.default.createHash(this.req.form.password, staff.get('password_salt'))) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('staff/auth/login');
                             }
                             else {
                                 // ログイン記憶
                                 const processRemember = (cb) => {
-                                    if (this.req.form['remember']) {
+                                    if (this.req.form.remember) {
                                         // トークン生成
                                         ttts_domain_1.Models.Authentication.create({
                                             token: Util_1.default.createToken(),
                                             staff: staff.get('_id'),
-                                            signature: this.req.form['signature'],
-                                            locale: this.req.form['language']
-                                        }, (err, authentication) => {
+                                            signature: this.req.form.signature,
+                                            locale: this.req.form.language
+                                        }, (createAuthenticationErr, authentication) => {
                                             this.res.cookie('remember_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
-                                            cb(err, authentication.get('token'));
+                                            cb(createAuthenticationErr, authentication.get('token'));
                                         });
                                     }
                                     else {
                                         cb(null, null);
                                     }
                                 };
-                                processRemember((err, token) => {
-                                    if (err)
+                                processRemember((processRememberErr, token) => {
+                                    if (processRememberErr)
                                         return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                     this.req.session[StaffUser_1.default.AUTH_SESSION_NAME] = staff.toObject();
-                                    this.req.session[StaffUser_1.default.AUTH_SESSION_NAME]['signature'] = this.req.form['signature'];
-                                    this.req.session[StaffUser_1.default.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
+                                    this.req.session[StaffUser_1.default.AUTH_SESSION_NAME].signature = this.req.form.signature;
+                                    this.req.session[StaffUser_1.default.AUTH_SESSION_NAME].locale = this.req.form.language;
                                     // if exist parameter cb, redirect to cb.
                                     const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('staff.mypage');
                                     this.res.redirect(cb);

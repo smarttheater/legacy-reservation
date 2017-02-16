@@ -4,14 +4,15 @@ const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const ttts_domain_3 = require("@motionpicture/ttts-domain");
 const Util_1 = require("../../../../common/Util/Util");
 const BaseController_1 = require("../../BaseController");
+const DEFAULT_RADIX = 10;
 class StaffMyPageController extends BaseController_1.default {
     constructor() {
         super(...arguments);
         this.layout = 'layouts/staff/layout';
     }
     index() {
-        ttts_domain_3.Models.Theater.find({}, 'name', { sort: { _id: 1 } }, (err, theaters) => {
-            ttts_domain_3.Models.Film.find({}, 'name', { sort: { _id: 1 } }, (err, films) => {
+        ttts_domain_3.Models.Theater.find({}, 'name', { sort: { _id: 1 } }, (findTheaterErr, theaters) => {
+            ttts_domain_3.Models.Film.find({}, 'name', { sort: { _id: 1 } }, (findFilmErr, films) => {
                 this.res.render('staff/mypage/index', {
                     theaters: theaters,
                     films: films
@@ -22,9 +23,11 @@ class StaffMyPageController extends BaseController_1.default {
     /**
      * マイページ予約検索
      */
+    // tslint:disable-next-line:max-func-body-length
     search() {
-        const limit = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
-        const page = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
+        // tslint:disable-next-line:no-magic-numbers
+        const limit = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+        const page = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
         const day = (this.req.query.day) ? this.req.query.day : null;
         const startTime = (this.req.query.start_time) ? this.req.query.start_time : null;
         const theater = (this.req.query.theater) ? this.req.query.theater : null;
@@ -102,8 +105,8 @@ class StaffMyPageController extends BaseController_1.default {
                 .skip(limit * (page - 1))
                 .limit(limit)
                 .lean(true)
-                .exec((err, reservations) => {
-                if (err) {
+                .exec((findReservationErr, reservations) => {
+                if (findReservationErr) {
                     this.res.json({
                         success: false,
                         results: [],
@@ -142,7 +145,7 @@ class StaffMyPageController extends BaseController_1.default {
         };
         // 管理者でない場合は自分の予約のみ
         if (!this.req.staffUser.get('is_admin')) {
-            condition['staff'] = this.req.staffUser.get('_id');
+            condition.staff = this.req.staffUser.get('_id');
         }
         ttts_domain_3.Models.Reservation.findOneAndUpdate(condition, {
             watcher_name: watcherName,

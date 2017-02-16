@@ -1,4 +1,4 @@
-import {Models} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
 import Util from '../../../../common/Util/Util';
 import staffLoginForm from '../../../forms/staff/staffLoginForm';
 import StaffUser from '../../../models/User/StaffUser';
@@ -21,38 +21,38 @@ export default class StaffAuthController extends BaseController {
                 if (this.req.form.isValid) {
 
                     // ユーザー認証
-                    this.logger.debug('finding staff... user_id:', this.req.form['userId']);
+                    this.logger.debug('finding staff... user_id:', (<any>this.req.form).userId);
                     Models.Staff.findOne(
                         {
-                            user_id: this.req.form['userId']
+                            user_id: (<any>this.req.form).userId
                         },
-                        (err, staff) => {
-                            if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                        (findStaffErr, staff) => {
+                            if (findStaffErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                             if (!staff) {
-                                this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
+                                this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('staff/auth/login');
                             } else {
                                 // パスワードチェック
-                                if (staff.get('password_hash') !== Util.createHash(this.req.form['password'], staff.get('password_salt'))) {
-                                    this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', {fieldName: this.req.__('Form.FieldName.password')}));
+                                if (staff.get('password_hash') !== Util.createHash((<any>this.req.form).password, staff.get('password_salt'))) {
+                                    this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                     this.res.render('staff/auth/login');
 
                                 } else {
                                     // ログイン記憶
                                     const processRemember = (cb: (err: Error, token: string) => void) => {
-                                        if (this.req.form['remember']) {
+                                        if ((<any>this.req.form).remember) {
                                             // トークン生成
                                             Models.Authentication.create(
                                                 {
                                                     token: Util.createToken(),
                                                     staff: staff.get('_id'),
-                                                    signature: this.req.form['signature'],
-                                                    locale: this.req.form['language']
+                                                    signature: (<any>this.req.form).signature,
+                                                    locale: (<any>this.req.form).language
                                                 },
-                                                (err, authentication) => {
+                                                (createAuthenticationErr, authentication) => {
                                                     this.res.cookie('remember_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
-                                                    cb(err, authentication.get('token'));
+                                                    cb(createAuthenticationErr, authentication.get('token'));
                                                 }
                                             );
                                         } else {
@@ -60,12 +60,12 @@ export default class StaffAuthController extends BaseController {
                                         }
                                     };
 
-                                    processRemember((err, token) => {
-                                        if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                                    processRemember((processRememberErr, token) => {
+                                        if (processRememberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                                         this.req.session[StaffUser.AUTH_SESSION_NAME] = staff.toObject();
-                                        this.req.session[StaffUser.AUTH_SESSION_NAME]['signature'] = this.req.form['signature'];
-                                        this.req.session[StaffUser.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
+                                        this.req.session[StaffUser.AUTH_SESSION_NAME].signature = (<any>this.req.form).signature;
+                                        this.req.session[StaffUser.AUTH_SESSION_NAME].locale = (<any>this.req.form).language;
 
                                         // if exist parameter cb, redirect to cb.
                                         const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('staff.mypage');
@@ -94,7 +94,7 @@ export default class StaffAuthController extends BaseController {
 
     public logout(): void {
         delete this.req.session[StaffUser.AUTH_SESSION_NAME];
-        Models.Authentication.remove({token: this.req.cookies.remember_staff}, (err) => {
+        Models.Authentication.remove({ token: this.req.cookies.remember_staff }, (err) => {
             this.res.clearCookie('remember_staff');
             this.res.redirect(this.router.build('staff.mypage'));
         });

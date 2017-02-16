@@ -1,5 +1,5 @@
-import {Models} from '@motionpicture/ttts-domain';
-import {ReservationUtil} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
 import * as querystring from 'querystring';
@@ -14,20 +14,25 @@ import GMOReserveCvsController from './Cvs/GMOReserveCvsController';
 /**
  * マルチバイト文字列対応String.substr
  *
- * @params {string} text
+ * @params {number} start
  * @params {number} length
  */
-String.prototype['mbSubstr'] = function(from: number, length: number) {
+// tslint:disable-next-line:space-before-function-paren
+(<any>String.prototype).mbSubstr = function (this: any, start: number, length: number) {
+    // tslint:disable-next-line:no-invalid-this
     const letters = this.split('');
     const textLength = letters.length;
     let count = 0;
     let result = '';
 
+    // todo 文字列のループはこの書き方は本来よろしくないので、暇があったら直す
+    // tslint:disable-next-line:no-increment-decrement
     for (let i = 0; i < textLength; i++) {
-        if (i + from > textLength - 1) break;
+        if (i + start > textLength - 1) break;
 
         // マルチバイト文字列かどうか
-        const letter = letters[i + from];
+        const letter = letters[i + start];
+        // tslint:disable-next-line:no-magic-numbers
         count += (querystring.escape(letter).length < 4) ? 1 : 2;
 
         if (count > length) break;
@@ -57,27 +62,32 @@ export default class GMOReserveController extends ReserveBaseController {
                     const filmNameFullWidth = Util.toFullWidth(reservationModel.performance.film.name.ja);
                     const filmNameFullWidthLength = filmNameFullWidth.length;
                     let registerDisp1 = '';
+                    // todo 文字列のループはこの書き方は本来よろしくないので、暇があったら直す
+                    // tslint:disable-next-line:no-increment-decrement
                     for (let i = 0; i < filmNameFullWidthLength; i++) {
                         const letter = filmNameFullWidth[i];
                         if (
                             letter.match(/[Ａ-Ｚａ-ｚ０-９]/) // 全角英数字
-                         || letter.match(/[\u3040-\u309F]/) // ひらがな
-                         || letter.match(/[\u30A0-\u30FF]/) // カタカナ
-                         || letter.match(/[一-龠]/) // 漢字
+                            || letter.match(/[\u3040-\u309F]/) // ひらがな
+                            || letter.match(/[\u30A0-\u30FF]/) // カタカナ
+                            || letter.match(/[一-龠]/) // 漢字
                         ) {
                             registerDisp1 += letter;
                         }
                     }
 
-                    this.res.locals.registerDisp1 = registerDisp1['mbSubstr'](0, 32);
+                    // tslint:disable-next-line:no-magic-numbers
+                    this.res.locals.registerDisp1 = (<any>registerDisp1).mbSubstr(0, 32);
+                    // tslint:disable-next-line:no-magic-numbers
                     this.res.locals.registerDisp2 = Util.toFullWidth(`${reservationModel.performance.day.substr(0, 4)}／${reservationModel.performance.day.substr(4, 2)}／${reservationModel.performance.day.substr(6)}`);
                     this.res.locals.registerDisp3 = Util.toFullWidth(reservationModel.performance.theater.name.ja);
+                    // tslint:disable-next-line:no-magic-numbers
                     this.res.locals.registerDisp4 = Util.toFullWidth(`開場${reservationModel.performance.open_time.substr(0, 2)}:${reservationModel.performance.open_time.substr(2)}　開演${reservationModel.performance.start_time.substr(0, 2)}:${reservationModel.performance.start_time.substr(2)}`);
 
                     this.res.locals.shopId = conf.get<string>('gmo_payment_shop_id');
                     this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(購入番号を使用)
                     this.res.locals.amount = reservationModel.getTotalCharge().toString();
-                    this.res.locals.dateTime =  moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
+                    this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
                     this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
                     this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
                     this.res.locals.shopPassString = GMOUtil.createShopPassString(
@@ -88,19 +98,20 @@ export default class GMOReserveController extends ReserveBaseController {
                         this.res.locals.dateTime
                     );
 
-                    const protocol = (this.req.headers['host'].substr(0, 9) === 'localhost') ? 'http' : 'https';
+                    const host = (<any>this.req.headers).host;
+                    const protocol = (/^localhost/.test(host)) ? 'http' : 'https';
                     if (process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'test') {
                         this.res.locals.retURL = `${protocol}://${conf.get<string>('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
                         // 決済キャンセル時に遷移する加盟店URL
-                        this.res.locals.cancelURL = `${protocol}://${conf.get<string>('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.cancel', {paymentNo: reservationModel.paymentNo})}?locale=${this.req.getLocale()}`;
+                        this.res.locals.cancelURL = `${protocol}://${conf.get<string>('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;
                     } else {
-                        this.res.locals.retURL = `${protocol}://${this.req.headers['host']}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
-                        this.res.locals.cancelURL = `${protocol}://${this.req.headers['host']}${this.router.build('gmo.reserve.cancel', {paymentNo: reservationModel.paymentNo})}?locale=${this.req.getLocale()}`;
+                        this.res.locals.retURL = `${protocol}://${host}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
+                        this.res.locals.cancelURL = `${protocol}://${host}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;
                     }
 
                     this.logger.info('redirecting to GMO payment...');
                     // GMOへの送信データをログに残すために、一度htmlを取得してからrender
-                    this.res.render('gmo/reserve/start', (err, html) => {
+                    this.res.render('gmo/reserve/start', (renderErr, html) => {
                         this.logger.info('rendering gmo/reserve/start...html:', html);
                         this.res.render('gmo/reserve/start');
                     });

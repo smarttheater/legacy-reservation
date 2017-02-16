@@ -21,11 +21,11 @@ class SponsorAuthController extends BaseController_1.default {
             form(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
                     // ユーザー認証
-                    this.logger.debug('finding sponsor... user_id:', this.req.form['userId']);
+                    this.logger.debug('finding sponsor... user_id:', this.req.form.userId);
                     ttts_domain_1.Models.Sponsor.findOne({
-                        user_id: this.req.form['userId']
-                    }, (err, sponsor) => {
-                        if (err)
+                        user_id: this.req.form.userId
+                    }, (findSponsorErr, sponsor) => {
+                        if (findSponsorErr)
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         if (!sponsor) {
                             this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
@@ -33,20 +33,20 @@ class SponsorAuthController extends BaseController_1.default {
                         }
                         else {
                             // パスワードチェック
-                            if (sponsor.get('password_hash') !== Util_1.default.createHash(this.req.form['password'], sponsor.get('password_salt'))) {
+                            if (sponsor.get('password_hash') !== Util_1.default.createHash(this.req.form.password, sponsor.get('password_salt'))) {
                                 this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('sponsor/auth/login');
                             }
                             else {
                                 // ログイン記憶
                                 const processRemember = (cb) => {
-                                    if (this.req.form['remember']) {
+                                    if (this.req.form.remember) {
                                         // トークン生成
                                         ttts_domain_1.Models.Authentication.create({
                                             token: Util_1.default.createToken(),
                                             sponsor: sponsor.get('_id'),
-                                            locale: this.req.form['language']
-                                        }, (err, authentication) => {
+                                            locale: this.req.form.language
+                                        }, (createAuthenticationErr, authentication) => {
                                             this.res.cookie('remember_sponsor', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
                                             cb(err, authentication.get('token'));
                                         });
@@ -55,12 +55,12 @@ class SponsorAuthController extends BaseController_1.default {
                                         cb(null, null);
                                     }
                                 };
-                                processRemember((err, token) => {
+                                processRemember((processRememberErr, token) => {
                                     if (err)
                                         return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                     // ログイン
                                     this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME] = sponsor.toObject();
-                                    this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME]['locale'] = this.req.form['language'];
+                                    this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME].locale = this.req.form.language;
                                     // if exist parameter cb, redirect to cb.
                                     const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');
                                     this.res.redirect(cb);

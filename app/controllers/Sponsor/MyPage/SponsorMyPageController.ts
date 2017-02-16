@@ -1,8 +1,10 @@
-import {ReservationUtil} from '@motionpicture/ttts-domain';
-import {ScreenUtil} from '@motionpicture/ttts-domain';
-import {Models} from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
+import { ScreenUtil } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
 import Util from '../../../../common/Util/Util';
 import BaseController from '../../BaseController';
+
+const DEFAULT_RADIX = 10;
 
 export default class SponsorMyPageController extends BaseController {
     public layout = 'layouts/sponsor/layout';
@@ -15,8 +17,9 @@ export default class SponsorMyPageController extends BaseController {
      * マイページ予約検索
      */
     public search(): void {
-        const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
-        const page: number = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
+        // tslint:disable-next-line:no-magic-numbers
+        const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+        const page: number = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
         const tel: string = (this.req.query.tel) ? this.req.query.tel : null;
         const purchaserName: string = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
         let paymentNo: string = (this.req.query.payment_no) ? this.req.query.payment_no : null;
@@ -36,7 +39,7 @@ export default class SponsorMyPageController extends BaseController {
             conditions.push({
                 $or: [
                     {
-                        purchaser_tel: {$regex: `${tel}`}
+                        purchaser_tel: { $regex: `${tel}` }
                     }
                 ]
             });
@@ -46,10 +49,10 @@ export default class SponsorMyPageController extends BaseController {
             conditions.push({
                 $or: [
                     {
-                        purchaser_last_name: {$regex: `${purchaserName}`}
+                        purchaser_last_name: { $regex: `${purchaserName}` }
                     },
                     {
-                        purchaser_first_name: {$regex: `${purchaserName}`}
+                        purchaser_first_name: { $regex: `${purchaserName}` }
                     }
                 ]
             });
@@ -58,10 +61,8 @@ export default class SponsorMyPageController extends BaseController {
         if (paymentNo) {
             // remove space characters
             paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
-            conditions.push({payment_no: {$regex: `${paymentNo}`}});
+            conditions.push({ payment_no: { $regex: `${paymentNo}` } });
         }
-
-
 
         // 総数検索
         Models.Reservation.count(
@@ -77,33 +78,33 @@ export default class SponsorMyPageController extends BaseController {
                     });
                 }
 
-                Models.Reservation.find({$and: conditions})
-                .skip(limit * (page - 1))
-                .limit(limit)
-                .lean(true)
-                .exec((err, reservations: any[]) => {
-                    if (err) {
-                        this.res.json({
-                            success: false,
-                            results: [],
-                            count: 0
-                        });
-                    } else {
-                        // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
-                        reservations.sort((a, b) => {
-                            if (a.performance_day > b.performance_day) return 1;
-                            if (a.performance_start_time > b.performance_start_time) return 1;
-                            if (a.screen > b.screen) return 1;
-                            return ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
-                        });
+                Models.Reservation.find({ $and: conditions })
+                    .skip(limit * (page - 1))
+                    .limit(limit)
+                    .lean(true)
+                    .exec((findReservationErr, reservations: any[]) => {
+                        if (findReservationErr) {
+                            this.res.json({
+                                success: false,
+                                results: [],
+                                count: 0
+                            });
+                        } else {
+                            // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
+                            reservations.sort((a, b) => {
+                                if (a.performance_day > b.performance_day) return 1;
+                                if (a.performance_start_time > b.performance_start_time) return 1;
+                                if (a.screen > b.screen) return 1;
+                                return ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                            });
 
-                        this.res.json({
-                            success: true,
-                            results: reservations,
-                            count: count
-                        });
-                    }
-                });
+                            this.res.json({
+                                success: true,
+                                results: reservations,
+                                count: count
+                            });
+                        }
+                    });
             }
         );
     }

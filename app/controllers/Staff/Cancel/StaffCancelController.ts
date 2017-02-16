@@ -1,5 +1,5 @@
-import {Models} from '@motionpicture/ttts-domain';
-import {ReservationUtil} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as log4js from 'log4js';
 import BaseController from '../../BaseController';
 
@@ -14,9 +14,9 @@ export default class StaffCancelController extends BaseController {
                 return new Promise((resolve, reject) => {
                     this.logger.info('updating to STATUS_KEPT_BY_TTTS by staff... staff:', this.req.staffUser.get('user_id'), 'signature:', this.req.staffUser.get('signature'), 'id:', id);
                     Models.Reservation.findOneAndUpdate(
-                        {_id: id},
-                        {status: ReservationUtil.STATUS_KEPT_BY_TTTS},
-                        {new: true},
+                        { _id: id },
+                        { status: ReservationUtil.STATUS_KEPT_BY_TTTS },
+                        { new: true },
                         (err, raw) => {
                             this.logger.info('updated to STATUS_KEPT_BY_TTTS by staff.', err, raw, 'staff:', this.req.staffUser.get('user_id'), 'signature:', this.req.staffUser.get('signature'), 'id:', id);
                             (err) ? reject(err) : resolve();
@@ -25,17 +25,20 @@ export default class StaffCancelController extends BaseController {
                 });
             });
 
-            Promise.all(promises).then(() => {
-                this.res.json({
-                    success: true,
-                    message: null
-                });
-            },                         (err) => {
-                this.res.json({
-                    success: false,
-                    message: err.message
-                });
-            });
+            Promise.all(promises).then(
+                () => {
+                    this.res.json({
+                        success: true,
+                        message: null
+                    });
+                },
+                (err) => {
+                    this.res.json({
+                        success: false,
+                        message: err.message
+                    });
+                }
+            );
         } else {
             this.res.json({
                 success: false,

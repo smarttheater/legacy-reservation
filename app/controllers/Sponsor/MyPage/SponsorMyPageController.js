@@ -4,6 +4,7 @@ const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const ttts_domain_3 = require("@motionpicture/ttts-domain");
 const Util_1 = require("../../../../common/Util/Util");
 const BaseController_1 = require("../../BaseController");
+const DEFAULT_RADIX = 10;
 class SponsorMyPageController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -16,8 +17,9 @@ class SponsorMyPageController extends BaseController_1.default {
      * マイページ予約検索
      */
     search() {
-        const limit = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
-        const page = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
+        // tslint:disable-next-line:no-magic-numbers
+        const limit = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+        const page = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
         const tel = (this.req.query.tel) ? this.req.query.tel : null;
         const purchaserName = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
         let paymentNo = (this.req.query.payment_no) ? this.req.query.payment_no : null;
@@ -69,8 +71,8 @@ class SponsorMyPageController extends BaseController_1.default {
                 .skip(limit * (page - 1))
                 .limit(limit)
                 .lean(true)
-                .exec((err, reservations) => {
-                if (err) {
+                .exec((findReservationErr, reservations) => {
+                if (findReservationErr) {
                     this.res.json({
                         success: false,
                         results: [],

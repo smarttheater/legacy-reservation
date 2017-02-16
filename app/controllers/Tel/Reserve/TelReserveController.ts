@@ -1,7 +1,7 @@
-import {Models} from '@motionpicture/ttts-domain';
-import {ScreenUtil} from '@motionpicture/ttts-domain';
-import {FilmUtil} from '@motionpicture/ttts-domain';
-import {ReservationUtil} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
+import { ScreenUtil } from '@motionpicture/ttts-domain';
+import { FilmUtil } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as moment from 'moment';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
@@ -19,20 +19,20 @@ export default class TelReserveController extends ReserveBaseController implemen
             if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
 
             // 購入番号発行(確認画面でペイデザイン川にコピーする際に必要になるので、事前に発行しておく)
-            ReservationUtil.publishPaymentNo((err, paymentNo) => {
-                if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+            ReservationUtil.publishPaymentNo((publishPaymentNoErr, paymentNo) => {
+                if (publishPaymentNoErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                 reservationModel.paymentNo = paymentNo;
 
                 if (reservationModel.performance) {
                     reservationModel.save(() => {
-                        const cb = this.router.build('tel.reserve.seats', {token: reservationModel.token});
-                        this.res.redirect(`${this.router.build('tel.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
+                        const cb = this.router.build('tel.reserve.seats', { token: reservationModel.token });
+                        this.res.redirect(`${this.router.build('tel.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
                     });
                 } else {
                     reservationModel.save(() => {
-                        const cb = this.router.build('tel.reserve.performances', {token: reservationModel.token});
-                        this.res.redirect(`${this.router.build('tel.reserve.terms', {token: reservationModel.token})}?cb=${encodeURIComponent(cb)}`);
+                        const cb = this.router.build('tel.reserve.performances', { token: reservationModel.token });
+                        this.res.redirect(`${this.router.build('tel.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
                     });
                 }
             });
@@ -56,15 +56,17 @@ export default class TelReserveController extends ReserveBaseController implemen
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                reservePerformanceForm(this.req, this.res, (err) => {
+                reservePerformanceForm(this.req, this.res, () => {
                     if (this.req.form.isValid) {
                         // パフォーマンスFIX
-                        this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
-                            if (err) {
-                                this.next(err);
+                        const performanceId = (<any>this.req.form).performanceId;
+                        // tslint:disable-next-line:no-shadowed-variable
+                        this.processFixPerformance(reservationModel, performanceId, (fixPerformanceErr, reservationModel) => {
+                            if (fixPerformanceErr) {
+                                this.next(fixPerformanceErr);
                             } else {
                                 reservationModel.save(() => {
-                                    this.res.redirect(this.router.build('tel.reserve.seats', {token: token}));
+                                    this.res.redirect(this.router.build('tel.reserve.seats', { token: token }));
                                 });
                             }
                         });
@@ -74,7 +76,8 @@ export default class TelReserveController extends ReserveBaseController implemen
                 });
             } else {
                 // 仮予約あればキャンセルする
-                this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
                     reservationModel.save(() => {
                         this.res.render('tel/reserve/performances', {
                             FilmUtil: FilmUtil
@@ -96,36 +99,38 @@ export default class TelReserveController extends ReserveBaseController implemen
             const limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
-                reserveSeatForm(this.req, this.res, (err) => {
+                reserveSeatForm(this.req, this.res, () => {
                     if (this.req.form.isValid) {
 
-                        const seatCodes: string[] = JSON.parse(this.req.form['seatCodes']);
+                        const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
 
                         // 追加指定席を合わせて制限枚数を超過した場合
                         if (seatCodes.length > limit) {
-                            const message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
-                            this.res.redirect(`${this.router.build('tel.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+                            const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
+                            this.res.redirect(`${this.router.build('tel.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                         } else {
                             // 仮予約あればキャンセルする
-                            this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                            // tslint:disable-next-line:no-shadowed-variable
+                            this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
                                 // 座席FIX
-                                this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
-                                    if (err) {
+                                // tslint:disable-next-line:no-shadowed-variable
+                                this.processFixSeats(reservationModel, seatCodes, (fixSeatsErr, reservationModel) => {
+                                    if (fixSeatsErr) {
                                         reservationModel.save(() => {
                                             const message = this.req.__('Message.SelectedSeatsUnavailable');
-                                            this.res.redirect(`${this.router.build('tel.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+                                            this.res.redirect(`${this.router.build('tel.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                                         });
                                     } else {
                                         reservationModel.save(() => {
                                             // 券種選択へ
-                                            this.res.redirect(this.router.build('tel.reserve.tickets', {token: token}));
+                                            this.res.redirect(this.router.build('tel.reserve.tickets', { token: token }));
                                         });
                                     }
                                 });
                             });
                         }
                     } else {
-                        this.res.redirect(this.router.build('tel.reserve.seats', {token: token}));
+                        this.res.redirect(this.router.build('tel.reserve.seats', { token: token }));
                     }
                 });
             } else {
@@ -148,12 +153,13 @@ export default class TelReserveController extends ReserveBaseController implemen
             reservationModel.paymentMethod = null;
 
             if (this.req.method === 'POST') {
-                this.processFixTickets(reservationModel, (err, reservationModel) => {
-                    if (err) {
-                        this.res.redirect(this.router.build('tel.reserve.tickets', {token: token}));
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processFixTickets(reservationModel, (fixTicketsErr, reservationModel) => {
+                    if (fixTicketsErr) {
+                        this.res.redirect(this.router.build('tel.reserve.tickets', { token: token }));
                     } else {
                         reservationModel.save(() => {
-                            this.res.redirect(this.router.build('tel.reserve.profile', {token: token}));
+                            this.res.redirect(this.router.build('tel.reserve.profile', { token: token }));
                         });
                     }
                 });
@@ -174,14 +180,15 @@ export default class TelReserveController extends ReserveBaseController implemen
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                this.processFixProfile(reservationModel, (err, reservationModel) => {
-                    if (err) {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processFixProfile(reservationModel, (fixProfileErr, reservationModel) => {
+                    if (fixProfileErr) {
                         this.res.render('tel/reserve/profile', {
                             reservationModel: reservationModel
                         });
                     } else {
                         reservationModel.save(() => {
-                            this.res.redirect(this.router.build('tel.reserve.confirm', {token: token}));
+                            this.res.redirect(this.router.build('tel.reserve.confirm', { token: token }));
                         });
                     }
                 });
@@ -215,10 +222,11 @@ export default class TelReserveController extends ReserveBaseController implemen
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                this.processConfirm(reservationModel, (err, reservationModel) => {
-                    if (err) {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processConfirm(reservationModel, (processConfirmErr, reservationModel) => {
+                    if (processConfirmErr) {
                         reservationModel.remove(() => {
-                            this.next(err);
+                            this.next(processConfirmErr);
                         });
                     } else {
                         // 予約確定
@@ -232,14 +240,14 @@ export default class TelReserveController extends ReserveBaseController implemen
                             {
                                 multi: true
                             },
-                            (err, raw) => {
-                                if (err) {
-                                    const message = err.message;
-                                    this.res.redirect(`${this.router.build('tel.reserve.confirm', {token: token})}?message=${encodeURIComponent(message)}`);
+                            (updateReservationErr, raw) => {
+                                if (updateReservationErr) {
+                                    const message = updateReservationErr.message;
+                                    this.res.redirect(`${this.router.build('tel.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
                                 } else {
                                     reservationModel.remove(() => {
                                         this.logger.info('redirecting to complete...');
-                                        this.res.redirect(this.router.build('tel.reserve.complete', {paymentNo: reservationModel.paymentNo}));
+                                        this.res.redirect(this.router.build('tel.reserve.complete', { paymentNo: reservationModel.paymentNo }));
                                     });
                                 }
                             }
@@ -265,6 +273,7 @@ export default class TelReserveController extends ReserveBaseController implemen
                 status: ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN,
                 tel_staff: this.req.telStaffUser.get('_id'),
                 purchased_at: { // 購入確定から30分有効
+                    // tslint:disable-next-line:no-magic-numbers
                     $gt: moment().add(-30, 'minutes').toISOString()
                 }
             },

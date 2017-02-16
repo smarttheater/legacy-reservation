@@ -1,5 +1,5 @@
-import {Models} from '@motionpicture/ttts-domain';
-import {ReservationUtil} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as fs from 'fs-extra';
 import * as log4js from 'log4js';
@@ -18,7 +18,7 @@ export default class CustomerCancelController extends BaseController {
      */
     public index(): void {
         if (moment('2016-11-19T00:00:00+09:00') <= moment()) {
-            return this.res.render('customer/cancel/outOfTerm', {layout: false});
+            return this.res.render('customer/cancel/outOfTerm', { layout: false });
         }
 
         if (this.req.method === 'POST') {
@@ -34,13 +34,13 @@ export default class CustomerCancelController extends BaseController {
                 // 予約を取得(クレジットカード決済のみ)
                 Models.Reservation.find(
                     {
-                        payment_no: this.req.form['paymentNo'],
-                        purchaser_tel: {$regex: `${this.req.form['last4DigitsOfTel']}$`},
+                        payment_no: (<any>this.req.form).paymentNo,
+                        purchaser_tel: { $regex: `${(<any>this.req.form).last4DigitsOfTel}$` },
                         purchaser_group: ReservationUtil.PURCHASER_GROUP_CUSTOMER,
                         status: ReservationUtil.STATUS_RESERVED
                     },
-                    (err, reservations) => {
-                        if (err) {
+                    (findReservationErr, reservations) => {
+                        if (findReservationErr) {
                             return this.res.json({
                                 success: false,
                                 message: 'A system error has occurred. Please try again later. Sorry for the inconvenience.'
@@ -54,11 +54,11 @@ export default class CustomerCancelController extends BaseController {
                             });
                         }
 
-                        this.validate(reservations, (err) => {
-                            if (err) {
+                        this.validate(reservations, (validateErr) => {
+                            if (validateErr) {
                                 return this.res.json({
                                     success: false,
-                                    message: err.message
+                                    message: validateErr.message
                                 });
                             }
 
@@ -115,13 +115,13 @@ export default class CustomerCancelController extends BaseController {
         Models.Reservation.find(
             {
                 payment_no: paymentNo,
-                purchaser_tel: {$regex: `${last4DigitsOfTel}$`},
+                purchaser_tel: { $regex: `${last4DigitsOfTel}$` },
                 purchaser_group: ReservationUtil.PURCHASER_GROUP_CUSTOMER,
                 status: ReservationUtil.STATUS_RESERVED
             },
             (err, reservations) => {
                 this.logger.info('reservations found.', err, reservations);
-                if (err) return this.res.json({success: false, message: 'A system error has occurred. Please try again later. Sorry for the inconvenience.'});
+                if (err) return this.res.json({ success: false, message: 'A system error has occurred. Please try again later. Sorry for the inconvenience.' });
 
                 if (reservations.length === 0) {
                     return this.res.json({
@@ -130,89 +130,100 @@ export default class CustomerCancelController extends BaseController {
                     });
                 }
 
-                this.validate(reservations, (err) => {
-                    if (err) {
+                // tslint:disable-next-line:max-func-body-length
+                this.validate(reservations, (validateErr) => {
+                    if (validateErr) {
                         return this.res.json({
                             success: false,
-                            message: err.message
+                            message: validateErr.message
                         });
                     }
 
                     if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CREDIT) {
                         this.logger.info('removing reservations by customer... payment_no:', paymentNo);
-                        Models.Reservation.remove({
-                            payment_no: paymentNo,
-                            purchaser_tel: {$regex: `${last4DigitsOfTel}$`},
-                            purchaser_group: ReservationUtil.PURCHASER_GROUP_CUSTOMER,
-                            status: ReservationUtil.STATUS_RESERVED
-                        },                        (err) => {
-                            this.logger.info('reservations removed by customer.', err, 'payment_no:', paymentNo);
-                            if (err) {
-                                return this.res.json({
-                                    success: false,
-                                    message: err.message
-                                });
-                            }
-
-                            // キャンセルリクエスト保管
-                            this.logger.info('creating CustomerCancelRequest...');
-                            Models.CustomerCancelRequest.create({
+                        Models.Reservation.remove(
+                            {
                                 payment_no: paymentNo,
-                                payment_method: reservations[0].get('payment_method'),
-                                email: reservations[0].get('purchaser_email'),
-                                tel: reservations[0].get('purchaser_tel')
-                            },                                  (err) => {
-                                this.logger.info('CustomerCancelRequest created.', err);
-                                if (err) return this.res.json({success: false, message: err.message});
-
-                                // メール送信
-                                const to = reservations[0].get('purchaser_email');
-
-                                this.res.render('email/customer/cancel', {
-                                    layout: false,
-                                    to: to,
-                                    reservations: reservations,
-                                    moment: moment,
-                                    numeral: numeral,
-                                    conf: conf,
-                                    GMOUtil: GMOUtil,
-                                    ReservationUtil: ReservationUtil
-                                },              (err, html) => {
-                                    this.logger.info('email rendered. html:', err, html);
-
-                                    // メール失敗してもキャンセル成功
-                                    if (err) return this.res.json({success: true, message: null});
-
-                                    const _sendgrid = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
-                                    const email = new _sendgrid.Email({
-                                        to: to,
-                                        bcc: ['tiff_mp@motionpicture.jp'],
-                                        fromname: conf.get<string>('email.fromname'),
-                                        from: conf.get<string>('email.from'),
-                                        subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京タワーチケット キャンセル完了のお知らせ Notice of Completion of Cancel for TTTS Tickets`,
-                                        html: html
+                                purchaser_tel: { $regex: `${last4DigitsOfTel}$` },
+                                purchaser_group: ReservationUtil.PURCHASER_GROUP_CUSTOMER,
+                                status: ReservationUtil.STATUS_RESERVED
+                            },
+                            (removeReservationErr) => {
+                                this.logger.info('reservations removed by customer.', removeReservationErr, 'payment_no:', paymentNo);
+                                if (removeReservationErr) {
+                                    return this.res.json({
+                                        success: false,
+                                        message: removeReservationErr.message
                                     });
+                                }
 
-                                    // logo
-                                    email.addFile({
-                                        filename: `logo.png`,
-                                        contentType: 'image/png',
-                                        cid: 'logo',
-                                        content: fs.readFileSync(`${__dirname}/../../../../../public/images/email/logo.png`)
-                                    });
+                                // キャンセルリクエスト保管
+                                this.logger.info('creating CustomerCancelRequest...');
+                                Models.CustomerCancelRequest.create(
+                                    {
+                                        payment_no: paymentNo,
+                                        payment_method: reservations[0].get('payment_method'),
+                                        email: reservations[0].get('purchaser_email'),
+                                        tel: reservations[0].get('purchaser_tel')
+                                    },
+                                    (createReservationErr) => {
+                                        this.logger.info('CustomerCancelRequest created.', createReservationErr);
+                                        if (createReservationErr) return this.res.json({ success: false, message: createReservationErr.message });
 
-                                    this.logger.info('sending an email...email:', email);
-                                    _sendgrid.send(email, (err, json) => {
-                                        this.logger.info('an email sent.', err, json);
-                                        // メールが送れなくてもキャンセルは成功
-                                        this.res.json({
-                                            success: true,
-                                            message: null
-                                        });
-                                    });
-                                });
-                            });
-                        });
+                                        // メール送信
+                                        const to = reservations[0].get('purchaser_email');
+
+                                        this.res.render(
+                                            'email/customer/cancel',
+                                            {
+                                                layout: false,
+                                                to: to,
+                                                reservations: reservations,
+                                                moment: moment,
+                                                numeral: numeral,
+                                                conf: conf,
+                                                GMOUtil: GMOUtil,
+                                                ReservationUtil: ReservationUtil
+                                            },
+                                            (renderErr, html) => {
+                                                this.logger.info('email rendered. html:', renderErr, html);
+
+                                                // メール失敗してもキャンセル成功
+                                                if (renderErr) return this.res.json({ success: true, message: null });
+
+                                                const sg = sendgrid(conf.get<string>('sendgrid_username'), conf.get<string>('sendgrid_password'));
+                                                const email = new sg.Email({
+                                                    to: to,
+                                                    bcc: ['tiff_mp@motionpicture.jp'],
+                                                    fromname: conf.get<string>('email.fromname'),
+                                                    from: conf.get<string>('email.from'),
+                                                    subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京タワーチケット キャンセル完了のお知らせ Notice of Completion of Cancel for TTTS Tickets`,
+                                                    html: html
+                                                });
+
+                                                // logo
+                                                email.addFile({
+                                                    filename: 'logo.png',
+                                                    contentType: 'image/png',
+                                                    cid: 'logo',
+                                                    content: fs.readFileSync(`${__dirname}/../../../../../public/images/email/logo.png`)
+                                                });
+
+                                                this.logger.info('sending an email...email:', email);
+                                                sg.send(email, (sendErr, json) => {
+                                                    this.logger.info('an email sent.', sendErr, json);
+                                                    // メールが送れなくてもキャンセルは成功
+                                                    this.res.json({
+                                                        success: true,
+                                                        message: null
+                                                    });
+                                                });
+                                            }
+                                        );
+                                    }
+                                );
+                            }
+                        );
 
                         // クレジットカードの場合、GMO取消しを行えば通知で空席になる(この方法は保留)
                         // // 取引状態参照
@@ -253,13 +264,9 @@ export default class CustomerCancelController extends BaseController {
                         //         if (alterTranResult['ErrCode']) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
 
                         //         this.logger.info('alterTranResult is ', alterTranResult);
-
-
-
-
                         //     });
                         // });
-                    // コンビニ決済の場合
+                        // コンビニ決済の場合
                     } else if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) {
                         this.res.json({
                             success: false,
@@ -279,7 +286,7 @@ export default class CustomerCancelController extends BaseController {
     /**
      * キャンセル受付対象かどうか確認する
      */
-    private validate(reservations: mongoose.Document[], cb: (err) => void): void {
+    private validate(reservations: mongoose.Document[], cb: (err: Error) => void): void {
         // 入場済みの座席があるかどうか確認
         const notEntered = reservations.every((reservation) => !reservation.get('entered'));
         if (!notEntered) return cb(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable.'));

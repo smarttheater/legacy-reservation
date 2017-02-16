@@ -1,6 +1,6 @@
-import {Models} from '@motionpicture/ttts-domain';
-import {ReservationUtil} from '@motionpicture/ttts-domain';
-import {ScreenUtil} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
+import { ScreenUtil } from '@motionpicture/ttts-domain';
 import * as moment from 'moment';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
@@ -24,14 +24,16 @@ export default class MemberReserveController extends ReserveBaseController imple
                 if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 if (reservations.length === 0) return this.next(new Error(this.req.__('Message.NoAvailableSeats')));
 
-                this.processStart((err, reservationModel) => {
-                    if (err) this.next(new Error(this.req.__('Message.UnexpectedError')));
+                this.processStart((startErr, reservationModel) => {
+                    if (startErr) this.next(new Error(this.req.__('Message.UnexpectedError')));
 
+                    // tslint:disable-next-line:no-empty
                     if (reservationModel.performance) {
                     } else {
                         // パフォーマンスFIX
-                        this.processFixPerformance(reservationModel, reservations[0].get('performance').toString(), (err, reservationModel) => {
-                            if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                        // tslint:disable-next-line:no-shadowed-variable
+                        this.processFixPerformance(reservationModel, reservations[0].get('performance').toString(), (fixPerformancesErr, reservationModel) => {
+                            if (fixPerformancesErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                             // 座席FIX
                             for (const reservation of reservations) {
@@ -55,10 +57,9 @@ export default class MemberReserveController extends ReserveBaseController imple
                                 });
                             }
 
-
                             // パフォーマンスと座席指定した状態で券種選択へ
                             reservationModel.save(() => {
-                                this.res.redirect(this.router.build('member.reserve.tickets', {token: reservationModel.token}));
+                                this.res.redirect(this.router.build('member.reserve.tickets', { token: reservationModel.token }));
                             });
                         });
                     }
@@ -88,12 +89,13 @@ export default class MemberReserveController extends ReserveBaseController imple
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                this.processFixTickets(reservationModel, (err, reservationModel) => {
-                    if (err) {
-                        this.res.redirect(this.router.build('member.reserve.tickets', {token: token}));
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processFixTickets(reservationModel, (fixTicketsErr, reservationModel) => {
+                    if (fixTicketsErr) {
+                        this.res.redirect(this.router.build('member.reserve.tickets', { token: token }));
                     } else {
                         reservationModel.save(() => {
-                            this.res.redirect(this.router.build('member.reserve.profile', {token: token}));
+                            this.res.redirect(this.router.build('member.reserve.profile', { token: token }));
                         });
                     }
                 });
@@ -114,14 +116,15 @@ export default class MemberReserveController extends ReserveBaseController imple
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                this.processFixProfile(reservationModel, (err, reservationModel) => {
-                    if (err) {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processFixProfile(reservationModel, (fixProfileErr, reservationModel) => {
+                    if (fixProfileErr) {
                         this.res.render('member/reserve/profile', {
                             reservationModel: reservationModel
                         });
                     } else {
                         reservationModel.save(() => {
-                            this.res.redirect(this.router.build('member.reserve.confirm', {token: token}));
+                            this.res.redirect(this.router.build('member.reserve.confirm', { token: token }));
                         });
                     }
                 });
@@ -155,15 +158,17 @@ export default class MemberReserveController extends ReserveBaseController imple
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                this.processConfirm(reservationModel, (err, reservationModel) => {
-                    if (err) {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processConfirm(reservationModel, (processConfirmErr, reservationModel) => {
+                    if (processConfirmErr) {
                         reservationModel.remove(() => {
-                            this.next(err);
+                            this.next(processConfirmErr);
                         });
                     } else {
                         reservationModel.save(() => {
                             this.logger.info('starting GMO payment...');
-                            this.res.redirect(308, this.router.build('gmo.reserve.start', {token: token}) + `?locale=${this.req.getLocale()}`);
+                            const STATUS_CODE_PERMANENT_REDIRECT = 308;
+                            this.res.redirect(STATUS_CODE_PERMANENT_REDIRECT, this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`);
                         });
                     }
                 });
@@ -185,6 +190,7 @@ export default class MemberReserveController extends ReserveBaseController imple
                 payment_no: paymentNo,
                 status: ReservationUtil.STATUS_RESERVED,
                 purchased_at: { // 購入確定から30分有効
+                    // tslint:disable-next-line:no-magic-numbers
                     $gt: moment().add(-30, 'minutes').toISOString()
                 }
             },

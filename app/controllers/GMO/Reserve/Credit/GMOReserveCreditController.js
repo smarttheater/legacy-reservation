@@ -43,10 +43,10 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
             }
             this.logger.info('processFixReservations processing... update:', update);
-            this.processFixReservations(gmoResultModel.OrderID, update, (err) => {
-                this.logger.info('processFixReservations processed.', err);
+            this.processFixReservations(gmoResultModel.OrderID, update, (fixReservationsErr) => {
+                this.logger.info('processFixReservations processed.', fixReservationsErr);
                 // 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
-                if (err)
+                if (fixReservationsErr)
                     return this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
                 this.logger.info('redirecting to complete...');
                 // 購入者区分による振り分け

@@ -1,5 +1,5 @@
-import {Models} from '@motionpicture/ttts-domain';
-import {ReservationUtil} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as crypto from 'crypto';
 import GMOResultModel from '../../../../models/Reserve/GMOResultModel';
@@ -48,25 +48,24 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                     return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 }
 
-
                 this.logger.info('processFixReservations processing... update:', update);
-                this.processFixReservations(gmoResultModel.OrderID, update, (err) => {
-                    this.logger.info('processFixReservations processed.', err);
+                this.processFixReservations(gmoResultModel.OrderID, update, (fixReservationsErr) => {
+                    this.logger.info('processFixReservations processed.', fixReservationsErr);
                     // 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
-                    if (err) return this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
+                    if (fixReservationsErr) return this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
 
                     this.logger.info('redirecting to complete...');
                     // 購入者区分による振り分け
                     const group = reservations[0].get('purchaser_group');
                     switch (group) {
                         case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                            this.res.redirect(this.router.build('member.reserve.complete', {paymentNo: gmoResultModel.OrderID}));
+                            this.res.redirect(this.router.build('member.reserve.complete', { paymentNo: gmoResultModel.OrderID }));
                             break;
                         default:
                             if (reservations[0].get('pre_customer')) {
-                                this.res.redirect(this.router.build('pre.reserve.complete', {paymentNo: gmoResultModel.OrderID}));
+                                this.res.redirect(this.router.build('pre.reserve.complete', { paymentNo: gmoResultModel.OrderID }));
                             } else {
-                                this.res.redirect(this.router.build('customer.reserve.complete', {paymentNo: gmoResultModel.OrderID}));
+                                this.res.redirect(this.router.build('customer.reserve.complete', { paymentNo: gmoResultModel.OrderID }));
                             }
 
                             break;

@@ -1,10 +1,12 @@
-import {ReservationUtil} from '@motionpicture/ttts-domain';
-import {ScreenUtil} from '@motionpicture/ttts-domain';
-import {Models} from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
+import { ScreenUtil } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
 import * as moment from 'moment';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import Util from '../../../../common/Util/Util';
 import BaseController from '../../BaseController';
+
+const DEFAULT_RADIX = 10;
 
 export default class WindowMyPageController extends BaseController {
     public layout = 'layouts/window/layout';
@@ -19,9 +21,11 @@ export default class WindowMyPageController extends BaseController {
     /**
      * マイページ予約検索
      */
+    // tslint:disable-next-line:max-func-body-length
     public search(): void {
-        const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit) : 10;
-        const page: number = (this.req.query.page) ? parseInt(this.req.query.page) : 1;
+        // tslint:disable-next-line:no-magic-numbers
+        const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+        const page: number = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
 
         const purchaserGroups: string[] = (this.req.query.purchaser_groups) ? this.req.query.purchaser_groups.split(',') : null;
         const purchasedDay: string = (this.req.query.purchased_day) ? this.req.query.purchased_day : null;
@@ -39,13 +43,13 @@ export default class WindowMyPageController extends BaseController {
         // 内部関係者以外がデフォルト
         conditions.push(
             {
-                purchaser_group: {$ne: ReservationUtil.PURCHASER_GROUP_STAFF},
-                status: {$in: [ReservationUtil.STATUS_RESERVED, ReservationUtil.STATUS_WAITING_SETTLEMENT, ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN]}
+                purchaser_group: { $ne: ReservationUtil.PURCHASER_GROUP_STAFF },
+                status: { $in: [ReservationUtil.STATUS_RESERVED, ReservationUtil.STATUS_WAITING_SETTLEMENT, ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN] }
             }
         );
 
         if (purchaserGroups) {
-            conditions.push({purchaser_group: {$in: purchaserGroups}});
+            conditions.push({ purchaser_group: { $in: purchaserGroups } });
         }
 
         // 購入日条件
@@ -53,7 +57,9 @@ export default class WindowMyPageController extends BaseController {
             conditions.push(
                 {
                     purchased_at: {
+                        // tslint:disable-next-line:no-magic-numbers
                         $gte: moment(`${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T00:00:00+9:00`),
+                        // tslint:disable-next-line:no-magic-numbers
                         $lte: moment(`${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T23:59:59+9:00`)
                     }
                 }
@@ -63,13 +69,13 @@ export default class WindowMyPageController extends BaseController {
         if (email) {
             // remove space characters
             email = Util.toHalfWidth(email.replace(/\s/g, ''));
-            conditions.push({purchaser_email: {$regex: new RegExp(email, 'i')}});
+            conditions.push({ purchaser_email: { $regex: new RegExp(email, 'i') } });
         }
 
         if (tel) {
             // remove space characters
             tel = Util.toHalfWidth(tel.replace(/\s/g, ''));
-            conditions.push({purchaser_tel: {$regex: new RegExp(tel, 'i')}});
+            conditions.push({ purchaser_tel: { $regex: new RegExp(tel, 'i') } });
         }
 
         // 空白つなぎでAND検索
@@ -78,7 +84,7 @@ export default class WindowMyPageController extends BaseController {
             purchaserFirstName = purchaserFirstName.replace(/(^\s+)|(\s+$)/g, '').replace(/\s/g, ' ');
             purchaserFirstName.split(' ').forEach((pattern) => {
                 if (pattern.length > 0) {
-                    conditions.push({purchaser_first_name: {$regex: new RegExp(pattern, 'i')}});
+                    conditions.push({ purchaser_first_name: { $regex: new RegExp(pattern, 'i') } });
                 }
             });
         }
@@ -88,7 +94,7 @@ export default class WindowMyPageController extends BaseController {
             purchaserLastName = purchaserLastName.replace(/(^\s+)|(\s+$)/g, '').replace(/\s/g, ' ');
             purchaserLastName.split(' ').forEach((pattern) => {
                 if (pattern.length > 0) {
-                    conditions.push({purchaser_last_name: {$regex: new RegExp(pattern, 'i')}});
+                    conditions.push({ purchaser_last_name: { $regex: new RegExp(pattern, 'i') } });
                 }
             });
         }
@@ -96,11 +102,11 @@ export default class WindowMyPageController extends BaseController {
         if (paymentNo) {
             // remove space characters
             paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
-            conditions.push({payment_no: {$regex: new RegExp(paymentNo, 'i')}});
+            conditions.push({ payment_no: { $regex: new RegExp(paymentNo, 'i') } });
         }
 
         if (day) {
-            conditions.push({performance_day: day});
+            conditions.push({ performance_day: day });
         }
 
         // 空白つなぎでAND検索
@@ -113,18 +119,16 @@ export default class WindowMyPageController extends BaseController {
                     conditions.push({
                         $or: [
                             {
-                                film_name_ja: {$regex: regex}
+                                film_name_ja: { $regex: regex }
                             },
                             {
-                                film_name_en: {$regex: regex}
+                                film_name_en: { $regex: regex }
                             }
                         ]
                     });
                 }
             });
         }
-
-
 
         // 総数検索
         Models.Reservation.count(
@@ -140,33 +144,33 @@ export default class WindowMyPageController extends BaseController {
                     });
                 }
 
-                Models.Reservation.find({$and: conditions})
-                .skip(limit * (page - 1))
-                .limit(limit)
-                .lean(true)
-                .exec((err, reservations: any[]) => {
-                    if (err) {
-                        this.res.json({
-                            success: false,
-                            results: [],
-                            count: 0
-                        });
-                    } else {
-                        // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
-                        reservations.sort((a, b) => {
-                            if (a.performance_day > b.performance_day) return 1;
-                            if (a.performance_start_time > b.performance_start_time) return 1;
-                            if (a.screen > b.screen) return 1;
-                            return ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
-                        });
+                Models.Reservation.find({ $and: conditions })
+                    .skip(limit * (page - 1))
+                    .limit(limit)
+                    .lean(true)
+                    .exec((findReservationErr, reservations: any[]) => {
+                        if (findReservationErr) {
+                            this.res.json({
+                                success: false,
+                                results: [],
+                                count: 0
+                            });
+                        } else {
+                            // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
+                            reservations.sort((a, b) => {
+                                if (a.performance_day > b.performance_day) return 1;
+                                if (a.performance_start_time > b.performance_start_time) return 1;
+                                if (a.screen > b.screen) return 1;
+                                return ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                            });
 
-                        this.res.json({
-                            success: true,
-                            results: reservations,
-                            count: count
-                        });
-                    }
-                });
+                            this.res.json({
+                                success: true,
+                                results: reservations,
+                                count: count
+                            });
+                        }
+                    });
             }
         );
     }

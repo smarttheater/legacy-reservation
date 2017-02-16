@@ -41,9 +41,9 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                 gmo_cvs_receipt_url: gmoResultModel.CvsReceiptUrl,
                 gmo_payment_term: gmoResultModel.PaymentTerm,
                 updated_user: 'GMOReserveCsvController'
-            }, { multi: true }, (err, raw) => {
-                this.logger.info('reservations updated.', err, raw);
-                if (err)
+            }, { multi: true }, (updateReservationErr, raw) => {
+                this.logger.info('reservations updated.', updateReservationErr, raw);
+                if (updateReservationErr)
                     return this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
                 // 仮予約完了メールキュー追加(あれば更新日時を更新するだけ)
                 this.logger.info('creating reservationEmailCue...');
@@ -56,9 +56,9 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                 }, {
                     upsert: true,
                     new: true
-                }, (err, cue) => {
-                    this.logger.info('reservationEmailCue created.', err, cue);
-                    if (err) {
+                }, (updateCueErr, cue) => {
+                    this.logger.info('reservationEmailCue created.', updateCueErr, cue);
+                    if (updateCueErr) {
                     }
                     this.logger.info('redirecting to waitingSettlement...');
                     // 購入者区分による振り分け

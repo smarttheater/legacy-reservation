@@ -1,7 +1,7 @@
-import {Models} from '@motionpicture/ttts-domain';
-import {ScreenUtil} from '@motionpicture/ttts-domain';
-import {FilmUtil} from '@motionpicture/ttts-domain';
-import {ReservationUtil} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
+import { ScreenUtil } from '@motionpicture/ttts-domain';
+import { FilmUtil } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
 import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
@@ -21,7 +21,8 @@ export default class CustomerReserveController extends ReserveBaseController imp
         if (this.req.method === 'POST') {
             reservePerformanceForm(this.req, this.res, (err) => {
                 if (this.req.form.isValid) {
-                    this.res.redirect(this.router.build('customer.reserve.start') + `?performance=${this.req.form['performanceId']}&locale=${this.req.getLocale()}`);
+                    const performaceId = (<any>this.req.form).performanceId;
+                    this.res.redirect(this.router.build('customer.reserve.start') + `?performance=${performaceId}&locale=${this.req.getLocale()}`);
                 } else {
                     this.res.render('customer/reserve/performances');
                 }
@@ -38,7 +39,8 @@ export default class CustomerReserveController extends ReserveBaseController imp
      */
     public start(): void {
         // MPのIPは許可
-        if (this.req.headers['x-forwarded-for'] && this.req.headers['x-forwarded-for'].substr(0, 13) === '124.155.113.9') {
+        // tslint:disable-next-line:no-empty
+        if (this.req.headers['x-forwarded-for'] && /^124\.155\.113\.9$/.test(this.req.headers['x-forwarded-for'])) {
         } else {
             // 期限指定
             if (moment() < moment(conf.get<string>('datetimes.reservation_start_customers_first'))) {
@@ -51,7 +53,8 @@ export default class CustomerReserveController extends ReserveBaseController imp
 
             // 2次販売10分前より閉める
             if (moment() < moment(conf.get<string>('datetimes.reservation_start_customers_second'))
-             && moment() > moment(conf.get<string>('datetimes.reservation_start_customers_second')).add(-15, 'minutes')) {
+                // tslint:disable-next-line:no-magic-numbers
+                && moment() > moment(conf.get<string>('datetimes.reservation_start_customers_second')).add(-15, 'minutes')) {
                 if (this.req.query.locale) {
                     this.req.setLocale(this.req.query.locale);
                 }
@@ -65,7 +68,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
 
             if (reservationModel.performance) {
                 reservationModel.save(() => {
-                    this.res.redirect(this.router.build('customer.reserve.terms', {token: reservationModel.token}));
+                    this.res.redirect(this.router.build('customer.reserve.terms', { token: reservationModel.token }));
                 });
             } else {
                 // 今回は必ずパフォーマンス指定で遷移してくるはず
@@ -86,7 +89,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
+                this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
             } else {
                 this.res.render('customer/reserve/terms');
             }
@@ -104,35 +107,37 @@ export default class CustomerReserveController extends ReserveBaseController imp
             const limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
-                reserveSeatForm(this.req, this.res, (err) => {
+                reserveSeatForm(this.req, this.res, () => {
                     if (this.req.form.isValid) {
-                        const seatCodes: string[] = JSON.parse(this.req.form['seatCodes']);
+                        const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
 
                         // 追加指定席を合わせて制限枚数を超過した場合
                         if (seatCodes.length > limit) {
-                            const message = this.req.__('Message.seatsLimit{{limit}}', {limit: limit.toString()});
-                            this.res.redirect(`${this.router.build('customer.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+                            const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
+                            this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                         } else {
                             // 仮予約あればキャンセルする
-                            this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                            // tslint:disable-next-line:no-shadowed-variable
+                            this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
                                 // 座席FIX
-                                this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
-                                    if (err) {
+                                // tslint:disable-next-line:no-shadowed-variable
+                                this.processFixSeats(reservationModel, seatCodes, (fixSeatsErr, reservationModel) => {
+                                    if (fixSeatsErr) {
                                         reservationModel.save(() => {
                                             const message = this.req.__('Message.SelectedSeatsUnavailable');
-                                            this.res.redirect(`${this.router.build('customer.reserve.seats', {token: token})}?message=${encodeURIComponent(message)}`);
+                                            this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                                         });
                                     } else {
                                         reservationModel.save(() => {
                                             // 券種選択へ
-                                            this.res.redirect(this.router.build('customer.reserve.tickets', {token: token}));
+                                            this.res.redirect(this.router.build('customer.reserve.tickets', { token: token }));
                                         });
                                     }
                                 });
                             });
                         }
                     } else {
-                        this.res.redirect(this.router.build('customer.reserve.seats', {token: token}));
+                        this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
                     }
                 });
             } else {
@@ -155,12 +160,13 @@ export default class CustomerReserveController extends ReserveBaseController imp
             reservationModel.paymentMethod = null;
 
             if (this.req.method === 'POST') {
-                this.processFixTickets(reservationModel, (err, reservationModel) => {
-                    if (err) {
-                        this.res.redirect(this.router.build('customer.reserve.tickets', {token: token}));
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processFixTickets(reservationModel, (fixTicketsErr, reservationModel) => {
+                    if (fixTicketsErr) {
+                        this.res.redirect(this.router.build('customer.reserve.tickets', { token: token }));
                     } else {
                         reservationModel.save(() => {
-                            this.res.redirect(this.router.build('customer.reserve.profile', {token: token}));
+                            this.res.redirect(this.router.build('customer.reserve.profile', { token: token }));
                         });
                     }
                 });
@@ -181,14 +187,15 @@ export default class CustomerReserveController extends ReserveBaseController imp
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                this.processFixProfile(reservationModel, (err, reservationModel) => {
-                    if (err) {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processFixProfile(reservationModel, (fixProfileErr, reservationModel) => {
+                    if (fixProfileErr) {
                         this.res.render('customer/reserve/profile', {
                             reservationModel: reservationModel
                         });
                     } else {
                         reservationModel.save(() => {
-                            this.res.redirect(this.router.build('customer.reserve.confirm', {token: token}));
+                            this.res.redirect(this.router.build('customer.reserve.confirm', { token: token }));
                         });
                     }
                 });
@@ -222,15 +229,17 @@ export default class CustomerReserveController extends ReserveBaseController imp
             if (err) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
-                this.processConfirm(reservationModel, (err, reservationModel) => {
-                    if (err) {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processConfirm(reservationModel, (processConfirmErr, reservationModel) => {
+                    if (processConfirmErr) {
                         reservationModel.remove(() => {
-                            this.next(err);
+                            this.next(processConfirmErr);
                         });
                     } else {
                         reservationModel.save(() => {
                             this.logger.info('starting GMO payment...');
-                            this.res.redirect(308, this.router.build('gmo.reserve.start', {token: token}) + `?locale=${this.req.getLocale()}`);
+                            const STATUS_CODE_PERMANENT_REDIRECT = 308;
+                            this.res.redirect(STATUS_CODE_PERMANENT_REDIRECT, this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`);
                         });
                     }
                 });
@@ -253,6 +262,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
                 purchaser_group: this.purchaserGroup,
                 status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
                 purchased_at: { // 購入確定から30分有効
+                    // tslint:disable-next-line:no-magic-numbers
                     $gt: moment().add(-30, 'minutes').toISOString()
                 }
             },
@@ -282,6 +292,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
                 purchaser_group: this.purchaserGroup,
                 status: ReservationUtil.STATUS_RESERVED,
                 purchased_at: { // 購入確定から30分有効
+                    // tslint:disable-next-line:no-magic-numbers
                     $gt: moment().add(-30, 'minutes').toISOString()
                 }
             },

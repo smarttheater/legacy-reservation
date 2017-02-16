@@ -1,5 +1,5 @@
-import {Models} from '@motionpicture/ttts-domain';
-import {ReservationUtil} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as log4js from 'log4js';
 import BaseController from '../../BaseController';
 
@@ -13,8 +13,8 @@ export default class WindowCancelController extends BaseController {
             this.logger.info('removing reservation by window... window:', this.req.windowUser.get('user_id'), 'reservationIds:', reservationIds);
             Models.Reservation.remove(
                 {
-                    _id: {$in: reservationIds},
-                    purchaser_group: {$ne: ReservationUtil.PURCHASER_GROUP_STAFF} // 念のため、内部は除外
+                    _id: { $in: reservationIds },
+                    purchaser_group: { $ne: ReservationUtil.PURCHASER_GROUP_STAFF } // 念のため、内部は除外
                 },
                 (err) => {
                     this.logger.info('reservation removed by window.', err, 'window:', this.req.windowUser.get('user_id'), 'reservationIds:', reservationIds);

@@ -1,6 +1,6 @@
-import {Models} from '@motionpicture/ttts-domain';
-import {ReservationUtil} from '@motionpicture/ttts-domain';
-import {FilmUtil} from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
+import { FilmUtil } from '@motionpicture/ttts-domain';
 import BaseController from '../BaseController';
 
 export default class AdmissionController extends BaseController {
@@ -9,7 +9,7 @@ export default class AdmissionController extends BaseController {
     public performances(): void {
         if (this.req.method === 'POST') {
             if (this.req.body.performanceId) {
-                this.res.redirect(this.router.build('admission.confirm', {id: this.req.body.performanceId}));
+                this.res.redirect(this.router.build('admission.confirm', { id: this.req.body.performanceId }));
             } else {
                 this.res.redirect(this.router.build('admission.performances'));
             }
@@ -22,7 +22,7 @@ export default class AdmissionController extends BaseController {
                     Models.Screen.find(
                         {},
                         'name theater',
-                        (err, screens) => {
+                        (findScreenErr, screens) => {
                             const screensByTheater = {};
                             for (const screen of screens) {
                                 if (!screensByTheater.hasOwnProperty(screen.get('theater'))) {
@@ -45,35 +45,35 @@ export default class AdmissionController extends BaseController {
     }
 
     public confirm(): void {
-        Models.Performance.findOne({_id: this.req.params.id})
-        .populate('film', 'name')
-        .populate('screen', 'name')
-        .populate('theater', 'name')
-        .exec((err, performance) => {
-            if (err) this.next(new Error('Message.UnexpectedError'));
-
-            Models.Reservation.find(
-                {
-                    performance: performance.get('_id'),
-                    status: ReservationUtil.STATUS_RESERVED
-                },
-                'seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en entered payment_no payment_seat_index'
-            ).exec((err, reservations) => {
+        Models.Performance.findOne({ _id: this.req.params.id })
+            .populate('film', 'name')
+            .populate('screen', 'name')
+            .populate('theater', 'name')
+            .exec((err, performance) => {
                 if (err) this.next(new Error('Message.UnexpectedError'));
 
-                const reservationsById = {};
-                const reservationIdsByQrStr = {};
-                for (const reservation of reservations) {
-                    reservationsById[reservation.get('_id')] = reservation;
-                    reservationIdsByQrStr[reservation.get('qr_str')] = reservation.get('_id').toString();
-                }
+                Models.Reservation.find(
+                    {
+                        performance: performance.get('_id'),
+                        status: ReservationUtil.STATUS_RESERVED
+                    },
+                    'seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en entered payment_no payment_seat_index'
+                ).exec((findReservationErr, reservations) => {
+                    if (findReservationErr) this.next(new Error('Message.UnexpectedError'));
 
-                this.res.render('admission/confirm', {
-                    performance: performance,
-                    reservationsById: reservationsById,
-                    reservationIdsByQrStr: reservationIdsByQrStr
+                    const reservationsById = {};
+                    const reservationIdsByQrStr = {};
+                    for (const reservation of reservations) {
+                        reservationsById[reservation.get('_id')] = reservation;
+                        reservationIdsByQrStr[reservation.get('qr_str')] = reservation.get('_id').toString();
+                    }
+
+                    this.res.render('admission/confirm', {
+                        performance: performance,
+                        reservationsById: reservationsById,
+                        reservationIdsByQrStr: reservationIdsByQrStr
+                    });
                 });
             });
-        });
     }
 }

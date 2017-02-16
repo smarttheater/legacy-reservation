@@ -37,9 +37,9 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
                 if (reservations.length === 0)
                     return this.res.send('1');
                 this.logger.info('processFixReservations processing... update:', update);
-                this.processFixReservations(paymentNo, update, (err) => {
-                    this.logger.info('processFixReservations processed.', err);
-                    if (err) {
+                this.processFixReservations(paymentNo, update, (fixReservationsErr) => {
+                    this.logger.info('processFixReservations processed.', fixReservationsErr);
+                    if (fixReservationsErr) {
                         // 失敗した場合、再通知されるので、それをリトライとみなす
                         this.res.send('1');
                     }
@@ -77,17 +77,17 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
                 const promises = reservations.map((reservation) => {
                     return new Promise((resolve, reject) => {
                         this.logger.info('removing reservation...', reservation.get('_id'));
-                        reservation.remove((err) => {
-                            this.logger.info('reservation removed.', reservation.get('_id'), err);
-                            if (err)
-                                return reject(err);
+                        reservation.remove((removeReservationErr) => {
+                            this.logger.info('reservation removed.', reservation.get('_id'), removeReservationErr);
+                            if (removeReservationErr)
+                                return reject(removeReservationErr);
                             resolve();
                         });
                     });
                 });
                 Promise.all(promises).then(() => {
                     this.res.send('0');
-                }, (err) => {
+                }, (cancelErr) => {
                     this.res.send('1');
                 });
             });

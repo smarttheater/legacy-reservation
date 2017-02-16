@@ -11,6 +11,7 @@ const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerforma
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
+const DEFAULT_RADIX = 10;
 class PreCustomerReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
@@ -19,7 +20,8 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
     }
     start() {
         // MPのIPは許可
-        if (this.req.headers['x-forwarded-for'] && this.req.headers['x-forwarded-for'].substr(0, 13) === '124.155.113.9') {
+        // tslint:disable-next-line:no-empty
+        if (this.req.headers['x-forwarded-for'] && /^124\.155\.113\.9$/.test(this.req.headers['x-forwarded-for'])) {
         }
         else {
             // 期限指定
@@ -60,7 +62,8 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
             // 仮予約あればキャンセルする
-            this.processCancelSeats(reservationModel, (err, reservationModel) => {
+            // tslint:disable-next-line:no-shadowed-variable
+            this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
                 reservationModel.save(() => {
                     // 1.5次販売アカウントによる予約数を取得
                     // 決済中ステータスは含めない
@@ -77,17 +80,19 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                                 ]
                             }
                         ]
-                    }, (err, reservationsCount) => {
-                        const reservableCount = parseInt(this.req.preCustomerUser.get('max_reservation_count')) - reservationsCount;
+                    }, (countReservationErr, reservationsCount) => {
+                        const reservableCount = parseInt(this.req.preCustomerUser.get('max_reservation_count'), DEFAULT_RADIX) - reservationsCount;
                         if (reservableCount <= 0) {
                             return this.next(new Error(this.req.__('Message.NoMoreReservation')));
                         }
                         if (this.req.method === 'POST') {
-                            reservePerformanceForm_1.default(this.req, this.res, (err) => {
+                            reservePerformanceForm_1.default(this.req, this.res, () => {
                                 if (this.req.form.isValid) {
                                     // パフォーマンスFIX
-                                    this.processFixPerformance(reservationModel, this.req.form['performanceId'], (err, reservationModel) => {
-                                        if (err) {
+                                    const performanceId = this.req.form.performanceId;
+                                    // tslint:disable-next-line:no-shadowed-variable
+                                    this.processFixPerformance(reservationModel, performanceId, (fixPerformancesErr, reservationModel) => {
+                                        if (fixPerformancesErr) {
                                             this.next(new Error(this.req.__('Message.UnexpectedError')));
                                         }
                                         else {
@@ -124,7 +129,8 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             // 1.5次販売アカウントによる予約数を取得
             // 決済中ステータスは含めない
             const lockPath = `${__dirname}/../../../../../lock/PreCustomerFixSeats${this.req.preCustomerUser.get('_id')}.lock`;
-            lockFile.lock(lockPath, { wait: 5000 }, (err) => {
+            // tslint:disable-next-line:max-func-body-length
+            lockFile.lock(lockPath, { wait: 5000 }, (lockErr) => {
                 ttts_domain_1.Models.Reservation.count({
                     $and: [
                         { pre_customer: this.req.preCustomerUser.get('_id') },
@@ -147,35 +153,37 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                             ]
                         }
                     ]
-                }, (err, reservationsCount) => {
+                }, (countReservationErr, reservationsCount) => {
                     // 一度に確保できる座席数は、残り可能枚数と、10の小さい方
-                    const reservableCount = parseInt(this.req.preCustomerUser.get('max_reservation_count')) - reservationsCount;
+                    const reservableCount = parseInt(this.req.preCustomerUser.get('max_reservation_count'), DEFAULT_RADIX) - reservationsCount;
                     const limit = Math.min(reservationModel.getSeatsLimit(), reservableCount);
                     // すでに枚数制限に達している場合
                     if (limit <= 0) {
-                        lockFile.unlock(lockPath, (err) => {
+                        lockFile.unlock(lockPath, (unlockErr) => {
                             this.next(new Error(this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() })));
                         });
                     }
                     else {
                         if (this.req.method === 'POST') {
-                            reserveSeatForm_1.default(this.req, this.res, (err) => {
+                            reserveSeatForm_1.default(this.req, this.res, () => {
                                 if (this.req.form.isValid) {
-                                    const seatCodes = JSON.parse(this.req.form['seatCodes']);
+                                    const seatCodes = JSON.parse(this.req.form.seatCodes);
                                     // 追加指定席を合わせて制限枚数を超過した場合
                                     if (seatCodes.length > limit) {
-                                        lockFile.unlock(lockPath, (err) => {
+                                        lockFile.unlock(lockPath, (unlockErr) => {
                                             const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
                                             this.res.redirect(`${this.router.build('pre.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                                         });
                                     }
                                     else {
                                         // 仮予約あればキャンセルする
-                                        this.processCancelSeats(reservationModel, (err, reservationModel) => {
+                                        // tslint:disable-next-line:no-shadowed-variable
+                                        this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
                                             // 座席FIX
-                                            this.processFixSeats(reservationModel, seatCodes, (err, reservationModel) => {
+                                            // tslint:disable-next-line:no-shadowed-variable
+                                            this.processFixSeats(reservationModel, seatCodes, (fixSeatsErr, reservationModel) => {
                                                 lockFile.unlock(lockPath, () => {
-                                                    if (err) {
+                                                    if (fixSeatsErr) {
                                                         reservationModel.save(() => {
                                                             const message = this.req.__('Message.SelectedSeatsUnavailable');
                                                             this.res.redirect(`${this.router.build('pre.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
@@ -193,14 +201,14 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                                     }
                                 }
                                 else {
-                                    lockFile.unlock(lockPath, (err) => {
+                                    lockFile.unlock(lockPath, (unlockErr) => {
                                         this.res.redirect(this.router.build('pre.reserve.seats', { token: token }));
                                     });
                                 }
                             });
                         }
                         else {
-                            lockFile.unlock(lockPath, (err) => {
+                            lockFile.unlock(lockPath, (unlockErr) => {
                                 this.res.render('preCustomer/reserve/seats', {
                                     reservationModel: reservationModel,
                                     limit: limit,
@@ -223,8 +231,9 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                 return this.next(new Error(this.req.__('Message.Expired')));
             reservationModel.paymentMethod = null;
             if (this.req.method === 'POST') {
-                this.processFixTickets(reservationModel, (err, reservationModel) => {
-                    if (err) {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processFixTickets(reservationModel, (fixTicketsErr, reservationModel) => {
+                    if (fixTicketsErr) {
                         this.res.redirect(this.router.build('pre.reserve.tickets', { token: token }));
                     }
                     else {
@@ -250,8 +259,9 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
-                this.processFixProfile(reservationModel, (err, reservationModel) => {
-                    if (err) {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processFixProfile(reservationModel, (fixProfileErr, reservationModel) => {
+                    if (fixProfileErr) {
                         this.res.render('preCustomer/reserve/profile', {
                             reservationModel: reservationModel
                         });
@@ -291,16 +301,18 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             if (err)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
-                this.processConfirm(reservationModel, (err, reservationModel) => {
-                    if (err) {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.processConfirm(reservationModel, (processConfirmErr, reservationModel) => {
+                    if (processConfirmErr) {
                         reservationModel.remove(() => {
-                            this.next(err);
+                            this.next(processConfirmErr);
                         });
                     }
                     else {
                         reservationModel.save(() => {
                             this.logger.info('starting GMO payment...');
-                            this.res.redirect(308, this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`);
+                            const STATUS_CODE_PERMANENT_REDIRECT = 308;
+                            this.res.redirect(STATUS_CODE_PERMANENT_REDIRECT, this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`);
                         });
                     }
                 });
@@ -322,6 +334,7 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             purchaser_group: this.purchaserGroup,
             status: ttts_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT,
             purchased_at: {
+                // tslint:disable-next-line:no-magic-numbers
                 $gt: moment().add(-30, 'minutes').toISOString()
             }
         }, (err, reservations) => {
@@ -346,6 +359,7 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             payment_no: paymentNo,
             status: ttts_domain_4.ReservationUtil.STATUS_RESERVED,
             purchased_at: {
+                // tslint:disable-next-line:no-magic-numbers
                 $gt: moment().add(-30, 'minutes').toISOString()
             }
         }, (err, reservations) => {
