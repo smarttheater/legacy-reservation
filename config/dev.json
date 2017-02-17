@@ -11,20 +11,20 @@
         "fromname": "TOKYO TOWER Online Ticket"
     },
 
-    "api_endpoint": "https://devtttsapiprototype.azurewebsites.net",
+    "api_endpoint": "https://devtttsapi.azurewebsites.net",
 
     "storage_account_name": "",
     "storage_account_key": "",
 
-    "redis_host": "devtttsfrontendprototype.redis.cache.windows.net",
+    "redis_host": "devttts.redis.cache.windows.net",
     "redis_port": 6380,
-    "redis_key": "QLnxXJC0srbSaabgac+4tzlmN6abiNdkNvVco7954xc=",
+    "redis_key": "zyIEn/8pkPePjlGLojGYOi2bX3ciJJMbgHhoo6oA+qc=",
 
     "mongolab_uri": "mongodb://devtttsmongodbuser:w6Zk6z62z3ZKBZ52Ku7kFstTRGmBfAVjXakKz8i6@ds056789.mlab.com:56789/devtttsmongodb",
     "mongolab_uri_for_gmo": "mongodb://devtttsmongodbuser:w6Zk6z62z3ZKBZ52Ku7kFstTRGmBfAVjXakKz8i6@ds056789.mlab.com:56789/devtttsmongodb",
 
-    "sendgrid_username": "azure_35dddb7ee2be772ffe74c58bff70a0ad@azure.com",
-    "sendgrid_password": "M0P!Xmopix",
+    "sendgrid_username": "azure_045e158fdd7c86c04c41be960d9dbc13@azure.com",
+    "sendgrid_password": "YD)$4dN45fQi",
 
     "gmo_payment_site_id": "tsite00022126",
     "gmo_payment_shop_id": "tshop00026838",

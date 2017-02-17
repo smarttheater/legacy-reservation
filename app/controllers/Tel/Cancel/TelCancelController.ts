@@ -3,6 +3,13 @@ import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as log4js from 'log4js';
 import BaseController from '../../BaseController';
 
+/**
+ * 電話窓口座席予約キャンセルコントローラー
+ *
+ * @export
+ * @class TelCancelController
+ * @extends {BaseController}
+ */
 export default class TelCancelController extends BaseController {
     public execute(): void {
         if (!this.req.telStaffUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));

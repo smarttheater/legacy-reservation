@@ -4,6 +4,13 @@ const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const GMONotificationModel_1 = require("../../models/Reserve/GMONotificationModel");
 const GMONotificationResponseModel_1 = require("../../models/Reserve/GMONotificationResponseModel");
 const BaseController_1 = require("../BaseController");
+/**
+ * GMOウェブフックコントローラー
+ *
+ * @export
+ * @class GMOController
+ * @extends {BaseController}
+ */
 class GMOController extends BaseController_1.default {
     /**
      * GMO結果通知受信
@@ -15,7 +22,6 @@ class GMOController extends BaseController_1.default {
      * タイムアウトについて
      * 結果通知プログラム機能によって、指定URLへデータ送信を行った場合に15秒以内に返信が無いとタイムアウトとして処理を行います。
      * 加盟店様側からの正常応答が確認出来なかった場合は約60分毎に5回再送いたします。
-     *
      */
     notify() {
         const gmoNotificationModel = GMONotificationModel_1.default.parse(this.req.body);

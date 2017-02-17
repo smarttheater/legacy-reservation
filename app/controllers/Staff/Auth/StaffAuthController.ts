@@ -1,10 +1,17 @@
 import { Models } from '@motionpicture/ttts-domain';
 import * as mongoose from 'mongoose';
-import Util from '../../../../common/Util/Util';
+import * as Util from '../../../../common/Util/Util';
 import staffLoginForm from '../../../forms/staff/staffLoginForm';
 import StaffUser from '../../../models/User/StaffUser';
 import BaseController from '../../BaseController';
 
+/**
+ * 内部関係者認証コントローラー
+ *
+ * @export
+ * @class StaffAuthController
+ * @extends {BaseController}
+ */
 export default class StaffAuthController extends BaseController {
     public layout = 'layouts/staff/layout';
 

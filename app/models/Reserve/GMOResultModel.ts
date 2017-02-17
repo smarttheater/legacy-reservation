@@ -1,6 +1,9 @@
 // tslint:disable:variable-name
 /**
  * GMO決済結果モデル
+ *
+ * @export
+ * @class GMOResultModel
  */
 export default class GMOResultModel {
     /**

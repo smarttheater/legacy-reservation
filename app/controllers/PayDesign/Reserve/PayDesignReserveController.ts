@@ -2,6 +2,13 @@ import { Models } from '@motionpicture/ttts-domain';
 import PayDesignNotificationModel from '../../../models/Reserve/PayDesignNotificationModel';
 import ReserveBaseController from '../../ReserveBaseController';
 
+/**
+ * ペイデザイン決済コントローラー
+ *
+ * @export
+ * @class PayDesignReserveController
+ * @extends {ReserveBaseController}
+ */
 export default class PayDesignReserveController extends ReserveBaseController {
     /**
      * ペイデザイン入金通知

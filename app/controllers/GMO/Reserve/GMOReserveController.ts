@@ -3,8 +3,8 @@ import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
 import * as querystring from 'querystring';
-import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
-import Util from '../../../../common/Util/Util';
+import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
+import * as Util from '../../../../common/Util/Util';
 import GMOResultModel from '../../../models/Reserve/GMOResultModel';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReserveBaseController from '../../ReserveBaseController';
@@ -43,6 +43,15 @@ import GMOReserveCvsController from './Cvs/GMOReserveCvsController';
     return result;
 };
 
+/**
+ * GMO関連予約コントローラー
+ *
+ * 座席予約フローのうちGMOと連携するアクションを実装しています。
+ *
+ * @export
+ * @class GMOReserveController
+ * @extends {ReserveBaseController}
+ */
 export default class GMOReserveController extends ReserveBaseController {
     /**
      * GMO決済を開始する

@@ -1,5 +1,8 @@
 /**
  * ベースユーザークラス
+ *
+ * @export
+ * @class BaseUser
  */
 export default class BaseUser {
     /**

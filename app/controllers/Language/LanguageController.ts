@@ -1,5 +1,12 @@
 import BaseController from '../BaseController';
 
+/**
+ * 言語コントローラー
+ *
+ * @export
+ * @class LanguageController
+ * @extends {BaseController}
+ */
 export default class LanguageController extends BaseController {
     /**
      * 言語切り替え

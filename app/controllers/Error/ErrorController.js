@@ -1,5 +1,12 @@
 "use strict";
 const BaseController_1 = require("../BaseController");
+/**
+ * エラーページコントローラー
+ *
+ * @export
+ * @class ErrorController
+ * @extends {BaseController}
+ */
 class ErrorController extends BaseController_1.default {
     /**
      * Not Found

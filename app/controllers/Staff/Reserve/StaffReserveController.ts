@@ -11,6 +11,14 @@ import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
 
+/**
+ * 内部関係者座席予約コントローラー
+ *
+ * @export
+ * @class StaffReserveController
+ * @extends {ReserveBaseController}
+ * @implements {ReserveControllerInterface}
+ */
 export default class StaffReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_STAFF;
     public layout = 'layouts/staff/layout';

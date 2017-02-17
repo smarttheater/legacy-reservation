@@ -1,6 +1,9 @@
 "use strict";
 /**
  * ベースユーザークラス
+ *
+ * @export
+ * @class BaseUser
  */
 class BaseUser {
     /**

@@ -9,7 +9,8 @@ module.exports = function (grunt) {
             dist: {
                 src: [
                     "README.md",
-                    "app/**/*.js"
+                    "app/**/*.js",
+                    "common/**/*.js",
                 ],
                 options: {
                     destination: "docs",

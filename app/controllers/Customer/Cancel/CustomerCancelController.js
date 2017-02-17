@@ -7,9 +7,16 @@ const log4js = require("log4js");
 const moment = require("moment");
 const numeral = require("numeral");
 const sendgrid = require("sendgrid");
-const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
+const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const customerCancelForm_1 = require("../../../forms/customer/customerCancelForm");
 const BaseController_1 = require("../../BaseController");
+/**
+ * 一般予約キャンセルコントローラー
+ *
+ * @export
+ * @class CustomerCancelController
+ * @extends {BaseController}
+ */
 class CustomerCancelController extends BaseController_1.default {
     /**
      * チケットキャンセル
@@ -133,7 +140,7 @@ class CustomerCancelController extends BaseController_1.default {
                             });
                         }
                         else {
-                            if (reservations[0].get('payment_method') === GMOUtil_1.default.PAY_TYPE_CREDIT) {
+                            if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CREDIT) {
                                 this.logger.info('removing reservations by customer... payment_no:', paymentNo);
                                 ttts_domain_1.Models.Reservation.remove({
                                     payment_no: paymentNo,
@@ -171,7 +178,7 @@ class CustomerCancelController extends BaseController_1.default {
                                                     moment: moment,
                                                     numeral: numeral,
                                                     conf: conf,
-                                                    GMOUtil: GMOUtil_1.default,
+                                                    GMOUtil: GMOUtil,
                                                     ReservationUtil: ttts_domain_2.ReservationUtil
                                                 }, (renderErr, html) => {
                                                     this.logger.info('email rendered. html:', renderErr, html);
@@ -212,7 +219,7 @@ class CustomerCancelController extends BaseController_1.default {
                                     }
                                 });
                             }
-                            else if (reservations[0].get('payment_method') === GMOUtil_1.default.PAY_TYPE_CVS) {
+                            else if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) {
                                 this.res.json({
                                     success: false,
                                     message: 'A system error has occurred. Please try again later. Sorry for the inconvenience.'

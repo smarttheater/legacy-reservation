@@ -1,9 +1,17 @@
+/**
+ * ベーシック認証ミドルウェア
+ *
+ * @module basicAuthMiddleware
+ */
+
 import * as basicAuth from 'basic-auth';
-import * as express from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 const STATUS_CODE_UNAUTHORIZED = 401;
+const BASIC_AUTH_NAME = 'motionpicture';
+const BASIC_AUTH_PASS = '4_CS/T|YG*Lz';
 
-export default (req: express.Request, res: express.Response, next: express.NextFunction) => {
+export default (req: Request, res: Response, next: NextFunction) => {
     if (process.env.NODE_ENV === 'dev') return next();
     if (process.env.NODE_ENV === 'prod') return next();
     if (process.env.NODE_ENV === 'test') return next();
@@ -15,7 +23,7 @@ export default (req: express.Request, res: express.Response, next: express.NextF
 
     const user = basicAuth(req);
 
-    if (user && user.name === 'motionpicture' && user.pass === '4_CS/T|YG*Lz') return next();
+    if (user && user.name === BASIC_AUTH_NAME && user.pass === BASIC_AUTH_PASS) return next();
 
     res.statusCode = STATUS_CODE_UNAUTHORIZED;
     res.setHeader('WWW-Authenticate', 'Basic realm="TTTS Authentication"');

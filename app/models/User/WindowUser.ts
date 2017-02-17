@@ -1,7 +1,11 @@
 import BaseUser from './BaseUser';
 
 /**
- * 窓口ユーザークラス
+ * 当日窓口ユーザー
+ *
+ * @export
+ * @class WindowUser
+ * @extends {BaseUser}
  */
 export default class WindowUser extends BaseUser {
     public static AUTH_SESSION_NAME = 'TTTSFrontendWindowAuth';

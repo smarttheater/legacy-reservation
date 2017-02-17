@@ -11,6 +11,14 @@ const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
 const DEFAULT_RADIX = 10;
+/**
+ * 外部関係者座席予約コントローラー
+ *
+ * @export
+ * @class SponsorReserveController
+ * @extends {ReserveBaseController}
+ * @implements {ReserveControllerInterface}
+ */
 class SponsorReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);

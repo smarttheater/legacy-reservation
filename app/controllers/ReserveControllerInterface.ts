@@ -1,5 +1,9 @@
 /**
- * 予約フローベースコントローラーインターフェース
+ * 座席予約ベースコントローラーインターフェース
+ *
+ * 予約主体によって座席予約フローの実装を分けているが、各々で基本的なフローは同様となるようにインターフェースをここで定義
+ *
+ * @interface ReserveControllerInterface
  */
 interface ReserveControllerInterface {
     /**

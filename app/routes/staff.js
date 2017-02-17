@@ -1,6 +1,12 @@
 "use strict";
+/**
+ * 内部関係者ルーター
+ *
+ * @function staffRouter
+ * @ignore
+ */
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const Util_1 = require("../../common/Util/Util");
+const Util = require("../../common/Util/Util");
 const StaffAuthController_1 = require("../controllers/Staff/Auth/StaffAuthController");
 const StaffCancelController_1 = require("../controllers/Staff/Cancel/StaffCancelController");
 const StaffMyPageController_1 = require("../controllers/Staff/MyPage/StaffMyPageController");
@@ -23,7 +29,7 @@ exports.default = (app) => {
                             return cb(null, null, null);
                         if (authentication) {
                             // トークン再生成
-                            const token = Util_1.default.createToken();
+                            const token = Util.createToken();
                             authentication.update({
                                 token: token
                             }, (updateErr) => {

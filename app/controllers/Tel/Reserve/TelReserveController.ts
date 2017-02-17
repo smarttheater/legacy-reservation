@@ -3,13 +3,21 @@ import { ScreenUtil } from '@motionpicture/ttts-domain';
 import { FilmUtil } from '@motionpicture/ttts-domain';
 import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as moment from 'moment';
-import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
+import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
 
+/**
+ * 電話窓口座席予約コントローラー
+ *
+ * @export
+ * @class TelReserveController
+ * @extends {ReserveBaseController}
+ * @implements {ReserveControllerInterface}
+ */
 export default class TelReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_TEL;
     public layout = 'layouts/tel/layout';

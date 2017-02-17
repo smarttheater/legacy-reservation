@@ -2,6 +2,9 @@
 // tslint:disable:variable-name
 /**
  * GMO決済結果モデル
+ *
+ * @export
+ * @class GMOResultModel
  */
 class GMOResultModel {
     // /** Edy 受付番号 */

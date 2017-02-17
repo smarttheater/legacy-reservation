@@ -1,9 +1,14 @@
-import * as express from 'express';
+/**
+ * 座席予約購入者情報フォーム
+ *
+ * @ignore
+ */
+import {Request} from 'express';
 import * as form from 'express-form';
 
 const NAME_MAX_LENGTH = 15;
 
-export default (req: express.Request) => {
+export default (req: Request) => {
     return form(
         form.field('lastName', req.__('Form.FieldName.lastName')).trim()
             .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))

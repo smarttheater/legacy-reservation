@@ -1,7 +1,11 @@
 import BaseUser from './BaseUser';
 
 /**
- * メルマガ会員ユーザークラス
+ * メルマガ会員ユーザー
+ *
+ * @export
+ * @class MemberUser
+ * @extends {BaseUser}
  */
 export default class MemberUser extends BaseUser {
     public static AUTH_SESSION_NAME = 'TTTSFrontendMemberAuth';

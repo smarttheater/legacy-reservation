@@ -1,7 +1,11 @@
 import BaseUser from './BaseUser';
 
 /**
- * 外部関係者ユーザークラス
+ * 外部関係者ユーザー
+ *
+ * @export
+ * @class SponsorUser
+ * @extends {BaseUser}
  */
 export default class SponsorUser extends BaseUser {
     public static AUTH_SESSION_NAME = 'TTTSFrontendSponsorAuth';

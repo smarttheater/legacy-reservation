@@ -5,6 +5,13 @@ const ttts_domain_3 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const crypto = require("crypto");
 const ReserveBaseController_1 = require("../../../ReserveBaseController");
+/**
+ * GMOコンビニ決済コントローラー
+ *
+ * @export
+ * @class GMOReserveCvsController
+ * @extends {ReserveBaseController}
+ */
 class GMOReserveCvsController extends ReserveBaseController_1.default {
     /**
      * GMOからの結果受信

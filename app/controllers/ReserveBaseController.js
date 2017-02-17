@@ -4,20 +4,24 @@ const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const fs = require("fs-extra");
 const moment = require("moment");
-const GMOUtil_1 = require("../../common/Util/GMO/GMOUtil");
-const Util_1 = require("../../common/Util/Util");
+const GMOUtil = require("../../common/Util/GMO/GMOUtil");
+const Util = require("../../common/Util/Util");
 const reserveProfileForm_1 = require("../forms/reserve/reserveProfileForm");
 const reserveTicketForm_1 = require("../forms/reserve/reserveTicketForm");
 const ReservationModel_1 = require("../models/Reserve/ReservationModel");
 const BaseController_1 = require("./BaseController");
 const DEFAULT_RADIX = 10;
 /**
- * 予約フローベースコントローラー
+ * 座席予約ベースコントローラー
+ *
+ * @export
+ * @class ReserveBaseController
+ * @extends {BaseController}
  */
 class ReserveBaseController extends BaseController_1.default {
     constructor(req, res, next) {
         super(req, res, next);
-        this.res.locals.GMOUtil = GMOUtil_1.default;
+        this.res.locals.GMOUtil = GMOUtil;
         this.res.locals.ReservationUtil = ttts_domain_1.ReservationUtil;
         this.res.locals.ScreenUtil = ttts_domain_1.ScreenUtil;
         this.res.locals.Models = ttts_domain_2.Models;
@@ -39,7 +43,7 @@ class ReserveBaseController extends BaseController_1.default {
         }
         const performanceId = this.req.query.performance;
         // 予約トークンを発行
-        const token = Util_1.default.createToken();
+        const token = Util.createToken();
         let reservationModel = new ReservationModel_1.default();
         reservationModel.token = token;
         reservationModel.purchaserGroup = this.purchaserGroup;
@@ -96,7 +100,7 @@ class ReserveBaseController extends BaseController_1.default {
                     reservationModel.purchaserAddress = purchaserFromSession.address;
                     reservationModel.purchaserGender = purchaserFromSession.gender;
                 }
-                reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CREDIT, GMOUtil_1.default.PAY_TYPE_CVS];
+                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT, GMOUtil.PAY_TYPE_CVS];
                 break;
             case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
                 if (purchaserFromSession) {
@@ -108,7 +112,7 @@ class ReserveBaseController extends BaseController_1.default {
                     reservationModel.purchaserAddress = purchaserFromSession.address;
                     reservationModel.purchaserGender = purchaserFromSession.gender;
                 }
-                reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CREDIT];
+                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
                 break;
             case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
                 if (purchaserFromSession) {
@@ -140,7 +144,7 @@ class ReserveBaseController extends BaseController_1.default {
                 reservationModel.purchaserAge = '00';
                 reservationModel.purchaserAddress = '';
                 reservationModel.purchaserGender = '1';
-                reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CVS];
+                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CVS];
                 break;
             case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
                 reservationModel.purchaserLastName = 'マドグチ';
@@ -150,7 +154,7 @@ class ReserveBaseController extends BaseController_1.default {
                 reservationModel.purchaserAge = '00';
                 reservationModel.purchaserAddress = '';
                 reservationModel.purchaserGender = '1';
-                reservationModel.paymentMethodChoices = [GMOUtil_1.default.PAY_TYPE_CREDIT, GMOUtil_1.default.PAY_TYPE_CASH];
+                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT, GMOUtil.PAY_TYPE_CASH];
                 break;
             default:
                 break;
@@ -291,8 +295,8 @@ class ReserveBaseController extends BaseController_1.default {
                 // コンビニ決済はパフォーマンス上映の5日前まで
                 // tslint:disable-next-line:no-magic-numbers
                 if (parseInt(moment().add(+5, 'days').format('YYYYMMDD'), DEFAULT_RADIX) > parseInt(reservationModel.performance.day, DEFAULT_RADIX)) {
-                    if (reservationModel.paymentMethodChoices.indexOf(GMOUtil_1.default.PAY_TYPE_CVS) >= 0) {
-                        reservationModel.paymentMethodChoices.splice(reservationModel.paymentMethodChoices.indexOf(GMOUtil_1.default.PAY_TYPE_CVS), 1);
+                    if (reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CVS) >= 0) {
+                        reservationModel.paymentMethodChoices.splice(reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CVS), 1);
                     }
                 }
                 // スクリーン座席表HTMLを保管
@@ -429,10 +433,10 @@ class ReserveBaseController extends BaseController_1.default {
                     reservationModel.paymentMethod = '';
                     break;
                 case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
-                    reservationModel.paymentMethod = GMOUtil_1.default.PAY_TYPE_CVS;
+                    reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CVS;
                     break;
                 case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
-                    reservationModel.paymentMethod = GMOUtil_1.default.PAY_TYPE_CREDIT;
+                    reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
                     break;
                 default:
                     break;
@@ -605,7 +609,7 @@ class ReserveBaseController extends BaseController_1.default {
      * @param {string} paymentNo 購入番号
      */
     setProcessLogger(paymentNo, cb) {
-        Util_1.default.getReservationLogger(paymentNo, (err, logger) => {
+        Util.getReservationLogger(paymentNo, (err, logger) => {
             if (err) {
             }
             else {

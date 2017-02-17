@@ -1,8 +1,18 @@
+/**
+ * 予約情報モデル
+ *
+ * 予約プロセス中の情報を全て管理するためのモデルです
+ * この情報をセッションで引き継くことで、予約プロセスを管理しています
+ *
+ * @export
+ * @class ReservationModel
+ */
+
 import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
 import * as redis from 'redis';
-import GMOUtil from '../../../common/Util/GMO/GMOUtil';
+import * as GMOUtil from '../../../common/Util/GMO/GMOUtil';
 
 const DEFAULT_REDIS_TTL = 1800;
 const redisClient = redis.createClient(
@@ -34,12 +44,6 @@ interface Section {
     seats: Seat[];
 }
 
-/**
- * 予約情報モデル
- *
- * 予約プロセス中の情報を全て管理するためのモデルです
- * この情報をセッションで引き継くことで、予約プロセスを管理しています
- */
 export default class ReservationModel {
     /**
      * 予約トークン

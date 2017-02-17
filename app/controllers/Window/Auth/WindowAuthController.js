@@ -1,9 +1,16 @@
 "use strict";
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const Util_1 = require("../../../../common/Util/Util");
+const Util = require("../../../../common/Util/Util");
 const windowLoginForm_1 = require("../../../forms/window/windowLoginForm");
 const WindowUser_1 = require("../../../models/User/WindowUser");
 const BaseController_1 = require("../../BaseController");
+/**
+ * 当日窓口認証コントローラー
+ *
+ * @export
+ * @class WindowAuthController
+ * @extends {BaseController}
+ */
 class WindowAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -34,7 +41,7 @@ class WindowAuthController extends BaseController_1.default {
                         }
                         else {
                             // パスワードチェック
-                            if (window.get('password_hash') !== Util_1.default.createHash(form.password, window.get('password_salt'))) {
+                            if (window.get('password_hash') !== Util.createHash(form.password, window.get('password_salt'))) {
                                 form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('window/auth/login');
                             }
@@ -44,7 +51,7 @@ class WindowAuthController extends BaseController_1.default {
                                     if (form.remember) {
                                         // トークン生成
                                         ttts_domain_1.Models.Authentication.create({
-                                            token: Util_1.default.createToken(),
+                                            token: Util.createToken(),
                                             window: window.get('_id')
                                         }, (createAuthenticationErr, authentication) => {
                                             this.res.cookie('remember_window', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });

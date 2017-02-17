@@ -1,6 +1,13 @@
 "use strict";
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const BaseController_1 = require("../BaseController");
+/**
+ * SendGridウェブフックコントローラー
+ *
+ * @export
+ * @class SendGridController
+ * @extends {BaseController}
+ */
 class SendGridController extends BaseController_1.default {
     /**
      * SendGridイベントフック

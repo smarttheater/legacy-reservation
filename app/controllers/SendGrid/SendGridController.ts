@@ -1,6 +1,13 @@
 import {Models} from '@motionpicture/ttts-domain';
 import BaseController from '../BaseController';
 
+/**
+ * SendGridウェブフックコントローラー
+ *
+ * @export
+ * @class SendGridController
+ * @extends {BaseController}
+ */
 export default class SendGridController extends BaseController {
     /**
      * SendGridイベントフック

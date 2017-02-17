@@ -1,4 +1,10 @@
 "use strict";
+/**
+ * expressアプリケーション
+ *
+ * @module app
+ * @global
+ */
 const bodyParser = require("body-parser");
 const conf = require("config");
 const cookieParser = require("cookie-parser");

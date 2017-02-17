@@ -1,11 +1,18 @@
 import { ReservationUtil } from '@motionpicture/ttts-domain';
 import { ScreenUtil } from '@motionpicture/ttts-domain';
 import { Models } from '@motionpicture/ttts-domain';
-import Util from '../../../../common/Util/Util';
+import * as Util from '../../../../common/Util/Util';
 import BaseController from '../../BaseController';
 
 const DEFAULT_RADIX = 10;
 
+/**
+ * 外部関係者舞マイページコントトーラー
+ *
+ * @export
+ * @class SponsorMyPageController
+ * @extends {BaseController}
+ */
 export default class SponsorMyPageController extends BaseController {
     public layout = 'layouts/sponsor/layout';
 

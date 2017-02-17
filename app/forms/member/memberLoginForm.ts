@@ -1,3 +1,8 @@
+/**
+ * メルマガ先行会員ログインフォーム
+ *
+ * @ignore
+ */
 import * as form from 'express-form';
 
 export default form(

@@ -1,8 +1,14 @@
-import * as express from 'express';
+/**
+ * ベンチマークミドルウェア
+ *
+ * @module benchmarksMiddleware
+ */
+
+import { NextFunction, Request, Response } from 'express';
 import * as log4js from 'log4js';
 
 // tslint:disable-next-line:variable-name
-export default (req: express.Request, _res: express.Response, next: express.NextFunction) => {
+export default (req: Request, _res: Response, next: NextFunction) => {
     if (process.env.NODE_ENV === 'dev') {
         const startMemory = process.memoryUsage();
         const startTime = process.hrtime();

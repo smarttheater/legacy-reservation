@@ -13,6 +13,14 @@ import ReserveControllerInterface from '../../ReserveControllerInterface';
 
 const DEFAULT_RADIX = 10;
 
+/**
+ * 外部関係者座席予約コントローラー
+ *
+ * @export
+ * @class SponsorReserveController
+ * @extends {ReserveBaseController}
+ * @implements {ReserveControllerInterface}
+ */
 export default class SponsorReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_SPONSOR;
     public layout = 'layouts/sponsor/layout';

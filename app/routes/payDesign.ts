@@ -1,9 +1,15 @@
-import * as express from 'express';
+/**
+ * ペイデザインルーター
+ *
+ * @function payDesignRouter
+ * @ignore
+ */
+import { NextFunction, Request, Response } from 'express';
 import * as querystring from 'querystring';
 import PayDesignReserveController from '../controllers/PayDesign/Reserve/PayDesignReserveController';
 
 export default (app: any) => {
-    app.post('/PayDesign/reserve/notify', '', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    app.post('/PayDesign/reserve/notify', '', (req: Request, res: Response, next: NextFunction) => {
         let content = new Buffer([]);
         req.on('data', (chunk: Buffer) => {
             content = Buffer.concat([content, chunk]);
@@ -19,7 +25,7 @@ export default (app: any) => {
         });
     });
 
-    app.post('/PayDesign/reserve/cancel', '', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    app.post('/PayDesign/reserve/cancel', '', (req: Request, res: Response, next: NextFunction) => {
         let content = new Buffer([]);
         req.on('data', (chunk: Buffer) => {
             content = Buffer.concat([content, chunk]);

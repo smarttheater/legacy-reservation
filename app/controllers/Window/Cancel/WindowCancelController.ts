@@ -3,6 +3,13 @@ import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as log4js from 'log4js';
 import BaseController from '../../BaseController';
 
+/**
+ * 当日窓口座席予約キャンセルコントローラー
+ *
+ * @export
+ * @class WindowCancelController
+ * @extends {BaseController}
+ */
 export default class WindowCancelController extends BaseController {
     public execute(): void {
         if (!this.req.windowUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));

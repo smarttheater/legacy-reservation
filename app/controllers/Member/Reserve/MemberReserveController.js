@@ -3,9 +3,17 @@ const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const ttts_domain_3 = require("@motionpicture/ttts-domain");
 const moment = require("moment");
-const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
+const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
+/**
+ * メルマガ先行会員座席予約コントローラー
+ *
+ * @export
+ * @class MemberReserveController
+ * @extends {ReserveBaseController}
+ * @implements {ReserveControllerInterface}
+ */
 class MemberReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
@@ -140,7 +148,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                 this.res.locals.email = (email) ? email : '';
                 this.res.locals.emailConfirm = (email) ? email.substr(0, email.indexOf('@')) : '';
                 this.res.locals.emailConfirmDomain = (email) ? email.substr(email.indexOf('@') + 1) : '';
-                this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : GMOUtil_1.default.PAY_TYPE_CREDIT;
+                this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
                 this.res.render('member/reserve/profile', {
                     reservationModel: reservationModel
                 });

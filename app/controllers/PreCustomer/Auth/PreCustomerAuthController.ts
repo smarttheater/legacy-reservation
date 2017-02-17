@@ -2,11 +2,18 @@ import { Models } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
-import Util from '../../../../common/Util/Util';
+import * as Util from '../../../../common/Util/Util';
 import preCustomerLoginForm from '../../../forms/preCustomer/preCustomerLoginForm';
 import PreCustomerUser from '../../../models/User/PreCustomerUser';
 import BaseController from '../../BaseController';
 
+/**
+ * 先行予約認証コントローラー
+ *
+ * @export
+ * @class PreCustomerAuthController
+ * @extends {BaseController}
+ */
 export default class PreCustomerAuthController extends BaseController {
     public layout = 'layouts/preCustomer/layout';
 

@@ -3,6 +3,13 @@ const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const log4js = require("log4js");
 const BaseController_1 = require("../../BaseController");
+/**
+ * 当日窓口座席予約キャンセルコントローラー
+ *
+ * @export
+ * @class WindowCancelController
+ * @extends {BaseController}
+ */
 class WindowCancelController extends BaseController_1.default {
     execute() {
         if (!this.req.windowUser)

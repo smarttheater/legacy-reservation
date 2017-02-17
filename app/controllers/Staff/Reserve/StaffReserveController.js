@@ -9,6 +9,14 @@ const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerforma
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
+/**
+ * 内部関係者座席予約コントローラー
+ *
+ * @export
+ * @class StaffReserveController
+ * @extends {ReserveBaseController}
+ * @implements {ReserveControllerInterface}
+ */
 class StaffReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);

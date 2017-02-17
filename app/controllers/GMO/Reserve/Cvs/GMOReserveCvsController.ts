@@ -6,6 +6,13 @@ import * as crypto from 'crypto';
 import GMOResultModel from '../../../../models/Reserve/GMOResultModel';
 import ReserveBaseController from '../../../ReserveBaseController';
 
+/**
+ * GMOコンビニ決済コントローラー
+ *
+ * @export
+ * @class GMOReserveCvsController
+ * @extends {ReserveBaseController}
+ */
 export default class GMOReserveCvsController extends ReserveBaseController {
     /**
      * GMOからの結果受信

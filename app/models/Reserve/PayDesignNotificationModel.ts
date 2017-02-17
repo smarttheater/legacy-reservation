@@ -1,5 +1,8 @@
 /**
  * ペイデザイン結果通知モデル
+ *
+ * @export
+ * @class PayDesignNotificationModel
  */
 export default class PayDesignNotificationModel {
     /**

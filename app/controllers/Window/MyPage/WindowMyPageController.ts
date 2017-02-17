@@ -2,12 +2,19 @@ import { ReservationUtil } from '@motionpicture/ttts-domain';
 import { ScreenUtil } from '@motionpicture/ttts-domain';
 import { Models } from '@motionpicture/ttts-domain';
 import * as moment from 'moment';
-import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
-import Util from '../../../../common/Util/Util';
+import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
+import * as Util from '../../../../common/Util/Util';
 import BaseController from '../../BaseController';
 
 const DEFAULT_RADIX = 10;
 
+/**
+ * 当日窓口マイページコントローラー
+ *
+ * @export
+ * @class WindowMyPageController
+ * @extends {BaseController}
+ */
 export default class WindowMyPageController extends BaseController {
     public layout = 'layouts/window/layout';
 

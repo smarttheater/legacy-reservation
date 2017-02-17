@@ -2,10 +2,17 @@
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const moment = require("moment");
-const Util_1 = require("../../../../common/Util/Util");
+const Util = require("../../../../common/Util/Util");
 const memberLoginForm_1 = require("../../../forms/member/memberLoginForm");
 const MemberUser_1 = require("../../../models/User/MemberUser");
 const BaseController_1 = require("../../BaseController");
+/**
+ * メルマガ先行会員認証コントローラー
+ *
+ * @export
+ * @class MemberAuthController
+ * @extends {BaseController}
+ */
 class MemberAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -40,7 +47,7 @@ class MemberAuthController extends BaseController_1.default {
                         }
                         else {
                             // パスワードチェック
-                            if (member.get('password_hash') !== Util_1.default.createHash(form.password, member.get('password_salt'))) {
+                            if (member.get('password_hash') !== Util.createHash(form.password, member.get('password_salt'))) {
                                 form.errors.push('ログイン番号またはパスワードに誤りがあります');
                                 this.res.render('member/auth/login');
                             }

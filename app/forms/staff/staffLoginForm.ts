@@ -1,9 +1,14 @@
-import * as express from 'express';
+/**
+ * 内部関係者ログインフォーム
+ *
+ * @ignore
+ */
+import {Request} from 'express';
 import * as form from 'express-form';
 
 const SIGNATURE_MAX_LENGTH = 10;
 
-export default (req: express.Request) => {
+export default (req: Request) => {
     return form(
         form.field('userId', req.__('Form.FieldName.userId')).trim().required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' })),
         form.field('password', req.__('Form.FieldName.password')).trim().required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' })),

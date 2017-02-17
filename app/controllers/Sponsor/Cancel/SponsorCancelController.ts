@@ -4,6 +4,13 @@ import * as log4js from 'log4js';
 import sponsorCancelForm from '../../../forms/sponsor/sponsorCancelForm';
 import BaseController from '../../BaseController';
 
+/**
+ * 外部関係者座席予約キャンセルコントローラー
+ *
+ * @export
+ * @class SponsorCancelController
+ * @extends {BaseController}
+ */
 export default class SponsorCancelController extends BaseController {
     public layout = 'layouts/sponsor/layout';
 

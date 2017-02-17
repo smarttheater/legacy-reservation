@@ -3,13 +3,16 @@ import * as express from 'express';
 import * as log4js from 'log4js';
 import * as moment from 'moment';
 import * as numeral from 'numeral';
-import Util from '../../common/Util/Util';
+import * as Util from '../../common/Util/Util';
 
 /**
  * ベースコントローラー
  *
  * 基本的にコントローラークラスはルーティングクラスより呼ばれる
  * あらゆるルーティングで実行されるメソッドは、このクラスがベースとなるので、メソッド共通の処理はここで実装するとよい
+ *
+ * @export
+ * @class BaseController
  */
 export default class BaseController {
     /**

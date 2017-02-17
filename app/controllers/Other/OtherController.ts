@@ -1,5 +1,12 @@
 import BaseController from '../BaseController';
 
+/**
+ * 静的ページコントローラー
+ *
+ * @export
+ * @class OtherController
+ * @extends {BaseController}
+ */
 export default class OtherController extends BaseController {
     public policy(): void {
         this.res.render(`other/policy_${this.req.getLocale()}`);

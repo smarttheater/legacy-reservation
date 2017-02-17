@@ -1,9 +1,18 @@
+/**
+ * 予約情報モデル
+ *
+ * 予約プロセス中の情報を全て管理するためのモデルです
+ * この情報をセッションで引き継くことで、予約プロセスを管理しています
+ *
+ * @export
+ * @class ReservationModel
+ */
 "use strict";
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const moment = require("moment");
 const redis = require("redis");
-const GMOUtil_1 = require("../../../common/Util/GMO/GMOUtil");
+const GMOUtil = require("../../../common/Util/GMO/GMOUtil");
 const DEFAULT_REDIS_TTL = 1800;
 const redisClient = redis.createClient(conf.get('redis_port'), conf.get('redis_host'), {
     password: conf.get('redis_key'),
@@ -13,12 +22,6 @@ const redisClient = redis.createClient(conf.get('redis_port'), conf.get('redis_h
 const MAX_RESERVATION_SEATS_DEFAULT = 4;
 const MAX_RESERVATION_SEATS_STAFFS = 10;
 const MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES = 10;
-/**
- * 予約情報モデル
- *
- * 予約プロセス中の情報を全て管理するためのモデルです
- * この情報をセッションで引き継くことで、予約プロセスを管理しています
- */
 class ReservationModel {
     /**
      * プロセス中の購入情報をセッションに保存する
@@ -141,7 +144,7 @@ class ReservationModel {
                 charge += ttts_domain_1.ReservationUtil.CHARGE_MX4D;
             }
             // コンビニ手数料加算
-            if (this.paymentMethod === GMOUtil_1.default.PAY_TYPE_CVS) {
+            if (this.paymentMethod === GMOUtil.PAY_TYPE_CVS) {
                 charge += ttts_domain_1.ReservationUtil.CHARGE_CVS;
             }
         }
@@ -216,7 +219,7 @@ class ReservationModel {
             watcher_name: (reservation.watcher_name) ? reservation.watcher_name : '',
             watcher_name_updated_at: (reservation.watcher_name) ? moment().valueOf() : '',
             purchased_at: this.purchasedAt,
-            gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil_1.default.createShopPassString(conf.get('gmo_payment_shop_id'), this.paymentNo, this.getTotalCharge().toString(), conf.get('gmo_payment_shop_password'), moment(this.purchasedAt).format('YYYYMMDDHHmmss')) : '',
+            gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil.createShopPassString(conf.get('gmo_payment_shop_id'), this.paymentNo, this.getTotalCharge().toString(), conf.get('gmo_payment_shop_password'), moment(this.purchasedAt).format('YYYYMMDDHHmmss')) : '',
             updated_user: 'ReservationModel'
         };
     }

@@ -1,9 +1,16 @@
 "use strict";
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const Util_1 = require("../../../../common/Util/Util");
+const Util = require("../../../../common/Util/Util");
 const staffLoginForm_1 = require("../../../forms/staff/staffLoginForm");
 const StaffUser_1 = require("../../../models/User/StaffUser");
 const BaseController_1 = require("../../BaseController");
+/**
+ * 内部関係者認証コントローラー
+ *
+ * @export
+ * @class StaffAuthController
+ * @extends {BaseController}
+ */
 class StaffAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -33,7 +40,7 @@ class StaffAuthController extends BaseController_1.default {
                         }
                         else {
                             // パスワードチェック
-                            if (staff.get('password_hash') !== Util_1.default.createHash(form.password, staff.get('password_salt'))) {
+                            if (staff.get('password_hash') !== Util.createHash(form.password, staff.get('password_salt'))) {
                                 form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('staff/auth/login');
                             }
@@ -43,7 +50,7 @@ class StaffAuthController extends BaseController_1.default {
                                     if (form.remember) {
                                         // トークン生成
                                         ttts_domain_1.Models.Authentication.create({
-                                            token: Util_1.default.createToken(),
+                                            token: Util.createToken(),
                                             staff: staff.get('_id'),
                                             signature: form.signature,
                                             locale: form.language

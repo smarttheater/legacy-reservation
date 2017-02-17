@@ -1,6 +1,12 @@
 "use strict";
+/**
+ * 先行予約ルーター
+ *
+ * @function preRouter
+ * @ignore
+ */
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const Util_1 = require("../../common/Util/Util");
+const Util = require("../../common/Util/Util");
 const PreCustomerAuthController_1 = require("../controllers/PreCustomer/Auth/PreCustomerAuthController");
 const PreCustomerReserveController_1 = require("../controllers/PreCustomer/Reserve/PreCustomerReserveController");
 const PreCustomerUser_1 = require("../models/User/PreCustomerUser");
@@ -21,7 +27,7 @@ exports.default = (app) => {
                             return cb(null, null);
                         if (authentication) {
                             // トークン再生成
-                            const token = Util_1.default.createToken();
+                            const token = Util.createToken();
                             authentication.update({
                                 token: token
                             }, (updateErr) => {

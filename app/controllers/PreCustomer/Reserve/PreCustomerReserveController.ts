@@ -5,7 +5,7 @@ import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as lockFile from 'lockfile';
 import * as moment from 'moment';
-import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
+import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
@@ -14,6 +14,14 @@ import ReserveControllerInterface from '../../ReserveControllerInterface';
 
 const DEFAULT_RADIX = 10;
 
+/**
+ * 先行予約コントローラー
+ *
+ * @export
+ * @class PreCustomerReserveController
+ * @extends {ReserveBaseController}
+ * @implements {ReserveControllerInterface}
+ */
 export default class PreCustomerReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_CUSTOMER;
     public layout = 'layouts/preCustomer/layout';

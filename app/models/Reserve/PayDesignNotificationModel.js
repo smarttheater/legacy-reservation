@@ -1,6 +1,9 @@
 "use strict";
 /**
  * ペイデザイン結果通知モデル
+ *
+ * @export
+ * @class PayDesignNotificationModel
  */
 class PayDesignNotificationModel {
     // tslint:disable-next-line:function-name

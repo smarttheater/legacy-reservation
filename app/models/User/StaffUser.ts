@@ -1,7 +1,11 @@
 import BaseUser from './BaseUser';
 
 /**
- * 内部関係者ユーザークラス
+ * 内部関係者ユーザー
+ *
+ * @export
+ * @class StaffUser
+ * @extends {BaseUser}
  */
 export default class StaffUser extends BaseUser {
     public static AUTH_SESSION_NAME = 'TTTSFrontendStaffAuth';

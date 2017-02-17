@@ -7,10 +7,17 @@ import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as numeral from 'numeral';
 import * as sendgrid from 'sendgrid';
-import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
+import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import customerCancelForm from '../../../forms/customer/customerCancelForm';
 import BaseController from '../../BaseController';
 
+/**
+ * 一般予約キャンセルコントローラー
+ *
+ * @export
+ * @class CustomerCancelController
+ * @extends {BaseController}
+ */
 export default class CustomerCancelController extends BaseController {
 
     /**

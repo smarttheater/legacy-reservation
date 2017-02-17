@@ -1,10 +1,17 @@
 import { Models } from '@motionpicture/ttts-domain';
 import * as mongoose from 'mongoose';
-import Util from '../../../../common/Util/Util';
+import * as Util from '../../../../common/Util/Util';
 import telLoginForm from '../../../forms/tel/telLoginForm';
 import TelStaffUser from '../../../models/User/TelStaffUser';
 import BaseController from '../../BaseController';
 
+/**
+ * 電話窓口認証コントローラー
+ *
+ * @export
+ * @class TelAuthController
+ * @extends {BaseController}
+ */
 export default class TelAuthController extends BaseController {
     public layout = 'layouts/tel/layout';
 

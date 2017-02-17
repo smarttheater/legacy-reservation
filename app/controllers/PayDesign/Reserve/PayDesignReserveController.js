@@ -2,6 +2,13 @@
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const PayDesignNotificationModel_1 = require("../../../models/Reserve/PayDesignNotificationModel");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
+/**
+ * ペイデザイン決済コントローラー
+ *
+ * @export
+ * @class PayDesignReserveController
+ * @extends {ReserveBaseController}
+ */
 class PayDesignReserveController extends ReserveBaseController_1.default {
     /**
      * ペイデザイン入金通知

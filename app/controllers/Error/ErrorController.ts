@@ -1,5 +1,12 @@
 import BaseController from '../BaseController';
 
+/**
+ * エラーページコントローラー
+ *
+ * @export
+ * @class ErrorController
+ * @extends {BaseController}
+ */
 export default class ErrorController extends BaseController {
     /**
      * Not Found

@@ -1,7 +1,11 @@
 "use strict";
 const BaseUser_1 = require("./BaseUser");
 /**
- * 窓口ユーザークラス
+ * 当日窓口ユーザー
+ *
+ * @export
+ * @class WindowUser
+ * @extends {BaseUser}
  */
 class WindowUser extends BaseUser_1.default {
     // tslint:disable-next-line:function-name

@@ -1,3 +1,9 @@
+/**
+ * expressアプリケーション
+ *
+ * @module app
+ * @global
+ */
 import * as bodyParser from 'body-parser';
 import * as conf from 'config';
 import * as cookieParser from 'cookie-parser';

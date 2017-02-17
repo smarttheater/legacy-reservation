@@ -1,11 +1,18 @@
 import { Models } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
-import Util from '../../../../common/Util/Util';
+import * as Util from '../../../../common/Util/Util';
 import memberLoginForm from '../../../forms/member/memberLoginForm';
 import MemberUser from '../../../models/User/MemberUser';
 import BaseController from '../../BaseController';
 
+/**
+ * メルマガ先行会員認証コントローラー
+ *
+ * @export
+ * @class MemberAuthController
+ * @extends {BaseController}
+ */
 export default class MemberAuthController extends BaseController {
     public layout = 'layouts/member/layout';
 

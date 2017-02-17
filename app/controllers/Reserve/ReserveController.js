@@ -5,6 +5,13 @@ const ttts_domain_3 = require("@motionpicture/ttts-domain");
 const qr = require("qr-image");
 const ReservationModel_1 = require("../../models/Reserve/ReservationModel");
 const ReserveBaseController_1 = require("../ReserveBaseController");
+/**
+ * 座席予約状態参照コントローラー
+ *
+ * @export
+ * @class ReserveController
+ * @extends {ReserveBaseController}
+ */
 class ReserveController extends ReserveBaseController_1.default {
     /**
      * 座席の状態を取得する

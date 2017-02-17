@@ -1,10 +1,17 @@
 import { Models } from '@motionpicture/ttts-domain';
 import * as mongoose from 'mongoose';
-import Util from '../../../../common/Util/Util';
+import * as Util from '../../../../common/Util/Util';
 import sponsorLoginForm from '../../../forms/sponsor/sponsorLoginForm';
 import SponsorUser from '../../../models/User/SponsorUser';
 import BaseController from '../../BaseController';
 
+/**
+ * 外部関係者認証コントローラー
+ *
+ * @export
+ * @class SponsorAuthController
+ * @extends {BaseController}
+ */
 export default class SponsorAuthController extends BaseController {
     public layout = 'layouts/sponsor/layout';
 

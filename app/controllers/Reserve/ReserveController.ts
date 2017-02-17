@@ -5,6 +5,13 @@ import * as qr from 'qr-image';
 import ReservationModel from '../../models/Reserve/ReservationModel';
 import ReserveBaseController from '../ReserveBaseController';
 
+/**
+ * 座席予約状態参照コントローラー
+ *
+ * @export
+ * @class ReserveController
+ * @extends {ReserveBaseController}
+ */
 export default class ReserveController extends ReserveBaseController {
     /**
      * 座席の状態を取得する

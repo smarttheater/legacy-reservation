@@ -2,11 +2,19 @@ import { Models } from '@motionpicture/ttts-domain';
 import { ReservationUtil } from '@motionpicture/ttts-domain';
 import { ScreenUtil } from '@motionpicture/ttts-domain';
 import * as moment from 'moment';
-import GMOUtil from '../../../../common/Util/GMO/GMOUtil';
+import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
 
+/**
+ * メルマガ先行会員座席予約コントローラー
+ *
+ * @export
+ * @class MemberReserveController
+ * @extends {ReserveBaseController}
+ * @implements {ReserveControllerInterface}
+ */
 export default class MemberReserveController extends ReserveBaseController implements ReserveControllerInterface {
     public purchaserGroup = ReservationUtil.PURCHASER_GROUP_MEMBER;
     public layout = 'layouts/member/layout';

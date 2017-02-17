@@ -1,6 +1,12 @@
 "use strict";
+/**
+ * 外部関係者ルーター
+ *
+ * @function sponsorRouter
+ * @ignore
+ */
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const Util_1 = require("../../common/Util/Util");
+const Util = require("../../common/Util/Util");
 const SponsorAuthController_1 = require("../controllers/Sponsor/Auth/SponsorAuthController");
 const SponsorCancelController_1 = require("../controllers/Sponsor/Cancel/SponsorCancelController");
 const SponsorMyPageController_1 = require("../controllers/Sponsor/MyPage/SponsorMyPageController");
@@ -23,7 +29,7 @@ exports.default = (app) => {
                             return cb(null, null);
                         if (authentication) {
                             // トークン再生成
-                            const token = Util_1.default.createToken();
+                            const token = Util.createToken();
                             authentication.update({
                                 token: token
                             }, (updateErr) => {

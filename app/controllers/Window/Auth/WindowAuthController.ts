@@ -1,10 +1,17 @@
 import { Models } from '@motionpicture/ttts-domain';
 import * as mongoose from 'mongoose';
-import Util from '../../../../common/Util/Util';
+import * as Util from '../../../../common/Util/Util';
 import windowLoginForm from '../../../forms/window/windowLoginForm';
 import WindowUser from '../../../models/User/WindowUser';
 import BaseController from '../../BaseController';
 
+/**
+ * 当日窓口認証コントローラー
+ *
+ * @export
+ * @class WindowAuthController
+ * @extends {BaseController}
+ */
 export default class WindowAuthController extends BaseController {
     public layout = 'layouts/window/layout';
 

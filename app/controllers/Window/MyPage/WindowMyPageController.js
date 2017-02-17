@@ -3,10 +3,17 @@ const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const ttts_domain_3 = require("@motionpicture/ttts-domain");
 const moment = require("moment");
-const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
-const Util_1 = require("../../../../common/Util/Util");
+const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
+const Util = require("../../../../common/Util/Util");
 const BaseController_1 = require("../../BaseController");
 const DEFAULT_RADIX = 10;
+/**
+ * 当日窓口マイページコントローラー
+ *
+ * @export
+ * @class WindowMyPageController
+ * @extends {BaseController}
+ */
 class WindowMyPageController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -14,7 +21,7 @@ class WindowMyPageController extends BaseController_1.default {
     }
     index() {
         this.res.render('window/mypage/index', {
-            GMOUtil: GMOUtil_1.default,
+            GMOUtil: GMOUtil,
             ReservationUtil: ttts_domain_1.ReservationUtil
         });
     }
@@ -58,12 +65,12 @@ class WindowMyPageController extends BaseController_1.default {
         }
         if (email) {
             // remove space characters
-            email = Util_1.default.toHalfWidth(email.replace(/\s/g, ''));
+            email = Util.toHalfWidth(email.replace(/\s/g, ''));
             conditions.push({ purchaser_email: { $regex: new RegExp(email, 'i') } });
         }
         if (tel) {
             // remove space characters
-            tel = Util_1.default.toHalfWidth(tel.replace(/\s/g, ''));
+            tel = Util.toHalfWidth(tel.replace(/\s/g, ''));
             conditions.push({ purchaser_tel: { $regex: new RegExp(tel, 'i') } });
         }
         // 空白つなぎでAND検索
@@ -88,7 +95,7 @@ class WindowMyPageController extends BaseController_1.default {
         }
         if (paymentNo) {
             // remove space characters
-            paymentNo = Util_1.default.toHalfWidth(paymentNo.replace(/\s/g, ''));
+            paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
             conditions.push({ payment_no: { $regex: new RegExp(paymentNo, 'i') } });
         }
         if (day) {

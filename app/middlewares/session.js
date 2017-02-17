@@ -1,3 +1,8 @@
+/**
+ * セッションミドルウェア
+ *
+ * @module sessionMiddleware
+ */
 "use strict";
 const conf = require("config");
 const connectRedis = require("connect-redis");

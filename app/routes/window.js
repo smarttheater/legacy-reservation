@@ -1,6 +1,12 @@
 "use strict";
+/**
+ * 当日窓口ルーター
+ *
+ * @function windowRouter
+ * @ignore
+ */
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const Util_1 = require("../../common/Util/Util");
+const Util = require("../../common/Util/Util");
 const WindowAuthController_1 = require("../controllers/Window/Auth/WindowAuthController");
 const WindowCancelController_1 = require("../controllers/Window/Cancel/WindowCancelController");
 const WindowMyPageController_1 = require("../controllers/Window/MyPage/WindowMyPageController");
@@ -23,7 +29,7 @@ exports.default = (app) => {
                             return cb(null);
                         if (authentication) {
                             // トークン再生成
-                            const token = Util_1.default.createToken();
+                            const token = Util.createToken();
                             authentication.update({
                                 token: token
                             }, (updateErr) => {

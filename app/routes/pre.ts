@@ -1,20 +1,24 @@
-import * as express from 'express';
-import * as mongoose from 'mongoose';
-
+/**
+ * 先行予約ルーター
+ *
+ * @function preRouter
+ * @ignore
+ */
 import { Models } from '@motionpicture/ttts-domain';
-import Util from '../../common/Util/Util';
+import { NextFunction, Request, Response } from 'express';
+import { Document } from 'mongoose';
+import * as Util from '../../common/Util/Util';
 import PreCustomerAuthController from '../controllers/PreCustomer/Auth/PreCustomerAuthController';
 import PreCustomerReserveController from '../controllers/PreCustomer/Reserve/PreCustomerReserveController';
-
 import PreCustomerUser from '../models/User/PreCustomerUser';
 
 export default (app: any) => {
-    const authenticationMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const authenticationMiddleware = (req: Request, res: Response, next: NextFunction) => {
         if (!req.preCustomerUser) return next(new Error(req.__('Message.UnexpectedError')));
 
         if (!req.preCustomerUser.isAuthenticated()) {
             // 自動ログインチェック
-            const checkRemember = (cb: (user: mongoose.Document | null, locale: string | null) => void) => {
+            const checkRemember = (cb: (user: Document | null, locale: string | null) => void) => {
                 if (req.cookies.remember_pre_customer) {
                     Models.Authentication.findOne(
                         {
@@ -78,20 +82,20 @@ export default (app: any) => {
     };
 
     // tslint:disable-next-line:variable-name
-    const baseMiddleware = (req: express.Request, _res: express.Response, next: express.NextFunction) => {
+    const baseMiddleware = (req: Request, _res: Response, next: NextFunction) => {
         req.preCustomerUser = PreCustomerUser.parse(req.session);
         next();
     };
 
     // 外部関係者
-    app.all('/pre/login', 'pre.reserve.terms', baseMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new PreCustomerAuthController(req, res, next)).login(); });
-    app.all('/pre/logout', 'pre.logout', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new PreCustomerAuthController(req, res, next)).logout(); });
-    app.get('/pre/reserve/start', 'pre.reserve.start', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new PreCustomerReserveController(req, res, next)).start(); });
-    app.all('/pre/reserve/:token/performances', 'pre.reserve.performances', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new PreCustomerReserveController(req, res, next)).performances(); });
-    app.all('/pre/reserve/:token/seats', 'pre.reserve.seats', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new PreCustomerReserveController(req, res, next)).seats(); });
-    app.all('/pre/reserve/:token/tickets', 'pre.reserve.tickets', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new PreCustomerReserveController(req, res, next)).tickets(); });
-    app.all('/pre/reserve/:token/profile', 'pre.reserve.profile', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new PreCustomerReserveController(req, res, next)).profile(); });
-    app.all('/pre/reserve/:token/confirm', 'pre.reserve.confirm', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new PreCustomerReserveController(req, res, next)).confirm(); });
-    app.get('/pre/reserve/:paymentNo/waitingSettlement', 'pre.reserve.waitingSettlement', baseMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new PreCustomerReserveController(req, res, next)).waitingSettlement(); });
-    app.get('/pre/reserve/:paymentNo/complete', 'pre.reserve.complete', baseMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new PreCustomerReserveController(req, res, next)).complete(); });
+    app.all('/pre/login', 'pre.reserve.terms', baseMiddleware, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerAuthController(req, res, next)).login(); });
+    app.all('/pre/logout', 'pre.logout', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerAuthController(req, res, next)).logout(); });
+    app.get('/pre/reserve/start', 'pre.reserve.start', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).start(); });
+    app.all('/pre/reserve/:token/performances', 'pre.reserve.performances', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).performances(); });
+    app.all('/pre/reserve/:token/seats', 'pre.reserve.seats', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).seats(); });
+    app.all('/pre/reserve/:token/tickets', 'pre.reserve.tickets', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).tickets(); });
+    app.all('/pre/reserve/:token/profile', 'pre.reserve.profile', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).profile(); });
+    app.all('/pre/reserve/:token/confirm', 'pre.reserve.confirm', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).confirm(); });
+    app.get('/pre/reserve/:paymentNo/waitingSettlement', 'pre.reserve.waitingSettlement', baseMiddleware, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).waitingSettlement(); });
+    app.get('/pre/reserve/:paymentNo/complete', 'pre.reserve.complete', baseMiddleware, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).complete(); });
 };

@@ -1,22 +1,26 @@
-import * as express from 'express';
-import * as mongoose from 'mongoose';
-
+/**
+ * 当日窓口ルーター
+ *
+ * @function windowRouter
+ * @ignore
+ */
 import { Models } from '@motionpicture/ttts-domain';
-import Util from '../../common/Util/Util';
+import { NextFunction, Request, Response } from 'express';
+import { Document } from 'mongoose';
+import * as Util from '../../common/Util/Util';
 import WindowAuthController from '../controllers/Window/Auth/WindowAuthController';
 import WindowCancelController from '../controllers/Window/Cancel/WindowCancelController';
 import WindowMyPageController from '../controllers/Window/MyPage/WindowMyPageController';
 import WindowReserveController from '../controllers/Window/Reserve/WindowReserveController';
-
 import WindowUser from '../models/User/WindowUser';
 
 export default (app: any) => {
-    const authenticationMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const authenticationMiddleware = (req: Request, res: Response, next: NextFunction) => {
         if (!req.windowUser) return next(new Error(req.__('Message.UnexpectedError')));
 
         if (!req.windowUser.isAuthenticated()) {
             // 自動ログインチェック
-            const checkRemember = (cb: (user: mongoose.Document | null) => void) => {
+            const checkRemember = (cb: (user: Document | null) => void) => {
                 if (req.cookies.remember_window) {
                     Models.Authentication.findOne(
                         {
@@ -79,7 +83,7 @@ export default (app: any) => {
     };
 
     // tslint:disable-next-line:variable-name
-    const baseMiddleware = (req: express.Request, _res: express.Response, next: express.NextFunction) => {
+    const baseMiddleware = (req: Request, _res: Response, next: NextFunction) => {
         // 基本的に日本語
         req.setLocale('ja');
         req.windowUser = WindowUser.parse(req.session);
@@ -87,17 +91,17 @@ export default (app: any) => {
     };
 
     // 当日窓口フロー
-    app.all('/window/login', 'window.mypage.login', baseMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new WindowAuthController(req, res, next)).login(); });
-    app.all('/window/logout', 'window.logout', baseMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new WindowAuthController(req, res, next)).logout(); });
-    app.all('/window/mypage', 'window.mypage', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new WindowMyPageController(req, res, next)).index(); });
-    app.get('/window/mypage/search', 'window.mypage.search', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new WindowMyPageController(req, res, next)).search(); });
-    app.get('/window/reserve/start', 'window.reserve.start', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new WindowReserveController(req, res, next)).start(); });
-    app.all('/window/reserve/:token/terms', 'window.reserve.terms', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new WindowReserveController(req, res, next)).terms(); });
-    app.all('/window/reserve/:token/performances', 'window.reserve.performances', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new WindowReserveController(req, res, next)).performances(); });
-    app.all('/window/reserve/:token/seats', 'window.reserve.seats', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new WindowReserveController(req, res, next)).seats(); });
-    app.all('/window/reserve/:token/tickets', 'window.reserve.tickets', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new WindowReserveController(req, res, next)).tickets(); });
-    app.all('/window/reserve/:token/profile', 'window.reserve.profile', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new WindowReserveController(req, res, next)).profile(); });
-    app.all('/window/reserve/:token/confirm', 'window.reserve.confirm', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new WindowReserveController(req, res, next)).confirm(); });
-    app.get('/window/reserve/:paymentNo/complete', 'window.reserve.complete', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new WindowReserveController(req, res, next)).complete(); });
-    app.post('/window/cancel/execute', 'window.cancel.execute', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new WindowCancelController(req, res, next)).execute(); });
+    app.all('/window/login', 'window.mypage.login', baseMiddleware, (req: Request, res: Response, next: NextFunction) => { (new WindowAuthController(req, res, next)).login(); });
+    app.all('/window/logout', 'window.logout', baseMiddleware, (req: Request, res: Response, next: NextFunction) => { (new WindowAuthController(req, res, next)).logout(); });
+    app.all('/window/mypage', 'window.mypage', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new WindowMyPageController(req, res, next)).index(); });
+    app.get('/window/mypage/search', 'window.mypage.search', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new WindowMyPageController(req, res, next)).search(); });
+    app.get('/window/reserve/start', 'window.reserve.start', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new WindowReserveController(req, res, next)).start(); });
+    app.all('/window/reserve/:token/terms', 'window.reserve.terms', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new WindowReserveController(req, res, next)).terms(); });
+    app.all('/window/reserve/:token/performances', 'window.reserve.performances', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new WindowReserveController(req, res, next)).performances(); });
+    app.all('/window/reserve/:token/seats', 'window.reserve.seats', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new WindowReserveController(req, res, next)).seats(); });
+    app.all('/window/reserve/:token/tickets', 'window.reserve.tickets', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new WindowReserveController(req, res, next)).tickets(); });
+    app.all('/window/reserve/:token/profile', 'window.reserve.profile', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new WindowReserveController(req, res, next)).profile(); });
+    app.all('/window/reserve/:token/confirm', 'window.reserve.confirm', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new WindowReserveController(req, res, next)).confirm(); });
+    app.get('/window/reserve/:paymentNo/complete', 'window.reserve.complete', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new WindowReserveController(req, res, next)).complete(); });
+    app.post('/window/cancel/execute', 'window.cancel.execute', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new WindowCancelController(req, res, next)).execute(); });
 };

@@ -5,8 +5,8 @@ import * as express from 'express';
 import * as fs from 'fs-extra';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
-import GMOUtil from '../../common/Util/GMO/GMOUtil';
-import Util from '../../common/Util/Util';
+import * as GMOUtil from '../../common/Util/GMO/GMOUtil';
+import * as Util from '../../common/Util/Util';
 import reserveProfileForm from '../forms/reserve/reserveProfileForm';
 import reserveTicketForm from '../forms/reserve/reserveTicketForm';
 import ReservationModel from '../models/Reserve/ReservationModel';
@@ -15,7 +15,11 @@ import BaseController from './BaseController';
 const DEFAULT_RADIX = 10;
 
 /**
- * 予約フローベースコントローラー
+ * 座席予約ベースコントローラー
+ *
+ * @export
+ * @class ReserveBaseController
+ * @extends {BaseController}
  */
 export default class ReserveBaseController extends BaseController {
     constructor(req: express.Request, res: express.Response, next: express.NextFunction) {

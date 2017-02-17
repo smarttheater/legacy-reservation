@@ -2,10 +2,17 @@
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const moment = require("moment");
-const Util_1 = require("../../../../common/Util/Util");
+const Util = require("../../../../common/Util/Util");
 const preCustomerLoginForm_1 = require("../../../forms/preCustomer/preCustomerLoginForm");
 const PreCustomerUser_1 = require("../../../models/User/PreCustomerUser");
 const BaseController_1 = require("../../BaseController");
+/**
+ * 先行予約認証コントローラー
+ *
+ * @export
+ * @class PreCustomerAuthController
+ * @extends {BaseController}
+ */
 class PreCustomerAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -46,7 +53,7 @@ class PreCustomerAuthController extends BaseController_1.default {
                         }
                         else {
                             // パスワードチェック
-                            if (preCustomer.get('password_hash') !== Util_1.default.createHash(form.password, preCustomer.get('password_salt'))) {
+                            if (preCustomer.get('password_hash') !== Util.createHash(form.password, preCustomer.get('password_salt'))) {
                                 form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('preCustomer/auth/login');
                             }
@@ -56,7 +63,7 @@ class PreCustomerAuthController extends BaseController_1.default {
                                     if (form.remember) {
                                         // トークン生成
                                         ttts_domain_1.Models.Authentication.create({
-                                            token: Util_1.default.createToken(),
+                                            token: Util.createToken(),
                                             pre_customer: preCustomer.get('_id'),
                                             locale: form.language
                                         }, (createAuthenticationErr, authentication) => {

@@ -4,6 +4,13 @@ const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const log4js = require("log4js");
 const sponsorCancelForm_1 = require("../../../forms/sponsor/sponsorCancelForm");
 const BaseController_1 = require("../../BaseController");
+/**
+ * 外部関係者座席予約キャンセルコントローラー
+ *
+ * @export
+ * @class SponsorCancelController
+ * @extends {BaseController}
+ */
 class SponsorCancelController extends BaseController_1.default {
     constructor() {
         super(...arguments);

@@ -1,22 +1,26 @@
-import * as express from 'express';
-import * as mongoose from 'mongoose';
-
+/**
+ * 内部関係者ルーター
+ *
+ * @function staffRouter
+ * @ignore
+ */
 import { Models } from '@motionpicture/ttts-domain';
-import Util from '../../common/Util/Util';
+import { NextFunction, Request, Response } from 'express';
+import { Document } from 'mongoose';
+import * as Util from '../../common/Util/Util';
 import StaffAuthController from '../controllers/Staff/Auth/StaffAuthController';
 import StaffCancelController from '../controllers/Staff/Cancel/StaffCancelController';
 import StaffMyPageController from '../controllers/Staff/MyPage/StaffMyPageController';
 import StaffReserveController from '../controllers/Staff/Reserve/StaffReserveController';
-
 import StaffUser from '../models/User/StaffUser';
 
 export default (app: any) => {
-    const authenticationMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const authenticationMiddleware = (req: Request, res: Response, next: NextFunction) => {
         if (!req.staffUser) return next(new Error(req.__('Message.UnexpectedError')));
 
         if (!req.staffUser.isAuthenticated()) {
             // 自動ログインチェック
-            const checkRemember = (cb: (user: mongoose.Document | null, signature: string | null, locale: string | null) => void) => {
+            const checkRemember = (cb: (user: Document | null, signature: string | null, locale: string | null) => void) => {
                 if (req.cookies.remember_staff) {
                     Models.Authentication.findOne(
                         {
@@ -82,25 +86,25 @@ export default (app: any) => {
     };
 
     // tslint:disable-next-line:variable-name
-    const baseMiddleware = (req: express.Request, _res: express.Response, next: express.NextFunction) => {
+    const baseMiddleware = (req: Request, _res: Response, next: NextFunction) => {
         req.staffUser = StaffUser.parse(req.session);
         next();
     };
 
     // 内部関係者
-    app.all('/staff/login', 'staff.mypage.login', baseMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffAuthController(req, res, next)).login(); });
-    app.all('/staff/logout', 'staff.logout', baseMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffAuthController(req, res, next)).logout(); });
-    app.all('/staff/mypage', 'staff.mypage', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffMyPageController(req, res, next)).index(); });
-    app.get('/staff/mypage/search', 'staff.mypage.search', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffMyPageController(req, res, next)).search(); });
-    app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffMyPageController(req, res, next)).updateWatcherName(); });
-    app.get('/staff/reserve/start', 'staff.reserve.start', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffReserveController(req, res, next)).start(); });
-    app.all('/staff/reserve/:token/terms', 'staff.reserve.terms', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffReserveController(req, res, next)).terms(); });
-    app.all('/staff/reserve/:token/performances', 'staff.reserve.performances', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffReserveController(req, res, next)).performances(); });
-    app.all('/staff/reserve/:token/seats', 'staff.reserve.seats', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffReserveController(req, res, next)).seats(); });
-    app.all('/staff/reserve/:token/tickets', 'staff.reserve.tickets', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffReserveController(req, res, next)).tickets(); });
-    app.all('/staff/reserve/:token/profile', 'staff.reserve.profile', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffReserveController(req, res, next)).profile(); });
-    app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffReserveController(req, res, next)).confirm(); });
-    app.get('/staff/reserve/:paymentNo/complete', 'staff.reserve.complete', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffReserveController(req, res, next)).complete(); });
-    app.post('/staff/cancel/execute', 'staff.cancel.execute', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffCancelController(req, res, next)).execute(); });
-    app.all('/staff/mypage/release', 'staff.mypage.release', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new StaffMyPageController(req, res, next)).release(); });
+    app.all('/staff/login', 'staff.mypage.login', baseMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffAuthController(req, res, next)).login(); });
+    app.all('/staff/logout', 'staff.logout', baseMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffAuthController(req, res, next)).logout(); });
+    app.all('/staff/mypage', 'staff.mypage', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffMyPageController(req, res, next)).index(); });
+    app.get('/staff/mypage/search', 'staff.mypage.search', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffMyPageController(req, res, next)).search(); });
+    app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffMyPageController(req, res, next)).updateWatcherName(); });
+    app.get('/staff/reserve/start', 'staff.reserve.start', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffReserveController(req, res, next)).start(); });
+    app.all('/staff/reserve/:token/terms', 'staff.reserve.terms', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffReserveController(req, res, next)).terms(); });
+    app.all('/staff/reserve/:token/performances', 'staff.reserve.performances', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffReserveController(req, res, next)).performances(); });
+    app.all('/staff/reserve/:token/seats', 'staff.reserve.seats', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffReserveController(req, res, next)).seats(); });
+    app.all('/staff/reserve/:token/tickets', 'staff.reserve.tickets', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffReserveController(req, res, next)).tickets(); });
+    app.all('/staff/reserve/:token/profile', 'staff.reserve.profile', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffReserveController(req, res, next)).profile(); });
+    app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffReserveController(req, res, next)).confirm(); });
+    app.get('/staff/reserve/:paymentNo/complete', 'staff.reserve.complete', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffReserveController(req, res, next)).complete(); });
+    app.post('/staff/cancel/execute', 'staff.cancel.execute', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffCancelController(req, res, next)).execute(); });
+    app.all('/staff/mypage/release', 'staff.mypage.release', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new StaffMyPageController(req, res, next)).release(); });
 };

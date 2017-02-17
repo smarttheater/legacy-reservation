@@ -36,6 +36,20 @@ npm start
 ```
 (http://localhost:8080)にアクセスすると、ローカルでウェブアプリを確認できます。
 
+## Required environment variables
+```shell
+set SENDGRID_API_KEY=**********
+set TTTS_PERFORMANCE_STATUSES_REDIS_HOST=**********
+set TTTS_PERFORMANCE_STATUSES_REDIS_PORT=**********
+set TTTS_PERFORMANCE_STATUSES_REDIS_KEY=**********
+```
+only on Aure WebApps
+```shell
+set WEBSITE_NODE_DEFAULT_VERSION=**********
+set NODE_ENV=**********
+set WEBSITE_TIME_ZONE=Tokyo Standard Time
+```
+
 
 # tslint
 

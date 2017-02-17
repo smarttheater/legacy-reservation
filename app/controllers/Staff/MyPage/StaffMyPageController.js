@@ -2,9 +2,16 @@
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const ttts_domain_3 = require("@motionpicture/ttts-domain");
-const Util_1 = require("../../../../common/Util/Util");
+const Util = require("../../../../common/Util/Util");
 const BaseController_1 = require("../../BaseController");
 const DEFAULT_RADIX = 10;
+/**
+ * 内部関係者マイページコントローラー
+ *
+ * @export
+ * @class StaffMyPageController
+ * @extends {BaseController}
+ */
 class StaffMyPageController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -93,7 +100,7 @@ class StaffMyPageController extends BaseController_1.default {
         }
         if (paymentNo) {
             // remove space characters
-            paymentNo = Util_1.default.toHalfWidth(paymentNo.replace(/\s/g, ''));
+            paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
             conditions.push({ payment_no: { $regex: `${paymentNo}` } });
         }
         // 総数検索

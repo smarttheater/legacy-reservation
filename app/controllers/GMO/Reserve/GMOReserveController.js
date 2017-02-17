@@ -4,8 +4,8 @@ const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const moment = require("moment");
 const querystring = require("querystring");
-const GMOUtil_1 = require("../../../../common/Util/GMO/GMOUtil");
-const Util_1 = require("../../../../common/Util/Util");
+const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
+const Util = require("../../../../common/Util/Util");
 const GMOResultModel_1 = require("../../../models/Reserve/GMOResultModel");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
@@ -39,6 +39,15 @@ String.prototype.mbSubstr = function (start, length) {
     }
     return result;
 };
+/**
+ * GMO関連予約コントローラー
+ *
+ * 座席予約フローのうちGMOと連携するアクションを実装しています。
+ *
+ * @export
+ * @class GMOReserveController
+ * @extends {ReserveBaseController}
+ */
 class GMOReserveController extends ReserveBaseController_1.default {
     /**
      * GMO決済を開始する
@@ -54,7 +63,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 this.setProcessLogger(reservationModel.paymentNo, () => {
                     // GMOへ遷移画面
                     // 作品名から、特定文字以外を取り除く
-                    const filmNameFullWidth = Util_1.default.toFullWidth(reservationModel.performance.film.name.ja);
+                    const filmNameFullWidth = Util.toFullWidth(reservationModel.performance.film.name.ja);
                     const filmNameFullWidthLength = filmNameFullWidth.length;
                     let registerDisp1 = '';
                     // todo 文字列のループはこの書き方は本来よろしくないので、暇があったら直す
@@ -72,17 +81,17 @@ class GMOReserveController extends ReserveBaseController_1.default {
                     // tslint:disable-next-line:no-magic-numbers
                     this.res.locals.registerDisp1 = registerDisp1.mbSubstr(0, 32);
                     // tslint:disable-next-line:no-magic-numbers
-                    this.res.locals.registerDisp2 = Util_1.default.toFullWidth(`${reservationModel.performance.day.substr(0, 4)}／${reservationModel.performance.day.substr(4, 2)}／${reservationModel.performance.day.substr(6)}`);
-                    this.res.locals.registerDisp3 = Util_1.default.toFullWidth(reservationModel.performance.theater.name.ja);
+                    this.res.locals.registerDisp2 = Util.toFullWidth(`${reservationModel.performance.day.substr(0, 4)}／${reservationModel.performance.day.substr(4, 2)}／${reservationModel.performance.day.substr(6)}`);
+                    this.res.locals.registerDisp3 = Util.toFullWidth(reservationModel.performance.theater.name.ja);
                     // tslint:disable-next-line:no-magic-numbers
-                    this.res.locals.registerDisp4 = Util_1.default.toFullWidth(`開場${reservationModel.performance.open_time.substr(0, 2)}:${reservationModel.performance.open_time.substr(2)}　開演${reservationModel.performance.start_time.substr(0, 2)}:${reservationModel.performance.start_time.substr(2)}`);
+                    this.res.locals.registerDisp4 = Util.toFullWidth(`開場${reservationModel.performance.open_time.substr(0, 2)}:${reservationModel.performance.open_time.substr(2)}　開演${reservationModel.performance.start_time.substr(0, 2)}:${reservationModel.performance.start_time.substr(2)}`);
                     this.res.locals.shopId = conf.get('gmo_payment_shop_id');
                     this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(購入番号を使用)
                     this.res.locals.amount = reservationModel.getTotalCharge().toString();
                     this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
-                    this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CREDIT) ? '1' : '0';
-                    this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil_1.default.PAY_TYPE_CVS) ? '1' : '0';
-                    this.res.locals.shopPassString = GMOUtil_1.default.createShopPassString(conf.get('gmo_payment_shop_id'), this.res.locals.orderID, this.res.locals.amount, conf.get('gmo_payment_shop_password'), this.res.locals.dateTime);
+                    this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
+                    this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
+                    this.res.locals.shopPassString = GMOUtil.createShopPassString(conf.get('gmo_payment_shop_id'), this.res.locals.orderID, this.res.locals.amount, conf.get('gmo_payment_shop_password'), this.res.locals.dateTime);
                     const host = this.req.headers.host;
                     const protocol = (/^localhost/.test(host)) ? 'http' : 'https';
                     if (process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'test') {
@@ -135,13 +144,13 @@ class GMOReserveController extends ReserveBaseController_1.default {
             else {
                 // 決済方法によって振り分け
                 switch (gmoResultModel.PayType) {
-                    case GMOUtil_1.default.PAY_TYPE_CREDIT:
+                    case GMOUtil.PAY_TYPE_CREDIT:
                         this.logger.info('starting GMOReserveCreditController.result...');
                         const creditController = new GMOReserveCreditController_1.default(this.req, this.res, this.next);
                         creditController.logger = this.logger;
                         creditController.result(gmoResultModel);
                         break;
-                    case GMOUtil_1.default.PAY_TYPE_CVS:
+                    case GMOUtil.PAY_TYPE_CVS:
                         this.logger.info('starting GMOReserveCsvController.result...');
                         const cvsController = new GMOReserveCvsController_1.default(this.req, this.res, this.next);
                         cvsController.logger = this.logger;

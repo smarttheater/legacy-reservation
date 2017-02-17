@@ -5,6 +5,13 @@ import GMONotificationModel from '../../models/Reserve/GMONotificationModel';
 import GMONotificationResponseModel from '../../models/Reserve/GMONotificationResponseModel';
 import BaseController from '../BaseController';
 
+/**
+ * GMOウェブフックコントローラー
+ *
+ * @export
+ * @class GMOController
+ * @extends {BaseController}
+ */
 export default class GMOController extends BaseController {
     /**
      * GMO結果通知受信
@@ -16,7 +23,6 @@ export default class GMOController extends BaseController {
      * タイムアウトについて
      * 結果通知プログラム機能によって、指定URLへデータ送信を行った場合に15秒以内に返信が無いとタイムアウトとして処理を行います。
      * 加盟店様側からの正常応答が確認出来なかった場合は約60分毎に5回再送いたします。
-     *
      */
     public notify(): void {
         const gmoNotificationModel = GMONotificationModel.parse(this.req.body);

@@ -1,9 +1,16 @@
 "use strict";
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const Util_1 = require("../../../../common/Util/Util");
+const Util = require("../../../../common/Util/Util");
 const telLoginForm_1 = require("../../../forms/tel/telLoginForm");
 const TelStaffUser_1 = require("../../../models/User/TelStaffUser");
 const BaseController_1 = require("../../BaseController");
+/**
+ * 電話窓口認証コントローラー
+ *
+ * @export
+ * @class TelAuthController
+ * @extends {BaseController}
+ */
 class TelAuthController extends BaseController_1.default {
     constructor() {
         super(...arguments);
@@ -32,7 +39,7 @@ class TelAuthController extends BaseController_1.default {
                         }
                         else {
                             // パスワードチェック
-                            if (telStaff.get('password_hash') !== Util_1.default.createHash(form.password, telStaff.get('password_salt'))) {
+                            if (telStaff.get('password_hash') !== Util.createHash(form.password, telStaff.get('password_salt'))) {
                                 form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('tel/auth/login');
                             }
@@ -42,7 +49,7 @@ class TelAuthController extends BaseController_1.default {
                                     if (form.remember) {
                                         // トークン生成
                                         ttts_domain_1.Models.Authentication.create({
-                                            token: Util_1.default.createToken(),
+                                            token: Util.createToken(),
                                             tel_staff: telStaff.get('_id')
                                         }, (createAuthenticationErr, authentication) => {
                                             this.res.cookie('remember_tel_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });

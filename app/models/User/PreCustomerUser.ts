@@ -1,7 +1,11 @@
 import BaseUser from './BaseUser';
 
 /**
- * 1.5次販売ユーザークラス
+ * 先行予約ユーザー
+ *
+ * @export
+ * @class PreCustomerUser
+ * @extends {BaseUser}
  */
 export default class PreCustomerUser extends BaseUser {
     public static AUTH_SESSION_NAME = 'TTTSFrontendPreCustomerAuth';
