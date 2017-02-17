@@ -13,7 +13,7 @@ export default class PreCustomerUser extends BaseUser {
         // セッション値からオブジェクトにセット
         if (session.hasOwnProperty(PreCustomerUser.AUTH_SESSION_NAME)) {
             Object.keys(session[PreCustomerUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
-                user[propertyName] = session[PreCustomerUser.AUTH_SESSION_NAME][propertyName];
+                (<any>user)[propertyName] = session[PreCustomerUser.AUTH_SESSION_NAME][propertyName];
             });
         }
 

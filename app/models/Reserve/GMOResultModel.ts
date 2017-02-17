@@ -220,7 +220,7 @@ export default class GMOResultModel {
     public static parse(postParameters: Object): GMOResultModel {
         const model = new GMOResultModel();
         Object.keys(postParameters).forEach((key) => {
-            model[key] = postParameters[key];
+            (<any>model)[key] = (<any>postParameters)[key];
         });
 
         return model;

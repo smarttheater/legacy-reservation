@@ -13,7 +13,7 @@ export default class TelStaffUser extends BaseUser {
         // セッション値からオブジェクトにセット
         if (session.hasOwnProperty(TelStaffUser.AUTH_SESSION_NAME)) {
             Object.keys(session[TelStaffUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
-                user[propertyName] = session[TelStaffUser.AUTH_SESSION_NAME][propertyName];
+                (<any>user)[propertyName] = session[TelStaffUser.AUTH_SESSION_NAME][propertyName];
             });
         }
 

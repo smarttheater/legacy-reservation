@@ -1,4 +1,5 @@
 import { Models } from '@motionpicture/ttts-domain';
+import * as mongoose from 'mongoose';
 import Util from '../../../../common/Util/Util';
 import telLoginForm from '../../../forms/tel/telLoginForm';
 import TelStaffUser from '../../../models/User/TelStaffUser';
@@ -47,7 +48,7 @@ export default class TelAuthController extends BaseController {
                                                     token: Util.createToken(),
                                                     tel_staff: telStaff.get('_id')
                                                 },
-                                                (createAuthenticationErr, authentication) => {
+                                                (createAuthenticationErr: any, authentication: mongoose.Document) => {
                                                     this.res.cookie('remember_tel_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
                                                     cb(createAuthenticationErr, authentication.get('token'));
                                                 }

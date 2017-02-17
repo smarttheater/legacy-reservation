@@ -13,7 +13,7 @@ export default class SponsorUser extends BaseUser {
         // セッション値からオブジェクトにセット
         if (session.hasOwnProperty(SponsorUser.AUTH_SESSION_NAME)) {
             Object.keys(session[SponsorUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
-                user[propertyName] = session[SponsorUser.AUTH_SESSION_NAME][propertyName];
+                (<any>user)[propertyName] = session[SponsorUser.AUTH_SESSION_NAME][propertyName];
             });
         }
 

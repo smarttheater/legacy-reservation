@@ -165,7 +165,7 @@ export default class CustomerCancelController extends BaseController {
                                                         email: reservations[0].get('purchaser_email'),
                                                         tel: reservations[0].get('purchaser_tel')
                                                     },
-                                                    (createReservationErr) => {
+                                                    (createReservationErr: any) => {
                                                         this.logger.info('CustomerCancelRequest created.', createReservationErr);
                                                         if (createReservationErr) {
                                                             this.res.json({ success: false, message: createReservationErr.message });

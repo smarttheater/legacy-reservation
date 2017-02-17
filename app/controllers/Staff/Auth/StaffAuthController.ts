@@ -1,4 +1,5 @@
 import { Models } from '@motionpicture/ttts-domain';
+import * as mongoose from 'mongoose';
 import Util from '../../../../common/Util/Util';
 import staffLoginForm from '../../../forms/staff/staffLoginForm';
 import StaffUser from '../../../models/User/StaffUser';
@@ -50,7 +51,7 @@ export default class StaffAuthController extends BaseController {
                                                     signature: (<any>this.req.form).signature,
                                                     locale: (<any>this.req.form).language
                                                 },
-                                                (createAuthenticationErr, authentication) => {
+                                                (createAuthenticationErr: any, authentication: mongoose.Document) => {
                                                     this.res.cookie('remember_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
                                                     cb(createAuthenticationErr, authentication.get('token'));
                                                 }

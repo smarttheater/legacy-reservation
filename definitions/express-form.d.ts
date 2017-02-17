@@ -1,6 +1,6 @@
 declare namespace Express {
     export interface Request {
-       form?: Form;
+        form?: Form;
     }
 
     export interface Form {
@@ -20,7 +20,7 @@ declare module "express-form" {
 
     namespace form {
         export function field(property?: string, label?: string): Field;
-        export function configure(options): any;
+        export function configure(options: any): any;
 
         export interface Field {
             (property?: string, label?: string): Field;
@@ -28,11 +28,11 @@ declare module "express-form" {
             arrLength(from: number, to: number): Field;
             custom(func: Function): Field;
             custom(func: Function, message?: string): Field;
-            ifNull(replacement): Field;
+            ifNull(replacement: any): Field;
             truncate(length: number): Field;
-            contains(test, message?: string): Field;
-            notContains(test, message?: string): Field;
-            equals(other, message?: string): Field;
+            contains(test: string, message?: string): Field;
+            notContains(test: string, message?: string): Field;
+            equals(other: string, message?: string): Field;
             regex(pattern: RegExp, message: string): Field;
             notRegex(message?: string): Field;
             required(placeholderValue?: string, message?: string): Field;
@@ -41,9 +41,9 @@ declare module "express-form" {
 
             entityDecode(): Field;
             entityEncode(): Field;
-            ltrim(chars?): Field;
-            rtrim(chars?): Field;
-            trim(chars?): Field;
+            ltrim(chars?: string): Field;
+            rtrim(chars?: string): Field;
+            trim(chars?: string): Field;
             escape(func: Function, message?: string): Field;
 
             toFloat(): Field;

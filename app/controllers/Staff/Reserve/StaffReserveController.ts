@@ -4,6 +4,7 @@ import { FilmUtil } from '@motionpicture/ttts-domain';
 import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
+import * as mongoose from 'mongoose';
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
@@ -124,7 +125,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                         expired_at: reservationModel.expiredAt,
                         staff: this.req.staffUser.get('_id')
                     },
-                    (err, reservation) => {
+                    (err: any, reservation: mongoose.Document) => {
                         if (err) {
                             // TTTS確保からの仮予約を試みる
                             Models.Reservation.findOneAndUpdate(

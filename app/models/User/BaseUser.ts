@@ -11,6 +11,6 @@ export default class BaseUser {
 
     // tslint:disable-next-line:no-reserved-keywords
     public get(key: string): any {
-        return (this[key]) ? this[key] : null;
+        return ((<any>this)[key]) ? (<any>this)[key] : null;
     }
 }

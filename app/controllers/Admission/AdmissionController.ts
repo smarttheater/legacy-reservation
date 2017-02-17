@@ -1,6 +1,7 @@
 import { Models } from '@motionpicture/ttts-domain';
 import { ReservationUtil } from '@motionpicture/ttts-domain';
 import { FilmUtil } from '@motionpicture/ttts-domain';
+import * as mongoose from 'mongoose';
 import BaseController from '../BaseController';
 
 /**
@@ -39,7 +40,7 @@ export default class AdmissionController extends BaseController {
                         (findScreenErr, screens) => {
                             if (findScreenErr) return this.next(findScreenErr);
 
-                            const screensByTheater = {};
+                            const screensByTheater: any = {};
                             for (const screen of screens) {
                                 if (!screensByTheater.hasOwnProperty(screen.get('theater'))) {
                                     screensByTheater[screen.get('theater')] = [];
@@ -84,10 +85,14 @@ export default class AdmissionController extends BaseController {
                 ).exec((findReservationErr, reservations) => {
                     if (findReservationErr) this.next(new Error('Message.UnexpectedError'));
 
-                    const reservationsById = {};
-                    const reservationIdsByQrStr = {};
+                    const reservationsById: {
+                        [id: string]: mongoose.Document
+                    } = {};
+                    const reservationIdsByQrStr: {
+                        [qr: string]: string
+                    } = {};
                     for (const reservation of reservations) {
-                        reservationsById[reservation.get('_id')] = reservation;
+                        reservationsById[reservation.get('_id').toString()] = reservation;
                         reservationIdsByQrStr[reservation.get('qr_str')] = reservation.get('_id').toString();
                     }
 

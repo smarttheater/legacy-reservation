@@ -39,7 +39,7 @@ export default class PayDesignNotificationModel {
     public static parse(postParameters: Object): PayDesignNotificationModel {
         const model = new PayDesignNotificationModel();
         Object.keys(postParameters).forEach((key) => {
-            model[key] = postParameters[key];
+            (<any>model)[key] = (<any>postParameters)[key];
         });
 
         return model;

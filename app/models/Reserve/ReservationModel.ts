@@ -121,11 +121,11 @@ export default class ReservationModel {
     /**
      * プロセス中の購入情報をセッションに保存する
      *
-     * @param {number} ttl 有効期間(default: 1800)
+     * @param {number} [ttl] 有効期間(default: 1800)
      */
     public save(cb: () => void, ttl?: number) {
         const key = ReservationModel.getRedisKey(this.token);
-        redisClient.setex(key, (ttl) ? ttl : DEFAULT_REDIS_TTL, JSON.stringify(this), (err) => {
+        redisClient.setex(key, (ttl) ? ttl : DEFAULT_REDIS_TTL, JSON.stringify(this), (err: Error | void) => {
             if (err) throw err;
             cb();
         });
@@ -136,7 +136,7 @@ export default class ReservationModel {
      */
     public remove(cb: (err: Error | void) => void) {
         const key = ReservationModel.getRedisKey(this.token);
-        redisClient.del(key, (err) => {
+        redisClient.del(key, (err: Error | void) => {
             cb(err);
         });
     }
@@ -156,7 +156,7 @@ export default class ReservationModel {
             try {
                 const reservationModelInRedis = JSON.parse(reply.toString());
                 Object.keys(reservationModelInRedis).forEach((propertyName) => {
-                    reservationModel[propertyName] = reservationModelInRedis[propertyName];
+                    (<any>reservationModel)[propertyName] = reservationModelInRedis[propertyName];
                 });
             } catch (error) {
                 return cb(err, null);
@@ -271,14 +271,14 @@ export default class ReservationModel {
      * 座席コードから予約情報を取得する
      */
     public getReservation(seatCode: string): Reservation {
-        return (this[`reservation_${seatCode}`]) ? this[`reservation_${seatCode}`] : null;
+        return ((<any>this)[`reservation_${seatCode}`]) ? (<any>this)[`reservation_${seatCode}`] : null;
     }
 
     /**
      * 座席コードの予約情報をセットする
      */
     public setReservation(seatCode: string, reservation: Reservation): void {
-        this[`reservation_${seatCode}`] = reservation;
+        (<any>this)[`reservation_${seatCode}`] = reservation;
     }
 
     /**

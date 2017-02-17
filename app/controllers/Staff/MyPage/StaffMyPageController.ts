@@ -1,6 +1,7 @@
 import { ReservationUtil } from '@motionpicture/ttts-domain';
 import { ScreenUtil } from '@motionpicture/ttts-domain';
 import { Models } from '@motionpicture/ttts-domain';
+import * as mongoose from 'mongoose';
 import Util from '../../../../common/Util/Util';
 import BaseController from '../../BaseController';
 
@@ -246,7 +247,9 @@ export default class StaffMyPageController extends BaseController {
                     if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                     // 日付ごとに
-                    const reservationsByDay = {};
+                    const reservationsByDay: {
+                        [day: string]: mongoose.Document[]
+                    } = {};
                     for (const reservation of reservations) {
                         if (!reservationsByDay.hasOwnProperty(reservation.get('performance_day'))) {
                             reservationsByDay[reservation.get('performance_day')] = [];

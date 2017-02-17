@@ -1,6 +1,7 @@
 import { Models } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
+import * as mongoose from 'mongoose';
 import Util from '../../../../common/Util/Util';
 import preCustomerLoginForm from '../../../forms/preCustomer/preCustomerLoginForm';
 import PreCustomerUser from '../../../models/User/PreCustomerUser';
@@ -62,7 +63,7 @@ export default class PreCustomerAuthController extends BaseController {
                                                     pre_customer: preCustomer.get('_id'),
                                                     locale: (<any>this.req.form).language
                                                 },
-                                                (createAuthenticationErr, authentication) => {
+                                                (createAuthenticationErr: any, authentication: mongoose.Document) => {
                                                     this.res.cookie('remember_pre_customer', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
                                                     cb(createAuthenticationErr, authentication.get('token'));
                                                 }

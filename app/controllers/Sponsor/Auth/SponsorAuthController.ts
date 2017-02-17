@@ -1,4 +1,5 @@
 import { Models } from '@motionpicture/ttts-domain';
+import * as mongoose from 'mongoose';
 import Util from '../../../../common/Util/Util';
 import sponsorLoginForm from '../../../forms/sponsor/sponsorLoginForm';
 import SponsorUser from '../../../models/User/SponsorUser';
@@ -49,7 +50,7 @@ export default class SponsorAuthController extends BaseController {
                                                     sponsor: sponsor.get('_id'),
                                                     locale: (<any>this.req.form).language
                                                 },
-                                                (createAuthenticationErr, authentication) => {
+                                                (createAuthenticationErr: any, authentication: mongoose.Document) => {
                                                     if (createAuthenticationErr) return cb(createAuthenticationErr, null);
 
                                                     this.res.cookie('remember_sponsor', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });

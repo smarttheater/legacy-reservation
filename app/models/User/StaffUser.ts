@@ -13,7 +13,7 @@ export default class StaffUser extends BaseUser {
         // セッション値からオブジェクトにセット
         if (session.hasOwnProperty(StaffUser.AUTH_SESSION_NAME)) {
             Object.keys(session[StaffUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
-                user[propertyName] = session[StaffUser.AUTH_SESSION_NAME][propertyName];
+                (<any>user)[propertyName] = session[StaffUser.AUTH_SESSION_NAME][propertyName];
             });
         }
 

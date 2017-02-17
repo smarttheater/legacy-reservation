@@ -25,51 +25,51 @@ export default (app: any) => {
     };
 
     // 言語
-    app.get('/language/update/:locale', 'language.update', base, (req, res, next) => { (new LanguageController(req, res, next)).update(); });
+    app.get('/language/update/:locale', 'language.update', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new LanguageController(req, res, next)).update(); });
 
-    app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', base, (req, res, next) => { (new ReserveController(req, res, next)).getSeatProperties(); });
-    app.get('/reserve/:reservationId/qrcode', 'reserve.qrcode', base, (req, res, next) => { (new ReserveController(req, res, next)).qrcode(); });
-    app.get('/reserve/:performanceId/unavailableSeatCodes', 'reserve.getUnavailableSeatCodes', base, (req, res, next) => { (new ReserveController(req, res, next)).getUnavailableSeatCodes(); });
-    app.get('/reserve/print', 'reserve.print', base, (req, res, next) => { (new ReserveController(req, res, next)).print(); });
+    app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new ReserveController(req, res, next)).getSeatProperties(); });
+    app.get('/reserve/:reservationId/qrcode', 'reserve.qrcode', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new ReserveController(req, res, next)).qrcode(); });
+    app.get('/reserve/:performanceId/unavailableSeatCodes', 'reserve.getUnavailableSeatCodes', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new ReserveController(req, res, next)).getUnavailableSeatCodes(); });
+    app.get('/reserve/print', 'reserve.print', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new ReserveController(req, res, next)).print(); });
 
     // GMOプロセス
-    app.post('/GMO/reserve/:token/start', 'gmo.reserve.start', base, (req, res, next) => { (new GMOReserveController(req, res, next)).start(); });
-    app.post('/GMO/reserve/result', 'gmo.reserve.result', base, (req, res, next) => { (new GMOReserveController(req, res, next)).result(); });
-    app.get('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', base, (req, res, next) => { (new GMOReserveController(req, res, next)).cancel(); });
-    app.all('/GMO/notify', 'gmo.notify', base, (req, res, next) => { (new GMOController(req, res, next)).notify(); });
+    app.post('/GMO/reserve/:token/start', 'gmo.reserve.start', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new GMOReserveController(req, res, next)).start(); });
+    app.post('/GMO/reserve/result', 'gmo.reserve.result', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new GMOReserveController(req, res, next)).result(); });
+    app.get('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new GMOReserveController(req, res, next)).cancel(); });
+    app.all('/GMO/notify', 'gmo.notify', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new GMOController(req, res, next)).notify(); });
 
     // admission
-    app.all('/admission/performances', 'admission.performances', base, (req, res, next) => { (new AdmissionController(req, res, next)).performances(); });
-    app.get('/admission/performance/:id/confirm', 'admission.confirm', base, (req, res, next) => { (new AdmissionController(req, res, next)).confirm(); });
+    app.all('/admission/performances', 'admission.performances', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new AdmissionController(req, res, next)).performances(); });
+    app.get('/admission/performance/:id/confirm', 'admission.confirm', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new AdmissionController(req, res, next)).confirm(); });
 
-    app.get('/policy', 'policy', base, (req, res, next) => { (new OtherController(req, res, next)).policy(); });
-    app.get('/privacy', 'privacy', base, (req, res, next) => { (new OtherController(req, res, next)).privacy(); });
-    app.get('/commercialTransactions', 'commercialTransactions', base, (req, res, next) => { (new OtherController(req, res, next)).commercialTransactions(); });
+    app.get('/policy', 'policy', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new OtherController(req, res, next)).policy(); });
+    app.get('/privacy', 'privacy', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new OtherController(req, res, next)).privacy(); });
+    app.get('/commercialTransactions', 'commercialTransactions', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new OtherController(req, res, next)).commercialTransactions(); });
 
     // 一般
     // 本番環境ではhomeは存在しない
     if (process.env.NODE_ENV !== 'prod') {
-        app.all('/customer/reserve/performances', 'customer.reserve.performances', base, (req, res, next) => { (new CustomerReserveController(req, res, next)).performances(); });
+        app.all('/customer/reserve/performances', 'customer.reserve.performances', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new CustomerReserveController(req, res, next)).performances(); });
     }
-    app.get('/customer/reserve/start', 'customer.reserve.start', base, (req, res, next) => { (new CustomerReserveController(req, res, next)).start(); });
-    app.all('/customer/reserve/:token/terms', 'customer.reserve.terms', base, (req, res, next) => { (new CustomerReserveController(req, res, next)).terms(); });
-    app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', base, (req, res, next) => { (new CustomerReserveController(req, res, next)).seats(); });
-    app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', base, (req, res, next) => { (new CustomerReserveController(req, res, next)).tickets(); });
-    app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', base, (req, res, next) => { (new CustomerReserveController(req, res, next)).profile(); });
-    app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', base, (req, res, next) => { (new CustomerReserveController(req, res, next)).confirm(); });
-    app.get('/customer/reserve/:paymentNo/waitingSettlement', 'customer.reserve.waitingSettlement', base, (req, res, next) => { (new CustomerReserveController(req, res, next)).waitingSettlement(); });
-    app.get('/customer/reserve/:paymentNo/complete', 'customer.reserve.complete', base, (req, res, next) => { (new CustomerReserveController(req, res, next)).complete(); });
+    app.get('/customer/reserve/start', 'customer.reserve.start', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new CustomerReserveController(req, res, next)).start(); });
+    app.all('/customer/reserve/:token/terms', 'customer.reserve.terms', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new CustomerReserveController(req, res, next)).terms(); });
+    app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new CustomerReserveController(req, res, next)).seats(); });
+    app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new CustomerReserveController(req, res, next)).tickets(); });
+    app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new CustomerReserveController(req, res, next)).profile(); });
+    app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new CustomerReserveController(req, res, next)).confirm(); });
+    app.get('/customer/reserve/:paymentNo/waitingSettlement', 'customer.reserve.waitingSettlement', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new CustomerReserveController(req, res, next)).waitingSettlement(); });
+    app.get('/customer/reserve/:paymentNo/complete', 'customer.reserve.complete', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new CustomerReserveController(req, res, next)).complete(); });
 
-    app.get('/error/notFound', 'error.notFound', base, (req, res, next) => { (new ErrorController(req, res, next)).notFound(); });
+    app.get('/error/notFound', 'error.notFound', base, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new ErrorController(req, res, next)).notFound(); });
 
     // 404
     // tslint:disable-next-line:variable-name
-    app.use((_req, res) => {
+    app.use((_req: express.Request, res: express.Response) => {
         return res.redirect('/error/notFound');
     });
 
     // error handlers
-    app.use((err: any, req, res, next) => {
+    app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
         req.route.name = 'error.error';
         (new ErrorController(req, res, next)).index(err);
     });

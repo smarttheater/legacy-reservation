@@ -2,7 +2,7 @@ declare module "qr-image" {
     import * as stream from 'stream';
 
     namespace qrimage {
-        export function matrix(text: string, ec_level?: EcLevel, parse_url?): any[];
+        export function matrix(text: string, ec_level?: EcLevel): any[];
         export function image(text: string, options?: Options): stream.Readable;
         export function imageSync(text: string, options?: Options): any;
         export function svgObject(text: string, options?: Options): any;
@@ -17,7 +17,7 @@ declare module "qr-image" {
             customize?: () => {}; // (only png) — function to customize qr bitmap before encoding to PNG.
             parse_url?: boolean; // (experimental, default false) — try to optimize QR-code for URLs.
         }
-    } 
+    }
 
     export = qrimage;
 }

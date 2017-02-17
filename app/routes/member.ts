@@ -27,10 +27,10 @@ export default (app: any) => {
     };
 
     // メルマガ先行
-    app.all('/member/login', 'member.reserve.terms', baseMiddleware, (req, res, next) => { (new MemberAuthController(req, res, next)).login(); });
-    app.get('/member/reserve/start', 'member.reserve.start', baseMiddleware, (req, res, next) => { (new MemberReserveController(req, res, next)).start(); });
-    app.all('/member/reserve/:token/tickets', 'member.reserve.tickets', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new MemberReserveController(req, res, next)).tickets(); });
-    app.all('/member/reserve/:token/profile', 'member.reserve.profile', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new MemberReserveController(req, res, next)).profile(); });
-    app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new MemberReserveController(req, res, next)).confirm(); });
-    app.get('/member/reserve/:paymentNo/complete', 'member.reserve.complete', baseMiddleware, (req, res, next) => { (new MemberReserveController(req, res, next)).complete(); });
+    app.all('/member/login', 'member.reserve.terms', baseMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new MemberAuthController(req, res, next)).login(); });
+    app.get('/member/reserve/start', 'member.reserve.start', baseMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new MemberReserveController(req, res, next)).start(); });
+    app.all('/member/reserve/:token/tickets', 'member.reserve.tickets', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new MemberReserveController(req, res, next)).tickets(); });
+    app.all('/member/reserve/:token/profile', 'member.reserve.profile', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new MemberReserveController(req, res, next)).profile(); });
+    app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new MemberReserveController(req, res, next)).confirm(); });
+    app.get('/member/reserve/:paymentNo/complete', 'member.reserve.complete', baseMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new MemberReserveController(req, res, next)).complete(); });
 };

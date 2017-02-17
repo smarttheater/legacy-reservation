@@ -4,6 +4,7 @@ import * as conf from 'config';
 import * as express from 'express';
 import * as fs from 'fs-extra';
 import * as moment from 'moment';
+import * as mongoose from 'mongoose';
 import GMOUtil from '../../common/Util/GMO/GMOUtil';
 import Util from '../../common/Util/Util';
 import reserveProfileForm from '../forms/reserve/reserveProfileForm';
@@ -398,7 +399,7 @@ export default class ReserveBaseController extends BaseController {
                 // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
                 Models.Reservation.create(
                     newReservation,
-                    (err, reservation) => {
+                    (err: any, reservation: mongoose.Document) => {
                         if (err) return reject(err);
 
                         // ステータス更新に成功したらセッションに保管
@@ -447,7 +448,7 @@ export default class ReserveBaseController extends BaseController {
             const choices = JSON.parse((<any>this.req.form).choices);
             if (!Array.isArray(choices)) cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
 
-            choices.forEach((choice) => {
+            choices.forEach((choice: any) => {
                 const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => {
                     return (ticketTypeInArray.code === choice.ticket_type_code);
                 });

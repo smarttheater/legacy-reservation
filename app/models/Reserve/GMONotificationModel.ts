@@ -158,7 +158,7 @@ export default class GMONotificationModel {
     public static parse(postParameters: Object): GMONotificationModel {
         const model = new GMONotificationModel();
         Object.keys(postParameters).forEach((key) => {
-            model[key] = postParameters[key];
+            (<any>model)[key] = (<any>postParameters)[key];
         });
 
         return model;

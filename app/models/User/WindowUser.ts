@@ -13,7 +13,7 @@ export default class WindowUser extends BaseUser {
         // セッション値からオブジェクトにセット
         if (session.hasOwnProperty(WindowUser.AUTH_SESSION_NAME)) {
             Object.keys(session[WindowUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
-                user[propertyName] = session[WindowUser.AUTH_SESSION_NAME][propertyName];
+                (<any>user)[propertyName] = session[WindowUser.AUTH_SESSION_NAME][propertyName];
             });
         }
 

@@ -55,7 +55,7 @@ export default class BaseController {
 
         // レイアウト指定があれば変更
         const render = this.res.render;
-        this.res.render = (view, options?, cb?) => {
+        this.res.render = (view: string, options?: any, cb?: (err: Error, html: string) => void) => {
             if (this.layout) {
                 if (options === undefined) {
                     options = {};

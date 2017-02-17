@@ -19,7 +19,7 @@ export default (req: express.Request) => {
         form.field('email', req.__('Form.FieldName.email')).trim()
             .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
             .isEmail(req.__('Message.invalid{{fieldName}}', { fieldName: '%s' }))
-            .custom((value, source, callback) => {
+            .custom((value: any, source: any, callback: (err: Error | void) => void) => {
                 if (value !== `${source.emailConfirm}@${source.emailConfirmDomain}`) {
                     callback(new Error(req.__('Message.match{{fieldName}}', { fieldName: '%s' })));
                 } else {

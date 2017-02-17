@@ -77,7 +77,7 @@ class AdmissionController extends BaseController_1.default {
                 const reservationsById = {};
                 const reservationIdsByQrStr = {};
                 for (const reservation of reservations) {
-                    reservationsById[reservation.get('_id')] = reservation;
+                    reservationsById[reservation.get('_id').toString()] = reservation;
                     reservationIdsByQrStr[reservation.get('qr_str')] = reservation.get('_id').toString();
                 }
                 this.res.render('admission/confirm', {

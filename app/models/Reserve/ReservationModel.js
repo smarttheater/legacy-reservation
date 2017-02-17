@@ -23,7 +23,7 @@ class ReservationModel {
     /**
      * プロセス中の購入情報をセッションに保存する
      *
-     * @param {number} ttl 有効期間(default: 1800)
+     * @param {number} [ttl] 有効期間(default: 1800)
      */
     save(cb, ttl) {
         const key = ReservationModel.getRedisKey(this.token);

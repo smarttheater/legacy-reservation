@@ -85,18 +85,18 @@ export default (app: any) => {
     };
 
     // 電話窓口フロー
-    app.all('/tel/login', 'tel.mypage.login', baseMiddleware, (req, res, next) => { (new TelAuthController(req, res, next)).login(); });
-    app.all('/tel/logout', 'tel.logout', baseMiddleware, (req, res, next) => { (new TelAuthController(req, res, next)).logout(); });
-    app.all('/tel/mypage', 'tel.mypage', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new TelMyPageController(req, res, next)).index(); });
-    app.get('/tel/mypage/search', 'tel.mypage.search', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new TelMyPageController(req, res, next)).search(); });
-    app.get('/tel/reserve/start', 'tel.reserve.start', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new TelReserveController(req, res, next)).start(); });
-    app.all('/tel/reserve/:token/terms', 'tel.reserve.terms', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new TelReserveController(req, res, next)).terms(); });
-    app.all('/tel/reserve/:token/performances', 'tel.reserve.performances', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new TelReserveController(req, res, next)).performances(); });
-    app.all('/tel/reserve/:token/seats', 'tel.reserve.seats', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new TelReserveController(req, res, next)).seats(); });
-    app.all('/tel/reserve/:token/tickets', 'tel.reserve.tickets', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new TelReserveController(req, res, next)).tickets(); });
-    app.all('/tel/reserve/:token/profile', 'tel.reserve.profile', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new TelReserveController(req, res, next)).profile(); });
-    app.all('/tel/reserve/:token/confirm', 'tel.reserve.confirm', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new TelReserveController(req, res, next)).confirm(); });
-    app.get('/tel/reserve/:paymentNo/complete', 'tel.reserve.complete', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new TelReserveController(req, res, next)).complete(); });
-    app.post('/tel/cancel/execute', 'tel.cancel.execute', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new TelCancelController(req, res, next)).execute(); });
-    app.post('/tel/cancel2sagyo/execute', 'tel.cancel2sagyo.execute', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new TelCancelController(req, res, next)).execute2sagyo(); });
+    app.all('/tel/login', 'tel.mypage.login', baseMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new TelAuthController(req, res, next)).login(); });
+    app.all('/tel/logout', 'tel.logout', baseMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new TelAuthController(req, res, next)).logout(); });
+    app.all('/tel/mypage', 'tel.mypage', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new TelMyPageController(req, res, next)).index(); });
+    app.get('/tel/mypage/search', 'tel.mypage.search', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new TelMyPageController(req, res, next)).search(); });
+    app.get('/tel/reserve/start', 'tel.reserve.start', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new TelReserveController(req, res, next)).start(); });
+    app.all('/tel/reserve/:token/terms', 'tel.reserve.terms', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new TelReserveController(req, res, next)).terms(); });
+    app.all('/tel/reserve/:token/performances', 'tel.reserve.performances', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new TelReserveController(req, res, next)).performances(); });
+    app.all('/tel/reserve/:token/seats', 'tel.reserve.seats', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new TelReserveController(req, res, next)).seats(); });
+    app.all('/tel/reserve/:token/tickets', 'tel.reserve.tickets', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new TelReserveController(req, res, next)).tickets(); });
+    app.all('/tel/reserve/:token/profile', 'tel.reserve.profile', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new TelReserveController(req, res, next)).profile(); });
+    app.all('/tel/reserve/:token/confirm', 'tel.reserve.confirm', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new TelReserveController(req, res, next)).confirm(); });
+    app.get('/tel/reserve/:paymentNo/complete', 'tel.reserve.complete', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new TelReserveController(req, res, next)).complete(); });
+    app.post('/tel/cancel/execute', 'tel.cancel.execute', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new TelCancelController(req, res, next)).execute(); });
+    app.post('/tel/cancel2sagyo/execute', 'tel.cancel2sagyo.execute', baseMiddleware, authenticationMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => { (new TelCancelController(req, res, next)).execute2sagyo(); });
 };

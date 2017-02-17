@@ -1,5 +1,6 @@
 import { Models } from '@motionpicture/ttts-domain';
 import { GMONotificationUtil } from '@motionpicture/ttts-domain';
+import * as mongoose from 'mongoose';
 import GMONotificationModel from '../../models/Reserve/GMONotificationModel';
 import GMONotificationResponseModel from '../../models/Reserve/GMONotificationResponseModel';
 import BaseController from '../BaseController';
@@ -51,7 +52,7 @@ export default class GMOController extends BaseController {
 
                 process_status: GMONotificationUtil.PROCESS_STATUS_UNPROCESSED
             },
-            (err, notification) => {
+            (err: any, notification: mongoose.Document) => {
                 this.logger.info('notification created.', notification);
                 if (err) {
                     this.res.send(GMONotificationResponseModel.RECV_RES_NG);
