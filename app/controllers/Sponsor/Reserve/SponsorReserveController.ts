@@ -52,9 +52,12 @@ export default class SponsorReserveController extends ReserveBaseController impl
      * スケジュール選択
      */
     public performances(): void {
+        if (!this.req.sponsorUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+        const sponsorUser = this.req.sponsorUser;
+
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             // 仮予約あればキャンセルする
             // tslint:disable-next-line:no-shadowed-variable
@@ -66,19 +69,19 @@ export default class SponsorReserveController extends ReserveBaseController impl
                     // 外部関係者による予約数を取得
                     Models.Reservation.count(
                         {
-                            sponsor: this.req.sponsorUser.get('_id'),
+                            sponsor: sponsorUser.get('_id'),
                             status: { $in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED] }
                         },
                         (countReservationErr, reservationsCount) => {
                             if (countReservationErr) return this.next(countReservationErr);
 
-                            if (parseInt(this.req.sponsorUser.get('max_reservation_count'), DEFAULT_RADIX) <= reservationsCount) {
+                            if (parseInt(sponsorUser.get('max_reservation_count'), DEFAULT_RADIX) <= reservationsCount) {
                                 return this.next(new Error(this.req.__('Message.NoMoreReservation')));
                             }
 
                             if (this.req.method === 'POST') {
                                 reservePerformanceForm(this.req, this.res, () => {
-                                    if (this.req.form.isValid) {
+                                    if (this.req.form && this.req.form.isValid) {
                                         // パフォーマンスFIX
                                         // tslint:disable-next-line:no-shadowed-variable
                                         const performanceId = (<any>this.req.form).performanceId;
@@ -114,19 +117,22 @@ export default class SponsorReserveController extends ReserveBaseController impl
      */
     // tslint:disable-next-line:max-func-body-length
     public seats(): void {
+        if (!this.req.sponsorUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+        const sponsorUser = this.req.sponsorUser;
+
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             // 外部関係者による予約数を取得
             // TODO ローカルファイルロック以外の方法を考える
-            const lockPath = `${__dirname}/../../../../../lock/SponsorFixSeats${this.req.sponsorUser.get('_id')}.lock`;
+            const lockPath = `${__dirname}/../../../../../lock/SponsorFixSeats${sponsorUser.get('_id')}.lock`;
             lockFile.lock(lockPath, { wait: 5000 }, (lockErr) => {
                 if (lockErr) return this.next(lockErr);
 
                 Models.Reservation.count(
                     {
-                        sponsor: this.req.sponsorUser.get('_id'),
+                        sponsor: sponsorUser.get('_id'),
                         status: { $in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED] },
                         seat_code: {
                             $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
@@ -136,7 +142,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                         if (countReservationErr) return this.next(countReservationErr);
 
                         // 一度に確保できる座席数は、残り可能枚数と、10の小さい方
-                        const reservableCount = parseInt(this.req.sponsorUser.get('max_reservation_count'), DEFAULT_RADIX) - reservationsCount;
+                        const reservableCount = parseInt(sponsorUser.get('max_reservation_count'), DEFAULT_RADIX) - reservationsCount;
                         const limit = Math.min(reservationModel.getSeatsLimit(), reservableCount);
 
                         // すでに枚数制限に達している場合
@@ -149,7 +155,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
 
                             if (this.req.method === 'POST') {
                                 reserveSeatForm(this.req, this.res, () => {
-                                    if (this.req.form.isValid) {
+                                    if (this.req.form && this.req.form.isValid) {
                                         const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
 
                                         // 追加指定席を合わせて制限枚数を超過した場合
@@ -223,7 +229,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
     public tickets(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -250,7 +256,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
     public profile(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -292,7 +298,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
     public confirm(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -325,6 +331,8 @@ export default class SponsorReserveController extends ReserveBaseController impl
     }
 
     public complete(): void {
+        if (!this.req.sponsorUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+
         const paymentNo = this.req.params.paymentNo;
         Models.Reservation.find(
             {

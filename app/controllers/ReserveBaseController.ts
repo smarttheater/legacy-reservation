@@ -37,7 +37,7 @@ export default class ReserveBaseController extends BaseController {
      *
      * @param {string} purchaserGroup 購入者区分
      */
-    protected processStart(cb: (err: Error, reservationModel: ReservationModel) => void): void {
+    protected processStart(cb: (err: Error | null, reservationModel: ReservationModel) => void): void {
         // パフォーマンス未指定であればパフォーマンス選択へ
         // パフォーマンス指定であれば座席へ
 
@@ -59,12 +59,12 @@ export default class ReserveBaseController extends BaseController {
 
         // この時点でトークンに対して購入番号を発行しておかないと、複数ウィンドウで購入番号がずれる可能性あり
         ReservationUtil.publishPaymentNo((err, paymentNo) => {
-            if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+            if (err || !paymentNo) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
             reservationModel.paymentNo = paymentNo;
 
             // パフォーマンスFIX
-            if (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser.get('performance')) {
+            if (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser && this.req.sponsorUser.get('performance')) {
                 // パフォーマンスFIX
                 // tslint:disable-next-line:no-shadowed-variable
                 this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'), (fixPerformanceErr, reservationModel) => {
@@ -143,6 +143,8 @@ export default class ReserveBaseController extends BaseController {
                 break;
 
             case ReservationUtil.PURCHASER_GROUP_STAFF:
+                if (!this.req.staffUser) throw new Error(this.req.__('Message.UnexpectedError'));
+
                 reservationModel.purchaserLastName = 'ナイブ';
                 reservationModel.purchaserFirstName = 'カンケイシャ';
                 reservationModel.purchaserTel = '0362263025';
@@ -188,7 +190,7 @@ export default class ReserveBaseController extends BaseController {
      *
      * @param {ReservationModel} reservationModel
      */
-    protected processCancelSeats(reservationModel: ReservationModel, cb: (err: Error, reservationModel: ReservationModel) => void) {
+    protected processCancelSeats(reservationModel: ReservationModel, cb: (err: Error | null, reservationModel: ReservationModel) => void) {
         const ids = reservationModel.getReservationIds();
         if (ids.length === 0) return cb(null, reservationModel);
 
@@ -212,7 +214,7 @@ export default class ReserveBaseController extends BaseController {
      * パフォーマンスIDから、パフォーマンスを検索し、その後プロセスに必要な情報をreservationModelに追加する
      */
     // tslint:disable-next-line:max-func-body-length
-    protected processFixPerformance(reservationModel: ReservationModel, perfomanceId: string, cb: (err: Error, reservationModel: ReservationModel) => void) {
+    protected processFixPerformance(reservationModel: ReservationModel, perfomanceId: string, cb: (err: Error | null, reservationModel: ReservationModel) => void) {
         // パフォーマンス取得
         Models.Performance.findOne(
             {
@@ -368,7 +370,7 @@ export default class ReserveBaseController extends BaseController {
      * @param {ReservationModel} reservationModel
      * @param {Array<string>} seatCodes
      */
-    protected processFixSeats(reservationModel: ReservationModel, seatCodes: string[], cb: (err: Error, reservationModel: ReservationModel) => void) {
+    protected processFixSeats(reservationModel: ReservationModel, seatCodes: string[], cb: (err: Error | null, reservationModel: ReservationModel) => void) {
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
         reservationModel.expiredAt = moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').valueOf();
@@ -388,11 +390,11 @@ export default class ReserveBaseController extends BaseController {
                     seat_code: seatCode,
                     status: ReservationUtil.STATUS_TEMPORARY,
                     expired_at: reservationModel.expiredAt,
-                    staff: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) ? this.req.staffUser.get('_id') : undefined,
-                    sponsor: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR) ? this.req.sponsorUser.get('_id') : undefined,
-                    member: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_MEMBER) ? this.req.memberUser.get('_id') : undefined,
-                    tel: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL) ? this.req.telStaffUser.get('_id') : undefined,
-                    window: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) ? this.req.windowUser.get('_id') : undefined,
+                    staff: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF && this.req.staffUser) ? this.req.staffUser.get('_id') : undefined,
+                    sponsor: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser) ? this.req.sponsorUser.get('_id') : undefined,
+                    member: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_MEMBER && this.req.memberUser) ? this.req.memberUser.get('_id') : undefined,
+                    tel: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL && this.req.telStaffUser) ? this.req.telStaffUser.get('_id') : undefined,
+                    window: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW && this.req.windowUser) ? this.req.windowUser.get('_id') : undefined,
                     pre_customer: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER && this.req.preCustomerUser) ? this.req.preCustomerUser.get('_id') : undefined
                 };
 
@@ -411,11 +413,11 @@ export default class ReserveBaseController extends BaseController {
                             seat_grade_name_ja: seatInfo.grade.name.ja,
                             seat_grade_name_en: seatInfo.grade.name.en,
                             seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                            ticket_type_code: null,
-                            ticket_type_name_ja: null,
-                            ticket_type_name_en: null,
+                            ticket_type_code: '',
+                            ticket_type_name_ja: '',
+                            ticket_type_name_en: '',
                             ticket_type_charge: 0,
-                            watcher_name: null
+                            watcher_name: ''
                         });
 
                         resolve();
@@ -440,19 +442,20 @@ export default class ReserveBaseController extends BaseController {
     /**
      * 券種FIXプロセス
      */
-    public processFixTickets(reservationModel: ReservationModel, cb: (err: Error, reservationModel: ReservationModel) => void): void {
+    public processFixTickets(reservationModel: ReservationModel, cb: (err: Error | null, reservationModel: ReservationModel) => void): void {
         reserveTicketForm(this.req, this.res, () => {
-            if (!this.req.form.isValid) cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            if (!this.req.form) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            if (!this.req.form.isValid) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
 
             // 座席選択情報を保存して座席選択へ
             const choices = JSON.parse((<any>this.req.form).choices);
-            if (!Array.isArray(choices)) cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            if (!Array.isArray(choices)) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
 
             choices.forEach((choice: any) => {
                 const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => {
                     return (ticketTypeInArray.code === choice.ticket_type_code);
                 });
-                if (!ticketType) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+                if (!ticketType) throw new Error(this.req.__('Message.UnexpectedError'));
 
                 const reservation = reservationModel.getReservation(choice.seat_code);
                 reservation.ticket_type_code = ticketType.code;
@@ -471,11 +474,12 @@ export default class ReserveBaseController extends BaseController {
     /**
      * 券種FIXプロセス
      */
-    public processFixProfile(reservationModel: ReservationModel, cb: (err: Error, reservationModel: ReservationModel) => void): void {
+    public processFixProfile(reservationModel: ReservationModel, cb: (err: Error | null, reservationModel: ReservationModel) => void): void {
         const form = reserveProfileForm(this.req);
         form(this.req, this.res, (err) => {
             if (err) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-            if (!this.req.form.isValid) cb(new Error(this.req.__('Message.Invalid')), reservationModel);
+            if (!this.req.form) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            if (!this.req.form.isValid) return cb(new Error(this.req.__('Message.Invalid')), reservationModel);
 
             // 購入者情報を保存して座席選択へ
             reservationModel.purchaserLastName = (<any>this.req.form).lastName;
@@ -526,7 +530,7 @@ export default class ReserveBaseController extends BaseController {
      */
     // tslint:disable-next-line:max-func-body-length
     // tslint:disable-next-line:max-func-body-length
-    protected processConfirm(reservationModel: ReservationModel, cb: (err: Error, reservationModel: ReservationModel) => void): void {
+    protected processConfirm(reservationModel: ReservationModel, cb: (err: Error | null, reservationModel: ReservationModel) => void): void {
         // 仮押さえ有効期限チェック
         if (reservationModel.expiredAt && reservationModel.expiredAt < moment().valueOf()) {
             return cb(new Error(this.res.__('Message.Expired')), reservationModel);
@@ -561,22 +565,22 @@ export default class ReserveBaseController extends BaseController {
                         break;
 
                     case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                        commonUpdate.member = this.req.memberUser.get('_id');
-                        commonUpdate.member_user_id = this.req.memberUser.get('user_id');
+                        commonUpdate.member = (<Express.MemberUser>this.req.memberUser).get('_id');
+                        commonUpdate.member_user_id = (<Express.MemberUser>this.req.memberUser).get('user_id');
                         break;
 
                     case ReservationUtil.PURCHASER_GROUP_SPONSOR:
-                        commonUpdate.sponsor = this.req.sponsorUser.get('_id');
-                        commonUpdate.sponsor_user_id = this.req.sponsorUser.get('user_id');
-                        commonUpdate.sponsor_name = this.req.sponsorUser.get('name');
+                        commonUpdate.sponsor = (<Express.SponsorUser>this.req.sponsorUser).get('_id');
+                        commonUpdate.sponsor_user_id = (<Express.SponsorUser>this.req.sponsorUser).get('user_id');
+                        commonUpdate.sponsor_name = (<Express.SponsorUser>this.req.sponsorUser).get('name');
                         break;
 
                     case ReservationUtil.PURCHASER_GROUP_STAFF:
-                        commonUpdate.staff = this.req.staffUser.get('_id');
-                        commonUpdate.staff_user_id = this.req.staffUser.get('user_id');
-                        commonUpdate.staff_name = this.req.staffUser.get('name');
-                        commonUpdate.staff_email = this.req.staffUser.get('email');
-                        commonUpdate.staff_signature = this.req.staffUser.get('signature');
+                        commonUpdate.staff = (<Express.StaffUser>this.req.staffUser).get('_id');
+                        commonUpdate.staff_user_id = (<Express.StaffUser>this.req.staffUser).get('user_id');
+                        commonUpdate.staff_name = (<Express.StaffUser>this.req.staffUser).get('name');
+                        commonUpdate.staff_email = (<Express.StaffUser>this.req.staffUser).get('email');
+                        commonUpdate.staff_signature = (<Express.StaffUser>this.req.staffUser).get('signature');
 
                         commonUpdate.purchaser_last_name = '';
                         commonUpdate.purchaser_first_name = '';
@@ -588,8 +592,8 @@ export default class ReserveBaseController extends BaseController {
                         break;
 
                     case ReservationUtil.PURCHASER_GROUP_TEL:
-                        commonUpdate.tel_staff = this.req.telStaffUser.get('_id');
-                        commonUpdate.tel_staff_user_id = this.req.telStaffUser.get('user_id');
+                        commonUpdate.tel_staff = (<Express.TelStaffUser>this.req.telStaffUser).get('_id');
+                        commonUpdate.tel_staff_user_id = (<Express.TelStaffUser>this.req.telStaffUser).get('user_id');
 
                         commonUpdate.purchaser_email = '';
                         commonUpdate.purchaser_age = '';
@@ -598,8 +602,8 @@ export default class ReserveBaseController extends BaseController {
                         break;
 
                     case ReservationUtil.PURCHASER_GROUP_WINDOW:
-                        commonUpdate.window = this.req.windowUser.get('_id');
-                        commonUpdate.window_user_id = this.req.windowUser.get('user_id');
+                        commonUpdate.window = (<Express.WindowUser>this.req.windowUser).get('_id');
+                        commonUpdate.window_user_id = (<Express.WindowUser>this.req.windowUser).get('user_id');
 
                         commonUpdate.purchaser_last_name = '';
                         commonUpdate.purchaser_first_name = '';
@@ -658,7 +662,7 @@ export default class ReserveBaseController extends BaseController {
         } else {
             // 購入番号発行
             ReservationUtil.publishPaymentNo((err, paymentNo) => {
-                if (err) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+                if (err || !paymentNo) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
 
                 reservationModel.paymentNo = paymentNo;
                 next(reservationModel);
@@ -672,7 +676,7 @@ export default class ReserveBaseController extends BaseController {
      * @param {string} paymentNo 購入番号
      * @param {Object} update 追加更新パラメータ
      */
-    protected processFixReservations(paymentNo: string, update: Object, cb: (err: Error) => void): void {
+    protected processFixReservations(paymentNo: string, update: Object, cb: (err: Error | null) => void): void {
         (<any>update).status = ReservationUtil.STATUS_RESERVED;
         (<any>update).updated_user = 'ReserveBaseController';
 

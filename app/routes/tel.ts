@@ -12,9 +12,11 @@ import TelStaffUser from '../models/User/TelStaffUser';
 
 export default (app: any) => {
     const authenticationMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        if (!req.telStaffUser) return next(new Error(req.__('Message.UnexpectedError')));
+
         if (!req.telStaffUser.isAuthenticated()) {
             // 自動ログインチェック
-            const checkRemember = (cb: (user: mongoose.Document) => void) => {
+            const checkRemember = (cb: (user: mongoose.Document | null) => void) => {
                 if (req.cookies.remember_tel_staff) {
                     Models.Authentication.findOne(
                         {
@@ -52,7 +54,7 @@ export default (app: any) => {
             };
 
             checkRemember((user) => {
-                if (user) {
+                if (user && req.session) {
                     // ログインしてリダイレクト
                     req.session[TelStaffUser.AUTH_SESSION_NAME] = user.toObject();
 

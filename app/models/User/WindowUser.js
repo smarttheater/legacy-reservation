@@ -8,7 +8,7 @@ class WindowUser extends BaseUser_1.default {
     static parse(session) {
         const user = new WindowUser();
         // セッション値からオブジェクトにセット
-        if (session.hasOwnProperty(WindowUser.AUTH_SESSION_NAME)) {
+        if (session && session.hasOwnProperty(WindowUser.AUTH_SESSION_NAME)) {
             Object.keys(session[WindowUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
                 user[propertyName] = session[WindowUser.AUTH_SESSION_NAME][propertyName];
             });

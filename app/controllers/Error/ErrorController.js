@@ -18,7 +18,7 @@ class ErrorController extends BaseController_1.default {
      * エラーページ
      */
     index(err) {
-        this.logger.error(err.stack);
+        this.logger.error(err.message, err.stack);
         const status = 500;
         if (this.req.xhr) {
             this.res.status(status).json({

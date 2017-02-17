@@ -17,6 +17,8 @@ class SponsorMyPageController extends BaseController_1.default {
      * マイページ予約検索
      */
     search() {
+        if (!this.req.sponsorUser)
+            return this.next(new Error(this.req.__('Message.UnexpectedError')));
         // tslint:disable-next-line:no-magic-numbers
         const limit = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
         const page = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;

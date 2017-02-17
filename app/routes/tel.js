@@ -9,6 +9,8 @@ const TelStaffUser_1 = require("../models/User/TelStaffUser");
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     const authenticationMiddleware = (req, res, next) => {
+        if (!req.telStaffUser)
+            return next(new Error(req.__('Message.UnexpectedError')));
         if (!req.telStaffUser.isAuthenticated()) {
             // 自動ログインチェック
             const checkRemember = (cb) => {
@@ -44,7 +46,7 @@ exports.default = (app) => {
                 }
             };
             checkRemember((user) => {
-                if (user) {
+                if (user && req.session) {
                     // ログインしてリダイレクト
                     req.session[TelStaffUser_1.default.AUTH_SESSION_NAME] = user.toObject();
                     // if exist parameter cb, redirect to cb.

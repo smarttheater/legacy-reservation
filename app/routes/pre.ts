@@ -10,9 +10,11 @@ import PreCustomerUser from '../models/User/PreCustomerUser';
 
 export default (app: any) => {
     const authenticationMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        if (!req.preCustomerUser) return next(new Error(req.__('Message.UnexpectedError')));
+
         if (!req.preCustomerUser.isAuthenticated()) {
             // 自動ログインチェック
-            const checkRemember = (cb: (user: mongoose.Document, locale: string) => void) => {
+            const checkRemember = (cb: (user: mongoose.Document | null, locale: string | null) => void) => {
                 if (req.cookies.remember_pre_customer) {
                     Models.Authentication.findOne(
                         {
@@ -50,7 +52,7 @@ export default (app: any) => {
             };
 
             checkRemember((user, locale) => {
-                if (user) {
+                if (user && req.session) {
                     // ログインしてリダイレクト
                     req.session[PreCustomerUser.AUTH_SESSION_NAME] = user.toObject();
                     req.session[PreCustomerUser.AUTH_SESSION_NAME].locale = locale;

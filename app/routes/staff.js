@@ -9,6 +9,8 @@ const StaffUser_1 = require("../models/User/StaffUser");
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     const authenticationMiddleware = (req, res, next) => {
+        if (!req.staffUser)
+            return next(new Error(req.__('Message.UnexpectedError')));
         if (!req.staffUser.isAuthenticated()) {
             // 自動ログインチェック
             const checkRemember = (cb) => {
@@ -44,7 +46,7 @@ exports.default = (app) => {
                 }
             };
             checkRemember((user, signature, locale) => {
-                if (user) {
+                if (user && req.session) {
                     // ログインしてリダイレクト
                     req.session[StaffUser_1.default.AUTH_SESSION_NAME] = user.toObject();
                     req.session[StaffUser_1.default.AUTH_SESSION_NAME].signature = signature;

@@ -37,7 +37,7 @@ export default class Util {
      * @param {string} paymentNo 購入番号
      */
     // tslint:disable-next-line:variable-name function-name
-    public static getReservationLogger(_paymentNo: string, cb: (err: Error, logger: log4js.Logger) => void) {
+    public static getReservationLogger(_paymentNo: string, cb: (err: Error | null, logger: log4js.Logger) => void) {
         // todo 購入ログの出力方法を、ローカルファイルロガー以外で新たに考える
         cb(null, log4js.getLogger('system'));
 

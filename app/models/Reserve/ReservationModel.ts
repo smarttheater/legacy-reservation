@@ -145,7 +145,7 @@ export default class ReservationModel {
      * プロセス中の購入情報をセッションから取得する
      */
     // tslint:disable-next-line:function-name
-    public static find(token: string, cb: (err: Error | void, reservationModel: ReservationModel) => void): void {
+    public static find(token: string, cb: (err: Error | null, reservationModel: ReservationModel | null) => void): void {
         const key = ReservationModel.getRedisKey(token);
         redisClient.get(key, (err, reply) => {
             if (err) return cb(err, null);

@@ -7,11 +7,11 @@ export default class SponsorUser extends BaseUser {
     public static AUTH_SESSION_NAME = 'TTTSFrontendSponsorAuth';
 
     // tslint:disable-next-line:function-name
-    public static parse(session: Express.Session): SponsorUser {
+    public static parse(session: Express.Session | undefined): SponsorUser {
         const user = new SponsorUser();
 
         // セッション値からオブジェクトにセット
-        if (session.hasOwnProperty(SponsorUser.AUTH_SESSION_NAME)) {
+        if (session && session.hasOwnProperty(SponsorUser.AUTH_SESSION_NAME)) {
             Object.keys(session[SponsorUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
                 (<any>user)[propertyName] = session[SponsorUser.AUTH_SESSION_NAME][propertyName];
             });

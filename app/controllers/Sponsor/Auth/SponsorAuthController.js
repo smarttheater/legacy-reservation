@@ -13,39 +13,39 @@ class SponsorAuthController extends BaseController_1.default {
      * sponsor login
      */
     login() {
-        if (this.req.sponsorUser.isAuthenticated()) {
+        if (this.req.sponsorUser && this.req.sponsorUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('sponsor.reserve.start'));
         }
         if (this.req.method === 'POST') {
-            const form = sponsorLoginForm_1.default(this.req);
-            form(this.req, this.res, (err) => {
-                if (this.req.form.isValid) {
+            sponsorLoginForm_1.default(this.req)(this.req, this.res, (err) => {
+                const form = this.req.form;
+                if (form && form.isValid) {
                     // ユーザー認証
-                    this.logger.debug('finding sponsor... user_id:', this.req.form.userId);
+                    this.logger.debug('finding sponsor... user_id:', form.userId);
                     ttts_domain_1.Models.Sponsor.findOne({
-                        user_id: this.req.form.userId
+                        user_id: form.userId
                     }, (findSponsorErr, sponsor) => {
                         if (findSponsorErr)
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         if (!sponsor) {
-                            this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                             this.res.render('sponsor/auth/login');
                         }
                         else {
                             // パスワードチェック
-                            if (sponsor.get('password_hash') !== Util_1.default.createHash(this.req.form.password, sponsor.get('password_salt'))) {
-                                this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            if (sponsor.get('password_hash') !== Util_1.default.createHash(form.password, sponsor.get('password_salt'))) {
+                                form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('sponsor/auth/login');
                             }
                             else {
                                 // ログイン記憶
                                 const processRemember = (cb) => {
-                                    if (this.req.form.remember) {
+                                    if (form.remember) {
                                         // トークン生成
                                         ttts_domain_1.Models.Authentication.create({
                                             token: Util_1.default.createToken(),
                                             sponsor: sponsor.get('_id'),
-                                            locale: this.req.form.language
+                                            locale: form.language
                                         }, (createAuthenticationErr, authentication) => {
                                             if (createAuthenticationErr)
                                                 return cb(createAuthenticationErr, null);
@@ -58,6 +58,8 @@ class SponsorAuthController extends BaseController_1.default {
                                     }
                                 };
                                 processRemember((processRememberErr) => {
+                                    if (!this.req.session)
+                                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                     if (processRememberErr)
                                         return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                     // ログイン
@@ -83,6 +85,8 @@ class SponsorAuthController extends BaseController_1.default {
         }
     }
     logout() {
+        if (!this.req.session)
+            return this.next(new Error(this.req.__('Message.UnexpectedError')));
         delete this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME];
         ttts_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_sponsor }, (err) => {
             if (err)

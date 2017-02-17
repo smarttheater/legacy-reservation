@@ -13,14 +13,14 @@ class SponsorCancelController extends BaseController_1.default {
      * チケットキャンセル
      */
     index() {
-        if (this.req.sponsorUser.isAuthenticated()) {
+        if (this.req.sponsorUser && this.req.sponsorUser.isAuthenticated()) {
         }
         else {
         }
         if (this.req.method === 'POST') {
             const form = sponsorCancelForm_1.default(this.req);
             form(this.req, this.res, () => {
-                if (this.req.form.isValid) {
+                if (this.req.form && this.req.form.isValid) {
                     // 予約を取得
                     ttts_domain_1.Models.Reservation.find({
                         payment_no: this.req.form.paymentNo,
@@ -82,13 +82,16 @@ class SponsorCancelController extends BaseController_1.default {
      * 購入番号からキャンセルする
      */
     executeByPaymentNo() {
+        if (!this.req.sponsorUser)
+            return this.next(new Error(this.req.__('Message.UnexpectedError')));
+        const sponsorUser = this.req.sponsorUser;
         this.logger = log4js.getLogger('cancel');
         // 予約IDリストをjson形式で受け取る
         const reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
             const promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', sponsorUser.get('user_id'), 'id:', id);
                     ttts_domain_1.Models.Reservation.findOneAndUpdate({
                         _id: id,
                         payment_no: this.req.body.paymentNo,
@@ -96,7 +99,7 @@ class SponsorCancelController extends BaseController_1.default {
                         purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_SPONSOR,
                         status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
                     }, { status: ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS }, { new: true }, (err, reservation) => {
-                        this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                        this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
                         (err) ? reject(err) : resolve();
                     });
                 });
@@ -121,15 +124,18 @@ class SponsorCancelController extends BaseController_1.default {
         }
     }
     execute() {
+        if (!this.req.sponsorUser)
+            return this.next(new Error(this.req.__('Message.UnexpectedError')));
+        const sponsorUser = this.req.sponsorUser;
         this.logger = log4js.getLogger('cancel');
         // 予約IDリストをjson形式で受け取る
         const reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
             const promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', sponsorUser.get('user_id'), 'id:', id);
                     ttts_domain_1.Models.Reservation.findOneAndUpdate({ _id: id }, { status: ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS }, { new: true }, (err, reservation) => {
-                        this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                        this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
                         (err) ? reject(err) : resolve();
                     });
                 });

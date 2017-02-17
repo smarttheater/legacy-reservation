@@ -46,11 +46,11 @@ export default class WindowReserveController extends ReserveBaseController imple
     public performances(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 reservePerformanceForm(this.req, this.res, () => {
-                    if (this.req.form.isValid) {
+                    if (this.req.form && this.req.form.isValid) {
                         // パフォーマンスFIX
                         const performanceId = (<any>this.req.form).performanceId;
                         // tslint:disable-next-line:no-shadowed-variable
@@ -89,13 +89,13 @@ export default class WindowReserveController extends ReserveBaseController imple
     public seats(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             const limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
                 reserveSeatForm(this.req, this.res, () => {
-                    if (this.req.form.isValid) {
+                    if (this.req.form && this.req.form.isValid) {
 
                         const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
 
@@ -146,9 +146,9 @@ export default class WindowReserveController extends ReserveBaseController imple
     public tickets(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
-            reservationModel.paymentMethod = null;
+            reservationModel.paymentMethod = '';
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -175,7 +175,7 @@ export default class WindowReserveController extends ReserveBaseController imple
     public profile(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -217,7 +217,7 @@ export default class WindowReserveController extends ReserveBaseController imple
     public confirm(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -253,6 +253,8 @@ export default class WindowReserveController extends ReserveBaseController imple
      * 予約完了
      */
     public complete(): void {
+        if (!this.req.windowUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+
         const paymentNo = this.req.params.paymentNo;
         Models.Reservation.find(
             {

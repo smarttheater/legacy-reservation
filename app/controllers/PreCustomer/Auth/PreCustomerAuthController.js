@@ -26,39 +26,39 @@ class PreCustomerAuthController extends BaseController_1.default {
                 return this.res.render('preCustomer/reserve/outOfTerm', { layout: false });
             }
         }
-        if (this.req.preCustomerUser.isAuthenticated()) {
+        if (this.req.preCustomerUser && this.req.preCustomerUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('pre.reserve.start'));
         }
         if (this.req.method === 'POST') {
-            const form = preCustomerLoginForm_1.default(this.req);
-            form(this.req, this.res, () => {
-                if (this.req.form.isValid) {
+            preCustomerLoginForm_1.default(this.req)(this.req, this.res, () => {
+                const form = this.req.form;
+                if (form && form.isValid) {
                     // ユーザー認証
-                    this.logger.debug('finding preCustomer... user_id:', this.req.form.userId);
+                    this.logger.debug('finding preCustomer... user_id:', form.userId);
                     ttts_domain_1.Models.PreCustomer.findOne({
-                        user_id: this.req.form.userId
+                        user_id: form.userId
                     }, (findPreCustomerErr, preCustomer) => {
                         if (findPreCustomerErr)
                             return this.next(new Error(this.req.__('Message.UnexpectedError')));
                         if (!preCustomer) {
-                            this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                             this.res.render('preCustomer/auth/login');
                         }
                         else {
                             // パスワードチェック
-                            if (preCustomer.get('password_hash') !== Util_1.default.createHash(this.req.form.password, preCustomer.get('password_salt'))) {
-                                this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            if (preCustomer.get('password_hash') !== Util_1.default.createHash(form.password, preCustomer.get('password_salt'))) {
+                                form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('preCustomer/auth/login');
                             }
                             else {
                                 // ログイン記憶
                                 const processRemember = (cb) => {
-                                    if (this.req.form.remember) {
+                                    if (form.remember) {
                                         // トークン生成
                                         ttts_domain_1.Models.Authentication.create({
                                             token: Util_1.default.createToken(),
                                             pre_customer: preCustomer.get('_id'),
-                                            locale: this.req.form.language
+                                            locale: form.language
                                         }, (createAuthenticationErr, authentication) => {
                                             this.res.cookie('remember_pre_customer', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
                                             cb(createAuthenticationErr, authentication.get('token'));
@@ -69,6 +69,8 @@ class PreCustomerAuthController extends BaseController_1.default {
                                     }
                                 };
                                 processRemember((processRememberErr) => {
+                                    if (!this.req.session)
+                                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                     if (processRememberErr)
                                         return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                     // ログイン
@@ -94,6 +96,8 @@ class PreCustomerAuthController extends BaseController_1.default {
         }
     }
     logout() {
+        if (!this.req.session)
+            return this.next(new Error(this.req.__('Message.UnexpectedError')));
         delete this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME];
         ttts_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_pre_customer }, (err) => {
             if (err)

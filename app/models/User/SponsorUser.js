@@ -8,7 +8,7 @@ class SponsorUser extends BaseUser_1.default {
     static parse(session) {
         const user = new SponsorUser();
         // セッション値からオブジェクトにセット
-        if (session.hasOwnProperty(SponsorUser.AUTH_SESSION_NAME)) {
+        if (session && session.hasOwnProperty(SponsorUser.AUTH_SESSION_NAME)) {
             Object.keys(session[SponsorUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
                 user[propertyName] = session[SponsorUser.AUTH_SESSION_NAME][propertyName];
             });

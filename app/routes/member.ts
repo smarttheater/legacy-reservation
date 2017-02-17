@@ -7,6 +7,8 @@ import MemberUser from '../models/User/MemberUser';
 
 export default (app: any) => {
     const authenticationMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        if (!req.memberUser) return next(new Error(req.__('Message.UnexpectedError')));
+
         if (!req.memberUser.isAuthenticated()) {
             if (req.xhr) {
                 res.json({

@@ -19,33 +19,34 @@ export default class MemberAuthController extends BaseController {
             return this.next(new Error(this.req.__('Message.OutOfTerm')));
         }
 
-        if (this.req.memberUser.isAuthenticated()) {
+        if (this.req.memberUser && this.req.memberUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('member.reserve.start'));
         }
 
         if (this.req.method === 'POST') {
             memberLoginForm(this.req, this.res, () => {
-                if (this.req.form.isValid) {
+                const form = this.req.form;
+                if (form && form.isValid) {
                     // ユーザー認証
-                    this.logger.debug('finding member... user_id:', (<any>this.req.form).userId);
+                    this.logger.debug('finding member... user_id:', (<any>form).userId);
                     Models.Member.findOne(
                         {
-                            user_id: (<any>this.req.form).userId
+                            user_id: (<any>form).userId
                         },
                         (findMemberErr, member) => {
                             if (findMemberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                             if (!member) {
-                                this.req.form.errors.push('ログイン番号またはパスワードに誤りがあります');
+                                form.errors.push('ログイン番号またはパスワードに誤りがあります');
                                 this.res.render('member/auth/login');
                             } else {
                                 // パスワードチェック
-                                if (member.get('password_hash') !== Util.createHash((<any>this.req.form).password, member.get('password_salt'))) {
-                                    this.req.form.errors.push('ログイン番号またはパスワードに誤りがあります');
+                                if (member.get('password_hash') !== Util.createHash((<any>form).password, member.get('password_salt'))) {
+                                    form.errors.push('ログイン番号またはパスワードに誤りがあります');
                                     this.res.render('member/auth/login');
                                 } else {
                                     // ログイン
-                                    this.req.session[MemberUser.AUTH_SESSION_NAME] = member.toObject();
+                                    (<Express.Session>this.req.session)[MemberUser.AUTH_SESSION_NAME] = member.toObject();
                                     this.res.redirect(this.router.build('member.reserve.start'));
                                 }
                             }

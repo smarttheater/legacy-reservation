@@ -21,7 +21,7 @@ class CustomerCancelController extends BaseController_1.default {
         if (this.req.method === 'POST') {
             const form = customerCancelForm_1.default(this.req);
             form(this.req, this.res, () => {
-                if (!this.req.form.isValid) {
+                if (this.req.form && !this.req.form.isValid) {
                     this.res.json({
                         success: false,
                         message: '購入番号または電話番号下4ケタに誤りがあります<br>There are some mistakes in a transaction number or last 4 digits of tel.'

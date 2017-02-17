@@ -12,9 +12,11 @@ import SponsorUser from '../models/User/SponsorUser';
 
 export default (app: any) => {
     const authenticationMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        if (!req.sponsorUser) return next(new Error(req.__('Message.UnexpectedError')));
+
         if (!req.sponsorUser.isAuthenticated()) {
             // 自動ログインチェック
-            const checkRemember = (cb: (user: mongoose.Document, locale: string) => void) => {
+            const checkRemember = (cb: (user: mongoose.Document | null, locale: string | null) => void) => {
                 if (req.cookies.remember_sponsor) {
                     Models.Authentication.findOne(
                         {
@@ -52,7 +54,7 @@ export default (app: any) => {
             };
 
             checkRemember((user, locale) => {
-                if (user) {
+                if (user && req.session) {
                     // ログインしてリダイレクト
                     req.session[SponsorUser.AUTH_SESSION_NAME] = user.toObject();
                     req.session[SponsorUser.AUTH_SESSION_NAME].locale = locale;

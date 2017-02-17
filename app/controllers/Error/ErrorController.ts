@@ -20,7 +20,7 @@ export default class ErrorController extends BaseController {
      * エラーページ
      */
     public index(err: Error): void {
-        this.logger.error(err.stack);
+        this.logger.error(err.message, err.stack);
 
         const status = 500;
 

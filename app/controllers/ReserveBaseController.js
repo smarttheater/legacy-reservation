@@ -46,11 +46,11 @@ class ReserveBaseController extends BaseController_1.default {
         reservationModel = this.initializePayment(reservationModel);
         // この時点でトークンに対して購入番号を発行しておかないと、複数ウィンドウで購入番号がずれる可能性あり
         ttts_domain_1.ReservationUtil.publishPaymentNo((err, paymentNo) => {
-            if (err)
+            if (err || !paymentNo)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
             reservationModel.paymentNo = paymentNo;
             // パフォーマンスFIX
-            if (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser.get('performance')) {
+            if (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser && this.req.sponsorUser.get('performance')) {
                 // パフォーマンスFIX
                 // tslint:disable-next-line:no-shadowed-variable
                 this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'), (fixPerformanceErr, reservationModel) => {
@@ -122,6 +122,8 @@ class ReserveBaseController extends BaseController_1.default {
                 }
                 break;
             case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
+                if (!this.req.staffUser)
+                    throw new Error(this.req.__('Message.UnexpectedError'));
                 reservationModel.purchaserLastName = 'ナイブ';
                 reservationModel.purchaserFirstName = 'カンケイシャ';
                 reservationModel.purchaserTel = '0362263025';
@@ -331,11 +333,11 @@ class ReserveBaseController extends BaseController_1.default {
                     seat_code: seatCode,
                     status: ttts_domain_1.ReservationUtil.STATUS_TEMPORARY,
                     expired_at: reservationModel.expiredAt,
-                    staff: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF) ? this.req.staffUser.get('_id') : undefined,
-                    sponsor: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR) ? this.req.sponsorUser.get('_id') : undefined,
-                    member: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER) ? this.req.memberUser.get('_id') : undefined,
-                    tel: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_TEL) ? this.req.telStaffUser.get('_id') : undefined,
-                    window: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW) ? this.req.windowUser.get('_id') : undefined,
+                    staff: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF && this.req.staffUser) ? this.req.staffUser.get('_id') : undefined,
+                    sponsor: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser) ? this.req.sponsorUser.get('_id') : undefined,
+                    member: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER && this.req.memberUser) ? this.req.memberUser.get('_id') : undefined,
+                    tel: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_TEL && this.req.telStaffUser) ? this.req.telStaffUser.get('_id') : undefined,
+                    window: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW && this.req.windowUser) ? this.req.windowUser.get('_id') : undefined,
                     pre_customer: (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER && this.req.preCustomerUser) ? this.req.preCustomerUser.get('_id') : undefined
                 };
                 // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
@@ -351,11 +353,11 @@ class ReserveBaseController extends BaseController_1.default {
                         seat_grade_name_ja: seatInfo.grade.name.ja,
                         seat_grade_name_en: seatInfo.grade.name.en,
                         seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                        ticket_type_code: null,
-                        ticket_type_name_ja: null,
-                        ticket_type_name_en: null,
+                        ticket_type_code: '',
+                        ticket_type_name_ja: '',
+                        ticket_type_name_en: '',
                         ticket_type_charge: 0,
-                        watcher_name: null
+                        watcher_name: ''
                     });
                     resolve();
                 });
@@ -374,18 +376,20 @@ class ReserveBaseController extends BaseController_1.default {
      */
     processFixTickets(reservationModel, cb) {
         reserveTicketForm_1.default(this.req, this.res, () => {
+            if (!this.req.form)
+                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
             if (!this.req.form.isValid)
-                cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
             // 座席選択情報を保存して座席選択へ
             const choices = JSON.parse(this.req.form.choices);
             if (!Array.isArray(choices))
-                cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
             choices.forEach((choice) => {
                 const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => {
                     return (ticketTypeInArray.code === choice.ticket_type_code);
                 });
                 if (!ticketType)
-                    return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+                    throw new Error(this.req.__('Message.UnexpectedError'));
                 const reservation = reservationModel.getReservation(choice.seat_code);
                 reservation.ticket_type_code = ticketType.code;
                 reservation.ticket_type_name_ja = ticketType.name.ja;
@@ -405,8 +409,10 @@ class ReserveBaseController extends BaseController_1.default {
         form(this.req, this.res, (err) => {
             if (err)
                 return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            if (!this.req.form)
+                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
             if (!this.req.form.isValid)
-                cb(new Error(this.req.__('Message.Invalid')), reservationModel);
+                return cb(new Error(this.req.__('Message.Invalid')), reservationModel);
             // 購入者情報を保存して座席選択へ
             reservationModel.purchaserLastName = this.req.form.lastName;
             reservationModel.purchaserFirstName = this.req.form.firstName;
@@ -549,7 +555,7 @@ class ReserveBaseController extends BaseController_1.default {
         else {
             // 購入番号発行
             ttts_domain_1.ReservationUtil.publishPaymentNo((err, paymentNo) => {
-                if (err)
+                if (err || !paymentNo)
                     return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
                 reservationModel.paymentNo = paymentNo;
                 next(reservationModel);

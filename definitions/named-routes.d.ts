@@ -1,6 +1,6 @@
 declare namespace Express {
     export interface Application {
-       namedRoutes?: NamedRoutes;
+       namedRoutes: NamedRoutes;
     }
 
     export interface NamedRoutes {

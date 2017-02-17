@@ -20,7 +20,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
     public performances(): void {
         if (this.req.method === 'POST') {
             reservePerformanceForm(this.req, this.res, () => {
-                if (this.req.form.isValid) {
+                if (this.req.form && this.req.form.isValid) {
                     const performaceId = (<any>this.req.form).performanceId;
                     this.res.redirect(this.router.build('customer.reserve.start') + `?performance=${performaceId}&locale=${this.req.getLocale()}`);
                 } else {
@@ -102,13 +102,13 @@ export default class CustomerReserveController extends ReserveBaseController imp
     public seats(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             const limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
                 reserveSeatForm(this.req, this.res, () => {
-                    if (this.req.form.isValid) {
+                    if (this.req.form && this.req.form.isValid) {
                         const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
 
                         // 追加指定席を合わせて制限枚数を超過した場合
@@ -157,9 +157,9 @@ export default class CustomerReserveController extends ReserveBaseController imp
     public tickets(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
-            reservationModel.paymentMethod = null;
+            reservationModel.paymentMethod = '';
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -186,7 +186,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
     public profile(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -228,7 +228,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
     public confirm(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable

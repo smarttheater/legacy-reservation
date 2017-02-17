@@ -12,6 +12,8 @@ export default class MemberReserveController extends ReserveBaseController imple
     public layout = 'layouts/member/layout';
 
     public start(): void {
+        if (!this.req.memberUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+
         // 予約状況を確認
         Models.Reservation.find(
             {
@@ -40,6 +42,7 @@ export default class MemberReserveController extends ReserveBaseController imple
                                 const seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
                                     return (seat.code === reservation.get('seat_code'));
                                 });
+                                if (!seatInfo) throw new Error(this.req.__('Message.UnexpectedError'));
 
                                 reservationModel.seatCodes.push(reservation.get('seat_code'));
                                 reservationModel.setReservation(reservation.get('seat_code'), {
@@ -49,11 +52,11 @@ export default class MemberReserveController extends ReserveBaseController imple
                                     seat_grade_name_ja: seatInfo.grade.name.ja,
                                     seat_grade_name_en: seatInfo.grade.name.en,
                                     seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                                    ticket_type_code: null,
-                                    ticket_type_name_ja: null,
-                                    ticket_type_name_en: null,
+                                    ticket_type_code: '',
+                                    ticket_type_name_ja: '',
+                                    ticket_type_name_en: '',
                                     ticket_type_charge: 0,
-                                    watcher_name: null
+                                    watcher_name: ''
                                 });
                             }
 
@@ -86,7 +89,7 @@ export default class MemberReserveController extends ReserveBaseController imple
     public tickets(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -113,7 +116,7 @@ export default class MemberReserveController extends ReserveBaseController imple
     public profile(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -155,7 +158,7 @@ export default class MemberReserveController extends ReserveBaseController imple
     public confirm(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable

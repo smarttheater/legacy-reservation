@@ -12,44 +12,44 @@ export default class StaffAuthController extends BaseController {
      * 内部関係者ログイン
      */
     public login(): void {
-        if (this.req.staffUser.isAuthenticated()) {
+        if (this.req.staffUser && this.req.staffUser.isAuthenticated()) {
             return this.res.redirect(this.router.build('staff.mypage'));
         }
 
         if (this.req.method === 'POST') {
-            const form = staffLoginForm(this.req);
-            form(this.req, this.res, () => {
-                if (this.req.form.isValid) {
+            staffLoginForm(this.req)(this.req, this.res, () => {
+                const form = this.req.form;
+                if (form && form.isValid) {
 
                     // ユーザー認証
-                    this.logger.debug('finding staff... user_id:', (<any>this.req.form).userId);
+                    this.logger.debug('finding staff... user_id:', (<any>form).userId);
                     Models.Staff.findOne(
                         {
-                            user_id: (<any>this.req.form).userId
+                            user_id: (<any>form).userId
                         },
                         (findStaffErr, staff) => {
                             if (findStaffErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                             if (!staff) {
-                                this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                                form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                 this.res.render('staff/auth/login');
                             } else {
                                 // パスワードチェック
-                                if (staff.get('password_hash') !== Util.createHash((<any>this.req.form).password, staff.get('password_salt'))) {
-                                    this.req.form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                                if (staff.get('password_hash') !== Util.createHash((<any>form).password, staff.get('password_salt'))) {
+                                    form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                                     this.res.render('staff/auth/login');
 
                                 } else {
                                     // ログイン記憶
-                                    const processRemember = (cb: (err: Error, token: string) => void) => {
-                                        if ((<any>this.req.form).remember) {
+                                    const processRemember = (cb: (err: Error | null, token: string | null) => void) => {
+                                        if ((<any>form).remember) {
                                             // トークン生成
                                             Models.Authentication.create(
                                                 {
                                                     token: Util.createToken(),
                                                     staff: staff.get('_id'),
-                                                    signature: (<any>this.req.form).signature,
-                                                    locale: (<any>this.req.form).language
+                                                    signature: (<any>form).signature,
+                                                    locale: (<any>form).language
                                                 },
                                                 (createAuthenticationErr: any, authentication: mongoose.Document) => {
                                                     this.res.cookie('remember_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
@@ -62,11 +62,12 @@ export default class StaffAuthController extends BaseController {
                                     };
 
                                     processRemember((processRememberErr) => {
+                                        if (!this.req.session) return this.next(new Error(this.req.__('Message.UnexpectedError')));
                                         if (processRememberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                                         this.req.session[StaffUser.AUTH_SESSION_NAME] = staff.toObject();
-                                        this.req.session[StaffUser.AUTH_SESSION_NAME].signature = (<any>this.req.form).signature;
-                                        this.req.session[StaffUser.AUTH_SESSION_NAME].locale = (<any>this.req.form).language;
+                                        this.req.session[StaffUser.AUTH_SESSION_NAME].signature = (<any>form).signature;
+                                        this.req.session[StaffUser.AUTH_SESSION_NAME].locale = (<any>form).language;
 
                                         // if exist parameter cb, redirect to cb.
                                         const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('staff.mypage');
@@ -94,6 +95,8 @@ export default class StaffAuthController extends BaseController {
     }
 
     public logout(): void {
+        if (!this.req.session) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+
         delete this.req.session[StaffUser.AUTH_SESSION_NAME];
         Models.Authentication.remove({ token: this.req.cookies.remember_staff }, (err) => {
             if (err) return this.next(err);

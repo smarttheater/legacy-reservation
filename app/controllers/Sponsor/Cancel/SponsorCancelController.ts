@@ -11,7 +11,7 @@ export default class SponsorCancelController extends BaseController {
      * チケットキャンセル
      */
     public index(): void {
-        if (this.req.sponsorUser.isAuthenticated()) {
+        if (this.req.sponsorUser && this.req.sponsorUser.isAuthenticated()) {
             // ログイン時そのまま
         } else {
             // this.req.setLocale('ja');
@@ -20,7 +20,7 @@ export default class SponsorCancelController extends BaseController {
         if (this.req.method === 'POST') {
             const form = sponsorCancelForm(this.req);
             form(this.req, this.res, () => {
-                if (this.req.form.isValid) {
+                if (this.req.form && this.req.form.isValid) {
                     // 予約を取得
                     Models.Reservation.find(
                         {
@@ -84,6 +84,9 @@ export default class SponsorCancelController extends BaseController {
      * 購入番号からキャンセルする
      */
     public executeByPaymentNo(): void {
+        if (!this.req.sponsorUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+        const sponsorUser = this.req.sponsorUser;
+
         this.logger = log4js.getLogger('cancel');
 
         // 予約IDリストをjson形式で受け取る
@@ -91,7 +94,7 @@ export default class SponsorCancelController extends BaseController {
         if (Array.isArray(reservationIds)) {
             const promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', sponsorUser.get('user_id'), 'id:', id);
                     Models.Reservation.findOneAndUpdate(
                         {
                             _id: id,
@@ -103,7 +106,7 @@ export default class SponsorCancelController extends BaseController {
                         { status: ReservationUtil.STATUS_KEPT_BY_TTTS },
                         { new: true },
                         (err, reservation) => {
-                            this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                            this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
                             (err) ? reject(err) : resolve();
                         }
                     );
@@ -133,6 +136,9 @@ export default class SponsorCancelController extends BaseController {
     }
 
     public execute(): void {
+        if (!this.req.sponsorUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+        const sponsorUser = this.req.sponsorUser;
+
         this.logger = log4js.getLogger('cancel');
 
         // 予約IDリストをjson形式で受け取る
@@ -140,13 +146,13 @@ export default class SponsorCancelController extends BaseController {
         if (Array.isArray(reservationIds)) {
             const promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', sponsorUser.get('user_id'), 'id:', id);
                     Models.Reservation.findOneAndUpdate(
                         { _id: id },
                         { status: ReservationUtil.STATUS_KEPT_BY_TTTS },
                         { new: true },
                         (err, reservation) => {
-                            this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', this.req.sponsorUser.get('user_id'), 'id:', id);
+                            this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
                             (err) ? reject(err) : resolve();
                         }
                     );

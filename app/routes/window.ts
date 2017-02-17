@@ -12,9 +12,11 @@ import WindowUser from '../models/User/WindowUser';
 
 export default (app: any) => {
     const authenticationMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        if (!req.windowUser) return next(new Error(req.__('Message.UnexpectedError')));
+
         if (!req.windowUser.isAuthenticated()) {
             // 自動ログインチェック
-            const checkRemember = (cb: (user: mongoose.Document) => void) => {
+            const checkRemember = (cb: (user: mongoose.Document | null) => void) => {
                 if (req.cookies.remember_window) {
                     Models.Authentication.findOne(
                         {
@@ -52,7 +54,7 @@ export default (app: any) => {
             };
 
             checkRemember((user) => {
-                if (user) {
+                if (user && req.session) {
                     // ログインしてリダイレクト
                     req.session[WindowUser.AUTH_SESSION_NAME] = user.toObject();
 

@@ -5,19 +5,22 @@ import BaseController from '../../BaseController';
 
 export default class TelCancelController extends BaseController {
     public execute(): void {
+        if (!this.req.telStaffUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+        const userId = this.req.telStaffUser.get('user_id');
+
         this.logger = log4js.getLogger('cancel');
 
         // 予約IDリストをjson形式で受け取る
         const reservationIds = JSON.parse(this.req.body.reservationIds);
         if (Array.isArray(reservationIds)) {
-            this.logger.info('removing reservation by tel_staff... tel:', this.req.telStaffUser.get('user_id'), 'reservationIds:', reservationIds);
+            this.logger.info('removing reservation by tel_staff... tel:', userId, 'reservationIds:', reservationIds);
             Models.Reservation.remove(
                 {
                     _id: { $in: reservationIds },
                     purchaser_group: { $ne: ReservationUtil.PURCHASER_GROUP_STAFF } // 念のため、内部は除外
                 },
                 (err) => {
-                    this.logger.info('reservation removed by tel_staff.', err, 'tel:', this.req.telStaffUser.get('user_id'), 'reservationIds:', reservationIds);
+                    this.logger.info('reservation removed by tel_staff.', err, 'tel:', userId, 'reservationIds:', reservationIds);
                     if (err) {
                         this.res.json({
                             success: false,
@@ -43,6 +46,9 @@ export default class TelCancelController extends BaseController {
      * 内部確保(作業用２の座席に変更する)
      */
     public execute2sagyo(): void {
+        if (!this.req.telStaffUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+        const userId = this.req.telStaffUser.get('user_id');
+
         this.logger = log4js.getLogger('cancel');
 
         // 予約IDリストをjson形式で受け取る
@@ -91,7 +97,7 @@ export default class TelCancelController extends BaseController {
                             multi: true
                         },
                         (updateReservationErr, raw) => {
-                            this.logger.info('reservation 2sagyo by tel_staff.', updateReservationErr, raw, 'tel:', this.req.telStaffUser.get('user_id'), 'reservationIds:', reservationIds);
+                            this.logger.info('reservation 2sagyo by tel_staff.', updateReservationErr, raw, 'tel:', userId, 'reservationIds:', reservationIds);
                             if (updateReservationErr) {
                                 this.res.json({ success: false, message: updateReservationErr.message });
                             } else {

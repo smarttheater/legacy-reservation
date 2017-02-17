@@ -20,7 +20,7 @@ export default class TelReserveController extends ReserveBaseController implemen
 
             // 購入番号発行(確認画面でペイデザイン川にコピーする際に必要になるので、事前に発行しておく)
             ReservationUtil.publishPaymentNo((publishPaymentNoErr, paymentNo) => {
-                if (publishPaymentNoErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                if (publishPaymentNoErr || !paymentNo) return this.next(new Error(this.req.__('Message.UnexpectedError')));
 
                 reservationModel.paymentNo = paymentNo;
 
@@ -53,11 +53,11 @@ export default class TelReserveController extends ReserveBaseController implemen
     public performances(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 reservePerformanceForm(this.req, this.res, () => {
-                    if (this.req.form.isValid) {
+                    if (this.req.form && this.req.form.isValid) {
                         // パフォーマンスFIX
                         const performanceId = (<any>this.req.form).performanceId;
                         // tslint:disable-next-line:no-shadowed-variable
@@ -96,13 +96,13 @@ export default class TelReserveController extends ReserveBaseController implemen
     public seats(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             const limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
                 reserveSeatForm(this.req, this.res, () => {
-                    if (this.req.form.isValid) {
+                    if (this.req.form && this.req.form.isValid) {
 
                         const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
 
@@ -152,9 +152,9 @@ export default class TelReserveController extends ReserveBaseController implemen
     public tickets(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
-            reservationModel.paymentMethod = null;
+            reservationModel.paymentMethod = '';
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -181,7 +181,7 @@ export default class TelReserveController extends ReserveBaseController implemen
     public profile(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -223,7 +223,7 @@ export default class TelReserveController extends ReserveBaseController implemen
     public confirm(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -270,6 +270,8 @@ export default class TelReserveController extends ReserveBaseController implemen
      * 予約完了
      */
     public complete(): void {
+        if (!this.req.telStaffUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+
         const paymentNo = this.req.params.paymentNo;
         Models.Reservation.find(
             {

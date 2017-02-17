@@ -13,6 +13,8 @@ class MemberReserveController extends ReserveBaseController_1.default {
         this.layout = 'layouts/member/layout';
     }
     start() {
+        if (!this.req.memberUser)
+            return this.next(new Error(this.req.__('Message.UnexpectedError')));
         // 予約状況を確認
         ttts_domain_1.Models.Reservation.find({
             member_user_id: this.req.memberUser.get('user_id'),
@@ -40,6 +42,8 @@ class MemberReserveController extends ReserveBaseController_1.default {
                             const seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
                                 return (seat.code === reservation.get('seat_code'));
                             });
+                            if (!seatInfo)
+                                throw new Error(this.req.__('Message.UnexpectedError'));
                             reservationModel.seatCodes.push(reservation.get('seat_code'));
                             reservationModel.setReservation(reservation.get('seat_code'), {
                                 _id: reservation.get('_id'),
@@ -48,11 +52,11 @@ class MemberReserveController extends ReserveBaseController_1.default {
                                 seat_grade_name_ja: seatInfo.grade.name.ja,
                                 seat_grade_name_en: seatInfo.grade.name.en,
                                 seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                                ticket_type_code: null,
-                                ticket_type_name_ja: null,
-                                ticket_type_name_en: null,
+                                ticket_type_code: '',
+                                ticket_type_name_ja: '',
+                                ticket_type_name_en: '',
                                 ticket_type_charge: 0,
-                                watcher_name: null
+                                watcher_name: ''
                             });
                         }
                         // パフォーマンスと座席指定した状態で券種選択へ
@@ -79,7 +83,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
     tickets() {
         const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
+            if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -107,7 +111,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
     profile() {
         const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
+            if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -149,7 +153,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
     confirm() {
         const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
+            if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable

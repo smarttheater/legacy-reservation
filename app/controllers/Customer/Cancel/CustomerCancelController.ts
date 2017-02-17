@@ -24,7 +24,7 @@ export default class CustomerCancelController extends BaseController {
         if (this.req.method === 'POST') {
             const form = customerCancelForm(this.req);
             form(this.req, this.res, () => {
-                if (!this.req.form.isValid) {
+                if (this.req.form && !this.req.form.isValid) {
                     this.res.json({
                         success: false,
                         message: '購入番号または電話番号下4ケタに誤りがあります<br>There are some mistakes in a transaction number or last 4 digits of tel.'
@@ -293,7 +293,7 @@ export default class CustomerCancelController extends BaseController {
     /**
      * キャンセル受付対象かどうか確認する
      */
-    private validate(reservations: mongoose.Document[], cb: (err: Error) => void): void {
+    private validate(reservations: mongoose.Document[], cb: (err: Error | null) => void): void {
         // 入場済みの座席があるかどうか確認
         const notEntered = reservations.every((reservation) => !reservation.get('entered'));
         if (!notEntered) return cb(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable.'));

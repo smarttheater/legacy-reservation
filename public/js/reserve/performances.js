@@ -3,6 +3,7 @@ String.prototype.splice = function(idx, str) { //※日時整形用(Stringのidx
 };
 
 $(function(){
+    // var API_ENDPOINT = "http://localhost:3000";
     var API_ENDPOINT = "https://devtttsapiprototype.azurewebsites.net";
 
     var locale = $('html').attr('lang');

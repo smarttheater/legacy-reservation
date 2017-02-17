@@ -31,7 +31,7 @@
         "pretty": false,
         "removeComments": false,
         "sourceMap": false,
-        "strictNullChecks": false, // todo set true
+        "strictNullChecks": true,
         "stripInternal": false,
         "suppressExcessPropertyErrors": false,
         "suppressImplicitAnyIndexErrors": false,

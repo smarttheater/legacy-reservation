@@ -20,6 +20,11 @@ npm install
 ```
 * npm(https://www.npmjs.com/)
 
+typingsで型定義をインストール。
+```shell
+typings install
+```
+
 typescriptをjavascriptにコンパイルします。wオプションでファイル変更監視できます。
 ```shell
 tsc -w
@@ -30,6 +35,7 @@ npmでローカルサーバーを立ち上げることができます。
 npm start
 ```
 (http://localhost:8080)にアクセスすると、ローカルでウェブアプリを確認できます。
+
 
 # tslint
 

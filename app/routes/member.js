@@ -5,6 +5,8 @@ const MemberUser_1 = require("../models/User/MemberUser");
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     const authenticationMiddleware = (req, res, next) => {
+        if (!req.memberUser)
+            return next(new Error(req.__('Message.UnexpectedError')));
         if (!req.memberUser.isAuthenticated()) {
             if (req.xhr) {
                 res.json({

@@ -87,7 +87,11 @@ class StaffReserveController extends ReserveBaseController_1.default {
      *
      * @override
      */
+    // tslint:disable-next-line:max-func-body-length
     processFixSeats(reservationModel, seatCodes, cb) {
+        if (!this.req.staffUser)
+            return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+        const staffUser = this.req.staffUser;
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
         reservationModel.expiredAt = moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').valueOf();
@@ -106,7 +110,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                     seat_code: seatCode,
                     status: ttts_domain_4.ReservationUtil.STATUS_TEMPORARY,
                     expired_at: reservationModel.expiredAt,
-                    staff: this.req.staffUser.get('_id')
+                    staff: staffUser.get('_id')
                 }, (err, reservation) => {
                     if (err) {
                         // TTTS確保からの仮予約を試みる
@@ -117,7 +121,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                         }, {
                             status: ttts_domain_4.ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TTTS,
                             expired_at: reservationModel.expiredAt,
-                            staff: this.req.staffUser.get('_id')
+                            staff: staffUser.get('_id')
                         }, {
                             new: true
                         }, 
@@ -136,11 +140,11 @@ class StaffReserveController extends ReserveBaseController_1.default {
                                 seat_grade_name_ja: seatInfo.grade.name.ja,
                                 seat_grade_name_en: seatInfo.grade.name.en,
                                 seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                                ticket_type_code: null,
-                                ticket_type_name_ja: null,
-                                ticket_type_name_en: null,
+                                ticket_type_code: '',
+                                ticket_type_name_ja: '',
+                                ticket_type_name_en: '',
                                 ticket_type_charge: 0,
-                                watcher_name: null
+                                watcher_name: ''
                             });
                             resolve();
                         });
@@ -155,11 +159,11 @@ class StaffReserveController extends ReserveBaseController_1.default {
                             seat_grade_name_ja: seatInfo.grade.name.ja,
                             seat_grade_name_en: seatInfo.grade.name.en,
                             seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                            ticket_type_code: null,
-                            ticket_type_name_ja: null,
-                            ticket_type_name_en: null,
+                            ticket_type_code: '',
+                            ticket_type_name_ja: '',
+                            ticket_type_name_en: '',
                             ticket_type_charge: 0,
-                            watcher_name: null
+                            watcher_name: ''
                         });
                         resolve();
                     }
@@ -180,11 +184,11 @@ class StaffReserveController extends ReserveBaseController_1.default {
     performances() {
         const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
+            if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
                 reservePerformanceForm_1.default(this.req, this.res, () => {
-                    if (this.req.form.isValid) {
+                    if (this.req.form && this.req.form.isValid) {
                         // パフォーマンスFIX
                         const performanceId = this.req.form.performanceId;
                         // tslint:disable-next-line:no-shadowed-variable
@@ -225,12 +229,12 @@ class StaffReserveController extends ReserveBaseController_1.default {
     seats() {
         const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
+            if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
             const limit = reservationModel.getSeatsLimit();
             if (this.req.method === 'POST') {
                 reserveSeatForm_1.default(this.req, this.res, () => {
-                    if (this.req.form.isValid) {
+                    if (this.req.form && this.req.form.isValid) {
                         const seatCodes = JSON.parse(this.req.form.seatCodes);
                         // 追加指定席を合わせて制限枚数を超過した場合
                         if (seatCodes.length > limit) {
@@ -281,7 +285,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
     tickets() {
         const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
+            if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -320,7 +324,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
     confirm() {
         const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
+            if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -355,6 +359,8 @@ class StaffReserveController extends ReserveBaseController_1.default {
         });
     }
     complete() {
+        if (!this.req.staffUser)
+            return this.next(new Error(this.req.__('Message.UnexpectedError')));
         const paymentNo = this.req.params.paymentNo;
         ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,

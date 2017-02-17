@@ -46,7 +46,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
     start() {
         const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
+            if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
             // 予約情報セッション削除
             reservationModel.remove(() => {
@@ -96,7 +96,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
                     }
                     this.logger.info('redirecting to GMO payment...');
                     // GMOへの送信データをログに残すために、一度htmlを取得してからrender
-                    this.res.render('gmo/reserve/start', null, (renderErr, html) => {
+                    this.res.render('gmo/reserve/start', undefined, (renderErr, html) => {
                         if (renderErr)
                             return this.next(renderErr);
                         this.logger.info('rendering gmo/reserve/start...html:', html);

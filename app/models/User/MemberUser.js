@@ -8,7 +8,7 @@ class MemberUser extends BaseUser_1.default {
     static parse(session) {
         const user = new MemberUser();
         // セッション値からオブジェクトにセット
-        if (session.hasOwnProperty(MemberUser.AUTH_SESSION_NAME)) {
+        if (session && session.hasOwnProperty(MemberUser.AUTH_SESSION_NAME)) {
             Object.keys(session[MemberUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
                 user[propertyName] = session[MemberUser.AUTH_SESSION_NAME][propertyName];
             });

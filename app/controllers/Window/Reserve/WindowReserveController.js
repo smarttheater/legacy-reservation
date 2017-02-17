@@ -46,11 +46,11 @@ class WindowReserveController extends ReserveBaseController_1.default {
     performances() {
         const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
+            if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
                 reservePerformanceForm_1.default(this.req, this.res, () => {
-                    if (this.req.form.isValid) {
+                    if (this.req.form && this.req.form.isValid) {
                         // パフォーマンスFIX
                         const performanceId = this.req.form.performanceId;
                         // tslint:disable-next-line:no-shadowed-variable
@@ -91,12 +91,12 @@ class WindowReserveController extends ReserveBaseController_1.default {
     seats() {
         const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
+            if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
             const limit = reservationModel.getSeatsLimit();
             if (this.req.method === 'POST') {
                 reserveSeatForm_1.default(this.req, this.res, () => {
-                    if (this.req.form.isValid) {
+                    if (this.req.form && this.req.form.isValid) {
                         const seatCodes = JSON.parse(this.req.form.seatCodes);
                         // 追加指定席を合わせて制限枚数を超過した場合
                         if (seatCodes.length > limit) {
@@ -147,9 +147,9 @@ class WindowReserveController extends ReserveBaseController_1.default {
     tickets() {
         const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
+            if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
-            reservationModel.paymentMethod = null;
+            reservationModel.paymentMethod = '';
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
                 this.processFixTickets(reservationModel, (fixTicketsErr, reservationModel) => {
@@ -176,7 +176,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
     profile() {
         const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
+            if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -218,7 +218,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
     confirm() {
         const token = this.req.params.token;
         ReservationModel_1.default.find(token, (err, reservationModel) => {
-            if (err)
+            if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -256,6 +256,8 @@ class WindowReserveController extends ReserveBaseController_1.default {
      * 予約完了
      */
     complete() {
+        if (!this.req.windowUser)
+            return this.next(new Error(this.req.__('Message.UnexpectedError')));
         const paymentNo = this.req.params.paymentNo;
         ttts_domain_1.Models.Reservation.find({
             payment_no: paymentNo,

@@ -51,7 +51,7 @@ export default class StaffReserveController extends ReserveBaseController implem
      *
      * @override
      */
-    protected processCancelSeats(reservationModel: ReservationModel, cb: (err: Error, reservationModel: ReservationModel) => void) {
+    protected processCancelSeats(reservationModel: ReservationModel, cb: (err: Error | null, reservationModel: ReservationModel) => void) {
         const seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
         if (seatCodesInSession.length === 0) return cb(null, reservationModel);
 
@@ -101,7 +101,11 @@ export default class StaffReserveController extends ReserveBaseController implem
      *
      * @override
      */
-    protected processFixSeats(reservationModel: ReservationModel, seatCodes: string[], cb: (err: Error, reservationModel: ReservationModel) => void) {
+    // tslint:disable-next-line:max-func-body-length
+    protected processFixSeats(reservationModel: ReservationModel, seatCodes: string[], cb: (err: Error | null, reservationModel: ReservationModel) => void) {
+        if (!this.req.staffUser) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+        const staffUser = this.req.staffUser;
+
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
         reservationModel.expiredAt = moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').valueOf();
@@ -123,7 +127,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                         seat_code: seatCode,
                         status: ReservationUtil.STATUS_TEMPORARY,
                         expired_at: reservationModel.expiredAt,
-                        staff: this.req.staffUser.get('_id')
+                        staff: staffUser.get('_id')
                     },
                     (err: any, reservation: mongoose.Document) => {
                         if (err) {
@@ -137,7 +141,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                                 {
                                     status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TTTS,
                                     expired_at: reservationModel.expiredAt,
-                                    staff: this.req.staffUser.get('_id')
+                                    staff: staffUser.get('_id')
                                 },
                                 {
                                     new: true
@@ -156,11 +160,11 @@ export default class StaffReserveController extends ReserveBaseController implem
                                         seat_grade_name_ja: seatInfo.grade.name.ja,
                                         seat_grade_name_en: seatInfo.grade.name.en,
                                         seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                                        ticket_type_code: null,
-                                        ticket_type_name_ja: null,
-                                        ticket_type_name_en: null,
+                                        ticket_type_code: '',
+                                        ticket_type_name_ja: '',
+                                        ticket_type_name_en: '',
                                         ticket_type_charge: 0,
-                                        watcher_name: null
+                                        watcher_name: ''
                                     });
 
                                     resolve();
@@ -176,11 +180,11 @@ export default class StaffReserveController extends ReserveBaseController implem
                                 seat_grade_name_ja: seatInfo.grade.name.ja,
                                 seat_grade_name_en: seatInfo.grade.name.en,
                                 seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                                ticket_type_code: null,
-                                ticket_type_name_ja: null,
-                                ticket_type_name_en: null,
+                                ticket_type_code: '',
+                                ticket_type_name_ja: '',
+                                ticket_type_name_en: '',
                                 ticket_type_charge: 0,
-                                watcher_name: null
+                                watcher_name: ''
                             });
 
                             resolve();
@@ -209,11 +213,11 @@ export default class StaffReserveController extends ReserveBaseController implem
     public performances(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 reservePerformanceForm(this.req, this.res, () => {
-                    if (this.req.form.isValid) {
+                    if (this.req.form && this.req.form.isValid) {
                         // パフォーマンスFIX
                         const performanceId = (<any>this.req.form).performanceId;
                         // tslint:disable-next-line:no-shadowed-variable
@@ -253,13 +257,13 @@ export default class StaffReserveController extends ReserveBaseController implem
     public seats(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             const limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
                 reserveSeatForm(this.req, this.res, () => {
-                    if (this.req.form.isValid) {
+                    if (this.req.form && this.req.form.isValid) {
 
                         const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
 
@@ -310,7 +314,7 @@ export default class StaffReserveController extends ReserveBaseController implem
     public tickets(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -349,7 +353,7 @@ export default class StaffReserveController extends ReserveBaseController implem
     public confirm(): void {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
@@ -382,6 +386,8 @@ export default class StaffReserveController extends ReserveBaseController implem
     }
 
     public complete(): void {
+        if (!this.req.staffUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+
         const paymentNo = this.req.params.paymentNo;
         Models.Reservation.find(
             {

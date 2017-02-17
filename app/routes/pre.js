@@ -7,6 +7,8 @@ const PreCustomerUser_1 = require("../models/User/PreCustomerUser");
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     const authenticationMiddleware = (req, res, next) => {
+        if (!req.preCustomerUser)
+            return next(new Error(req.__('Message.UnexpectedError')));
         if (!req.preCustomerUser.isAuthenticated()) {
             // 自動ログインチェック
             const checkRemember = (cb) => {
@@ -42,7 +44,7 @@ exports.default = (app) => {
                 }
             };
             checkRemember((user, locale) => {
-                if (user) {
+                if (user && req.session) {
                     // ログインしてリダイレクト
                     req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME] = user.toObject();
                     req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME].locale = locale;
