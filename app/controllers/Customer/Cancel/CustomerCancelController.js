@@ -56,7 +56,7 @@ class CustomerCancelController extends BaseController_1.default {
                                 });
                             }
                             else {
-                                this.validate(reservations, (validateErr) => {
+                                validate(reservations, (validateErr) => {
                                     if (validateErr) {
                                         this.res.json({
                                             success: false,
@@ -132,7 +132,7 @@ class CustomerCancelController extends BaseController_1.default {
                 }
                 else {
                     // tslint:disable-next-line:max-func-body-length
-                    this.validate(reservations, (validateErr) => {
+                    validate(reservations, (validateErr) => {
                         if (validateErr) {
                             this.res.json({
                                 success: false,
@@ -237,22 +237,22 @@ class CustomerCancelController extends BaseController_1.default {
             }
         });
     }
-    /**
-     * キャンセル受付対象かどうか確認する
-     */
-    validate(reservations, cb) {
-        // 入場済みの座席があるかどうか確認
-        const notEntered = reservations.every((reservation) => !reservation.get('entered'));
-        if (!notEntered)
-            return cb(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable.'));
-        // 一次販売(15日)許可
-        if (moment(reservations[0].get('purchased_at')) < moment('2016-10-16T00:00:00+9:00'))
-            return cb(null);
-        // 先行販売(19日)許可
-        if (reservations[0].get('pre_customer'))
-            return cb(null);
-        return cb(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable.'));
-    }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = CustomerCancelController;
+/**
+ * キャンセル受付対象かどうか確認する
+ */
+function validate(reservations, cb) {
+    // 入場済みの座席があるかどうか確認
+    const notEntered = reservations.every((reservation) => !reservation.get('entered'));
+    if (!notEntered)
+        return cb(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable.'));
+    // 一次販売(15日)許可
+    if (moment(reservations[0].get('purchased_at')) < moment('2016-10-16T00:00:00+9:00'))
+        return cb(null);
+    // 先行販売(19日)許可
+    if (reservations[0].get('pre_customer'))
+        return cb(null);
+    return cb(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable.'));
+}

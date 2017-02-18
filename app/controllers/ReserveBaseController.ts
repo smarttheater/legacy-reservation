@@ -194,6 +194,7 @@ export default class ReserveBaseController extends BaseController {
      *
      * @param {ReservationModel} reservationModel
      */
+    // tslint:disable-next-line:prefer-function-over-method
     protected processCancelSeats(reservationModel: ReservationModel, cb: (err: Error | null, reservationModel: ReservationModel) => void) {
         const ids = reservationModel.getReservationIds();
         if (ids.length === 0) return cb(null, reservationModel);

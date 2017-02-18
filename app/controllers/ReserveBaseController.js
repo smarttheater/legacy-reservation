@@ -166,6 +166,7 @@ class ReserveBaseController extends BaseController_1.default {
      *
      * @param {ReservationModel} reservationModel
      */
+    // tslint:disable-next-line:prefer-function-over-method
     processCancelSeats(reservationModel, cb) {
         const ids = reservationModel.getReservationIds();
         if (ids.length === 0)

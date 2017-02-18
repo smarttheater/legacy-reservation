@@ -58,7 +58,7 @@ export default class CustomerCancelController extends BaseController {
                                         message: '購入番号または電話番号下4ケタに誤りがあります<br>There are some mistakes in a transaction number or last 4 digits of tel.'
                                     });
                                 } else {
-                                    this.validate(reservations, (validateErr) => {
+                                    validate(reservations, (validateErr) => {
                                         if (validateErr) {
                                             this.res.json({
                                                 success: false,
@@ -139,7 +139,7 @@ export default class CustomerCancelController extends BaseController {
                         });
                     } else {
                         // tslint:disable-next-line:max-func-body-length
-                        this.validate(reservations, (validateErr) => {
+                        validate(reservations, (validateErr) => {
                             if (validateErr) {
                                 this.res.json({
                                     success: false,
@@ -296,21 +296,21 @@ export default class CustomerCancelController extends BaseController {
             }
         );
     }
+}
 
-    /**
-     * キャンセル受付対象かどうか確認する
-     */
-    private validate(reservations: mongoose.Document[], cb: (err: Error | null) => void): void {
-        // 入場済みの座席があるかどうか確認
-        const notEntered = reservations.every((reservation) => !reservation.get('entered'));
-        if (!notEntered) return cb(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable.'));
+/**
+ * キャンセル受付対象かどうか確認する
+ */
+function validate(reservations: mongoose.Document[], cb: (err: Error | null) => void): void {
+    // 入場済みの座席があるかどうか確認
+    const notEntered = reservations.every((reservation) => !reservation.get('entered'));
+    if (!notEntered) return cb(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable.'));
 
-        // 一次販売(15日)許可
-        if (moment(reservations[0].get('purchased_at')) < moment('2016-10-16T00:00:00+9:00')) return cb(null);
+    // 一次販売(15日)許可
+    if (moment(reservations[0].get('purchased_at')) < moment('2016-10-16T00:00:00+9:00')) return cb(null);
 
-        // 先行販売(19日)許可
-        if (reservations[0].get('pre_customer')) return cb(null);
+    // 先行販売(19日)許可
+    if (reservations[0].get('pre_customer')) return cb(null);
 
-        return cb(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable.'));
-    }
+    return cb(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable.'));
 }

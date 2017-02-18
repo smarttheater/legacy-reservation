@@ -59,6 +59,7 @@ export default class StaffReserveController extends ReserveBaseController implem
      *
      * @override
      */
+    // tslint:disable-next-line:prefer-function-over-method
     protected processCancelSeats(reservationModel: ReservationModel, cb: (err: Error | null, reservationModel: ReservationModel) => void) {
         const seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
         if (seatCodesInSession.length === 0) return cb(null, reservationModel);

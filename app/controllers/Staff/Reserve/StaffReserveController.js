@@ -57,6 +57,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
      *
      * @override
      */
+    // tslint:disable-next-line:prefer-function-over-method
     processCancelSeats(reservationModel, cb) {
         const seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
         if (seatCodesInSession.length === 0)
