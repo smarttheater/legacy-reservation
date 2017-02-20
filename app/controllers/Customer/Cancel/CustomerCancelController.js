@@ -187,25 +187,9 @@ class CustomerCancelController extends BaseController_1.default {
                                                         this.res.json({ success: true, message: null });
                                                     }
                                                     else {
-                                                        const sg = sendgrid(conf.get('sendgrid_username'), conf.get('sendgrid_password'));
-                                                        const email = new sg.Email({
-                                                            to: to,
-                                                            bcc: ['tiff_mp@motionpicture.jp'],
-                                                            fromname: conf.get('email.fromname'),
-                                                            from: conf.get('email.from'),
-                                                            subject: `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京タワーチケット キャンセル完了のお知らせ Notice of Completion of Cancel for TTTS Tickets`,
-                                                            html: html
-                                                        });
-                                                        // logo
-                                                        email.addFile({
-                                                            filename: 'logo.png',
-                                                            contentType: 'image/png',
-                                                            cid: 'logo',
-                                                            content: fs.readFileSync(`${__dirname}/../../../../../public/images/email/logo.png`)
-                                                        });
-                                                        this.logger.info('sending an email...email:', email);
-                                                        sg.send(email, (sendErr, json) => {
-                                                            this.logger.info('an email sent.', sendErr, json);
+                                                        this.logger.info('sending an email...');
+                                                        sendEmail(to, html, (sendEmailErr) => {
+                                                            this.logger.info('an email sent.', sendEmailErr);
                                                             // メールが送れなくてもキャンセルは成功
                                                             this.res.json({
                                                                 success: true,
@@ -242,6 +226,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = CustomerCancelController;
 /**
  * キャンセル受付対象かどうか確認する
+ *
+ * @ignore
  */
 function validate(reservations, cb) {
     // 入場済みの座席があるかどうか確認
@@ -255,4 +241,36 @@ function validate(reservations, cb) {
     if (reservations[0].get('pre_customer'))
         return cb(null);
     return cb(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable.'));
+}
+/**
+ * メールを送信する
+ *
+ * @ignore
+ */
+function sendEmail(to, html, cb) {
+    const mail = new sendgrid.mail.Mail(new sendgrid.mail.Email(conf.get('email.from'), conf.get('email.fromname')), `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京タワーチケット キャンセル完了のお知らせ Notice of Completion of Cancel for TTTS Tickets`, new sendgrid.mail.Email(to), new sendgrid.mail.Content('text/html', html));
+    // logo
+    const attachment = new sendgrid.mail.Attachment();
+    attachment.setFilename('logo.png');
+    attachment.setType('image/png');
+    attachment.setContent(fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`).toString('base64'));
+    attachment.setDisposition('inline');
+    attachment.setContentId('logo');
+    mail.addAttachment(attachment);
+    const sg = sendgrid(process.env.SENDGRID_API_KEY);
+    const request = sg.emptyRequest({
+        host: 'api.sendgrid.com',
+        method: 'POST',
+        path: '/v3/mail/send',
+        headers: {},
+        body: mail.toJSON(),
+        queryParams: {},
+        test: false,
+        port: ''
+    });
+    sg.API(request).then(() => {
+        cb(null);
+    }, (sendErr) => {
+        cb(sendErr);
+    });
 }
