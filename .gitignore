@@ -6,6 +6,7 @@ typings/
 iisnode/
 docs
 .env
+.vscode/
 
 !.gitignore
 !.gitkeep
