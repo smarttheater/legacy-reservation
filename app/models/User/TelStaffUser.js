@@ -20,6 +20,6 @@ class TelStaffUser extends BaseUser_1.default {
         return user;
     }
 }
-TelStaffUser.AUTH_SESSION_NAME = 'TTTSFrontendTelStaffAuth';
+TelStaffUser.AUTH_SESSION_NAME = 'CHEVREFrontendTelStaffAuth';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = TelStaffUser;

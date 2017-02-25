@@ -9,7 +9,7 @@ import * as log4js from 'log4js';
 
 // tslint:disable-next-line:variable-name
 export default (req: Request, _res: Response, next: NextFunction) => {
-    if (process.env.NODE_ENV === 'dev') {
+    if (process.env.NODE_ENV === 'development') {
         const startMemory = process.memoryUsage();
         const startTime = process.hrtime();
         const logger = log4js.getLogger('system');

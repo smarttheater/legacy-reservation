@@ -1,5 +1,5 @@
-import { Models } from '@motionpicture/ttts-domain';
-import { GMONotificationUtil } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/chevre-domain';
+import { GMONotificationUtil } from '@motionpicture/chevre-domain';
 import * as mongoose from 'mongoose';
 import GMONotificationModel from '../../models/Reserve/GMONotificationModel';
 import GMONotificationResponseModel from '../../models/Reserve/GMONotificationResponseModel';

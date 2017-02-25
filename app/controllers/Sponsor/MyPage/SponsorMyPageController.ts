@@ -1,6 +1,6 @@
-import { ReservationUtil } from '@motionpicture/ttts-domain';
-import { ScreenUtil } from '@motionpicture/ttts-domain';
-import { Models } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/chevre-domain';
+import { ScreenUtil } from '@motionpicture/chevre-domain';
+import { Models } from '@motionpicture/chevre-domain';
 import * as Util from '../../../../common/Util/Util';
 import BaseController from '../../BaseController';
 

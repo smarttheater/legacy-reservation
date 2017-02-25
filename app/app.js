@@ -21,7 +21,7 @@ const logger_1 = require("./middlewares/logger");
 const session_1 = require("./middlewares/session");
 const app = express();
 app.use(partials()); // レイアウト&パーシャルサポート
-if (process.env.NODE_ENV === 'dev') {
+if (process.env.NODE_ENV === 'development') {
     app.use(logger_1.default); // ロガー
 }
 app.use(benchmarks_1.default); // ベンチマーク的な
@@ -42,7 +42,7 @@ const window_1 = require("./routes/window");
 const namedRoutes = new NamedRoutes();
 namedRoutes.extendExpress(app);
 namedRoutes.registerAppHelpers(app);
-if (process.env.NODE_ENV !== 'prod') {
+if (process.env.NODE_ENV !== 'production') {
     // サーバーエラーテスト
     app.get('/500', (req) => {
         // req.on('data', (chunk) => {

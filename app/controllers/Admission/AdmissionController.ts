@@ -1,6 +1,6 @@
-import { Models } from '@motionpicture/ttts-domain';
-import { ReservationUtil } from '@motionpicture/ttts-domain';
-import { FilmUtil } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/chevre-domain';
+import { ReservationUtil } from '@motionpicture/chevre-domain';
+import { FilmUtil } from '@motionpicture/chevre-domain';
 import * as mongoose from 'mongoose';
 import BaseController from '../BaseController';
 

@@ -1,6 +1,6 @@
-import { Models } from '@motionpicture/ttts-domain';
-import { ReservationUtil } from '@motionpicture/ttts-domain';
-import { ScreenUtil } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/chevre-domain';
+import { ReservationUtil } from '@motionpicture/chevre-domain';
+import { ScreenUtil } from '@motionpicture/chevre-domain';
 import * as qr from 'qr-image';
 import ReservationModel from '../../models/Reserve/ReservationModel';
 import ReserveBaseController from '../ReserveBaseController';
@@ -74,8 +74,8 @@ export default class ReserveController extends ReserveBaseController {
                                 if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
                                     baloonContent = reservation.get('baloon_content4staff');
 
-                                    // 内部関係者はTTTS確保も予約できる
-                                    if (reservation.get('status') === ReservationUtil.STATUS_KEPT_BY_TTTS) {
+                                    // 内部関係者はCHEVRE確保も予約できる
+                                    if (reservation.get('status') === ReservationUtil.STATUS_KEPT_BY_CHEVRE) {
                                         avalilable = true;
                                     }
                                 }

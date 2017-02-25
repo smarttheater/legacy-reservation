@@ -1,5 +1,5 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const moment = require("moment");
 const Util = require("../../../../common/Util/Util");
@@ -36,7 +36,7 @@ class MemberAuthController extends BaseController_1.default {
                 if (form && form.isValid) {
                     // ユーザー認証
                     this.logger.debug('finding member... user_id:', form.userId);
-                    ttts_domain_1.Models.Member.findOne({
+                    chevre_domain_1.Models.Member.findOne({
                         user_id: form.userId
                     }, (findMemberErr, member) => {
                         if (findMemberErr)

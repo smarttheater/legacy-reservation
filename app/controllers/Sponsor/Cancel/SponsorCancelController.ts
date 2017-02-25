@@ -1,5 +1,5 @@
-import { Models } from '@motionpicture/ttts-domain';
-import { ReservationUtil } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/chevre-domain';
+import { ReservationUtil } from '@motionpicture/chevre-domain';
 import * as log4js from 'log4js';
 import sponsorCancelForm from '../../../forms/sponsor/sponsorCancelForm';
 import BaseController from '../../BaseController';
@@ -101,7 +101,7 @@ export default class SponsorCancelController extends BaseController {
         if (Array.isArray(reservationIds)) {
             const promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', sponsorUser.get('user_id'), 'id:', id);
+                    this.logger.info('updating to STATUS_KEPT_BY_CHEVRE by sponsor... sponsor:', sponsorUser.get('user_id'), 'id:', id);
                     Models.Reservation.findOneAndUpdate(
                         {
                             _id: id,
@@ -110,10 +110,10 @@ export default class SponsorCancelController extends BaseController {
                             purchaser_group: ReservationUtil.PURCHASER_GROUP_SPONSOR,
                             status: ReservationUtil.STATUS_RESERVED
                         },
-                        { status: ReservationUtil.STATUS_KEPT_BY_TTTS },
+                        { status: ReservationUtil.STATUS_KEPT_BY_CHEVRE },
                         { new: true },
                         (err, reservation) => {
-                            this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
+                            this.logger.info('updated to STATUS_KEPT_BY_CHEVRE.', err, reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
                             (err) ? reject(err) : resolve();
                         }
                     );
@@ -153,13 +153,13 @@ export default class SponsorCancelController extends BaseController {
         if (Array.isArray(reservationIds)) {
             const promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', sponsorUser.get('user_id'), 'id:', id);
+                    this.logger.info('updating to STATUS_KEPT_BY_CHEVRE by sponsor... sponsor:', sponsorUser.get('user_id'), 'id:', id);
                     Models.Reservation.findOneAndUpdate(
                         { _id: id },
-                        { status: ReservationUtil.STATUS_KEPT_BY_TTTS },
+                        { status: ReservationUtil.STATUS_KEPT_BY_CHEVRE },
                         { new: true },
                         (err, reservation) => {
-                            this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
+                            this.logger.info('updated to STATUS_KEPT_BY_CHEVRE.', err, reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
                             (err) ? reject(err) : resolve();
                         }
                     );

@@ -1,6 +1,6 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const fs = require("fs-extra");
 const log4js = require("log4js");
@@ -36,11 +36,11 @@ class CustomerCancelController extends BaseController_1.default {
                 }
                 else {
                     // 予約を取得(クレジットカード決済のみ)
-                    ttts_domain_1.Models.Reservation.find({
+                    chevre_domain_1.Models.Reservation.find({
                         payment_no: this.req.form.paymentNo,
                         purchaser_tel: { $regex: `${this.req.form.last4DigitsOfTel}$` },
-                        purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
-                        status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
+                        purchaser_group: chevre_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
+                        status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
                     }, (findReservationErr, reservations) => {
                         if (findReservationErr) {
                             this.res.json({
@@ -113,11 +113,11 @@ class CustomerCancelController extends BaseController_1.default {
         const paymentNo = this.req.body.paymentNo;
         const last4DigitsOfTel = this.req.body.last4DigitsOfTel;
         this.logger.info('finding reservations...');
-        ttts_domain_1.Models.Reservation.find({
+        chevre_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
             purchaser_tel: { $regex: `${last4DigitsOfTel}$` },
-            purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
-            status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
+            purchaser_group: chevre_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
+            status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
         }, (err, reservations) => {
             this.logger.info('reservations found.', err, reservations);
             if (err) {
@@ -142,11 +142,11 @@ class CustomerCancelController extends BaseController_1.default {
                         else {
                             if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CREDIT) {
                                 this.logger.info('removing reservations by customer... payment_no:', paymentNo);
-                                ttts_domain_1.Models.Reservation.remove({
+                                chevre_domain_1.Models.Reservation.remove({
                                     payment_no: paymentNo,
                                     purchaser_tel: { $regex: `${last4DigitsOfTel}$` },
-                                    purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
-                                    status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
+                                    purchaser_group: chevre_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
+                                    status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
                                 }, (removeReservationErr) => {
                                     this.logger.info('reservations removed by customer.', removeReservationErr, 'payment_no:', paymentNo);
                                     if (removeReservationErr) {
@@ -158,7 +158,7 @@ class CustomerCancelController extends BaseController_1.default {
                                     else {
                                         // キャンセルリクエスト保管
                                         this.logger.info('creating CustomerCancelRequest...');
-                                        ttts_domain_1.Models.CustomerCancelRequest.create({
+                                        chevre_domain_1.Models.CustomerCancelRequest.create({
                                             payment_no: paymentNo,
                                             payment_method: reservations[0].get('payment_method'),
                                             email: reservations[0].get('purchaser_email'),
@@ -179,7 +179,7 @@ class CustomerCancelController extends BaseController_1.default {
                                                     numeral: numeral,
                                                     conf: conf,
                                                     GMOUtil: GMOUtil,
-                                                    ReservationUtil: ttts_domain_2.ReservationUtil
+                                                    ReservationUtil: chevre_domain_2.ReservationUtil
                                                 }, (renderErr, html) => {
                                                     this.logger.info('email rendered. html:', renderErr, html);
                                                     // メール失敗してもキャンセル成功
@@ -248,7 +248,7 @@ function validate(reservations, cb) {
  * @ignore
  */
 function sendEmail(to, html, cb) {
-    const mail = new sendgrid.mail.Mail(new sendgrid.mail.Email(conf.get('email.from'), conf.get('email.fromname')), `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京タワーチケット キャンセル完了のお知らせ Notice of Completion of Cancel for TTTS Tickets`, new sendgrid.mail.Email(to), new sendgrid.mail.Content('text/html', html));
+    const mail = new sendgrid.mail.Mail(new sendgrid.mail.Email(conf.get('email.from'), conf.get('email.fromname')), `${(process.env.NODE_ENV !== 'production') ? `[${process.env.NODE_ENV}]` : ''}CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ Notice of Completion of Cancel for CHEVRE Tickets`, new sendgrid.mail.Email(to), new sendgrid.mail.Content('text/html', html));
     // logo
     const attachment = new sendgrid.mail.Attachment();
     attachment.setFilename('logo.png');

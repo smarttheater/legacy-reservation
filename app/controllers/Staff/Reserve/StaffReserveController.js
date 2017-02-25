@@ -1,8 +1,8 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const ttts_domain_2 = require("@motionpicture/ttts-domain");
-const ttts_domain_3 = require("@motionpicture/ttts-domain");
-const ttts_domain_4 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const chevre_domain_2 = require("@motionpicture/chevre-domain");
+const chevre_domain_3 = require("@motionpicture/chevre-domain");
+const chevre_domain_4 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const moment = require("moment");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
@@ -20,7 +20,7 @@ const ReserveBaseController_1 = require("../../ReserveBaseController");
 class StaffReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = ttts_domain_4.ReservationUtil.PURCHASER_GROUP_STAFF;
+        this.purchaserGroup = chevre_domain_4.ReservationUtil.PURCHASER_GROUP_STAFF;
         this.layout = 'layouts/staff/layout';
     }
     start() {
@@ -64,14 +64,14 @@ class StaffReserveController extends ReserveBaseController_1.default {
             return cb(null, reservationModel);
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
-        // 仮予約をTTTS確保ステータスに戻す
-        ttts_domain_1.Models.Reservation.update({
+        // 仮予約をCHEVRE確保ステータスに戻す
+        chevre_domain_1.Models.Reservation.update({
             performance: reservationModel.performance._id,
             seat_code: { $in: seatCodesInSession },
-            status: ttts_domain_4.ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TTTS
+            status: chevre_domain_4.ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_CHEVRE
         }, {
             $set: {
-                status: ttts_domain_4.ReservationUtil.STATUS_KEPT_BY_TTTS
+                status: chevre_domain_4.ReservationUtil.STATUS_KEPT_BY_CHEVRE
             },
             $unset: {
                 staff: ''
@@ -81,10 +81,10 @@ class StaffReserveController extends ReserveBaseController_1.default {
         }, () => {
             // 失敗したとしても時間経過で消えるので放置
             // 仮予約を空席ステータスに戻す
-            ttts_domain_1.Models.Reservation.remove({
+            chevre_domain_1.Models.Reservation.remove({
                 performance: reservationModel.performance._id,
                 seat_code: { $in: seatCodesInSession },
-                status: ttts_domain_4.ReservationUtil.STATUS_TEMPORARY
+                status: chevre_domain_4.ReservationUtil.STATUS_TEMPORARY
             }, () => {
                 // 失敗したとしても時間経過で消えるので放置
                 cb(null, reservationModel);
@@ -114,21 +114,21 @@ class StaffReserveController extends ReserveBaseController_1.default {
                 if (!seatInfo)
                     return reject(new Error(this.req.__('Message.InvalidSeatCode')));
                 // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
-                ttts_domain_1.Models.Reservation.create({
+                chevre_domain_1.Models.Reservation.create({
                     performance: reservationModel.performance._id,
                     seat_code: seatCode,
-                    status: ttts_domain_4.ReservationUtil.STATUS_TEMPORARY,
+                    status: chevre_domain_4.ReservationUtil.STATUS_TEMPORARY,
                     expired_at: reservationModel.expiredAt,
                     staff: staffUser.get('_id')
                 }, (err, reservation) => {
                     if (err) {
-                        // TTTS確保からの仮予約を試みる
-                        ttts_domain_1.Models.Reservation.findOneAndUpdate({
+                        // CHEVRE確保からの仮予約を試みる
+                        chevre_domain_1.Models.Reservation.findOneAndUpdate({
                             performance: reservationModel.performance._id,
                             seat_code: seatCode,
-                            status: ttts_domain_4.ReservationUtil.STATUS_KEPT_BY_TTTS
+                            status: chevre_domain_4.ReservationUtil.STATUS_KEPT_BY_CHEVRE
                         }, {
-                            status: ttts_domain_4.ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TTTS,
+                            status: chevre_domain_4.ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_CHEVRE,
                             expired_at: reservationModel.expiredAt,
                             staff: staffUser.get('_id')
                         }, {
@@ -181,7 +181,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
         });
         Promise.all(promises).then(() => {
             // 座席コードのソート(文字列順に)
-            reservationModel.seatCodes.sort(ttts_domain_2.ScreenUtil.sortBySeatCode);
+            reservationModel.seatCodes.sort(chevre_domain_2.ScreenUtil.sortBySeatCode);
             cb(null, reservationModel);
         }, (err) => {
             cb(err, reservationModel);
@@ -225,7 +225,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                         return this.next(cancelSeatsErr);
                     reservationModel.save(() => {
                         this.res.render('staff/reserve/performances', {
-                            FilmUtil: ttts_domain_3.FilmUtil
+                            FilmUtil: chevre_domain_3.FilmUtil
                         });
                     });
                 });
@@ -371,9 +371,9 @@ class StaffReserveController extends ReserveBaseController_1.default {
         if (!this.req.staffUser)
             return this.next(new Error(this.req.__('Message.UnexpectedError')));
         const paymentNo = this.req.params.paymentNo;
-        ttts_domain_1.Models.Reservation.find({
+        chevre_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
-            status: ttts_domain_4.ReservationUtil.STATUS_RESERVED,
+            status: chevre_domain_4.ReservationUtil.STATUS_RESERVED,
             staff: this.req.staffUser.get('_id'),
             purchased_at: {
                 // tslint:disable-next-line:no-magic-numbers
@@ -385,7 +385,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ttts_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return chevre_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('staff/reserve/complete', {
                 reservationDocuments: reservations

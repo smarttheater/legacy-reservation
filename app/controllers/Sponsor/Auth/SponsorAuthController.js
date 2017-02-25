@@ -1,5 +1,5 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const Util = require("../../../../common/Util/Util");
 const sponsorLoginForm_1 = require("../../../forms/sponsor/sponsorLoginForm");
 const SponsorUser_1 = require("../../../models/User/SponsorUser");
@@ -29,7 +29,7 @@ class SponsorAuthController extends BaseController_1.default {
                 if (form && form.isValid) {
                     // ユーザー認証
                     this.logger.debug('finding sponsor... user_id:', form.userId);
-                    ttts_domain_1.Models.Sponsor.findOne({
+                    chevre_domain_1.Models.Sponsor.findOne({
                         user_id: form.userId
                     }, (findSponsorErr, sponsor) => {
                         if (findSponsorErr)
@@ -49,7 +49,7 @@ class SponsorAuthController extends BaseController_1.default {
                                 const processRemember = (cb) => {
                                     if (form.remember) {
                                         // トークン生成
-                                        ttts_domain_1.Models.Authentication.create({
+                                        chevre_domain_1.Models.Authentication.create({
                                             token: Util.createToken(),
                                             sponsor: sponsor.get('_id'),
                                             locale: form.language
@@ -95,7 +95,7 @@ class SponsorAuthController extends BaseController_1.default {
         if (!this.req.session)
             return this.next(new Error(this.req.__('Message.UnexpectedError')));
         delete this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME];
-        ttts_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_sponsor }, (err) => {
+        chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_sponsor }, (err) => {
             if (err)
                 return this.next(err);
             this.res.clearCookie('remember_sponsor');

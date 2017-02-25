@@ -1,8 +1,8 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const ttts_domain_2 = require("@motionpicture/ttts-domain");
-const ttts_domain_3 = require("@motionpicture/ttts-domain");
-const ttts_domain_4 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const chevre_domain_2 = require("@motionpicture/chevre-domain");
+const chevre_domain_3 = require("@motionpicture/chevre-domain");
+const chevre_domain_4 = require("@motionpicture/chevre-domain");
 const moment = require("moment");
 const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
@@ -20,7 +20,7 @@ const ReserveBaseController_1 = require("../../ReserveBaseController");
 class TelReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = ttts_domain_4.ReservationUtil.PURCHASER_GROUP_TEL;
+        this.purchaserGroup = chevre_domain_4.ReservationUtil.PURCHASER_GROUP_TEL;
         this.layout = 'layouts/tel/layout';
     }
     start() {
@@ -28,7 +28,7 @@ class TelReserveController extends ReserveBaseController_1.default {
             if (err)
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
             // 購入番号発行(確認画面でペイデザイン川にコピーする際に必要になるので、事前に発行しておく)
-            ttts_domain_4.ReservationUtil.publishPaymentNo((publishPaymentNoErr, paymentNo) => {
+            chevre_domain_4.ReservationUtil.publishPaymentNo((publishPaymentNoErr, paymentNo) => {
                 if (publishPaymentNoErr || !paymentNo)
                     return this.next(new Error(this.req.__('Message.UnexpectedError')));
                 reservationModel.paymentNo = paymentNo;
@@ -92,7 +92,7 @@ class TelReserveController extends ReserveBaseController_1.default {
                         return this.next(cancelSeatsErr);
                     reservationModel.save(() => {
                         this.res.render('tel/reserve/performances', {
-                            FilmUtil: ttts_domain_3.FilmUtil
+                            FilmUtil: chevre_domain_3.FilmUtil
                         });
                     });
                 });
@@ -244,10 +244,10 @@ class TelReserveController extends ReserveBaseController_1.default {
                     }
                     else {
                         // 予約確定
-                        ttts_domain_1.Models.Reservation.update({
+                        chevre_domain_1.Models.Reservation.update({
                             payment_no: reservationModel.paymentNo
                         }, {
-                            status: ttts_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN
+                            status: chevre_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN
                         }, {
                             multi: true
                         }, (updateReservationErr) => {
@@ -279,9 +279,9 @@ class TelReserveController extends ReserveBaseController_1.default {
         if (!this.req.telStaffUser)
             return this.next(new Error(this.req.__('Message.UnexpectedError')));
         const paymentNo = this.req.params.paymentNo;
-        ttts_domain_1.Models.Reservation.find({
+        chevre_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
-            status: ttts_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN,
+            status: chevre_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN,
             tel_staff: this.req.telStaffUser.get('_id'),
             purchased_at: {
                 // tslint:disable-next-line:no-magic-numbers
@@ -293,7 +293,7 @@ class TelReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ttts_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return chevre_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('tel/reserve/complete', {
                 reservationDocuments: reservations

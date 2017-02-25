@@ -1,5 +1,5 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const Util = require("../../../../common/Util/Util");
 const windowLoginForm_1 = require("../../../forms/window/windowLoginForm");
 const WindowUser_1 = require("../../../models/User/WindowUser");
@@ -30,7 +30,7 @@ class WindowAuthController extends BaseController_1.default {
                 const form = this.req.form;
                 if (form && form.isValid) {
                     // ユーザー認証
-                    ttts_domain_1.Models.Window.findOne({
+                    chevre_domain_1.Models.Window.findOne({
                         user_id: form.userId
                     }, (findWindowErr, window) => {
                         if (findWindowErr)
@@ -50,7 +50,7 @@ class WindowAuthController extends BaseController_1.default {
                                 const processRemember = (cb) => {
                                     if (form.remember) {
                                         // トークン生成
-                                        ttts_domain_1.Models.Authentication.create({
+                                        chevre_domain_1.Models.Authentication.create({
                                             token: Util.createToken(),
                                             window: window.get('_id')
                                         }, (createAuthenticationErr, authentication) => {
@@ -92,7 +92,7 @@ class WindowAuthController extends BaseController_1.default {
         if (!this.req.session)
             return this.next(new Error(this.req.__('Message.UnexpectedError')));
         delete this.req.session[WindowUser_1.default.AUTH_SESSION_NAME];
-        ttts_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_window }, (err) => {
+        chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_window }, (err) => {
             if (err)
                 return this.next(err);
             this.res.clearCookie('remember_window');

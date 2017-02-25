@@ -20,6 +20,6 @@ class SponsorUser extends BaseUser_1.default {
         return user;
     }
 }
-SponsorUser.AUTH_SESSION_NAME = 'TTTSFrontendSponsorAuth';
+SponsorUser.AUTH_SESSION_NAME = 'CHEVREFrontendSponsorAuth';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = SponsorUser;

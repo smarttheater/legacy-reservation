@@ -41,7 +41,7 @@ exports.default = (app) => {
     app.get('/commercialTransactions', 'commercialTransactions', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).commercialTransactions(); });
     // 一般
     // 本番環境ではhomeは存在しない
-    if (process.env.NODE_ENV !== 'prod') {
+    if (process.env.NODE_ENV !== 'production') {
         app.all('/customer/reserve/performances', 'customer.reserve.performances', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).performances(); });
     }
     app.get('/customer/reserve/start', 'customer.reserve.start', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).start(); });

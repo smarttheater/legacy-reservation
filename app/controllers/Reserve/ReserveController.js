@@ -1,7 +1,7 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const ttts_domain_2 = require("@motionpicture/ttts-domain");
-const ttts_domain_3 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const chevre_domain_2 = require("@motionpicture/chevre-domain");
+const chevre_domain_3 = require("@motionpicture/chevre-domain");
 const qr = require("qr-image");
 const ReservationModel_1 = require("../../models/Reserve/ReservationModel");
 const ReserveBaseController_1 = require("../ReserveBaseController");
@@ -18,7 +18,7 @@ class ReserveController extends ReserveBaseController_1.default {
      */
     getUnavailableSeatCodes() {
         const performanceId = this.req.params.performanceId;
-        ttts_domain_1.Models.Reservation.distinct('seat_code', {
+        chevre_domain_1.Models.Reservation.distinct('seat_code', {
             performance: performanceId
         }, (err, seatCodes) => {
             if (err) {
@@ -41,7 +41,7 @@ class ReserveController extends ReserveBaseController_1.default {
             else {
                 const propertiesBySeatCode = {};
                 // 予約リストを取得
-                ttts_domain_1.Models.Reservation.find({
+                chevre_domain_1.Models.Reservation.find({
                     performance: reservationModel.performance._id
                 }, (findReservationErr, reservations) => {
                     if (findReservationErr) {
@@ -58,10 +58,10 @@ class ReserveController extends ReserveBaseController_1.default {
                                 avalilable = true;
                             }
                             // 内部関係者用
-                            if (reservationModel.purchaserGroup === ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF) {
+                            if (reservationModel.purchaserGroup === chevre_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF) {
                                 baloonContent = reservation.get('baloon_content4staff');
-                                // 内部関係者はTTTS確保も予約できる
-                                if (reservation.get('status') === ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS) {
+                                // 内部関係者はCHEVRE確保も予約できる
+                                if (reservation.get('status') === chevre_domain_2.ReservationUtil.STATUS_KEPT_BY_CHEVRE) {
                                     avalilable = true;
                                 }
                             }
@@ -93,7 +93,7 @@ class ReserveController extends ReserveBaseController_1.default {
      * create qrcode by reservation token and reservation id.
      */
     qrcode() {
-        ttts_domain_1.Models.Reservation.findOne({ _id: this.req.params.reservationId }, 'payment_no payment_seat_index', (err, reservation) => {
+        chevre_domain_1.Models.Reservation.findOne({ _id: this.req.params.reservationId }, 'payment_no payment_seat_index', (err, reservation) => {
             if (err)
                 return this.next(err);
             // this.res.setHeader('Content-Type', 'image/png');
@@ -105,16 +105,16 @@ class ReserveController extends ReserveBaseController_1.default {
      */
     print() {
         const ids = JSON.parse(this.req.query.ids);
-        ttts_domain_1.Models.Reservation.find({
+        chevre_domain_1.Models.Reservation.find({
             _id: { $in: ids },
-            status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
+            status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
         }, (err, reservations) => {
             if (err)
                 return this.next(new Error(this.req.__('Message.UnexpectedError')));
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ttts_domain_3.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return chevre_domain_3.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('reserve/print', {
                 layout: false,

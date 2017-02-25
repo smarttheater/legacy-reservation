@@ -10,9 +10,9 @@ const BASIC_AUTH_NAME = 'motionpicture';
 const BASIC_AUTH_PASS = '4_CS/T|YG*Lz';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (req, res, next) => {
-    if (process.env.NODE_ENV === 'dev')
+    if (process.env.NODE_ENV === 'development')
         return next();
-    if (process.env.NODE_ENV === 'prod')
+    if (process.env.NODE_ENV === 'production')
         return next();
     if (process.env.NODE_ENV === 'test')
         return next();
@@ -28,6 +28,6 @@ exports.default = (req, res, next) => {
     if (user && user.name === BASIC_AUTH_NAME && user.pass === BASIC_AUTH_PASS)
         return next();
     res.statusCode = STATUS_CODE_UNAUTHORIZED;
-    res.setHeader('WWW-Authenticate', 'Basic realm="TTTS Authentication"');
+    res.setHeader('WWW-Authenticate', 'Basic realm="CHEVRE Authentication"');
     res.end('Unauthorized');
 };

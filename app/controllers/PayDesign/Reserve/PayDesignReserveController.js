@@ -1,5 +1,5 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const PayDesignNotificationModel_1 = require("../../../models/Reserve/PayDesignNotificationModel");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
 /**
@@ -35,7 +35,7 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
             };
             // 内容の整合性チェック
             this.logger.info('finding reservations...payment_no:', paymentNo);
-            ttts_domain_1.Models.Reservation.find({
+            chevre_domain_1.Models.Reservation.find({
                 payment_no: paymentNo
             }, '_id', (err, reservations) => {
                 this.logger.info('reservations found.', err, reservations);
@@ -76,7 +76,7 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
             this.logger.info('payDesignNotificationModel is', payDesignNotificationModel);
             // 空席に戻す
             this.logger.info('finding reservations...payment_no:', paymentNo);
-            ttts_domain_1.Models.Reservation.find({
+            chevre_domain_1.Models.Reservation.find({
                 payment_no: paymentNo
             }, '_id', (err, reservations) => {
                 this.logger.info('reservations found.', err, reservations);

@@ -1,5 +1,5 @@
-import { Models } from '@motionpicture/ttts-domain';
-import { ReservationUtil } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/chevre-domain';
+import { ReservationUtil } from '@motionpicture/chevre-domain';
 import * as log4js from 'log4js';
 import BaseController from '../../BaseController';
 
@@ -22,13 +22,13 @@ export default class StaffCancelController extends BaseController {
         if (Array.isArray(reservationIds)) {
             const promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by staff... staff:', staffUser.get('user_id'), 'signature:', staffUser.get('signature'), 'id:', id);
+                    this.logger.info('updating to STATUS_KEPT_BY_CHEVRE by staff... staff:', staffUser.get('user_id'), 'signature:', staffUser.get('signature'), 'id:', id);
                     Models.Reservation.findOneAndUpdate(
                         { _id: id },
-                        { status: ReservationUtil.STATUS_KEPT_BY_TTTS },
+                        { status: ReservationUtil.STATUS_KEPT_BY_CHEVRE },
                         { new: true },
                         (err, raw) => {
-                            this.logger.info('updated to STATUS_KEPT_BY_TTTS by staff.', err, raw, 'staff:', staffUser.get('user_id'), 'signature:', staffUser.get('signature'), 'id:', id);
+                            this.logger.info('updated to STATUS_KEPT_BY_CHEVRE by staff.', err, raw, 'staff:', staffUser.get('user_id'), 'signature:', staffUser.get('signature'), 'id:', id);
                             (err) ? reject(err) : resolve();
                         }
                     );

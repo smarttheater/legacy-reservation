@@ -20,6 +20,6 @@ class MemberUser extends BaseUser_1.default {
         return user;
     }
 }
-MemberUser.AUTH_SESSION_NAME = 'TTTSFrontendMemberAuth';
+MemberUser.AUTH_SESSION_NAME = 'CHEVREFrontendMemberAuth';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = MemberUser;

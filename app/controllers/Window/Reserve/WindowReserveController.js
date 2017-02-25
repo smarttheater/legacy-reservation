@@ -1,8 +1,8 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const ttts_domain_2 = require("@motionpicture/ttts-domain");
-const ttts_domain_3 = require("@motionpicture/ttts-domain");
-const ttts_domain_4 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const chevre_domain_2 = require("@motionpicture/chevre-domain");
+const chevre_domain_3 = require("@motionpicture/chevre-domain");
+const chevre_domain_4 = require("@motionpicture/chevre-domain");
 const moment = require("moment");
 const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
@@ -20,7 +20,7 @@ const ReserveBaseController_1 = require("../../ReserveBaseController");
 class WindowReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = ttts_domain_4.ReservationUtil.PURCHASER_GROUP_WINDOW;
+        this.purchaserGroup = chevre_domain_4.ReservationUtil.PURCHASER_GROUP_WINDOW;
         this.layout = 'layouts/window/layout';
     }
     start() {
@@ -86,7 +86,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
                         return this.next(cancelSeatsErr);
                     reservationModel.save(() => {
                         this.res.render('window/reserve/performances', {
-                            FilmUtil: ttts_domain_3.FilmUtil
+                            FilmUtil: chevre_domain_3.FilmUtil
                         });
                     });
                 });
@@ -267,9 +267,9 @@ class WindowReserveController extends ReserveBaseController_1.default {
         if (!this.req.windowUser)
             return this.next(new Error(this.req.__('Message.UnexpectedError')));
         const paymentNo = this.req.params.paymentNo;
-        ttts_domain_1.Models.Reservation.find({
+        chevre_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
-            status: ttts_domain_4.ReservationUtil.STATUS_RESERVED,
+            status: chevre_domain_4.ReservationUtil.STATUS_RESERVED,
             window: this.req.windowUser.get('_id'),
             purchased_at: {
                 // tslint:disable-next-line:no-magic-numbers
@@ -281,7 +281,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ttts_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return chevre_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('window/reserve/complete', {
                 reservationDocuments: reservations

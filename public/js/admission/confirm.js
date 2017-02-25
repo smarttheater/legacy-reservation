@@ -1,6 +1,5 @@
 $(function(){
-    // var API_ENDPOINT = "http://localhost:3000";
-    var API_ENDPOINT = "https://devtttsapi.azurewebsites.net";
+    var API_ENDPOINT = $('input[name="apiEndpoint"]').val();
 
     /** 全予約リスト */
     var reservationsById = JSON.parse($('input[name="reservationsById"]').val());

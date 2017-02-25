@@ -20,6 +20,6 @@ class WindowUser extends BaseUser_1.default {
         return user;
     }
 }
-WindowUser.AUTH_SESSION_NAME = 'TTTSFrontendWindowAuth';
+WindowUser.AUTH_SESSION_NAME = 'CHEVREFrontendWindowAuth';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = WindowUser;

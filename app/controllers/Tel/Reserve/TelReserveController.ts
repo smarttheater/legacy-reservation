@@ -1,7 +1,7 @@
-import { Models } from '@motionpicture/ttts-domain';
-import { ScreenUtil } from '@motionpicture/ttts-domain';
-import { FilmUtil } from '@motionpicture/ttts-domain';
-import { ReservationUtil } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/chevre-domain';
+import { ScreenUtil } from '@motionpicture/chevre-domain';
+import { FilmUtil } from '@motionpicture/chevre-domain';
+import { ReservationUtil } from '@motionpicture/chevre-domain';
 import * as moment from 'moment';
 import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';

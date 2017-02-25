@@ -8,7 +8,7 @@
  * @class ReservationModel
  */
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const moment = require("moment");
 const redis = require("redis");
@@ -76,7 +76,7 @@ class ReservationModel {
      * @return {string}
      */
     static getRedisKey(token) {
-        return `TTTSReservation_${token}`;
+        return `CHEVREReservation_${token}`;
     }
     /**
      * 一度の購入で予約できる座席数を取得する
@@ -85,13 +85,13 @@ class ReservationModel {
         let limit = MAX_RESERVATION_SEATS_DEFAULT;
         // 主体によっては、決済方法を強制的に固定で
         switch (this.purchaserGroup) {
-            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
-            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
-            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
+            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
+            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
+            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
                 limit = MAX_RESERVATION_SEATS_STAFFS;
                 break;
-            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-            case ttts_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
+            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER:
+            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
                 if (this.performance) {
                     // 制限枚数指定のパフォーマンスの場合
                     const performanceIds4limit2 = conf.get('performanceIds4limit2');
@@ -131,9 +131,9 @@ class ReservationModel {
     }
     getChargeExceptTicketTypeBySeatCode(seatCode) {
         let charge = 0;
-        if (this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER
-            || this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW
-            || this.purchaserGroup === ttts_domain_1.ReservationUtil.PURCHASER_GROUP_TEL) {
+        if (this.purchaserGroup === chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER
+            || this.purchaserGroup === chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW
+            || this.purchaserGroup === chevre_domain_1.ReservationUtil.PURCHASER_GROUP_TEL) {
             const reservation = this.getReservation(seatCode);
             // 座席グレード分加算
             if (reservation.seat_grade_additional_charge > 0) {
@@ -141,11 +141,11 @@ class ReservationModel {
             }
             // MX4D分加算
             if (this.performance.film.is_mx4d) {
-                charge += ttts_domain_1.ReservationUtil.CHARGE_MX4D;
+                charge += chevre_domain_1.ReservationUtil.CHARGE_MX4D;
             }
             // コンビニ手数料加算
             if (this.paymentMethod === GMOUtil.PAY_TYPE_CVS) {
-                charge += ttts_domain_1.ReservationUtil.CHARGE_CVS;
+                charge += chevre_domain_1.ReservationUtil.CHARGE_CVS;
             }
         }
         return charge;

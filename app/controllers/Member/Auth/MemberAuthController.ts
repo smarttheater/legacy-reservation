@@ -1,4 +1,4 @@
-import { Models } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
 import * as Util from '../../../../common/Util/Util';

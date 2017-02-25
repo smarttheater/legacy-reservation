@@ -5,7 +5,7 @@
  * @function windowRouter
  * @ignore
  */
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const Util = require("../../common/Util/Util");
 const WindowAuthController_1 = require("../controllers/Window/Auth/WindowAuthController");
 const WindowCancelController_1 = require("../controllers/Window/Cancel/WindowCancelController");
@@ -21,7 +21,7 @@ exports.default = (app) => {
             // 自動ログインチェック
             const checkRemember = (cb) => {
                 if (req.cookies.remember_window) {
-                    ttts_domain_1.Models.Authentication.findOne({
+                    chevre_domain_1.Models.Authentication.findOne({
                         token: req.cookies.remember_window,
                         window: { $ne: null }
                     }, (err, authentication) => {
@@ -36,7 +36,7 @@ exports.default = (app) => {
                                 if (updateErr)
                                     return cb(null);
                                 res.cookie('remember_window', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                ttts_domain_1.Models.Window.findOne({ _id: authentication.get('window') }, (findErr, window) => {
+                                chevre_domain_1.Models.Window.findOne({ _id: authentication.get('window') }, (findErr, window) => {
                                     (findErr) ? cb(null) : cb(window);
                                 });
                             });

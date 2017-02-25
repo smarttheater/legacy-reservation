@@ -20,6 +20,6 @@ class StaffUser extends BaseUser_1.default {
         return user;
     }
 }
-StaffUser.AUTH_SESSION_NAME = 'TTTSFrontendStaffAuth';
+StaffUser.AUTH_SESSION_NAME = 'CHEVREFrontendStaffAuth';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = StaffUser;

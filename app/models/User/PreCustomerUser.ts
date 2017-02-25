@@ -8,7 +8,7 @@ import BaseUser from './BaseUser';
  * @extends {BaseUser}
  */
 export default class PreCustomerUser extends BaseUser {
-    public static AUTH_SESSION_NAME = 'TTTSFrontendPreCustomerAuth';
+    public static AUTH_SESSION_NAME = 'CHEVREFrontendPreCustomerAuth';
 
     // tslint:disable-next-line:function-name
     public static parse(session: Express.Session | undefined): PreCustomerUser {

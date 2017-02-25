@@ -1,4 +1,4 @@
-# 東京タワーチケット予約ウェブアプリケーション
+# 元祖興行パッケージチケット予約ウェブアプリケーション
 
 # Features
 
@@ -20,11 +20,6 @@ npm install
 ```
 * npm(https://www.npmjs.com/)
 
-typingsで型定義をインストール。
-```shell
-typings install
-```
-
 typescriptをjavascriptにコンパイルします。wオプションでファイル変更監視できます。
 ```shell
 tsc -w
@@ -38,10 +33,11 @@ npm start
 
 ## Required environment variables
 ```shell
+set NODE_ENV=**********
 set SENDGRID_API_KEY=**********
-set TTTS_PERFORMANCE_STATUSES_REDIS_HOST=**********
-set TTTS_PERFORMANCE_STATUSES_REDIS_PORT=**********
-set TTTS_PERFORMANCE_STATUSES_REDIS_KEY=**********
+set CHEVRE_PERFORMANCE_STATUSES_REDIS_HOST=**********
+set CHEVRE_PERFORMANCE_STATUSES_REDIS_PORT=**********
+set CHEVRE_PERFORMANCE_STATUSES_REDIS_KEY=**********
 ```
 only on Aure WebApps
 ```shell

@@ -8,7 +8,7 @@
  * @class ReservationModel
  */
 
-import { ReservationUtil } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
 import * as redis from 'redis';
@@ -177,7 +177,7 @@ export default class ReservationModel {
      * @return {string}
      */
     private static getRedisKey(token: string): string {
-        return `TTTSReservation_${token}`;
+        return `CHEVREReservation_${token}`;
     }
 
     /**

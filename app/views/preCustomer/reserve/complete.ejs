@@ -3,13 +3,13 @@
 <%
 let preReserveStartUrl = url('pre.reserve.start');
 switch (process.env.NODE_ENV) {
-    case 'prod':
+    case 'production':
         preReserveStartUrl = 'https://pre.tiff-ticket.net' + preReserveStartUrl;
         break;
     case 'test':
         preReserveStartUrl = 'https://test4pretiffwebapp.azurewebsites.net' + preReserveStartUrl;
         break;
-    case 'dev':
+    case 'development':
         break;
     default:
         break;

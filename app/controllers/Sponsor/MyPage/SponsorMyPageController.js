@@ -1,7 +1,7 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const ttts_domain_2 = require("@motionpicture/ttts-domain");
-const ttts_domain_3 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const chevre_domain_2 = require("@motionpicture/chevre-domain");
+const chevre_domain_3 = require("@motionpicture/chevre-domain");
 const Util = require("../../../../common/Util/Util");
 const BaseController_1 = require("../../BaseController");
 const DEFAULT_RADIX = 10;
@@ -35,9 +35,9 @@ class SponsorMyPageController extends BaseController_1.default {
         // 検索条件を作成
         const conditions = [];
         conditions.push({
-            purchaser_group: ttts_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR,
+            purchaser_group: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR,
             sponsor: this.req.sponsorUser.get('_id'),
-            status: ttts_domain_1.ReservationUtil.STATUS_RESERVED
+            status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
         });
         if (tel) {
             conditions.push({
@@ -66,7 +66,7 @@ class SponsorMyPageController extends BaseController_1.default {
             conditions.push({ payment_no: { $regex: `${paymentNo}` } });
         }
         // 総数検索
-        ttts_domain_3.Models.Reservation.count({
+        chevre_domain_3.Models.Reservation.count({
             $and: conditions
         }, (err, count) => {
             if (err) {
@@ -77,7 +77,7 @@ class SponsorMyPageController extends BaseController_1.default {
                 });
             }
             else {
-                ttts_domain_3.Models.Reservation.find({ $and: conditions })
+                chevre_domain_3.Models.Reservation.find({ $and: conditions })
                     .skip(limit * (page - 1))
                     .limit(limit)
                     .lean(true)
@@ -98,7 +98,7 @@ class SponsorMyPageController extends BaseController_1.default {
                                 return 1;
                             if (a.screen > b.screen)
                                 return 1;
-                            return ttts_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                            return chevre_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
                         });
                         this.res.json({
                             success: true,

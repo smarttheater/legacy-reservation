@@ -1,8 +1,8 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const ttts_domain_2 = require("@motionpicture/ttts-domain");
-const ttts_domain_3 = require("@motionpicture/ttts-domain");
-const ttts_domain_4 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const chevre_domain_2 = require("@motionpicture/chevre-domain");
+const chevre_domain_3 = require("@motionpicture/chevre-domain");
+const chevre_domain_4 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const lockFile = require("lockfile");
 const moment = require("moment");
@@ -22,7 +22,7 @@ const DEFAULT_RADIX = 10;
 class SponsorReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = ttts_domain_4.ReservationUtil.PURCHASER_GROUP_SPONSOR;
+        this.purchaserGroup = chevre_domain_4.ReservationUtil.PURCHASER_GROUP_SPONSOR;
         this.layout = 'layouts/sponsor/layout';
     }
     start() {
@@ -72,9 +72,9 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                     return this.next(cancelSeatsErr);
                 reservationModel.save(() => {
                     // 外部関係者による予約数を取得
-                    ttts_domain_1.Models.Reservation.count({
+                    chevre_domain_1.Models.Reservation.count({
                         sponsor: sponsorUser.get('_id'),
-                        status: { $in: [ttts_domain_4.ReservationUtil.STATUS_TEMPORARY, ttts_domain_4.ReservationUtil.STATUS_RESERVED] }
+                        status: { $in: [chevre_domain_4.ReservationUtil.STATUS_TEMPORARY, chevre_domain_4.ReservationUtil.STATUS_RESERVED] }
                     }, (countReservationErr, reservationsCount) => {
                         if (countReservationErr)
                             return this.next(countReservationErr);
@@ -106,7 +106,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                         }
                         else {
                             this.res.render('sponsor/reserve/performances', {
-                                FilmUtil: ttts_domain_3.FilmUtil,
+                                FilmUtil: chevre_domain_3.FilmUtil,
                                 reservationsCount: reservationsCount
                             });
                         }
@@ -133,9 +133,9 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             lockFile.lock(lockPath, { wait: 5000 }, (lockErr) => {
                 if (lockErr)
                     return this.next(lockErr);
-                ttts_domain_1.Models.Reservation.count({
+                chevre_domain_1.Models.Reservation.count({
                     sponsor: sponsorUser.get('_id'),
-                    status: { $in: [ttts_domain_4.ReservationUtil.STATUS_TEMPORARY, ttts_domain_4.ReservationUtil.STATUS_RESERVED] },
+                    status: { $in: [chevre_domain_4.ReservationUtil.STATUS_TEMPORARY, chevre_domain_4.ReservationUtil.STATUS_RESERVED] },
                     seat_code: {
                         $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
                     }
@@ -325,9 +325,9 @@ class SponsorReserveController extends ReserveBaseController_1.default {
         if (!this.req.sponsorUser)
             return this.next(new Error(this.req.__('Message.UnexpectedError')));
         const paymentNo = this.req.params.paymentNo;
-        ttts_domain_1.Models.Reservation.find({
+        chevre_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
-            status: ttts_domain_4.ReservationUtil.STATUS_RESERVED,
+            status: chevre_domain_4.ReservationUtil.STATUS_RESERVED,
             sponsor: this.req.sponsorUser.get('_id'),
             purchased_at: {
                 // tslint:disable-next-line:no-magic-numbers
@@ -339,7 +339,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ttts_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return chevre_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('sponsor/reserve/complete', {
                 reservationDocuments: reservations

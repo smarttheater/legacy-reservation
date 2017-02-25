@@ -1,4 +1,4 @@
-import { Models } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/chevre-domain';
 import PayDesignNotificationModel from '../../../models/Reserve/PayDesignNotificationModel';
 import ReserveBaseController from '../../ReserveBaseController';
 

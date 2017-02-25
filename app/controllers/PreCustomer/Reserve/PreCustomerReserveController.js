@@ -1,8 +1,8 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const ttts_domain_2 = require("@motionpicture/ttts-domain");
-const ttts_domain_3 = require("@motionpicture/ttts-domain");
-const ttts_domain_4 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const chevre_domain_2 = require("@motionpicture/chevre-domain");
+const chevre_domain_3 = require("@motionpicture/chevre-domain");
+const chevre_domain_4 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const lockFile = require("lockfile");
 const moment = require("moment");
@@ -23,7 +23,7 @@ const DEFAULT_RADIX = 10;
 class PreCustomerReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = ttts_domain_4.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
+        this.purchaserGroup = chevre_domain_4.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
         this.layout = 'layouts/preCustomer/layout';
     }
     start() {
@@ -80,14 +80,14 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                 reservationModel.save(() => {
                     // 1.5次販売アカウントによる予約数を取得
                     // 決済中ステータスは含めない
-                    ttts_domain_1.Models.Reservation.count({
+                    chevre_domain_1.Models.Reservation.count({
                         $and: [
                             { pre_customer: preCustomerUser.get('_id') },
                             {
                                 $or: [
-                                    { status: { $in: [ttts_domain_4.ReservationUtil.STATUS_TEMPORARY, ttts_domain_4.ReservationUtil.STATUS_RESERVED] } },
+                                    { status: { $in: [chevre_domain_4.ReservationUtil.STATUS_TEMPORARY, chevre_domain_4.ReservationUtil.STATUS_RESERVED] } },
                                     {
-                                        status: ttts_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT,
+                                        status: chevre_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT,
                                         gmo_payment_term: { $exists: true }
                                     }
                                 ]
@@ -124,7 +124,7 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                         }
                         else {
                             this.res.render('preCustomer/reserve/performances', {
-                                FilmUtil: ttts_domain_3.FilmUtil,
+                                FilmUtil: chevre_domain_3.FilmUtil,
                                 reservableCount: reservableCount
                             });
                         }
@@ -151,14 +151,14 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             lockFile.lock(lockPath, { wait: 5000 }, (lockErr) => {
                 if (lockErr)
                     return this.next(lockErr);
-                ttts_domain_1.Models.Reservation.count({
+                chevre_domain_1.Models.Reservation.count({
                     $and: [
                         { pre_customer: preCustomerUser.get('_id') },
                         {
                             $or: [
-                                { status: { $in: [ttts_domain_4.ReservationUtil.STATUS_TEMPORARY, ttts_domain_4.ReservationUtil.STATUS_RESERVED] } },
+                                { status: { $in: [chevre_domain_4.ReservationUtil.STATUS_TEMPORARY, chevre_domain_4.ReservationUtil.STATUS_RESERVED] } },
                                 {
-                                    status: ttts_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT,
+                                    status: chevre_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT,
                                     gmo_payment_term: { $exists: true }
                                 }
                             ]
@@ -353,10 +353,10 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
      */
     waitingSettlement() {
         const paymentNo = this.req.params.paymentNo;
-        ttts_domain_1.Models.Reservation.find({
+        chevre_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
             purchaser_group: this.purchaserGroup,
-            status: ttts_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT,
+            status: chevre_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT,
             purchased_at: {
                 // tslint:disable-next-line:no-magic-numbers
                 $gt: moment().add(-30, 'minutes').toISOString()
@@ -367,7 +367,7 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ttts_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return chevre_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('preCustomer/reserve/waitingSettlement', {
                 reservationDocuments: reservations
@@ -379,9 +379,9 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
      */
     complete() {
         const paymentNo = this.req.params.paymentNo;
-        ttts_domain_1.Models.Reservation.find({
+        chevre_domain_1.Models.Reservation.find({
             payment_no: paymentNo,
-            status: ttts_domain_4.ReservationUtil.STATUS_RESERVED,
+            status: chevre_domain_4.ReservationUtil.STATUS_RESERVED,
             purchased_at: {
                 // tslint:disable-next-line:no-magic-numbers
                 $gt: moment().add(-30, 'minutes').toISOString()
@@ -392,7 +392,7 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             if (reservations.length === 0)
                 return this.next(new Error(this.req.__('Message.NotFound')));
             reservations.sort((a, b) => {
-                return ttts_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return chevre_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             this.res.render('preCustomer/reserve/complete', {
                 reservationDocuments: reservations

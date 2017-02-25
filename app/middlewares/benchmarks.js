@@ -8,7 +8,7 @@ const log4js = require("log4js");
 Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable-next-line:variable-name
 exports.default = (req, _res, next) => {
-    if (process.env.NODE_ENV === 'dev') {
+    if (process.env.NODE_ENV === 'development') {
         const startMemory = process.memoryUsage();
         const startTime = process.hrtime();
         const logger = log4js.getLogger('system');

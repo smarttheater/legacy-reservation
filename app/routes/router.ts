@@ -53,7 +53,7 @@ export default (app: any) => {
 
     // 一般
     // 本番環境ではhomeは存在しない
-    if (process.env.NODE_ENV !== 'prod') {
+    if (process.env.NODE_ENV !== 'production') {
         app.all('/customer/reserve/performances', 'customer.reserve.performances', base, (req: Request, res: Response, next: NextFunction) => { (new CustomerReserveController(req, res, next)).performances(); });
     }
     app.get('/customer/reserve/start', 'customer.reserve.start', base, (req: Request, res: Response, next: NextFunction) => { (new CustomerReserveController(req, res, next)).start(); });

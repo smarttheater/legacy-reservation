@@ -5,7 +5,7 @@
  * @function telRouter
  * @ignore
  */
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const Util = require("../../common/Util/Util");
 const TelAuthController_1 = require("../controllers/Tel/Auth/TelAuthController");
 const TelCancelController_1 = require("../controllers/Tel/Cancel/TelCancelController");
@@ -21,7 +21,7 @@ exports.default = (app) => {
             // 自動ログインチェック
             const checkRemember = (cb) => {
                 if (req.cookies.remember_tel_staff) {
-                    ttts_domain_1.Models.Authentication.findOne({
+                    chevre_domain_1.Models.Authentication.findOne({
                         token: req.cookies.remember_tel_staff,
                         tel_staff: { $ne: null }
                     }, (err, authentication) => {
@@ -36,7 +36,7 @@ exports.default = (app) => {
                                 if (updateRrr)
                                     return cb(null);
                                 res.cookie('remember_tel_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                ttts_domain_1.Models.TelStaff.findOne({ _id: authentication.get('tel_staff') }, (findErr, telStaff) => {
+                                chevre_domain_1.Models.TelStaff.findOne({ _id: authentication.get('tel_staff') }, (findErr, telStaff) => {
                                     (findErr) ? cb(null) : cb(telStaff);
                                 });
                             });

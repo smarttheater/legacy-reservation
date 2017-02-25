@@ -1,5 +1,5 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const BaseController_1 = require("../BaseController");
 /**
  * SendGridウェブフックコントローラー
@@ -19,7 +19,7 @@ class SendGridController extends BaseController_1.default {
             return;
         }
         this.logger.info('creating sendgrid_event_notifications...');
-        ttts_domain_1.Models.SendGridEventNotification.create(this.req.body, (err, notifications) => {
+        chevre_domain_1.Models.SendGridEventNotification.create(this.req.body, (err, notifications) => {
             this.logger.info('sendgrid_event_notifications created.', err, notifications);
             if (err)
                 return this.next(err);

@@ -1,5 +1,5 @@
-import { ReservationEmailCueUtil, ReservationUtil, ScreenUtil, TicketTypeGroupUtil } from '@motionpicture/ttts-domain';
-import { Models } from '@motionpicture/ttts-domain';
+import { ReservationEmailCueUtil, ReservationUtil, ScreenUtil, TicketTypeGroupUtil } from '@motionpicture/chevre-domain';
+import { Models } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as express from 'express';
 import * as fs from 'fs-extra';
@@ -162,7 +162,7 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.purchaserLastName = '';
                 reservationModel.purchaserFirstName = '';
                 reservationModel.purchaserTel = '';
-                reservationModel.purchaserEmail = 'tiff@localhost.net';
+                reservationModel.purchaserEmail = 'chevre@localhost.net';
                 reservationModel.purchaserAge = '00';
                 reservationModel.purchaserAddress = '';
                 reservationModel.purchaserGender = '1';
@@ -174,7 +174,7 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.purchaserLastName = 'マドグチ';
                 reservationModel.purchaserFirstName = 'タントウシャ';
                 reservationModel.purchaserTel = '0362263025';
-                reservationModel.purchaserEmail = 'tiff@localhost.net';
+                reservationModel.purchaserEmail = 'chevre@localhost.net';
                 reservationModel.purchaserAge = '00';
                 reservationModel.purchaserAddress = '';
                 reservationModel.purchaserGender = '1';

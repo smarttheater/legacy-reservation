@@ -1,7 +1,7 @@
-import { Models } from '@motionpicture/ttts-domain';
-import { ScreenUtil } from '@motionpicture/ttts-domain';
-import { FilmUtil } from '@motionpicture/ttts-domain';
-import { ReservationUtil } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/chevre-domain';
+import { ScreenUtil } from '@motionpicture/chevre-domain';
+import { FilmUtil } from '@motionpicture/chevre-domain';
+import { ReservationUtil } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
@@ -67,16 +67,16 @@ export default class StaffReserveController extends ReserveBaseController implem
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
 
-        // 仮予約をTTTS確保ステータスに戻す
+        // 仮予約をCHEVRE確保ステータスに戻す
         Models.Reservation.update(
             {
                 performance: reservationModel.performance._id,
                 seat_code: { $in: seatCodesInSession },
-                status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TTTS
+                status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_CHEVRE
             },
             {
                 $set: {
-                    status: ReservationUtil.STATUS_KEPT_BY_TTTS
+                    status: ReservationUtil.STATUS_KEPT_BY_CHEVRE
                 },
                 $unset: {
                     staff: ''
@@ -140,15 +140,15 @@ export default class StaffReserveController extends ReserveBaseController implem
                     },
                     (err: any, reservation: mongoose.Document) => {
                         if (err) {
-                            // TTTS確保からの仮予約を試みる
+                            // CHEVRE確保からの仮予約を試みる
                             Models.Reservation.findOneAndUpdate(
                                 {
                                     performance: reservationModel.performance._id,
                                     seat_code: seatCode,
-                                    status: ReservationUtil.STATUS_KEPT_BY_TTTS
+                                    status: ReservationUtil.STATUS_KEPT_BY_CHEVRE
                                 },
                                 {
-                                    status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_TTTS,
+                                    status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_CHEVRE,
                                     expired_at: reservationModel.expiredAt,
                                     staff: staffUser.get('_id')
                                 },

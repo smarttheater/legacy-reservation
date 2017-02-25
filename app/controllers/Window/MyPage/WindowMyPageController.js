@@ -1,7 +1,7 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const ttts_domain_2 = require("@motionpicture/ttts-domain");
-const ttts_domain_3 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const chevre_domain_2 = require("@motionpicture/chevre-domain");
+const chevre_domain_3 = require("@motionpicture/chevre-domain");
 const moment = require("moment");
 const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const Util = require("../../../../common/Util/Util");
@@ -22,7 +22,7 @@ class WindowMyPageController extends BaseController_1.default {
     index() {
         this.res.render('window/mypage/index', {
             GMOUtil: GMOUtil,
-            ReservationUtil: ttts_domain_1.ReservationUtil
+            ReservationUtil: chevre_domain_1.ReservationUtil
         });
     }
     /**
@@ -46,8 +46,8 @@ class WindowMyPageController extends BaseController_1.default {
         const conditions = [];
         // 内部関係者以外がデフォルト
         conditions.push({
-            purchaser_group: { $ne: ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF },
-            status: { $in: [ttts_domain_1.ReservationUtil.STATUS_RESERVED, ttts_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT, ttts_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN] }
+            purchaser_group: { $ne: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF },
+            status: { $in: [chevre_domain_1.ReservationUtil.STATUS_RESERVED, chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT, chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN] }
         });
         if (purchaserGroups) {
             conditions.push({ purchaser_group: { $in: purchaserGroups } });
@@ -122,7 +122,7 @@ class WindowMyPageController extends BaseController_1.default {
             });
         }
         // 総数検索
-        ttts_domain_3.Models.Reservation.count({
+        chevre_domain_3.Models.Reservation.count({
             $and: conditions
         }, (err, count) => {
             if (err) {
@@ -133,7 +133,7 @@ class WindowMyPageController extends BaseController_1.default {
                 });
             }
             else {
-                ttts_domain_3.Models.Reservation.find({ $and: conditions })
+                chevre_domain_3.Models.Reservation.find({ $and: conditions })
                     .skip(limit * (page - 1))
                     .limit(limit)
                     .lean(true)
@@ -154,7 +154,7 @@ class WindowMyPageController extends BaseController_1.default {
                                 return 1;
                             if (a.screen > b.screen)
                                 return 1;
-                            return ttts_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                            return chevre_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
                         });
                         this.res.json({
                             success: true,

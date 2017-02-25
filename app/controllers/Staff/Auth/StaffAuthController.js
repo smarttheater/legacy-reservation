@@ -1,5 +1,5 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const Util = require("../../../../common/Util/Util");
 const staffLoginForm_1 = require("../../../forms/staff/staffLoginForm");
 const StaffUser_1 = require("../../../models/User/StaffUser");
@@ -29,7 +29,7 @@ class StaffAuthController extends BaseController_1.default {
                 if (form && form.isValid) {
                     // ユーザー認証
                     this.logger.debug('finding staff... user_id:', form.userId);
-                    ttts_domain_1.Models.Staff.findOne({
+                    chevre_domain_1.Models.Staff.findOne({
                         user_id: form.userId
                     }, (findStaffErr, staff) => {
                         if (findStaffErr)
@@ -49,7 +49,7 @@ class StaffAuthController extends BaseController_1.default {
                                 const processRemember = (cb) => {
                                     if (form.remember) {
                                         // トークン生成
-                                        ttts_domain_1.Models.Authentication.create({
+                                        chevre_domain_1.Models.Authentication.create({
                                             token: Util.createToken(),
                                             staff: staff.get('_id'),
                                             signature: form.signature,
@@ -95,7 +95,7 @@ class StaffAuthController extends BaseController_1.default {
         if (!this.req.session)
             return this.next(new Error(this.req.__('Message.UnexpectedError')));
         delete this.req.session[StaffUser_1.default.AUTH_SESSION_NAME];
-        ttts_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_staff }, (err) => {
+        chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_staff }, (err) => {
             if (err)
                 return this.next(err);
             this.res.clearCookie('remember_staff');

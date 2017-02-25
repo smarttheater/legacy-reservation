@@ -5,7 +5,7 @@
  * @function sponsorRouter
  * @ignore
  */
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const Util = require("../../common/Util/Util");
 const SponsorAuthController_1 = require("../controllers/Sponsor/Auth/SponsorAuthController");
 const SponsorCancelController_1 = require("../controllers/Sponsor/Cancel/SponsorCancelController");
@@ -21,7 +21,7 @@ exports.default = (app) => {
             // 自動ログインチェック
             const checkRemember = (cb) => {
                 if (req.cookies.remember_sponsor) {
-                    ttts_domain_1.Models.Authentication.findOne({
+                    chevre_domain_1.Models.Authentication.findOne({
                         token: req.cookies.remember_sponsor,
                         sponsor: { $ne: null }
                     }, (err, authentication) => {
@@ -36,7 +36,7 @@ exports.default = (app) => {
                                 if (updateErr)
                                     return cb(null, null);
                                 res.cookie('remember_sponsor', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                ttts_domain_1.Models.Sponsor.findOne({ _id: authentication.get('sponsor') }, (findErr, sponsor) => {
+                                chevre_domain_1.Models.Sponsor.findOne({ _id: authentication.get('sponsor') }, (findErr, sponsor) => {
                                     (findErr) ? cb(null, null) : cb(sponsor, authentication.get('locale'));
                                 });
                             });

@@ -8,7 +8,7 @@ import BaseUser from './BaseUser';
  * @extends {BaseUser}
  */
 export default class SponsorUser extends BaseUser {
-    public static AUTH_SESSION_NAME = 'TTTSFrontendSponsorAuth';
+    public static AUTH_SESSION_NAME = 'CHEVREFrontendSponsorAuth';
 
     // tslint:disable-next-line:function-name
     public static parse(session: Express.Session | undefined): SponsorUser {

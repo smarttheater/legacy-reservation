@@ -12,7 +12,7 @@ const redisStore = connectRedis(session);
 const COOKIE_MAX_AGE = 3600000; // 60 * 60 * 1000(session active 1 hour)
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = session({
-    secret: 'TTTSFrontendSecret',
+    secret: 'CHEVREFrontendSecret',
     resave: false,
     rolling: true,
     saveUninitialized: false,

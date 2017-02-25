@@ -1,5 +1,5 @@
-import { Models } from '@motionpicture/ttts-domain';
-import { ReservationUtil } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/chevre-domain';
+import { ReservationUtil } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as fs from 'fs-extra';
 import * as log4js from 'log4js';
@@ -307,7 +307,7 @@ function validate(reservations: mongoose.Document[], cb: (err: Error | null) => 
 function sendEmail(to: string, html: string, cb: (err: Error | null) => void): void {
     const mail = new sendgrid.mail.Mail(
         new sendgrid.mail.Email(conf.get<string>('email.from'), conf.get<string>('email.fromname')),
-        `${(process.env.NODE_ENV !== 'prod') ? `[${process.env.NODE_ENV}]` : ''}東京タワーチケット キャンセル完了のお知らせ Notice of Completion of Cancel for TTTS Tickets`,
+        `${(process.env.NODE_ENV !== 'production') ? `[${process.env.NODE_ENV}]` : ''}CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ Notice of Completion of Cancel for CHEVRE Tickets`,
         new sendgrid.mail.Email(to),
         new sendgrid.mail.Content('text/html', html)
     );

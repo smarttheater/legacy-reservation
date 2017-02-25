@@ -1,6 +1,6 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const ttts_domain_2 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const log4js = require("log4js");
 const sponsorCancelForm_1 = require("../../../forms/sponsor/sponsorCancelForm");
 const BaseController_1 = require("../../BaseController");
@@ -29,11 +29,11 @@ class SponsorCancelController extends BaseController_1.default {
             form(this.req, this.res, () => {
                 if (this.req.form && this.req.form.isValid) {
                     // 予約を取得
-                    ttts_domain_1.Models.Reservation.find({
+                    chevre_domain_1.Models.Reservation.find({
                         payment_no: this.req.form.paymentNo,
                         purchaser_tel: { $regex: `${this.req.form.last4DigitsOfTel}$` },
-                        purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_SPONSOR,
-                        status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
+                        purchaser_group: chevre_domain_2.ReservationUtil.PURCHASER_GROUP_SPONSOR,
+                        status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
                     }, (findReservationErr, reservations) => {
                         if (findReservationErr) {
                             this.res.json({
@@ -98,15 +98,15 @@ class SponsorCancelController extends BaseController_1.default {
         if (Array.isArray(reservationIds)) {
             const promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', sponsorUser.get('user_id'), 'id:', id);
-                    ttts_domain_1.Models.Reservation.findOneAndUpdate({
+                    this.logger.info('updating to STATUS_KEPT_BY_CHEVRE by sponsor... sponsor:', sponsorUser.get('user_id'), 'id:', id);
+                    chevre_domain_1.Models.Reservation.findOneAndUpdate({
                         _id: id,
                         payment_no: this.req.body.paymentNo,
                         purchaser_tel: { $regex: `${this.req.body.last4DigitsOfTel}$` },
-                        purchaser_group: ttts_domain_2.ReservationUtil.PURCHASER_GROUP_SPONSOR,
-                        status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
-                    }, { status: ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS }, { new: true }, (err, reservation) => {
-                        this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
+                        purchaser_group: chevre_domain_2.ReservationUtil.PURCHASER_GROUP_SPONSOR,
+                        status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
+                    }, { status: chevre_domain_2.ReservationUtil.STATUS_KEPT_BY_CHEVRE }, { new: true }, (err, reservation) => {
+                        this.logger.info('updated to STATUS_KEPT_BY_CHEVRE.', err, reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
                         (err) ? reject(err) : resolve();
                     });
                 });
@@ -140,9 +140,9 @@ class SponsorCancelController extends BaseController_1.default {
         if (Array.isArray(reservationIds)) {
             const promises = reservationIds.map((id) => {
                 return new Promise((resolve, reject) => {
-                    this.logger.info('updating to STATUS_KEPT_BY_TTTS by sponsor... sponsor:', sponsorUser.get('user_id'), 'id:', id);
-                    ttts_domain_1.Models.Reservation.findOneAndUpdate({ _id: id }, { status: ttts_domain_2.ReservationUtil.STATUS_KEPT_BY_TTTS }, { new: true }, (err, reservation) => {
-                        this.logger.info('updated to STATUS_KEPT_BY_TTTS.', err, reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
+                    this.logger.info('updating to STATUS_KEPT_BY_CHEVRE by sponsor... sponsor:', sponsorUser.get('user_id'), 'id:', id);
+                    chevre_domain_1.Models.Reservation.findOneAndUpdate({ _id: id }, { status: chevre_domain_2.ReservationUtil.STATUS_KEPT_BY_CHEVRE }, { new: true }, (err, reservation) => {
+                        this.logger.info('updated to STATUS_KEPT_BY_CHEVRE.', err, reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
                         (err) ? reject(err) : resolve();
                     });
                 });

@@ -1,6 +1,6 @@
-import { ReservationUtil } from '@motionpicture/ttts-domain';
-import { ScreenUtil } from '@motionpicture/ttts-domain';
-import { Models } from '@motionpicture/ttts-domain';
+import { ReservationUtil } from '@motionpicture/chevre-domain';
+import { ScreenUtil } from '@motionpicture/chevre-domain';
+import { Models } from '@motionpicture/chevre-domain';
 import * as mongoose from 'mongoose';
 import * as Util from '../../../../common/Util/Util';
 import BaseController from '../../BaseController';
@@ -62,7 +62,7 @@ export default class StaffMyPageController extends BaseController {
                             status: ReservationUtil.STATUS_RESERVED
                         },
                         {
-                            status: ReservationUtil.STATUS_KEPT_BY_TTTS
+                            status: ReservationUtil.STATUS_KEPT_BY_CHEVRE
                         }
                     ]
                 }
@@ -231,7 +231,7 @@ export default class StaffMyPageController extends BaseController {
             Models.Reservation.remove(
                 {
                     performance_day: day,
-                    status: ReservationUtil.STATUS_KEPT_BY_TTTS
+                    status: ReservationUtil.STATUS_KEPT_BY_CHEVRE
                 },
                 (err) => {
                     if (err) {
@@ -251,7 +251,7 @@ export default class StaffMyPageController extends BaseController {
             // 開放座席情報取得
             Models.Reservation.find(
                 {
-                    status: ReservationUtil.STATUS_KEPT_BY_TTTS
+                    status: ReservationUtil.STATUS_KEPT_BY_CHEVRE
                 },
                 'status seat_code performance_day',
                 (err, reservations) => {

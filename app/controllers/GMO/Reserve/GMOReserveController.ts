@@ -1,5 +1,5 @@
-import { Models } from '@motionpicture/ttts-domain';
-import { ReservationUtil } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/chevre-domain';
+import { ReservationUtil } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
 import * as querystring from 'querystring';
@@ -109,7 +109,7 @@ export default class GMOReserveController extends ReserveBaseController {
 
                     const host = (<any>this.req.headers).host;
                     const protocol = (/^localhost/.test(host)) ? 'http' : 'https';
-                    if (process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'test') {
+                    if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
                         this.res.locals.retURL = `${protocol}://${conf.get<string>('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
                         // 決済キャンセル時に遷移する加盟店URL
                         this.res.locals.cancelURL = `${protocol}://${conf.get<string>('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;

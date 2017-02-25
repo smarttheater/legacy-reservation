@@ -4,7 +4,7 @@
  * @function windowRouter
  * @ignore
  */
-import { Models } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/chevre-domain';
 import { NextFunction, Request, Response } from 'express';
 import { Document } from 'mongoose';
 import * as Util from '../../common/Util/Util';

@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>東京タワーチケット キャンセル完了のお知らせ Notice of Completion of Cancel for TTTS Tickets</title>
+<title>CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ Notice of Completion of Cancel for CHEVRE Tickets</title>
 <!--
     gmailはstyle要素とlink要素を無効にするので全タグにstyle属性を付けるしかない
     https://www.campaignmonitor.com/css/    
@@ -11,24 +11,24 @@
 <body>
 
 <div style="background-color:#fff;height:80px;text-align:center;">
-    <img src="cid:logo" alt="東京タワー" >
+    <img src="cid:logo" alt="CHEVRE_EVENT_NAME" >
 </div>
 
 
 <div style="padding:0 30px;font-family:'游ゴシック',meiryo,sans-serif;">
-    <h1 style="margin:0;font-size:20px;text-align:center;">東京タワーチケット キャンセル完了のお知らせ</h1>
-    <h2 style="margin:0;font-size:16px;text-align:center;">Notice of Completion of Cancel for TTTS Tickets</h2>
+    <h1 style="margin:0;font-size:20px;text-align:center;">CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ</h1>
+    <h2 style="margin:0;font-size:16px;text-align:center;">Notice of Completion of Cancel for CHEVRE Tickets</h2>
 
     <p style="font-weight:bold;"><%= reservations[0].get('purchaser_name_ja') %> 様</p>
     <p style="font-weight:bold;font-size:12px;">Dear <%= reservations[0].get('purchaser_name_en') %>,</p>
 
     <p style="font-size:14px;">
-        東京タワーの鑑賞キャンセルを受け付けました。<br>
+        CHEVRE_EVENT_NAMEの鑑賞キャンセルを受け付けました。<br>
         キャンセルした内容は以下の通りとなりますのでご確認ください。<br>
         皆さまに大変ご迷惑をおかけしております事、深くお詫び申し上げます。
     </p>
     <p style="font-size:12px;">
-        We have received your request for TTTS tickets cancellation.<br>
+        We have received your request for CHEVRE tickets cancellation.<br>
         Please check your cancellation details as follows. <br>
         We sincerely apologize for the inconvenience we caused you.
     </p>
@@ -133,17 +133,17 @@
     </p>
 
 
-    <strong style="font-size:14px;">東京タワー  TTTS 2016</strong>
+    <strong style="font-size:14px;">CHEVRE_EVENT_NAME  CHEVRE 2016</strong>
     <p style="font-size:14px;">
         本メールアドレスは送信専用です。返信はできませんのであらかじめご了承ください。<br>
         本メールに心当たりのない方やチケットに関してご不明な点は、下記電話番号までお問い合わせください。<br>
-        チケットのお問合せ：050-3786-0368　/12:00～18:00（休業：土/日/祝日　東京タワー開催期間中は無休）<br>
+        チケットのお問合せ：050-3786-0368　/12:00～18:00（休業：土/日/祝日　CHEVRE_EVENT_NAME開催期間中は無休）<br>
         オフィシャルサイト： <a href="<%= conf.get('official_website_url') %>" target="_blank" style="color:#000;"><%= conf.get('official_website_url') %></a>
     </p>
     <p style="font-size:10px;">
         This email was sent from a send-only address. Please do not reply to this message.<br>
         If you are not the intended recipient of this email or have any questions about tickets, contact us at the telephone number below.<br>
-        For inquiries about tickets: 050-3786-0368/12:00 p.m. to 6:00 p.m. (Closed on Saturdays, Sundays, and national holidays, except during TTTS)<br>
+        For inquiries about tickets: 050-3786-0368/12:00 p.m. to 6:00 p.m. (Closed on Saturdays, Sundays, and national holidays, except during CHEVRE)<br>
         Official website: <a href="<%= conf.get('official_website_url') %>" target="_blank" style="color:#000;"><%= conf.get('official_website_url') %></a>
     </p>
 </div>

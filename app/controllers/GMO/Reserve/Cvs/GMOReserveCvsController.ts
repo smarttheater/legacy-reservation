@@ -1,6 +1,6 @@
-import { Models } from '@motionpicture/ttts-domain';
-import { ReservationUtil } from '@motionpicture/ttts-domain';
-import { ReservationEmailCueUtil } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/chevre-domain';
+import { ReservationUtil } from '@motionpicture/chevre-domain';
+import { ReservationEmailCueUtil } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as crypto from 'crypto';
 import GMOResultModel from '../../../../models/Reserve/GMOResultModel';

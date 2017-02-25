@@ -1,5 +1,5 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const moment = require("moment");
 const Util = require("../../../../common/Util/Util");
@@ -42,7 +42,7 @@ class PreCustomerAuthController extends BaseController_1.default {
                 if (form && form.isValid) {
                     // ユーザー認証
                     this.logger.debug('finding preCustomer... user_id:', form.userId);
-                    ttts_domain_1.Models.PreCustomer.findOne({
+                    chevre_domain_1.Models.PreCustomer.findOne({
                         user_id: form.userId
                     }, (findPreCustomerErr, preCustomer) => {
                         if (findPreCustomerErr)
@@ -62,7 +62,7 @@ class PreCustomerAuthController extends BaseController_1.default {
                                 const processRemember = (cb) => {
                                     if (form.remember) {
                                         // トークン生成
-                                        ttts_domain_1.Models.Authentication.create({
+                                        chevre_domain_1.Models.Authentication.create({
                                             token: Util.createToken(),
                                             pre_customer: preCustomer.get('_id'),
                                             locale: form.language
@@ -106,7 +106,7 @@ class PreCustomerAuthController extends BaseController_1.default {
         if (!this.req.session)
             return this.next(new Error(this.req.__('Message.UnexpectedError')));
         delete this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME];
-        ttts_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_pre_customer }, (err) => {
+        chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_pre_customer }, (err) => {
             if (err)
                 return this.next(err);
             this.res.clearCookie('remember_pre_customer');

@@ -20,6 +20,6 @@ class PreCustomerUser extends BaseUser_1.default {
         return user;
     }
 }
-PreCustomerUser.AUTH_SESSION_NAME = 'TTTSFrontendPreCustomerAuth';
+PreCustomerUser.AUTH_SESSION_NAME = 'CHEVREFrontendPreCustomerAuth';
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PreCustomerUser;

@@ -23,7 +23,7 @@ const app = express();
 
 app.use(partials()); // レイアウト&パーシャルサポート
 
-if (process.env.NODE_ENV === 'dev') {
+if (process.env.NODE_ENV === 'development') {
     app.use(logger); // ロガー
 }
 
@@ -48,7 +48,7 @@ const namedRoutes = new NamedRoutes();
 namedRoutes.extendExpress(app);
 namedRoutes.registerAppHelpers(app);
 
-if (process.env.NODE_ENV !== 'prod') {
+if (process.env.NODE_ENV !== 'production') {
     // サーバーエラーテスト
     app.get('/500', (req) => {
         // req.on('data', (chunk) => {

@@ -1,7 +1,7 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const ttts_domain_2 = require("@motionpicture/ttts-domain");
-const ttts_domain_3 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const chevre_domain_2 = require("@motionpicture/chevre-domain");
+const chevre_domain_3 = require("@motionpicture/chevre-domain");
 const Util = require("../../../../common/Util/Util");
 const BaseController_1 = require("../../BaseController");
 const DEFAULT_RADIX = 10;
@@ -18,10 +18,10 @@ class StaffMyPageController extends BaseController_1.default {
         this.layout = 'layouts/staff/layout';
     }
     index() {
-        ttts_domain_3.Models.Theater.find({}, 'name', { sort: { _id: 1 } }, (findTheaterErr, theaters) => {
+        chevre_domain_3.Models.Theater.find({}, 'name', { sort: { _id: 1 } }, (findTheaterErr, theaters) => {
             if (findTheaterErr)
                 return this.next(findTheaterErr);
-            ttts_domain_3.Models.Film.find({}, 'name', { sort: { _id: 1 } }, (findFilmErr, films) => {
+            chevre_domain_3.Models.Film.find({}, 'name', { sort: { _id: 1 } }, (findFilmErr, films) => {
                 if (findFilmErr)
                     return this.next(findFilmErr);
                 this.res.render('staff/mypage/index', {
@@ -54,20 +54,20 @@ class StaffMyPageController extends BaseController_1.default {
             conditions.push({
                 $or: [
                     {
-                        purchaser_group: ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF,
-                        status: ttts_domain_1.ReservationUtil.STATUS_RESERVED
+                        purchaser_group: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF,
+                        status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
                     },
                     {
-                        status: ttts_domain_1.ReservationUtil.STATUS_KEPT_BY_TTTS
+                        status: chevre_domain_1.ReservationUtil.STATUS_KEPT_BY_CHEVRE
                     }
                 ]
             });
         }
         else {
             conditions.push({
-                purchaser_group: ttts_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF,
+                purchaser_group: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF,
                 staff: this.req.staffUser.get('_id'),
-                status: ttts_domain_1.ReservationUtil.STATUS_RESERVED
+                status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
             });
         }
         if (film) {
@@ -104,7 +104,7 @@ class StaffMyPageController extends BaseController_1.default {
             conditions.push({ payment_no: { $regex: `${paymentNo}` } });
         }
         // 総数検索
-        ttts_domain_3.Models.Reservation.count({
+        chevre_domain_3.Models.Reservation.count({
             $and: conditions
         }, (err, count) => {
             if (err) {
@@ -115,7 +115,7 @@ class StaffMyPageController extends BaseController_1.default {
                 });
             }
             else {
-                ttts_domain_3.Models.Reservation.find({ $and: conditions })
+                chevre_domain_3.Models.Reservation.find({ $and: conditions })
                     .skip(limit * (page - 1))
                     .limit(limit)
                     .lean(true)
@@ -136,7 +136,7 @@ class StaffMyPageController extends BaseController_1.default {
                                 return 1;
                             if (a.screen > b.screen)
                                 return 1;
-                            return ttts_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                            return chevre_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
                         });
                         this.res.json({
                             success: true,
@@ -158,13 +158,13 @@ class StaffMyPageController extends BaseController_1.default {
         const watcherName = this.req.body.watcherName;
         const condition = {
             _id: reservationId,
-            status: ttts_domain_1.ReservationUtil.STATUS_RESERVED
+            status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
         };
         // 管理者でない場合は自分の予約のみ
         if (!this.req.staffUser.get('is_admin')) {
             condition.staff = this.req.staffUser.get('_id');
         }
-        ttts_domain_3.Models.Reservation.findOneAndUpdate(condition, {
+        chevre_domain_3.Models.Reservation.findOneAndUpdate(condition, {
             watcher_name: watcherName,
             watcher_name_updated_at: Date.now(),
             staff_signature: this.req.staffUser.get('signature')
@@ -208,9 +208,9 @@ class StaffMyPageController extends BaseController_1.default {
                 });
                 return;
             }
-            ttts_domain_3.Models.Reservation.remove({
+            chevre_domain_3.Models.Reservation.remove({
                 performance_day: day,
-                status: ttts_domain_1.ReservationUtil.STATUS_KEPT_BY_TTTS
+                status: chevre_domain_1.ReservationUtil.STATUS_KEPT_BY_CHEVRE
             }, (err) => {
                 if (err) {
                     this.res.json({
@@ -228,8 +228,8 @@ class StaffMyPageController extends BaseController_1.default {
         }
         else {
             // 開放座席情報取得
-            ttts_domain_3.Models.Reservation.find({
-                status: ttts_domain_1.ReservationUtil.STATUS_KEPT_BY_TTTS
+            chevre_domain_3.Models.Reservation.find({
+                status: chevre_domain_1.ReservationUtil.STATUS_KEPT_BY_CHEVRE
             }, 'status seat_code performance_day', (err, reservations) => {
                 if (err)
                     return this.next(new Error(this.req.__('Message.UnexpectedError')));

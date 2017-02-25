@@ -5,7 +5,7 @@
  * @function staffRouter
  * @ignore
  */
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const Util = require("../../common/Util/Util");
 const StaffAuthController_1 = require("../controllers/Staff/Auth/StaffAuthController");
 const StaffCancelController_1 = require("../controllers/Staff/Cancel/StaffCancelController");
@@ -21,7 +21,7 @@ exports.default = (app) => {
             // 自動ログインチェック
             const checkRemember = (cb) => {
                 if (req.cookies.remember_staff) {
-                    ttts_domain_1.Models.Authentication.findOne({
+                    chevre_domain_1.Models.Authentication.findOne({
                         token: req.cookies.remember_staff,
                         staff: { $ne: null }
                     }, (err, authentication) => {
@@ -36,7 +36,7 @@ exports.default = (app) => {
                                 if (updateErr)
                                     return cb(null, null, null);
                                 res.cookie('remember_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                ttts_domain_1.Models.Staff.findOne({ _id: authentication.get('staff') }, (findErr, staff) => {
+                                chevre_domain_1.Models.Staff.findOne({ _id: authentication.get('staff') }, (findErr, staff) => {
                                     (findErr) ? cb(null, null, null) : cb(staff, authentication.get('signature'), authentication.get('locale'));
                                 });
                             });

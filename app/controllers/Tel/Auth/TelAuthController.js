@@ -1,5 +1,5 @@
 "use strict";
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const Util = require("../../../../common/Util/Util");
 const telLoginForm_1 = require("../../../forms/tel/telLoginForm");
 const TelStaffUser_1 = require("../../../models/User/TelStaffUser");
@@ -28,7 +28,7 @@ class TelAuthController extends BaseController_1.default {
                 const form = this.req.form;
                 if (form && form.isValid) {
                     // ユーザー認証
-                    ttts_domain_1.Models.TelStaff.findOne({
+                    chevre_domain_1.Models.TelStaff.findOne({
                         user_id: form.userId
                     }, (findTelStaffErr, telStaff) => {
                         if (findTelStaffErr)
@@ -48,7 +48,7 @@ class TelAuthController extends BaseController_1.default {
                                 const processRemember = (cb) => {
                                     if (form.remember) {
                                         // トークン生成
-                                        ttts_domain_1.Models.Authentication.create({
+                                        chevre_domain_1.Models.Authentication.create({
                                             token: Util.createToken(),
                                             tel_staff: telStaff.get('_id')
                                         }, (createAuthenticationErr, authentication) => {
@@ -90,7 +90,7 @@ class TelAuthController extends BaseController_1.default {
         if (!this.req.session)
             return this.next(new Error(this.req.__('Message.UnexpectedError')));
         delete this.req.session[TelStaffUser_1.default.AUTH_SESSION_NAME];
-        ttts_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_tel_staff }, (err) => {
+        chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_tel_staff }, (err) => {
             if (err)
                 return this.next(err);
             this.res.clearCookie('remember_tel_staff');

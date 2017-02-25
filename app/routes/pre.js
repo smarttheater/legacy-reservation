@@ -5,7 +5,7 @@
  * @function preRouter
  * @ignore
  */
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const Util = require("../../common/Util/Util");
 const PreCustomerAuthController_1 = require("../controllers/PreCustomer/Auth/PreCustomerAuthController");
 const PreCustomerReserveController_1 = require("../controllers/PreCustomer/Reserve/PreCustomerReserveController");
@@ -19,7 +19,7 @@ exports.default = (app) => {
             // 自動ログインチェック
             const checkRemember = (cb) => {
                 if (req.cookies.remember_pre_customer) {
-                    ttts_domain_1.Models.Authentication.findOne({
+                    chevre_domain_1.Models.Authentication.findOne({
                         token: req.cookies.remember_pre_customer,
                         pre_customer: { $ne: null }
                     }, (err, authentication) => {
@@ -34,7 +34,7 @@ exports.default = (app) => {
                                 if (updateErr)
                                     cb(null, null);
                                 res.cookie('remember_pre_customer', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                ttts_domain_1.Models.PreCustomer.findOne({ _id: authentication.get('pre_customer') }, (findErr, preCustomer) => {
+                                chevre_domain_1.Models.PreCustomer.findOne({ _id: authentication.get('pre_customer') }, (findErr, preCustomer) => {
                                     (findErr) ? cb(null, null) : cb(preCustomer, authentication.get('locale'));
                                 });
                             });

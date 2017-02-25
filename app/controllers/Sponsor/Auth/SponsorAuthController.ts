@@ -1,4 +1,4 @@
-import { Models } from '@motionpicture/ttts-domain';
+import { Models } from '@motionpicture/chevre-domain';
 import * as mongoose from 'mongoose';
 import * as Util from '../../../../common/Util/Util';
 import sponsorLoginForm from '../../../forms/sponsor/sponsorLoginForm';
