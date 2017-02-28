@@ -281,7 +281,7 @@ class ReserveBaseController extends BaseController_1.default {
                     film: {
                         _id: performance.get('film').get('_id'),
                         name: performance.get('film').get('name'),
-                        image: `${this.req.protocol}://${conf.get('dns_name')}/images/film/${performance.get('film').get('_id')}.jpg`,
+                        image: `${this.req.protocol}://${this.req.host}/images/film/${performance.get('film').get('_id')}.jpg`,
                         is_mx4d: performance.get('film').get('is_mx4d'),
                         copyright: performance.get('film').get('copyright')
                     }

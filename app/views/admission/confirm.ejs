@@ -24,7 +24,7 @@
 
 <script src="/js/admission/confirm.js"></script>
 
-<input type="hidden" name="apiEndpoint" value="<%= conf.get("api_endpoint") %>">
+<input type="hidden" name="apiEndpoint" value="<%= process.env.API_ENDPOINT %>">
 <input type="hidden" name="reservationsById" value="<%= JSON.stringify(reservationsById) %>">
 <input type="hidden" name="reservationIdsByQrStr" value="<%= JSON.stringify(reservationIdsByQrStr) %>">
 <input type="hidden" name="messageSearching" value="<%- __('Message.Searching') %>">

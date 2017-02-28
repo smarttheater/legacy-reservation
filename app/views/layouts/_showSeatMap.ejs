@@ -24,7 +24,7 @@
 function showSeatPositon(screenId, selecteSeatCodes) {
     $.ajax({
         dataType: 'text',
-        url: '<%= conf.get("api_endpoint") %>/screen/' + screenId + '/show',
+        url: '<%= process.env.API_ENDPOINT %>/screen/' + screenId + '/show',
         type: 'GET',
         data: {},
         beforeSend: function() {

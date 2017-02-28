@@ -69,7 +69,7 @@ for (let reservation of reservationDocuments) {
 
                             <% if (reservation.purchaser_group !== ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
                             <div class="cell-btn cell-mail">
-                                <a class="btn btn-default btn-icon-mail send-mail" href="javascript:void(0)" data-reservation-id="<%- reservation._id %>" data-url="<%= conf.get("api_endpoint") %>/<%- locale %>/reservation/email"><span><%- __('Button.InformFriends') %></span></a>
+                                <a class="btn btn-default btn-icon-mail send-mail" href="javascript:void(0)" data-reservation-id="<%- reservation._id %>" data-url="<%= process.env.API_ENDPOINT %>/<%- locale %>/reservation/email"><span><%- __('Button.InformFriends') %></span></a>
                             </div>
                             <% } %>
 

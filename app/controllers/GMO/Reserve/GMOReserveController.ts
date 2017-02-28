@@ -110,9 +110,9 @@ export default class GMOReserveController extends ReserveBaseController {
                     const host = (<any>this.req.headers).host;
                     const protocol = (/^localhost/.test(host)) ? 'http' : 'https';
                     if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
-                        this.res.locals.retURL = `${protocol}://${conf.get<string>('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
+                        this.res.locals.retURL = `${protocol}://${process.env.FRONTEND_GMO_RESULT_ENDPOINT}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
                         // 決済キャンセル時に遷移する加盟店URL
-                        this.res.locals.cancelURL = `${protocol}://${conf.get<string>('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;
+                        this.res.locals.cancelURL = `${protocol}://${process.env.FRONTEND_GMO_RESULT_ENDPOINT}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;
                     } else {
                         this.res.locals.retURL = `${protocol}://${host}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
                         this.res.locals.cancelURL = `${protocol}://${host}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;

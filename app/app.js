@@ -6,7 +6,6 @@
  * @global
  */
 const bodyParser = require("body-parser");
-const conf = require("config");
 const cookieParser = require("cookie-parser");
 const express = require("express");
 // tslint:disable-next-line:no-require-imports
@@ -104,7 +103,7 @@ router_1.default(app);
  * We recommend a 30 second connection timeout because it allows for
  * plenty of time in most operating environments.
  */
-const MONGOLAB_URI = conf.get('mongolab_uri');
+const MONGOLAB_URI = process.env.MONGOLAB_URI;
 // Use native promises
 mongoose.Promise = global.Promise;
 mongoose.connect(MONGOLAB_URI, {

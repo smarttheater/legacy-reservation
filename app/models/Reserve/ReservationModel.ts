@@ -16,11 +16,11 @@ import * as GMOUtil from '../../../common/Util/GMO/GMOUtil';
 
 const DEFAULT_REDIS_TTL = 1800;
 const redisClient = redis.createClient(
-    conf.get<number>('redis_port'),
-    conf.get<string>('redis_host'),
+    process.env.REDIS_PORT,
+    process.env.REDIS_HOST,
     {
-        password: conf.get<string>('redis_key'),
-        tls: { servername: conf.get<string>('redis_host') },
+        password: process.env.REDIS_KEY,
+        tls: { servername: process.env.REDIS_HOST },
         return_buffers: true
     }
 );

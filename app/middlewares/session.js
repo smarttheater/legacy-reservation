@@ -4,7 +4,6 @@
  * @module sessionMiddleware
  */
 "use strict";
-const conf = require("config");
 const connectRedis = require("connect-redis");
 const session = require("express-session");
 const redis = require("redis");
@@ -17,9 +16,9 @@ exports.default = session({
     rolling: true,
     saveUninitialized: false,
     store: new redisStore({
-        client: redis.createClient(conf.get('redis_port'), conf.get('redis_host'), {
-            password: conf.get('redis_key'),
-            tls: { servername: conf.get('redis_host') },
+        client: redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST, {
+            password: process.env.REDIS_KEY,
+            tls: { servername: process.env.REDIS_HOST },
             return_buffers: true
         })
     }),

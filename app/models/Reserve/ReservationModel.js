@@ -14,9 +14,9 @@ const moment = require("moment");
 const redis = require("redis");
 const GMOUtil = require("../../../common/Util/GMO/GMOUtil");
 const DEFAULT_REDIS_TTL = 1800;
-const redisClient = redis.createClient(conf.get('redis_port'), conf.get('redis_host'), {
-    password: conf.get('redis_key'),
-    tls: { servername: conf.get('redis_host') },
+const redisClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST, {
+    password: process.env.REDIS_KEY,
+    tls: { servername: process.env.REDIS_HOST },
     return_buffers: true
 });
 const MAX_RESERVATION_SEATS_DEFAULT = 4;

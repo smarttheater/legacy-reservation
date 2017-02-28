@@ -4,7 +4,6 @@
  * @module sessionMiddleware
  */
 
-import * as conf from 'config';
 import * as connectRedis from 'connect-redis';
 import * as session from 'express-session';
 import * as redis from 'redis';
@@ -18,11 +17,11 @@ export default session({
     saveUninitialized: false,
     store: new redisStore({
         client: redis.createClient(
-            conf.get<number>('redis_port'),
-            conf.get<string>('redis_host'),
+            process.env.REDIS_PORT,
+            process.env.REDIS_HOST,
             {
-                password: conf.get<string>('redis_key'),
-                tls: { servername: conf.get<string>('redis_host') },
+                password: process.env.REDIS_KEY,
+                tls: { servername: process.env.REDIS_HOST },
                 return_buffers: true
             }
         )

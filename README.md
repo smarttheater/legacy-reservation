@@ -38,11 +38,17 @@ set SENDGRID_API_KEY=**********
 set CHEVRE_PERFORMANCE_STATUSES_REDIS_HOST=**********
 set CHEVRE_PERFORMANCE_STATUSES_REDIS_PORT=**********
 set CHEVRE_PERFORMANCE_STATUSES_REDIS_KEY=**********
+set FRONTEND_GMO_RESULT_ENDPOINT=**********
+set API_ENDPOINT=**********
+set REDIS_HOST=**********
+set REDIS_PORT=**********
+set REDIS_KEY=**********
+set MONGOLAB_URI=**********
+set MONGOLAB_URI_GMO=**********
 ```
 only on Aure WebApps
 ```shell
 set WEBSITE_NODE_DEFAULT_VERSION=**********
-set NODE_ENV=**********
 set WEBSITE_TIME_ZONE=Tokyo Standard Time
 ```
 
