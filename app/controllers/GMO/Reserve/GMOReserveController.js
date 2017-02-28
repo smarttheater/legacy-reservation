@@ -92,17 +92,9 @@ class GMOReserveController extends ReserveBaseController_1.default {
                     this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
                     this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
                     this.res.locals.shopPassString = GMOUtil.createShopPassString(conf.get('gmo_payment_shop_id'), this.res.locals.orderID, this.res.locals.amount, conf.get('gmo_payment_shop_password'), this.res.locals.dateTime);
-                    const host = this.req.headers.host;
-                    const protocol = (/^https/.test(this.req.originalUrl)) ? 'https' : 'http';
-                    if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
-                        this.res.locals.retURL = `${protocol}://${process.env.FRONTEND_GMO_RESULT_ENDPOINT}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
-                        // 決済キャンセル時に遷移する加盟店URL
-                        this.res.locals.cancelURL = `${protocol}://${process.env.FRONTEND_GMO_RESULT_ENDPOINT}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;
-                    }
-                    else {
-                        this.res.locals.retURL = `${protocol}://${host}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
-                        this.res.locals.cancelURL = `${protocol}://${host}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;
-                    }
+                    this.res.locals.retURL = `${process.env.FRONTEND_GMO_RESULT_ENDPOINT}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
+                    // 決済キャンセル時に遷移する加盟店URL
+                    this.res.locals.cancelURL = `${process.env.FRONTEND_GMO_RESULT_ENDPOINT}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;
                     this.logger.info('redirecting to GMO payment...');
                     // GMOへの送信データをログに残すために、一度htmlを取得してからrender
                     this.res.render('gmo/reserve/start', undefined, (renderErr, html) => {

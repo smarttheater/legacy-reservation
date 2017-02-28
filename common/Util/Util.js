@@ -29,6 +29,7 @@ exports.createToken = createToken;
  * @param {string} paymentNo 購入番号
  * @memberOf Util
  */
+// tslint:disable-next-line:variable-name
 function getReservationLogger(_paymentNo, cb) {
     // todo 購入ログの出力方法を、ローカルファイルロガー以外で新たに考える
     cb(null, log4js.getLogger('system'));
