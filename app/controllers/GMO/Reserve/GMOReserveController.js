@@ -93,7 +93,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
                     this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
                     this.res.locals.shopPassString = GMOUtil.createShopPassString(conf.get('gmo_payment_shop_id'), this.res.locals.orderID, this.res.locals.amount, conf.get('gmo_payment_shop_password'), this.res.locals.dateTime);
                     const host = this.req.headers.host;
-                    const protocol = (/^localhost/.test(host)) ? 'http' : 'https';
+                    const protocol = (/^https/.test(this.req.originalUrl)) ? 'https' : 'http';
                     if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
                         this.res.locals.retURL = `${protocol}://${conf.get('dns_name_for_gmo_result')}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
                         // 決済キャンセル時に遷移する加盟店URL
