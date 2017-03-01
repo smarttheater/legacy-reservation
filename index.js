@@ -2,6 +2,7 @@
 // tslint:disable-next-line:no-reference
 /// <reference path='./typings/index.d.ts' />
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Module dependencies.
  */

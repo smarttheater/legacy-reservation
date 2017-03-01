@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const conf = require("config");
@@ -60,6 +61,7 @@ class ReserveBaseController extends BaseController_1.default {
                 this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'), (fixPerformanceErr, reservationModel) => {
                     cb(fixPerformanceErr, reservationModel);
                 });
+                // パフォーマンス指定遷移の場合
             }
             else if (performanceId) {
                 // パフォーマンスFIX
@@ -598,6 +600,7 @@ class ReserveBaseController extends BaseController_1.default {
             }, (updateCueErr, cue) => {
                 this.logger.info('reservationEmailCue created.', updateCueErr, cue);
                 if (updateCueErr) {
+                    // 失敗してもスルー(ログと運用でなんとかする)
                 }
                 cb(null);
             });
@@ -612,6 +615,7 @@ class ReserveBaseController extends BaseController_1.default {
     setProcessLogger(paymentNo, cb) {
         Util.getReservationLogger(paymentNo, (err, logger) => {
             if (err) {
+                // 失敗したとしても処理は続行(ログファイルがデフォルトになってしまうが仕方ない)
             }
             else {
                 this.logger = logger;
@@ -640,5 +644,4 @@ class ReserveBaseController extends BaseController_1.default {
         return (this.req.session.purchaser) ? this.req.session.purchaser : undefined;
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = ReserveBaseController;

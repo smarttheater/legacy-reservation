@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const chevre_domain_3 = require("@motionpicture/chevre-domain");
@@ -80,6 +81,9 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             else {
                 // 今回は必ずパフォーマンス指定で遷移してくるはず
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
+                // reservationModel.save(() => {
+                //     this.res.redirect(this.router.build('customer.reserve.performances', {token: reservationModel.token}));
+                // });
             }
         });
     }
@@ -311,5 +315,4 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         });
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = CustomerReserveController;

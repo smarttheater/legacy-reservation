@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 内部関係者ルーター
  *
@@ -12,7 +13,6 @@ const StaffCancelController_1 = require("../controllers/Staff/Cancel/StaffCancel
 const StaffMyPageController_1 = require("../controllers/Staff/MyPage/StaffMyPageController");
 const StaffReserveController_1 = require("../controllers/Staff/Reserve/StaffReserveController");
 const StaffUser_1 = require("../models/User/StaffUser");
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     const authenticationMiddleware = (req, res, next) => {
         if (!req.staffUser)

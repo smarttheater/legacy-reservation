@@ -50,7 +50,7 @@ export default class StaffMyPageController extends BaseController {
         let paymentNo: string = (this.req.query.payment_no) ? this.req.query.payment_no : null;
 
         // 検索条件を作成
-        const conditions: Object[] = [];
+        const conditions: any[] = [];
 
         // 管理者の場合、内部関係者の予約全て&確保中
         if (this.req.staffUser.get('is_admin')) {

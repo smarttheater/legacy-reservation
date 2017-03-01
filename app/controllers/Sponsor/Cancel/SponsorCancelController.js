@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const log4js = require("log4js");
@@ -21,8 +22,10 @@ class SponsorCancelController extends BaseController_1.default {
      */
     index() {
         if (this.req.sponsorUser && this.req.sponsorUser.isAuthenticated()) {
+            // ログイン時そのまま
         }
         else {
+            // this.req.setLocale('ja');
         }
         if (this.req.method === 'POST') {
             const form = sponsorCancelForm_1.default(this.req);
@@ -167,5 +170,4 @@ class SponsorCancelController extends BaseController_1.default {
         }
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = SponsorCancelController;

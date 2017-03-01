@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const conf = require("config");
@@ -202,6 +203,45 @@ class CustomerCancelController extends BaseController_1.default {
                                         });
                                     }
                                 });
+                                // クレジットカードの場合、GMO取消しを行えば通知で空席になる(この方法は保留)
+                                // // 取引状態参照
+                                // this.logger.info('SearchTrade processing...');
+                                // request.post({
+                                //     url: 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
+                                //     form: {
+                                //         ShopID: conf.get<string>('gmo_payment_shop_id'),
+                                //         ShopPass: conf.get<string>('gmo_payment_shop_password'),
+                                //         OrderID: paymentNo
+                                //     }
+                                // }, (error, response, body) => {
+                                //     this.logger.info('SearchTrade processed.', error, body);
+                                //     if (error) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                                //     if (response.statusCode !== 200) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                                //     let searchTradeResult = querystring.parse(body);
+                                //     if (searchTradeResult['ErrCode']) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                                //     if (searchTradeResult.Status !== GMOUtil.STATUS_CREDIT_CAPTURE) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')}); // 即時売上状態のみ先へ進める
+                                //     this.logger.info('searchTradeResult is ', searchTradeResult);
+                                //     // 決済変更
+                                //     this.logger.info('AlterTran processing...');
+                                //     request.post({
+                                //         url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
+                                //         form: {
+                                //             ShopID: conf.get<string>('gmo_payment_shop_id'),
+                                //             ShopPass: conf.get<string>('gmo_payment_shop_password'),
+                                //             AccessID: searchTradeResult.AccessID,
+                                //             AccessPass: searchTradeResult.AccessPass,
+                                //             JobCd: GMOUtil.STATUS_CREDIT_VOID
+                                //         }
+                                //     }, (error, response, body) => {
+                                //         this.logger.info('AlterTran processed.', error, body);
+                                //         if (error) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                                //         if (response.statusCode !== 200) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                                //         let alterTranResult = querystring.parse(body);
+                                //         if (alterTranResult['ErrCode']) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                                //         this.logger.info('alterTranResult is ', alterTranResult);
+                                //     });
+                                // });
+                                // コンビニ決済の場合
                             }
                             else if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) {
                                 this.res.json({
@@ -222,7 +262,6 @@ class CustomerCancelController extends BaseController_1.default {
         });
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = CustomerCancelController;
 /**
  * キャンセル受付対象かどうか確認する

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const Util = require("../../../../common/Util/Util");
 const telLoginForm_1 = require("../../../forms/tel/telLoginForm");
@@ -98,5 +99,4 @@ class TelAuthController extends BaseController_1.default {
         });
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = TelAuthController;

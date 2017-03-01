@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const conf = require("config");
 const log4js = require("log4js");
 const moment = require("moment");
@@ -44,5 +45,4 @@ class BaseController {
         };
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = BaseController;

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable:variable-name
 /**
  * GMOコンビニ決済結果通知モデル
@@ -16,5 +17,4 @@ class GMONotificationModel {
         return model;
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = GMONotificationModel;

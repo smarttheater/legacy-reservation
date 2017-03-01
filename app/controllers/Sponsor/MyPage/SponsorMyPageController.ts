@@ -34,7 +34,7 @@ export default class SponsorMyPageController extends BaseController {
         let paymentNo: string = (this.req.query.payment_no) ? this.req.query.payment_no : null;
 
         // 検索条件を作成
-        const conditions: Object[] = [];
+        const conditions: any[] = [];
 
         conditions.push(
             {

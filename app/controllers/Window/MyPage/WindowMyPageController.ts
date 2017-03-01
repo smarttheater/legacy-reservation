@@ -45,7 +45,7 @@ export default class WindowMyPageController extends BaseController {
         let filmName: string = (this.req.query.film_name) ? this.req.query.film_name : null;
 
         // 検索条件を作成
-        const conditions: Object[] = [];
+        const conditions: any[] = [];
 
         // 内部関係者以外がデフォルト
         conditions.push(

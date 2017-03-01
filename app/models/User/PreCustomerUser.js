@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const BaseUser_1 = require("./BaseUser");
 /**
  * 先行予約ユーザー
@@ -21,5 +22,4 @@ class PreCustomerUser extends BaseUser_1.default {
     }
 }
 PreCustomerUser.AUTH_SESSION_NAME = 'CHEVREFrontendPreCustomerAuth';
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PreCustomerUser;

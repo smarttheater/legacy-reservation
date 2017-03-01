@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const chevre_domain_3 = require("@motionpicture/chevre-domain");
@@ -66,6 +67,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                 }, (updateCueErr, cue) => {
                     this.logger.info('reservationEmailCue created.', updateCueErr, cue);
                     if (updateCueErr) {
+                        // 失敗してもスルー(ログと運用でなんとかする)
                     }
                     this.logger.info('redirecting to waitingSettlement...');
                     // 購入者区分による振り分け
@@ -88,5 +90,4 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
         });
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = GMOReserveCvsController;

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 座席予約パフォーマンス選択フォーム
  *
@@ -7,5 +8,4 @@
  * @ignore
  */
 const form = require("express-form");
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = form(form.field('performanceId').trim().required(), form.field('locale').trim());

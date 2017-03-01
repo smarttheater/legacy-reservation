@@ -220,7 +220,7 @@ export default class GMOResultModel {
     // public VaTradeCode: string;
 
     // tslint:disable-next-line:function-name
-    public static parse(postParameters: Object): GMOResultModel {
+    public static parse(postParameters: any): GMOResultModel {
         const model = new GMOResultModel();
         Object.keys(postParameters).forEach((key) => {
             (<any>model)[key] = (<any>postParameters)[key];

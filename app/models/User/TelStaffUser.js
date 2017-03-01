@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const BaseUser_1 = require("./BaseUser");
 /**
  * 電話窓口ユーザー
@@ -21,5 +22,4 @@ class TelStaffUser extends BaseUser_1.default {
     }
 }
 TelStaffUser.AUTH_SESSION_NAME = 'CHEVREFrontendTelStaffAuth';
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = TelStaffUser;

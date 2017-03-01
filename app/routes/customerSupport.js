@@ -1,6 +1,6 @@
 "use strict";
-const CustomerCancelController_1 = require("../controllers/Customer/Cancel/CustomerCancelController");
 Object.defineProperty(exports, "__esModule", { value: true });
+const CustomerCancelController_1 = require("../controllers/Customer/Cancel/CustomerCancelController");
 exports.default = (app) => {
     // tslint:disable-next-line:variable-name
     const base = (_req, _res, next) => {

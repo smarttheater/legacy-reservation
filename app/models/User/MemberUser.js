@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const BaseUser_1 = require("./BaseUser");
 /**
  * メルマガ会員ユーザー
@@ -21,5 +22,4 @@ class MemberUser extends BaseUser_1.default {
     }
 }
 MemberUser.AUTH_SESSION_NAME = 'CHEVREFrontendMemberAuth';
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = MemberUser;

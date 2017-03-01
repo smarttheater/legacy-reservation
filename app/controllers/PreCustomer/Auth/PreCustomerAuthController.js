@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const moment = require("moment");
@@ -114,5 +115,4 @@ class PreCustomerAuthController extends BaseController_1.default {
         });
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PreCustomerAuthController;

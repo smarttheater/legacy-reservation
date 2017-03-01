@@ -4,11 +4,11 @@
  * @module basicAuthMiddleware
  */
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const basicAuth = require("basic-auth");
 const STATUS_CODE_UNAUTHORIZED = 401;
 const BASIC_AUTH_NAME = 'motionpicture';
 const BASIC_AUTH_PASS = '4_CS/T|YG*Lz';
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (req, res, next) => {
     if (process.env.NODE_ENV === 'development')
         return next();

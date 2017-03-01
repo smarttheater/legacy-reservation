@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable:variable-name
 /**
  * GMO決済結果モデル
@@ -120,5 +121,4 @@ class GMOResultModel {
         return model;
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = GMOResultModel;

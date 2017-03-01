@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const BaseUser_1 = require("./BaseUser");
 /**
  * 外部関係者ユーザー
@@ -21,5 +22,4 @@ class SponsorUser extends BaseUser_1.default {
     }
 }
 SponsorUser.AUTH_SESSION_NAME = 'CHEVREFrontendSponsorAuth';
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = SponsorUser;

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const BaseUser_1 = require("./BaseUser");
 /**
  * 内部関係者ユーザー
@@ -21,5 +22,4 @@ class StaffUser extends BaseUser_1.default {
     }
 }
 StaffUser.AUTH_SESSION_NAME = 'CHEVREFrontendStaffAuth';
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = StaffUser;

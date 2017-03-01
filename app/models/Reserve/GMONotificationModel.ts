@@ -158,7 +158,7 @@ export default class GMONotificationModel {
     public PayType: string;
 
     // tslint:disable-next-line:function-name
-    public static parse(postParameters: Object): GMONotificationModel {
+    public static parse(postParameters: any): GMONotificationModel {
         const model = new GMONotificationModel();
         Object.keys(postParameters).forEach((key) => {
             (<any>model)[key] = (<any>postParameters)[key];

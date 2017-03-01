@@ -1,7 +1,7 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const form = require("express-form");
 const NAME_MAX_LENGTH = 15;
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (req) => {
     return form(form.field('lastName', req.__('Form.FieldName.lastName')).trim()
         .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))

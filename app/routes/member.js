@@ -1,8 +1,8 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const MemberAuthController_1 = require("../controllers/Member/Auth/MemberAuthController");
 const MemberReserveController_1 = require("../controllers/Member/Reserve/MemberReserveController");
 const MemberUser_1 = require("../models/User/MemberUser");
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     const authenticationMiddleware = (req, res, next) => {
         if (!req.memberUser)

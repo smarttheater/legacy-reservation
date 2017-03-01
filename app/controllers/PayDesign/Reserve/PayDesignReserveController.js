@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const PayDesignNotificationModel_1 = require("../../../models/Reserve/PayDesignNotificationModel");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
@@ -109,5 +110,4 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
         });
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PayDesignReserveController;

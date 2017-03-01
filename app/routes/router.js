@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const AdmissionController_1 = require("../controllers/Admission/AdmissionController");
 const CustomerReserveController_1 = require("../controllers/Customer/Reserve/CustomerReserveController");
 const ErrorController_1 = require("../controllers/Error/ErrorController");
@@ -7,7 +8,6 @@ const GMOReserveController_1 = require("../controllers/GMO/Reserve/GMOReserveCon
 const LanguageController_1 = require("../controllers/Language/LanguageController");
 const OtherController_1 = require("../controllers/Other/OtherController");
 const ReserveController_1 = require("../controllers/Reserve/ReserveController");
-Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * URLルーティング
  *

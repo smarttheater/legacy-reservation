@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 当日窓口ルーター
  *
@@ -12,7 +13,6 @@ const WindowCancelController_1 = require("../controllers/Window/Cancel/WindowCan
 const WindowMyPageController_1 = require("../controllers/Window/MyPage/WindowMyPageController");
 const WindowReserveController_1 = require("../controllers/Window/Reserve/WindowReserveController");
 const WindowUser_1 = require("../models/User/WindowUser");
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     const authenticationMiddleware = (req, res, next) => {
         if (!req.windowUser)

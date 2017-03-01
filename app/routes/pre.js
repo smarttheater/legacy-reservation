@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 先行予約ルーター
  *
@@ -10,7 +11,6 @@ const Util = require("../../common/Util/Util");
 const PreCustomerAuthController_1 = require("../controllers/PreCustomer/Auth/PreCustomerAuthController");
 const PreCustomerReserveController_1 = require("../controllers/PreCustomer/Reserve/PreCustomerReserveController");
 const PreCustomerUser_1 = require("../models/User/PreCustomerUser");
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     const authenticationMiddleware = (req, res, next) => {
         if (!req.preCustomerUser)

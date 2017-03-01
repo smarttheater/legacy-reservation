@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 電話窓口ルーター
  *
@@ -12,7 +13,6 @@ const TelCancelController_1 = require("../controllers/Tel/Cancel/TelCancelContro
 const TelMyPageController_1 = require("../controllers/Tel/MyPage/TelMyPageController");
 const TelReserveController_1 = require("../controllers/Tel/Reserve/TelReserveController");
 const TelStaffUser_1 = require("../models/User/TelStaffUser");
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     const authenticationMiddleware = (req, res, next) => {
         if (!req.telStaffUser)

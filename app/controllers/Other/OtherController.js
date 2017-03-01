@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const BaseController_1 = require("../BaseController");
 /**
  * 静的ページコントローラー
@@ -18,5 +19,4 @@ class OtherController extends BaseController_1.default {
         this.res.render(`other/commercialTransactions_${this.req.getLocale()}`);
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = OtherController;

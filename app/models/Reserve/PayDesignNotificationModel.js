@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * ペイデザイン結果通知モデル
  *
@@ -15,5 +16,4 @@ class PayDesignNotificationModel {
         return model;
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PayDesignNotificationModel;

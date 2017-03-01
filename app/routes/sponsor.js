@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 外部関係者ルーター
  *
@@ -12,7 +13,6 @@ const SponsorCancelController_1 = require("../controllers/Sponsor/Cancel/Sponsor
 const SponsorMyPageController_1 = require("../controllers/Sponsor/MyPage/SponsorMyPageController");
 const SponsorReserveController_1 = require("../controllers/Sponsor/Reserve/SponsorReserveController");
 const SponsorUser_1 = require("../models/User/SponsorUser");
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     const authenticationMiddleware = (req, res, next) => {
         if (!req.sponsorUser)

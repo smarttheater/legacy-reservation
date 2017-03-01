@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const BaseUser_1 = require("./BaseUser");
 /**
  * 当日窓口ユーザー
@@ -21,5 +22,4 @@ class WindowUser extends BaseUser_1.default {
     }
 }
 WindowUser.AUTH_SESSION_NAME = 'CHEVREFrontendWindowAuth';
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = WindowUser;

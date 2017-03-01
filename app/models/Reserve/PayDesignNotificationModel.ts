@@ -39,7 +39,7 @@ export default class PayDesignNotificationModel {
     public FUKA: string;
 
     // tslint:disable-next-line:function-name
-    public static parse(postParameters: Object): PayDesignNotificationModel {
+    public static parse(postParameters: any): PayDesignNotificationModel {
         const model = new PayDesignNotificationModel();
         Object.keys(postParameters).forEach((key) => {
             (<any>model)[key] = (<any>postParameters)[key];

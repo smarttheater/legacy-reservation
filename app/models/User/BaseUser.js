@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * ベースユーザークラス
  *
@@ -17,5 +18,4 @@ class BaseUser {
         return (this[key]) ? this[key] : null;
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = BaseUser;

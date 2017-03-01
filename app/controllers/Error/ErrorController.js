@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const BaseController_1 = require("../BaseController");
 /**
  * エラーページコントローラー
@@ -42,5 +43,4 @@ class ErrorController extends BaseController_1.default {
         }
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = ErrorController;

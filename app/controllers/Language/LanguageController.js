@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const BaseController_1 = require("../BaseController");
 /**
  * 言語コントローラー
@@ -18,5 +19,4 @@ class LanguageController extends BaseController_1.default {
         this.res.redirect(cb);
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = LanguageController;

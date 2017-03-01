@@ -1,7 +1,7 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const querystring = require("querystring");
 const PayDesignReserveController_1 = require("../controllers/PayDesign/Reserve/PayDesignReserveController");
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (app) => {
     app.post('/PayDesign/reserve/notify', '', (req, res, next) => {
         let content = new Buffer([]);

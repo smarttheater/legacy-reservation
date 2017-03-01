@@ -4,12 +4,12 @@
  * @module sessionMiddleware
  */
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const connectRedis = require("connect-redis");
 const session = require("express-session");
 const redis = require("redis");
 const redisStore = connectRedis(session);
 const COOKIE_MAX_AGE = 3600000; // 60 * 60 * 1000(session active 1 hour)
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = session({
     secret: 'CHEVREFrontendSecret',
     resave: false,

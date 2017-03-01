@@ -681,7 +681,7 @@ export default class ReserveBaseController extends BaseController {
      * @param {string} paymentNo 購入番号
      * @param {Object} update 追加更新パラメータ
      */
-    protected processFixReservations(paymentNo: string, update: Object, cb: (err: Error | null) => void): void {
+    protected processFixReservations(paymentNo: string, update: any, cb: (err: Error | null) => void): void {
         (<any>update).status = ReservationUtil.STATUS_RESERVED;
         (<any>update).updated_user = 'ReserveBaseController';
 
