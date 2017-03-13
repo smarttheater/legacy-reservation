@@ -15,40 +15,50 @@
 
 ## 開発方法
 npmでパッケージをインストールします。npmはnode.jsでスタンダードなパッケージ管理ツールです。パッケージ管理にとどまらず、開発やサーバー起動においても活躍します。
+
 ```shell
 npm install
 ```
 * npm(https://www.npmjs.com/)
 
 typescriptをjavascriptにコンパイルします。wオプションでファイル変更監視できます。
+
 ```shell
-tsc -w
+npm run build -- -w
 ```
 
 npmでローカルサーバーを立ち上げることができます。
+
 ```shell
 npm start
 ```
 (http://localhost:8080)にアクセスすると、ローカルでウェブアプリを確認できます。
 
+ビルドファイルクリーン
+
+```shell
+npm run clean
+```
+
 ## Required environment variables
 ```shell
-set NODE_ENV=**********
-set SENDGRID_API_KEY=**********
-set CHEVRE_PERFORMANCE_STATUSES_REDIS_HOST=**********
-set CHEVRE_PERFORMANCE_STATUSES_REDIS_PORT=**********
-set CHEVRE_PERFORMANCE_STATUSES_REDIS_KEY=**********
-set FRONTEND_GMO_RESULT_ENDPOINT=**********
-set API_ENDPOINT=**********
-set REDIS_HOST=**********
-set REDIS_PORT=**********
-set REDIS_KEY=**********
-set MONGOLAB_URI=**********
-set MONGOLAB_URI_GMO=**********
+set NODE_ENV=**********環境名(development,test,productionなど)**********
+set SENDGRID_API_KEY=**********sendgrid api key**********
+set CHEVRE_PERFORMANCE_STATUSES_REDIS_HOST=**********パフォーマンス空席状況保管先redis host**********
+set CHEVRE_PERFORMANCE_STATUSES_REDIS_PORT=**********パフォーマンス空席状況保管先redis port**********
+set CHEVRE_PERFORMANCE_STATUSES_REDIS_KEY=**********パフォーマンス空席状況保管先redis key**********
+set FRONTEND_GMO_RESULT_ENDPOINT=**********GMOリンク決済からの戻り先エンドポイント**********
+set API_ENDPOINT=**********frontと連携するchevre apiのエンドポイント**********
+set REDIS_HOST=**********session保管先redis host**********
+set REDIS_PORT=**********session保管先redis port**********
+set REDIS_KEY=**********session保管先redis key**********
+set MONGOLAB_URI=**********mongodb接続URI**********
+set MONGOLAB_URI_GMO=**********gmo結果通知保管先mongodb接続URI**********
 ```
 only on Aure WebApps
+
 ```shell
-set WEBSITE_NODE_DEFAULT_VERSION=**********
+set WEBSITE_NODE_DEFAULT_VERSION=**********node.jsバージョン**********
 set WEBSITE_TIME_ZONE=Tokyo Standard Time
 ```
 
@@ -58,4 +68,9 @@ set WEBSITE_TIME_ZONE=Tokyo Standard Time
 コード品質チェックをtslintで行っています。lintパッケージとして以下を仕様。
 * [tslint](https://github.com/palantir/tslint)
 * [tslint-microsoft-contrib](https://github.com/Microsoft/tslint-microsoft-contrib)
-`npm run tslint`でチェック実行。改修の際には、必ずチェックすること。
+`npm run check`でチェック実行。改修の際には、必ずチェックすること。
+
+# test
+mochaフレームワークでテスト実行。
+* [mocha](https://www.npmjs.com/package/mocha)
+`npm test`でテスト実行。だが、現状テストコードなし。テストコードを増やしていくことが望ましい。
