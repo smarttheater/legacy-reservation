@@ -6,26 +6,35 @@
 
 import * as basicAuth from 'basic-auth';
 import { NextFunction, Request, Response } from 'express';
+import { UNAUTHORIZED } from 'http-status';
 
-const STATUS_CODE_UNAUTHORIZED = 401;
 const BASIC_AUTH_NAME = 'motionpicture';
 const BASIC_AUTH_PASS = '4_CS/T|YG*Lz';
 
 export default (req: Request, res: Response, next: NextFunction) => {
-    if (process.env.NODE_ENV === 'development') return next();
-    if (process.env.NODE_ENV === 'production') return next();
-    if (process.env.NODE_ENV === 'test') return next();
-    if (process.env.NODE_ENV === 'dev4gmo') return next(); // GMO結果通知に対してはオープンにする
-    if (process.env.NODE_ENV === 'test4gmo') return next(); // GMO結果通知に対してはオープンにする
-    if (process.env.NODE_ENV === 'prod4gmo') return next(); // GMO結果通知に対してはオープンにする
+    if (process.env.NODE_ENV === 'development' ||
+        process.env.NODE_ENV === 'production' ||
+        process.env.NODE_ENV === 'test' ||
+        process.env.NODE_ENV === 'dev4gmo' ||
+        process.env.NODE_ENV === 'test4gmo' ||
+        process.env.NODE_ENV === 'prod4gmo') {
+        next();
+        return;
+    }
 
-    if (req.originalUrl === '/sendGrid/event/notify') return next(); // SendGridイベント通知に対してはオープンにする
+    // SendGridイベント通知に対してはオープンにする
+    if (req.originalUrl === '/sendGrid/event/notify') {
+        next();
+        return;
+    }
 
     const user = basicAuth(req);
+    if (user !== undefined && user.name === BASIC_AUTH_NAME && user.pass === BASIC_AUTH_PASS) {
+        next();
+        return;
+    }
 
-    if (user && user.name === BASIC_AUTH_NAME && user.pass === BASIC_AUTH_PASS) return next();
-
-    res.statusCode = STATUS_CODE_UNAUTHORIZED;
+    res.statusCode = UNAUTHORIZED;
     res.setHeader('WWW-Authenticate', 'Basic realm="CHEVRE Authentication"');
     res.end('Unauthorized');
 };
