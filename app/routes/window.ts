@@ -69,7 +69,10 @@ export default (app: any) => {
             res.redirect(req.originalUrl);
         } else {
             if (req.xhr) {
-                res.json({ message: 'login required.' });
+                res.json({
+                    success: false,
+                    message: 'login required'
+                });
             } else {
                 res.redirect(`/window/login?cb=${req.originalUrl}`);
             }

@@ -274,7 +274,7 @@ function validate(reservations, cb) {
     if (!notEntered)
         return cb(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable.'));
     // 一次販売(15日)許可
-    if (moment(reservations[0].get('purchased_at')) < moment('2016-10-16T00:00:00+9:00'))
+    if (moment(reservations[0].get('purchased_at')) < moment('2016-10-16T00:00:00+09:00'))
         return cb(null);
     // 先行販売(19日)許可
     if (reservations[0].get('pre_customer'))

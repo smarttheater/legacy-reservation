@@ -10,33 +10,40 @@ import MemberReserveController from '../controllers/Member/Reserve/MemberReserve
 import MemberUser from '../models/User/MemberUser';
 
 export default (app: any) => {
-    const authenticationMiddleware = (req: Request, res: Response, next: NextFunction) => {
-        if (!req.memberUser) return next(new Error(req.__('Message.UnexpectedError')));
+    const authentication = async (req: Request, res: Response, next: NextFunction) => {
+        if (req.memberUser === undefined) {
+            next(new Error(req.__('Message.UnexpectedError')));
+            return;
+        }
 
-        if (!req.memberUser.isAuthenticated()) {
-            if (req.xhr) {
-                res.json({
-                    message: 'login required.'
-                });
-            } else {
-                res.redirect('/member/login');
-            }
-        } else {
+        // 既ログインの場合
+        if (req.memberUser.isAuthenticated()) {
             next();
+            return;
+        }
+
+        if (req.xhr) {
+            res.json({
+                success: false,
+                message: 'login required'
+            });
+        } else {
+            res.redirect('/member/login');
         }
     };
 
     // tslint:disable-next-line:variable-name
-    const baseMiddleware = (req: Request, _res: Response, next: NextFunction) => {
+    const base = async (req: Request, _res: Response, next: NextFunction) => {
         req.memberUser = MemberUser.parse(req.session);
         next();
     };
 
     // メルマガ先行
-    app.all('/member/login', 'member.reserve.terms', baseMiddleware, (req: Request, res: Response, next: NextFunction) => { (new MemberAuthController(req, res, next)).login(); });
-    app.get('/member/reserve/start', 'member.reserve.start', baseMiddleware, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).start(); });
-    app.all('/member/reserve/:token/tickets', 'member.reserve.tickets', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).tickets(); });
-    app.all('/member/reserve/:token/profile', 'member.reserve.profile', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).profile(); });
-    app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', baseMiddleware, authenticationMiddleware, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).confirm(); });
-    app.get('/member/reserve/:paymentNo/complete', 'member.reserve.complete', baseMiddleware, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).complete(); });
+    // tslint:disable:max-line-length
+    app.all('/member/login', 'member.reserve.terms', base, (req: Request, res: Response, next: NextFunction) => { (new MemberAuthController(req, res, next)).login(); });
+    app.get('/member/reserve/start', 'member.reserve.start', base, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).start(); });
+    app.all('/member/reserve/:token/tickets', 'member.reserve.tickets', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).tickets(); });
+    app.all('/member/reserve/:token/profile', 'member.reserve.profile', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).profile(); });
+    app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).confirm(); });
+    app.get('/member/reserve/:paymentNo/complete', 'member.reserve.complete', base, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).complete(); });
 };

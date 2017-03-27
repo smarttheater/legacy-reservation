@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 内部関係者ルーター
@@ -14,90 +22,90 @@ const StaffMyPageController_1 = require("../controllers/Staff/MyPage/StaffMyPage
 const StaffReserveController_1 = require("../controllers/Staff/Reserve/StaffReserveController");
 const StaffUser_1 = require("../models/User/StaffUser");
 exports.default = (app) => {
-    const authenticationMiddleware = (req, res, next) => {
-        if (!req.staffUser)
-            return next(new Error(req.__('Message.UnexpectedError')));
-        if (!req.staffUser.isAuthenticated()) {
-            // 自動ログインチェック
-            const checkRemember = (cb) => {
-                if (req.cookies.remember_staff) {
-                    chevre_domain_1.Models.Authentication.findOne({
-                        token: req.cookies.remember_staff,
-                        staff: { $ne: null }
-                    }, (err, authentication) => {
-                        if (err)
-                            return cb(null, null, null);
-                        if (authentication) {
-                            // トークン再生成
-                            const token = Util.createToken();
-                            authentication.update({
-                                token: token
-                            }, (updateErr) => {
-                                if (updateErr)
-                                    return cb(null, null, null);
-                                res.cookie('remember_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                chevre_domain_1.Models.Staff.findOne({ _id: authentication.get('staff') }, (findErr, staff) => {
-                                    (findErr) ? cb(null, null, null) : cb(staff, authentication.get('signature'), authentication.get('locale'));
-                                });
-                            });
-                        }
-                        else {
-                            res.clearCookie('remember_staff');
-                            cb(null, null, null);
-                        }
-                    });
+    const authentication = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+        if (req.staffUser === undefined) {
+            next(new Error(req.__('Message.UnexpectedError')));
+            return;
+        }
+        // 既ログインの場合
+        if (req.staffUser.isAuthenticated()) {
+            // 言語設定
+            if (req.staffUser.get('locale') !== undefined && req.staffUser.get('locale') !== null) {
+                req.setLocale(req.staffUser.get('locale'));
+            }
+            next();
+            return;
+        }
+        // 自動ログインチェック
+        const checkRemember = () => __awaiter(this, void 0, void 0, function* () {
+            if (req.cookies.remember_staff === undefined) {
+                return null;
+            }
+            try {
+                const authenticationDoc = yield chevre_domain_1.Models.Authentication.findOne({
+                    token: req.cookies.remember_staff,
+                    staff: { $ne: null }
+                }).exec();
+                if (authenticationDoc === null) {
+                    res.clearCookie('remember_staff');
+                    return null;
                 }
-                else {
-                    cb(null, null, null);
-                }
-            };
-            checkRemember((user, signature, locale) => {
-                if (user && req.session) {
-                    // ログインしてリダイレクト
-                    req.session[StaffUser_1.default.AUTH_SESSION_NAME] = user.toObject();
-                    req.session[StaffUser_1.default.AUTH_SESSION_NAME].signature = signature;
-                    req.session[StaffUser_1.default.AUTH_SESSION_NAME].locale = locale;
-                    // if exist parameter cb, redirect to cb.
-                    res.redirect(req.originalUrl);
-                }
-                else {
-                    if (req.xhr) {
-                        res.json({
-                            success: false,
-                            message: 'login required.'
-                        });
-                    }
-                    else {
-                        res.redirect(`/staff/login?cb=${req.originalUrl}`);
-                    }
-                }
-            });
+                // トークン再生成
+                const token = Util.createToken();
+                yield authenticationDoc.update({ token: token }).exec();
+                // tslint:disable-next-line:no-cookies
+                res.cookie('remember_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
+                const staff = yield chevre_domain_1.Models.Staff.findOne({ _id: authenticationDoc.get('staff') }).exec();
+                return {
+                    staff: staff,
+                    signature: authenticationDoc.get('signature'),
+                    locale: authenticationDoc.get('locale')
+                };
+            }
+            catch (error) {
+                return null;
+            }
+        });
+        const userSession = yield checkRemember();
+        if (userSession !== null && req.session !== undefined) {
+            // ログインしてリダイレクト
+            req.session[StaffUser_1.default.AUTH_SESSION_NAME] = userSession.staff.toObject();
+            req.session[StaffUser_1.default.AUTH_SESSION_NAME].signature = userSession.signature;
+            req.session[StaffUser_1.default.AUTH_SESSION_NAME].locale = userSession.locale;
+            res.redirect(req.originalUrl);
         }
         else {
-            // 言語設定
-            req.setLocale((req.staffUser.get('locale')) ? req.staffUser.get('locale') : 'en');
-            next();
+            if (req.xhr) {
+                res.json({
+                    success: false,
+                    message: 'login required'
+                });
+            }
+            else {
+                res.redirect(`/staff/login?cb=${req.originalUrl}`);
+            }
         }
-    };
+    });
     // tslint:disable-next-line:variable-name
-    const baseMiddleware = (req, _res, next) => {
+    const base = (req, _res, next) => {
         req.staffUser = StaffUser_1.default.parse(req.session);
         next();
     };
     // 内部関係者
-    app.all('/staff/login', 'staff.mypage.login', baseMiddleware, (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).login(); });
-    app.all('/staff/logout', 'staff.logout', baseMiddleware, (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).logout(); });
-    app.all('/staff/mypage', 'staff.mypage', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).index(); });
-    app.get('/staff/mypage/search', 'staff.mypage.search', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).search(); });
-    app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).updateWatcherName(); });
-    app.get('/staff/reserve/start', 'staff.reserve.start', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).start(); });
-    app.all('/staff/reserve/:token/terms', 'staff.reserve.terms', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).terms(); });
-    app.all('/staff/reserve/:token/performances', 'staff.reserve.performances', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).performances(); });
-    app.all('/staff/reserve/:token/seats', 'staff.reserve.seats', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).seats(); });
-    app.all('/staff/reserve/:token/tickets', 'staff.reserve.tickets', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).tickets(); });
-    app.all('/staff/reserve/:token/profile', 'staff.reserve.profile', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).profile(); });
-    app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).confirm(); });
-    app.get('/staff/reserve/:paymentNo/complete', 'staff.reserve.complete', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).complete(); });
-    app.post('/staff/cancel/execute', 'staff.cancel.execute', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new StaffCancelController_1.default(req, res, next)).execute(); });
-    app.all('/staff/mypage/release', 'staff.mypage.release', baseMiddleware, authenticationMiddleware, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).release(); });
+    // tslint:disable:max-line-length
+    app.all('/staff/login', 'staff.mypage.login', base, (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).login(); });
+    app.all('/staff/logout', 'staff.logout', base, (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).logout(); });
+    app.all('/staff/mypage', 'staff.mypage', base, authentication, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).index(); });
+    app.get('/staff/mypage/search', 'staff.mypage.search', base, authentication, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).search(); });
+    app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', base, authentication, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).updateWatcherName(); });
+    app.get('/staff/reserve/start', 'staff.reserve.start', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).start(); });
+    app.all('/staff/reserve/:token/terms', 'staff.reserve.terms', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).terms(); });
+    app.all('/staff/reserve/:token/performances', 'staff.reserve.performances', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).performances(); });
+    app.all('/staff/reserve/:token/seats', 'staff.reserve.seats', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).seats(); });
+    app.all('/staff/reserve/:token/tickets', 'staff.reserve.tickets', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).tickets(); });
+    app.all('/staff/reserve/:token/profile', 'staff.reserve.profile', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).profile(); });
+    app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).confirm(); });
+    app.get('/staff/reserve/:paymentNo/complete', 'staff.reserve.complete', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).complete(); });
+    app.post('/staff/cancel/execute', 'staff.cancel.execute', base, authentication, (req, res, next) => { (new StaffCancelController_1.default(req, res, next)).execute(); });
+    app.all('/staff/mypage/release', 'staff.mypage.release', base, authentication, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).release(); });
 };
