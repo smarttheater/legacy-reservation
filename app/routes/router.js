@@ -56,7 +56,7 @@ exports.default = (app) => {
     // 404
     // tslint:disable-next-line:variable-name
     app.use((_req, res) => {
-        return res.redirect('/error/notFound');
+        res.redirect('/error/notFound');
     });
     // error handlers
     app.use((err, req, res, next) => {

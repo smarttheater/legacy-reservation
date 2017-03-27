@@ -1,12 +1,3 @@
-/**
- * 予約情報モデル
- *
- * 予約プロセス中の情報を全て管理するためのモデルです
- * この情報をセッションで引き継くことで、予約プロセスを管理しています
- *
- * @export
- * @class ReservationModel
- */
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
@@ -23,29 +14,16 @@ const redisClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS
 const MAX_RESERVATION_SEATS_DEFAULT = 4;
 const MAX_RESERVATION_SEATS_STAFFS = 10;
 const MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES = 10;
+/**
+ * 予約情報モデル
+ *
+ * 予約プロセス中の情報を全て管理するためのモデルです
+ * この情報をセッションで引き継くことで、予約プロセスを管理しています
+ *
+ * @export
+ * @class ReservationModel
+ */
 class ReservationModel {
-    /**
-     * プロセス中の購入情報をセッションに保存する
-     *
-     * @param {number} [ttl] 有効期間(default: 1800)
-     */
-    save(cb, ttl) {
-        const key = ReservationModel.getRedisKey(this.token);
-        redisClient.setex(key, (ttl) ? ttl : DEFAULT_REDIS_TTL, JSON.stringify(this), (err) => {
-            if (err)
-                throw err;
-            cb();
-        });
-    }
-    /**
-     * プロセス中の購入情報をセッションから削除する
-     */
-    remove(cb) {
-        const key = ReservationModel.getRedisKey(this.token);
-        redisClient.del(key, (err) => {
-            cb(err);
-        });
-    }
     /**
      * プロセス中の購入情報をセッションから取得する
      */
@@ -53,10 +31,14 @@ class ReservationModel {
     static find(token, cb) {
         const key = ReservationModel.getRedisKey(token);
         redisClient.get(key, (err, reply) => {
-            if (err)
-                return cb(err, null);
-            if (reply === null)
-                return cb(new Error('Not Found'), null);
+            if (err instanceof Error) {
+                cb(err, null);
+                return;
+            }
+            if (reply === null) {
+                cb(new Error('Not Found'), null);
+                return;
+            }
             const reservationModel = new ReservationModel();
             try {
                 const reservationModelInRedis = JSON.parse(reply.toString());
@@ -65,7 +47,8 @@ class ReservationModel {
                 });
             }
             catch (error) {
-                return cb(err, null);
+                cb(err, null);
+                return;
             }
             cb(null, reservationModel);
         });
@@ -78,6 +61,33 @@ class ReservationModel {
      */
     static getRedisKey(token) {
         return `CHEVREReservation_${token}`;
+    }
+    /**
+     * プロセス中の購入情報をセッションに保存する
+     *
+     * @param {number} [ttl] 有効期間(default: 1800)
+     */
+    save(cb, ttl) {
+        const key = ReservationModel.getRedisKey(this.token);
+        if (ttl === undefined) {
+            ttl = DEFAULT_REDIS_TTL;
+        }
+        redisClient.setex(key, ttl, JSON.stringify(this), (err) => {
+            if (err instanceof Error) {
+                console.error(err);
+                throw err;
+            }
+            cb();
+        });
+    }
+    /**
+     * プロセス中の購入情報をセッションから削除する
+     */
+    remove(cb) {
+        const key = ReservationModel.getRedisKey(this.token);
+        redisClient.del(key, (err) => {
+            cb(err);
+        });
     }
     /**
      * 一度の購入で予約できる座席数を取得する
@@ -93,7 +103,7 @@ class ReservationModel {
                 break;
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER:
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
-                if (this.performance) {
+                if (this.performance !== undefined) {
                     // 制限枚数指定のパフォーマンスの場合
                     const performanceIds4limit2 = conf.get('performanceIds4limit2');
                     if (performanceIds4limit2.indexOf(this.performance._id) >= 0) {
@@ -124,7 +134,7 @@ class ReservationModel {
     getChargeBySeatCode(seatCode) {
         let charge = 0;
         const reservation = this.getReservation(seatCode);
-        if (reservation.ticket_type_charge) {
+        if (reservation.ticket_type_charge !== undefined) {
             charge += reservation.ticket_type_charge;
             charge += this.getChargeExceptTicketTypeBySeatCode(seatCode);
         }
@@ -155,7 +165,7 @@ class ReservationModel {
      * 座席コードから予約情報を取得する
      */
     getReservation(seatCode) {
-        return (this[`reservation_${seatCode}`]) ? this[`reservation_${seatCode}`] : null;
+        return (this[`reservation_${seatCode}`] !== undefined) ? this[`reservation_${seatCode}`] : null;
     }
     /**
      * 座席コードの予約情報をセットする
@@ -167,7 +177,7 @@ class ReservationModel {
      * フロー中の予約IDリストを取得する
      */
     getReservationIds() {
-        return (this.seatCodes) ? this.seatCodes.map((seatCode) => this.getReservation(seatCode)._id) : [];
+        return (this.seatCodes !== undefined) ? this.seatCodes.map((seatCode) => this.getReservation(seatCode)._id) : [];
     }
     /**
      * 座席コードから予約(確定)ドキュメントを作成する
@@ -209,16 +219,16 @@ class ReservationModel {
             film_image: this.performance.film.image,
             film_is_mx4d: this.performance.film.is_mx4d,
             film_copyright: this.performance.film.copyright,
-            purchaser_last_name: (this.purchaserLastName) ? this.purchaserLastName : '',
-            purchaser_first_name: (this.purchaserFirstName) ? this.purchaserFirstName : '',
-            purchaser_email: (this.purchaserEmail) ? this.purchaserEmail : '',
-            purchaser_tel: (this.purchaserTel) ? this.purchaserTel : '',
-            purchaser_age: (this.purchaserAge) ? this.purchaserAge : '',
-            purchaser_address: (this.purchaserAddress) ? this.purchaserAddress : '',
-            purchaser_gender: (this.purchaserGender) ? this.purchaserGender : '',
-            payment_method: (this.paymentMethod) ? this.paymentMethod : '',
-            watcher_name: (reservation.watcher_name) ? reservation.watcher_name : '',
-            watcher_name_updated_at: (reservation.watcher_name) ? moment().valueOf() : '',
+            purchaser_last_name: (this.purchaserLastName !== undefined) ? this.purchaserLastName : '',
+            purchaser_first_name: (this.purchaserFirstName !== undefined) ? this.purchaserFirstName : '',
+            purchaser_email: (this.purchaserEmail !== undefined) ? this.purchaserEmail : '',
+            purchaser_tel: (this.purchaserTel !== undefined) ? this.purchaserTel : '',
+            purchaser_age: (this.purchaserAge !== undefined) ? this.purchaserAge : '',
+            purchaser_address: (this.purchaserAddress !== undefined) ? this.purchaserAddress : '',
+            purchaser_gender: (this.purchaserGender !== undefined) ? this.purchaserGender : '',
+            payment_method: (this.paymentMethod !== undefined) ? this.paymentMethod : '',
+            watcher_name: (reservation.watcher_name !== undefined) ? reservation.watcher_name : '',
+            watcher_name_updated_at: (reservation.watcher_name !== undefined) ? moment().valueOf() : '',
             purchased_at: this.purchasedAt,
             gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil.createShopPassString(conf.get('gmo_payment_shop_id'), this.paymentNo, this.getTotalCharge().toString(), conf.get('gmo_payment_shop_password'), moment(this.purchasedAt).format('YYYYMMDDHHmmss')) : '',
             updated_user: 'ReservationModel'

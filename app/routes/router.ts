@@ -70,7 +70,7 @@ export default (app: any) => {
     // 404
     // tslint:disable-next-line:variable-name
     app.use((_req: Request, res: Response) => {
-        return res.redirect('/error/notFound');
+        res.redirect('/error/notFound');
     });
 
     // error handlers

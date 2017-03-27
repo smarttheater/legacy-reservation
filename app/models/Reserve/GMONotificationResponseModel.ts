@@ -6,6 +6,6 @@
  */
 // tslint:disable-next-line:no-stateless-class
 export default class GMONotificationResponseModel {
-    public static RECV_RES_OK = '0';
-    public static RECV_RES_NG = '1';
+    public static RECV_RES_OK: string = '0';
+    public static RECV_RES_NG: string = '1';
 }

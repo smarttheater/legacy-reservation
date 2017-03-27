@@ -15,7 +15,7 @@ class BaseUser {
     }
     // tslint:disable-next-line:no-reserved-keywords
     get(key) {
-        return (this[key]) ? this[key] : null;
+        return (this[key] !== undefined) ? this[key] : null;
     }
 }
 exports.default = BaseUser;

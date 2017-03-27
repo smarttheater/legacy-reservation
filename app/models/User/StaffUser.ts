@@ -8,14 +8,14 @@ import BaseUser from './BaseUser';
  * @extends {BaseUser}
  */
 export default class StaffUser extends BaseUser {
-    public static AUTH_SESSION_NAME = 'CHEVREFrontendStaffAuth';
+    public static AUTH_SESSION_NAME: string = 'CHEVREFrontendStaffAuth';
 
     // tslint:disable-next-line:function-name
     public static parse(session: Express.Session | undefined): StaffUser {
         const user = new StaffUser();
 
         // セッション値からオブジェクトにセット
-        if (session && session.hasOwnProperty(StaffUser.AUTH_SESSION_NAME)) {
+        if (session !== undefined && session.hasOwnProperty(StaffUser.AUTH_SESSION_NAME)) {
             Object.keys(session[StaffUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
                 (<any>user)[propertyName] = session[StaffUser.AUTH_SESSION_NAME][propertyName];
             });

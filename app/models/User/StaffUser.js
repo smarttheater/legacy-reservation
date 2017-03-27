@@ -13,7 +13,7 @@ class StaffUser extends BaseUser_1.default {
     static parse(session) {
         const user = new StaffUser();
         // セッション値からオブジェクトにセット
-        if (session && session.hasOwnProperty(StaffUser.AUTH_SESSION_NAME)) {
+        if (session !== undefined && session.hasOwnProperty(StaffUser.AUTH_SESSION_NAME)) {
             Object.keys(session[StaffUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
                 user[propertyName] = session[StaffUser.AUTH_SESSION_NAME][propertyName];
             });

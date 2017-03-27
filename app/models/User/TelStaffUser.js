@@ -13,7 +13,7 @@ class TelStaffUser extends BaseUser_1.default {
     static parse(session) {
         const user = new TelStaffUser();
         // セッション値からオブジェクトにセット
-        if (session && session.hasOwnProperty(TelStaffUser.AUTH_SESSION_NAME)) {
+        if (session !== undefined && session.hasOwnProperty(TelStaffUser.AUTH_SESSION_NAME)) {
             Object.keys(session[TelStaffUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
                 user[propertyName] = session[TelStaffUser.AUTH_SESSION_NAME][propertyName];
             });
