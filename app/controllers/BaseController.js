@@ -29,7 +29,7 @@ class BaseController {
         // レイアウト指定があれば変更
         const render = this.res.render;
         this.res.render = (view, options, cb) => {
-            if (this.layout) {
+            if (this.layout !== undefined && this.layout !== '') {
                 if (options === undefined) {
                     options = {};
                 }
@@ -37,7 +37,7 @@ class BaseController {
                     cb = options;
                     options = {};
                 }
-                if (!options.hasOwnProperty('layout')) {
+                if (options.layout === undefined) {
                     options.layout = this.layout;
                 }
             }

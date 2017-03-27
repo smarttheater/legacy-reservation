@@ -59,7 +59,7 @@ export default class BaseController {
         // レイアウト指定があれば変更
         const render = this.res.render;
         this.res.render = (view: string, options?: any, cb?: (err: Error | null, html: string) => void) => {
-            if (this.layout) {
+            if (this.layout !== undefined && this.layout !== '') {
                 if (options === undefined) {
                     options = {};
                 } else if (typeof options === 'function') {
@@ -67,7 +67,7 @@ export default class BaseController {
                     options = {};
                 }
 
-                if (!options.hasOwnProperty('layout')) {
+                if (options.layout === undefined) {
                     options.layout = this.layout;
                 }
             }

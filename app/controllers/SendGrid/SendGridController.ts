@@ -1,4 +1,4 @@
-import {Models} from '@motionpicture/chevre-domain';
+import { Models } from '@motionpicture/chevre-domain';
 import BaseController from '../BaseController';
 
 /**
@@ -12,7 +12,7 @@ export default class SendGridController extends BaseController {
     /**
      * SendGridイベントフック
      */
-    public notifyEvent(): void {
+    public async notifyEvent() {
         this.logger.info('SendGrid event notification is', this.req.body);
 
         if (this.req.method === 'GET') {
@@ -20,12 +20,15 @@ export default class SendGridController extends BaseController {
             return;
         }
 
-        this.logger.info('creating sendgrid_event_notifications...');
-        Models.SendGridEventNotification.create(this.req.body, (err, notifications) => {
-            this.logger.info('sendgrid_event_notifications created.', err, notifications);
-            if (err) return this.next(err);
+        try {
+            this.logger.info('creating sendgrid_event_notifications...');
+            const notifications = await Models.SendGridEventNotification.create(this.req.body);
+            this.logger.info('sendgrid_event_notifications created.', notifications);
 
             this.res.send('0');
-        });
+        } catch (error) {
+            console.error(error);
+            this.next(error);
+        }
     }
 }
