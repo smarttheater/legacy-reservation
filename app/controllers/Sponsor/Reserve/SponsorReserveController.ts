@@ -310,24 +310,24 @@ export default class SponsorReserveController extends ReserveBaseController impl
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
-                this.processConfirm(reservationModel, (processConfirmErr, reservationModel) => {
+                this.processConfirm(reservationModel, async (processConfirmErr, reservationModel) => {
                     if (processConfirmErr) {
                         reservationModel.remove(() => {
                             this.next(processConfirmErr);
                         });
                     } else {
                         // 予約確定
-                        this.processFixReservations(reservationModel.paymentNo, {}, (fixReservationsErr) => {
-                            if (fixReservationsErr) {
-                                const message = fixReservationsErr.message;
-                                this.res.redirect(`${this.router.build('sponsor.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
-                            } else {
-                                reservationModel.remove(() => {
-                                    this.logger.info('redirecting to complete...');
-                                    this.res.redirect(this.router.build('sponsor.reserve.complete', { paymentNo: reservationModel.paymentNo }));
-                                });
-                            }
-                        });
+                        try {
+                            await this.processFixReservations(reservationModel.paymentNo, {});
+
+                            reservationModel.remove(() => {
+                                this.logger.info('redirecting to complete...');
+                                this.res.redirect(this.router.build('sponsor.reserve.complete', { paymentNo: reservationModel.paymentNo }));
+                            });
+                        } catch (error) {
+                            const message = error.message;
+                            this.res.redirect(`${this.router.build('sponsor.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
+                        }
                     }
                 });
             } else {

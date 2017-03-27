@@ -1,4 +1,3 @@
-// #!/usr/bin/env node
 // tslint:disable-next-line:no-reference
 /// <reference path='./typings/index.d.ts' />
 "use strict";
@@ -6,14 +5,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Module dependencies.
  */
-// import * as debugModule from 'debug';
+const startTime = process.hrtime();
+const createDebug = require("debug");
 const http = require("http");
 const app = require("./app/app");
-// let debug = debugModule('app:server');
+const debug = createDebug('chevre-frontend:index');
 /**
  * Get port from environment and store in Express.
  */
-const port = normalizePort(process.env.PORT || '8080');
+const port = normalizePort((process.env.PORT === undefined) ? '8080' : process.env.PORT);
 app.set('port', port);
 /**
  * Create HTTP server.
@@ -42,7 +42,7 @@ function normalizePort(val) {
     return false;
 }
 /**
- * Event listener for HTTP server "error" event.
+ * Event listener for HTTP server 'error' event.
  */
 function onError(error) {
     if (error.syscall !== 'listen') {
@@ -50,7 +50,7 @@ function onError(error) {
     }
     const bind = typeof port === 'string'
         ? 'Pipe ' + port
-        : 'Port ' + port;
+        : 'Port ' + port.toString();
     // handle specific listen errors with friendly messages
     switch (error.code) {
         case 'EACCES':
@@ -66,14 +66,14 @@ function onError(error) {
     }
 }
 /**
- * Event listener for HTTP server "listening" event.
+ * Event listener for HTTP server 'listening' event.
  */
 function onListening() {
     const addr = server.address();
     const bind = typeof addr === 'string'
         ? 'pipe ' + addr
-        : 'port ' + addr.port;
-    // tslint:disable-next-line:no-console
-    console.log('Listening on ' + bind);
-    // debug('Listening on ' + bind);
+        : 'port ' + addr.port.toString();
+    debug('Listening on ' + bind);
+    const diff = process.hrtime(startTime);
+    debug(`api server listening took ${diff[0]} seconds and ${diff[1]} nanoseconds.`);
 }

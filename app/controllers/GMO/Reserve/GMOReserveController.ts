@@ -56,10 +56,17 @@ export default class GMOReserveController extends ReserveBaseController {
     /**
      * GMO決済を開始する
      */
-    public start(): void {
+    public start() {
         const token = this.req.params.token;
         ReservationModel.find(token, (err, reservationModel) => {
-            if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
+            if (err instanceof Error) {
+                this.next(new Error(this.req.__('Message.Expired')));
+                return;
+            }
+            if (reservationModel === null) {
+                this.next(new Error(this.req.__('Message.Expired')));
+                return;
+            }
 
             // 予約情報セッション削除
             reservationModel.remove(() => {
@@ -76,10 +83,10 @@ export default class GMOReserveController extends ReserveBaseController {
                     for (let i = 0; i < filmNameFullWidthLength; i++) {
                         const letter = filmNameFullWidth[i];
                         if (
-                            letter.match(/[Ａ-Ｚａ-ｚ０-９]/) // 全角英数字
-                            || letter.match(/[\u3040-\u309F]/) // ひらがな
-                            || letter.match(/[\u30A0-\u30FF]/) // カタカナ
-                            || letter.match(/[一-龠]/) // 漢字
+                            /[Ａ-Ｚａ-ｚ０-９]/.test(letter) || // 全角英数字
+                            /[\u3040-\u309F]/.test(letter) || // ひらがな
+                            /[\u30A0-\u30FF]/.test(letter) || // カタカナ
+                            /[一-龠]/.test(letter) // 漢字
                         ) {
                             registerDisp1 += letter;
                         }
@@ -114,7 +121,10 @@ export default class GMOReserveController extends ReserveBaseController {
                     this.logger.info('redirecting to GMO payment...');
                     // GMOへの送信データをログに残すために、一度htmlを取得してからrender
                     this.res.render('gmo/reserve/start', undefined, (renderErr, html) => {
-                        if (renderErr) return this.next(renderErr);
+                        if (renderErr instanceof Error) {
+                            this.next(renderErr);
+                            return;
+                        }
 
                         this.logger.info('rendering gmo/reserve/start...html:', html);
                         this.res.render('gmo/reserve/start');
@@ -133,27 +143,32 @@ export default class GMOReserveController extends ReserveBaseController {
         const paymentNo = gmoResultModel.OrderID;
 
         // 予約プロセス固有のログファイルをセット
-        this.setProcessLogger(paymentNo, () => {
+        this.setProcessLogger(paymentNo, async () => {
             this.logger.info('gmoResultModel is', gmoResultModel);
 
             // エラー結果の場合
-            if (gmoResultModel.ErrCode) {
+            if (gmoResultModel.ErrCode !== undefined && gmoResultModel.ErrCode !== '') {
                 // 空席に戻す
-                this.logger.info('finding reservations...payment_no:', paymentNo);
-                Models.Reservation.find(
-                    {
-                        payment_no: paymentNo
-                    },
-                    'gmo_shop_pass_string purchased_at',
-                    (err, reservations) => {
-                        this.logger.info('reservations found.', err, reservations.length);
-                        if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        if (reservations.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
+                try {
+                    this.logger.info('finding reservations...payment_no:', paymentNo);
+                    const reservations = await Models.Reservation.find(
+                        {
+                            payment_no: paymentNo
+                        },
+                        'gmo_shop_pass_string purchased_at'
+                    ).exec();
+                    this.logger.info('reservations found.', reservations.length);
 
-                        // 特に何もしない
-                        this.res.render('gmo/reserve/cancel');
+                    if (reservations.length === 0) {
+                        this.next(new Error(this.req.__('Message.NotFound')));
+                        return;
                     }
-                );
+
+                    // 特に何もしない
+                    this.res.render('gmo/reserve/cancel');
+                } catch (error) {
+                    this.next(new Error(this.req.__('Message.UnexpectedError')));
+                }
             } else {
                 // 決済方法によって振り分け
                 switch (gmoResultModel.PayType) {
@@ -161,14 +176,14 @@ export default class GMOReserveController extends ReserveBaseController {
                         this.logger.info('starting GMOReserveCreditController.result...');
                         const creditController = new GMOReserveCreditController(this.req, this.res, this.next);
                         creditController.logger = this.logger;
-                        creditController.result(gmoResultModel);
+                        await creditController.result(gmoResultModel);
                         break;
 
                     case GMOUtil.PAY_TYPE_CVS:
                         this.logger.info('starting GMOReserveCsvController.result...');
                         const cvsController = new GMOReserveCvsController(this.req, this.res, this.next);
                         cvsController.logger = this.logger;
-                        cvsController.result(gmoResultModel);
+                        await cvsController.result(gmoResultModel);
                         break;
 
                     default:
@@ -184,26 +199,35 @@ export default class GMOReserveController extends ReserveBaseController {
      */
     public cancel(): void {
         const paymentNo = this.req.params.paymentNo;
-        if (!ReservationUtil.isValidPaymentNo(paymentNo)) return this.next(new Error(this.req.__('Message.Invalid')));
+        if (!ReservationUtil.isValidPaymentNo(paymentNo)) {
+            this.next(new Error(this.req.__('Message.Invalid')));
+            return;
+        }
 
-        this.setProcessLogger(paymentNo, () => {
+        this.setProcessLogger(paymentNo, async () => {
             this.logger.info('start process GMOReserveController.cancel.');
 
             this.logger.info('finding reservations...');
-            Models.Reservation.find(
-                {
-                    payment_no: paymentNo,
-                    status: ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
-                },
-                'purchaser_group'
-            ).exec((err, reservations) => {
-                this.logger.info('reservations found.', err, reservations);
-                if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                if (reservations.length === 0) return this.next(new Error(this.req.__('Message.NotFound')));
+            try {
+                const reservations = await Models.Reservation.find(
+                    {
+                        payment_no: paymentNo,
+                        status: ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
+                    },
+                    'purchaser_group'
+                ).exec();
+                this.logger.info('reservations found.', reservations);
+
+                if (reservations.length === 0) {
+                    this.next(new Error(this.req.__('Message.NotFound')));
+                    return;
+                }
 
                 // 特に何もしない
                 this.res.render('gmo/reserve/cancel');
-            });
+            } catch (error) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+            }
         });
     }
 }

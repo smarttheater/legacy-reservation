@@ -1,3 +1,4 @@
+import { INTERNAL_SERVER_ERROR, NOT_FOUND } from 'http-status';
 import BaseController from '../BaseController';
 
 /**
@@ -12,12 +13,10 @@ export default class ErrorController extends BaseController {
      * Not Found
      */
     public notFound(): void {
-        const status = 404;
-
         if (this.req.xhr) {
-            this.res.status(status).send({ error: 'Not Found.' });
+            this.res.status(NOT_FOUND).send({ error: 'Not Found.' });
         } else {
-            this.res.status(status);
+            this.res.status(NOT_FOUND);
             this.res.render('error/notFound', {
             });
         }
@@ -29,15 +28,13 @@ export default class ErrorController extends BaseController {
     public index(err: Error): void {
         this.logger.error(err.message, err.stack);
 
-        const status = 500;
-
         if (this.req.xhr) {
-            this.res.status(status).json({
+            this.res.status(INTERNAL_SERVER_ERROR).json({
                 success: false,
                 message: err.message
             });
         } else {
-            this.res.status(status);
+            this.res.status(INTERNAL_SERVER_ERROR);
             this.res.render('error/error', {
                 message: err.message,
                 error: err

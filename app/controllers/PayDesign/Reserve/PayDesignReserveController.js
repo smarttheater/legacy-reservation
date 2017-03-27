@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const PayDesignNotificationModel_1 = require("../../../models/Reserve/PayDesignNotificationModel");
@@ -38,7 +46,7 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
             this.logger.info('finding reservations...payment_no:', paymentNo);
             chevre_domain_1.Models.Reservation.find({
                 payment_no: paymentNo
-            }, '_id', (err, reservations) => {
+            }, '_id', (err, reservations) => __awaiter(this, void 0, void 0, function* () {
                 this.logger.info('reservations found.', err, reservations);
                 if (err) {
                     this.res.send('1');
@@ -47,19 +55,18 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
                     this.res.send('1');
                 }
                 else {
-                    this.logger.info('processFixReservations processing... update:', update);
-                    this.processFixReservations(paymentNo, update, (fixReservationsErr) => {
-                        this.logger.info('processFixReservations processed.', fixReservationsErr);
-                        if (fixReservationsErr) {
-                            // 失敗した場合、再通知されるので、それをリトライとみなす
-                            this.res.send('1');
-                        }
-                        else {
-                            this.res.send('0');
-                        }
-                    });
+                    try {
+                        this.logger.info('processFixReservations processing... update:', update);
+                        yield this.processFixReservations(paymentNo, update);
+                        this.logger.info('processFixReservations processed.');
+                        this.res.send('0');
+                    }
+                    catch (error) {
+                        // 失敗した場合、再通知されるので、それをリトライとみなす
+                        this.res.send('1');
+                    }
                 }
-            });
+            }));
         });
     }
     /**

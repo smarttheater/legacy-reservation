@@ -43,23 +43,23 @@ export default class PayDesignReserveController extends ReserveBaseController {
                     payment_no: paymentNo
                 },
                 '_id',
-                (err, reservations) => {
+                async (err, reservations) => {
                     this.logger.info('reservations found.', err, reservations);
                     if (err) {
                         this.res.send('1');
                     } else if (reservations.length === 0) {
                         this.res.send('1');
                     } else {
-                        this.logger.info('processFixReservations processing... update:', update);
-                        this.processFixReservations(paymentNo, update, (fixReservationsErr) => {
-                            this.logger.info('processFixReservations processed.', fixReservationsErr);
-                            if (fixReservationsErr) {
-                                // 失敗した場合、再通知されるので、それをリトライとみなす
-                                this.res.send('1');
-                            } else {
-                                this.res.send('0');
-                            }
-                        });
+                        try {
+                            this.logger.info('processFixReservations processing... update:', update);
+                            await this.processFixReservations(paymentNo, update);
+                            this.logger.info('processFixReservations processed.');
+
+                            this.res.send('0');
+                        } catch (error) {
+                            // 失敗した場合、再通知されるので、それをリトライとみなす
+                            this.res.send('1');
+                        }
                     }
                 }
             );

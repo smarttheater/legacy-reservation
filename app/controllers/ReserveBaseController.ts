@@ -22,6 +22,11 @@ const DEFAULT_RADIX = 10;
  * @extends {BaseController}
  */
 export default class ReserveBaseController extends BaseController {
+    /**
+     * 購入者区分
+     */
+    public purchaserGroup: string;
+
     constructor(req: express.Request, res: express.Response, next: express.NextFunction) {
         super(req, res, next);
 
@@ -32,9 +37,90 @@ export default class ReserveBaseController extends BaseController {
     }
 
     /**
-     * 購入者区分
+     * 券種FIXプロセス
      */
-    public purchaserGroup: string;
+    public processFixTickets(reservationModel: ReservationModel, cb: (err: Error | null, reservationModel: ReservationModel) => void): void {
+        reserveTicketForm(this.req, this.res, () => {
+            if (!this.req.form) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            if (!this.req.form.isValid) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+
+            // 座席選択情報を保存して座席選択へ
+            const choices = JSON.parse((<any>this.req.form).choices);
+            if (!Array.isArray(choices)) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+
+            choices.forEach((choice: any) => {
+                const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => {
+                    return (ticketTypeInArray.code === choice.ticket_type_code);
+                });
+                if (!ticketType) throw new Error(this.req.__('Message.UnexpectedError'));
+
+                const reservation = reservationModel.getReservation(choice.seat_code);
+                reservation.ticket_type_code = ticketType.code;
+                reservation.ticket_type_name_ja = ticketType.name.ja;
+                reservation.ticket_type_name_en = ticketType.name.en;
+                reservation.ticket_type_charge = ticketType.charge;
+                reservation.watcher_name = choice.watcher_name;
+
+                reservationModel.setReservation(reservation.seat_code, reservation);
+            });
+
+            cb(null, reservationModel);
+        });
+    }
+
+    /**
+     * 券種FIXプロセス
+     */
+    public processFixProfile(reservationModel: ReservationModel, cb: (err: Error | null, reservationModel: ReservationModel) => void): void {
+        const form = reserveProfileForm(this.req);
+        form(this.req, this.res, (err) => {
+            if (err) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            if (!this.req.form) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            if (!this.req.form.isValid) return cb(new Error(this.req.__('Message.Invalid')), reservationModel);
+
+            // 購入者情報を保存して座席選択へ
+            reservationModel.purchaserLastName = (<any>this.req.form).lastName;
+            reservationModel.purchaserFirstName = (<any>this.req.form).firstName;
+            reservationModel.purchaserEmail = (<any>this.req.form).email;
+            reservationModel.purchaserTel = (<any>this.req.form).tel;
+            reservationModel.purchaserAge = (<any>this.req.form).age;
+            reservationModel.purchaserAddress = (<any>this.req.form).address;
+            reservationModel.purchaserGender = (<any>this.req.form).gender;
+            reservationModel.paymentMethod = (<any>this.req.form).paymentMethod;
+
+            // 主体によっては、決済方法を強制的に固定で
+            switch (this.purchaserGroup) {
+                case ReservationUtil.PURCHASER_GROUP_SPONSOR:
+                case ReservationUtil.PURCHASER_GROUP_STAFF:
+                    reservationModel.paymentMethod = '';
+                    break;
+
+                case ReservationUtil.PURCHASER_GROUP_TEL:
+                    reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CVS;
+                    break;
+
+                case ReservationUtil.PURCHASER_GROUP_MEMBER:
+                    reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
+                    break;
+
+                default:
+                    break;
+            }
+
+            // セッションに購入者情報格納
+            this.savePurchaser(
+                (<any>this.req.form).lastName,
+                (<any>this.req.form).firstName,
+                (<any>this.req.form).tel,
+                (<any>this.req.form).email,
+                (<any>this.req.form).age,
+                (<any>this.req.form).address,
+                (<any>this.req.form).gender
+            );
+
+            cb(null, reservationModel);
+        });
+    }
 
     /**
      * 購入開始プロセス
@@ -445,92 +531,6 @@ export default class ReserveBaseController extends BaseController {
     }
 
     /**
-     * 券種FIXプロセス
-     */
-    public processFixTickets(reservationModel: ReservationModel, cb: (err: Error | null, reservationModel: ReservationModel) => void): void {
-        reserveTicketForm(this.req, this.res, () => {
-            if (!this.req.form) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-            if (!this.req.form.isValid) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-
-            // 座席選択情報を保存して座席選択へ
-            const choices = JSON.parse((<any>this.req.form).choices);
-            if (!Array.isArray(choices)) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-
-            choices.forEach((choice: any) => {
-                const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => {
-                    return (ticketTypeInArray.code === choice.ticket_type_code);
-                });
-                if (!ticketType) throw new Error(this.req.__('Message.UnexpectedError'));
-
-                const reservation = reservationModel.getReservation(choice.seat_code);
-                reservation.ticket_type_code = ticketType.code;
-                reservation.ticket_type_name_ja = ticketType.name.ja;
-                reservation.ticket_type_name_en = ticketType.name.en;
-                reservation.ticket_type_charge = ticketType.charge;
-                reservation.watcher_name = choice.watcher_name;
-
-                reservationModel.setReservation(reservation.seat_code, reservation);
-            });
-
-            cb(null, reservationModel);
-        });
-    }
-
-    /**
-     * 券種FIXプロセス
-     */
-    public processFixProfile(reservationModel: ReservationModel, cb: (err: Error | null, reservationModel: ReservationModel) => void): void {
-        const form = reserveProfileForm(this.req);
-        form(this.req, this.res, (err) => {
-            if (err) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-            if (!this.req.form) return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-            if (!this.req.form.isValid) return cb(new Error(this.req.__('Message.Invalid')), reservationModel);
-
-            // 購入者情報を保存して座席選択へ
-            reservationModel.purchaserLastName = (<any>this.req.form).lastName;
-            reservationModel.purchaserFirstName = (<any>this.req.form).firstName;
-            reservationModel.purchaserEmail = (<any>this.req.form).email;
-            reservationModel.purchaserTel = (<any>this.req.form).tel;
-            reservationModel.purchaserAge = (<any>this.req.form).age;
-            reservationModel.purchaserAddress = (<any>this.req.form).address;
-            reservationModel.purchaserGender = (<any>this.req.form).gender;
-            reservationModel.paymentMethod = (<any>this.req.form).paymentMethod;
-
-            // 主体によっては、決済方法を強制的に固定で
-            switch (this.purchaserGroup) {
-                case ReservationUtil.PURCHASER_GROUP_SPONSOR:
-                case ReservationUtil.PURCHASER_GROUP_STAFF:
-                    reservationModel.paymentMethod = '';
-                    break;
-
-                case ReservationUtil.PURCHASER_GROUP_TEL:
-                    reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CVS;
-                    break;
-
-                case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                    reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
-                    break;
-
-                default:
-                    break;
-            }
-
-            // セッションに購入者情報格納
-            this.savePurchaser(
-                (<any>this.req.form).lastName,
-                (<any>this.req.form).firstName,
-                (<any>this.req.form).tel,
-                (<any>this.req.form).email,
-                (<any>this.req.form).age,
-                (<any>this.req.form).address,
-                (<any>this.req.form).gender
-            );
-
-            cb(null, reservationModel);
-        });
-    }
-
-    /**
      * 予約情報を確定してDBに保存するプロセス
      */
     // tslint:disable-next-line:max-func-body-length
@@ -681,48 +681,41 @@ export default class ReserveBaseController extends BaseController {
      * @param {string} paymentNo 購入番号
      * @param {Object} update 追加更新パラメータ
      */
-    protected processFixReservations(paymentNo: string, update: any, cb: (err: Error | null) => void): void {
+    protected async processFixReservations(paymentNo: string, update: any) {
         (<any>update).status = ReservationUtil.STATUS_RESERVED;
         (<any>update).updated_user = 'ReserveBaseController';
 
         // 予約完了ステータスへ変更
         this.logger.info('updating reservations by paymentNo...', paymentNo, update);
-        Models.Reservation.update(
-            {
-                payment_no: paymentNo
-            },
+        const raw = await Models.Reservation.update(
+            { payment_no: paymentNo },
             update,
-            { multi: true },
-            (err, raw) => {
-                this.logger.info('reservations updated.', err, raw);
-                if (err) return cb(new Error('any reservations not updated.'));
+            { multi: true }
+        ).exec();
+        this.logger.info('reservations updated.', raw);
 
-                // 完了メールキュー追加(あれば更新日時を更新するだけ)
-                this.logger.info('creating reservationEmailCue...');
-                Models.ReservationEmailCue.findOneAndUpdate(
-                    {
-                        payment_no: paymentNo,
-                        template: ReservationEmailCueUtil.TEMPLATE_COMPLETE
-                    },
-                    {
-                        $set: { updated_at: Date.now() },
-                        $setOnInsert: { status: ReservationEmailCueUtil.STATUS_UNSENT }
-                    },
-                    {
-                        upsert: true,
-                        new: true
-                    },
-                    (updateCueErr, cue) => {
-                        this.logger.info('reservationEmailCue created.', updateCueErr, cue);
-                        if (updateCueErr) {
-                            // 失敗してもスルー(ログと運用でなんとかする)
-                        }
-
-                        cb(null);
-                    }
-                );
-            }
-        );
+        try {
+            // 完了メールキュー追加(あれば更新日時を更新するだけ)
+            this.logger.info('creating reservationEmailCue...');
+            const cue = await Models.ReservationEmailCue.findOneAndUpdate(
+                {
+                    payment_no: paymentNo,
+                    template: ReservationEmailCueUtil.TEMPLATE_COMPLETE
+                },
+                {
+                    $set: { updated_at: Date.now() },
+                    $setOnInsert: { status: ReservationEmailCueUtil.STATUS_UNSENT }
+                },
+                {
+                    upsert: true,
+                    new: true
+                }
+            ).exec();
+            this.logger.info('reservationEmailCue created.', cue);
+        } catch (error) {
+            console.error(error);
+            // 失敗してもスルー(ログと運用でなんとかする)
+        }
     }
 
     /**

@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
@@ -26,6 +34,77 @@ class ReserveBaseController extends BaseController_1.default {
         this.res.locals.ReservationUtil = chevre_domain_1.ReservationUtil;
         this.res.locals.ScreenUtil = chevre_domain_1.ScreenUtil;
         this.res.locals.Models = chevre_domain_2.Models;
+    }
+    /**
+     * 券種FIXプロセス
+     */
+    processFixTickets(reservationModel, cb) {
+        reserveTicketForm_1.default(this.req, this.res, () => {
+            if (!this.req.form)
+                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            if (!this.req.form.isValid)
+                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            // 座席選択情報を保存して座席選択へ
+            const choices = JSON.parse(this.req.form.choices);
+            if (!Array.isArray(choices))
+                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            choices.forEach((choice) => {
+                const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => {
+                    return (ticketTypeInArray.code === choice.ticket_type_code);
+                });
+                if (!ticketType)
+                    throw new Error(this.req.__('Message.UnexpectedError'));
+                const reservation = reservationModel.getReservation(choice.seat_code);
+                reservation.ticket_type_code = ticketType.code;
+                reservation.ticket_type_name_ja = ticketType.name.ja;
+                reservation.ticket_type_name_en = ticketType.name.en;
+                reservation.ticket_type_charge = ticketType.charge;
+                reservation.watcher_name = choice.watcher_name;
+                reservationModel.setReservation(reservation.seat_code, reservation);
+            });
+            cb(null, reservationModel);
+        });
+    }
+    /**
+     * 券種FIXプロセス
+     */
+    processFixProfile(reservationModel, cb) {
+        const form = reserveProfileForm_1.default(this.req);
+        form(this.req, this.res, (err) => {
+            if (err)
+                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            if (!this.req.form)
+                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            if (!this.req.form.isValid)
+                return cb(new Error(this.req.__('Message.Invalid')), reservationModel);
+            // 購入者情報を保存して座席選択へ
+            reservationModel.purchaserLastName = this.req.form.lastName;
+            reservationModel.purchaserFirstName = this.req.form.firstName;
+            reservationModel.purchaserEmail = this.req.form.email;
+            reservationModel.purchaserTel = this.req.form.tel;
+            reservationModel.purchaserAge = this.req.form.age;
+            reservationModel.purchaserAddress = this.req.form.address;
+            reservationModel.purchaserGender = this.req.form.gender;
+            reservationModel.paymentMethod = this.req.form.paymentMethod;
+            // 主体によっては、決済方法を強制的に固定で
+            switch (this.purchaserGroup) {
+                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
+                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
+                    reservationModel.paymentMethod = '';
+                    break;
+                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
+                    reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CVS;
+                    break;
+                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
+                    reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
+                    break;
+                default:
+                    break;
+            }
+            // セッションに購入者情報格納
+            this.savePurchaser(this.req.form.lastName, this.req.form.firstName, this.req.form.tel, this.req.form.email, this.req.form.age, this.req.form.address, this.req.form.gender);
+            cb(null, reservationModel);
+        });
     }
     /**
      * 購入開始プロセス
@@ -379,77 +458,6 @@ class ReserveBaseController extends BaseController_1.default {
         });
     }
     /**
-     * 券種FIXプロセス
-     */
-    processFixTickets(reservationModel, cb) {
-        reserveTicketForm_1.default(this.req, this.res, () => {
-            if (!this.req.form)
-                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-            if (!this.req.form.isValid)
-                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-            // 座席選択情報を保存して座席選択へ
-            const choices = JSON.parse(this.req.form.choices);
-            if (!Array.isArray(choices))
-                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-            choices.forEach((choice) => {
-                const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => {
-                    return (ticketTypeInArray.code === choice.ticket_type_code);
-                });
-                if (!ticketType)
-                    throw new Error(this.req.__('Message.UnexpectedError'));
-                const reservation = reservationModel.getReservation(choice.seat_code);
-                reservation.ticket_type_code = ticketType.code;
-                reservation.ticket_type_name_ja = ticketType.name.ja;
-                reservation.ticket_type_name_en = ticketType.name.en;
-                reservation.ticket_type_charge = ticketType.charge;
-                reservation.watcher_name = choice.watcher_name;
-                reservationModel.setReservation(reservation.seat_code, reservation);
-            });
-            cb(null, reservationModel);
-        });
-    }
-    /**
-     * 券種FIXプロセス
-     */
-    processFixProfile(reservationModel, cb) {
-        const form = reserveProfileForm_1.default(this.req);
-        form(this.req, this.res, (err) => {
-            if (err)
-                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-            if (!this.req.form)
-                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-            if (!this.req.form.isValid)
-                return cb(new Error(this.req.__('Message.Invalid')), reservationModel);
-            // 購入者情報を保存して座席選択へ
-            reservationModel.purchaserLastName = this.req.form.lastName;
-            reservationModel.purchaserFirstName = this.req.form.firstName;
-            reservationModel.purchaserEmail = this.req.form.email;
-            reservationModel.purchaserTel = this.req.form.tel;
-            reservationModel.purchaserAge = this.req.form.age;
-            reservationModel.purchaserAddress = this.req.form.address;
-            reservationModel.purchaserGender = this.req.form.gender;
-            reservationModel.paymentMethod = this.req.form.paymentMethod;
-            // 主体によっては、決済方法を強制的に固定で
-            switch (this.purchaserGroup) {
-                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
-                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
-                    reservationModel.paymentMethod = '';
-                    break;
-                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
-                    reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CVS;
-                    break;
-                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
-                    reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
-                    break;
-                default:
-                    break;
-            }
-            // セッションに購入者情報格納
-            this.savePurchaser(this.req.form.lastName, this.req.form.firstName, this.req.form.tel, this.req.form.email, this.req.form.age, this.req.form.address, this.req.form.gender);
-            cb(null, reservationModel);
-        });
-    }
-    /**
      * 予約情報を確定してDBに保存するプロセス
      */
     // tslint:disable-next-line:max-func-body-length
@@ -575,35 +583,33 @@ class ReserveBaseController extends BaseController_1.default {
      * @param {string} paymentNo 購入番号
      * @param {Object} update 追加更新パラメータ
      */
-    processFixReservations(paymentNo, update, cb) {
-        update.status = chevre_domain_1.ReservationUtil.STATUS_RESERVED;
-        update.updated_user = 'ReserveBaseController';
-        // 予約完了ステータスへ変更
-        this.logger.info('updating reservations by paymentNo...', paymentNo, update);
-        chevre_domain_2.Models.Reservation.update({
-            payment_no: paymentNo
-        }, update, { multi: true }, (err, raw) => {
-            this.logger.info('reservations updated.', err, raw);
-            if (err)
-                return cb(new Error('any reservations not updated.'));
-            // 完了メールキュー追加(あれば更新日時を更新するだけ)
-            this.logger.info('creating reservationEmailCue...');
-            chevre_domain_2.Models.ReservationEmailCue.findOneAndUpdate({
-                payment_no: paymentNo,
-                template: chevre_domain_1.ReservationEmailCueUtil.TEMPLATE_COMPLETE
-            }, {
-                $set: { updated_at: Date.now() },
-                $setOnInsert: { status: chevre_domain_1.ReservationEmailCueUtil.STATUS_UNSENT }
-            }, {
-                upsert: true,
-                new: true
-            }, (updateCueErr, cue) => {
-                this.logger.info('reservationEmailCue created.', updateCueErr, cue);
-                if (updateCueErr) {
-                    // 失敗してもスルー(ログと運用でなんとかする)
-                }
-                cb(null);
-            });
+    processFixReservations(paymentNo, update) {
+        return __awaiter(this, void 0, void 0, function* () {
+            update.status = chevre_domain_1.ReservationUtil.STATUS_RESERVED;
+            update.updated_user = 'ReserveBaseController';
+            // 予約完了ステータスへ変更
+            this.logger.info('updating reservations by paymentNo...', paymentNo, update);
+            const raw = yield chevre_domain_2.Models.Reservation.update({ payment_no: paymentNo }, update, { multi: true }).exec();
+            this.logger.info('reservations updated.', raw);
+            try {
+                // 完了メールキュー追加(あれば更新日時を更新するだけ)
+                this.logger.info('creating reservationEmailCue...');
+                const cue = yield chevre_domain_2.Models.ReservationEmailCue.findOneAndUpdate({
+                    payment_no: paymentNo,
+                    template: chevre_domain_1.ReservationEmailCueUtil.TEMPLATE_COMPLETE
+                }, {
+                    $set: { updated_at: Date.now() },
+                    $setOnInsert: { status: chevre_domain_1.ReservationEmailCueUtil.STATUS_UNSENT }
+                }, {
+                    upsert: true,
+                    new: true
+                }).exec();
+                this.logger.info('reservationEmailCue created.', cue);
+            }
+            catch (error) {
+                console.error(error);
+                // 失敗してもスルー(ログと運用でなんとかする)
+            }
         });
     }
     /**

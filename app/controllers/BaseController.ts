@@ -1,5 +1,5 @@
 import * as conf from 'config';
-import * as express from 'express';
+import { NextFunction, Request, Response } from 'express';
 import * as log4js from 'log4js';
 import * as moment from 'moment';
 import * as numeral from 'numeral';
@@ -18,15 +18,15 @@ export default class BaseController {
     /**
      * httpリクエストオブジェクト
      */
-    public req: express.Request;
+    public readonly req: Request;
     /**
      * httpレスポンスオブジェクト
      */
-    public res: express.Response;
+    public readonly res: Response;
     /**
      * 次に一致するルートメソッド
      */
-    public next: express.NextFunction;
+    public readonly next: NextFunction;
 
     /**
      * ロガー
@@ -42,7 +42,7 @@ export default class BaseController {
      */
     public layout: string;
 
-    constructor(req: express.Request, res: express.Response, next: express.NextFunction) {
+    constructor(req: Request, res: Response, next: NextFunction) {
         this.req = req;
         this.res = res;
         this.next = next;

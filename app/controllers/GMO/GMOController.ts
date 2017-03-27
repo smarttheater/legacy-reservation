@@ -1,6 +1,5 @@
 import { Models } from '@motionpicture/chevre-domain';
 import { GMONotificationUtil } from '@motionpicture/chevre-domain';
-import * as mongoose from 'mongoose';
 import GMONotificationModel from '../../models/Reserve/GMONotificationModel';
 import GMONotificationResponseModel from '../../models/Reserve/GMONotificationResponseModel';
 import BaseController from '../BaseController';
@@ -24,48 +23,47 @@ export default class GMOController extends BaseController {
      * 結果通知プログラム機能によって、指定URLへデータ送信を行った場合に15秒以内に返信が無いとタイムアウトとして処理を行います。
      * 加盟店様側からの正常応答が確認出来なかった場合は約60分毎に5回再送いたします。
      */
-    public notify(): void {
+    public async notify() {
         const gmoNotificationModel = GMONotificationModel.parse(this.req.body);
         this.logger.info('gmoNotificationModel is', gmoNotificationModel);
 
-        if (!gmoNotificationModel.OrderID) {
+        if (gmoNotificationModel.OrderID === undefined) {
             this.res.send(GMONotificationResponseModel.RECV_RES_OK);
             return;
         }
 
         // 何を最低限保管する？
-        Models.GMONotification.create(
-            {
-                shop_id: gmoNotificationModel.ShopID,
-                order_id: gmoNotificationModel.OrderID,
-                status: gmoNotificationModel.Status,
-                job_cd: gmoNotificationModel.JobCd,
-                amount: gmoNotificationModel.Amount,
-                pay_type: gmoNotificationModel.PayType,
+        try {
+            const notification = await Models.GMONotification.create(
+                {
+                    shop_id: gmoNotificationModel.ShopID,
+                    order_id: gmoNotificationModel.OrderID,
+                    status: gmoNotificationModel.Status,
+                    job_cd: gmoNotificationModel.JobCd,
+                    amount: gmoNotificationModel.Amount,
+                    pay_type: gmoNotificationModel.PayType,
 
-                tax: gmoNotificationModel.Tax,
-                access_id: gmoNotificationModel.AccessID,
-                forward: gmoNotificationModel.Forward,
-                method: gmoNotificationModel.Method,
-                approve: gmoNotificationModel.Approve,
-                tran_id: gmoNotificationModel.TranID,
-                tran_date: gmoNotificationModel.TranDate,
+                    tax: gmoNotificationModel.Tax,
+                    access_id: gmoNotificationModel.AccessID,
+                    forward: gmoNotificationModel.Forward,
+                    method: gmoNotificationModel.Method,
+                    approve: gmoNotificationModel.Approve,
+                    tran_id: gmoNotificationModel.TranID,
+                    tran_date: gmoNotificationModel.TranDate,
 
-                cvs_code: gmoNotificationModel.CvsCode,
-                cvs_conf_no: gmoNotificationModel.CvsConfNo,
-                cvs_receipt_no: gmoNotificationModel.CvsReceiptNo,
-                payment_term: gmoNotificationModel.PaymentTerm,
+                    cvs_code: gmoNotificationModel.CvsCode,
+                    cvs_conf_no: gmoNotificationModel.CvsConfNo,
+                    cvs_receipt_no: gmoNotificationModel.CvsReceiptNo,
+                    payment_term: gmoNotificationModel.PaymentTerm,
 
-                process_status: GMONotificationUtil.PROCESS_STATUS_UNPROCESSED
-            },
-            (err: any, notification: mongoose.Document) => {
-                this.logger.info('notification created.', notification);
-                if (err) {
-                    this.res.send(GMONotificationResponseModel.RECV_RES_NG);
-                } else {
-                    this.res.send(GMONotificationResponseModel.RECV_RES_OK);
+                    process_status: GMONotificationUtil.PROCESS_STATUS_UNPROCESSED
                 }
-            }
-        );
+            );
+
+            this.logger.info('notification created.', notification);
+            this.res.send(GMONotificationResponseModel.RECV_RES_OK);
+        } catch (error) {
+            this.res.send(GMONotificationResponseModel.RECV_RES_NG);
+        }
     }
 }

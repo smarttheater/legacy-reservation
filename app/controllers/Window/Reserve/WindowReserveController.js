@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
@@ -231,7 +239,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
-                this.processConfirm(reservationModel, (processConfirmErr, reservationModel) => {
+                this.processConfirm(reservationModel, (processConfirmErr, reservationModel) => __awaiter(this, void 0, void 0, function* () {
                     if (processConfirmErr) {
                         reservationModel.remove(() => {
                             this.next(processConfirmErr);
@@ -239,20 +247,19 @@ class WindowReserveController extends ReserveBaseController_1.default {
                     }
                     else {
                         // 予約確定
-                        this.processFixReservations(reservationModel.paymentNo, {}, (fixReservationErr) => {
-                            if (fixReservationErr) {
-                                const message = fixReservationErr.message;
-                                this.res.redirect(`${this.router.build('window.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
-                            }
-                            else {
-                                reservationModel.remove(() => {
-                                    this.logger.info('redirecting to complete...');
-                                    this.res.redirect(this.router.build('window.reserve.complete', { paymentNo: reservationModel.paymentNo }));
-                                });
-                            }
-                        });
+                        try {
+                            yield this.processFixReservations(reservationModel.paymentNo, {});
+                            reservationModel.remove(() => {
+                                this.logger.info('redirecting to complete...');
+                                this.res.redirect(this.router.build('window.reserve.complete', { paymentNo: reservationModel.paymentNo }));
+                            });
+                        }
+                        catch (error) {
+                            const message = error.message;
+                            this.res.redirect(`${this.router.build('window.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
+                        }
                     }
-                });
+                }));
             }
             else {
                 this.res.render('window/reserve/confirm', {

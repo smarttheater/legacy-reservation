@@ -12,52 +12,50 @@ import BaseController from '../BaseController';
  * @class AdmissionController
  */
 export default class AdmissionController extends BaseController {
-    public layout = 'layouts/admission/layout';
+    public layout: string = 'layouts/admission/layout';
 
     /**
      * 入場画面のパフォーマンス検索
      *
      * @memberOf AdmissionController
      */
-    public performances(): void {
+    public async performances() {
         if (this.req.method === 'POST') {
-            if (this.req.body.performanceId) {
+            if (this.req.body.performanceId !== undefined && this.req.body.performanceId !== '') {
                 this.res.redirect(this.router.build('admission.confirm', { id: this.req.body.performanceId }));
             } else {
                 this.res.redirect(this.router.build('admission.performances'));
             }
         } else {
-            // 劇場とスクリーンを取得
-            Models.Theater.find(
-                {},
-                'name',
-                (err, theaters) => {
-                    if (err) return this.next(err);
+            try {
+                // 劇場とスクリーンを取得
+                const theaters = await Models.Theater.find(
+                    {},
+                    'name'
+                ).exec();
 
-                    Models.Screen.find(
-                        {},
-                        'name theater',
-                        (findScreenErr, screens) => {
-                            if (findScreenErr) return this.next(findScreenErr);
+                const screens = await Models.Screen.find(
+                    {},
+                    'name theater'
+                ).exec();
 
-                            const screensByTheater: any = {};
-                            for (const screen of screens) {
-                                if (!screensByTheater.hasOwnProperty(screen.get('theater'))) {
-                                    screensByTheater[screen.get('theater')] = [];
-                                }
+                const screensByTheater: any = {};
+                screens.forEach((screen) => {
+                    if (screensByTheater[screen.get('theater')] === undefined) {
+                        screensByTheater[screen.get('theater')] = [];
+                    }
 
-                                screensByTheater[screen.get('theater')].push(screen);
-                            }
+                    screensByTheater[screen.get('theater')].push(screen);
+                });
 
-                            this.res.render('admission/performances', {
-                                FilmUtil: FilmUtil,
-                                theaters: theaters,
-                                screensByTheater: screensByTheater
-                            });
-                        }
-                    );
-                }
-            );
+                this.res.render('admission/performances', {
+                    FilmUtil: FilmUtil,
+                    theaters: theaters,
+                    screensByTheater: screensByTheater
+                });
+            } catch (error) {
+                this.next(error);
+            }
         }
     }
 
@@ -68,40 +66,40 @@ export default class AdmissionController extends BaseController {
      *
      * @memberOf AdmissionController
      */
-    public confirm(): void {
-        Models.Performance.findOne({ _id: this.req.params.id })
-            .populate('film', 'name')
-            .populate('screen', 'name')
-            .populate('theater', 'name')
-            .exec((err, performance) => {
-                if (err) this.next(new Error('Message.UnexpectedError'));
+    public async confirm() {
+        try {
+            const performance = await Models.Performance.findOne({ _id: this.req.params.id })
+                .populate('film', 'name')
+                .populate('screen', 'name')
+                .populate('theater', 'name')
+                .exec();
 
-                Models.Reservation.find(
-                    {
-                        performance: performance.get('_id'),
-                        status: ReservationUtil.STATUS_RESERVED
-                    },
-                    'seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en entered payment_no payment_seat_index'
-                ).exec((findReservationErr, reservations) => {
-                    if (findReservationErr) this.next(new Error('Message.UnexpectedError'));
+            const reservations = await Models.Reservation.find(
+                {
+                    performance: performance.get('_id'),
+                    status: ReservationUtil.STATUS_RESERVED
+                },
+                'seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en entered payment_no payment_seat_index'
+            ).exec();
 
-                    const reservationsById: {
-                        [id: string]: mongoose.Document
-                    } = {};
-                    const reservationIdsByQrStr: {
-                        [qr: string]: string
-                    } = {};
-                    for (const reservation of reservations) {
-                        reservationsById[reservation.get('_id').toString()] = reservation;
-                        reservationIdsByQrStr[reservation.get('qr_str')] = reservation.get('_id').toString();
-                    }
-
-                    this.res.render('admission/confirm', {
-                        performance: performance,
-                        reservationsById: reservationsById,
-                        reservationIdsByQrStr: reservationIdsByQrStr
-                    });
-                });
+            const reservationsById: {
+                [id: string]: mongoose.Document
+            } = {};
+            const reservationIdsByQrStr: {
+                [qr: string]: string
+            } = {};
+            reservations.forEach((reservation) => {
+                reservationsById[reservation.get('_id').toString()] = reservation;
+                reservationIdsByQrStr[reservation.get('qr_str')] = reservation.get('_id').toString();
             });
+
+            this.res.render('admission/confirm', {
+                performance: performance,
+                reservationsById: reservationsById,
+                reservationIdsByQrStr: reservationIdsByQrStr
+            });
+        } catch (error) {
+            this.next(new Error(this.req.__('Message.UnexpectedError')));
+        }
     }
 }

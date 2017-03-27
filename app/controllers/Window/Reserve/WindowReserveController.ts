@@ -229,24 +229,24 @@ export default class WindowReserveController extends ReserveBaseController imple
 
             if (this.req.method === 'POST') {
                 // tslint:disable-next-line:no-shadowed-variable
-                this.processConfirm(reservationModel, (processConfirmErr, reservationModel) => {
+                this.processConfirm(reservationModel, async (processConfirmErr, reservationModel) => {
                     if (processConfirmErr) {
                         reservationModel.remove(() => {
                             this.next(processConfirmErr);
                         });
                     } else {
                         // 予約確定
-                        this.processFixReservations(reservationModel.paymentNo, {}, (fixReservationErr) => {
-                            if (fixReservationErr) {
-                                const message = fixReservationErr.message;
-                                this.res.redirect(`${this.router.build('window.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
-                            } else {
-                                reservationModel.remove(() => {
-                                    this.logger.info('redirecting to complete...');
-                                    this.res.redirect(this.router.build('window.reserve.complete', { paymentNo: reservationModel.paymentNo }));
-                                });
-                            }
-                        });
+                        try {
+                            await this.processFixReservations(reservationModel.paymentNo, {});
+
+                            reservationModel.remove(() => {
+                                this.logger.info('redirecting to complete...');
+                                this.res.redirect(this.router.build('window.reserve.complete', { paymentNo: reservationModel.paymentNo }));
+                            });
+                        } catch (error) {
+                            const message = error.message;
+                            this.res.redirect(`${this.router.build('window.reserve.confirm', { token: token })}?message=${encodeURIComponent(message)}`);
+                        }
                     }
                 });
             } else {
