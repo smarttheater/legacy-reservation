@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 当日窓口ルーター
@@ -14,45 +22,46 @@ const WindowMyPageController_1 = require("../controllers/Window/MyPage/WindowMyP
 const WindowReserveController_1 = require("../controllers/Window/Reserve/WindowReserveController");
 const WindowUser_1 = require("../models/User/WindowUser");
 exports.default = (app) => {
-    const authenticationMiddleware = (req, res, next) => {
-        if (!req.windowUser)
-            return next(new Error(req.__('Message.UnexpectedError')));
+    const authenticationMiddleware = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+        if (req.windowUser === undefined) {
+            next(new Error(req.__('Message.UnexpectedError')));
+            return;
+        }
         if (!req.windowUser.isAuthenticated()) {
             // 自動ログインチェック
-            const checkRemember = (cb) => {
-                if (req.cookies.remember_window) {
-                    chevre_domain_1.Models.Authentication.findOne({
-                        token: req.cookies.remember_window,
-                        window: { $ne: null }
-                    }, (err, authentication) => {
-                        if (err)
-                            return cb(null);
-                        if (authentication) {
-                            // トークン再生成
-                            const token = Util.createToken();
-                            authentication.update({
-                                token: token
-                            }, (updateErr) => {
-                                if (updateErr)
-                                    return cb(null);
-                                res.cookie('remember_window', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                chevre_domain_1.Models.Window.findOne({ _id: authentication.get('window') }, (findErr, window) => {
-                                    (findErr) ? cb(null) : cb(window);
-                                });
-                            });
-                        }
-                        else {
+            const checkRemember = (cb) => __awaiter(this, void 0, void 0, function* () {
+                if (req.cookies.remember_window !== undefined) {
+                    try {
+                        const authentication = yield chevre_domain_1.Models.Authentication.findOne({
+                            token: req.cookies.remember_window,
+                            window: { $ne: null }
+                        }).exec();
+                        if (authentication === null) {
                             res.clearCookie('remember_window');
                             cb(null);
+                            return;
                         }
-                    });
+                        // トークン再生成
+                        const token = Util.createToken();
+                        yield authentication.update({
+                            token: token
+                        }).exec();
+                        // tslint:disable-next-line:no-cookies
+                        res.cookie('remember_window', token, { path: '/', httpOnly: true, maxAge: 604800000 });
+                        const window = yield chevre_domain_1.Models.Window.findOne({ _id: authentication.get('window') }).exec();
+                        cb(window);
+                    }
+                    catch (error) {
+                        cb(null);
+                        return;
+                    }
                 }
                 else {
                     cb(null);
                 }
-            };
-            checkRemember((user) => {
-                if (user && req.session) {
+            });
+            yield checkRemember((user) => {
+                if (user !== null && req.session !== undefined) {
                     // ログインしてリダイレクト
                     req.session[WindowUser_1.default.AUTH_SESSION_NAME] = user.toObject();
                     // if exist parameter cb, redirect to cb.
@@ -72,10 +81,12 @@ exports.default = (app) => {
         }
         else {
             // 言語設定
-            req.setLocale((req.windowUser.get('locale')) ? req.windowUser.get('locale') : 'ja');
+            if (req.windowUser.get('locale') !== undefined && req.windowUser.get('locale') !== null) {
+                req.setLocale(req.windowUser.get('locale'));
+            }
             next();
         }
-    };
+    });
     // tslint:disable-next-line:variable-name
     const baseMiddleware = (req, _res, next) => {
         // 基本的に日本語

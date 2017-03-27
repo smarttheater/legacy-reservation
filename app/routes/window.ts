@@ -15,50 +15,53 @@ import WindowReserveController from '../controllers/Window/Reserve/WindowReserve
 import WindowUser from '../models/User/WindowUser';
 
 export default (app: any) => {
-    const authenticationMiddleware = (req: Request, res: Response, next: NextFunction) => {
-        if (!req.windowUser) return next(new Error(req.__('Message.UnexpectedError')));
+    const authenticationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+        if (req.windowUser === undefined) {
+            next(new Error(req.__('Message.UnexpectedError')));
+            return;
+        }
 
         if (!req.windowUser.isAuthenticated()) {
             // 自動ログインチェック
-            const checkRemember = (cb: (user: Document | null) => void) => {
-                if (req.cookies.remember_window) {
-                    Models.Authentication.findOne(
-                        {
-                            token: req.cookies.remember_window,
-                            window: { $ne: null }
-                        },
-                        (err, authentication) => {
-                            if (err) return cb(null);
-
-                            if (authentication) {
-                                // トークン再生成
-                                const token = Util.createToken();
-                                authentication.update(
-                                    {
-                                        token: token
-                                    },
-                                    (updateErr) => {
-                                        if (updateErr) return cb(null);
-
-                                        res.cookie('remember_window', token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                                        Models.Window.findOne({ _id: authentication.get('window') }, (findErr, window) => {
-                                            (findErr) ? cb(null) : cb(window);
-                                        });
-                                    }
-                                );
-                            } else {
-                                res.clearCookie('remember_window');
-                                cb(null);
+            const checkRemember = async (cb: (user: Document | null) => void) => {
+                if (req.cookies.remember_window !== undefined) {
+                    try {
+                        const authentication = await Models.Authentication.findOne(
+                            {
+                                token: req.cookies.remember_window,
+                                window: { $ne: null }
                             }
+                        ).exec();
+
+                        if (authentication === null) {
+                            res.clearCookie('remember_window');
+                            cb(null);
+                            return;
                         }
-                    );
+
+                        // トークン再生成
+                        const token = Util.createToken();
+                        await authentication.update(
+                            {
+                                token: token
+                            }
+                        ).exec();
+
+                        // tslint:disable-next-line:no-cookies
+                        res.cookie('remember_window', token, { path: '/', httpOnly: true, maxAge: 604800000 });
+                        const window = await Models.Window.findOne({ _id: authentication.get('window') }).exec();
+                        cb(window);
+                    } catch (error) {
+                        cb(null);
+                        return;
+                    }
                 } else {
                     cb(null);
                 }
             };
 
-            checkRemember((user) => {
-                if (user && req.session) {
+            await checkRemember((user) => {
+                if (user !== null && req.session !== undefined) {
                     // ログインしてリダイレクト
                     req.session[WindowUser.AUTH_SESSION_NAME] = user.toObject();
 
@@ -76,7 +79,9 @@ export default (app: any) => {
             });
         } else {
             // 言語設定
-            req.setLocale((req.windowUser.get('locale')) ? req.windowUser.get('locale') : 'ja');
+            if (req.windowUser.get('locale') !== undefined && req.windowUser.get('locale') !== null) {
+                req.setLocale(req.windowUser.get('locale'));
+            }
 
             next();
         }

@@ -15,11 +15,15 @@ const uniqid = require("uniqid");
  */
 function createToken() {
     const md5hash = crypto.createHash('md5');
-    // console.log(uniqid()); // Generate 18 byte unique id's based on the time, process id and mac address. Works on multiple processes and machines.
-    // console.log(uniqid.process()); // Generate 12 byte unique id's based on the time and the process id. Works on multiple processes within a single machine but not on multiple machines.
-    // console.log(uniqid.time()); // Generate 8 byte unique id's based on the current time only. Recommended only on a single process on a single machine.
+    // Generate 18 byte unique id's based on the time, process id and mac address. Works on multiple processes and machines.
+    // console.log(uniqid());
+    // Generate 12 byte unique id's based on the time and the process id.
+    // Works on multiple processes within a single machine but not on multiple machines.
+    // console.log(uniqid.process());
+    // Generate 8 byte unique id's based on the current time only. Recommended only on a single process on a single machine.
+    // console.log(uniqid.time());
     // tslint:disable-next-line:no-magic-numbers insecure-random
-    md5hash.update(Math.floor(Math.random() * 10000) + 1000 + uniqid(), 'utf8');
+    md5hash.update((Math.floor(Math.random() * 10000) + 1000).toString() + uniqid(), 'utf8');
     return md5hash.digest('hex');
 }
 exports.createToken = createToken;
