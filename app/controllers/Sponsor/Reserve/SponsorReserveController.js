@@ -101,7 +101,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                             try {
                                 // パフォーマンスFIX
                                 reservationModel = yield this.processFixPerformance(reservationModel, this.req.form.performanceId);
-                                reservationModel.save();
+                                yield reservationModel.save();
                                 this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
                             }
                             catch (error) {

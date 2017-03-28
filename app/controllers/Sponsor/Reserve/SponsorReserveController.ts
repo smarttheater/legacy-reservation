@@ -99,7 +99,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                         try {
                             // パフォーマンスFIX
                             reservationModel = await this.processFixPerformance(<ReservationModel>reservationModel, (<any>this.req.form).performanceId);
-                            reservationModel.save();
+                            await reservationModel.save();
                             this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
                         } catch (error) {
                             this.next(new Error(this.req.__('Message.UnexpectedError')));

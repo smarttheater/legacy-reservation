@@ -23,14 +23,15 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
      * ペイデザイン入金通知
      */
     notify() {
-        this.logger.info('PayDesignReserveController notify start. this.req.body:', this.req.body);
-        const payDesignNotificationModel = PayDesignNotificationModel_1.default.parse(this.req.body);
-        const paymentNo = payDesignNotificationModel.FUKA;
-        if (paymentNo === undefined) {
-            this.res.send('1');
-            return;
-        }
-        this.setProcessLogger(paymentNo, () => __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.logger.info('PayDesignReserveController notify start. this.req.body:', this.req.body);
+            const payDesignNotificationModel = PayDesignNotificationModel_1.default.parse(this.req.body);
+            const paymentNo = payDesignNotificationModel.FUKA;
+            if (paymentNo === undefined) {
+                this.res.send('1');
+                return;
+            }
+            this.setProcessLogger(paymentNo);
             this.logger.info('payDesignNotificationModel is', payDesignNotificationModel);
             const update = {
                 paydesign_seq: payDesignNotificationModel.SEQ,
@@ -56,20 +57,21 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
                 // 失敗した場合、再通知されるので、それをリトライとみなす
                 this.res.send('1');
             }
-        }));
+        });
     }
     /**
      * ペイデザイン取消通知
      */
     cancel() {
-        this.logger.info('PayDesignReserveController cancel start. this.req.body:', this.req.body);
-        const payDesignNotificationModel = PayDesignNotificationModel_1.default.parse(this.req.body);
-        const paymentNo = payDesignNotificationModel.FUKA;
-        if (paymentNo === undefined) {
-            this.res.send('1');
-            return;
-        }
-        this.setProcessLogger(paymentNo, () => __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.logger.info('PayDesignReserveController cancel start. this.req.body:', this.req.body);
+            const payDesignNotificationModel = PayDesignNotificationModel_1.default.parse(this.req.body);
+            const paymentNo = payDesignNotificationModel.FUKA;
+            if (paymentNo === undefined) {
+                this.res.send('1');
+                return;
+            }
+            this.setProcessLogger(paymentNo);
             this.logger.info('payDesignNotificationModel is', payDesignNotificationModel);
             // 空席に戻す
             try {
@@ -91,7 +93,7 @@ class PayDesignReserveController extends ReserveBaseController_1.default {
             catch (error) {
                 this.res.send('1');
             }
-        }));
+        });
     }
 }
 exports.default = PayDesignReserveController;

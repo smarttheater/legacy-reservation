@@ -57,82 +57,81 @@ export default class GMOReserveController extends ReserveBaseController {
      * GMO決済を開始する
      */
     public async start() {
-        let reservationModel: ReservationModel;
         try {
             const token = this.req.params.token;
-            reservationModel = await ReservationModel.find(token);
-        } catch (error) {
-            this.next(new Error(this.req.__('Message.Expired')));
-            return;
-        }
+            const reservationModel = await ReservationModel.find(token);
 
-        if (reservationModel === undefined) {
-            this.next(new Error(this.req.__('Message.UnexpectedError')));
-            return;
-        }
-
-        // 予約情報セッション削除
-        await reservationModel.remove();
-        // 予約プロセス固有のログファイルをセット
-        this.setProcessLogger(reservationModel.paymentNo);
-
-        // GMOへ遷移画面
-
-        // 作品名から、特定文字以外を取り除く
-        const filmNameFullWidth = Util.toFullWidth(reservationModel.performance.film.name.ja);
-        const filmNameFullWidthLength = filmNameFullWidth.length;
-        let registerDisp1 = '';
-        // todo 文字列のループはこの書き方は本来よろしくないので、暇があったら直す
-        // tslint:disable-next-line:no-increment-decrement
-        for (let i = 0; i < filmNameFullWidthLength; i++) {
-            const letter = filmNameFullWidth[i];
-            if (
-                /[Ａ-Ｚａ-ｚ０-９]/.test(letter) || // 全角英数字
-                /[\u3040-\u309F]/.test(letter) || // ひらがな
-                /[\u30A0-\u30FF]/.test(letter) || // カタカナ
-                /[一-龠]/.test(letter) // 漢字
-            ) {
-                registerDisp1 += letter;
-            }
-        }
-
-        // tslint:disable-next-line:no-magic-numbers
-        this.res.locals.registerDisp1 = (<any>registerDisp1).mbSubstr(0, 32);
-        // tslint:disable-next-line:no-magic-numbers
-        this.res.locals.registerDisp2 = Util.toFullWidth(`${reservationModel.performance.day.substr(0, 4)}／${reservationModel.performance.day.substr(4, 2)}／${reservationModel.performance.day.substr(6)}`);
-        this.res.locals.registerDisp3 = Util.toFullWidth(reservationModel.performance.theater.name.ja);
-        // tslint:disable-next-line:no-magic-numbers
-        this.res.locals.registerDisp4 = Util.toFullWidth(`開場${reservationModel.performance.open_time.substr(0, 2)}:${reservationModel.performance.open_time.substr(2)}　開演${reservationModel.performance.start_time.substr(0, 2)}:${reservationModel.performance.start_time.substr(2)}`);
-
-        this.res.locals.shopId = conf.get<string>('gmo_payment_shop_id');
-        this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(購入番号を使用)
-        this.res.locals.amount = reservationModel.getTotalCharge().toString();
-        this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
-        this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
-        this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
-        this.res.locals.shopPassString = GMOUtil.createShopPassString(
-            conf.get<string>('gmo_payment_shop_id'),
-            this.res.locals.orderID,
-            this.res.locals.amount,
-            conf.get<string>('gmo_payment_shop_password'),
-            this.res.locals.dateTime
-        );
-
-        this.res.locals.retURL = `${process.env.FRONTEND_GMO_RESULT_ENDPOINT}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
-        // 決済キャンセル時に遷移する加盟店URL
-        this.res.locals.cancelURL = `${process.env.FRONTEND_GMO_RESULT_ENDPOINT}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;
-
-        this.logger.info('redirecting to GMO payment...');
-        // GMOへの送信データをログに残すために、一度htmlを取得してからrender
-        this.res.render('gmo/reserve/start', undefined, (renderErr, html) => {
-            if (renderErr instanceof Error) {
-                this.next(renderErr);
+            if (reservationModel === null) {
+                this.next(new Error(this.req.__('Message.Expired')));
                 return;
             }
 
-            this.logger.info('rendering gmo/reserve/start...html:', html);
-            this.res.render('gmo/reserve/start');
-        });
+            // 予約情報セッション削除
+            await reservationModel.remove();
+            // 予約プロセス固有のログファイルをセット
+            this.setProcessLogger(reservationModel.paymentNo);
+
+            // GMOへ遷移画面
+
+            // 作品名から、特定文字以外を取り除く
+            const filmNameFullWidth = Util.toFullWidth(reservationModel.performance.film.name.ja);
+            const filmNameFullWidthLength = filmNameFullWidth.length;
+            let registerDisp1 = '';
+            // todo 文字列のループはこの書き方は本来よろしくないので、暇があったら直す
+            // tslint:disable-next-line:no-increment-decrement
+            for (let i = 0; i < filmNameFullWidthLength; i++) {
+                const letter = filmNameFullWidth[i];
+                if (
+                    /[Ａ-Ｚａ-ｚ０-９]/.test(letter) || // 全角英数字
+                    /[\u3040-\u309F]/.test(letter) || // ひらがな
+                    /[\u30A0-\u30FF]/.test(letter) || // カタカナ
+                    /[一-龠]/.test(letter) // 漢字
+                ) {
+                    registerDisp1 += letter;
+                }
+            }
+
+            // tslint:disable-next-line:no-magic-numbers
+            this.res.locals.registerDisp1 = (<any>registerDisp1).mbSubstr(0, 32);
+            // tslint:disable-next-line:no-magic-numbers
+            this.res.locals.registerDisp2 = Util.toFullWidth(`${reservationModel.performance.day.substr(0, 4)}／${reservationModel.performance.day.substr(4, 2)}／${reservationModel.performance.day.substr(6)}`);
+            this.res.locals.registerDisp3 = Util.toFullWidth(reservationModel.performance.theater.name.ja);
+            // tslint:disable-next-line:no-magic-numbers
+            this.res.locals.registerDisp4 = Util.toFullWidth(`開場${reservationModel.performance.open_time.substr(0, 2)}:${reservationModel.performance.open_time.substr(2)}　開演${reservationModel.performance.start_time.substr(0, 2)}:${reservationModel.performance.start_time.substr(2)}`);
+
+            this.res.locals.shopId = conf.get<string>('gmo_payment_shop_id');
+            this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(購入番号を使用)
+            this.res.locals.amount = reservationModel.getTotalCharge().toString();
+            this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
+            this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
+            this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
+            this.res.locals.shopPassString = GMOUtil.createShopPassString(
+                conf.get<string>('gmo_payment_shop_id'),
+                this.res.locals.orderID,
+                this.res.locals.amount,
+                conf.get<string>('gmo_payment_shop_password'),
+                this.res.locals.dateTime
+            );
+
+            this.res.locals.retURL = `${process.env.FRONTEND_GMO_RESULT_ENDPOINT}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
+            // 決済キャンセル時に遷移する加盟店URL
+            this.res.locals.cancelURL = `${process.env.FRONTEND_GMO_RESULT_ENDPOINT}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;
+
+            this.logger.info('redirecting to GMO payment...');
+            // GMOへの送信データをログに残すために、一度htmlを取得してからrender
+            this.res.render('gmo/reserve/start', undefined, (renderErr, html) => {
+                if (renderErr instanceof Error) {
+                    this.next(renderErr);
+                    return;
+                }
+
+                this.logger.info('rendering gmo/reserve/start...html:', html);
+                this.res.render('gmo/reserve/start');
+            });
+
+        } catch (error) {
+            this.next(new Error(this.req.__('Message.UnexpectedError')));
+        }
     }
 
     /**
