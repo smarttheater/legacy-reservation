@@ -34,10 +34,9 @@ exports.createToken = createToken;
  * @param {string} paymentNo 購入番号
  * @memberOf Util
  */
-// tslint:disable-next-line:variable-name
-function getReservationLogger(_paymentNo, cb) {
+function getReservationLogger(_) {
     // todo 購入ログの出力方法を、ローカルファイルロガー以外で新たに考える
-    cb(null, log4js.getLogger('system'));
+    return log4js.getLogger('system');
     // let env = process.env.NODE_ENV || 'development';
     // let logDir = `${__dirname}/../../../logs/${env}/reservations/${paymentNo.substr(-1)}`;
     // fs.mkdirs(logDir, (err) => {

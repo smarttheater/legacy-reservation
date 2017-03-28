@@ -28,29 +28,31 @@ class ReservationModel {
      * プロセス中の購入情報をセッションから取得する
      */
     // tslint:disable-next-line:function-name
-    static find(token, cb) {
+    static find(token) {
         const key = ReservationModel.getRedisKey(token);
-        redisClient.get(key, (err, reply) => {
-            if (err instanceof Error) {
-                cb(err, null);
-                return;
-            }
-            if (reply === null) {
-                cb(new Error('Not Found'), null);
-                return;
-            }
-            const reservationModel = new ReservationModel();
-            try {
-                const reservationModelInRedis = JSON.parse(reply.toString());
-                Object.keys(reservationModelInRedis).forEach((propertyName) => {
-                    reservationModel[propertyName] = reservationModelInRedis[propertyName];
-                });
-            }
-            catch (error) {
-                cb(err, null);
-                return;
-            }
-            cb(null, reservationModel);
+        return new Promise((resolve, reject) => {
+            redisClient.get(key, (err, reply) => {
+                if (err instanceof Error) {
+                    reject(err);
+                    return;
+                }
+                if (reply === null) {
+                    reject(new Error('Not Found'));
+                    return;
+                }
+                const reservationModel = new ReservationModel();
+                try {
+                    const reservationModelInRedis = JSON.parse(reply.toString());
+                    Object.keys(reservationModelInRedis).forEach((propertyName) => {
+                        reservationModel[propertyName] = reservationModelInRedis[propertyName];
+                    });
+                }
+                catch (error) {
+                    reject(error);
+                    return;
+                }
+                resolve(reservationModel);
+            });
         });
     }
     /**
@@ -67,26 +69,37 @@ class ReservationModel {
      *
      * @param {number} [ttl] 有効期間(default: 1800)
      */
-    save(cb, ttl) {
+    save(ttl) {
         const key = ReservationModel.getRedisKey(this.token);
         if (ttl === undefined) {
             ttl = DEFAULT_REDIS_TTL;
         }
-        redisClient.setex(key, ttl, JSON.stringify(this), (err) => {
-            if (err instanceof Error) {
-                console.error(err);
-                throw err;
-            }
-            cb();
+        return new Promise((resolve, reject) => {
+            redisClient.setex(key, ttl, JSON.stringify(this), (err) => {
+                if (err instanceof Error) {
+                    console.error(err);
+                    reject(err);
+                }
+                else {
+                    resolve();
+                }
+            });
         });
     }
     /**
      * プロセス中の購入情報をセッションから削除する
      */
-    remove(cb) {
+    remove() {
         const key = ReservationModel.getRedisKey(this.token);
-        redisClient.del(key, (err) => {
-            cb(err);
+        return new Promise((resolve, reject) => {
+            redisClient.del(key, (err) => {
+                if (err instanceof Error) {
+                    reject(err);
+                }
+                else {
+                    resolve();
+                }
+            });
         });
     }
     /**
