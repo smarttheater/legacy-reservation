@@ -42,17 +42,14 @@ class ReserveController extends ReserveBaseController_1.default {
      * 座席の状態を取得する
      */
     getSeatProperties() {
-        const token = this.req.params.token;
-        ReservationModel_1.default.find(token, (err, reservationModel) => __awaiter(this, void 0, void 0, function* () {
-            if (err instanceof Error) {
-                this.res.json({ propertiesBySeatCode: {} });
-                return;
-            }
-            if (reservationModel === null) {
-                this.res.json({ propertiesBySeatCode: {} });
-                return;
-            }
+        return __awaiter(this, void 0, void 0, function* () {
             try {
+                const token = this.req.params.token;
+                const reservationModel = yield ReservationModel_1.default.find(token);
+                if (reservationModel === null) {
+                    this.res.json({ propertiesBySeatCode: {} });
+                    return;
+                }
                 const propertiesBySeatCode = {};
                 // 予約リストを取得
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
@@ -98,7 +95,7 @@ class ReserveController extends ReserveBaseController_1.default {
             catch (error) {
                 this.res.json({ propertiesBySeatCode: {} });
             }
-        }));
+        });
     }
     /**
      * create qrcode by reservation token and reservation id.

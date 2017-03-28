@@ -165,8 +165,8 @@ export default class PreCustomerReserveController extends ReserveBaseController 
 
             // 1.5次販売アカウントによる予約数を取得
             // 決済中ステータスは含めない
-            const lockPath = `${__dirname}/../../../../../lock/PreCustomerFixSeats${preCustomerUser.get('_id')}.lock`;
-            lockFile.lockSync(lockPath, { wait: 5000 });
+            const lockPath = `${__dirname}/../../../../lock/PreCustomerFixSeats${preCustomerUser.get('_id')}.lock`;
+            lockFile.lockSync(lockPath, {});
 
             const reservationsCount = await Models.Reservation.count(
                 {

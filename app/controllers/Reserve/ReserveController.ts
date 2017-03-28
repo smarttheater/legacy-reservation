@@ -34,81 +34,76 @@ export default class ReserveController extends ReserveBaseController {
     /**
      * 座席の状態を取得する
      */
-    public getSeatProperties() {
-        const token = this.req.params.token;
-        ReservationModel.find(token, async (err, reservationModel) => {
-            if (err instanceof Error) {
-                this.res.json({ propertiesBySeatCode: {} });
-                return;
-            }
+    public async getSeatProperties() {
+        try {
+            const token = this.req.params.token;
+            const reservationModel = await ReservationModel.find(token);
 
             if (reservationModel === null) {
                 this.res.json({ propertiesBySeatCode: {} });
                 return;
             }
 
-            try {
-                const propertiesBySeatCode: {
-                    [seatCode: string]: {
-                        avalilable: boolean, // 予約可能かどうか
-                        baloonContent: string, // バルーン内容
-                        entered: boolean // 入場済みかどうか
-                    };
-                } = {};
+            const propertiesBySeatCode: {
+                [seatCode: string]: {
+                    avalilable: boolean, // 予約可能かどうか
+                    baloonContent: string, // バルーン内容
+                    entered: boolean // 入場済みかどうか
+                };
+            } = {};
 
-                // 予約リストを取得
-                const reservations = await Models.Reservation.find(
-                    {
-                        performance: reservationModel.performance._id
-                    }
-                ).exec();
+            // 予約リストを取得
+            const reservations = await Models.Reservation.find(
+                {
+                    performance: reservationModel.performance._id
+                }
+            ).exec();
 
-                // 予約データが存在すれば、現在仮押さえ中の座席を除いて予約不可(disabled)
-                reservations.forEach((reservation) => {
-                    const seatCode = reservation.get('seat_code');
-                    let avalilable = false;
-                    let baloonContent = seatCode;
+            // 予約データが存在すれば、現在仮押さえ中の座席を除いて予約不可(disabled)
+            reservations.forEach((reservation) => {
+                const seatCode = reservation.get('seat_code');
+                let avalilable = false;
+                let baloonContent = seatCode;
 
-                    if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
-                        // 仮押さえ中
+                if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
+                    // 仮押さえ中
+                    avalilable = true;
+                }
+
+                // 内部関係者用
+                if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
+                    baloonContent = reservation.get('baloon_content4staff');
+
+                    // 内部関係者はCHEVRE確保も予約できる
+                    if (reservation.get('status') === ReservationUtil.STATUS_KEPT_BY_CHEVRE) {
                         avalilable = true;
                     }
+                }
 
-                    // 内部関係者用
-                    if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
-                        baloonContent = reservation.get('baloon_content4staff');
+                propertiesBySeatCode[seatCode] = {
+                    avalilable: avalilable,
+                    baloonContent: baloonContent,
+                    entered: reservation.get('entered')
+                };
+            });
 
-                        // 内部関係者はCHEVRE確保も予約できる
-                        if (reservation.get('status') === ReservationUtil.STATUS_KEPT_BY_CHEVRE) {
-                            avalilable = true;
-                        }
-                    }
-
-                    propertiesBySeatCode[seatCode] = {
-                        avalilable: avalilable,
-                        baloonContent: baloonContent,
-                        entered: reservation.get('entered')
+            // 予約のない座席は全て空席
+            reservationModel.performance.screen.sections[0].seats.forEach((seat) => {
+                if (!propertiesBySeatCode.hasOwnProperty(seat.code)) {
+                    propertiesBySeatCode[seat.code] = {
+                        avalilable: true,
+                        baloonContent: seat.code,
+                        entered: false
                     };
-                });
+                }
+            });
 
-                // 予約のない座席は全て空席
-                reservationModel.performance.screen.sections[0].seats.forEach((seat) => {
-                    if (!propertiesBySeatCode.hasOwnProperty(seat.code)) {
-                        propertiesBySeatCode[seat.code] = {
-                            avalilable: true,
-                            baloonContent: seat.code,
-                            entered: false
-                        };
-                    }
-                });
-
-                this.res.json({
-                    propertiesBySeatCode: propertiesBySeatCode
-                });
-            } catch (error) {
-                this.res.json({ propertiesBySeatCode: {} });
-            }
-        });
+            this.res.json({
+                propertiesBySeatCode: propertiesBySeatCode
+            });
+        } catch (error) {
+            this.res.json({ propertiesBySeatCode: {} });
+        }
     }
 
     /**

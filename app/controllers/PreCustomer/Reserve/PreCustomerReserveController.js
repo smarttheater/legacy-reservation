@@ -170,8 +170,8 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                 }
                 // 1.5次販売アカウントによる予約数を取得
                 // 決済中ステータスは含めない
-                const lockPath = `${__dirname}/../../../../../lock/PreCustomerFixSeats${preCustomerUser.get('_id')}.lock`;
-                lockFile.lockSync(lockPath, { wait: 5000 });
+                const lockPath = `${__dirname}/../../../../lock/PreCustomerFixSeats${preCustomerUser.get('_id')}.lock`;
+                lockFile.lockSync(lockPath, {});
                 const reservationsCount = yield chevre_domain_1.Models.Reservation.count({
                     $and: [
                         { pre_customer: preCustomerUser.get('_id') },
