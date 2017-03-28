@@ -41,7 +41,7 @@ class ReserveBaseController extends BaseController_1.default {
     processFixTickets(reservationModel) {
         return new Promise((resolve, reject) => {
             reserveTicketForm_1.default(this.req, this.res, () => {
-                if (!this.req.form) {
+                if (this.req.form === undefined) {
                     reject(new Error(this.req.__('Message.UnexpectedError')));
                     return;
                 }

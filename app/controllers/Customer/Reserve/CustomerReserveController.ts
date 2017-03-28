@@ -99,7 +99,12 @@ export default class CustomerReserveController extends ReserveBaseController imp
     public async terms(): Promise<void> {
         try {
             const token = this.req.params.token;
-            await ReservationModel.find(token);
+            const reservationModel = await ReservationModel.find(token);
+
+            if (reservationModel === null) {
+                this.next(new Error(this.req.__('Message.Expired')));
+                return;
+            }
 
             if (this.req.method === 'POST') {
                 this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
@@ -107,7 +112,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
                 this.res.render('customer/reserve/terms');
             }
         } catch (error) {
-            this.next(new Error(this.req.__('Message.Expired')));
+            this.next(new Error(this.req.__('Message.UnexpectedError')));
         }
     }
 

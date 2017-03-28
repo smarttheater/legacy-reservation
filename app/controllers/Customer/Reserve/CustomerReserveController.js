@@ -109,7 +109,11 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = this.req.params.token;
-                yield ReservationModel_1.default.find(token);
+                const reservationModel = yield ReservationModel_1.default.find(token);
+                if (reservationModel === null) {
+                    this.next(new Error(this.req.__('Message.Expired')));
+                    return;
+                }
                 if (this.req.method === 'POST') {
                     this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
                 }
@@ -118,7 +122,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                 }
             }
             catch (error) {
-                this.next(new Error(this.req.__('Message.Expired')));
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
             }
         });
     }
