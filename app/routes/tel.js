@@ -89,9 +89,9 @@ exports.default = (app) => {
     // 電話窓口フロー
     // tslint:disable:max-line-length
     app.all('/tel/login', 'tel.mypage.login', base, (req, res, next) => { (new TelAuthController_1.default(req, res, next)).login(); });
-    app.all('/tel/logout', 'tel.logout', base, (req, res, next) => { (new TelAuthController_1.default(req, res, next)).logout(); });
+    app.all('/tel/logout', 'tel.logout', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelAuthController_1.default(req, res, next)).logout(); }));
     app.all('/tel/mypage', 'tel.mypage', base, authentication, (req, res, next) => { (new TelMyPageController_1.default(req, res, next)).index(); });
-    app.get('/tel/mypage/search', 'tel.mypage.search', base, authentication, (req, res, next) => { (new TelMyPageController_1.default(req, res, next)).search(); });
+    app.get('/tel/mypage/search', 'tel.mypage.search', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelMyPageController_1.default(req, res, next)).search(); }));
     app.get('/tel/reserve/start', 'tel.reserve.start', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).start(); }));
     app.all('/tel/reserve/:token/terms', 'tel.reserve.terms', base, authentication, (req, res, next) => { (new TelReserveController_1.default(req, res, next)).terms(); });
     app.all('/tel/reserve/:token/performances', 'tel.reserve.performances', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).performances(); }));

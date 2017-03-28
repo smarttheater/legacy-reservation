@@ -89,9 +89,9 @@ exports.default = (app) => {
     // 当日窓口フロー
     // tslint:disable:max-line-length
     app.all('/window/login', 'window.mypage.login', base, (req, res, next) => { (new WindowAuthController_1.default(req, res, next)).login(); });
-    app.all('/window/logout', 'window.logout', base, (req, res, next) => { (new WindowAuthController_1.default(req, res, next)).logout(); });
+    app.all('/window/logout', 'window.logout', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowAuthController_1.default(req, res, next)).logout(); }));
     app.all('/window/mypage', 'window.mypage', base, authentication, (req, res, next) => { (new WindowMyPageController_1.default(req, res, next)).index(); });
-    app.get('/window/mypage/search', 'window.mypage.search', base, authentication, (req, res, next) => { (new WindowMyPageController_1.default(req, res, next)).search(); });
+    app.get('/window/mypage/search', 'window.mypage.search', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowMyPageController_1.default(req, res, next)).search(); }));
     app.get('/window/reserve/start', 'window.reserve.start', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowReserveController_1.default(req, res, next)).start(); }));
     app.all('/window/reserve/:token/terms', 'window.reserve.terms', base, authentication, (req, res, next) => { (new WindowReserveController_1.default(req, res, next)).terms(); });
     app.all('/window/reserve/:token/performances', 'window.reserve.performances', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowReserveController_1.default(req, res, next)).performances(); }));

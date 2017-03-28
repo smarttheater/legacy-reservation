@@ -91,9 +91,9 @@ export default (app: any) => {
     // 電話窓口フロー
     // tslint:disable:max-line-length
     app.all('/tel/login', 'tel.mypage.login', base, (req: Request, res: Response, next: NextFunction) => { (new TelAuthController(req, res, next)).login(); });
-    app.all('/tel/logout', 'tel.logout', base, (req: Request, res: Response, next: NextFunction) => { (new TelAuthController(req, res, next)).logout(); });
+    app.all('/tel/logout', 'tel.logout', base, async (req: Request, res: Response, next: NextFunction) => { await (new TelAuthController(req, res, next)).logout(); });
     app.all('/tel/mypage', 'tel.mypage', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new TelMyPageController(req, res, next)).index(); });
-    app.get('/tel/mypage/search', 'tel.mypage.search', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new TelMyPageController(req, res, next)).search(); });
+    app.get('/tel/mypage/search', 'tel.mypage.search', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelMyPageController(req, res, next)).search(); });
     app.get('/tel/reserve/start', 'tel.reserve.start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).start(); });
     app.all('/tel/reserve/:token/terms', 'tel.reserve.terms', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new TelReserveController(req, res, next)).terms(); });
     app.all('/tel/reserve/:token/performances', 'tel.reserve.performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).performances(); });

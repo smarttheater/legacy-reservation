@@ -78,10 +78,10 @@ app.use(i18n.init);
 // セッションで言語管理
 // tslint:disable-next-line:variable-name
 app.use((req, _res, next) => {
-    if (req.session.locale) {
+    if (req.session.locale !== undefined && req.session.locale !== '') {
         req.setLocale(req.session.locale);
     }
-    if (req.query.locale) {
+    if (req.query.locale !== undefined && req.query.locale !== '') {
         req.setLocale(req.query.locale);
         req.session.locale = req.query.locale;
     }

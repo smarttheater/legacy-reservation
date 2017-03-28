@@ -94,10 +94,10 @@ exports.default = (app) => {
     // 内部関係者
     // tslint:disable:max-line-length
     app.all('/staff/login', 'staff.mypage.login', base, (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).login(); });
-    app.all('/staff/logout', 'staff.logout', base, (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).logout(); });
-    app.all('/staff/mypage', 'staff.mypage', base, authentication, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).index(); });
-    app.get('/staff/mypage/search', 'staff.mypage.search', base, authentication, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).search(); });
-    app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', base, authentication, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).updateWatcherName(); });
+    app.all('/staff/logout', 'staff.logout', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffAuthController_1.default(req, res, next)).logout(); }));
+    app.all('/staff/mypage', 'staff.mypage', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffMyPageController_1.default(req, res, next)).index(); }));
+    app.get('/staff/mypage/search', 'staff.mypage.search', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffMyPageController_1.default(req, res, next)).search(); }));
+    app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffMyPageController_1.default(req, res, next)).updateWatcherName(); }));
     app.get('/staff/reserve/start', 'staff.reserve.start', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffReserveController_1.default(req, res, next)).start(); }));
     app.all('/staff/reserve/:token/terms', 'staff.reserve.terms', base, authentication, (req, res, next) => { (new StaffReserveController_1.default(req, res, next)).terms(); });
     app.all('/staff/reserve/:token/performances', 'staff.reserve.performances', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffReserveController_1.default(req, res, next)).performances(); }));
@@ -107,5 +107,5 @@ exports.default = (app) => {
     app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffReserveController_1.default(req, res, next)).confirm(); }));
     app.get('/staff/reserve/:paymentNo/complete', 'staff.reserve.complete', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffReserveController_1.default(req, res, next)).complete(); }));
     app.post('/staff/cancel/execute', 'staff.cancel.execute', base, authentication, (req, res, next) => { (new StaffCancelController_1.default(req, res, next)).execute(); });
-    app.all('/staff/mypage/release', 'staff.mypage.release', base, authentication, (req, res, next) => { (new StaffMyPageController_1.default(req, res, next)).release(); });
+    app.all('/staff/mypage/release', 'staff.mypage.release', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffMyPageController_1.default(req, res, next)).release(); }));
 };

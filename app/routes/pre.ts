@@ -91,7 +91,7 @@ export default (app: any) => {
     // 外部関係者
     // tslint:disable:max-line-length
     app.all('/pre/login', 'pre.reserve.terms', base, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerAuthController(req, res, next)).login(); });
-    app.all('/pre/logout', 'pre.logout', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerAuthController(req, res, next)).logout(); });
+    app.all('/pre/logout', 'pre.logout', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerAuthController(req, res, next)).logout(); });
     app.get('/pre/reserve/start', 'pre.reserve.start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerReserveController(req, res, next)).start(); });
     app.all('/pre/reserve/:token/performances', 'pre.reserve.performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerReserveController(req, res, next)).performances(); });
     app.all('/pre/reserve/:token/seats', 'pre.reserve.seats', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerReserveController(req, res, next)).seats(); });

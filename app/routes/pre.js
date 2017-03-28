@@ -90,7 +90,7 @@ exports.default = (app) => {
     // 外部関係者
     // tslint:disable:max-line-length
     app.all('/pre/login', 'pre.reserve.terms', base, (req, res, next) => { (new PreCustomerAuthController_1.default(req, res, next)).login(); });
-    app.all('/pre/logout', 'pre.logout', base, authentication, (req, res, next) => { (new PreCustomerAuthController_1.default(req, res, next)).logout(); });
+    app.all('/pre/logout', 'pre.logout', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerAuthController_1.default(req, res, next)).logout(); }));
     app.get('/pre/reserve/start', 'pre.reserve.start', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).start(); }));
     app.all('/pre/reserve/:token/performances', 'pre.reserve.performances', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).performances(); }));
     app.all('/pre/reserve/:token/seats', 'pre.reserve.seats', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).seats(); }));

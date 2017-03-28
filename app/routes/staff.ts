@@ -95,10 +95,10 @@ export default (app: any) => {
     // 内部関係者
     // tslint:disable:max-line-length
     app.all('/staff/login', 'staff.mypage.login', base, (req: Request, res: Response, next: NextFunction) => { (new StaffAuthController(req, res, next)).login(); });
-    app.all('/staff/logout', 'staff.logout', base, (req: Request, res: Response, next: NextFunction) => { (new StaffAuthController(req, res, next)).logout(); });
-    app.all('/staff/mypage', 'staff.mypage', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new StaffMyPageController(req, res, next)).index(); });
-    app.get('/staff/mypage/search', 'staff.mypage.search', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new StaffMyPageController(req, res, next)).search(); });
-    app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new StaffMyPageController(req, res, next)).updateWatcherName(); });
+    app.all('/staff/logout', 'staff.logout', base, async (req: Request, res: Response, next: NextFunction) => { await (new StaffAuthController(req, res, next)).logout(); });
+    app.all('/staff/mypage', 'staff.mypage', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffMyPageController(req, res, next)).index(); });
+    app.get('/staff/mypage/search', 'staff.mypage.search', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffMyPageController(req, res, next)).search(); });
+    app.post('/staff/mypage/updateWatcherName', 'staff.mypage.updateWatcherName', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffMyPageController(req, res, next)).updateWatcherName(); });
     app.get('/staff/reserve/start', 'staff.reserve.start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).start(); });
     app.all('/staff/reserve/:token/terms', 'staff.reserve.terms', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new StaffReserveController(req, res, next)).terms(); });
     app.all('/staff/reserve/:token/performances', 'staff.reserve.performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).performances(); });
@@ -108,5 +108,5 @@ export default (app: any) => {
     app.all('/staff/reserve/:token/confirm', 'staff.reserve.confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).confirm(); });
     app.get('/staff/reserve/:paymentNo/complete', 'staff.reserve.complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).complete(); });
     app.post('/staff/cancel/execute', 'staff.cancel.execute', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new StaffCancelController(req, res, next)).execute(); });
-    app.all('/staff/mypage/release', 'staff.mypage.release', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new StaffMyPageController(req, res, next)).release(); });
+    app.all('/staff/mypage/release', 'staff.mypage.release', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffMyPageController(req, res, next)).release(); });
 };

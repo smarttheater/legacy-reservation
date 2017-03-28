@@ -90,9 +90,9 @@ export default (app: any) => {
     // 当日窓口フロー
     // tslint:disable:max-line-length
     app.all('/window/login', 'window.mypage.login', base, (req: Request, res: Response, next: NextFunction) => { (new WindowAuthController(req, res, next)).login(); });
-    app.all('/window/logout', 'window.logout', base, (req: Request, res: Response, next: NextFunction) => { (new WindowAuthController(req, res, next)).logout(); });
+    app.all('/window/logout', 'window.logout', base, async (req: Request, res: Response, next: NextFunction) => { await (new WindowAuthController(req, res, next)).logout(); });
     app.all('/window/mypage', 'window.mypage', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new WindowMyPageController(req, res, next)).index(); });
-    app.get('/window/mypage/search', 'window.mypage.search', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new WindowMyPageController(req, res, next)).search(); });
+    app.get('/window/mypage/search', 'window.mypage.search', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowMyPageController(req, res, next)).search(); });
     app.get('/window/reserve/start', 'window.reserve.start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).start(); });
     app.all('/window/reserve/:token/terms', 'window.reserve.terms', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new WindowReserveController(req, res, next)).terms(); });
     app.all('/window/reserve/:token/performances', 'window.reserve.performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).performances(); });

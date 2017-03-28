@@ -93,9 +93,9 @@ export default (app: any) => {
     // 外部関係者
     // tslint:disable:max-line-length
     app.all('/sponsor/login', 'sponsor.mypage.login', base, (req: Request, res: Response, next: NextFunction) => { (new SponsorAuthController(req, res, next)).login(); });
-    app.all('/sponsor/logout', 'sponsor.logout', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new SponsorAuthController(req, res, next)).logout(); });
+    app.all('/sponsor/logout', 'sponsor.logout', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorAuthController(req, res, next)).logout(); });
     app.all('/sponsor/mypage', 'sponsor.mypage', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new SponsorMyPageController(req, res, next)).index(); });
-    app.get('/sponsor/mypage/search', 'sponsor.mypage.search', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new SponsorMyPageController(req, res, next)).search(); });
+    app.get('/sponsor/mypage/search', 'sponsor.mypage.search', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorMyPageController(req, res, next)).search(); });
     app.get('/sponsor/reserve/start', 'sponsor.reserve.start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorReserveController(req, res, next)).start(); });
     app.all('/sponsor/reserve/:token/terms', 'sponsor.reserve.terms', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new SponsorReserveController(req, res, next)).terms(); });
     app.all('/sponsor/reserve/:token/performances', 'sponsor.reserve.performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorReserveController(req, res, next)).performances(); });
