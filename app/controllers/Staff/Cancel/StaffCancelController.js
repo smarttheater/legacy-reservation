@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
@@ -13,40 +21,37 @@ const BaseController_1 = require("../../BaseController");
  */
 class StaffCancelController extends BaseController_1.default {
     execute() {
-        if (!this.req.staffUser)
-            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-        const staffUser = this.req.staffUser;
-        this.logger = log4js.getLogger('cancel');
-        // 予約IDリストをjson形式で受け取る
-        const reservationIds = JSON.parse(this.req.body.reservationIds);
-        if (Array.isArray(reservationIds)) {
-            const promises = reservationIds.map((id) => {
-                return new Promise((resolve, reject) => {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.req.staffUser === undefined) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+                return;
+            }
+            const staffUser = this.req.staffUser;
+            this.logger = log4js.getLogger('cancel');
+            try {
+                // 予約IDリストをjson形式で受け取る
+                const reservationIds = JSON.parse(this.req.body.reservationIds);
+                if (!Array.isArray(reservationIds)) {
+                    throw new Error(this.req.__('Message.UnexpectedError'));
+                }
+                const promises = reservationIds.map((id) => __awaiter(this, void 0, void 0, function* () {
                     this.logger.info('updating to STATUS_KEPT_BY_CHEVRE by staff... staff:', staffUser.get('user_id'), 'signature:', staffUser.get('signature'), 'id:', id);
-                    chevre_domain_1.Models.Reservation.findOneAndUpdate({ _id: id }, { status: chevre_domain_2.ReservationUtil.STATUS_KEPT_BY_CHEVRE }, { new: true }, (err, raw) => {
-                        this.logger.info('updated to STATUS_KEPT_BY_CHEVRE by staff.', err, raw, 'staff:', staffUser.get('user_id'), 'signature:', staffUser.get('signature'), 'id:', id);
-                        (err) ? reject(err) : resolve();
-                    });
-                });
-            });
-            Promise.all(promises).then(() => {
+                    const reservation = yield chevre_domain_1.Models.Reservation.findOneAndUpdate({ _id: id }, { status: chevre_domain_2.ReservationUtil.STATUS_KEPT_BY_CHEVRE }, { new: true }).exec();
+                    this.logger.info('updated to STATUS_KEPT_BY_CHEVRE by staff.', reservation, 'staff:', staffUser.get('user_id'), 'signature:', staffUser.get('signature'), 'id:', id);
+                }));
+                yield Promise.all(promises);
                 this.res.json({
                     success: true,
                     message: null
                 });
-            }, (err) => {
+            }
+            catch (error) {
                 this.res.json({
                     success: false,
-                    message: err.message
+                    message: error.message
                 });
-            });
-        }
-        else {
-            this.res.json({
-                success: false,
-                message: this.req.__('Message.UnexpectedError')
-            });
-        }
+            }
+        });
     }
 }
 exports.default = StaffCancelController;

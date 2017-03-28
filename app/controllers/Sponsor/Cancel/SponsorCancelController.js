@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
@@ -21,7 +29,7 @@ class SponsorCancelController extends BaseController_1.default {
      * チケットキャンセル
      */
     index() {
-        if (this.req.sponsorUser && this.req.sponsorUser.isAuthenticated()) {
+        if (this.req.sponsorUser !== undefined && this.req.sponsorUser.isAuthenticated()) {
             // ログイン時そのまま
         }
         else {
@@ -29,50 +37,48 @@ class SponsorCancelController extends BaseController_1.default {
         }
         if (this.req.method === 'POST') {
             const form = sponsorCancelForm_1.default(this.req);
-            form(this.req, this.res, () => {
-                if (this.req.form && this.req.form.isValid) {
-                    // 予約を取得
-                    chevre_domain_1.Models.Reservation.find({
-                        payment_no: this.req.form.paymentNo,
-                        purchaser_tel: { $regex: `${this.req.form.last4DigitsOfTel}$` },
-                        purchaser_group: chevre_domain_2.ReservationUtil.PURCHASER_GROUP_SPONSOR,
-                        status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
-                    }, (findReservationErr, reservations) => {
-                        if (findReservationErr) {
+            form(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
+                if (this.req.form !== undefined && this.req.form.isValid) {
+                    try {
+                        // 予約を取得
+                        const reservations = yield chevre_domain_1.Models.Reservation.find({
+                            payment_no: this.req.form.paymentNo,
+                            purchaser_tel: { $regex: `${this.req.form.last4DigitsOfTel}$` },
+                            purchaser_group: chevre_domain_2.ReservationUtil.PURCHASER_GROUP_SPONSOR,
+                            status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
+                        }).exec();
+                        if (reservations.length === 0) {
                             this.res.json({
                                 success: false,
-                                message: this.req.__('Message.UnexpectedError')
+                                message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
                             });
+                            return;
                         }
-                        else {
-                            if (reservations.length === 0) {
-                                this.res.json({
-                                    success: false,
-                                    message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
-                                });
-                            }
-                            else {
-                                const results = reservations.map((reservation) => {
-                                    return {
-                                        _id: reservation.get('_id'),
-                                        seat_code: reservation.get('seat_code'),
-                                        payment_no: reservation.get('payment_no'),
-                                        film_name_ja: reservation.get('film_name_ja'),
-                                        film_name_en: reservation.get('film_name_en'),
-                                        performance_start_str_ja: reservation.get('performance_start_str_ja'),
-                                        performance_start_str_en: reservation.get('performance_start_str_en'),
-                                        location_str_ja: reservation.get('location_str_ja'),
-                                        location_str_en: reservation.get('location_str_en')
-                                    };
-                                });
-                                this.res.json({
-                                    success: true,
-                                    message: null,
-                                    reservations: results
-                                });
-                            }
-                        }
-                    });
+                        const results = reservations.map((reservation) => {
+                            return {
+                                _id: reservation.get('_id'),
+                                seat_code: reservation.get('seat_code'),
+                                payment_no: reservation.get('payment_no'),
+                                film_name_ja: reservation.get('film_name_ja'),
+                                film_name_en: reservation.get('film_name_en'),
+                                performance_start_str_ja: reservation.get('performance_start_str_ja'),
+                                performance_start_str_en: reservation.get('performance_start_str_en'),
+                                location_str_ja: reservation.get('location_str_ja'),
+                                location_str_en: reservation.get('location_str_en')
+                            };
+                        });
+                        this.res.json({
+                            success: true,
+                            message: null,
+                            reservations: results
+                        });
+                    }
+                    catch (error) {
+                        this.res.json({
+                            success: false,
+                            message: this.req.__('Message.UnexpectedError')
+                        });
+                    }
                 }
                 else {
                     this.res.json({
@@ -80,7 +86,7 @@ class SponsorCancelController extends BaseController_1.default {
                         message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
                     });
                 }
-            });
+            }));
         }
         else {
             this.res.locals.paymentNo = '';
@@ -92,82 +98,76 @@ class SponsorCancelController extends BaseController_1.default {
      * 購入番号からキャンセルする
      */
     executeByPaymentNo() {
-        if (!this.req.sponsorUser)
-            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-        const sponsorUser = this.req.sponsorUser;
-        this.logger = log4js.getLogger('cancel');
-        // 予約IDリストをjson形式で受け取る
-        const reservationIds = JSON.parse(this.req.body.reservationIds);
-        if (Array.isArray(reservationIds)) {
-            const promises = reservationIds.map((id) => {
-                return new Promise((resolve, reject) => {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.req.sponsorUser === undefined) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+                return;
+            }
+            const sponsorUser = this.req.sponsorUser;
+            this.logger = log4js.getLogger('cancel');
+            try {
+                // 予約IDリストをjson形式で受け取る
+                const reservationIds = JSON.parse(this.req.body.reservationIds);
+                if (!Array.isArray(reservationIds)) {
+                    throw new Error(this.req.__('Message.UnexpectedError'));
+                }
+                const promises = reservationIds.map((id) => __awaiter(this, void 0, void 0, function* () {
                     this.logger.info('updating to STATUS_KEPT_BY_CHEVRE by sponsor... sponsor:', sponsorUser.get('user_id'), 'id:', id);
-                    chevre_domain_1.Models.Reservation.findOneAndUpdate({
+                    const reservation = yield chevre_domain_1.Models.Reservation.findOneAndUpdate({
                         _id: id,
                         payment_no: this.req.body.paymentNo,
                         purchaser_tel: { $regex: `${this.req.body.last4DigitsOfTel}$` },
                         purchaser_group: chevre_domain_2.ReservationUtil.PURCHASER_GROUP_SPONSOR,
                         status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
-                    }, { status: chevre_domain_2.ReservationUtil.STATUS_KEPT_BY_CHEVRE }, { new: true }, (err, reservation) => {
-                        this.logger.info('updated to STATUS_KEPT_BY_CHEVRE.', err, reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
-                        (err) ? reject(err) : resolve();
-                    });
-                });
-            });
-            Promise.all(promises).then(() => {
+                    }, { status: chevre_domain_2.ReservationUtil.STATUS_KEPT_BY_CHEVRE }, { new: true }).exec();
+                    this.logger.info('updated to STATUS_KEPT_BY_CHEVRE.', reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
+                }));
+                yield Promise.all(promises);
                 this.res.json({
                     success: true,
                     message: null
                 });
-            }, (err) => {
+            }
+            catch (error) {
                 this.res.json({
                     success: false,
-                    message: err.message
+                    message: error.message
                 });
-            });
-        }
-        else {
-            this.res.json({
-                success: false,
-                message: this.req.__('Message.UnexpectedError')
-            });
-        }
+            }
+        });
     }
     execute() {
-        if (!this.req.sponsorUser)
-            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-        const sponsorUser = this.req.sponsorUser;
-        this.logger = log4js.getLogger('cancel');
-        // 予約IDリストをjson形式で受け取る
-        const reservationIds = JSON.parse(this.req.body.reservationIds);
-        if (Array.isArray(reservationIds)) {
-            const promises = reservationIds.map((id) => {
-                return new Promise((resolve, reject) => {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.req.sponsorUser === undefined) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+                return;
+            }
+            const sponsorUser = this.req.sponsorUser;
+            this.logger = log4js.getLogger('cancel');
+            try {
+                // 予約IDリストをjson形式で受け取る
+                const reservationIds = JSON.parse(this.req.body.reservationIds);
+                if (!Array.isArray(reservationIds)) {
+                    throw new Error(this.req.__('Message.UnexpectedError'));
+                }
+                const promises = reservationIds.map((id) => __awaiter(this, void 0, void 0, function* () {
                     this.logger.info('updating to STATUS_KEPT_BY_CHEVRE by sponsor... sponsor:', sponsorUser.get('user_id'), 'id:', id);
-                    chevre_domain_1.Models.Reservation.findOneAndUpdate({ _id: id }, { status: chevre_domain_2.ReservationUtil.STATUS_KEPT_BY_CHEVRE }, { new: true }, (err, reservation) => {
-                        this.logger.info('updated to STATUS_KEPT_BY_CHEVRE.', err, reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
-                        (err) ? reject(err) : resolve();
-                    });
-                });
-            });
-            Promise.all(promises).then(() => {
+                    const reservation = yield chevre_domain_1.Models.Reservation.findOneAndUpdate({ _id: id }, { status: chevre_domain_2.ReservationUtil.STATUS_KEPT_BY_CHEVRE }, { new: true }).exec();
+                    this.logger.info('updated to STATUS_KEPT_BY_CHEVRE.', reservation, 'sponsor:', sponsorUser.get('user_id'), 'id:', id);
+                }));
+                yield Promise.all(promises);
                 this.res.json({
                     success: true,
                     message: null
                 });
-            }, (err) => {
+            }
+            catch (error) {
                 this.res.json({
                     success: false,
-                    message: err.message
+                    message: error.message
                 });
-            });
-        }
-        else {
-            this.res.json({
-                success: false,
-                message: this.req.__('Message.UnexpectedError')
-            });
-        }
+            }
+        });
     }
 }
 exports.default = SponsorCancelController;

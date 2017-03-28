@@ -9,7 +9,7 @@
     }
   ],
   "dependencies": {
-    "@motionpicture/chevre-domain": "^2.0.0",
+    "@motionpicture/chevre-domain": "^2.0.1",
     "basic-auth": "^1.0.4",
     "body-parser": "^1.17.1",
     "config": "^1.21.0",
