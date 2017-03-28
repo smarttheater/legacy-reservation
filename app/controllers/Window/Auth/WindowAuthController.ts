@@ -1,5 +1,4 @@
 import { Models } from '@motionpicture/chevre-domain';
-import * as mongoose from 'mongoose';
 import * as Util from '../../../../common/Util/Util';
 import windowLoginForm from '../../../forms/window/windowLoginForm';
 import WindowUser from '../../../models/User/WindowUser';
@@ -19,69 +18,57 @@ export default class WindowAuthController extends BaseController {
      * 窓口担当者ログイン
      */
     public login(): void {
-        if (!this.req.windowUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
-        if (this.req.windowUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('window.mypage'));
+        if (this.req.windowUser !== undefined && this.req.windowUser.isAuthenticated()) {
+            this.res.redirect(this.router.build('window.mypage'));
+            return;
         }
 
         if (this.req.method === 'POST') {
-            windowLoginForm(this.req)(this.req, this.res, () => {
+            windowLoginForm(this.req)(this.req, this.res, async () => {
                 const form = this.req.form;
-                if (form && form.isValid) {
-
-                    // ユーザー認証
-                    Models.Window.findOne(
-                        {
-                            user_id: (<any>form).userId
-                        },
-                        (findWindowErr, window) => {
-                            if (findWindowErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
-                            if (!window) {
-                                form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                                this.res.render('window/auth/login');
-                            } else {
-                                // パスワードチェック
-                                if (window.get('password_hash') !== Util.createHash((<any>form).password, window.get('password_salt'))) {
-                                    form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                                    this.res.render('window/auth/login');
-
-                                } else {
-                                    // ログイン記憶
-                                    const processRemember = (cb: (err: Error | null, token: string | null) => void) => {
-                                        if ((<any>form).remember) {
-                                            // トークン生成
-                                            Models.Authentication.create(
-                                                {
-                                                    token: Util.createToken(),
-                                                    window: window.get('_id')
-                                                },
-                                                (createAuthenticationErr: any, authentication: mongoose.Document) => {
-                                                    this.res.cookie('remember_window', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
-                                                    cb(createAuthenticationErr, authentication.get('token'));
-                                                }
-                                            );
-                                        } else {
-                                            cb(null, null);
-                                        }
-                                    };
-
-                                    processRemember((processRememberErr) => {
-                                        if (!this.req.session) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                        if (processRememberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
-                                        // ログイン
-                                        this.req.session[WindowUser.AUTH_SESSION_NAME] = window.toObject();
-
-                                        // if exist parameter cb, redirect to cb.
-                                        const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('window.mypage');
-                                        this.res.redirect(cb);
-                                    });
-                                }
+                if (form !== undefined && form.isValid) {
+                    try {
+                        // ユーザー認証
+                        const window = await Models.Window.findOne(
+                            {
+                                user_id: (<any>form).userId
                             }
+                        ).exec();
+
+                        if (window === null) {
+                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            this.res.render('window/auth/login');
+                            return;
                         }
-                    );
+
+                        // パスワードチェック
+                        if (window.get('password_hash') !== Util.createHash((<any>form).password, window.get('password_salt'))) {
+                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            this.res.render('window/auth/login');
+                            return;
+                        }
+
+                        // ログイン記憶
+                        if ((<any>form).remember === 'on') {
+                            // トークン生成
+                            const authentication = await Models.Authentication.create(
+                                {
+                                    token: Util.createToken(),
+                                    window: window.get('_id')
+                                }
+                            );
+                            // tslint:disable-next-line:no-cookies
+                            this.res.cookie('remember_window', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                        }
+
+                        // ログイン
+                        (<Express.Session>this.req.session)[WindowUser.AUTH_SESSION_NAME] = window.toObject();
+
+                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('window.mypage');
+                        this.res.redirect(cb);
+                    } catch (error) {
+                        this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    }
                 } else {
                     this.res.render('window/auth/login');
                 }
@@ -94,15 +81,20 @@ export default class WindowAuthController extends BaseController {
         }
     }
 
-    public logout(): void {
-        if (!this.req.session) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+    public async logout(): Promise<void> {
+        try {
+            if (this.req.session === undefined) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+                return;
+            }
 
-        delete this.req.session[WindowUser.AUTH_SESSION_NAME];
-        Models.Authentication.remove({ token: this.req.cookies.remember_window }, (err) => {
-            if (err) return this.next(err);
+            delete this.req.session[WindowUser.AUTH_SESSION_NAME];
+            await Models.Authentication.remove({ token: this.req.cookies.remember_window }).exec();
 
             this.res.clearCookie('remember_window');
             this.res.redirect(this.router.build('window.mypage'));
-        });
+        } catch (error) {
+            this.next(error);
+        }
     }
 }

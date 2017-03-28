@@ -27,40 +27,42 @@ export default class MemberAuthController extends BaseController {
             return;
         }
 
-        if (this.req.memberUser && this.req.memberUser.isAuthenticated()) {
+        if (this.req.memberUser !== undefined && this.req.memberUser.isAuthenticated()) {
             this.res.redirect(this.router.build('member.reserve.start'));
             return;
         }
 
         if (this.req.method === 'POST') {
-            memberLoginForm(this.req, this.res, () => {
+            memberLoginForm(this.req, this.res, async () => {
                 const form = this.req.form;
-                if (form && form.isValid) {
-                    // ユーザー認証
-                    this.logger.debug('finding member... user_id:', (<any>form).userId);
-                    Models.Member.findOne(
-                        {
-                            user_id: (<any>form).userId
-                        },
-                        (findMemberErr, member) => {
-                            if (findMemberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
-                            if (!member) {
-                                form.errors.push('ログイン番号またはパスワードに誤りがあります');
-                                this.res.render('member/auth/login');
-                            } else {
-                                // パスワードチェック
-                                if (member.get('password_hash') !== Util.createHash((<any>form).password, member.get('password_salt'))) {
-                                    form.errors.push('ログイン番号またはパスワードに誤りがあります');
-                                    this.res.render('member/auth/login');
-                                } else {
-                                    // ログイン
-                                    (<Express.Session>this.req.session)[MemberUser.AUTH_SESSION_NAME] = member.toObject();
-                                    this.res.redirect(this.router.build('member.reserve.start'));
-                                }
+                if (form !== undefined && form.isValid) {
+                    try {
+                        // ユーザー認証
+                        this.logger.debug('finding member... user_id:', (<any>form).userId);
+                        const member = await Models.Member.findOne(
+                            {
+                                user_id: (<any>form).userId
                             }
+                        ).exec();
+
+                        if (member === null) {
+                            form.errors.push('ログイン番号またはパスワードに誤りがあります');
+                            this.res.render('member/auth/login');
+                            return;
                         }
-                    );
+                        // パスワードチェック
+                        if (member.get('password_hash') !== Util.createHash((<any>form).password, member.get('password_salt'))) {
+                            form.errors.push('ログイン番号またはパスワードに誤りがあります');
+                            this.res.render('member/auth/login');
+                            return;
+                        }
+
+                        // ログイン
+                        (<Express.Session>this.req.session)[MemberUser.AUTH_SESSION_NAME] = member.toObject();
+                        this.res.redirect(this.router.build('member.reserve.start'));
+                    } catch (error) {
+                        this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    }
                 } else {
                     this.res.render('member/auth/login');
                 }

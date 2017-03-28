@@ -1,5 +1,4 @@
 import { Models } from '@motionpicture/chevre-domain';
-import * as mongoose from 'mongoose';
 import * as Util from '../../../../common/Util/Util';
 import sponsorLoginForm from '../../../forms/sponsor/sponsorLoginForm';
 import SponsorUser from '../../../models/User/SponsorUser';
@@ -19,72 +18,61 @@ export default class SponsorAuthController extends BaseController {
      * sponsor login
      */
     public login(): void {
-        if (this.req.sponsorUser && this.req.sponsorUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('sponsor.reserve.start'));
+        if (this.req.sponsorUser !== undefined && this.req.sponsorUser.isAuthenticated()) {
+            this.res.redirect(this.router.build('sponsor.reserve.start'));
+            return;
         }
 
         if (this.req.method === 'POST') {
-            sponsorLoginForm(this.req)(this.req, this.res, (err) => {
+            sponsorLoginForm(this.req)(this.req, this.res, async () => {
                 const form = this.req.form;
-                if (form && form.isValid) {
-
-                    // ユーザー認証
-                    this.logger.debug('finding sponsor... user_id:', (<any>form).userId);
-                    Models.Sponsor.findOne(
-                        {
-                            user_id: (<any>form).userId
-                        },
-                        (findSponsorErr, sponsor) => {
-                            if (findSponsorErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
-                            if (!sponsor) {
-                                form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                                this.res.render('sponsor/auth/login');
-                            } else {
-                                // パスワードチェック
-                                if (sponsor.get('password_hash') !== Util.createHash((<any>form).password, sponsor.get('password_salt'))) {
-                                    form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                                    this.res.render('sponsor/auth/login');
-
-                                } else {
-                                    // ログイン記憶
-                                    const processRemember = (cb: (err: Error | null, token: string | null) => void) => {
-                                        if ((<any>form).remember) {
-                                            // トークン生成
-                                            Models.Authentication.create(
-                                                {
-                                                    token: Util.createToken(),
-                                                    sponsor: sponsor.get('_id'),
-                                                    locale: (<any>form).language
-                                                },
-                                                (createAuthenticationErr: any, authentication: mongoose.Document) => {
-                                                    if (createAuthenticationErr) return cb(createAuthenticationErr, null);
-
-                                                    this.res.cookie('remember_sponsor', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
-                                                    cb(err, authentication.get('token'));
-                                                }
-                                            );
-                                        } else {
-                                            cb(null, null);
-                                        }
-                                    };
-
-                                    processRemember((processRememberErr) => {
-                                        if (!this.req.session) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                        if (processRememberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
-                                        // ログイン
-                                        this.req.session[SponsorUser.AUTH_SESSION_NAME] = sponsor.toObject();
-                                        this.req.session[SponsorUser.AUTH_SESSION_NAME].locale = (<any>this.req.form).language;
-
-                                        // if exist parameter cb, redirect to cb.
-                                        const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('sponsor.mypage');
-                                        this.res.redirect(cb);
-                                    });
-                                }
+                if (form !== undefined && form.isValid) {
+                    try {
+                        // ユーザー認証
+                        this.logger.debug('finding sponsor... user_id:', (<any>form).userId);
+                        const sponsor = await Models.Sponsor.findOne(
+                            {
+                                user_id: (<any>form).userId
                             }
+                        ).exec();
+
+                        if (sponsor === null) {
+                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            this.res.render('sponsor/auth/login');
+                            return;
                         }
-                    );
+
+                        // パスワードチェック
+                        if (sponsor.get('password_hash') !== Util.createHash((<any>form).password, sponsor.get('password_salt'))) {
+                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            this.res.render('sponsor/auth/login');
+                            return;
+                        }
+
+                        // ログイン記憶
+                        if ((<any>form).remember === 'on') {
+                            // トークン生成
+                            const authentication = await Models.Authentication.create(
+                                {
+                                    token: Util.createToken(),
+                                    sponsor: sponsor.get('_id'),
+                                    locale: (<any>form).language
+                                }
+                            );
+                            // tslint:disable-next-line:no-cookies
+                            this.res.cookie('remember_sponsor', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                        }
+
+                        // ログイン
+                        (<Express.Session>this.req.session)[SponsorUser.AUTH_SESSION_NAME] = sponsor.toObject();
+                        (<Express.Session>this.req.session)[SponsorUser.AUTH_SESSION_NAME].locale = (<any>this.req.form).language;
+
+                        // if exist parameter cb, redirect to cb.
+                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('sponsor.mypage');
+                        this.res.redirect(cb);
+                    } catch (error) {
+                        this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    }
                 } else {
                     this.res.render('sponsor/auth/login');
                 }
@@ -97,15 +85,20 @@ export default class SponsorAuthController extends BaseController {
         }
     }
 
-    public logout(): void {
-        if (!this.req.session) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+    public async logout(): Promise<void> {
+        try {
+            if (this.req.session === undefined) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+                return;
+            }
 
-        delete this.req.session[SponsorUser.AUTH_SESSION_NAME];
-        Models.Authentication.remove({ token: this.req.cookies.remember_sponsor }, (err) => {
-            if (err) return this.next(err);
+            delete this.req.session[SponsorUser.AUTH_SESSION_NAME];
+            await Models.Authentication.remove({ token: this.req.cookies.remember_sponsor }).exec();
 
             this.res.clearCookie('remember_sponsor');
             this.res.redirect(this.router.build('sponsor.reserve.start'));
-        });
+        } catch (error) {
+            this.next(error);
+        }
     }
 }

@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const Util = require("../../../../common/Util/Util");
@@ -21,67 +29,53 @@ class WindowAuthController extends BaseController_1.default {
      * 窓口担当者ログイン
      */
     login() {
-        if (!this.req.windowUser)
-            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-        if (this.req.windowUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('window.mypage'));
+        if (this.req.windowUser !== undefined && this.req.windowUser.isAuthenticated()) {
+            this.res.redirect(this.router.build('window.mypage'));
+            return;
         }
         if (this.req.method === 'POST') {
-            windowLoginForm_1.default(this.req)(this.req, this.res, () => {
+            windowLoginForm_1.default(this.req)(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
                 const form = this.req.form;
-                if (form && form.isValid) {
-                    // ユーザー認証
-                    chevre_domain_1.Models.Window.findOne({
-                        user_id: form.userId
-                    }, (findWindowErr, window) => {
-                        if (findWindowErr)
-                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        if (!window) {
+                if (form !== undefined && form.isValid) {
+                    try {
+                        // ユーザー認証
+                        const window = yield chevre_domain_1.Models.Window.findOne({
+                            user_id: form.userId
+                        }).exec();
+                        if (window === null) {
                             form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                             this.res.render('window/auth/login');
+                            return;
                         }
-                        else {
-                            // パスワードチェック
-                            if (window.get('password_hash') !== Util.createHash(form.password, window.get('password_salt'))) {
-                                form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                                this.res.render('window/auth/login');
-                            }
-                            else {
-                                // ログイン記憶
-                                const processRemember = (cb) => {
-                                    if (form.remember) {
-                                        // トークン生成
-                                        chevre_domain_1.Models.Authentication.create({
-                                            token: Util.createToken(),
-                                            window: window.get('_id')
-                                        }, (createAuthenticationErr, authentication) => {
-                                            this.res.cookie('remember_window', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
-                                            cb(createAuthenticationErr, authentication.get('token'));
-                                        });
-                                    }
-                                    else {
-                                        cb(null, null);
-                                    }
-                                };
-                                processRemember((processRememberErr) => {
-                                    if (!this.req.session)
-                                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                    if (processRememberErr)
-                                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                    // ログイン
-                                    this.req.session[WindowUser_1.default.AUTH_SESSION_NAME] = window.toObject();
-                                    // if exist parameter cb, redirect to cb.
-                                    const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('window.mypage');
-                                    this.res.redirect(cb);
-                                });
-                            }
+                        // パスワードチェック
+                        if (window.get('password_hash') !== Util.createHash(form.password, window.get('password_salt'))) {
+                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            this.res.render('window/auth/login');
+                            return;
                         }
-                    });
+                        // ログイン記憶
+                        if (form.remember === 'on') {
+                            // トークン生成
+                            const authentication = yield chevre_domain_1.Models.Authentication.create({
+                                token: Util.createToken(),
+                                window: window.get('_id')
+                            });
+                            // tslint:disable-next-line:no-cookies
+                            this.res.cookie('remember_window', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                        }
+                        // ログイン
+                        this.req.session[WindowUser_1.default.AUTH_SESSION_NAME] = window.toObject();
+                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('window.mypage');
+                        this.res.redirect(cb);
+                    }
+                    catch (error) {
+                        this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    }
                 }
                 else {
                     this.res.render('window/auth/login');
                 }
-            });
+            }));
         }
         else {
             this.res.locals.userId = '';
@@ -90,14 +84,20 @@ class WindowAuthController extends BaseController_1.default {
         }
     }
     logout() {
-        if (!this.req.session)
-            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-        delete this.req.session[WindowUser_1.default.AUTH_SESSION_NAME];
-        chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_window }, (err) => {
-            if (err)
-                return this.next(err);
-            this.res.clearCookie('remember_window');
-            this.res.redirect(this.router.build('window.mypage'));
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (this.req.session === undefined) {
+                    this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    return;
+                }
+                delete this.req.session[WindowUser_1.default.AUTH_SESSION_NAME];
+                yield chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_window }).exec();
+                this.res.clearCookie('remember_window');
+                this.res.redirect(this.router.build('window.mypage'));
+            }
+            catch (error) {
+                this.next(error);
+            }
         });
     }
 }

@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const conf = require("config");
@@ -25,77 +33,66 @@ class PreCustomerAuthController extends BaseController_1.default {
     login() {
         // MPのIPは許可
         // tslint:disable-next-line:no-empty
-        if (this.req.headers['x-forwarded-for'] && /^124\.155\.113\.9$/.test(this.req.headers['x-forwarded-for'])) {
+        if (this.req.headers['x-forwarded-for'] !== undefined && /^124\.155\.113\.9$/.test(this.req.headers['x-forwarded-for'])) {
         }
         else {
             // 期限指定
             const now = moment();
             if (now < moment(conf.get('datetimes.reservation_start_pre_customers')) || moment(conf.get('datetimes.reservation_end_pre_customers')) < now) {
-                return this.res.render('preCustomer/reserve/outOfTerm', { layout: false });
+                this.res.render('preCustomer/reserve/outOfTerm', { layout: false });
+                return;
             }
         }
-        if (this.req.preCustomerUser && this.req.preCustomerUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('pre.reserve.start'));
+        if (this.req.preCustomerUser !== undefined && this.req.preCustomerUser.isAuthenticated()) {
+            this.res.redirect(this.router.build('pre.reserve.start'));
+            return;
         }
         if (this.req.method === 'POST') {
-            preCustomerLoginForm_1.default(this.req)(this.req, this.res, () => {
+            preCustomerLoginForm_1.default(this.req)(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
                 const form = this.req.form;
-                if (form && form.isValid) {
-                    // ユーザー認証
-                    this.logger.debug('finding preCustomer... user_id:', form.userId);
-                    chevre_domain_1.Models.PreCustomer.findOne({
-                        user_id: form.userId
-                    }, (findPreCustomerErr, preCustomer) => {
-                        if (findPreCustomerErr)
-                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        if (!preCustomer) {
+                if (form !== undefined && form.isValid) {
+                    try {
+                        // ユーザー認証
+                        this.logger.debug('finding preCustomer... user_id:', form.userId);
+                        const preCustomer = yield chevre_domain_1.Models.PreCustomer.findOne({
+                            user_id: form.userId
+                        }).exec();
+                        if (preCustomer === null) {
                             form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                             this.res.render('preCustomer/auth/login');
+                            return;
                         }
-                        else {
-                            // パスワードチェック
-                            if (preCustomer.get('password_hash') !== Util.createHash(form.password, preCustomer.get('password_salt'))) {
-                                form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                                this.res.render('preCustomer/auth/login');
-                            }
-                            else {
-                                // ログイン記憶
-                                const processRemember = (cb) => {
-                                    if (form.remember) {
-                                        // トークン生成
-                                        chevre_domain_1.Models.Authentication.create({
-                                            token: Util.createToken(),
-                                            pre_customer: preCustomer.get('_id'),
-                                            locale: form.language
-                                        }, (createAuthenticationErr, authentication) => {
-                                            this.res.cookie('remember_pre_customer', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
-                                            cb(createAuthenticationErr, authentication.get('token'));
-                                        });
-                                    }
-                                    else {
-                                        cb(null, null);
-                                    }
-                                };
-                                processRemember((processRememberErr) => {
-                                    if (!this.req.session)
-                                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                    if (processRememberErr)
-                                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                    // ログイン
-                                    this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME] = preCustomer.toObject();
-                                    this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME].locale = this.req.form.language;
-                                    // if exist parameter cb, redirect to cb.
-                                    const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('pre.reserve.start');
-                                    this.res.redirect(cb);
-                                });
-                            }
+                        // パスワードチェック
+                        if (preCustomer.get('password_hash') !== Util.createHash(form.password, preCustomer.get('password_salt'))) {
+                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            this.res.render('preCustomer/auth/login');
+                            return;
                         }
-                    });
+                        // ログイン記憶
+                        if (form.remember === 'on') {
+                            // トークン生成
+                            const authentication = yield chevre_domain_1.Models.Authentication.create({
+                                token: Util.createToken(),
+                                pre_customer: preCustomer.get('_id'),
+                                locale: form.language
+                            });
+                            // tslint:disable-next-line:no-cookies
+                            this.res.cookie('remember_pre_customer', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                        }
+                        // ログイン
+                        this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME] = preCustomer.toObject();
+                        this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME].locale = this.req.form.language;
+                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('pre.reserve.start');
+                        this.res.redirect(cb);
+                    }
+                    catch (error) {
+                        this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    }
                 }
                 else {
                     this.res.render('preCustomer/auth/login');
                 }
-            });
+            }));
         }
         else {
             this.res.locals.userId = '';
@@ -104,14 +101,20 @@ class PreCustomerAuthController extends BaseController_1.default {
         }
     }
     logout() {
-        if (!this.req.session)
-            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-        delete this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME];
-        chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_pre_customer }, (err) => {
-            if (err)
-                return this.next(err);
-            this.res.clearCookie('remember_pre_customer');
-            this.res.redirect(this.router.build('pre.reserve.start'));
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (this.req.session === undefined) {
+                    this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    return;
+                }
+                delete this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME];
+                yield chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_pre_customer }).exec();
+                this.res.clearCookie('remember_pre_customer');
+                this.res.redirect(this.router.build('pre.reserve.start'));
+            }
+            catch (error) {
+                this.next(error);
+            }
         });
     }
 }

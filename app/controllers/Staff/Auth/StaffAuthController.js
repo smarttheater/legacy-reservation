@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const Util = require("../../../../common/Util/Util");
@@ -21,69 +29,58 @@ class StaffAuthController extends BaseController_1.default {
      * 内部関係者ログイン
      */
     login() {
-        if (this.req.staffUser && this.req.staffUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('staff.mypage'));
+        if (this.req.staffUser !== undefined && this.req.staffUser.isAuthenticated()) {
+            this.res.redirect(this.router.build('staff.mypage'));
+            return;
         }
         if (this.req.method === 'POST') {
-            staffLoginForm_1.default(this.req)(this.req, this.res, () => {
+            staffLoginForm_1.default(this.req)(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
                 const form = this.req.form;
-                if (form && form.isValid) {
-                    // ユーザー認証
-                    this.logger.debug('finding staff... user_id:', form.userId);
-                    chevre_domain_1.Models.Staff.findOne({
-                        user_id: form.userId
-                    }, (findStaffErr, staff) => {
-                        if (findStaffErr)
-                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        if (!staff) {
+                if (form !== undefined && form.isValid) {
+                    try {
+                        // ユーザー認証
+                        this.logger.debug('finding staff... user_id:', form.userId);
+                        const staff = yield chevre_domain_1.Models.Staff.findOne({
+                            user_id: form.userId
+                        }).exec();
+                        if (staff === null) {
                             form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
                             this.res.render('staff/auth/login');
+                            return;
                         }
-                        else {
-                            // パスワードチェック
-                            if (staff.get('password_hash') !== Util.createHash(form.password, staff.get('password_salt'))) {
-                                form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                                this.res.render('staff/auth/login');
-                            }
-                            else {
-                                // ログイン記憶
-                                const processRemember = (cb) => {
-                                    if (form.remember) {
-                                        // トークン生成
-                                        chevre_domain_1.Models.Authentication.create({
-                                            token: Util.createToken(),
-                                            staff: staff.get('_id'),
-                                            signature: form.signature,
-                                            locale: form.language
-                                        }, (createAuthenticationErr, authentication) => {
-                                            this.res.cookie('remember_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
-                                            cb(createAuthenticationErr, authentication.get('token'));
-                                        });
-                                    }
-                                    else {
-                                        cb(null, null);
-                                    }
-                                };
-                                processRemember((processRememberErr) => {
-                                    if (!this.req.session)
-                                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                    if (processRememberErr)
-                                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                    this.req.session[StaffUser_1.default.AUTH_SESSION_NAME] = staff.toObject();
-                                    this.req.session[StaffUser_1.default.AUTH_SESSION_NAME].signature = form.signature;
-                                    this.req.session[StaffUser_1.default.AUTH_SESSION_NAME].locale = form.language;
-                                    // if exist parameter cb, redirect to cb.
-                                    const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('staff.mypage');
-                                    this.res.redirect(cb);
-                                });
-                            }
+                        // パスワードチェック
+                        if (staff.get('password_hash') !== Util.createHash(form.password, staff.get('password_salt'))) {
+                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            this.res.render('staff/auth/login');
+                            return;
                         }
-                    });
+                        // ログイン記憶
+                        if (form.remember === 'on') {
+                            // トークン生成
+                            const authentication = yield chevre_domain_1.Models.Authentication.create({
+                                token: Util.createToken(),
+                                staff: staff.get('_id'),
+                                signature: form.signature,
+                                locale: form.language
+                            });
+                            // tslint:disable-next-line:no-cookies
+                            this.res.cookie('remember_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                        }
+                        // ログイン
+                        this.req.session[StaffUser_1.default.AUTH_SESSION_NAME] = staff.toObject();
+                        this.req.session[StaffUser_1.default.AUTH_SESSION_NAME].signature = form.signature;
+                        this.req.session[StaffUser_1.default.AUTH_SESSION_NAME].locale = form.language;
+                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('staff.mypage');
+                        this.res.redirect(cb);
+                    }
+                    catch (error) {
+                        this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    }
                 }
                 else {
                     this.res.render('staff/auth/login');
                 }
-            });
+            }));
         }
         else {
             this.res.locals.userId = '';
@@ -93,14 +90,20 @@ class StaffAuthController extends BaseController_1.default {
         }
     }
     logout() {
-        if (!this.req.session)
-            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-        delete this.req.session[StaffUser_1.default.AUTH_SESSION_NAME];
-        chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_staff }, (err) => {
-            if (err)
-                return this.next(err);
-            this.res.clearCookie('remember_staff');
-            this.res.redirect(this.router.build('staff.mypage'));
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (this.req.session === undefined) {
+                    this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    return;
+                }
+                delete this.req.session[StaffUser_1.default.AUTH_SESSION_NAME];
+                yield chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_staff }).exec();
+                this.res.clearCookie('remember_staff');
+                this.res.redirect(this.router.build('staff.mypage'));
+            }
+            catch (error) {
+                this.next(error);
+            }
         });
     }
 }

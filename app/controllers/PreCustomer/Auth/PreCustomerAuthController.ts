@@ -1,7 +1,6 @@
 import { Models } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
-import * as mongoose from 'mongoose';
 import * as Util from '../../../../common/Util/Util';
 import preCustomerLoginForm from '../../../forms/preCustomer/preCustomerLoginForm';
 import PreCustomerUser from '../../../models/User/PreCustomerUser';
@@ -23,79 +22,70 @@ export default class PreCustomerAuthController extends BaseController {
     public login(): void {
         // MPのIPは許可
         // tslint:disable-next-line:no-empty
-        if (this.req.headers['x-forwarded-for'] && /^124\.155\.113\.9$/.test(this.req.headers['x-forwarded-for'])) {
+        if (this.req.headers['x-forwarded-for'] !== undefined && /^124\.155\.113\.9$/.test(this.req.headers['x-forwarded-for'])) {
         } else {
             // 期限指定
             const now = moment();
             if (now < moment(conf.get<string>('datetimes.reservation_start_pre_customers')) || moment(conf.get<string>('datetimes.reservation_end_pre_customers')) < now) {
-                return this.res.render('preCustomer/reserve/outOfTerm', { layout: false });
+                this.res.render('preCustomer/reserve/outOfTerm', { layout: false });
+                return;
             }
         }
 
-        if (this.req.preCustomerUser && this.req.preCustomerUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('pre.reserve.start'));
+        if (this.req.preCustomerUser !== undefined && this.req.preCustomerUser.isAuthenticated()) {
+            this.res.redirect(this.router.build('pre.reserve.start'));
+            return;
         }
 
         if (this.req.method === 'POST') {
-            preCustomerLoginForm(this.req)(this.req, this.res, () => {
+            preCustomerLoginForm(this.req)(this.req, this.res, async () => {
                 const form = this.req.form;
-                if (form && form.isValid) {
-
-                    // ユーザー認証
-                    this.logger.debug('finding preCustomer... user_id:', (<any>form).userId);
-                    Models.PreCustomer.findOne(
-                        {
-                            user_id: (<any>form).userId
-                        },
-                        (findPreCustomerErr, preCustomer) => {
-                            if (findPreCustomerErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
-                            if (!preCustomer) {
-                                form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                                this.res.render('preCustomer/auth/login');
-                            } else {
-                                // パスワードチェック
-                                if (preCustomer.get('password_hash') !== Util.createHash((<any>form).password, preCustomer.get('password_salt'))) {
-                                    form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                                    this.res.render('preCustomer/auth/login');
-
-                                } else {
-                                    // ログイン記憶
-                                    const processRemember = (cb: (err: Error | null, token: string | null) => void) => {
-                                        if ((<any>form).remember) {
-                                            // トークン生成
-                                            Models.Authentication.create(
-                                                {
-                                                    token: Util.createToken(),
-                                                    pre_customer: preCustomer.get('_id'),
-                                                    locale: (<any>form).language
-                                                },
-                                                (createAuthenticationErr: any, authentication: mongoose.Document) => {
-                                                    this.res.cookie('remember_pre_customer', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
-                                                    cb(createAuthenticationErr, authentication.get('token'));
-                                                }
-                                            );
-                                        } else {
-                                            cb(null, null);
-                                        }
-                                    };
-
-                                    processRemember((processRememberErr) => {
-                                        if (!this.req.session) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                        if (processRememberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-
-                                        // ログイン
-                                        this.req.session[PreCustomerUser.AUTH_SESSION_NAME] = preCustomer.toObject();
-                                        this.req.session[PreCustomerUser.AUTH_SESSION_NAME].locale = (<any>this.req.form).language;
-
-                                        // if exist parameter cb, redirect to cb.
-                                        const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build('pre.reserve.start');
-                                        this.res.redirect(cb);
-                                    });
-                                }
+                if (form !== undefined && form.isValid) {
+                    try {
+                        // ユーザー認証
+                        this.logger.debug('finding preCustomer... user_id:', (<any>form).userId);
+                        const preCustomer = await Models.PreCustomer.findOne(
+                            {
+                                user_id: (<any>form).userId
                             }
+                        ).exec();
+
+                        if (preCustomer === null) {
+                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            this.res.render('preCustomer/auth/login');
+                            return;
                         }
-                    );
+
+                        // パスワードチェック
+                        if (preCustomer.get('password_hash') !== Util.createHash((<any>form).password, preCustomer.get('password_salt'))) {
+                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            this.res.render('preCustomer/auth/login');
+                            return;
+                        }
+
+                        // ログイン記憶
+                        if ((<any>form).remember === 'on') {
+                            // トークン生成
+                            const authentication = await Models.Authentication.create(
+                                {
+                                    token: Util.createToken(),
+                                    pre_customer: preCustomer.get('_id'),
+                                    locale: (<any>form).language
+                                }
+                            );
+                            // tslint:disable-next-line:no-cookies
+                            this.res.cookie('remember_pre_customer', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                        }
+
+                        // ログイン
+                        (<Express.Session>this.req.session)[PreCustomerUser.AUTH_SESSION_NAME] = preCustomer.toObject();
+                        (<Express.Session>this.req.session)[PreCustomerUser.AUTH_SESSION_NAME].locale = (<any>this.req.form).language;
+
+                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('pre.reserve.start');
+                        this.res.redirect(cb);
+                    } catch (error) {
+                        this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    }
                 } else {
                     this.res.render('preCustomer/auth/login');
                 }
@@ -108,15 +98,20 @@ export default class PreCustomerAuthController extends BaseController {
         }
     }
 
-    public logout(): void {
-        if (!this.req.session) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+    public async logout(): Promise<void> {
+        try {
+            if (this.req.session === undefined) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+                return;
+            }
 
-        delete this.req.session[PreCustomerUser.AUTH_SESSION_NAME];
-        Models.Authentication.remove({ token: this.req.cookies.remember_pre_customer }, (err) => {
-            if (err) return this.next(err);
+            delete this.req.session[PreCustomerUser.AUTH_SESSION_NAME];
 
+            await Models.Authentication.remove({ token: this.req.cookies.remember_pre_customer }).exec();
             this.res.clearCookie('remember_pre_customer');
             this.res.redirect(this.router.build('pre.reserve.start'));
-        });
+        } catch (error) {
+            this.next(error);
+        }
     }
 }

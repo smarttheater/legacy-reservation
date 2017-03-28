@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const conf = require("config");
@@ -29,43 +37,43 @@ class MemberAuthController extends BaseController_1.default {
             this.next(new Error(this.req.__('Message.OutOfTerm')));
             return;
         }
-        if (this.req.memberUser && this.req.memberUser.isAuthenticated()) {
+        if (this.req.memberUser !== undefined && this.req.memberUser.isAuthenticated()) {
             this.res.redirect(this.router.build('member.reserve.start'));
             return;
         }
         if (this.req.method === 'POST') {
-            memberLoginForm_1.default(this.req, this.res, () => {
+            memberLoginForm_1.default(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
                 const form = this.req.form;
-                if (form && form.isValid) {
-                    // ユーザー認証
-                    this.logger.debug('finding member... user_id:', form.userId);
-                    chevre_domain_1.Models.Member.findOne({
-                        user_id: form.userId
-                    }, (findMemberErr, member) => {
-                        if (findMemberErr)
-                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        if (!member) {
+                if (form !== undefined && form.isValid) {
+                    try {
+                        // ユーザー認証
+                        this.logger.debug('finding member... user_id:', form.userId);
+                        const member = yield chevre_domain_1.Models.Member.findOne({
+                            user_id: form.userId
+                        }).exec();
+                        if (member === null) {
                             form.errors.push('ログイン番号またはパスワードに誤りがあります');
                             this.res.render('member/auth/login');
+                            return;
                         }
-                        else {
-                            // パスワードチェック
-                            if (member.get('password_hash') !== Util.createHash(form.password, member.get('password_salt'))) {
-                                form.errors.push('ログイン番号またはパスワードに誤りがあります');
-                                this.res.render('member/auth/login');
-                            }
-                            else {
-                                // ログイン
-                                this.req.session[MemberUser_1.default.AUTH_SESSION_NAME] = member.toObject();
-                                this.res.redirect(this.router.build('member.reserve.start'));
-                            }
+                        // パスワードチェック
+                        if (member.get('password_hash') !== Util.createHash(form.password, member.get('password_salt'))) {
+                            form.errors.push('ログイン番号またはパスワードに誤りがあります');
+                            this.res.render('member/auth/login');
+                            return;
                         }
-                    });
+                        // ログイン
+                        this.req.session[MemberUser_1.default.AUTH_SESSION_NAME] = member.toObject();
+                        this.res.redirect(this.router.build('member.reserve.start'));
+                    }
+                    catch (error) {
+                        this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    }
                 }
                 else {
                     this.res.render('member/auth/login');
                 }
-            });
+            }));
         }
         else {
             this.res.locals.userId = '';
