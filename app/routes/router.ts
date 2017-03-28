@@ -29,6 +29,8 @@ export default (app: any) => {
         next();
     };
 
+    // tslint:disable:max-line-length
+
     // 言語
     app.get('/language/update/:locale', 'language.update', base, (req: Request, res: Response, next: NextFunction) => { (new LanguageController(req, res, next)).update(); });
 

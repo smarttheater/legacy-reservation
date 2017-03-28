@@ -30,6 +30,7 @@ exports.default = (app) => {
     const base = (_req, _res, next) => {
         next();
     };
+    // tslint:disable:max-line-length
     // 言語
     app.get('/language/update/:locale', 'language.update', base, (req, res, next) => { (new LanguageController_1.default(req, res, next)).update(); });
     app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new ReserveController_1.default(req, res, next)).getSeatProperties(); }));

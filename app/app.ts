@@ -13,6 +13,8 @@ import * as i18n from 'i18n';
 import * as mongoose from 'mongoose';
 import * as multer from 'multer';
 import * as favicon from 'serve-favicon';
+import * as _ from 'underscore';
+
 import basicAuth from './middlewares/basicAuth';
 import benchmarks from './middlewares/benchmarks';
 import logger from './middlewares/logger';
@@ -92,11 +94,11 @@ app.use(i18n.init);
 // セッションで言語管理
 // tslint:disable-next-line:variable-name
 app.use((req, _res, next) => {
-    if ((<any>req.session).locale !== undefined && (<any>req.session).locale !== '') {
+    if (_.isEmpty((<any>req.session).locale)) {
         req.setLocale((<any>req.session).locale);
     }
 
-    if (req.query.locale !== undefined && req.query.locale !== '') {
+    if (_.isEmpty(req.query.locale)) {
         req.setLocale(req.query.locale);
         (<any>req.session).locale = req.query.locale;
     }

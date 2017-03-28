@@ -3,7 +3,7 @@
  *
  * @ignore
  */
-import {Request} from 'express';
+import { Request } from 'express';
 import * as form from 'express-form';
 
 const NAME_MAX_LENGTH = 15;
@@ -12,11 +12,17 @@ export default (req: Request) => {
     return form(
         form.field('lastName', req.__('Form.FieldName.lastName')).trim()
             .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
-            .maxLength(NAME_MAX_LENGTH, req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: NAME_MAX_LENGTH.toString() }))
+            .maxLength(
+            NAME_MAX_LENGTH,
+            req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: NAME_MAX_LENGTH.toString() })
+            )
             .regex(/^[ァ-ロワヲンーa-zA-Z]*$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
         form.field('firstName', req.__('Form.FieldName.firstName')).trim()
             .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
-            .maxLength(NAME_MAX_LENGTH, req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: NAME_MAX_LENGTH.toString() }))
+            .maxLength(
+            NAME_MAX_LENGTH,
+            req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: NAME_MAX_LENGTH.toString() })
+            )
             .regex(/^[ァ-ロワヲンーa-zA-Z]*$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
         form.field('tel', req.__('Form.FieldName.tel')).trim()
             .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))

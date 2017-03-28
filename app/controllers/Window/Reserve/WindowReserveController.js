@@ -238,7 +238,10 @@ class WindowReserveController extends ReserveBaseController_1.default {
                     this.res.locals.email = (email !== undefined) ? email : '';
                     this.res.locals.emailConfirm = (email !== undefined) ? email.substr(0, email.indexOf('@')) : '';
                     this.res.locals.emailConfirmDomain = (email !== undefined) ? email.substr(email.indexOf('@') + 1) : '';
-                    this.res.locals.paymentMethod = (reservationModel.paymentMethod !== undefined && reservationModel.paymentMethod !== '') ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
+                    this.res.locals.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
+                    if (reservationModel.paymentMethod !== undefined && reservationModel.paymentMethod !== '') {
+                        this.res.locals.paymentMethod = reservationModel.paymentMethod;
+                    }
                     this.res.render('window/reserve/profile', {
                         reservationModel: reservationModel
                     });

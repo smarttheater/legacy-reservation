@@ -14,6 +14,7 @@ const i18n = require("i18n");
 const mongoose = require("mongoose");
 const multer = require("multer");
 const favicon = require("serve-favicon");
+const _ = require("underscore");
 const basicAuth_1 = require("./middlewares/basicAuth");
 const benchmarks_1 = require("./middlewares/benchmarks");
 const logger_1 = require("./middlewares/logger");
@@ -78,10 +79,10 @@ app.use(i18n.init);
 // セッションで言語管理
 // tslint:disable-next-line:variable-name
 app.use((req, _res, next) => {
-    if (req.session.locale !== undefined && req.session.locale !== '') {
+    if (_.isEmpty(req.session.locale)) {
         req.setLocale(req.session.locale);
     }
-    if (req.query.locale !== undefined && req.query.locale !== '') {
+    if (_.isEmpty(req.query.locale)) {
         req.setLocale(req.query.locale);
         req.session.locale = req.query.locale;
     }

@@ -14,6 +14,7 @@ exports.default = (app) => {
     const base = (_req, _res, next) => {
         next();
     };
+    // tslint:disable:max-line-length
     app.all('/customerSupport/cancel', 'customer.cancel', base, (req, res, next) => { (new CustomerCancelController_1.default(req, res, next)).index(); });
     app.post('/customerSupport/cancel/executeByPaymentNo', 'customer.cancel.executeByPaymentNo', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerCancelController_1.default(req, res, next)).executeByPaymentNo(); }));
 };
