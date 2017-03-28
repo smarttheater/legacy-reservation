@@ -37,7 +37,7 @@ class ReservationModel {
                     return;
                 }
                 if (reply === null) {
-                    reject(new Error('Not Found'));
+                    resolve(null);
                     return;
                 }
                 const reservationModel = new ReservationModel();

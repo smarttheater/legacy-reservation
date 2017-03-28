@@ -127,62 +127,61 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      */
     seats() {
         return __awaiter(this, void 0, void 0, function* () {
-            let reservationModel;
             try {
                 const token = this.req.params.token;
-                reservationModel = yield ReservationModel_1.default.find(token);
-            }
-            catch (error) {
-                this.next(new Error(this.req.__('Message.Expired')));
-                return;
-            }
-            if (reservationModel === undefined) {
-                this.next(new Error(this.req.__('Message.UnexpectedError')));
-                return;
-            }
-            const limit = reservationModel.getSeatsLimit();
-            if (this.req.method === 'POST') {
-                reserveSeatForm_1.default(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
-                    if (this.req.form !== undefined && this.req.form.isValid) {
-                        const seatCodes = JSON.parse(this.req.form.seatCodes);
-                        // 追加指定席を合わせて制限枚数を超過した場合
-                        if (seatCodes.length > limit) {
-                            const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                            this.res.redirect(`${this.router.build('customer.reserve.seats', { token: reservationModel.token })}?message=${encodeURIComponent(message)}`);
-                        }
-                        else {
-                            // 仮予約あればキャンセルする
-                            try {
-                                reservationModel = yield this.processCancelSeats(reservationModel);
-                            }
-                            catch (error) {
-                                this.next(error);
-                                return;
-                            }
-                            try {
-                                // 座席FIX
-                                reservationModel = yield this.processFixSeats(reservationModel, seatCodes);
-                                yield reservationModel.save();
-                                // 券種選択へ
-                                this.res.redirect(this.router.build('customer.reserve.tickets', { token: reservationModel.token }));
-                            }
-                            catch (error) {
-                                yield reservationModel.save();
-                                const message = this.req.__('Message.SelectedSeatsUnavailable');
+                let reservationModel = yield ReservationModel_1.default.find(token);
+                if (reservationModel === null) {
+                    this.next(new Error(this.req.__('Message.Expired')));
+                    return;
+                }
+                const limit = reservationModel.getSeatsLimit();
+                if (this.req.method === 'POST') {
+                    reserveSeatForm_1.default(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
+                        reservationModel = reservationModel;
+                        if (this.req.form !== undefined && this.req.form.isValid) {
+                            const seatCodes = JSON.parse(this.req.form.seatCodes);
+                            // 追加指定席を合わせて制限枚数を超過した場合
+                            if (seatCodes.length > limit) {
+                                const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
                                 this.res.redirect(`${this.router.build('customer.reserve.seats', { token: reservationModel.token })}?message=${encodeURIComponent(message)}`);
                             }
+                            else {
+                                // 仮予約あればキャンセルする
+                                try {
+                                    reservationModel = yield this.processCancelSeats(reservationModel);
+                                }
+                                catch (error) {
+                                    this.next(error);
+                                    return;
+                                }
+                                try {
+                                    // 座席FIX
+                                    reservationModel = yield this.processFixSeats(reservationModel, seatCodes);
+                                    yield reservationModel.save();
+                                    // 券種選択へ
+                                    this.res.redirect(this.router.build('customer.reserve.tickets', { token: reservationModel.token }));
+                                }
+                                catch (error) {
+                                    yield reservationModel.save();
+                                    const message = this.req.__('Message.SelectedSeatsUnavailable');
+                                    this.res.redirect(`${this.router.build('customer.reserve.seats', { token: reservationModel.token })}?message=${encodeURIComponent(message)}`);
+                                }
+                            }
                         }
-                    }
-                    else {
-                        this.res.redirect(this.router.build('customer.reserve.seats', { token: reservationModel.token }));
-                    }
-                }));
+                        else {
+                            this.res.redirect(this.router.build('customer.reserve.seats', { token: reservationModel.token }));
+                        }
+                    }));
+                }
+                else {
+                    this.res.render('customer/reserve/seats', {
+                        reservationModel: reservationModel,
+                        limit: limit
+                    });
+                }
             }
-            else {
-                this.res.render('customer/reserve/seats', {
-                    reservationModel: reservationModel,
-                    limit: limit
-                });
+            catch (error) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
             }
         });
     }
@@ -191,34 +190,32 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      */
     tickets() {
         return __awaiter(this, void 0, void 0, function* () {
-            let reservationModel;
             try {
                 const token = this.req.params.token;
-                reservationModel = yield ReservationModel_1.default.find(token);
+                let reservationModel = yield ReservationModel_1.default.find(token);
+                if (reservationModel === null) {
+                    this.next(new Error(this.req.__('Message.Expired')));
+                    return;
+                }
+                reservationModel.paymentMethod = '';
+                if (this.req.method === 'POST') {
+                    try {
+                        reservationModel = yield this.processFixTickets(reservationModel);
+                        yield reservationModel.save();
+                        this.res.redirect(this.router.build('customer.reserve.profile', { token: reservationModel.token }));
+                    }
+                    catch (error) {
+                        this.res.redirect(this.router.build('customer.reserve.tickets', { token: reservationModel.token }));
+                    }
+                }
+                else {
+                    this.res.render('customer/reserve/tickets', {
+                        reservationModel: reservationModel
+                    });
+                }
             }
             catch (error) {
-                this.next(new Error(this.req.__('Message.Expired')));
-                return;
-            }
-            if (reservationModel === undefined) {
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
-                return;
-            }
-            reservationModel.paymentMethod = '';
-            if (this.req.method === 'POST') {
-                try {
-                    reservationModel = yield this.processFixTickets(reservationModel);
-                    yield reservationModel.save();
-                    this.res.redirect(this.router.build('customer.reserve.profile', { token: reservationModel.token }));
-                }
-                catch (error) {
-                    this.res.redirect(this.router.build('customer.reserve.tickets', { token: reservationModel.token }));
-                }
-            }
-            else {
-                this.res.render('customer/reserve/tickets', {
-                    reservationModel: reservationModel
-                });
             }
         });
     }
@@ -227,47 +224,45 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      */
     profile() {
         return __awaiter(this, void 0, void 0, function* () {
-            let reservationModel;
             try {
                 const token = this.req.params.token;
-                reservationModel = yield ReservationModel_1.default.find(token);
-            }
-            catch (error) {
-                this.next(new Error(this.req.__('Message.Expired')));
-                return;
-            }
-            if (reservationModel === undefined) {
-                this.next(new Error(this.req.__('Message.UnexpectedError')));
-                return;
-            }
-            if (this.req.method === 'POST') {
-                try {
-                    reservationModel = yield this.processFixProfile(reservationModel);
-                    yield reservationModel.save();
-                    this.res.redirect(this.router.build('customer.reserve.confirm', { token: reservationModel.token }));
+                let reservationModel = yield ReservationModel_1.default.find(token);
+                if (reservationModel === null) {
+                    this.next(new Error(this.req.__('Message.Expired')));
+                    return;
                 }
-                catch (error) {
+                if (this.req.method === 'POST') {
+                    try {
+                        reservationModel = yield this.processFixProfile(reservationModel);
+                        yield reservationModel.save();
+                        this.res.redirect(this.router.build('customer.reserve.confirm', { token: reservationModel.token }));
+                    }
+                    catch (error) {
+                        this.res.render('customer/reserve/profile', {
+                            reservationModel: reservationModel
+                        });
+                    }
+                }
+                else {
+                    // セッションに情報があれば、フォーム初期値設定
+                    const email = reservationModel.purchaserEmail;
+                    this.res.locals.lastName = reservationModel.purchaserLastName;
+                    this.res.locals.firstName = reservationModel.purchaserFirstName;
+                    this.res.locals.tel = reservationModel.purchaserTel;
+                    this.res.locals.age = reservationModel.purchaserAge;
+                    this.res.locals.address = reservationModel.purchaserAddress;
+                    this.res.locals.gender = reservationModel.purchaserGender;
+                    this.res.locals.email = (email) ? email : '';
+                    this.res.locals.emailConfirm = (email) ? email.substr(0, email.indexOf('@')) : '';
+                    this.res.locals.emailConfirmDomain = (email) ? email.substr(email.indexOf('@') + 1) : '';
+                    this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
                     this.res.render('customer/reserve/profile', {
                         reservationModel: reservationModel
                     });
                 }
             }
-            else {
-                // セッションに情報があれば、フォーム初期値設定
-                const email = reservationModel.purchaserEmail;
-                this.res.locals.lastName = reservationModel.purchaserLastName;
-                this.res.locals.firstName = reservationModel.purchaserFirstName;
-                this.res.locals.tel = reservationModel.purchaserTel;
-                this.res.locals.age = reservationModel.purchaserAge;
-                this.res.locals.address = reservationModel.purchaserAddress;
-                this.res.locals.gender = reservationModel.purchaserGender;
-                this.res.locals.email = (email) ? email : '';
-                this.res.locals.emailConfirm = (email) ? email.substr(0, email.indexOf('@')) : '';
-                this.res.locals.emailConfirmDomain = (email) ? email.substr(email.indexOf('@') + 1) : '';
-                this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
-                this.res.render('customer/reserve/profile', {
-                    reservationModel: reservationModel
-                });
+            catch (error) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
             }
         });
     }
@@ -276,38 +271,35 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      */
     confirm() {
         return __awaiter(this, void 0, void 0, function* () {
-            let reservationModel;
             try {
                 const token = this.req.params.token;
-                reservationModel = yield ReservationModel_1.default.find(token);
+                let reservationModel = yield ReservationModel_1.default.find(token);
+                if (reservationModel === null) {
+                    this.next(new Error(this.req.__('Message.Expired')));
+                    return;
+                }
+                if (this.req.method === 'POST') {
+                    try {
+                        reservationModel = yield this.processConfirm(reservationModel);
+                        yield reservationModel.save();
+                        this.logger.info('starting GMO payment...');
+                        // httpStatusの型定義不足のためanyにキャスト
+                        // todo 一時的対処なので解決する
+                        this.res.redirect(httpStatus.PERMANENT_REDIRECT, this.router.build('gmo.reserve.start', { token: reservationModel.token }) + `?locale=${this.req.getLocale()}`);
+                    }
+                    catch (error) {
+                        yield reservationModel.remove();
+                        this.next(error);
+                    }
+                }
+                else {
+                    this.res.render('customer/reserve/confirm', {
+                        reservationModel: reservationModel
+                    });
+                }
             }
             catch (error) {
-                this.next(new Error(this.req.__('Message.Expired')));
-                return;
-            }
-            if (reservationModel === undefined) {
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
-                return;
-            }
-            if (this.req.method === 'POST') {
-                // tslint:disable-next-line:no-shadowed-variable
-                try {
-                    reservationModel = yield this.processConfirm(reservationModel);
-                    yield reservationModel.save();
-                    this.logger.info('starting GMO payment...');
-                    // httpStatusの型定義不足のためanyにキャスト
-                    // todo 一時的対処なので解決する
-                    this.res.redirect(httpStatus.PERMANENT_REDIRECT, this.router.build('gmo.reserve.start', { token: reservationModel.token }) + `?locale=${this.req.getLocale()}`);
-                }
-                catch (error) {
-                    yield reservationModel.remove();
-                    this.next(error);
-                }
-            }
-            else {
-                this.res.render('customer/reserve/confirm', {
-                    reservationModel: reservationModel
-                });
             }
         });
     }
@@ -315,52 +307,62 @@ class CustomerReserveController extends ReserveBaseController_1.default {
      * 仮予約完了
      */
     waitingSettlement() {
-        const paymentNo = this.req.params.paymentNo;
-        chevre_domain_1.Models.Reservation.find({
-            payment_no: paymentNo,
-            purchaser_group: this.purchaserGroup,
-            status: chevre_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT,
-            purchased_at: {
-                // tslint:disable-next-line:no-magic-numbers
-                $gt: moment().add(-30, 'minutes').toISOString()
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const paymentNo = this.req.params.paymentNo;
+                const reservations = yield chevre_domain_1.Models.Reservation.find({
+                    payment_no: paymentNo,
+                    purchaser_group: this.purchaserGroup,
+                    status: chevre_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT,
+                    purchased_at: {
+                        $gt: moment().add(-30, 'minutes').toISOString() // tslint:disable-line:no-magic-numbers
+                    }
+                }).exec();
+                if (reservations.length === 0) {
+                    this.next(new Error(this.req.__('Message.NotFound')));
+                    return;
+                }
+                reservations.sort((a, b) => {
+                    return chevre_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                });
+                this.res.render('customer/reserve/waitingSettlement', {
+                    reservationDocuments: reservations
+                });
             }
-        }, (err, reservations) => {
-            if (err)
-                return this.next(new Error(this.req.__('Message.UnexpectedError')));
-            if (reservations.length === 0)
-                return this.next(new Error(this.req.__('Message.NotFound')));
-            reservations.sort((a, b) => {
-                return chevre_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
-            });
-            this.res.render('customer/reserve/waitingSettlement', {
-                reservationDocuments: reservations
-            });
+            catch (error) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+            }
         });
     }
     /**
      * 予約完了
      */
     complete() {
-        const paymentNo = this.req.params.paymentNo;
-        chevre_domain_1.Models.Reservation.find({
-            payment_no: paymentNo,
-            purchaser_group: this.purchaserGroup,
-            status: chevre_domain_4.ReservationUtil.STATUS_RESERVED,
-            purchased_at: {
-                // tslint:disable-next-line:no-magic-numbers
-                $gt: moment().add(-30, 'minutes').toISOString()
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const paymentNo = this.req.params.paymentNo;
+                const reservations = yield chevre_domain_1.Models.Reservation.find({
+                    payment_no: paymentNo,
+                    purchaser_group: this.purchaserGroup,
+                    status: chevre_domain_4.ReservationUtil.STATUS_RESERVED,
+                    purchased_at: {
+                        $gt: moment().add(-30, 'minutes').toISOString() // tslint:disable-line:no-magic-numbers
+                    }
+                }).exec();
+                if (reservations.length === 0) {
+                    this.next(new Error(this.req.__('Message.NotFound')));
+                    return;
+                }
+                reservations.sort((a, b) => {
+                    return chevre_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                });
+                this.res.render('customer/reserve/complete', {
+                    reservationDocuments: reservations
+                });
             }
-        }, (err, reservations) => {
-            if (err)
-                return this.next(new Error(this.req.__('Message.UnexpectedError')));
-            if (reservations.length === 0)
-                return this.next(new Error(this.req.__('Message.NotFound')));
-            reservations.sort((a, b) => {
-                return chevre_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
-            });
-            this.res.render('customer/reserve/complete', {
-                reservationDocuments: reservations
-            });
+            catch (error) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+            }
         });
     }
 }

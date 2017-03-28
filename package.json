@@ -85,7 +85,7 @@
   "repository": {},
   "scripts": {
     "build": "tsc",
-    "check": "tslint --type-check --project tsconfig.json -c tslint.json index.ts app/controllers/ReserveBase*.ts common/**/*.ts && nsp check",
+    "check": "tslint --type-check --project tsconfig.json -c tslint.json index.ts app/**/*.ts common/**/*.ts && nsp check",
     "clean": "rimraf app/**/*.js common/**/*.js index.js npm-debug.log* docs/*",
     "jsdoc": "node_modules/.bin/jsdoc -c jsdoc.json",
     "postinstall": "node -e \"process.env.NODE_ENV != 'production' && process.exit(1)\" || typings install",

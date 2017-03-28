@@ -125,16 +125,16 @@ export default class ReservationModel {
      * プロセス中の購入情報をセッションから取得する
      */
     // tslint:disable-next-line:function-name
-    public static find(token: string): Promise<ReservationModel> {
+    public static find(token: string): Promise<ReservationModel | null> {
         const key = ReservationModel.getRedisKey(token);
-        return new Promise((resolve, reject) => {
+        return new Promise<ReservationModel | null>((resolve, reject) => {
             redisClient.get(key, (err, reply) => {
                 if (err instanceof Error) {
                     reject(err);
                     return;
                 }
                 if (reply === null) {
-                    reject(new Error('Not Found'));
+                    resolve(null);
                     return;
                 }
 
@@ -177,7 +177,7 @@ export default class ReservationModel {
             ttl = DEFAULT_REDIS_TTL;
         }
 
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             redisClient.setex(key, ttl, JSON.stringify(this), (err: Error | void) => {
                 if (err instanceof Error) {
                     console.error(err);
@@ -194,7 +194,7 @@ export default class ReservationModel {
      */
     public remove(): Promise<void> {
         const key = ReservationModel.getRedisKey(this.token);
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             redisClient.del(key, (err: Error | void) => {
                 if (err instanceof Error) {
                     reject(err);
