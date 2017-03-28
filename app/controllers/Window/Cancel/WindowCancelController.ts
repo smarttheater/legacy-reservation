@@ -11,40 +11,41 @@ import BaseController from '../../BaseController';
  * @extends {BaseController}
  */
 export default class WindowCancelController extends BaseController {
-    public execute(): void {
-        if (!this.req.windowUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+    public async execute(): Promise<void> {
+        if (this.req.windowUser === undefined) {
+            this.next(new Error(this.req.__('Message.UnexpectedError')));
+            return;
+        }
+
         const userId = this.req.windowUser.get('user_id');
 
         this.logger = log4js.getLogger('cancel');
 
-        // 予約IDリストをjson形式で受け取る
-        const reservationIds = JSON.parse(this.req.body.reservationIds);
-        if (Array.isArray(reservationIds)) {
+        try {
+
+            // 予約IDリストをjson形式で受け取る
+            const reservationIds = JSON.parse(this.req.body.reservationIds);
+            if (!Array.isArray(reservationIds)) {
+                throw new Error(this.req.__('Message.UnexpectedError'));
+            }
+
             this.logger.info('removing reservation by window... window:', userId, 'reservationIds:', reservationIds);
-            Models.Reservation.remove(
+            await Models.Reservation.remove(
                 {
                     _id: { $in: reservationIds },
                     purchaser_group: { $ne: ReservationUtil.PURCHASER_GROUP_STAFF } // 念のため、内部は除外
-                },
-                (err) => {
-                    this.logger.info('reservation removed by window.', err, 'window:', userId, 'reservationIds:', reservationIds);
-                    if (err) {
-                        this.res.json({
-                            success: false,
-                            message: err.message
-                        });
-                    } else {
-                        this.res.json({
-                            success: true,
-                            message: null
-                        });
-                    }
                 }
-            );
-        } else {
+            ).exec();
+            this.logger.info('reservation removed by window.', 'window:', userId, 'reservationIds:', reservationIds);
+
+            this.res.json({
+                success: true,
+                message: null
+            });
+        } catch (error) {
             this.res.json({
                 success: false,
-                message: this.req.__('Message.UnexpectedError')
+                message: error.message
             });
         }
     }
