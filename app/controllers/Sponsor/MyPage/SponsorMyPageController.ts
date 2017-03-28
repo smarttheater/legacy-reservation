@@ -14,7 +14,7 @@ const DEFAULT_RADIX = 10;
  * @extends {BaseController}
  */
 export default class SponsorMyPageController extends BaseController {
-    public layout = 'layouts/sponsor/layout';
+    public layout: string = 'layouts/sponsor/layout';
 
     public index(): void {
         this.res.render('sponsor/mypage/index');
@@ -23,15 +23,18 @@ export default class SponsorMyPageController extends BaseController {
     /**
      * マイページ予約検索
      */
-    public search(): void {
-        if (!this.req.sponsorUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+    public async search(): Promise<void> {
+        if (this.req.sponsorUser === undefined) {
+            this.next(new Error(this.req.__('Message.UnexpectedError')));
+            return;
+        }
 
         // tslint:disable-next-line:no-magic-numbers
-        const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
-        const page: number = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
-        const tel: string = (this.req.query.tel) ? this.req.query.tel : null;
-        const purchaserName: string = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
-        let paymentNo: string = (this.req.query.payment_no) ? this.req.query.payment_no : null;
+        const limit: number = (this.req.query.limit !== undefined && this.req.query.limit !== '') ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+        const page: number = (this.req.query.page !== undefined && this.req.query.page !== '') ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
+        const tel: string | null = (this.req.query.tel !== undefined && this.req.query.tel !== '') ? this.req.query.tel : null;
+        const purchaserName: string | null = (this.req.query.purchaser_name !== undefined && this.req.query.purchaser_name !== '') ? this.req.query.purchaser_name : null;
+        let paymentNo: string | null = (this.req.query.payment_no !== undefined && this.req.query.payment_no !== '') ? this.req.query.payment_no : null;
 
         // 検索条件を作成
         const conditions: any[] = [];
@@ -44,7 +47,7 @@ export default class SponsorMyPageController extends BaseController {
             }
         );
 
-        if (tel) {
+        if (tel !== null) {
             conditions.push({
                 $or: [
                     {
@@ -54,7 +57,7 @@ export default class SponsorMyPageController extends BaseController {
             });
         }
 
-        if (purchaserName) {
+        if (purchaserName !== null) {
             conditions.push({
                 $or: [
                     {
@@ -67,54 +70,46 @@ export default class SponsorMyPageController extends BaseController {
             });
         }
 
-        if (paymentNo) {
+        if (paymentNo !== null) {
             // remove space characters
             paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
             conditions.push({ payment_no: { $regex: `${paymentNo}` } });
         }
 
-        // 総数検索
-        Models.Reservation.count(
-            {
-                $and: conditions
-            },
-            (err, count) => {
-                if (err) {
-                    this.res.json({
-                        success: false,
-                        results: [],
-                        count: 0
-                    });
-                } else {
-                    Models.Reservation.find({ $and: conditions })
-                        .skip(limit * (page - 1))
-                        .limit(limit)
-                        .lean(true)
-                        .exec((findReservationErr, reservations: any[]) => {
-                            if (findReservationErr) {
-                                this.res.json({
-                                    success: false,
-                                    results: [],
-                                    count: 0
-                                });
-                            } else {
-                                // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
-                                reservations.sort((a, b) => {
-                                    if (a.performance_day > b.performance_day) return 1;
-                                    if (a.performance_start_time > b.performance_start_time) return 1;
-                                    if (a.screen > b.screen) return 1;
-                                    return ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
-                                });
-
-                                this.res.json({
-                                    success: true,
-                                    results: reservations,
-                                    count: count
-                                });
-                            }
-                        });
+        try {
+            // 総数検索
+            const count = await Models.Reservation.count(
+                {
+                    $and: conditions
                 }
-            }
-        );
+            ).exec();
+
+            const reservations = <any[]>await Models.Reservation.find({ $and: conditions })
+                .skip(limit * (page - 1))
+                .limit(limit)
+                .lean(true)
+                .exec();
+
+            // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
+            reservations.sort((a, b) => {
+                if (a.performance_day > b.performance_day) return 1;
+                if (a.performance_start_time > b.performance_start_time) return 1;
+                if (a.screen > b.screen) return 1;
+                return ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+            });
+
+            this.res.json({
+                success: true,
+                results: reservations,
+                count: count
+            });
+        } catch (error) {
+            console.error(error);
+            this.res.json({
+                success: false,
+                results: [],
+                count: 0
+            });
+        }
     }
 }

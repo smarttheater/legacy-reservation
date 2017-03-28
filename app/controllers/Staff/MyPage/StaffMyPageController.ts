@@ -15,45 +15,48 @@ const DEFAULT_RADIX = 10;
  * @extends {BaseController}
  */
 export default class StaffMyPageController extends BaseController {
-    public layout = 'layouts/staff/layout';
+    public layout: string = 'layouts/staff/layout';
 
-    public index(): void {
-        Models.Theater.find({}, 'name', { sort: { _id: 1 } }, (findTheaterErr, theaters) => {
-            if (findTheaterErr) return this.next(findTheaterErr);
+    public async index(): Promise<void> {
+        try {
+            const theaters = await Models.Theater.find({}, 'name', { sort: { _id: 1 } }).exec();
 
-            Models.Film.find({}, 'name', { sort: { _id: 1 } }, (findFilmErr, films) => {
-                if (findFilmErr) return this.next(findFilmErr);
+            const films = await Models.Film.find({}, 'name', { sort: { _id: 1 } }).exec();
 
-                this.res.render('staff/mypage/index', {
-                    theaters: theaters,
-                    films: films
-                });
+            this.res.render('staff/mypage/index', {
+                theaters: theaters,
+                films: films
             });
-        });
+        } catch (error) {
+            this.next(error);
+        }
     }
 
     /**
      * マイページ予約検索
      */
-    // tslint:disable-next-line:max-func-body-length
-    public search(): void {
-        if (!this.req.staffUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+    // tslint:disable-next-line:max-func-body-length cyclomatic-complexity
+    public async search(): Promise<void> {
+        if (this.req.staffUser === undefined) {
+            this.next(new Error(this.req.__('Message.UnexpectedError')));
+            return;
+        }
 
         // tslint:disable-next-line:no-magic-numbers
-        const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
-        const page: number = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
-        const day: string = (this.req.query.day) ? this.req.query.day : null;
-        const startTime: string = (this.req.query.start_time) ? this.req.query.start_time : null;
-        const theater: string = (this.req.query.theater) ? this.req.query.theater : null;
-        const film: string = (this.req.query.film) ? this.req.query.film : null;
-        const updater: string = (this.req.query.updater) ? this.req.query.updater : null;
-        let paymentNo: string = (this.req.query.payment_no) ? this.req.query.payment_no : null;
+        const limit: number = (this.req.query.limit !== undefined && this.req.query.limit !== '') ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+        const page: number = (this.req.query.page !== undefined && this.req.query.page !== '') ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
+        const day: string | null = (this.req.query.day !== undefined && this.req.query.day !== '') ? this.req.query.day : null;
+        const startTime: string | null = (this.req.query.start_time !== undefined && this.req.query.start_time !== '') ? this.req.query.start_time : null;
+        const theater: string | null = (this.req.query.theater !== undefined && this.req.query.theater !== '') ? this.req.query.theater : null;
+        const film: string | null = (this.req.query.film !== undefined && this.req.query.film !== '') ? this.req.query.film : null;
+        const updater: string | null = (this.req.query.updater !== undefined && this.req.query.updater !== '') ? this.req.query.updater : null;
+        let paymentNo: string | null = (this.req.query.payment_no !== undefined && this.req.query.payment_no !== '') ? this.req.query.payment_no : null;
 
         // 検索条件を作成
         const conditions: any[] = [];
 
         // 管理者の場合、内部関係者の予約全て&確保中
-        if (this.req.staffUser.get('is_admin')) {
+        if (this.req.staffUser.get('is_admin') === true) {
             conditions.push(
                 {
                     $or: [
@@ -77,19 +80,19 @@ export default class StaffMyPageController extends BaseController {
             );
         }
 
-        if (film) {
+        if (film !== null) {
             conditions.push({ film: film });
         }
 
-        if (theater) {
+        if (theater !== null) {
             conditions.push({ theater: theater });
         }
 
-        if (day) {
+        if (day !== null) {
             conditions.push({ performance_day: day });
         }
 
-        if (startTime) {
+        if (startTime !== null) {
             conditions.push({
                 performance_start_time: {
                     $gte: startTime
@@ -97,7 +100,7 @@ export default class StaffMyPageController extends BaseController {
             });
         }
 
-        if (updater) {
+        if (updater !== null) {
             conditions.push({
                 $or: [
                     {
@@ -110,62 +113,57 @@ export default class StaffMyPageController extends BaseController {
             });
         }
 
-        if (paymentNo) {
+        if (paymentNo !== null) {
             // remove space characters
             paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
             conditions.push({ payment_no: { $regex: `${paymentNo}` } });
         }
 
-        // 総数検索
-        Models.Reservation.count(
-            {
-                $and: conditions
-            },
-            (err, count) => {
-                if (err) {
-                    this.res.json({
-                        success: false,
-                        results: [],
-                        count: 0
-                    });
-                } else {
-                    Models.Reservation.find({ $and: conditions })
-                        .skip(limit * (page - 1))
-                        .limit(limit)
-                        .lean(true)
-                        .exec((findReservationErr, reservations: any[]) => {
-                            if (findReservationErr) {
-                                this.res.json({
-                                    success: false,
-                                    results: [],
-                                    count: 0
-                                });
-                            } else {
-                                // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
-                                reservations.sort((a, b) => {
-                                    if (a.performance_day > b.performance_day) return 1;
-                                    if (a.performance_start_time > b.performance_start_time) return 1;
-                                    if (a.screen > b.screen) return 1;
-                                    return ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
-                                });
-
-                                this.res.json({
-                                    success: true,
-                                    results: reservations,
-                                    count: count
-                                });
-                            }
-                        });
+        try {
+            // 総数検索
+            const count = await Models.Reservation.count(
+                {
+                    $and: conditions
                 }
-            }
-        );
+            ).exec();
+
+            const reservations = <any[]>await Models.Reservation.find({ $and: conditions })
+                .skip(limit * (page - 1))
+                .limit(limit)
+                .lean(true)
+                .exec();
+
+            // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
+            reservations.sort((a, b) => {
+                if (a.performance_day > b.performance_day) return 1;
+                if (a.performance_start_time > b.performance_start_time) return 1;
+                if (a.screen > b.screen) return 1;
+                return ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+            });
+
+            this.res.json({
+                success: true,
+                results: reservations,
+                count: count
+            });
+        } catch (error) {
+            console.error(error);
+            this.res.json({
+                success: false,
+                results: [],
+                count: 0
+            });
+        }
     }
 
     /**
      * 配布先を更新する
      */
-    public updateWatcherName(): void {
-        if (!this.req.staffUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+    public async updateWatcherName(): Promise<void> {
+        if (this.req.staffUser === undefined) {
+            this.next(new Error(this.req.__('Message.UnexpectedError')));
+            return;
+        }
 
         const reservationId = this.req.body.reservationId;
         const watcherName = this.req.body.watcherName;
@@ -174,106 +172,104 @@ export default class StaffMyPageController extends BaseController {
             _id: reservationId,
             status: ReservationUtil.STATUS_RESERVED
         };
+
         // 管理者でない場合は自分の予約のみ
-        if (!this.req.staffUser.get('is_admin')) {
+        if (this.req.staffUser.get('is_admin') !== true) {
             (<any>condition).staff = this.req.staffUser.get('_id');
         }
-        Models.Reservation.findOneAndUpdate(
-            condition,
-            {
-                watcher_name: watcherName,
-                watcher_name_updated_at: Date.now(),
-                staff_signature: this.req.staffUser.get('signature')
-            },
-            {
-                new: true
-            },
-            (err, reservation) => {
-                if (err) {
-                    this.res.json({
-                        success: false,
-                        message: this.req.__('Message.UnexpectedError'),
-                        reservationId: null
-                    });
-                } else {
-                    if (!reservation) {
-                        this.res.json({
-                            success: false,
-                            message: this.req.__('Message.NotFound'),
-                            reservationId: null
-                        });
-                    } else {
-                        this.res.json({
-                            success: true,
-                            reservation: reservation.toObject()
-                        });
-                    }
-                }
+
+        try {
+            const reservation = await Models.Reservation.findOneAndUpdate(
+                condition,
+                {
+                    watcher_name: watcherName,
+                    watcher_name_updated_at: Date.now(),
+                    staff_signature: this.req.staffUser.get('signature')
+                },
+                { new: true }
+            ).exec();
+
+            if (reservation === null) {
+                this.res.json({
+                    success: false,
+                    message: this.req.__('Message.NotFound'),
+                    reservationId: null
+                });
+            } else {
+                this.res.json({
+                    success: true,
+                    reservation: reservation.toObject()
+                });
             }
-        );
+        } catch (error) {
+            this.res.json({
+                success: false,
+                message: this.req.__('Message.UnexpectedError'),
+                reservationId: null
+            });
+        }
     }
 
     /**
      * 座席開放
      */
-    public release(): void {
+    public async release(): Promise<void> {
         if (this.req.method === 'POST') {
             const day = this.req.body.day;
-            if (!day) {
+            if (day === undefined || day === '') {
                 this.res.json({
                     success: false,
                     message: this.req.__('Message.UnexpectedError')
                 });
-
                 return;
             }
 
-            Models.Reservation.remove(
-                {
-                    performance_day: day,
-                    status: ReservationUtil.STATUS_KEPT_BY_CHEVRE
-                },
-                (err) => {
-                    if (err) {
-                        this.res.json({
-                            success: false,
-                            message: this.req.__('Message.UnexpectedError')
-                        });
-                    } else {
-                        this.res.json({
-                            success: true,
-                            message: null
-                        });
+            try {
+                await Models.Reservation.remove(
+                    {
+                        performance_day: day,
+                        status: ReservationUtil.STATUS_KEPT_BY_CHEVRE
                     }
-                }
-            );
+                ).exec();
+
+                this.res.json({
+                    success: true,
+                    message: null
+                });
+            } catch (error) {
+                this.res.json({
+                    success: false,
+                    message: this.req.__('Message.UnexpectedError')
+                });
+            }
         } else {
-            // 開放座席情報取得
-            Models.Reservation.find(
-                {
-                    status: ReservationUtil.STATUS_KEPT_BY_CHEVRE
-                },
-                'status seat_code performance_day',
-                (err, reservations) => {
-                    if (err) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+            try {
+                // 開放座席情報取得
+                const reservations = await Models.Reservation.find(
+                    {
+                        status: ReservationUtil.STATUS_KEPT_BY_CHEVRE
+                    },
+                    'status seat_code performance_day'
+                ).exec();
 
-                    // 日付ごとに
-                    const reservationsByDay: {
-                        [day: string]: mongoose.Document[]
-                    } = {};
-                    for (const reservation of reservations) {
-                        if (!reservationsByDay.hasOwnProperty(reservation.get('performance_day'))) {
-                            reservationsByDay[reservation.get('performance_day')] = [];
-                        }
-
-                        reservationsByDay[reservation.get('performance_day')].push(reservation);
+                // 日付ごとに
+                const reservationsByDay: {
+                    [day: string]: mongoose.Document[]
+                } = {};
+                reservations.forEach((reservation) => {
+                    if (!reservationsByDay.hasOwnProperty(reservation.get('performance_day'))) {
+                        reservationsByDay[reservation.get('performance_day')] = [];
                     }
 
-                    this.res.render('staff/mypage/release', {
-                        reservationsByDay: reservationsByDay
-                    });
-                }
-            );
+                    reservationsByDay[reservation.get('performance_day')].push(reservation);
+                });
+
+                this.res.render('staff/mypage/release', {
+                    reservationsByDay: reservationsByDay
+                });
+            } catch (error) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+            }
         }
     }
 }

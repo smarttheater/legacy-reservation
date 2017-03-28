@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
@@ -19,132 +27,127 @@ class StaffMyPageController extends BaseController_1.default {
         this.layout = 'layouts/staff/layout';
     }
     index() {
-        chevre_domain_3.Models.Theater.find({}, 'name', { sort: { _id: 1 } }, (findTheaterErr, theaters) => {
-            if (findTheaterErr)
-                return this.next(findTheaterErr);
-            chevre_domain_3.Models.Film.find({}, 'name', { sort: { _id: 1 } }, (findFilmErr, films) => {
-                if (findFilmErr)
-                    return this.next(findFilmErr);
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const theaters = yield chevre_domain_3.Models.Theater.find({}, 'name', { sort: { _id: 1 } }).exec();
+                const films = yield chevre_domain_3.Models.Film.find({}, 'name', { sort: { _id: 1 } }).exec();
                 this.res.render('staff/mypage/index', {
                     theaters: theaters,
                     films: films
                 });
-            });
+            }
+            catch (error) {
+                this.next(error);
+            }
         });
     }
     /**
      * マイページ予約検索
      */
-    // tslint:disable-next-line:max-func-body-length
+    // tslint:disable-next-line:max-func-body-length cyclomatic-complexity
     search() {
-        if (!this.req.staffUser)
-            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-        // tslint:disable-next-line:no-magic-numbers
-        const limit = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
-        const page = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
-        const day = (this.req.query.day) ? this.req.query.day : null;
-        const startTime = (this.req.query.start_time) ? this.req.query.start_time : null;
-        const theater = (this.req.query.theater) ? this.req.query.theater : null;
-        const film = (this.req.query.film) ? this.req.query.film : null;
-        const updater = (this.req.query.updater) ? this.req.query.updater : null;
-        let paymentNo = (this.req.query.payment_no) ? this.req.query.payment_no : null;
-        // 検索条件を作成
-        const conditions = [];
-        // 管理者の場合、内部関係者の予約全て&確保中
-        if (this.req.staffUser.get('is_admin')) {
-            conditions.push({
-                $or: [
-                    {
-                        purchaser_group: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF,
-                        status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
-                    },
-                    {
-                        status: chevre_domain_1.ReservationUtil.STATUS_KEPT_BY_CHEVRE
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.req.staffUser === undefined) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+                return;
+            }
+            // tslint:disable-next-line:no-magic-numbers
+            const limit = (this.req.query.limit !== undefined && this.req.query.limit !== '') ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+            const page = (this.req.query.page !== undefined && this.req.query.page !== '') ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
+            const day = (this.req.query.day !== undefined && this.req.query.day !== '') ? this.req.query.day : null;
+            const startTime = (this.req.query.start_time !== undefined && this.req.query.start_time !== '') ? this.req.query.start_time : null;
+            const theater = (this.req.query.theater !== undefined && this.req.query.theater !== '') ? this.req.query.theater : null;
+            const film = (this.req.query.film !== undefined && this.req.query.film !== '') ? this.req.query.film : null;
+            const updater = (this.req.query.updater !== undefined && this.req.query.updater !== '') ? this.req.query.updater : null;
+            let paymentNo = (this.req.query.payment_no !== undefined && this.req.query.payment_no !== '') ? this.req.query.payment_no : null;
+            // 検索条件を作成
+            const conditions = [];
+            // 管理者の場合、内部関係者の予約全て&確保中
+            if (this.req.staffUser.get('is_admin') === true) {
+                conditions.push({
+                    $or: [
+                        {
+                            purchaser_group: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF,
+                            status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
+                        },
+                        {
+                            status: chevre_domain_1.ReservationUtil.STATUS_KEPT_BY_CHEVRE
+                        }
+                    ]
+                });
+            }
+            else {
+                conditions.push({
+                    purchaser_group: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF,
+                    staff: this.req.staffUser.get('_id'),
+                    status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
+                });
+            }
+            if (film !== null) {
+                conditions.push({ film: film });
+            }
+            if (theater !== null) {
+                conditions.push({ theater: theater });
+            }
+            if (day !== null) {
+                conditions.push({ performance_day: day });
+            }
+            if (startTime !== null) {
+                conditions.push({
+                    performance_start_time: {
+                        $gte: startTime
                     }
-                ]
-            });
-        }
-        else {
-            conditions.push({
-                purchaser_group: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF,
-                staff: this.req.staffUser.get('_id'),
-                status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
-            });
-        }
-        if (film) {
-            conditions.push({ film: film });
-        }
-        if (theater) {
-            conditions.push({ theater: theater });
-        }
-        if (day) {
-            conditions.push({ performance_day: day });
-        }
-        if (startTime) {
-            conditions.push({
-                performance_start_time: {
-                    $gte: startTime
-                }
-            });
-        }
-        if (updater) {
-            conditions.push({
-                $or: [
-                    {
-                        staff_signature: { $regex: `${updater}` }
-                    },
-                    {
-                        watcher_name: { $regex: `${updater}` }
-                    }
-                ]
-            });
-        }
-        if (paymentNo) {
-            // remove space characters
-            paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
-            conditions.push({ payment_no: { $regex: `${paymentNo}` } });
-        }
-        // 総数検索
-        chevre_domain_3.Models.Reservation.count({
-            $and: conditions
-        }, (err, count) => {
-            if (err) {
+                });
+            }
+            if (updater !== null) {
+                conditions.push({
+                    $or: [
+                        {
+                            staff_signature: { $regex: `${updater}` }
+                        },
+                        {
+                            watcher_name: { $regex: `${updater}` }
+                        }
+                    ]
+                });
+            }
+            if (paymentNo !== null) {
+                // remove space characters
+                paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
+                conditions.push({ payment_no: { $regex: `${paymentNo}` } });
+            }
+            try {
+                // 総数検索
+                const count = yield chevre_domain_3.Models.Reservation.count({
+                    $and: conditions
+                }).exec();
+                const reservations = yield chevre_domain_3.Models.Reservation.find({ $and: conditions })
+                    .skip(limit * (page - 1))
+                    .limit(limit)
+                    .lean(true)
+                    .exec();
+                // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
+                reservations.sort((a, b) => {
+                    if (a.performance_day > b.performance_day)
+                        return 1;
+                    if (a.performance_start_time > b.performance_start_time)
+                        return 1;
+                    if (a.screen > b.screen)
+                        return 1;
+                    return chevre_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                });
+                this.res.json({
+                    success: true,
+                    results: reservations,
+                    count: count
+                });
+            }
+            catch (error) {
+                console.error(error);
                 this.res.json({
                     success: false,
                     results: [],
                     count: 0
-                });
-            }
-            else {
-                chevre_domain_3.Models.Reservation.find({ $and: conditions })
-                    .skip(limit * (page - 1))
-                    .limit(limit)
-                    .lean(true)
-                    .exec((findReservationErr, reservations) => {
-                    if (findReservationErr) {
-                        this.res.json({
-                            success: false,
-                            results: [],
-                            count: 0
-                        });
-                    }
-                    else {
-                        // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
-                        reservations.sort((a, b) => {
-                            if (a.performance_day > b.performance_day)
-                                return 1;
-                            if (a.performance_start_time > b.performance_start_time)
-                                return 1;
-                            if (a.screen > b.screen)
-                                return 1;
-                            return chevre_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
-                        });
-                        this.res.json({
-                            success: true,
-                            results: reservations,
-                            count: count
-                        });
-                    }
                 });
             }
         });
@@ -153,34 +156,28 @@ class StaffMyPageController extends BaseController_1.default {
      * 配布先を更新する
      */
     updateWatcherName() {
-        if (!this.req.staffUser)
-            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-        const reservationId = this.req.body.reservationId;
-        const watcherName = this.req.body.watcherName;
-        const condition = {
-            _id: reservationId,
-            status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
-        };
-        // 管理者でない場合は自分の予約のみ
-        if (!this.req.staffUser.get('is_admin')) {
-            condition.staff = this.req.staffUser.get('_id');
-        }
-        chevre_domain_3.Models.Reservation.findOneAndUpdate(condition, {
-            watcher_name: watcherName,
-            watcher_name_updated_at: Date.now(),
-            staff_signature: this.req.staffUser.get('signature')
-        }, {
-            new: true
-        }, (err, reservation) => {
-            if (err) {
-                this.res.json({
-                    success: false,
-                    message: this.req.__('Message.UnexpectedError'),
-                    reservationId: null
-                });
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.req.staffUser === undefined) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+                return;
             }
-            else {
-                if (!reservation) {
+            const reservationId = this.req.body.reservationId;
+            const watcherName = this.req.body.watcherName;
+            const condition = {
+                _id: reservationId,
+                status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
+            };
+            // 管理者でない場合は自分の予約のみ
+            if (this.req.staffUser.get('is_admin') !== true) {
+                condition.staff = this.req.staffUser.get('_id');
+            }
+            try {
+                const reservation = yield chevre_domain_3.Models.Reservation.findOneAndUpdate(condition, {
+                    watcher_name: watcherName,
+                    watcher_name_updated_at: Date.now(),
+                    staff_signature: this.req.staffUser.get('signature')
+                }, { new: true }).exec();
+                if (reservation === null) {
                     this.res.json({
                         success: false,
                         message: this.req.__('Message.NotFound'),
@@ -194,59 +191,69 @@ class StaffMyPageController extends BaseController_1.default {
                     });
                 }
             }
+            catch (error) {
+                this.res.json({
+                    success: false,
+                    message: this.req.__('Message.UnexpectedError'),
+                    reservationId: null
+                });
+            }
         });
     }
     /**
      * 座席開放
      */
     release() {
-        if (this.req.method === 'POST') {
-            const day = this.req.body.day;
-            if (!day) {
-                this.res.json({
-                    success: false,
-                    message: this.req.__('Message.UnexpectedError')
-                });
-                return;
-            }
-            chevre_domain_3.Models.Reservation.remove({
-                performance_day: day,
-                status: chevre_domain_1.ReservationUtil.STATUS_KEPT_BY_CHEVRE
-            }, (err) => {
-                if (err) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.req.method === 'POST') {
+                const day = this.req.body.day;
+                if (day === undefined || day === '') {
                     this.res.json({
                         success: false,
                         message: this.req.__('Message.UnexpectedError')
                     });
+                    return;
                 }
-                else {
+                try {
+                    yield chevre_domain_3.Models.Reservation.remove({
+                        performance_day: day,
+                        status: chevre_domain_1.ReservationUtil.STATUS_KEPT_BY_CHEVRE
+                    }).exec();
                     this.res.json({
                         success: true,
                         message: null
                     });
                 }
-            });
-        }
-        else {
-            // 開放座席情報取得
-            chevre_domain_3.Models.Reservation.find({
-                status: chevre_domain_1.ReservationUtil.STATUS_KEPT_BY_CHEVRE
-            }, 'status seat_code performance_day', (err, reservations) => {
-                if (err)
-                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                // 日付ごとに
-                const reservationsByDay = {};
-                for (const reservation of reservations) {
-                    if (!reservationsByDay.hasOwnProperty(reservation.get('performance_day'))) {
-                        reservationsByDay[reservation.get('performance_day')] = [];
-                    }
-                    reservationsByDay[reservation.get('performance_day')].push(reservation);
+                catch (error) {
+                    this.res.json({
+                        success: false,
+                        message: this.req.__('Message.UnexpectedError')
+                    });
                 }
-                this.res.render('staff/mypage/release', {
-                    reservationsByDay: reservationsByDay
-                });
-            });
-        }
+            }
+            else {
+                try {
+                    // 開放座席情報取得
+                    const reservations = yield chevre_domain_3.Models.Reservation.find({
+                        status: chevre_domain_1.ReservationUtil.STATUS_KEPT_BY_CHEVRE
+                    }, 'status seat_code performance_day').exec();
+                    // 日付ごとに
+                    const reservationsByDay = {};
+                    reservations.forEach((reservation) => {
+                        if (!reservationsByDay.hasOwnProperty(reservation.get('performance_day'))) {
+                            reservationsByDay[reservation.get('performance_day')] = [];
+                        }
+                        reservationsByDay[reservation.get('performance_day')].push(reservation);
+                    });
+                    this.res.render('staff/mypage/release', {
+                        reservationsByDay: reservationsByDay
+                    });
+                }
+                catch (error) {
+                    this.next(new Error(this.req.__('Message.UnexpectedError')));
+                }
+            }
+        });
     }
 }
 exports.default = StaffMyPageController;

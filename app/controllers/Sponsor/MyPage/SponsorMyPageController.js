@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
@@ -25,88 +33,82 @@ class SponsorMyPageController extends BaseController_1.default {
      * マイページ予約検索
      */
     search() {
-        if (!this.req.sponsorUser)
-            return this.next(new Error(this.req.__('Message.UnexpectedError')));
-        // tslint:disable-next-line:no-magic-numbers
-        const limit = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
-        const page = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
-        const tel = (this.req.query.tel) ? this.req.query.tel : null;
-        const purchaserName = (this.req.query.purchaser_name) ? this.req.query.purchaser_name : null;
-        let paymentNo = (this.req.query.payment_no) ? this.req.query.payment_no : null;
-        // 検索条件を作成
-        const conditions = [];
-        conditions.push({
-            purchaser_group: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR,
-            sponsor: this.req.sponsorUser.get('_id'),
-            status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
-        });
-        if (tel) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.req.sponsorUser === undefined) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+                return;
+            }
+            // tslint:disable-next-line:no-magic-numbers
+            const limit = (this.req.query.limit !== undefined && this.req.query.limit !== '') ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+            const page = (this.req.query.page !== undefined && this.req.query.page !== '') ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
+            const tel = (this.req.query.tel !== undefined && this.req.query.tel !== '') ? this.req.query.tel : null;
+            const purchaserName = (this.req.query.purchaser_name !== undefined && this.req.query.purchaser_name !== '') ? this.req.query.purchaser_name : null;
+            let paymentNo = (this.req.query.payment_no !== undefined && this.req.query.payment_no !== '') ? this.req.query.payment_no : null;
+            // 検索条件を作成
+            const conditions = [];
             conditions.push({
-                $or: [
-                    {
-                        purchaser_tel: { $regex: `${tel}` }
-                    }
-                ]
+                purchaser_group: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR,
+                sponsor: this.req.sponsorUser.get('_id'),
+                status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
             });
-        }
-        if (purchaserName) {
-            conditions.push({
-                $or: [
-                    {
-                        purchaser_last_name: { $regex: `${purchaserName}` }
-                    },
-                    {
-                        purchaser_first_name: { $regex: `${purchaserName}` }
-                    }
-                ]
-            });
-        }
-        if (paymentNo) {
-            // remove space characters
-            paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
-            conditions.push({ payment_no: { $regex: `${paymentNo}` } });
-        }
-        // 総数検索
-        chevre_domain_3.Models.Reservation.count({
-            $and: conditions
-        }, (err, count) => {
-            if (err) {
+            if (tel !== null) {
+                conditions.push({
+                    $or: [
+                        {
+                            purchaser_tel: { $regex: `${tel}` }
+                        }
+                    ]
+                });
+            }
+            if (purchaserName !== null) {
+                conditions.push({
+                    $or: [
+                        {
+                            purchaser_last_name: { $regex: `${purchaserName}` }
+                        },
+                        {
+                            purchaser_first_name: { $regex: `${purchaserName}` }
+                        }
+                    ]
+                });
+            }
+            if (paymentNo !== null) {
+                // remove space characters
+                paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
+                conditions.push({ payment_no: { $regex: `${paymentNo}` } });
+            }
+            try {
+                // 総数検索
+                const count = yield chevre_domain_3.Models.Reservation.count({
+                    $and: conditions
+                }).exec();
+                const reservations = yield chevre_domain_3.Models.Reservation.find({ $and: conditions })
+                    .skip(limit * (page - 1))
+                    .limit(limit)
+                    .lean(true)
+                    .exec();
+                // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
+                reservations.sort((a, b) => {
+                    if (a.performance_day > b.performance_day)
+                        return 1;
+                    if (a.performance_start_time > b.performance_start_time)
+                        return 1;
+                    if (a.screen > b.screen)
+                        return 1;
+                    return chevre_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                });
+                this.res.json({
+                    success: true,
+                    results: reservations,
+                    count: count
+                });
+            }
+            catch (error) {
+                console.error(error);
                 this.res.json({
                     success: false,
                     results: [],
                     count: 0
-                });
-            }
-            else {
-                chevre_domain_3.Models.Reservation.find({ $and: conditions })
-                    .skip(limit * (page - 1))
-                    .limit(limit)
-                    .lean(true)
-                    .exec((findReservationErr, reservations) => {
-                    if (findReservationErr) {
-                        this.res.json({
-                            success: false,
-                            results: [],
-                            count: 0
-                        });
-                    }
-                    else {
-                        // ソート昇順(上映日→開始時刻→スクリーン→座席コード)
-                        reservations.sort((a, b) => {
-                            if (a.performance_day > b.performance_day)
-                                return 1;
-                            if (a.performance_start_time > b.performance_start_time)
-                                return 1;
-                            if (a.screen > b.screen)
-                                return 1;
-                            return chevre_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
-                        });
-                        this.res.json({
-                            success: true,
-                            results: reservations,
-                            count: count
-                        });
-                    }
                 });
             }
         });
