@@ -92,12 +92,12 @@ export default (app: any) => {
     // tslint:disable:max-line-length
     app.all('/pre/login', 'pre.reserve.terms', base, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerAuthController(req, res, next)).login(); });
     app.all('/pre/logout', 'pre.logout', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerAuthController(req, res, next)).logout(); });
-    app.get('/pre/reserve/start', 'pre.reserve.start', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).start(); });
-    app.all('/pre/reserve/:token/performances', 'pre.reserve.performances', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).performances(); });
-    app.all('/pre/reserve/:token/seats', 'pre.reserve.seats', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).seats(); });
-    app.all('/pre/reserve/:token/tickets', 'pre.reserve.tickets', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).tickets(); });
-    app.all('/pre/reserve/:token/profile', 'pre.reserve.profile', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).profile(); });
-    app.all('/pre/reserve/:token/confirm', 'pre.reserve.confirm', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).confirm(); });
-    app.get('/pre/reserve/:paymentNo/waitingSettlement', 'pre.reserve.waitingSettlement', base, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).waitingSettlement(); });
-    app.get('/pre/reserve/:paymentNo/complete', 'pre.reserve.complete', base, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerReserveController(req, res, next)).complete(); });
+    app.get('/pre/reserve/start', 'pre.reserve.start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerReserveController(req, res, next)).start(); });
+    app.all('/pre/reserve/:token/performances', 'pre.reserve.performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerReserveController(req, res, next)).performances(); });
+    app.all('/pre/reserve/:token/seats', 'pre.reserve.seats', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerReserveController(req, res, next)).seats(); });
+    app.all('/pre/reserve/:token/tickets', 'pre.reserve.tickets', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerReserveController(req, res, next)).tickets(); });
+    app.all('/pre/reserve/:token/profile', 'pre.reserve.profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerReserveController(req, res, next)).profile(); });
+    app.all('/pre/reserve/:token/confirm', 'pre.reserve.confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerReserveController(req, res, next)).confirm(); });
+    app.get('/pre/reserve/:paymentNo/waitingSettlement', 'pre.reserve.waitingSettlement', base, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerReserveController(req, res, next)).waitingSettlement(); });
+    app.get('/pre/reserve/:paymentNo/complete', 'pre.reserve.complete', base, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerReserveController(req, res, next)).complete(); });
 };

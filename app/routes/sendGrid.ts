@@ -9,5 +9,5 @@ import SendGridController from '../controllers/SendGrid/SendGridController';
 
 export default (app: any) => {
     // イベントフック
-    app.all('/sendGrid/event/notify', 'sendGrid.event.notify', (req: Request, res: Response, next: NextFunction) => {(new SendGridController(req, res, next)).notifyEvent(); });
+    app.all('/sendGrid/event/notify', 'sendGrid.event.notify', async (req: Request, res: Response, next: NextFunction) => { await (new SendGridController(req, res, next)).notifyEvent(); });
 };

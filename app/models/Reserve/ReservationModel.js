@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const conf = require("config");
@@ -29,29 +37,31 @@ class ReservationModel {
      */
     // tslint:disable-next-line:function-name
     static find(token) {
-        const key = ReservationModel.getRedisKey(token);
-        return new Promise((resolve, reject) => {
-            redisClient.get(key, (err, reply) => {
-                if (err instanceof Error) {
-                    reject(err);
-                    return;
-                }
-                if (reply === null) {
-                    resolve(null);
-                    return;
-                }
-                const reservationModel = new ReservationModel();
-                try {
-                    const reservationModelInRedis = JSON.parse(reply.toString());
-                    Object.keys(reservationModelInRedis).forEach((propertyName) => {
-                        reservationModel[propertyName] = reservationModelInRedis[propertyName];
-                    });
-                }
-                catch (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(reservationModel);
+        return __awaiter(this, void 0, void 0, function* () {
+            const key = ReservationModel.getRedisKey(token);
+            return new Promise((resolve, reject) => {
+                redisClient.get(key, (err, reply) => {
+                    if (err instanceof Error) {
+                        reject(err);
+                        return;
+                    }
+                    if (reply === null) {
+                        resolve(null);
+                        return;
+                    }
+                    const reservationModel = new ReservationModel();
+                    try {
+                        const reservationModelInRedis = JSON.parse(reply.toString());
+                        Object.keys(reservationModelInRedis).forEach((propertyName) => {
+                            reservationModel[propertyName] = reservationModelInRedis[propertyName];
+                        });
+                    }
+                    catch (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(reservationModel);
+                });
             });
         });
     }
@@ -70,19 +80,21 @@ class ReservationModel {
      * @param {number} [ttl] 有効期間(default: 1800)
      */
     save(ttl) {
-        const key = ReservationModel.getRedisKey(this.token);
-        if (ttl === undefined) {
-            ttl = DEFAULT_REDIS_TTL;
-        }
-        return new Promise((resolve, reject) => {
-            redisClient.setex(key, ttl, JSON.stringify(this), (err) => {
-                if (err instanceof Error) {
-                    console.error(err);
-                    reject(err);
-                }
-                else {
-                    resolve();
-                }
+        return __awaiter(this, void 0, void 0, function* () {
+            const key = ReservationModel.getRedisKey(this.token);
+            if (ttl === undefined) {
+                ttl = DEFAULT_REDIS_TTL;
+            }
+            return new Promise((resolve, reject) => {
+                redisClient.setex(key, ttl, JSON.stringify(this), (err) => {
+                    if (err instanceof Error) {
+                        console.error(err);
+                        reject(err);
+                    }
+                    else {
+                        resolve();
+                    }
+                });
             });
         });
     }
@@ -90,15 +102,17 @@ class ReservationModel {
      * プロセス中の購入情報をセッションから削除する
      */
     remove() {
-        const key = ReservationModel.getRedisKey(this.token);
-        return new Promise((resolve, reject) => {
-            redisClient.del(key, (err) => {
-                if (err instanceof Error) {
-                    reject(err);
-                }
-                else {
-                    resolve();
-                }
+        return __awaiter(this, void 0, void 0, function* () {
+            const key = ReservationModel.getRedisKey(this.token);
+            return new Promise((resolve, reject) => {
+                redisClient.del(key, (err) => {
+                    if (err instanceof Error) {
+                        reject(err);
+                    }
+                    else {
+                        resolve();
+                    }
+                });
             });
         });
     }

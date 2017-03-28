@@ -15,13 +15,13 @@ export default (app: any) => {
             content = Buffer.concat([content, chunk]);
         });
 
-        req.on('end', () => {
+        req.on('end', async () => {
             // tslint:disable-next-line:no-require-imports
             const jconv = require('jconv');
             // utf8変換
             const converted = jconv.convert(content, 'SJIS', 'UTF8');
             req.body = querystring.parse(converted.toString('utf8'));
-            (new PayDesignReserveController(req, res, next)).notify();
+            await (new PayDesignReserveController(req, res, next)).notify();
         });
     });
 
@@ -31,13 +31,13 @@ export default (app: any) => {
             content = Buffer.concat([content, chunk]);
         });
 
-        req.on('end', () => {
+        req.on('end', async () => {
             // tslint:disable-next-line:no-require-imports
             const jconv = require('jconv');
             // utf8変換
             const converted = jconv.convert(content, 'SJIS', 'UTF8');
             req.body = querystring.parse(converted.toString('utf8'));
-            (new PayDesignReserveController(req, res, next)).cancel();
+            await (new PayDesignReserveController(req, res, next)).cancel();
         });
     });
 };

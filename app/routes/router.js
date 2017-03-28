@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const AdmissionController_1 = require("../controllers/Admission/AdmissionController");
 const CustomerReserveController_1 = require("../controllers/Customer/Reserve/CustomerReserveController");
@@ -24,18 +32,18 @@ exports.default = (app) => {
     };
     // 言語
     app.get('/language/update/:locale', 'language.update', base, (req, res, next) => { (new LanguageController_1.default(req, res, next)).update(); });
-    app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', base, (req, res, next) => { (new ReserveController_1.default(req, res, next)).getSeatProperties(); });
-    app.get('/reserve/:reservationId/qrcode', 'reserve.qrcode', base, (req, res, next) => { (new ReserveController_1.default(req, res, next)).qrcode(); });
-    app.get('/reserve/:performanceId/unavailableSeatCodes', 'reserve.getUnavailableSeatCodes', base, (req, res, next) => { (new ReserveController_1.default(req, res, next)).getUnavailableSeatCodes(); });
-    app.get('/reserve/print', 'reserve.print', base, (req, res, next) => { (new ReserveController_1.default(req, res, next)).print(); });
+    app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new ReserveController_1.default(req, res, next)).getSeatProperties(); }));
+    app.get('/reserve/:reservationId/qrcode', 'reserve.qrcode', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new ReserveController_1.default(req, res, next)).qrcode(); }));
+    app.get('/reserve/:performanceId/unavailableSeatCodes', 'reserve.getUnavailableSeatCodes', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new ReserveController_1.default(req, res, next)).getUnavailableSeatCodes(); }));
+    app.get('/reserve/print', 'reserve.print', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new ReserveController_1.default(req, res, next)).print(); }));
     // GMOプロセス
-    app.post('/GMO/reserve/:token/start', 'gmo.reserve.start', base, (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).start(); });
-    app.post('/GMO/reserve/result', 'gmo.reserve.result', base, (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).result(); });
-    app.get('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', base, (req, res, next) => { (new GMOReserveController_1.default(req, res, next)).cancel(); });
-    app.all('/GMO/notify', 'gmo.notify', base, (req, res, next) => { (new GMOController_1.default(req, res, next)).notify(); });
+    app.post('/GMO/reserve/:token/start', 'gmo.reserve.start', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOReserveController_1.default(req, res, next)).start(); }));
+    app.post('/GMO/reserve/result', 'gmo.reserve.result', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOReserveController_1.default(req, res, next)).result(); }));
+    app.get('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOReserveController_1.default(req, res, next)).cancel(); }));
+    app.all('/GMO/notify', 'gmo.notify', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOController_1.default(req, res, next)).notify(); }));
     // admission
-    app.all('/admission/performances', 'admission.performances', base, (req, res, next) => { (new AdmissionController_1.default(req, res, next)).performances(); });
-    app.get('/admission/performance/:id/confirm', 'admission.confirm', base, (req, res, next) => { (new AdmissionController_1.default(req, res, next)).confirm(); });
+    app.all('/admission/performances', 'admission.performances', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new AdmissionController_1.default(req, res, next)).performances(); }));
+    app.get('/admission/performance/:id/confirm', 'admission.confirm', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new AdmissionController_1.default(req, res, next)).confirm(); }));
     app.get('/policy', 'policy', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).policy(); });
     app.get('/privacy', 'privacy', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).privacy(); });
     app.get('/commercialTransactions', 'commercialTransactions', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).commercialTransactions(); });
@@ -44,14 +52,14 @@ exports.default = (app) => {
     if (process.env.NODE_ENV !== 'production') {
         app.all('/customer/reserve/performances', 'customer.reserve.performances', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).performances(); });
     }
-    app.get('/customer/reserve/start', 'customer.reserve.start', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).start(); });
-    app.all('/customer/reserve/:token/terms', 'customer.reserve.terms', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).terms(); });
-    app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).seats(); });
-    app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).tickets(); });
-    app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).profile(); });
-    app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).confirm(); });
-    app.get('/customer/reserve/:paymentNo/waitingSettlement', 'customer.reserve.waitingSettlement', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).waitingSettlement(); });
-    app.get('/customer/reserve/:paymentNo/complete', 'customer.reserve.complete', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).complete(); });
+    app.get('/customer/reserve/start', 'customer.reserve.start', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).start(); }));
+    app.all('/customer/reserve/:token/terms', 'customer.reserve.terms', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).terms(); }));
+    app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).seats(); }));
+    app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).tickets(); }));
+    app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).profile(); }));
+    app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).confirm(); }));
+    app.get('/customer/reserve/:paymentNo/waitingSettlement', 'customer.reserve.waitingSettlement', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).waitingSettlement(); }));
+    app.get('/customer/reserve/:paymentNo/complete', 'customer.reserve.complete', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).complete(); }));
     app.get('/error/notFound', 'error.notFound', base, (req, res, next) => { (new ErrorController_1.default(req, res, next)).notFound(); });
     // 404
     // tslint:disable-next-line:variable-name

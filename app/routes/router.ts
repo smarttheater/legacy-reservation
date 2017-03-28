@@ -32,20 +32,20 @@ export default (app: any) => {
     // 言語
     app.get('/language/update/:locale', 'language.update', base, (req: Request, res: Response, next: NextFunction) => { (new LanguageController(req, res, next)).update(); });
 
-    app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', base, (req: Request, res: Response, next: NextFunction) => { (new ReserveController(req, res, next)).getSeatProperties(); });
-    app.get('/reserve/:reservationId/qrcode', 'reserve.qrcode', base, (req: Request, res: Response, next: NextFunction) => { (new ReserveController(req, res, next)).qrcode(); });
-    app.get('/reserve/:performanceId/unavailableSeatCodes', 'reserve.getUnavailableSeatCodes', base, (req: Request, res: Response, next: NextFunction) => { (new ReserveController(req, res, next)).getUnavailableSeatCodes(); });
-    app.get('/reserve/print', 'reserve.print', base, (req: Request, res: Response, next: NextFunction) => { (new ReserveController(req, res, next)).print(); });
+    app.get('/reserve/:token/getSeatProperties', 'reserve.getSeatProperties', base, async (req: Request, res: Response, next: NextFunction) => { await (new ReserveController(req, res, next)).getSeatProperties(); });
+    app.get('/reserve/:reservationId/qrcode', 'reserve.qrcode', base, async (req: Request, res: Response, next: NextFunction) => { await (new ReserveController(req, res, next)).qrcode(); });
+    app.get('/reserve/:performanceId/unavailableSeatCodes', 'reserve.getUnavailableSeatCodes', base, async (req: Request, res: Response, next: NextFunction) => { await (new ReserveController(req, res, next)).getUnavailableSeatCodes(); });
+    app.get('/reserve/print', 'reserve.print', base, async (req: Request, res: Response, next: NextFunction) => { await (new ReserveController(req, res, next)).print(); });
 
     // GMOプロセス
-    app.post('/GMO/reserve/:token/start', 'gmo.reserve.start', base, (req: Request, res: Response, next: NextFunction) => { (new GMOReserveController(req, res, next)).start(); });
-    app.post('/GMO/reserve/result', 'gmo.reserve.result', base, (req: Request, res: Response, next: NextFunction) => { (new GMOReserveController(req, res, next)).result(); });
-    app.get('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', base, (req: Request, res: Response, next: NextFunction) => { (new GMOReserveController(req, res, next)).cancel(); });
-    app.all('/GMO/notify', 'gmo.notify', base, (req: Request, res: Response, next: NextFunction) => { (new GMOController(req, res, next)).notify(); });
+    app.post('/GMO/reserve/:token/start', 'gmo.reserve.start', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOReserveController(req, res, next)).start(); });
+    app.post('/GMO/reserve/result', 'gmo.reserve.result', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOReserveController(req, res, next)).result(); });
+    app.get('/GMO/reserve/:paymentNo/cancel', 'gmo.reserve.cancel', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOReserveController(req, res, next)).cancel(); });
+    app.all('/GMO/notify', 'gmo.notify', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOController(req, res, next)).notify(); });
 
     // admission
-    app.all('/admission/performances', 'admission.performances', base, (req: Request, res: Response, next: NextFunction) => { (new AdmissionController(req, res, next)).performances(); });
-    app.get('/admission/performance/:id/confirm', 'admission.confirm', base, (req: Request, res: Response, next: NextFunction) => { (new AdmissionController(req, res, next)).confirm(); });
+    app.all('/admission/performances', 'admission.performances', base, async (req: Request, res: Response, next: NextFunction) => { await (new AdmissionController(req, res, next)).performances(); });
+    app.get('/admission/performance/:id/confirm', 'admission.confirm', base, async (req: Request, res: Response, next: NextFunction) => { await (new AdmissionController(req, res, next)).confirm(); });
 
     app.get('/policy', 'policy', base, (req: Request, res: Response, next: NextFunction) => { (new OtherController(req, res, next)).policy(); });
     app.get('/privacy', 'privacy', base, (req: Request, res: Response, next: NextFunction) => { (new OtherController(req, res, next)).privacy(); });
@@ -56,14 +56,14 @@ export default (app: any) => {
     if (process.env.NODE_ENV !== 'production') {
         app.all('/customer/reserve/performances', 'customer.reserve.performances', base, (req: Request, res: Response, next: NextFunction) => { (new CustomerReserveController(req, res, next)).performances(); });
     }
-    app.get('/customer/reserve/start', 'customer.reserve.start', base, (req: Request, res: Response, next: NextFunction) => { (new CustomerReserveController(req, res, next)).start(); });
-    app.all('/customer/reserve/:token/terms', 'customer.reserve.terms', base, (req: Request, res: Response, next: NextFunction) => { (new CustomerReserveController(req, res, next)).terms(); });
-    app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', base, (req: Request, res: Response, next: NextFunction) => { (new CustomerReserveController(req, res, next)).seats(); });
-    app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', base, (req: Request, res: Response, next: NextFunction) => { (new CustomerReserveController(req, res, next)).tickets(); });
-    app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', base, (req: Request, res: Response, next: NextFunction) => { (new CustomerReserveController(req, res, next)).profile(); });
-    app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', base, (req: Request, res: Response, next: NextFunction) => { (new CustomerReserveController(req, res, next)).confirm(); });
-    app.get('/customer/reserve/:paymentNo/waitingSettlement', 'customer.reserve.waitingSettlement', base, (req: Request, res: Response, next: NextFunction) => { (new CustomerReserveController(req, res, next)).waitingSettlement(); });
-    app.get('/customer/reserve/:paymentNo/complete', 'customer.reserve.complete', base, (req: Request, res: Response, next: NextFunction) => { (new CustomerReserveController(req, res, next)).complete(); });
+    app.get('/customer/reserve/start', 'customer.reserve.start', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).start(); });
+    app.all('/customer/reserve/:token/terms', 'customer.reserve.terms', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).terms(); });
+    app.all('/customer/reserve/:token/seats', 'customer.reserve.seats', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).seats(); });
+    app.all('/customer/reserve/:token/tickets', 'customer.reserve.tickets', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).tickets(); });
+    app.all('/customer/reserve/:token/profile', 'customer.reserve.profile', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).profile(); });
+    app.all('/customer/reserve/:token/confirm', 'customer.reserve.confirm', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).confirm(); });
+    app.get('/customer/reserve/:paymentNo/waitingSettlement', 'customer.reserve.waitingSettlement', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).waitingSettlement(); });
+    app.get('/customer/reserve/:paymentNo/complete', 'customer.reserve.complete', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).complete(); });
 
     app.get('/error/notFound', 'error.notFound', base, (req: Request, res: Response, next: NextFunction) => { (new ErrorController(req, res, next)).notFound(); });
 

@@ -125,7 +125,7 @@ export default class ReservationModel {
      * プロセス中の購入情報をセッションから取得する
      */
     // tslint:disable-next-line:function-name
-    public static find(token: string): Promise<ReservationModel | null> {
+    public static async find(token: string): Promise<ReservationModel | null> {
         const key = ReservationModel.getRedisKey(token);
         return new Promise<ReservationModel | null>((resolve, reject) => {
             redisClient.get(key, (err, reply) => {
@@ -170,7 +170,7 @@ export default class ReservationModel {
      *
      * @param {number} [ttl] 有効期間(default: 1800)
      */
-    public save(ttl?: number): Promise<void> {
+    public async save(ttl?: number): Promise<void> {
         const key = ReservationModel.getRedisKey(this.token);
 
         if (ttl === undefined) {
@@ -192,7 +192,7 @@ export default class ReservationModel {
     /**
      * プロセス中の購入情報をセッションから削除する
      */
-    public remove(): Promise<void> {
+    public async remove(): Promise<void> {
         const key = ReservationModel.getRedisKey(this.token);
         return new Promise<void>((resolve, reject) => {
             redisClient.del(key, (err: Error | void) => {

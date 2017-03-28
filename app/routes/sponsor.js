@@ -95,14 +95,14 @@ exports.default = (app) => {
     app.all('/sponsor/logout', 'sponsor.logout', base, authentication, (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).logout(); });
     app.all('/sponsor/mypage', 'sponsor.mypage', base, authentication, (req, res, next) => { (new SponsorMyPageController_1.default(req, res, next)).index(); });
     app.get('/sponsor/mypage/search', 'sponsor.mypage.search', base, authentication, (req, res, next) => { (new SponsorMyPageController_1.default(req, res, next)).search(); });
-    app.get('/sponsor/reserve/start', 'sponsor.reserve.start', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).start(); });
+    app.get('/sponsor/reserve/start', 'sponsor.reserve.start', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorReserveController_1.default(req, res, next)).start(); }));
     app.all('/sponsor/reserve/:token/terms', 'sponsor.reserve.terms', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).terms(); });
-    app.all('/sponsor/reserve/:token/performances', 'sponsor.reserve.performances', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).performances(); });
-    app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).seats(); });
-    app.all('/sponsor/reserve/:token/tickets', 'sponsor.reserve.tickets', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).tickets(); });
-    app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).profile(); });
-    app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).confirm(); });
-    app.get('/sponsor/reserve/:paymentNo/complete', 'sponsor.reserve.complete', base, authentication, (req, res, next) => { (new SponsorReserveController_1.default(req, res, next)).complete(); });
+    app.all('/sponsor/reserve/:token/performances', 'sponsor.reserve.performances', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorReserveController_1.default(req, res, next)).performances(); }));
+    app.all('/sponsor/reserve/:token/seats', 'sponsor.reserve.seats', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorReserveController_1.default(req, res, next)).seats(); }));
+    app.all('/sponsor/reserve/:token/tickets', 'sponsor.reserve.tickets', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorReserveController_1.default(req, res, next)).tickets(); }));
+    app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorReserveController_1.default(req, res, next)).profile(); }));
+    app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorReserveController_1.default(req, res, next)).confirm(); }));
+    app.get('/sponsor/reserve/:paymentNo/complete', 'sponsor.reserve.complete', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorReserveController_1.default(req, res, next)).complete(); }));
     app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', base, authentication, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).execute(); });
     // ↓ログイン不要
     app.all('/sponsor/cancel', 'sponsor.cancel', base, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).index(); });

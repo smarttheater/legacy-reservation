@@ -41,9 +41,9 @@ export default (app: any) => {
     // メルマガ先行
     // tslint:disable:max-line-length
     app.all('/member/login', 'member.reserve.terms', base, (req: Request, res: Response, next: NextFunction) => { (new MemberAuthController(req, res, next)).login(); });
-    app.get('/member/reserve/start', 'member.reserve.start', base, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).start(); });
-    app.all('/member/reserve/:token/tickets', 'member.reserve.tickets', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).tickets(); });
-    app.all('/member/reserve/:token/profile', 'member.reserve.profile', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).profile(); });
-    app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).confirm(); });
-    app.get('/member/reserve/:paymentNo/complete', 'member.reserve.complete', base, (req: Request, res: Response, next: NextFunction) => { (new MemberReserveController(req, res, next)).complete(); });
+    app.get('/member/reserve/start', 'member.reserve.start', base, async (req: Request, res: Response, next: NextFunction) => { await (new MemberReserveController(req, res, next)).start(); });
+    app.all('/member/reserve/:token/tickets', 'member.reserve.tickets', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new MemberReserveController(req, res, next)).tickets(); });
+    app.all('/member/reserve/:token/profile', 'member.reserve.profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new MemberReserveController(req, res, next)).profile(); });
+    app.all('/member/reserve/:token/confirm', 'member.reserve.confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new MemberReserveController(req, res, next)).confirm(); });
+    app.get('/member/reserve/:paymentNo/complete', 'member.reserve.complete', base, async (req: Request, res: Response, next: NextFunction) => { await (new MemberReserveController(req, res, next)).complete(); });
 };
