@@ -103,8 +103,8 @@ exports.default = (app) => {
     app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorReserveController_1.default(req, res, next)).profile(); }));
     app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorReserveController_1.default(req, res, next)).confirm(); }));
     app.get('/sponsor/reserve/:paymentNo/complete', 'sponsor.reserve.complete', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorReserveController_1.default(req, res, next)).complete(); }));
-    app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', base, authentication, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).execute(); });
+    app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorCancelController_1.default(req, res, next)).execute(); }));
     // ↓ログイン不要
     app.all('/sponsor/cancel', 'sponsor.cancel', base, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).index(); });
-    app.post('/sponsor/cancel/executeByPaymentNo', 'sponsor.cancel.executeByPaymentNo', base, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).executeByPaymentNo(); });
+    app.post('/sponsor/cancel/executeByPaymentNo', 'sponsor.cancel.executeByPaymentNo', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorCancelController_1.default(req, res, next)).executeByPaymentNo(); }));
 };

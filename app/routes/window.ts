@@ -101,5 +101,5 @@ export default (app: any) => {
     app.all('/window/reserve/:token/profile', 'window.reserve.profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).profile(); });
     app.all('/window/reserve/:token/confirm', 'window.reserve.confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).confirm(); });
     app.get('/window/reserve/:paymentNo/complete', 'window.reserve.complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).complete(); });
-    app.post('/window/cancel/execute', 'window.cancel.execute', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new WindowCancelController(req, res, next)).execute(); });
+    app.post('/window/cancel/execute', 'window.cancel.execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowCancelController(req, res, next)).execute(); });
 };

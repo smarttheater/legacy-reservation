@@ -104,8 +104,8 @@ export default (app: any) => {
     app.all('/sponsor/reserve/:token/profile', 'sponsor.reserve.profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorReserveController(req, res, next)).profile(); });
     app.all('/sponsor/reserve/:token/confirm', 'sponsor.reserve.confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorReserveController(req, res, next)).confirm(); });
     app.get('/sponsor/reserve/:paymentNo/complete', 'sponsor.reserve.complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorReserveController(req, res, next)).complete(); });
-    app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new SponsorCancelController(req, res, next)).execute(); });
+    app.post('/sponsor/cancel/execute', 'sponsor.cancel.execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorCancelController(req, res, next)).execute(); });
     // ↓ログイン不要
     app.all('/sponsor/cancel', 'sponsor.cancel', base, (req: Request, res: Response, next: NextFunction) => { (new SponsorCancelController(req, res, next)).index(); });
-    app.post('/sponsor/cancel/executeByPaymentNo', 'sponsor.cancel.executeByPaymentNo', base, (req: Request, res: Response, next: NextFunction) => { (new SponsorCancelController(req, res, next)).executeByPaymentNo(); });
+    app.post('/sponsor/cancel/executeByPaymentNo', 'sponsor.cancel.executeByPaymentNo', base, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorCancelController(req, res, next)).executeByPaymentNo(); });
 };

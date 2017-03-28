@@ -102,6 +102,6 @@ export default (app: any) => {
     app.all('/tel/reserve/:token/profile', 'tel.reserve.profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).profile(); });
     app.all('/tel/reserve/:token/confirm', 'tel.reserve.confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).confirm(); });
     app.get('/tel/reserve/:paymentNo/complete', 'tel.reserve.complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).complete(); });
-    app.post('/tel/cancel/execute', 'tel.cancel.execute', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new TelCancelController(req, res, next)).execute(); });
-    app.post('/tel/cancel2sagyo/execute', 'tel.cancel2sagyo.execute', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new TelCancelController(req, res, next)).execute2sagyo(); });
+    app.post('/tel/cancel/execute', 'tel.cancel.execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelCancelController(req, res, next)).execute(); });
+    app.post('/tel/cancel2sagyo/execute', 'tel.cancel2sagyo.execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelCancelController(req, res, next)).execute2sagyo(); });
 };

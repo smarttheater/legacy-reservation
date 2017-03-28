@@ -100,5 +100,5 @@ exports.default = (app) => {
     app.all('/window/reserve/:token/profile', 'window.reserve.profile', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowReserveController_1.default(req, res, next)).profile(); }));
     app.all('/window/reserve/:token/confirm', 'window.reserve.confirm', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowReserveController_1.default(req, res, next)).confirm(); }));
     app.get('/window/reserve/:paymentNo/complete', 'window.reserve.complete', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowReserveController_1.default(req, res, next)).complete(); }));
-    app.post('/window/cancel/execute', 'window.cancel.execute', base, authentication, (req, res, next) => { (new WindowCancelController_1.default(req, res, next)).execute(); });
+    app.post('/window/cancel/execute', 'window.cancel.execute', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowCancelController_1.default(req, res, next)).execute(); }));
 };
