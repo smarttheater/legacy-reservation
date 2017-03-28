@@ -60,49 +60,49 @@ export default class StaffReserveController extends ReserveBaseController implem
      * @override
      */
     // tslint:disable-next-line:prefer-function-over-method
-    protected processCancelSeats(reservationModel: ReservationModel, cb: (err: Error | null, reservationModel: ReservationModel) => void) {
+    protected async processCancelSeats(reservationModel: ReservationModel): Promise<ReservationModel> {
         const seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
-        if (seatCodesInSession.length === 0) return cb(null, reservationModel);
+        if (seatCodesInSession.length === 0) {
+            return reservationModel;
+        }
 
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
 
         // 仮予約をCHEVRE確保ステータスに戻す
-        Models.Reservation.update(
-            {
-                performance: reservationModel.performance._id,
-                seat_code: { $in: seatCodesInSession },
-                status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_CHEVRE
-            },
-            {
-                $set: {
-                    status: ReservationUtil.STATUS_KEPT_BY_CHEVRE
+        try {
+            await Models.Reservation.update(
+                {
+                    performance: reservationModel.performance._id,
+                    seat_code: { $in: seatCodesInSession },
+                    status: ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_CHEVRE
                 },
-                $unset: {
-                    staff: ''
-                }
-            },
-            {
-                multi: true
-            },
-            () => {
-                // 失敗したとしても時間経過で消えるので放置
-
-                // 仮予約を空席ステータスに戻す
-                Models.Reservation.remove(
-                    {
-                        performance: reservationModel.performance._id,
-                        seat_code: { $in: seatCodesInSession },
-                        status: ReservationUtil.STATUS_TEMPORARY
+                {
+                    $set: {
+                        status: ReservationUtil.STATUS_KEPT_BY_CHEVRE
                     },
-                    () => {
-                        // 失敗したとしても時間経過で消えるので放置
-
-                        cb(null, reservationModel);
+                    $unset: {
+                        staff: ''
                     }
-                );
-            }
-        );
+                },
+                {
+                    multi: true
+                }
+            ).exec();
+
+            // 仮予約を空席ステータスに戻す
+            await Models.Reservation.remove(
+                {
+                    performance: reservationModel.performance._id,
+                    seat_code: { $in: seatCodesInSession },
+                    status: ReservationUtil.STATUS_TEMPORARY
+                }
+            ).exec();
+        } catch (error) {
+            // 失敗したとしても時間経過で消えるので放置
+        }
+
+        return reservationModel;
     }
 
     /**
@@ -221,7 +221,7 @@ export default class StaffReserveController extends ReserveBaseController implem
      */
     public performances(): void {
         const token = this.req.params.token;
-        ReservationModel.find(token, (err, reservationModel) => {
+        ReservationModel.find(token, async (err, reservationModel) => {
             if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
@@ -230,7 +230,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                         // パフォーマンスFIX
                         const performanceId = (<any>this.req.form).performanceId;
                         // tslint:disable-next-line:no-shadowed-variable
-                        this.processFixPerformance(reservationModel, performanceId, (fixPerformanceErr, reservationModel) => {
+                        this.processFixPerformance(<ReservationModel>reservationModel, performanceId, (fixPerformanceErr, reservationModel) => {
                             if (fixPerformanceErr) {
                                 this.next(fixPerformanceErr);
                             } else {
@@ -247,15 +247,18 @@ export default class StaffReserveController extends ReserveBaseController implem
             } else {
                 // 仮予約あればキャンセルする
                 // tslint:disable-next-line:no-shadowed-variable
-                this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
-                    if (cancelSeatsErr) return this.next(cancelSeatsErr);
+                try {
+                    reservationModel = await this.processCancelSeats(<ReservationModel>reservationModel);
 
                     reservationModel.save(() => {
                         this.res.render('staff/reserve/performances', {
                             FilmUtil: FilmUtil
                         });
                     });
-                });
+                } catch (error) {
+                    this.next(error);
+
+                }
             }
         });
     }
@@ -271,7 +274,7 @@ export default class StaffReserveController extends ReserveBaseController implem
             const limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
-                reserveSeatForm(this.req, this.res, () => {
+                reserveSeatForm(this.req, this.res, async () => {
                     if (this.req.form && this.req.form.isValid) {
 
                         const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
@@ -284,8 +287,8 @@ export default class StaffReserveController extends ReserveBaseController implem
                         } else {
                             // 仮予約あればキャンセルする
                             // tslint:disable-next-line:no-shadowed-variable
-                            this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
-                                if (cancelSeatsErr) return this.next(cancelSeatsErr);
+                            try {
+                                reservationModel = await this.processCancelSeats(<ReservationModel>reservationModel);
 
                                 // 座席FIX
                                 // tslint:disable-next-line:no-shadowed-variable
@@ -302,7 +305,9 @@ export default class StaffReserveController extends ReserveBaseController implem
                                         });
                                     }
                                 });
-                            });
+                            } catch (error) {
+                                this.next(error);
+                            }
                         }
                     } else {
                         this.res.redirect(this.router.build('staff.reserve.seats', { token: token }));

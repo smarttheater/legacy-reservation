@@ -60,7 +60,7 @@ export default class TelReserveController extends ReserveBaseController implemen
      */
     public performances(): void {
         const token = this.req.params.token;
-        ReservationModel.find(token, (err, reservationModel) => {
+        ReservationModel.find(token, async (err, reservationModel) => {
             if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             if (this.req.method === 'POST') {
@@ -69,7 +69,7 @@ export default class TelReserveController extends ReserveBaseController implemen
                         // パフォーマンスFIX
                         const performanceId = (<any>this.req.form).performanceId;
                         // tslint:disable-next-line:no-shadowed-variable
-                        this.processFixPerformance(reservationModel, performanceId, (fixPerformanceErr, reservationModel) => {
+                        this.processFixPerformance(<ReservationModel>reservationModel, performanceId, (fixPerformanceErr, reservationModel) => {
                             if (fixPerformanceErr) {
                                 this.next(fixPerformanceErr);
                             } else {
@@ -85,15 +85,16 @@ export default class TelReserveController extends ReserveBaseController implemen
             } else {
                 // 仮予約あればキャンセルする
                 // tslint:disable-next-line:no-shadowed-variable
-                this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
-                    if (cancelSeatsErr) return this.next(cancelSeatsErr);
-
+                try {
+                    reservationModel = await this.processCancelSeats(reservationModel);
                     reservationModel.save(() => {
                         this.res.render('tel/reserve/performances', {
                             FilmUtil: FilmUtil
                         });
                     });
-                });
+                } catch (error) {
+                    this.next(error);
+                }
             }
         });
     }
@@ -109,7 +110,7 @@ export default class TelReserveController extends ReserveBaseController implemen
             const limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
-                reserveSeatForm(this.req, this.res, () => {
+                reserveSeatForm(this.req, this.res, async () => {
                     if (this.req.form && this.req.form.isValid) {
 
                         const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
@@ -121,8 +122,8 @@ export default class TelReserveController extends ReserveBaseController implemen
                         } else {
                             // 仮予約あればキャンセルする
                             // tslint:disable-next-line:no-shadowed-variable
-                            this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
-                                if (cancelSeatsErr) return this.next(cancelSeatsErr);
+                            try {
+                                reservationModel = await this.processCancelSeats(<ReservationModel>reservationModel);
 
                                 // 座席FIX
                                 // tslint:disable-next-line:no-shadowed-variable
@@ -139,7 +140,9 @@ export default class TelReserveController extends ReserveBaseController implemen
                                         });
                                     }
                                 });
-                            });
+                            } catch (error) {
+                                this.next(error);
+                            }
                         }
                     } else {
                         this.res.redirect(this.router.build('tel.reserve.seats', { token: token }));

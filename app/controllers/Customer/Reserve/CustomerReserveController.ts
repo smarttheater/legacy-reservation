@@ -115,7 +115,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
             const limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
-                reserveSeatForm(this.req, this.res, () => {
+                reserveSeatForm(this.req, this.res, async () => {
                     if (this.req.form && this.req.form.isValid) {
                         const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
 
@@ -125,9 +125,8 @@ export default class CustomerReserveController extends ReserveBaseController imp
                             this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                         } else {
                             // 仮予約あればキャンセルする
-                            // tslint:disable-next-line:no-shadowed-variable
-                            this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
-                                if (cancelSeatsErr) return this.next(cancelSeatsErr);
+                            try {
+                                reservationModel = await this.processCancelSeats(<ReservationModel>reservationModel);
 
                                 // 座席FIX
                                 // tslint:disable-next-line:no-shadowed-variable
@@ -144,7 +143,9 @@ export default class CustomerReserveController extends ReserveBaseController imp
                                         });
                                     }
                                 });
-                            });
+                            } catch (error) {
+                                this.next(error);
+                            }
                         }
                     } else {
                         this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));

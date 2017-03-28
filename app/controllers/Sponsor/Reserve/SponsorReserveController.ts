@@ -64,13 +64,13 @@ export default class SponsorReserveController extends ReserveBaseController impl
         const sponsorUser = this.req.sponsorUser;
 
         const token = this.req.params.token;
-        ReservationModel.find(token, (err, reservationModel) => {
+        ReservationModel.find(token, async (err, reservationModel) => {
             if (err || !reservationModel) return this.next(new Error(this.req.__('Message.Expired')));
 
             // 仮予約あればキャンセルする
             // tslint:disable-next-line:no-shadowed-variable
-            this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
-                if (cancelSeatsErr) return this.next(cancelSeatsErr);
+            try {
+                reservationModel = await this.processCancelSeats(<ReservationModel>reservationModel);
 
                 reservationModel.save(() => {
 
@@ -94,7 +94,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                                         // tslint:disable-next-line:no-shadowed-variable
                                         const performanceId = (<any>this.req.form).performanceId;
                                         // tslint:disable-next-line:no-shadowed-variable
-                                        this.processFixPerformance(reservationModel, performanceId, (fixPerformanceErr, reservationModel) => {
+                                        this.processFixPerformance(<ReservationModel>reservationModel, performanceId, (fixPerformanceErr, reservationModel) => {
                                             if (fixPerformanceErr) {
                                                 this.next(new Error(this.req.__('Message.UnexpectedError')));
                                             } else {
@@ -116,7 +116,9 @@ export default class SponsorReserveController extends ReserveBaseController impl
                         }
                     );
                 });
-            });
+            } catch (error) {
+                this.next(error);
+            }
         });
     }
 
@@ -143,7 +145,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                         sponsor: sponsorUser.get('_id'),
                         status: { $in: [ReservationUtil.STATUS_TEMPORARY, ReservationUtil.STATUS_RESERVED] },
                         seat_code: {
-                            $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
+                            $nin: (<ReservationModel>reservationModel).seatCodes // 現在のフロー中の予約は除く
                         }
                     },
                     (countReservationErr, reservationsCount) => {
@@ -151,7 +153,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
 
                         // 一度に確保できる座席数は、残り可能枚数と、10の小さい方
                         const reservableCount = parseInt(sponsorUser.get('max_reservation_count'), DEFAULT_RADIX) - reservationsCount;
-                        const limit = Math.min(reservationModel.getSeatsLimit(), reservableCount);
+                        const limit = Math.min((<ReservationModel>reservationModel).getSeatsLimit(), reservableCount);
 
                         // すでに枚数制限に達している場合
                         if (limit <= 0) {
@@ -162,7 +164,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                         } else {
 
                             if (this.req.method === 'POST') {
-                                reserveSeatForm(this.req, this.res, () => {
+                                reserveSeatForm(this.req, this.res, async () => {
                                     if (this.req.form && this.req.form.isValid) {
                                         const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
 
@@ -178,8 +180,8 @@ export default class SponsorReserveController extends ReserveBaseController impl
                                         } else {
                                             // 仮予約あればキャンセルする
                                             // tslint:disable-next-line:no-shadowed-variable
-                                            this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
-                                                if (cancelSeatsErr) return this.next(cancelSeatsErr);
+                                            try {
+                                                reservationModel = await this.processCancelSeats(<ReservationModel>reservationModel);
 
                                                 // 座席FIX
                                                 // tslint:disable-next-line:no-shadowed-variable
@@ -199,12 +201,11 @@ export default class SponsorReserveController extends ReserveBaseController impl
                                                         }
 
                                                     });
-
                                                 });
-                                            });
-
+                                            } catch (error) {
+                                                this.next(error);
+                                            }
                                         }
-
                                     } else {
                                         lockFile.unlock(lockPath, () => {
                                             this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));

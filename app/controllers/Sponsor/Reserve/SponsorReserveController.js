@@ -71,14 +71,13 @@ class SponsorReserveController extends ReserveBaseController_1.default {
             return this.next(new Error(this.req.__('Message.UnexpectedError')));
         const sponsorUser = this.req.sponsorUser;
         const token = this.req.params.token;
-        ReservationModel_1.default.find(token, (err, reservationModel) => {
+        ReservationModel_1.default.find(token, (err, reservationModel) => __awaiter(this, void 0, void 0, function* () {
             if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
             // 仮予約あればキャンセルする
             // tslint:disable-next-line:no-shadowed-variable
-            this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
-                if (cancelSeatsErr)
-                    return this.next(cancelSeatsErr);
+            try {
+                reservationModel = yield this.processCancelSeats(reservationModel);
                 reservationModel.save(() => {
                     // 外部関係者による予約数を取得
                     chevre_domain_1.Models.Reservation.count({
@@ -121,8 +120,11 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                         }
                     });
                 });
-            });
-        });
+            }
+            catch (error) {
+                this.next(error);
+            }
+        }));
     }
     /**
      * 座席選択
@@ -162,7 +164,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                     }
                     else {
                         if (this.req.method === 'POST') {
-                            reserveSeatForm_1.default(this.req, this.res, () => {
+                            reserveSeatForm_1.default(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
                                 if (this.req.form && this.req.form.isValid) {
                                     const seatCodes = JSON.parse(this.req.form.seatCodes);
                                     // 追加指定席を合わせて制限枚数を超過した場合
@@ -175,9 +177,8 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                                     else {
                                         // 仮予約あればキャンセルする
                                         // tslint:disable-next-line:no-shadowed-variable
-                                        this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
-                                            if (cancelSeatsErr)
-                                                return this.next(cancelSeatsErr);
+                                        try {
+                                            reservationModel = yield this.processCancelSeats(reservationModel);
                                             // 座席FIX
                                             // tslint:disable-next-line:no-shadowed-variable
                                             this.processFixSeats(reservationModel, seatCodes, (fixSeatsErr, reservationModel) => {
@@ -196,7 +197,10 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                                                     }
                                                 });
                                             });
-                                        });
+                                        }
+                                        catch (error) {
+                                            this.next(error);
+                                        }
                                     }
                                 }
                                 else {
@@ -204,7 +208,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                                         this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
                                     });
                                 }
-                            });
+                            }));
                         }
                         else {
                             lockFile.unlock(lockPath, () => {

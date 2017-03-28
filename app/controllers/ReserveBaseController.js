@@ -40,10 +40,14 @@ class ReserveBaseController extends BaseController_1.default {
      */
     processFixTickets(reservationModel, cb) {
         reserveTicketForm_1.default(this.req, this.res, () => {
-            if (!this.req.form)
-                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-            if (!this.req.form.isValid)
-                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+            if (!this.req.form) {
+                cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+                return;
+            }
+            if (!this.req.form.isValid) {
+                cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+                return;
+            }
             // 座席選択情報を保存して座席選択へ
             const choices = JSON.parse(this.req.form.choices);
             if (!Array.isArray(choices))
@@ -52,7 +56,7 @@ class ReserveBaseController extends BaseController_1.default {
                 const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => {
                     return (ticketTypeInArray.code === choice.ticket_type_code);
                 });
-                if (!ticketType)
+                if (ticketType === undefined)
                     throw new Error(this.req.__('Message.UnexpectedError'));
                 const reservation = reservationModel.getReservation(choice.seat_code);
                 reservation.ticket_type_code = ticketType.code;
@@ -71,12 +75,18 @@ class ReserveBaseController extends BaseController_1.default {
     processFixProfile(reservationModel, cb) {
         const form = reserveProfileForm_1.default(this.req);
         form(this.req, this.res, (err) => {
-            if (err)
-                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-            if (!this.req.form)
-                return cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
-            if (!this.req.form.isValid)
-                return cb(new Error(this.req.__('Message.Invalid')), reservationModel);
+            if (err instanceof Error) {
+                cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+                return;
+            }
+            if (this.req.form === undefined) {
+                cb(new Error(this.req.__('Message.UnexpectedError')), reservationModel);
+                return;
+            }
+            if (!this.req.form.isValid) {
+                cb(new Error(this.req.__('Message.Invalid')), reservationModel);
+                return;
+            }
             // 購入者情報を保存して座席選択へ
             reservationModel.purchaserLastName = this.req.form.lastName;
             reservationModel.purchaserFirstName = this.req.form.firstName;
@@ -115,13 +125,12 @@ class ReserveBaseController extends BaseController_1.default {
         // パフォーマンス未指定であればパフォーマンス選択へ
         // パフォーマンス指定であれば座席へ
         // 言語も指定
-        if (this.req.query.locale) {
+        if (this.req.query.locale !== undefined && this.req.query.locale !== '') {
             this.req.session.locale = this.req.query.locale;
         }
         else {
             this.req.session.locale = 'ja';
         }
-        const performanceId = this.req.query.performance;
         // 予約トークンを発行
         const token = Util.createToken();
         let reservationModel = new ReservationModel_1.default();
@@ -130,11 +139,15 @@ class ReserveBaseController extends BaseController_1.default {
         reservationModel = this.initializePayment(reservationModel);
         // この時点でトークンに対して購入番号を発行しておかないと、複数ウィンドウで購入番号がずれる可能性あり
         chevre_domain_1.ReservationUtil.publishPaymentNo((err, paymentNo) => {
-            if (err || !paymentNo)
-                return this.next(new Error(this.req.__('Message.UnexpectedError')));
+            if (err instanceof Error || paymentNo === null) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+                return;
+            }
             reservationModel.paymentNo = paymentNo;
             // パフォーマンスFIX
-            if (this.purchaserGroup === chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser && this.req.sponsorUser.get('performance')) {
+            if (this.purchaserGroup === chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR &&
+                this.req.sponsorUser !== undefined &&
+                this.req.sponsorUser.get('performance') !== null) {
                 // パフォーマンスFIX
                 // tslint:disable-next-line:no-shadowed-variable
                 this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'), (fixPerformanceErr, reservationModel) => {
@@ -142,10 +155,10 @@ class ReserveBaseController extends BaseController_1.default {
                 });
                 // パフォーマンス指定遷移の場合
             }
-            else if (performanceId) {
+            else if (this.req.query.performance !== undefined && this.req.query.performance !== '') {
                 // パフォーマンスFIX
                 // tslint:disable-next-line:no-shadowed-variable
-                this.processFixPerformance(reservationModel, performanceId, (fixPerformanceErr, reservationModel) => {
+                this.processFixPerformance(reservationModel, this.req.query.performance, (fixPerformanceErr, reservationModel) => {
                     cb(fixPerformanceErr, reservationModel);
                 });
             }
@@ -158,9 +171,10 @@ class ReserveBaseController extends BaseController_1.default {
      * 購入情報を初期化する
      */
     initializePayment(reservationModel) {
-        if (!this.purchaserGroup)
+        if (!this.purchaserGroup) {
             throw new Error('purchaser group undefined.');
-        let purchaserFromSession = this.findPurchaser();
+        }
+        const purchaserFromSession = this.findPurchaser();
         reservationModel.purchaserLastName = '';
         reservationModel.purchaserFirstName = '';
         reservationModel.purchaserTel = '';
@@ -171,8 +185,7 @@ class ReserveBaseController extends BaseController_1.default {
         reservationModel.paymentMethodChoices = [];
         switch (this.purchaserGroup) {
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-                purchaserFromSession = this.findPurchaser();
-                if (purchaserFromSession) {
+                if (purchaserFromSession !== undefined) {
                     reservationModel.purchaserLastName = purchaserFromSession.lastName;
                     reservationModel.purchaserFirstName = purchaserFromSession.firstName;
                     reservationModel.purchaserTel = purchaserFromSession.tel;
@@ -184,7 +197,7 @@ class ReserveBaseController extends BaseController_1.default {
                 reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT, GMOUtil.PAY_TYPE_CVS];
                 break;
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
-                if (purchaserFromSession) {
+                if (purchaserFromSession !== undefined) {
                     reservationModel.purchaserLastName = purchaserFromSession.lastName;
                     reservationModel.purchaserFirstName = purchaserFromSession.firstName;
                     reservationModel.purchaserTel = purchaserFromSession.tel;
@@ -196,7 +209,7 @@ class ReserveBaseController extends BaseController_1.default {
                 reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
                 break;
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
-                if (purchaserFromSession) {
+                if (purchaserFromSession !== undefined) {
                     reservationModel.purchaserLastName = purchaserFromSession.lastName;
                     reservationModel.purchaserFirstName = purchaserFromSession.firstName;
                     reservationModel.purchaserTel = purchaserFromSession.tel;
@@ -207,7 +220,7 @@ class ReserveBaseController extends BaseController_1.default {
                 }
                 break;
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
-                if (!this.req.staffUser)
+                if (this.req.staffUser === undefined)
                     throw new Error(this.req.__('Message.UnexpectedError'));
                 reservationModel.purchaserLastName = 'ナイブ';
                 reservationModel.purchaserFirstName = 'カンケイシャ';
@@ -248,18 +261,22 @@ class ReserveBaseController extends BaseController_1.default {
      * @param {ReservationModel} reservationModel
      */
     // tslint:disable-next-line:prefer-function-over-method
-    processCancelSeats(reservationModel, cb) {
-        const ids = reservationModel.getReservationIds();
-        if (ids.length === 0)
-            return cb(null, reservationModel);
-        // セッション中の予約リストを初期化
-        reservationModel.seatCodes = [];
-        // 仮予約を空席ステータスに戻す
-        chevre_domain_2.Models.Reservation.remove({
-            _id: { $in: ids }
-        }, () => {
-            // 失敗したとしても時間経過で消えるので放置
-            cb(null, reservationModel);
+    processCancelSeats(reservationModel) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const ids = reservationModel.getReservationIds();
+            if (ids.length === 0) {
+                return reservationModel;
+            }
+            // セッション中の予約リストを初期化
+            reservationModel.seatCodes = [];
+            // 仮予約を空席ステータスに戻す
+            try {
+                yield chevre_domain_2.Models.Reservation.remove({ _id: { $in: ids } }).exec();
+            }
+            catch (error) {
+                // 失敗したとしても時間経過で消えるので放置
+            }
+            return reservationModel;
         });
     }
     /**
@@ -465,7 +482,8 @@ class ReserveBaseController extends BaseController_1.default {
     processConfirm(reservationModel, cb) {
         // 仮押さえ有効期限チェック
         if (reservationModel.expiredAt && reservationModel.expiredAt < moment().valueOf()) {
-            return cb(new Error(this.res.__('Message.Expired')), reservationModel);
+            cb(new Error(this.res.__('Message.Expired')), reservationModel);
+            return;
         }
         // tslint:disable-next-line:max-func-body-length no-shadowed-variable
         const next = (reservationModel) => {
@@ -647,7 +665,7 @@ class ReserveBaseController extends BaseController_1.default {
      * 購入者情報をセッションから探す
      */
     findPurchaser() {
-        return (this.req.session.purchaser) ? this.req.session.purchaser : undefined;
+        return this.req.session.purchaser;
     }
 }
 exports.default = ReserveBaseController;

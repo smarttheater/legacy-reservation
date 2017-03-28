@@ -67,37 +67,41 @@ class StaffReserveController extends ReserveBaseController_1.default {
      * @override
      */
     // tslint:disable-next-line:prefer-function-over-method
-    processCancelSeats(reservationModel, cb) {
-        const seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
-        if (seatCodesInSession.length === 0)
-            return cb(null, reservationModel);
-        // セッション中の予約リストを初期化
-        reservationModel.seatCodes = [];
-        // 仮予約をCHEVRE確保ステータスに戻す
-        chevre_domain_1.Models.Reservation.update({
-            performance: reservationModel.performance._id,
-            seat_code: { $in: seatCodesInSession },
-            status: chevre_domain_4.ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_CHEVRE
-        }, {
-            $set: {
-                status: chevre_domain_4.ReservationUtil.STATUS_KEPT_BY_CHEVRE
-            },
-            $unset: {
-                staff: ''
+    processCancelSeats(reservationModel) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
+            if (seatCodesInSession.length === 0) {
+                return reservationModel;
             }
-        }, {
-            multi: true
-        }, () => {
-            // 失敗したとしても時間経過で消えるので放置
-            // 仮予約を空席ステータスに戻す
-            chevre_domain_1.Models.Reservation.remove({
-                performance: reservationModel.performance._id,
-                seat_code: { $in: seatCodesInSession },
-                status: chevre_domain_4.ReservationUtil.STATUS_TEMPORARY
-            }, () => {
+            // セッション中の予約リストを初期化
+            reservationModel.seatCodes = [];
+            // 仮予約をCHEVRE確保ステータスに戻す
+            try {
+                yield chevre_domain_1.Models.Reservation.update({
+                    performance: reservationModel.performance._id,
+                    seat_code: { $in: seatCodesInSession },
+                    status: chevre_domain_4.ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_CHEVRE
+                }, {
+                    $set: {
+                        status: chevre_domain_4.ReservationUtil.STATUS_KEPT_BY_CHEVRE
+                    },
+                    $unset: {
+                        staff: ''
+                    }
+                }, {
+                    multi: true
+                }).exec();
+                // 仮予約を空席ステータスに戻す
+                yield chevre_domain_1.Models.Reservation.remove({
+                    performance: reservationModel.performance._id,
+                    seat_code: { $in: seatCodesInSession },
+                    status: chevre_domain_4.ReservationUtil.STATUS_TEMPORARY
+                }).exec();
+            }
+            catch (error) {
                 // 失敗したとしても時間経過で消えるので放置
-                cb(null, reservationModel);
-            });
+            }
+            return reservationModel;
         });
     }
     /**
@@ -201,7 +205,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
      */
     performances() {
         const token = this.req.params.token;
-        ReservationModel_1.default.find(token, (err, reservationModel) => {
+        ReservationModel_1.default.find(token, (err, reservationModel) => __awaiter(this, void 0, void 0, function* () {
             if (err || !reservationModel)
                 return this.next(new Error(this.req.__('Message.Expired')));
             if (this.req.method === 'POST') {
@@ -229,17 +233,19 @@ class StaffReserveController extends ReserveBaseController_1.default {
             else {
                 // 仮予約あればキャンセルする
                 // tslint:disable-next-line:no-shadowed-variable
-                this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
-                    if (cancelSeatsErr)
-                        return this.next(cancelSeatsErr);
+                try {
+                    reservationModel = yield this.processCancelSeats(reservationModel);
                     reservationModel.save(() => {
                         this.res.render('staff/reserve/performances', {
                             FilmUtil: chevre_domain_3.FilmUtil
                         });
                     });
-                });
+                }
+                catch (error) {
+                    this.next(error);
+                }
             }
-        });
+        }));
     }
     /**
      * 座席選択
@@ -251,7 +257,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                 return this.next(new Error(this.req.__('Message.Expired')));
             const limit = reservationModel.getSeatsLimit();
             if (this.req.method === 'POST') {
-                reserveSeatForm_1.default(this.req, this.res, () => {
+                reserveSeatForm_1.default(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
                     if (this.req.form && this.req.form.isValid) {
                         const seatCodes = JSON.parse(this.req.form.seatCodes);
                         // 追加指定席を合わせて制限枚数を超過した場合
@@ -262,9 +268,8 @@ class StaffReserveController extends ReserveBaseController_1.default {
                         else {
                             // 仮予約あればキャンセルする
                             // tslint:disable-next-line:no-shadowed-variable
-                            this.processCancelSeats(reservationModel, (cancelSeatsErr, reservationModel) => {
-                                if (cancelSeatsErr)
-                                    return this.next(cancelSeatsErr);
+                            try {
+                                reservationModel = yield this.processCancelSeats(reservationModel);
                                 // 座席FIX
                                 // tslint:disable-next-line:no-shadowed-variable
                                 this.processFixSeats(reservationModel, seatCodes, (fixSeatsErr, reservationModel) => {
@@ -281,13 +286,16 @@ class StaffReserveController extends ReserveBaseController_1.default {
                                         });
                                     }
                                 });
-                            });
+                            }
+                            catch (error) {
+                                this.next(error);
+                            }
                         }
                     }
                     else {
                         this.res.redirect(this.router.build('staff.reserve.seats', { token: token }));
                     }
-                });
+                }));
             }
             else {
                 this.res.render('staff/reserve/seats', {
