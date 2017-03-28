@@ -13,7 +13,7 @@ import BaseController from '../../BaseController';
  * @extends {BaseController}
  */
 export default class StaffAuthController extends BaseController {
-    public layout = 'layouts/staff/layout';
+    public layout: string = 'layouts/staff/layout';
 
     /**
      * 内部関係者ログイン

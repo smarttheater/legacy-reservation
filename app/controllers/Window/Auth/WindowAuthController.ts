@@ -13,7 +13,7 @@ import BaseController from '../../BaseController';
  * @extends {BaseController}
  */
 export default class WindowAuthController extends BaseController {
-    public layout = 'layouts/window/layout';
+    public layout: string = 'layouts/window/layout';
 
     /**
      * 窓口担当者ログイン

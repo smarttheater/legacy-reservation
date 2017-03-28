@@ -25,7 +25,8 @@ export default class StaffReserveController extends ReserveBaseController implem
     public async start(): Promise<void> {
         // 期限指定
         if (moment() < moment(conf.get<string>('datetimes.reservation_start_staffs'))) {
-            return this.next(new Error(this.req.__('Message.OutOfTerm')));
+            this.next(new Error(this.req.__('Message.OutOfTerm')));
+            return;
         }
 
         try {
@@ -113,7 +114,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                 reserveSeatForm(this.req, this.res, async () => {
                     reservationModel = <ReservationModel>reservationModel;
 
-                    if (this.req.form && this.req.form.isValid) {
+                    if (this.req.form !== undefined && this.req.form.isValid) {
 
                         const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
 
@@ -288,7 +289,7 @@ export default class StaffReserveController extends ReserveBaseController implem
      */
     // tslint:disable-next-line:prefer-function-over-method
     protected async processCancelSeats(reservationModel: ReservationModel): Promise<ReservationModel> {
-        const seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
+        const seatCodesInSession = (reservationModel.seatCodes !== undefined) ? reservationModel.seatCodes : [];
         if (seatCodesInSession.length === 0) {
             return reservationModel;
         }

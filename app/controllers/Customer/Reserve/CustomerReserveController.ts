@@ -30,7 +30,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
     public performances(): void {
         if (this.req.method === 'POST') {
             reservePerformanceForm(this.req, this.res, () => {
-                if (this.req.form && this.req.form.isValid) {
+                if (this.req.form !== undefined && this.req.form.isValid) {
                     const performaceId = (<any>this.req.form).performanceId;
                     this.res.redirect(this.router.build('customer.reserve.start') + `?performance=${performaceId}&locale=${this.req.getLocale()}`);
                 } else {
@@ -50,11 +50,11 @@ export default class CustomerReserveController extends ReserveBaseController imp
     public async start(): Promise<void> {
         // MPのIPは許可
         // tslint:disable-next-line:no-empty
-        if (this.req.headers['x-forwarded-for'] && /^124\.155\.113\.9$/.test(this.req.headers['x-forwarded-for'])) {
+        if (this.req.headers['x-forwarded-for'] !== undefined && /^124\.155\.113\.9$/.test(this.req.headers['x-forwarded-for'])) {
         } else {
             // 期限指定
             if (moment() < moment(conf.get<string>('datetimes.reservation_start_customers_first'))) {
-                if (this.req.query.locale) {
+                if (this.req.query.locale !== undefined && this.req.query.locale !== '') {
                     this.req.setLocale(this.req.query.locale);
                 }
 
@@ -66,7 +66,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
             if (moment() < moment(conf.get<string>('datetimes.reservation_start_customers_second')) &&
                 moment() > moment(conf.get<string>('datetimes.reservation_start_customers_second')).add(-15, 'minutes') // tslint:disable-line:no-magic-numbers
             ) {
-                if (this.req.query.locale) {
+                if (this.req.query.locale !== undefined && this.req.query.locale !== '') {
                     this.req.setLocale(this.req.query.locale);
                 }
 
@@ -78,7 +78,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
         try {
             const reservationModel = await this.processStart();
 
-            if (reservationModel.performance) {
+            if (reservationModel.performance !== undefined) {
                 await reservationModel.save();
                 this.res.redirect(this.router.build('customer.reserve.terms', { token: reservationModel.token }));
             } else {
@@ -243,10 +243,10 @@ export default class CustomerReserveController extends ReserveBaseController imp
                 this.res.locals.age = reservationModel.purchaserAge;
                 this.res.locals.address = reservationModel.purchaserAddress;
                 this.res.locals.gender = reservationModel.purchaserGender;
-                this.res.locals.email = (email) ? email : '';
-                this.res.locals.emailConfirm = (email) ? email.substr(0, email.indexOf('@')) : '';
-                this.res.locals.emailConfirmDomain = (email) ? email.substr(email.indexOf('@') + 1) : '';
-                this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
+                this.res.locals.email = (email !== undefined) ? email : '';
+                this.res.locals.emailConfirm = (email !== undefined) ? email.substr(0, email.indexOf('@')) : '';
+                this.res.locals.emailConfirmDomain = (email !== undefined) ? email.substr(email.indexOf('@') + 1) : '';
+                this.res.locals.paymentMethod = (reservationModel.paymentMethod !== undefined && reservationModel.paymentMethod !== '') ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
 
                 this.res.render('customer/reserve/profile', {
                     reservationModel: reservationModel

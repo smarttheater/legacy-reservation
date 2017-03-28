@@ -13,7 +13,7 @@ import BaseController from '../../BaseController';
  * @extends {BaseController}
  */
 export default class SponsorAuthController extends BaseController {
-    public layout = 'layouts/sponsor/layout';
+    public layout: string = 'layouts/sponsor/layout';
 
     /**
      * sponsor login

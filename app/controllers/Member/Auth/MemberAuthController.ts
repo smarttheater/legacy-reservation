@@ -14,7 +14,7 @@ import BaseController from '../../BaseController';
  * @extends {BaseController}
  */
 export default class MemberAuthController extends BaseController {
-    public layout = 'layouts/member/layout';
+    public layout: string = 'layouts/member/layout';
 
     /**
      * メルマガ会員ログイン
@@ -23,11 +23,13 @@ export default class MemberAuthController extends BaseController {
         // 期限指定
         const now = moment();
         if (now < moment(conf.get<string>('datetimes.reservation_start_members')) || moment(conf.get<string>('datetimes.reservation_end_members')) < now) {
-            return this.next(new Error(this.req.__('Message.OutOfTerm')));
+            this.next(new Error(this.req.__('Message.OutOfTerm')));
+            return;
         }
 
         if (this.req.memberUser && this.req.memberUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('member.reserve.start'));
+            this.res.redirect(this.router.build('member.reserve.start'));
+            return;
         }
 
         if (this.req.method === 'POST') {

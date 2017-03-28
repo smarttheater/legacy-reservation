@@ -30,7 +30,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
     public async start(): Promise<void> {
         // MPのIPは許可
         // tslint:disable-next-line:no-empty
-        if (this.req.headers['x-forwarded-for'] && /^124\.155\.113\.9$/.test(this.req.headers['x-forwarded-for'])) {
+        if (this.req.headers['x-forwarded-for'] !== undefined && /^124\.155\.113\.9$/.test(this.req.headers['x-forwarded-for'])) {
         } else {
             // 期限指定
             const now = moment();
@@ -148,7 +148,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
      */
     // tslint:disable-next-line:max-func-body-length
     public async seats(): Promise<void> {
-        if (!this.req.preCustomerUser) {
+        if (this.req.preCustomerUser === undefined) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));
             return;
         }
@@ -322,10 +322,10 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                 this.res.locals.age = reservationModel.purchaserAge;
                 this.res.locals.address = reservationModel.purchaserAddress;
                 this.res.locals.gender = reservationModel.purchaserGender;
-                this.res.locals.email = (email) ? email : '';
-                this.res.locals.emailConfirm = (email) ? email.substr(0, email.indexOf('@')) : '';
-                this.res.locals.emailConfirmDomain = (email) ? email.substr(email.indexOf('@') + 1) : '';
-                this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
+                this.res.locals.email = (email !== undefined) ? email : '';
+                this.res.locals.emailConfirm = (email !== undefined) ? email.substr(0, email.indexOf('@')) : '';
+                this.res.locals.emailConfirmDomain = (email !== undefined) ? email.substr(email.indexOf('@') + 1) : '';
+                this.res.locals.paymentMethod = (reservationModel.paymentMethod !== undefined && reservationModel.paymentMethod !== '') ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
 
                 this.res.render('preCustomer/reserve/profile', {
                     reservationModel: reservationModel

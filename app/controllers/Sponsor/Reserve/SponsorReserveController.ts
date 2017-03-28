@@ -53,7 +53,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
      * 規約(スキップ)
      */
     public terms(): void {
-        const cb = (this.req.query.cb) ? this.req.query.cb : '/';
+        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : '/';
         this.res.redirect(cb);
     }
 
@@ -282,10 +282,10 @@ export default class SponsorReserveController extends ReserveBaseController impl
                 this.res.locals.age = reservationModel.purchaserAge;
                 this.res.locals.address = reservationModel.purchaserAddress;
                 this.res.locals.gender = reservationModel.purchaserGender;
-                this.res.locals.email = (email) ? email : '';
-                this.res.locals.emailConfirm = (email) ? email.substr(0, email.indexOf('@')) : '';
-                this.res.locals.emailConfirmDomain = (email) ? email.substr(email.indexOf('@') + 1) : '';
-                this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : '';
+                this.res.locals.email = (email !== undefined) ? email : '';
+                this.res.locals.emailConfirm = (email !== undefined) ? email.substr(0, email.indexOf('@')) : '';
+                this.res.locals.emailConfirmDomain = (email !== undefined) ? email.substr(email.indexOf('@') + 1) : '';
+                this.res.locals.paymentMethod = (reservationModel.paymentMethod !== undefined && reservationModel.paymentMethod !== '') ? reservationModel.paymentMethod : '';
 
                 this.res.render('sponsor/reserve/profile', {
                     reservationModel: reservationModel

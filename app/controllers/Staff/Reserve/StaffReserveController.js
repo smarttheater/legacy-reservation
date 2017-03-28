@@ -36,7 +36,8 @@ class StaffReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             // 期限指定
             if (moment() < moment(conf.get('datetimes.reservation_start_staffs'))) {
-                return this.next(new Error(this.req.__('Message.OutOfTerm')));
+                this.next(new Error(this.req.__('Message.OutOfTerm')));
+                return;
             }
             try {
                 const reservationModel = yield this.processStart();
@@ -122,7 +123,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                 if (this.req.method === 'POST') {
                     reserveSeatForm_1.default(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
                         reservationModel = reservationModel;
-                        if (this.req.form && this.req.form.isValid) {
+                        if (this.req.form !== undefined && this.req.form.isValid) {
                             const seatCodes = JSON.parse(this.req.form.seatCodes);
                             // 追加指定席を合わせて制限枚数を超過した場合
                             if (seatCodes.length > limit) {
@@ -297,7 +298,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
     // tslint:disable-next-line:prefer-function-over-method
     processCancelSeats(reservationModel) {
         return __awaiter(this, void 0, void 0, function* () {
-            const seatCodesInSession = (reservationModel.seatCodes) ? reservationModel.seatCodes : [];
+            const seatCodesInSession = (reservationModel.seatCodes !== undefined) ? reservationModel.seatCodes : [];
             if (seatCodesInSession.length === 0) {
                 return reservationModel;
             }

@@ -39,7 +39,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
     performances() {
         if (this.req.method === 'POST') {
             reservePerformanceForm_1.default(this.req, this.res, () => {
-                if (this.req.form && this.req.form.isValid) {
+                if (this.req.form !== undefined && this.req.form.isValid) {
                     const performaceId = this.req.form.performanceId;
                     this.res.redirect(this.router.build('customer.reserve.start') + `?performance=${performaceId}&locale=${this.req.getLocale()}`);
                 }
@@ -61,12 +61,12 @@ class CustomerReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             // MPのIPは許可
             // tslint:disable-next-line:no-empty
-            if (this.req.headers['x-forwarded-for'] && /^124\.155\.113\.9$/.test(this.req.headers['x-forwarded-for'])) {
+            if (this.req.headers['x-forwarded-for'] !== undefined && /^124\.155\.113\.9$/.test(this.req.headers['x-forwarded-for'])) {
             }
             else {
                 // 期限指定
                 if (moment() < moment(conf.get('datetimes.reservation_start_customers_first'))) {
-                    if (this.req.query.locale) {
+                    if (this.req.query.locale !== undefined && this.req.query.locale !== '') {
                         this.req.setLocale(this.req.query.locale);
                     }
                     this.next(new Error(this.req.__('Message.OutOfTerm')));
@@ -76,7 +76,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                 if (moment() < moment(conf.get('datetimes.reservation_start_customers_second')) &&
                     moment() > moment(conf.get('datetimes.reservation_start_customers_second')).add(-15, 'minutes') // tslint:disable-line:no-magic-numbers
                 ) {
-                    if (this.req.query.locale) {
+                    if (this.req.query.locale !== undefined && this.req.query.locale !== '') {
                         this.req.setLocale(this.req.query.locale);
                     }
                     this.next(new Error(this.req.__('Message.OutOfTerm')));
@@ -85,7 +85,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             }
             try {
                 const reservationModel = yield this.processStart();
-                if (reservationModel.performance) {
+                if (reservationModel.performance !== undefined) {
                     yield reservationModel.save();
                     this.res.redirect(this.router.build('customer.reserve.terms', { token: reservationModel.token }));
                 }
@@ -256,10 +256,10 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     this.res.locals.age = reservationModel.purchaserAge;
                     this.res.locals.address = reservationModel.purchaserAddress;
                     this.res.locals.gender = reservationModel.purchaserGender;
-                    this.res.locals.email = (email) ? email : '';
-                    this.res.locals.emailConfirm = (email) ? email.substr(0, email.indexOf('@')) : '';
-                    this.res.locals.emailConfirmDomain = (email) ? email.substr(email.indexOf('@') + 1) : '';
-                    this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
+                    this.res.locals.email = (email !== undefined) ? email : '';
+                    this.res.locals.emailConfirm = (email !== undefined) ? email.substr(0, email.indexOf('@')) : '';
+                    this.res.locals.emailConfirmDomain = (email !== undefined) ? email.substr(email.indexOf('@') + 1) : '';
+                    this.res.locals.paymentMethod = (reservationModel.paymentMethod !== undefined && reservationModel.paymentMethod !== '') ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
                     this.res.render('customer/reserve/profile', {
                         reservationModel: reservationModel
                     });

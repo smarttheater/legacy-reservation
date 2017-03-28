@@ -15,7 +15,7 @@ import BaseController from '../../BaseController';
  * @extends {BaseController}
  */
 export default class PreCustomerAuthController extends BaseController {
-    public layout = 'layouts/preCustomer/layout';
+    public layout: string = 'layouts/preCustomer/layout';
 
     /**
      * pre customer login

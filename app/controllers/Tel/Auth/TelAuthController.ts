@@ -13,7 +13,7 @@ import BaseController from '../../BaseController';
  * @extends {BaseController}
  */
 export default class TelAuthController extends BaseController {
-    public layout = 'layouts/tel/layout';
+    public layout: string = 'layouts/tel/layout';
 
     /**
      * 窓口担当者ログイン

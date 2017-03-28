@@ -26,10 +26,12 @@ class MemberAuthController extends BaseController_1.default {
         // 期限指定
         const now = moment();
         if (now < moment(conf.get('datetimes.reservation_start_members')) || moment(conf.get('datetimes.reservation_end_members')) < now) {
-            return this.next(new Error(this.req.__('Message.OutOfTerm')));
+            this.next(new Error(this.req.__('Message.OutOfTerm')));
+            return;
         }
         if (this.req.memberUser && this.req.memberUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build('member.reserve.start'));
+            this.res.redirect(this.router.build('member.reserve.start'));
+            return;
         }
         if (this.req.method === 'POST') {
             memberLoginForm_1.default(this.req, this.res, () => {

@@ -38,8 +38,8 @@ export default class ReserveBaseController extends BaseController {
     /**
      * 券種FIXプロセス
      */
-    public processFixTickets(reservationModel: ReservationModel): Promise<ReservationModel> {
-        return new Promise((resolve, reject) => {
+    public async processFixTickets(reservationModel: ReservationModel): Promise<ReservationModel> {
+        return new Promise<ReservationModel>((resolve, reject) => {
             reserveTicketForm(this.req, this.res, () => {
                 if (this.req.form === undefined) {
                     reject(new Error(this.req.__('Message.UnexpectedError')));
@@ -83,8 +83,8 @@ export default class ReserveBaseController extends BaseController {
     /**
      * 券種FIXプロセス
      */
-    public processFixProfile(reservationModel: ReservationModel): Promise<ReservationModel> {
-        return new Promise((resolve, reject) => {
+    public async processFixProfile(reservationModel: ReservationModel): Promise<ReservationModel> {
+        return new Promise<ReservationModel>((resolve, reject) => {
             const form = reserveProfileForm(this.req);
             form(this.req, this.res, (err) => {
                 if (err instanceof Error) {
@@ -197,7 +197,7 @@ export default class ReserveBaseController extends BaseController {
      * 購入情報を初期化する
      */
     protected initializePayment(reservationModel: ReservationModel): ReservationModel {
-        if (!this.purchaserGroup) {
+        if (this.purchaserGroup === undefined) {
             throw new Error('purchaser group undefined.');
         }
 
@@ -498,12 +498,12 @@ export default class ReserveBaseController extends BaseController {
                 seat_code: seatCode,
                 status: ReservationUtil.STATUS_TEMPORARY,
                 expired_at: reservationModel.expiredAt,
-                staff: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF && this.req.staffUser) ? this.req.staffUser.get('_id') : undefined,
-                sponsor: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser) ? this.req.sponsorUser.get('_id') : undefined,
-                member: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_MEMBER && this.req.memberUser) ? this.req.memberUser.get('_id') : undefined,
-                tel: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL && this.req.telStaffUser) ? this.req.telStaffUser.get('_id') : undefined,
-                window: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW && this.req.windowUser) ? this.req.windowUser.get('_id') : undefined,
-                pre_customer: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER && this.req.preCustomerUser) ? this.req.preCustomerUser.get('_id') : undefined
+                staff: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF && this.req.staffUser !== undefined) ? this.req.staffUser.get('_id') : undefined,
+                sponsor: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser !== undefined) ? this.req.sponsorUser.get('_id') : undefined,
+                member: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_MEMBER && this.req.memberUser !== undefined) ? this.req.memberUser.get('_id') : undefined,
+                tel: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL && this.req.telStaffUser !== undefined) ? this.req.telStaffUser.get('_id') : undefined,
+                window: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW && this.req.windowUser !== undefined) ? this.req.windowUser.get('_id') : undefined,
+                pre_customer: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER && this.req.preCustomerUser !== undefined) ? this.req.preCustomerUser.get('_id') : undefined
             };
 
             // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
@@ -539,7 +539,7 @@ export default class ReserveBaseController extends BaseController {
     // tslint:disable-next-line:max-func-body-length
     protected async processConfirm(reservationModel: ReservationModel): Promise<ReservationModel> {
         // 仮押さえ有効期限チェック
-        if (reservationModel.expiredAt && reservationModel.expiredAt < moment().valueOf()) {
+        if (reservationModel.expiredAt !== undefined && reservationModel.expiredAt < moment().valueOf()) {
             throw new Error(this.res.__('Message.Expired'));
         }
 
@@ -564,7 +564,7 @@ export default class ReserveBaseController extends BaseController {
                     commonUpdate.expired_at = null;
 
                     // 1.5次販売ユーザーの場合
-                    if (this.req.preCustomerUser) {
+                    if (this.req.preCustomerUser !== undefined) {
                         commonUpdate.pre_customer = this.req.preCustomerUser.get('_id');
                         commonUpdate.pre_customer_user_id = this.req.preCustomerUser.get('user_id');
                     }
@@ -652,7 +652,7 @@ export default class ReserveBaseController extends BaseController {
             return reservationModel;
         };
 
-        if (reservationModel.paymentNo) {
+        if (reservationModel.paymentNo !== undefined) {
             return next(reservationModel);
         } else {
             // 購入番号発行

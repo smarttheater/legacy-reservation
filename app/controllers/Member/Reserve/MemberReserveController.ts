@@ -22,7 +22,7 @@ export default class MemberReserveController extends ReserveBaseController imple
     public layout: string = 'layouts/member/layout';
 
     public async start(): Promise<void> {
-        if (!this.req.memberUser) {
+        if (this.req.memberUser === undefined) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));
             return;
         }
@@ -45,7 +45,7 @@ export default class MemberReserveController extends ReserveBaseController imple
 
             let reservationModel = await this.processStart();
 
-            if (reservationModel.performance) {
+            if (reservationModel.performance === undefined) {
                 throw new Error('no performance specified');
             } else {
                 // パフォーマンスFIX
@@ -159,10 +159,10 @@ export default class MemberReserveController extends ReserveBaseController imple
                 this.res.locals.age = reservationModel.purchaserAge;
                 this.res.locals.address = reservationModel.purchaserAddress;
                 this.res.locals.gender = reservationModel.purchaserGender;
-                this.res.locals.email = (email) ? email : '';
-                this.res.locals.emailConfirm = (email) ? email.substr(0, email.indexOf('@')) : '';
-                this.res.locals.emailConfirmDomain = (email) ? email.substr(email.indexOf('@') + 1) : '';
-                this.res.locals.paymentMethod = (reservationModel.paymentMethod) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
+                this.res.locals.email = (email !== undefined) ? email : '';
+                this.res.locals.emailConfirm = (email !== undefined) ? email.substr(0, email.indexOf('@')) : '';
+                this.res.locals.emailConfirmDomain = (email !== undefined) ? email.substr(email.indexOf('@') + 1) : '';
+                this.res.locals.paymentMethod = (reservationModel.paymentMethod !== undefined && reservationModel.paymentMethod !== '') ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
 
                 this.res.render('member/reserve/profile', {
                     reservationModel: reservationModel

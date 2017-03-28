@@ -5,7 +5,7 @@
  *
  * @interface ReserveControllerInterface
  */
-interface ReserveControllerInterface {
+interface IReserveControllerInterface {
     /**
      * 購入者区分
      */
@@ -44,4 +44,4 @@ interface ReserveControllerInterface {
     complete(): void;
 }
 
-export default ReserveControllerInterface;
+export default IReserveControllerInterface;
