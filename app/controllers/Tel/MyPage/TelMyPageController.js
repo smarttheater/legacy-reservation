@@ -56,7 +56,13 @@ class TelMyPageController extends BaseController_1.default {
             // 内部関係者以外がデフォルト
             conditions.push({
                 purchaser_group: { $ne: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF },
-                status: { $in: [chevre_domain_1.ReservationUtil.STATUS_RESERVED, chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT, chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN] }
+                status: {
+                    $in: [
+                        chevre_domain_1.ReservationUtil.STATUS_RESERVED,
+                        chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT,
+                        chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN
+                    ]
+                }
             });
             if (purchaserGroups.length > 0) {
                 conditions.push({ purchaser_group: { $in: purchaserGroups } });
@@ -66,9 +72,10 @@ class TelMyPageController extends BaseController_1.default {
                 conditions.push({
                     purchased_at: {
                         // tslint:disable-next-line:no-magic-numbers
-                        $gte: moment(`${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T00:00:00+09:00`),
+                        $gte: moment(),
+                        $lte: moment(
                         // tslint:disable-next-line:no-magic-numbers
-                        $lte: moment(`${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T23:59:59+09:00`)
+                        `${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T23:59:59+09:00`)
                     }
                 });
             }

@@ -34,10 +34,14 @@ export default class StaffReserveController extends ReserveBaseController implem
 
             if (reservationModel.performance !== undefined) {
                 const cb = this.router.build('staff.reserve.seats', { token: reservationModel.token });
-                this.res.redirect(`${this.router.build('staff.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                this.res.redirect(
+                    `${this.router.build('staff.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`
+                );
             } else {
                 const cb = this.router.build('staff.reserve.performances', { token: reservationModel.token });
-                this.res.redirect(`${this.router.build('staff.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                this.res.redirect(
+                    `${this.router.build('staff.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`
+                );
             }
         } catch (error) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -70,7 +74,10 @@ export default class StaffReserveController extends ReserveBaseController implem
                     if (this.req.form !== undefined && this.req.form.isValid) {
                         try {
                             // パフォーマンスFIX
-                            reservationModel = await this.processFixPerformance(<ReservationModel>reservationModel, (<any>this.req.form).performanceId);
+                            reservationModel = await this.processFixPerformance(
+                                <ReservationModel>reservationModel,
+                                (<any>this.req.form).performanceId
+                            );
                             await reservationModel.save();
                             this.res.redirect(this.router.build('staff.reserve.seats', { token: token }));
                         } catch (error) {
@@ -120,7 +127,9 @@ export default class StaffReserveController extends ReserveBaseController implem
                         // 追加指定席を合わせて制限枚数を超過した場合
                         if (seatCodes.length > limit) {
                             const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                            this.res.redirect(`${this.router.build('staff.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                            this.res.redirect(
+                                `${this.router.build('staff.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
+                            );
                             return;
                         }
 
@@ -141,7 +150,9 @@ export default class StaffReserveController extends ReserveBaseController implem
                         } catch (error) {
                             await reservationModel.save();
                             const message = this.req.__('Message.SelectedSeatsUnavailable');
-                            this.res.redirect(`${this.router.build('staff.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                            this.res.redirect(
+                                `${this.router.build('staff.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
+                            );
                         }
                     } else {
                         this.res.redirect(this.router.build('staff.reserve.seats', { token: token }));

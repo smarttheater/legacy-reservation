@@ -37,11 +37,15 @@ export default class SponsorReserveController extends ReserveBaseController impl
             if (reservationModel.performance !== undefined) {
                 await reservationModel.save();
                 const cb = this.router.build('sponsor.reserve.seats', { token: reservationModel.token });
-                this.res.redirect(`${this.router.build('sponsor.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                this.res.redirect(
+                    `${this.router.build('sponsor.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`
+                );
             } else {
                 await reservationModel.save();
                 const cb = this.router.build('sponsor.reserve.performances', { token: reservationModel.token });
-                this.res.redirect(`${this.router.build('sponsor.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                this.res.redirect(
+                    `${this.router.build('sponsor.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`
+                );
             }
         } catch (error) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -97,7 +101,10 @@ export default class SponsorReserveController extends ReserveBaseController impl
                     if (this.req.form !== undefined && this.req.form.isValid) {
                         try {
                             // パフォーマンスFIX
-                            reservationModel = await this.processFixPerformance(<ReservationModel>reservationModel, (<any>this.req.form).performanceId);
+                            reservationModel = await this.processFixPerformance(
+                                <ReservationModel>reservationModel,
+                                (<any>this.req.form).performanceId
+                            );
                             await reservationModel.save();
                             this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
                         } catch (error) {
@@ -175,7 +182,9 @@ export default class SponsorReserveController extends ReserveBaseController impl
                         if (seatCodes.length > limit) {
                             lockFile.unlockSync(lockPath);
                             const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                            this.res.redirect(`${this.router.build('sponsor.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                            this.res.redirect(
+                                `${this.router.build('sponsor.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
+                            );
                             return;
                         }
 
@@ -197,7 +206,9 @@ export default class SponsorReserveController extends ReserveBaseController impl
                         } catch (error) {
                             await reservationModel.save();
                             const message = this.req.__('Message.SelectedSeatsUnavailable');
-                            this.res.redirect(`${this.router.build('sponsor.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                            this.res.redirect(
+                                `${this.router.build('sponsor.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
+                            );
                         }
                     } else {
                         lockFile.unlockSync(lockPath);

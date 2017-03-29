@@ -39,14 +39,18 @@ export default class StaffAuthController extends BaseController {
                         ).exec();
 
                         if (staff === null) {
-                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            form.errors.push(
+                                this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') })
+                            );
                             this.res.render('staff/auth/login');
                             return;
                         }
 
                         // パスワードチェック
                         if (staff.get('password_hash') !== Util.createHash((<any>form).password, staff.get('password_salt'))) {
-                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            form.errors.push(
+                                this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') })
+                            );
                             this.res.render('staff/auth/login');
                             return;
                         }
@@ -63,7 +67,11 @@ export default class StaffAuthController extends BaseController {
                                 }
                             );
                             // tslint:disable-next-line:no-cookies
-                            this.res.cookie('remember_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                            this.res.cookie(
+                                'remember_staff',
+                                authentication.get('token'),
+                                { path: '/', httpOnly: true, maxAge: 604800000 }
+                            );
                         }
 
                         // ログイン

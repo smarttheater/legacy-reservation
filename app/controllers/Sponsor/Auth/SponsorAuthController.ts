@@ -39,14 +39,18 @@ export default class SponsorAuthController extends BaseController {
                         ).exec();
 
                         if (sponsor === null) {
-                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            form.errors.push(
+                                this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') })
+                            );
                             this.res.render('sponsor/auth/login');
                             return;
                         }
 
                         // パスワードチェック
                         if (sponsor.get('password_hash') !== Util.createHash((<any>form).password, sponsor.get('password_salt'))) {
-                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            form.errors.push(
+                                this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') })
+                            );
                             this.res.render('sponsor/auth/login');
                             return;
                         }
@@ -62,7 +66,11 @@ export default class SponsorAuthController extends BaseController {
                                 }
                             );
                             // tslint:disable-next-line:no-cookies
-                            this.res.cookie('remember_sponsor', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                            this.res.cookie(
+                                'remember_sponsor',
+                                authentication.get('token'),
+                                { path: '/', httpOnly: true, maxAge: 604800000 }
+                            );
                         }
 
                         // ログイン

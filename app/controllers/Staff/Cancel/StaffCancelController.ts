@@ -28,13 +28,22 @@ export default class StaffCancelController extends BaseController {
             }
 
             const promises = reservationIds.map(async (id) => {
-                this.logger.info('updating to STATUS_KEPT_BY_CHEVRE by staff... staff:', staffUser.get('user_id'), 'signature:', staffUser.get('signature'), 'id:', id);
+                this.logger.info(
+                    'updating to STATUS_KEPT_BY_CHEVRE by staff... staff:', staffUser.get('user_id'),
+                    'signature:', staffUser.get('signature'),
+                    'id:', id
+                );
                 const reservation = await Models.Reservation.findOneAndUpdate(
                     { _id: id },
                     { status: ReservationUtil.STATUS_KEPT_BY_CHEVRE },
                     { new: true }
                 ).exec();
-                this.logger.info('updated to STATUS_KEPT_BY_CHEVRE by staff.', reservation, 'staff:', staffUser.get('user_id'), 'signature:', staffUser.get('signature'), 'id:', id);
+                this.logger.info(
+                    'updated to STATUS_KEPT_BY_CHEVRE by staff.', reservation,
+                    'staff:', staffUser.get('user_id'),
+                    'signature:', staffUser.get('signature'),
+                    'id:', id
+                );
             });
 
             await Promise.all(promises);

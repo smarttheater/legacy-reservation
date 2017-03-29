@@ -37,7 +37,8 @@ export default class WindowMyPageController extends BaseController {
         const purchasedDay: string | null = (!_.isEmpty(this.req.query.purchased_day)) ? this.req.query.purchased_day : null;
         let email: string | null = (!_.isEmpty(this.req.query.email)) ? this.req.query.email : null;
         let tel: string | null = (!_.isEmpty(this.req.query.tel)) ? this.req.query.tel : null;
-        let purchaserFirstName: string | null = (!_.isEmpty(this.req.query.purchaser_first_name)) ? this.req.query.purchaser_first_name : null;
+        let purchaserFirstName: string | null =
+            (!_.isEmpty(this.req.query.purchaser_first_name)) ? this.req.query.purchaser_first_name : null;
         let purchaserLastName: string | null = (!_.isEmpty(this.req.query.purchaser_last_name)) ? this.req.query.purchaser_last_name : null;
         let paymentNo: string | null = (!_.isEmpty(this.req.query.payment_no)) ? this.req.query.payment_no : null;
         const day: string | null = (!_.isEmpty(this.req.query.day)) ? this.req.query.day : null;
@@ -50,7 +51,13 @@ export default class WindowMyPageController extends BaseController {
         conditions.push(
             {
                 purchaser_group: { $ne: ReservationUtil.PURCHASER_GROUP_STAFF },
-                status: { $in: [ReservationUtil.STATUS_RESERVED, ReservationUtil.STATUS_WAITING_SETTLEMENT, ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN] }
+                status: {
+                    $in: [
+                        ReservationUtil.STATUS_RESERVED,
+                        ReservationUtil.STATUS_WAITING_SETTLEMENT,
+                        ReservationUtil.STATUS_WAITING_SETTLEMENT_PAY_DESIGN
+                    ]
+                }
             }
         );
 
@@ -63,10 +70,14 @@ export default class WindowMyPageController extends BaseController {
             conditions.push(
                 {
                     purchased_at: {
-                        // tslint:disable-next-line:no-magic-numbers
-                        $gte: moment(`${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T00:00:00+09:00`),
-                        // tslint:disable-next-line:no-magic-numbers
-                        $lte: moment(`${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T23:59:59+09:00`)
+                        $gte: moment(
+                            // tslint:disable-next-line:no-magic-numbers
+                            `${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T00:00:00+09:00`
+                        ),
+                        $lte: moment(
+                            // tslint:disable-next-line:no-magic-numbers
+                            `${purchasedDay.substr(0, 4)}-${purchasedDay.substr(4, 2)}-${purchasedDay.substr(6, 2)}T23:59:59+09:00`
+                        )
                     }
                 }
             );

@@ -31,10 +31,14 @@ export default class TelReserveController extends ReserveBaseController implemen
 
             if (reservationModel.performance !== undefined) {
                 const cb = this.router.build('tel.reserve.seats', { token: reservationModel.token });
-                this.res.redirect(`${this.router.build('tel.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                this.res.redirect(
+                    `${this.router.build('tel.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`
+                );
             } else {
                 const cb = this.router.build('tel.reserve.performances', { token: reservationModel.token });
-                this.res.redirect(`${this.router.build('tel.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                this.res.redirect(
+                    `${this.router.build('tel.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`
+                );
             }
         } catch (error) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -67,7 +71,10 @@ export default class TelReserveController extends ReserveBaseController implemen
                     if (this.req.form !== undefined && this.req.form.isValid) {
                         try {
                             // パフォーマンスFIX
-                            reservationModel = await this.processFixPerformance(<ReservationModel>reservationModel, (<any>this.req.form).performanceId);
+                            reservationModel = await this.processFixPerformance(
+                                <ReservationModel>reservationModel,
+                                (<any>this.req.form).performanceId
+                            );
                             await reservationModel.save();
                             this.res.redirect(this.router.build('tel.reserve.seats', { token: token }));
                         } catch (error) {
@@ -120,7 +127,9 @@ export default class TelReserveController extends ReserveBaseController implemen
                         // 追加指定席を合わせて制限枚数を超過した場合
                         if (seatCodes.length > limit) {
                             const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                            this.res.redirect(`${this.router.build('tel.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                            this.res.redirect(
+                                `${this.router.build('tel.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
+                            );
                             return;
                         }
 
@@ -141,7 +150,9 @@ export default class TelReserveController extends ReserveBaseController implemen
                         } catch (error) {
                             await reservationModel.save();
                             const message = this.req.__('Message.SelectedSeatsUnavailable');
-                            this.res.redirect(`${this.router.build('tel.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                            this.res.redirect(
+                                `${this.router.build('tel.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
+                            );
                         }
                     } else {
                         this.res.redirect(this.router.build('tel.reserve.seats', { token: token }));
@@ -226,7 +237,8 @@ export default class TelReserveController extends ReserveBaseController implemen
                 this.res.locals.email = (!_.isEmpty(email)) ? email : '';
                 this.res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
                 this.res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
-                this.res.locals.paymentMethod = (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CVS;
+                this.res.locals.paymentMethod =
+                    (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CVS;
 
                 this.res.render('tel/reserve/profile', {
                     reservationModel: reservationModel

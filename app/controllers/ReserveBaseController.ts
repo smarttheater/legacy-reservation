@@ -461,14 +461,18 @@ export default class ReserveBaseController extends BaseController {
 
         // コンビニ決済はパフォーマンス上映の5日前まで
         // tslint:disable-next-line:no-magic-numbers
-        if (parseInt(moment().add(+5, 'days').format('YYYYMMDD'), DEFAULT_RADIX) > parseInt(reservationModel.performance.day, DEFAULT_RADIX)) {
+        const day5DaysAgo = parseInt(moment().add(+5, 'days').format('YYYYMMDD'), DEFAULT_RADIX);
+        if (parseInt(reservationModel.performance.day, DEFAULT_RADIX) < day5DaysAgo) {
             if (reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CVS) >= 0) {
                 reservationModel.paymentMethodChoices.splice(reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CVS), 1);
             }
         }
 
         // スクリーン座席表HTMLを保管
-        reservationModel.screenHtml = fs.readFileSync(`${__dirname}/../../common/views/screens/${performance.get('screen').get('_id').toString()}.ejs`, 'utf8');
+        reservationModel.screenHtml = fs.readFileSync(
+            `${__dirname}/../../common/views/screens/${performance.get('screen').get('_id').toString()}.ejs`,
+            'utf8'
+        );
         return reservationModel;
     }
 
@@ -500,13 +504,38 @@ export default class ReserveBaseController extends BaseController {
                 seat_code: seatCode,
                 status: ReservationUtil.STATUS_TEMPORARY,
                 expired_at: reservationModel.expiredAt,
-                staff: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF && this.req.staffUser !== undefined) ? this.req.staffUser.get('_id') : undefined,
-                sponsor: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR && this.req.sponsorUser !== undefined) ? this.req.sponsorUser.get('_id') : undefined,
-                member: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_MEMBER && this.req.memberUser !== undefined) ? this.req.memberUser.get('_id') : undefined,
-                tel: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL && this.req.telStaffUser !== undefined) ? this.req.telStaffUser.get('_id') : undefined,
-                window: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW && this.req.windowUser !== undefined) ? this.req.windowUser.get('_id') : undefined,
-                pre_customer: (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER && this.req.preCustomerUser !== undefined) ? this.req.preCustomerUser.get('_id') : undefined
+                staff: undefined,
+                sponsor: undefined,
+                member: undefined,
+                tel: undefined,
+                window: undefined,
+                pre_customer: undefined
             };
+            switch (this.purchaserGroup) {
+                case ReservationUtil.PURCHASER_GROUP_STAFF:
+                    newReservation.staff = (<Express.StaffUser>this.req.staffUser).get('_id');
+                    break;
+                case ReservationUtil.PURCHASER_GROUP_SPONSOR:
+                    newReservation.sponsor = (<Express.SponsorUser>this.req.sponsorUser).get('_id');
+                    break;
+                case ReservationUtil.PURCHASER_GROUP_MEMBER:
+                    newReservation.member = (<Express.MemberUser>this.req.memberUser).get('_id');
+                    break;
+                case ReservationUtil.PURCHASER_GROUP_TEL:
+                    newReservation.tel = (<Express.TelStaffUser>this.req.telStaffUser).get('_id');
+                    break;
+                case ReservationUtil.PURCHASER_GROUP_WINDOW:
+                    newReservation.window = (<Express.WindowUser>this.req.windowUser).get('_id');
+                    break;
+                case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
+                    if (this.req.preCustomerUser !== undefined) {
+                        newReservation.pre_customer = (<Express.PreCustomerUser>this.req.preCustomerUser).get('_id');
+                    }
+                    break;
+
+                default:
+                    break;
+            }
 
             // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
             const reservation = await Models.Reservation.create(newReservation);
