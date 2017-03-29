@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const _ = require("underscore");
 const Util = require("../../../../common/Util/Util");
 const telLoginForm_1 = require("../../../forms/tel/telLoginForm");
 const TelStaffUser_1 = require("../../../models/User/TelStaffUser");
@@ -65,7 +66,7 @@ class TelAuthController extends BaseController_1.default {
                         }
                         // ログイン
                         this.req.session[TelStaffUser_1.default.AUTH_SESSION_NAME] = telStaff.toObject();
-                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('tel.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('tel.mypage');
                         this.res.redirect(cb);
                     }
                     catch (error) {

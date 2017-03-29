@@ -1,4 +1,6 @@
 import { Models } from '@motionpicture/chevre-domain';
+import * as _ from 'underscore';
+
 import * as Util from '../../../../common/Util/Util';
 import windowLoginForm from '../../../forms/window/windowLoginForm';
 import WindowUser from '../../../models/User/WindowUser';
@@ -72,7 +74,7 @@ export default class WindowAuthController extends BaseController {
                         // ログイン
                         (<Express.Session>this.req.session)[WindowUser.AUTH_SESSION_NAME] = window.toObject();
 
-                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('window.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('window.mypage');
                         this.res.redirect(cb);
                     } catch (error) {
                         this.next(new Error(this.req.__('Message.UnexpectedError')));

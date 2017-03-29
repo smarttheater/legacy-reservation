@@ -9,9 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const chevre_domain_2 = require("@motionpicture/chevre-domain");
-const chevre_domain_3 = require("@motionpicture/chevre-domain");
 const moment = require("moment");
+const _ = require("underscore");
 const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const Util = require("../../../../common/Util/Util");
 const BaseController_1 = require("../../BaseController");
@@ -41,17 +40,17 @@ class TelMyPageController extends BaseController_1.default {
     search() {
         return __awaiter(this, void 0, void 0, function* () {
             // tslint:disable-next-line:no-magic-numbers
-            const limit = (this.req.query.limit !== undefined && this.req.query.limit !== '') ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
-            const page = (this.req.query.page !== undefined && this.req.query.page !== '') ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
-            const purchaserGroups = (this.req.query.purchaser_groups !== undefined && this.req.query.purchaser_groups !== '') ? this.req.query.purchaser_groups.split(',') : [];
-            const purchasedDay = (this.req.query.purchased_day !== undefined && this.req.query.purchased_day !== '') ? this.req.query.purchased_day : null;
-            let email = (this.req.query.email !== undefined && this.req.query.email !== '') ? this.req.query.email : null;
-            let tel = (this.req.query.tel !== undefined && this.req.query.tel !== '') ? this.req.query.tel : null;
-            let purchaserFirstName = (this.req.query.purchaser_first_name !== undefined && this.req.query.purchaser_first_name !== '') ? this.req.query.purchaser_first_name : null;
-            let purchaserLastName = (this.req.query.purchaser_last_name !== undefined && this.req.query.purchaser_last_name !== '') ? this.req.query.purchaser_last_name : null;
-            let paymentNo = (this.req.query.payment_no !== undefined && this.req.query.payment_no !== '') ? this.req.query.payment_no : null;
-            const day = (this.req.query.day !== undefined && this.req.query.day !== '') ? this.req.query.day : null;
-            let filmName = (this.req.query.film_name !== undefined && this.req.query.film_name !== '') ? this.req.query.film_name : null;
+            const limit = (!_.isEmpty(this.req.query.limit)) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+            const page = (!_.isEmpty(this.req.query.page)) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
+            const purchaserGroups = (!_.isEmpty(this.req.query.purchaser_groups)) ? this.req.query.purchaser_groups.split(',') : [];
+            const purchasedDay = (!_.isEmpty(this.req.query.purchased_day)) ? this.req.query.purchased_day : null;
+            let email = (!_.isEmpty(this.req.query.email)) ? this.req.query.email : null;
+            let tel = (!_.isEmpty(this.req.query.tel)) ? this.req.query.tel : null;
+            let purchaserFirstName = (!_.isEmpty(this.req.query.purchaser_first_name)) ? this.req.query.purchaser_first_name : null;
+            let purchaserLastName = (!_.isEmpty(this.req.query.purchaser_last_name)) ? this.req.query.purchaser_last_name : null;
+            let paymentNo = (!_.isEmpty(this.req.query.payment_no)) ? this.req.query.payment_no : null;
+            const day = (!_.isEmpty(this.req.query.day)) ? this.req.query.day : null;
+            let filmName = (!_.isEmpty(this.req.query.film_name)) ? this.req.query.film_name : null;
             // 検索条件を作成
             const conditions = [];
             // 内部関係者以外がデフォルト
@@ -133,10 +132,10 @@ class TelMyPageController extends BaseController_1.default {
             }
             try {
                 // 総数検索
-                const count = yield chevre_domain_3.Models.Reservation.count({
+                const count = yield chevre_domain_1.Models.Reservation.count({
                     $and: conditions
                 }).exec();
-                const reservations = yield chevre_domain_3.Models.Reservation.find({ $and: conditions })
+                const reservations = yield chevre_domain_1.Models.Reservation.find({ $and: conditions })
                     .skip(limit * (page - 1))
                     .limit(limit)
                     .lean(true)
@@ -149,7 +148,7 @@ class TelMyPageController extends BaseController_1.default {
                         return 1;
                     if (a.screen > b.screen)
                         return 1;
-                    return chevre_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                    return chevre_domain_1.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
                 });
                 this.res.json({
                     success: true,

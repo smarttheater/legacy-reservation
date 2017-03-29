@@ -1,4 +1,6 @@
 import { Models } from '@motionpicture/chevre-domain';
+import * as _ from 'underscore';
+
 import * as Util from '../../../../common/Util/Util';
 import staffLoginForm from '../../../forms/staff/staffLoginForm';
 import StaffUser from '../../../models/User/StaffUser';
@@ -69,7 +71,7 @@ export default class StaffAuthController extends BaseController {
                         (<Express.Session>this.req.session)[StaffUser.AUTH_SESSION_NAME].signature = (<any>form).signature;
                         (<Express.Session>this.req.session)[StaffUser.AUTH_SESSION_NAME].locale = (<any>form).language;
 
-                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('staff.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('staff.mypage');
                         this.res.redirect(cb);
                     } catch (error) {
                         this.next(new Error(this.req.__('Message.UnexpectedError')));

@@ -4,6 +4,7 @@ const conf = require("config");
 const log4js = require("log4js");
 const moment = require("moment");
 const numeral = require("numeral");
+const _ = require("underscore");
 const Util = require("../../common/Util/Util");
 /**
  * ベースコントローラー
@@ -29,7 +30,7 @@ class BaseController {
         // レイアウト指定があれば変更
         const render = this.res.render;
         this.res.render = (view, options, cb) => {
-            if (this.layout !== undefined && this.layout !== '') {
+            if (!_.isEmpty(this.layout)) {
                 if (options === undefined) {
                     options = {};
                 }

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const _ = require("underscore");
 const BaseController_1 = require("../BaseController");
 /**
  * 言語コントローラー
@@ -15,7 +16,7 @@ class LanguageController extends BaseController_1.default {
     update() {
         const locale = this.req.params.locale;
         this.req.session.locale = locale;
-        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : '/';
+        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/';
         this.res.redirect(cb);
     }
 }

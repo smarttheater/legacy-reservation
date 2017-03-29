@@ -1,6 +1,8 @@
 import { Models } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
+import * as _ from 'underscore';
+
 import * as Util from '../../../../common/Util/Util';
 import preCustomerLoginForm from '../../../forms/preCustomer/preCustomerLoginForm';
 import PreCustomerUser from '../../../models/User/PreCustomerUser';
@@ -81,7 +83,7 @@ export default class PreCustomerAuthController extends BaseController {
                         (<Express.Session>this.req.session)[PreCustomerUser.AUTH_SESSION_NAME] = preCustomer.toObject();
                         (<Express.Session>this.req.session)[PreCustomerUser.AUTH_SESSION_NAME].locale = (<any>this.req.form).language;
 
-                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('pre.reserve.start');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('pre.reserve.start');
                         this.res.redirect(cb);
                     } catch (error) {
                         this.next(new Error(this.req.__('Message.UnexpectedError')));

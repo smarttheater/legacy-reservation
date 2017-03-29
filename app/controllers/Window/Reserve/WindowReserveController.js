@@ -9,10 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const chevre_domain_2 = require("@motionpicture/chevre-domain");
-const chevre_domain_3 = require("@motionpicture/chevre-domain");
-const chevre_domain_4 = require("@motionpicture/chevre-domain");
 const moment = require("moment");
+const _ = require("underscore");
 const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
@@ -29,7 +27,7 @@ const ReserveBaseController_1 = require("../../ReserveBaseController");
 class WindowReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = chevre_domain_4.ReservationUtil.PURCHASER_GROUP_WINDOW;
+        this.purchaserGroup = chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW;
         this.layout = 'layouts/window/layout';
     }
     start() {
@@ -55,7 +53,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
      * 規約(スキップ)
      */
     terms() {
-        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : '/';
+        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/';
         this.res.redirect(cb);
     }
     /**
@@ -94,7 +92,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
                         reservationModel = yield this.processCancelSeats(reservationModel);
                         yield reservationModel.save();
                         this.res.render('window/reserve/performances', {
-                            FilmUtil: chevre_domain_3.FilmUtil
+                            FilmUtil: chevre_domain_1.FilmUtil
                         });
                     }
                     catch (error) {
@@ -235,11 +233,11 @@ class WindowReserveController extends ReserveBaseController_1.default {
                     this.res.locals.age = reservationModel.purchaserAge;
                     this.res.locals.address = reservationModel.purchaserAddress;
                     this.res.locals.gender = reservationModel.purchaserGender;
-                    this.res.locals.email = (email !== undefined) ? email : '';
-                    this.res.locals.emailConfirm = (email !== undefined) ? email.substr(0, email.indexOf('@')) : '';
-                    this.res.locals.emailConfirmDomain = (email !== undefined) ? email.substr(email.indexOf('@') + 1) : '';
+                    this.res.locals.email = (!_.isEmpty(email)) ? email : '';
+                    this.res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
+                    this.res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
                     this.res.locals.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
-                    if (reservationModel.paymentMethod !== undefined && reservationModel.paymentMethod !== '') {
+                    if (!_.isEmpty(reservationModel.paymentMethod)) {
                         this.res.locals.paymentMethod = reservationModel.paymentMethod;
                     }
                     this.res.render('window/reserve/profile', {
@@ -302,7 +300,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
                 const paymentNo = this.req.params.paymentNo;
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
                     payment_no: paymentNo,
-                    status: chevre_domain_4.ReservationUtil.STATUS_RESERVED,
+                    status: chevre_domain_1.ReservationUtil.STATUS_RESERVED,
                     window: this.req.windowUser.get('_id'),
                     purchased_at: {
                         $gt: moment().add(-30, 'minutes').toISOString() // tslint:disable-line:no-magic-numbers
@@ -313,7 +311,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
                     return;
                 }
                 reservations.sort((a, b) => {
-                    return chevre_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                    return chevre_domain_1.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
                 });
                 this.res.render('window/reserve/complete', {
                     reservationDocuments: reservations

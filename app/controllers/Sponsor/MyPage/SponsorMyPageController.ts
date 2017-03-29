@@ -1,6 +1,6 @@
-import { ReservationUtil } from '@motionpicture/chevre-domain';
-import { ScreenUtil } from '@motionpicture/chevre-domain';
-import { Models } from '@motionpicture/chevre-domain';
+import { Models, ReservationUtil, ScreenUtil } from '@motionpicture/chevre-domain';
+import * as _ from 'underscore';
+
 import * as Util from '../../../../common/Util/Util';
 import BaseController from '../../BaseController';
 
@@ -30,11 +30,11 @@ export default class SponsorMyPageController extends BaseController {
         }
 
         // tslint:disable-next-line:no-magic-numbers
-        const limit: number = (this.req.query.limit !== undefined && this.req.query.limit !== '') ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
-        const page: number = (this.req.query.page !== undefined && this.req.query.page !== '') ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
-        const tel: string | null = (this.req.query.tel !== undefined && this.req.query.tel !== '') ? this.req.query.tel : null;
-        const purchaserName: string | null = (this.req.query.purchaser_name !== undefined && this.req.query.purchaser_name !== '') ? this.req.query.purchaser_name : null;
-        let paymentNo: string | null = (this.req.query.payment_no !== undefined && this.req.query.payment_no !== '') ? this.req.query.payment_no : null;
+        const limit: number = (!_.isEmpty(this.req.query.limit)) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+        const page: number = (!_.isEmpty(this.req.query.page)) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
+        const tel: string | null = (!_.isEmpty(this.req.query.tel)) ? this.req.query.tel : null;
+        const purchaserName: string | null = (!_.isEmpty(this.req.query.purchaser_name)) ? this.req.query.purchaser_name : null;
+        let paymentNo: string | null = (!_.isEmpty(this.req.query.payment_no)) ? this.req.query.payment_no : null;
 
         // 検索条件を作成
         const conditions: any[] = [];

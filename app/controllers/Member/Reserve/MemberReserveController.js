@@ -13,6 +13,7 @@ const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const chevre_domain_3 = require("@motionpicture/chevre-domain");
 const httpStatus = require("http-status");
 const moment = require("moment");
+const _ = require("underscore");
 const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
@@ -162,10 +163,10 @@ class MemberReserveController extends ReserveBaseController_1.default {
                     this.res.locals.age = reservationModel.purchaserAge;
                     this.res.locals.address = reservationModel.purchaserAddress;
                     this.res.locals.gender = reservationModel.purchaserGender;
-                    this.res.locals.email = (email !== undefined) ? email : '';
-                    this.res.locals.emailConfirm = (email !== undefined) ? email.substr(0, email.indexOf('@')) : '';
-                    this.res.locals.emailConfirmDomain = (email !== undefined) ? email.substr(email.indexOf('@') + 1) : '';
-                    this.res.locals.paymentMethod = (reservationModel.paymentMethod !== undefined && reservationModel.paymentMethod !== '') ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
+                    this.res.locals.email = (!_.isEmpty(email)) ? email : '';
+                    this.res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
+                    this.res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
+                    this.res.locals.paymentMethod = (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
                     this.res.render('member/reserve/profile', {
                         reservationModel: reservationModel
                     });

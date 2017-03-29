@@ -1,4 +1,6 @@
 import { Models } from '@motionpicture/chevre-domain';
+import * as _ from 'underscore';
+
 import * as Util from '../../../../common/Util/Util';
 import telLoginForm from '../../../forms/tel/telLoginForm';
 import TelStaffUser from '../../../models/User/TelStaffUser';
@@ -64,7 +66,7 @@ export default class TelAuthController extends BaseController {
                         // ログイン
                         (<Express.Session>this.req.session)[TelStaffUser.AUTH_SESSION_NAME] = telStaff.toObject();
 
-                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('tel.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('tel.mypage');
                         this.res.redirect(cb);
                     } catch (error) {
                         this.next(new Error(this.req.__('Message.UnexpectedError')));

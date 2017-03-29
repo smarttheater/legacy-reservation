@@ -2,6 +2,8 @@ import { Models } from '@motionpicture/chevre-domain';
 import { ReservationUtil } from '@motionpicture/chevre-domain';
 import { FilmUtil } from '@motionpicture/chevre-domain';
 import * as mongoose from 'mongoose';
+import * as _ from 'underscore';
+
 import BaseController from '../BaseController';
 
 /**
@@ -21,7 +23,7 @@ export default class AdmissionController extends BaseController {
      */
     public async performances() {
         if (this.req.method === 'POST') {
-            if (this.req.body.performanceId !== undefined && this.req.body.performanceId !== '') {
+            if (!_.isEmpty(this.req.body.performanceId)) {
                 this.res.redirect(this.router.build('admission.confirm', { id: this.req.body.performanceId }));
             } else {
                 this.res.redirect(this.router.build('admission.performances'));

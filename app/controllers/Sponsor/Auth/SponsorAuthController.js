@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const _ = require("underscore");
 const Util = require("../../../../common/Util/Util");
 const sponsorLoginForm_1 = require("../../../forms/sponsor/sponsorLoginForm");
 const SponsorUser_1 = require("../../../models/User/SponsorUser");
@@ -69,7 +70,7 @@ class SponsorAuthController extends BaseController_1.default {
                         this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME] = sponsor.toObject();
                         this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME].locale = this.req.form.language;
                         // if exist parameter cb, redirect to cb.
-                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('sponsor.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('sponsor.mypage');
                         this.res.redirect(cb);
                     }
                     catch (error) {

@@ -3,6 +3,8 @@ import { NextFunction, Request, Response } from 'express';
 import * as log4js from 'log4js';
 import * as moment from 'moment';
 import * as numeral from 'numeral';
+import * as _ from 'underscore';
+
 import * as Util from '../../common/Util/Util';
 
 /**
@@ -59,7 +61,7 @@ export default class BaseController {
         // レイアウト指定があれば変更
         const render = this.res.render;
         this.res.render = (view: string, options?: any, cb?: (err: Error | null, html: string) => void) => {
-            if (this.layout !== undefined && this.layout !== '') {
+            if (!_.isEmpty(this.layout)) {
                 if (options === undefined) {
                     options = {};
                 } else if (typeof options === 'function') {

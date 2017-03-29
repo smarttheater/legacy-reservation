@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const _ = require("underscore");
 const Util = require("../../../../common/Util/Util");
 const windowLoginForm_1 = require("../../../forms/window/windowLoginForm");
 const WindowUser_1 = require("../../../models/User/WindowUser");
@@ -65,7 +66,7 @@ class WindowAuthController extends BaseController_1.default {
                         }
                         // ログイン
                         this.req.session[WindowUser_1.default.AUTH_SESSION_NAME] = window.toObject();
-                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('window.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('window.mypage');
                         this.res.redirect(cb);
                     }
                     catch (error) {

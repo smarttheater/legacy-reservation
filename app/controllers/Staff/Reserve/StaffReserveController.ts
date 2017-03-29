@@ -1,9 +1,8 @@
-import { Models } from '@motionpicture/chevre-domain';
-import { ScreenUtil } from '@motionpicture/chevre-domain';
-import { FilmUtil } from '@motionpicture/chevre-domain';
-import { ReservationUtil } from '@motionpicture/chevre-domain';
+import { FilmUtil, Models, ReservationUtil, ScreenUtil } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
+import * as _ from 'underscore';
+
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
@@ -49,7 +48,7 @@ export default class StaffReserveController extends ReserveBaseController implem
      * 規約(スキップ)
      */
     public terms(): void {
-        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : '/';
+        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/';
         this.res.redirect(cb);
     }
 

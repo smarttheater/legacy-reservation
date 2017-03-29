@@ -9,11 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const chevre_domain_2 = require("@motionpicture/chevre-domain");
-const chevre_domain_3 = require("@motionpicture/chevre-domain");
-const chevre_domain_4 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const moment = require("moment");
+const _ = require("underscore");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
@@ -29,7 +27,7 @@ const ReserveBaseController_1 = require("../../ReserveBaseController");
 class StaffReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = chevre_domain_4.ReservationUtil.PURCHASER_GROUP_STAFF;
+        this.purchaserGroup = chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF;
         this.layout = 'layouts/staff/layout';
     }
     start() {
@@ -60,7 +58,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
      * 規約(スキップ)
      */
     terms() {
-        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : '/';
+        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/';
         this.res.redirect(cb);
     }
     /**
@@ -98,7 +96,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                     reservationModel = yield this.processCancelSeats(reservationModel);
                     yield reservationModel.save();
                     this.res.render('staff/reserve/performances', {
-                        FilmUtil: chevre_domain_3.FilmUtil
+                        FilmUtil: chevre_domain_1.FilmUtil
                     });
                 }
             }
@@ -268,7 +266,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                 const paymentNo = this.req.params.paymentNo;
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
                     payment_no: paymentNo,
-                    status: chevre_domain_4.ReservationUtil.STATUS_RESERVED,
+                    status: chevre_domain_1.ReservationUtil.STATUS_RESERVED,
                     staff: this.req.staffUser.get('_id'),
                     purchased_at: {
                         $gt: moment().add(-30, 'minutes').toISOString() // tslint:disable-line:no-magic-numbers
@@ -279,7 +277,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                     return;
                 }
                 reservations.sort((a, b) => {
-                    return chevre_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                    return chevre_domain_1.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
                 });
                 this.res.render('staff/reserve/complete', {
                     reservationDocuments: reservations
@@ -309,10 +307,10 @@ class StaffReserveController extends ReserveBaseController_1.default {
                 yield chevre_domain_1.Models.Reservation.update({
                     performance: reservationModel.performance._id,
                     seat_code: { $in: seatCodesInSession },
-                    status: chevre_domain_4.ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_CHEVRE
+                    status: chevre_domain_1.ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_CHEVRE
                 }, {
                     $set: {
-                        status: chevre_domain_4.ReservationUtil.STATUS_KEPT_BY_CHEVRE
+                        status: chevre_domain_1.ReservationUtil.STATUS_KEPT_BY_CHEVRE
                     },
                     $unset: {
                         staff: ''
@@ -324,7 +322,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                 yield chevre_domain_1.Models.Reservation.remove({
                     performance: reservationModel.performance._id,
                     seat_code: { $in: seatCodesInSession },
-                    status: chevre_domain_4.ReservationUtil.STATUS_TEMPORARY
+                    status: chevre_domain_1.ReservationUtil.STATUS_TEMPORARY
                 }).exec();
             }
             catch (error) {
@@ -361,7 +359,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                     const reservation = yield chevre_domain_1.Models.Reservation.create({
                         performance: reservationModel.performance._id,
                         seat_code: seatCode,
-                        status: chevre_domain_4.ReservationUtil.STATUS_TEMPORARY,
+                        status: chevre_domain_1.ReservationUtil.STATUS_TEMPORARY,
                         expired_at: reservationModel.expiredAt,
                         staff: staffUser.get('_id')
                     });
@@ -386,9 +384,9 @@ class StaffReserveController extends ReserveBaseController_1.default {
                     const reservation = yield chevre_domain_1.Models.Reservation.findOneAndUpdate({
                         performance: reservationModel.performance._id,
                         seat_code: seatCode,
-                        status: chevre_domain_4.ReservationUtil.STATUS_KEPT_BY_CHEVRE
+                        status: chevre_domain_1.ReservationUtil.STATUS_KEPT_BY_CHEVRE
                     }, {
-                        status: chevre_domain_4.ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_CHEVRE,
+                        status: chevre_domain_1.ReservationUtil.STATUS_TEMPORARY_ON_KEPT_BY_CHEVRE,
                         expired_at: reservationModel.expiredAt,
                         staff: staffUser.get('_id')
                     }, {
@@ -416,7 +414,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
             }));
             yield Promise.all(promises);
             // 座席コードのソート(文字列順に)
-            reservationModel.seatCodes.sort(chevre_domain_2.ScreenUtil.sortBySeatCode);
+            reservationModel.seatCodes.sort(chevre_domain_1.ScreenUtil.sortBySeatCode);
             return reservationModel;
         });
     }

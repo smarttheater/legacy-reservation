@@ -1,10 +1,9 @@
-import { Models } from '@motionpicture/chevre-domain';
-import { ScreenUtil } from '@motionpicture/chevre-domain';
-import { FilmUtil } from '@motionpicture/chevre-domain';
-import { ReservationUtil } from '@motionpicture/chevre-domain';
+import { FilmUtil, Models, ReservationUtil, ScreenUtil } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as lockFile from 'lockfile';
 import * as moment from 'moment';
+import * as _ from 'underscore';
+
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
@@ -53,7 +52,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
      * 規約(スキップ)
      */
     public terms(): void {
-        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : '/';
+        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/';
         this.res.redirect(cb);
     }
 
@@ -282,10 +281,10 @@ export default class SponsorReserveController extends ReserveBaseController impl
                 this.res.locals.age = reservationModel.purchaserAge;
                 this.res.locals.address = reservationModel.purchaserAddress;
                 this.res.locals.gender = reservationModel.purchaserGender;
-                this.res.locals.email = (email !== undefined) ? email : '';
-                this.res.locals.emailConfirm = (email !== undefined) ? email.substr(0, email.indexOf('@')) : '';
-                this.res.locals.emailConfirmDomain = (email !== undefined) ? email.substr(email.indexOf('@') + 1) : '';
-                this.res.locals.paymentMethod = (reservationModel.paymentMethod !== undefined && reservationModel.paymentMethod !== '') ? reservationModel.paymentMethod : '';
+                this.res.locals.email = (!_.isEmpty(email)) ? email : '';
+                this.res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
+                this.res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
+                this.res.locals.paymentMethod = (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : '';
 
                 this.res.render('sponsor/reserve/profile', {
                     reservationModel: reservationModel

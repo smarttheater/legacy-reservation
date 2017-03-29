@@ -11,6 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const chevre_domain_3 = require("@motionpicture/chevre-domain");
+const _ = require("underscore");
 const BaseController_1 = require("../BaseController");
 /**
  * 入場コントローラー
@@ -32,7 +33,7 @@ class AdmissionController extends BaseController_1.default {
     performances() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.req.method === 'POST') {
-                if (this.req.body.performanceId !== undefined && this.req.body.performanceId !== '') {
+                if (!_.isEmpty(this.req.body.performanceId)) {
                     this.res.redirect(this.router.build('admission.confirm', { id: this.req.body.performanceId }));
                 }
                 else {

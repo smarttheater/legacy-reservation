@@ -13,6 +13,7 @@ const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const fs = require("fs-extra");
 const moment = require("moment");
+const _ = require("underscore");
 const GMOUtil = require("../../common/Util/GMO/GMOUtil");
 const Util = require("../../common/Util/Util");
 const reserveProfileForm_1 = require("../forms/reserve/reserveProfileForm");
@@ -137,7 +138,7 @@ class ReserveBaseController extends BaseController_1.default {
             // パフォーマンス未指定であればパフォーマンス選択へ
             // パフォーマンス指定であれば座席へ
             // 言語も指定
-            if (this.req.query.locale !== undefined && this.req.query.locale !== '') {
+            if (!_.isEmpty(this.req.query.locale)) {
                 this.req.session.locale = this.req.query.locale;
             }
             else {
@@ -160,7 +161,7 @@ class ReserveBaseController extends BaseController_1.default {
                     // tslint:disable-next-line:no-shadowed-variable
                     reservationModel = yield this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'));
                 }
-                else if (this.req.query.performance !== undefined && this.req.query.performance !== '') {
+                else if (!_.isEmpty(this.req.query.performance)) {
                     // パフォーマンス指定遷移の場合
                     // パフォーマンスFIX
                     // tslint:disable-next-line:no-shadowed-variable

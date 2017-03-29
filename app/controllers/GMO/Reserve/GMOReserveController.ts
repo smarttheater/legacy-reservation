@@ -3,6 +3,8 @@ import { ReservationUtil } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
 import * as querystring from 'querystring';
+import * as _ from 'underscore';
+
 import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import * as Util from '../../../../common/Util/Util';
 import GMOResultModel from '../../../models/Reserve/GMOResultModel';
@@ -147,7 +149,7 @@ export default class GMOReserveController extends ReserveBaseController {
         this.logger.info('gmoResultModel is', gmoResultModel);
 
         // エラー結果の場合
-        if (gmoResultModel.ErrCode !== undefined && gmoResultModel.ErrCode !== '') {
+        if (!_.isEmpty(gmoResultModel.ErrCode)) {
             // 空席に戻す
             try {
                 this.logger.info('finding reservations...payment_no:', paymentNo);

@@ -9,12 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const chevre_domain_2 = require("@motionpicture/chevre-domain");
-const chevre_domain_3 = require("@motionpicture/chevre-domain");
-const chevre_domain_4 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const lockFile = require("lockfile");
 const moment = require("moment");
+const _ = require("underscore");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
@@ -31,7 +29,7 @@ const DEFAULT_RADIX = 10;
 class SponsorReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = chevre_domain_4.ReservationUtil.PURCHASER_GROUP_SPONSOR;
+        this.purchaserGroup = chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR;
         this.layout = 'layouts/sponsor/layout';
     }
     start() {
@@ -63,7 +61,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
      * 規約(スキップ)
      */
     terms() {
-        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : '/';
+        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/';
         this.res.redirect(cb);
     }
     /**
@@ -89,7 +87,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                 // 外部関係者による予約数を取得
                 const reservationsCount = yield chevre_domain_1.Models.Reservation.count({
                     sponsor: sponsorUser.get('_id'),
-                    status: { $in: [chevre_domain_4.ReservationUtil.STATUS_TEMPORARY, chevre_domain_4.ReservationUtil.STATUS_RESERVED] }
+                    status: { $in: [chevre_domain_1.ReservationUtil.STATUS_TEMPORARY, chevre_domain_1.ReservationUtil.STATUS_RESERVED] }
                 }).exec();
                 if (parseInt(sponsorUser.get('max_reservation_count'), DEFAULT_RADIX) <= reservationsCount) {
                     this.next(new Error(this.req.__('Message.NoMoreReservation')));
@@ -115,7 +113,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                 }
                 else {
                     this.res.render('sponsor/reserve/performances', {
-                        FilmUtil: chevre_domain_3.FilmUtil,
+                        FilmUtil: chevre_domain_1.FilmUtil,
                         reservationsCount: reservationsCount
                     });
                 }
@@ -149,7 +147,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                 lockFile.lockSync(lockPath, {});
                 const reservationsCount = yield chevre_domain_1.Models.Reservation.count({
                     sponsor: sponsorUser.get('_id'),
-                    status: { $in: [chevre_domain_4.ReservationUtil.STATUS_TEMPORARY, chevre_domain_4.ReservationUtil.STATUS_RESERVED] },
+                    status: { $in: [chevre_domain_1.ReservationUtil.STATUS_TEMPORARY, chevre_domain_1.ReservationUtil.STATUS_RESERVED] },
                     seat_code: {
                         $nin: reservationModel.seatCodes // 現在のフロー中の予約は除く
                     }
@@ -284,10 +282,10 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                     this.res.locals.age = reservationModel.purchaserAge;
                     this.res.locals.address = reservationModel.purchaserAddress;
                     this.res.locals.gender = reservationModel.purchaserGender;
-                    this.res.locals.email = (email !== undefined) ? email : '';
-                    this.res.locals.emailConfirm = (email !== undefined) ? email.substr(0, email.indexOf('@')) : '';
-                    this.res.locals.emailConfirmDomain = (email !== undefined) ? email.substr(email.indexOf('@') + 1) : '';
-                    this.res.locals.paymentMethod = (reservationModel.paymentMethod !== undefined && reservationModel.paymentMethod !== '') ? reservationModel.paymentMethod : '';
+                    this.res.locals.email = (!_.isEmpty(email)) ? email : '';
+                    this.res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
+                    this.res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
+                    this.res.locals.paymentMethod = (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : '';
                     this.res.render('sponsor/reserve/profile', {
                         reservationModel: reservationModel
                     });
@@ -345,7 +343,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                 const paymentNo = this.req.params.paymentNo;
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
                     payment_no: paymentNo,
-                    status: chevre_domain_4.ReservationUtil.STATUS_RESERVED,
+                    status: chevre_domain_1.ReservationUtil.STATUS_RESERVED,
                     sponsor: this.req.sponsorUser.get('_id'),
                     purchased_at: {
                         $gt: moment().add(-30, 'minutes').toISOString() // tslint:disable-line:no-magic-numbers
@@ -356,7 +354,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                     return;
                 }
                 reservations.sort((a, b) => {
-                    return chevre_domain_2.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                    return chevre_domain_1.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
                 });
                 this.res.render('sponsor/reserve/complete', {
                     reservationDocuments: reservations

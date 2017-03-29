@@ -4,6 +4,8 @@ import * as conf from 'config';
 import * as express from 'express';
 import * as fs from 'fs-extra';
 import * as moment from 'moment';
+import * as _ from 'underscore';
+
 import * as GMOUtil from '../../common/Util/GMO/GMOUtil';
 import * as Util from '../../common/Util/Util';
 import reserveProfileForm from '../forms/reserve/reserveProfileForm';
@@ -155,7 +157,7 @@ export default class ReserveBaseController extends BaseController {
         // パフォーマンス指定であれば座席へ
 
         // 言語も指定
-        if (this.req.query.locale !== undefined && this.req.query.locale !== '') {
+        if (!_.isEmpty(this.req.query.locale)) {
             (<any>this.req.session).locale = this.req.query.locale;
         } else {
             (<any>this.req.session).locale = 'ja';
@@ -179,7 +181,7 @@ export default class ReserveBaseController extends BaseController {
                 // パフォーマンスFIX
                 // tslint:disable-next-line:no-shadowed-variable
                 reservationModel = await this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'));
-            } else if (this.req.query.performance !== undefined && this.req.query.performance !== '') {
+            } else if (!_.isEmpty(this.req.query.performance)) {
                 // パフォーマンス指定遷移の場合
                 // パフォーマンスFIX
                 // tslint:disable-next-line:no-shadowed-variable

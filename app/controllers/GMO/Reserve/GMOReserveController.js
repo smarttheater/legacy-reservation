@@ -13,6 +13,7 @@ const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const moment = require("moment");
 const querystring = require("querystring");
+const _ = require("underscore");
 const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const Util = require("../../../../common/Util/Util");
 const GMOResultModel_1 = require("../../../models/Reserve/GMOResultModel");
@@ -136,7 +137,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
             this.setProcessLogger(paymentNo);
             this.logger.info('gmoResultModel is', gmoResultModel);
             // エラー結果の場合
-            if (gmoResultModel.ErrCode !== undefined && gmoResultModel.ErrCode !== '') {
+            if (!_.isEmpty(gmoResultModel.ErrCode)) {
                 // 空席に戻す
                 try {
                     this.logger.info('finding reservations...payment_no:', paymentNo);

@@ -1,7 +1,7 @@
-import { ReservationUtil } from '@motionpicture/chevre-domain';
-import { ScreenUtil } from '@motionpicture/chevre-domain';
-import { Models } from '@motionpicture/chevre-domain';
+import { Models, ReservationUtil, ScreenUtil } from '@motionpicture/chevre-domain';
 import * as mongoose from 'mongoose';
+import * as _ from 'underscore';
+
 import * as Util from '../../../../common/Util/Util';
 import BaseController from '../../BaseController';
 
@@ -43,14 +43,14 @@ export default class StaffMyPageController extends BaseController {
         }
 
         // tslint:disable-next-line:no-magic-numbers
-        const limit: number = (this.req.query.limit !== undefined && this.req.query.limit !== '') ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
-        const page: number = (this.req.query.page !== undefined && this.req.query.page !== '') ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
-        const day: string | null = (this.req.query.day !== undefined && this.req.query.day !== '') ? this.req.query.day : null;
-        const startTime: string | null = (this.req.query.start_time !== undefined && this.req.query.start_time !== '') ? this.req.query.start_time : null;
-        const theater: string | null = (this.req.query.theater !== undefined && this.req.query.theater !== '') ? this.req.query.theater : null;
-        const film: string | null = (this.req.query.film !== undefined && this.req.query.film !== '') ? this.req.query.film : null;
-        const updater: string | null = (this.req.query.updater !== undefined && this.req.query.updater !== '') ? this.req.query.updater : null;
-        let paymentNo: string | null = (this.req.query.payment_no !== undefined && this.req.query.payment_no !== '') ? this.req.query.payment_no : null;
+        const limit: number = (!_.isEmpty(this.req.query.limit)) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+        const page: number = (!_.isEmpty(this.req.query.page)) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
+        const day: string | null = (!_.isEmpty(this.req.query.day)) ? this.req.query.day : null;
+        const startTime: string | null = (!_.isEmpty(this.req.query.start_time)) ? this.req.query.start_time : null;
+        const theater: string | null = (!_.isEmpty(this.req.query.theater)) ? this.req.query.theater : null;
+        const film: string | null = (!_.isEmpty(this.req.query.film)) ? this.req.query.film : null;
+        const updater: string | null = (!_.isEmpty(this.req.query.updater)) ? this.req.query.updater : null;
+        let paymentNo: string | null = (!_.isEmpty(this.req.query.payment_no)) ? this.req.query.payment_no : null;
 
         // 検索条件を作成
         const conditions: any[] = [];

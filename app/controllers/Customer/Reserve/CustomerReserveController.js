@@ -15,6 +15,7 @@ const chevre_domain_4 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const httpStatus = require("http-status");
 const moment = require("moment");
+const _ = require("underscore");
 const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
@@ -66,7 +67,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
             else {
                 // 期限指定
                 if (moment() < moment(conf.get('datetimes.reservation_start_customers_first'))) {
-                    if (this.req.query.locale !== undefined && this.req.query.locale !== '') {
+                    if (!_.isEmpty(this.req.query.locale)) {
                         this.req.setLocale(this.req.query.locale);
                     }
                     this.next(new Error(this.req.__('Message.OutOfTerm')));
@@ -76,7 +77,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                 if (moment() < moment(conf.get('datetimes.reservation_start_customers_second')) &&
                     moment() > moment(conf.get('datetimes.reservation_start_customers_second')).add(-15, 'minutes') // tslint:disable-line:no-magic-numbers
                 ) {
-                    if (this.req.query.locale !== undefined && this.req.query.locale !== '') {
+                    if (!_.isEmpty(this.req.query.locale)) {
                         this.req.setLocale(this.req.query.locale);
                     }
                     this.next(new Error(this.req.__('Message.OutOfTerm')));
@@ -256,10 +257,10 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     this.res.locals.age = reservationModel.purchaserAge;
                     this.res.locals.address = reservationModel.purchaserAddress;
                     this.res.locals.gender = reservationModel.purchaserGender;
-                    this.res.locals.email = (email !== undefined) ? email : '';
-                    this.res.locals.emailConfirm = (email !== undefined) ? email.substr(0, email.indexOf('@')) : '';
-                    this.res.locals.emailConfirmDomain = (email !== undefined) ? email.substr(email.indexOf('@') + 1) : '';
-                    this.res.locals.paymentMethod = (reservationModel.paymentMethod !== undefined && reservationModel.paymentMethod !== '') ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
+                    this.res.locals.email = (!_.isEmpty(email)) ? email : '';
+                    this.res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
+                    this.res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
+                    this.res.locals.paymentMethod = (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
                     this.res.render('customer/reserve/profile', {
                         reservationModel: reservationModel
                     });

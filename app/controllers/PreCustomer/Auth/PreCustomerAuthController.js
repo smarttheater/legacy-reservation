@@ -11,6 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const moment = require("moment");
+const _ = require("underscore");
 const Util = require("../../../../common/Util/Util");
 const preCustomerLoginForm_1 = require("../../../forms/preCustomer/preCustomerLoginForm");
 const PreCustomerUser_1 = require("../../../models/User/PreCustomerUser");
@@ -82,7 +83,7 @@ class PreCustomerAuthController extends BaseController_1.default {
                         // ログイン
                         this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME] = preCustomer.toObject();
                         this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME].locale = this.req.form.language;
-                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('pre.reserve.start');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('pre.reserve.start');
                         this.res.redirect(cb);
                     }
                     catch (error) {

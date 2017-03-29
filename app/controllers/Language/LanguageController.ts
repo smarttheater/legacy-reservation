@@ -1,3 +1,5 @@
+import * as _ from 'underscore';
+
 import BaseController from '../BaseController';
 
 /**
@@ -15,7 +17,7 @@ export default class LanguageController extends BaseController {
         const locale = this.req.params.locale;
         (<any>this.req.session).locale = locale;
 
-        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : '/';
+        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/';
         this.res.redirect(cb);
     }
 }

@@ -1,4 +1,6 @@
 import { Models } from '@motionpicture/chevre-domain';
+import * as _ from 'underscore';
+
 import * as Util from '../../../../common/Util/Util';
 import sponsorLoginForm from '../../../forms/sponsor/sponsorLoginForm';
 import SponsorUser from '../../../models/User/SponsorUser';
@@ -68,7 +70,7 @@ export default class SponsorAuthController extends BaseController {
                         (<Express.Session>this.req.session)[SponsorUser.AUTH_SESSION_NAME].locale = (<any>this.req.form).language;
 
                         // if exist parameter cb, redirect to cb.
-                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('sponsor.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('sponsor.mypage');
                         this.res.redirect(cb);
                     } catch (error) {
                         this.next(new Error(this.req.__('Message.UnexpectedError')));

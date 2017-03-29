@@ -1,7 +1,7 @@
-import { ReservationUtil } from '@motionpicture/chevre-domain';
-import { ScreenUtil } from '@motionpicture/chevre-domain';
-import { Models } from '@motionpicture/chevre-domain';
+import { Models, ReservationUtil, ScreenUtil } from '@motionpicture/chevre-domain';
 import * as moment from 'moment';
+import * as _ from 'underscore';
+
 import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import * as Util from '../../../../common/Util/Util';
 import BaseController from '../../BaseController';
@@ -31,18 +31,17 @@ export default class WindowMyPageController extends BaseController {
     // tslint:disable-next-line:max-func-body-length cyclomatic-complexity
     public async search(): Promise<void> {
         // tslint:disable-next-line:no-magic-numbers
-        const limit: number = (this.req.query.limit !== undefined && this.req.query.limit !== '') ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
-        const page: number = (this.req.query.page !== undefined && this.req.query.page !== '') ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
-
-        const purchaserGroups: string[] = (this.req.query.purchaser_groups !== undefined && this.req.query.purchaser_groups !== '') ? this.req.query.purchaser_groups.split(',') : [];
-        const purchasedDay: string | null = (this.req.query.purchased_day !== undefined && this.req.query.purchased_day !== '') ? this.req.query.purchased_day : null;
-        let email: string | null = (this.req.query.email !== undefined && this.req.query.email !== '') ? this.req.query.email : null;
-        let tel: string | null = (this.req.query.tel !== undefined && this.req.query.tel !== '') ? this.req.query.tel : null;
-        let purchaserFirstName: string | null = (this.req.query.purchaser_first_name !== undefined && this.req.query.purchaser_first_name !== '') ? this.req.query.purchaser_first_name : null;
-        let purchaserLastName: string | null = (this.req.query.purchaser_last_name !== undefined && this.req.query.purchaser_last_name !== '') ? this.req.query.purchaser_last_name : null;
-        let paymentNo: string | null = (this.req.query.payment_no !== undefined && this.req.query.payment_no !== '') ? this.req.query.payment_no : null;
-        const day: string | null = (this.req.query.day !== undefined && this.req.query.day !== '') ? this.req.query.day : null;
-        let filmName: string | null = (this.req.query.film_name !== undefined && this.req.query.film_name !== '') ? this.req.query.film_name : null;
+        const limit: number = (!_.isEmpty(this.req.query.limit)) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+        const page: number = (!_.isEmpty(this.req.query.page)) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
+        const purchaserGroups: string[] = (!_.isEmpty(this.req.query.purchaser_groups)) ? this.req.query.purchaser_groups.split(',') : [];
+        const purchasedDay: string | null = (!_.isEmpty(this.req.query.purchased_day)) ? this.req.query.purchased_day : null;
+        let email: string | null = (!_.isEmpty(this.req.query.email)) ? this.req.query.email : null;
+        let tel: string | null = (!_.isEmpty(this.req.query.tel)) ? this.req.query.tel : null;
+        let purchaserFirstName: string | null = (!_.isEmpty(this.req.query.purchaser_first_name)) ? this.req.query.purchaser_first_name : null;
+        let purchaserLastName: string | null = (!_.isEmpty(this.req.query.purchaser_last_name)) ? this.req.query.purchaser_last_name : null;
+        let paymentNo: string | null = (!_.isEmpty(this.req.query.payment_no)) ? this.req.query.payment_no : null;
+        const day: string | null = (!_.isEmpty(this.req.query.day)) ? this.req.query.day : null;
+        let filmName: string | null = (!_.isEmpty(this.req.query.film_name)) ? this.req.query.film_name : null;
 
         // 検索条件を作成
         const conditions: any[] = [];

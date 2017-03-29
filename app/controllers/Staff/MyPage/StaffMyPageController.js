@@ -9,8 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const chevre_domain_2 = require("@motionpicture/chevre-domain");
-const chevre_domain_3 = require("@motionpicture/chevre-domain");
+const _ = require("underscore");
 const Util = require("../../../../common/Util/Util");
 const BaseController_1 = require("../../BaseController");
 const DEFAULT_RADIX = 10;
@@ -29,8 +28,8 @@ class StaffMyPageController extends BaseController_1.default {
     index() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const theaters = yield chevre_domain_3.Models.Theater.find({}, 'name', { sort: { _id: 1 } }).exec();
-                const films = yield chevre_domain_3.Models.Film.find({}, 'name', { sort: { _id: 1 } }).exec();
+                const theaters = yield chevre_domain_1.Models.Theater.find({}, 'name', { sort: { _id: 1 } }).exec();
+                const films = yield chevre_domain_1.Models.Film.find({}, 'name', { sort: { _id: 1 } }).exec();
                 this.res.render('staff/mypage/index', {
                     theaters: theaters,
                     films: films
@@ -52,14 +51,14 @@ class StaffMyPageController extends BaseController_1.default {
                 return;
             }
             // tslint:disable-next-line:no-magic-numbers
-            const limit = (this.req.query.limit !== undefined && this.req.query.limit !== '') ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
-            const page = (this.req.query.page !== undefined && this.req.query.page !== '') ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
-            const day = (this.req.query.day !== undefined && this.req.query.day !== '') ? this.req.query.day : null;
-            const startTime = (this.req.query.start_time !== undefined && this.req.query.start_time !== '') ? this.req.query.start_time : null;
-            const theater = (this.req.query.theater !== undefined && this.req.query.theater !== '') ? this.req.query.theater : null;
-            const film = (this.req.query.film !== undefined && this.req.query.film !== '') ? this.req.query.film : null;
-            const updater = (this.req.query.updater !== undefined && this.req.query.updater !== '') ? this.req.query.updater : null;
-            let paymentNo = (this.req.query.payment_no !== undefined && this.req.query.payment_no !== '') ? this.req.query.payment_no : null;
+            const limit = (!_.isEmpty(this.req.query.limit)) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+            const page = (!_.isEmpty(this.req.query.page)) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
+            const day = (!_.isEmpty(this.req.query.day)) ? this.req.query.day : null;
+            const startTime = (!_.isEmpty(this.req.query.start_time)) ? this.req.query.start_time : null;
+            const theater = (!_.isEmpty(this.req.query.theater)) ? this.req.query.theater : null;
+            const film = (!_.isEmpty(this.req.query.film)) ? this.req.query.film : null;
+            const updater = (!_.isEmpty(this.req.query.updater)) ? this.req.query.updater : null;
+            let paymentNo = (!_.isEmpty(this.req.query.payment_no)) ? this.req.query.payment_no : null;
             // 検索条件を作成
             const conditions = [];
             // 管理者の場合、内部関係者の予約全て&確保中
@@ -118,10 +117,10 @@ class StaffMyPageController extends BaseController_1.default {
             }
             try {
                 // 総数検索
-                const count = yield chevre_domain_3.Models.Reservation.count({
+                const count = yield chevre_domain_1.Models.Reservation.count({
                     $and: conditions
                 }).exec();
-                const reservations = yield chevre_domain_3.Models.Reservation.find({ $and: conditions })
+                const reservations = yield chevre_domain_1.Models.Reservation.find({ $and: conditions })
                     .skip(limit * (page - 1))
                     .limit(limit)
                     .lean(true)
@@ -134,7 +133,7 @@ class StaffMyPageController extends BaseController_1.default {
                         return 1;
                     if (a.screen > b.screen)
                         return 1;
-                    return chevre_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                    return chevre_domain_1.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
                 });
                 this.res.json({
                     success: true,
@@ -172,7 +171,7 @@ class StaffMyPageController extends BaseController_1.default {
                 condition.staff = this.req.staffUser.get('_id');
             }
             try {
-                const reservation = yield chevre_domain_3.Models.Reservation.findOneAndUpdate(condition, {
+                const reservation = yield chevre_domain_1.Models.Reservation.findOneAndUpdate(condition, {
                     watcher_name: watcherName,
                     watcher_name_updated_at: Date.now(),
                     staff_signature: this.req.staffUser.get('signature')
@@ -215,7 +214,7 @@ class StaffMyPageController extends BaseController_1.default {
                     return;
                 }
                 try {
-                    yield chevre_domain_3.Models.Reservation.remove({
+                    yield chevre_domain_1.Models.Reservation.remove({
                         performance_day: day,
                         status: chevre_domain_1.ReservationUtil.STATUS_KEPT_BY_CHEVRE
                     }).exec();
@@ -234,7 +233,7 @@ class StaffMyPageController extends BaseController_1.default {
             else {
                 try {
                     // 開放座席情報取得
-                    const reservations = yield chevre_domain_3.Models.Reservation.find({
+                    const reservations = yield chevre_domain_1.Models.Reservation.find({
                         status: chevre_domain_1.ReservationUtil.STATUS_KEPT_BY_CHEVRE
                     }, 'status seat_code performance_day').exec();
                     // 日付ごとに

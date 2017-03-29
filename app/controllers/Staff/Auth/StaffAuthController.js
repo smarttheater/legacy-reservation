@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const _ = require("underscore");
 const Util = require("../../../../common/Util/Util");
 const staffLoginForm_1 = require("../../../forms/staff/staffLoginForm");
 const StaffUser_1 = require("../../../models/User/StaffUser");
@@ -70,7 +71,7 @@ class StaffAuthController extends BaseController_1.default {
                         this.req.session[StaffUser_1.default.AUTH_SESSION_NAME] = staff.toObject();
                         this.req.session[StaffUser_1.default.AUTH_SESSION_NAME].signature = form.signature;
                         this.req.session[StaffUser_1.default.AUTH_SESSION_NAME].locale = form.language;
-                        const cb = (this.req.query.cb !== undefined && this.req.query.cb !== '') ? this.req.query.cb : this.router.build('staff.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('staff.mypage');
                         this.res.redirect(cb);
                     }
                     catch (error) {

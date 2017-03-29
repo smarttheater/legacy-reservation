@@ -9,8 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const chevre_domain_2 = require("@motionpicture/chevre-domain");
-const chevre_domain_3 = require("@motionpicture/chevre-domain");
+const _ = require("underscore");
 const Util = require("../../../../common/Util/Util");
 const BaseController_1 = require("../../BaseController");
 const DEFAULT_RADIX = 10;
@@ -39,11 +38,11 @@ class SponsorMyPageController extends BaseController_1.default {
                 return;
             }
             // tslint:disable-next-line:no-magic-numbers
-            const limit = (this.req.query.limit !== undefined && this.req.query.limit !== '') ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
-            const page = (this.req.query.page !== undefined && this.req.query.page !== '') ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
-            const tel = (this.req.query.tel !== undefined && this.req.query.tel !== '') ? this.req.query.tel : null;
-            const purchaserName = (this.req.query.purchaser_name !== undefined && this.req.query.purchaser_name !== '') ? this.req.query.purchaser_name : null;
-            let paymentNo = (this.req.query.payment_no !== undefined && this.req.query.payment_no !== '') ? this.req.query.payment_no : null;
+            const limit = (!_.isEmpty(this.req.query.limit)) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : 10;
+            const page = (!_.isEmpty(this.req.query.page)) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
+            const tel = (!_.isEmpty(this.req.query.tel)) ? this.req.query.tel : null;
+            const purchaserName = (!_.isEmpty(this.req.query.purchaser_name)) ? this.req.query.purchaser_name : null;
+            let paymentNo = (!_.isEmpty(this.req.query.payment_no)) ? this.req.query.payment_no : null;
             // 検索条件を作成
             const conditions = [];
             conditions.push({
@@ -79,10 +78,10 @@ class SponsorMyPageController extends BaseController_1.default {
             }
             try {
                 // 総数検索
-                const count = yield chevre_domain_3.Models.Reservation.count({
+                const count = yield chevre_domain_1.Models.Reservation.count({
                     $and: conditions
                 }).exec();
-                const reservations = yield chevre_domain_3.Models.Reservation.find({ $and: conditions })
+                const reservations = yield chevre_domain_1.Models.Reservation.find({ $and: conditions })
                     .skip(limit * (page - 1))
                     .limit(limit)
                     .lean(true)
@@ -95,7 +94,7 @@ class SponsorMyPageController extends BaseController_1.default {
                         return 1;
                     if (a.screen > b.screen)
                         return 1;
-                    return chevre_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                    return chevre_domain_1.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
                 });
                 this.res.json({
                     success: true,
