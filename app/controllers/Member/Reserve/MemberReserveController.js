@@ -166,7 +166,8 @@ class MemberReserveController extends ReserveBaseController_1.default {
                     this.res.locals.email = (!_.isEmpty(email)) ? email : '';
                     this.res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
                     this.res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
-                    this.res.locals.paymentMethod = (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
+                    this.res.locals.paymentMethod =
+                        (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
                     this.res.render('member/reserve/profile', {
                         reservationModel: reservationModel
                     });

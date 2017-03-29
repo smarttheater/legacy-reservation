@@ -39,7 +39,9 @@ class PreCustomerAuthController extends BaseController_1.default {
         else {
             // 期限指定
             const now = moment();
-            if (now < moment(conf.get('datetimes.reservation_start_pre_customers')) || moment(conf.get('datetimes.reservation_end_pre_customers')) < now) {
+            const dateStartPreCustomerReservation = moment(conf.get('datetimes.reservation_start_pre_customers'));
+            const dateEndPreCustomerReservation = moment(conf.get('datetimes.reservation_end_pre_customers'));
+            if (now < dateStartPreCustomerReservation || dateEndPreCustomerReservation < now) {
                 this.res.render('preCustomer/reserve/outOfTerm', { layout: false });
                 return;
             }

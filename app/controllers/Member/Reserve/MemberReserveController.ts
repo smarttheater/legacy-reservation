@@ -163,7 +163,8 @@ export default class MemberReserveController extends ReserveBaseController imple
                 this.res.locals.email = (!_.isEmpty(email)) ? email : '';
                 this.res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
                 this.res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
-                this.res.locals.paymentMethod = (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
+                this.res.locals.paymentMethod =
+                    (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
 
                 this.res.render('member/reserve/profile', {
                     reservationModel: reservationModel
@@ -192,7 +193,10 @@ export default class MemberReserveController extends ReserveBaseController imple
                     reservationModel = await this.processConfirm(reservationModel);
                     await reservationModel.save();
                     this.logger.info('starting GMO payment...');
-                    this.res.redirect((<any>httpStatus).PERMANENT_REDIRECT, this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`);
+                    this.res.redirect(
+                        (<any>httpStatus).PERMANENT_REDIRECT,
+                        this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`
+                    );
                 } catch (error) {
                     await reservationModel.remove();
                     this.next(error);

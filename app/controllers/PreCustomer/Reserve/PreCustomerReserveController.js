@@ -46,7 +46,9 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
             else {
                 // 期限指定
                 const now = moment();
-                if (now < moment(conf.get('datetimes.reservation_start_pre_customers')) || moment(conf.get('datetimes.reservation_end_pre_customers')) < now) {
+                const dateStartPreCustomerReservation = moment(conf.get('datetimes.reservation_start_pre_customers'));
+                const dateEndPreCustomerReservation = moment(conf.get('datetimes.reservation_end_pre_customers'));
+                if (now < dateStartPreCustomerReservation || dateEndPreCustomerReservation < now) {
                     this.res.render('preCustomer/reserve/outOfTerm', { layout: false });
                     return;
                 }
@@ -329,7 +331,8 @@ class PreCustomerReserveController extends ReserveBaseController_1.default {
                     this.res.locals.email = (!_.isEmpty(email)) ? email : '';
                     this.res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
                     this.res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
-                    this.res.locals.paymentMethod = (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
+                    this.res.locals.paymentMethod =
+                        (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
                     this.res.render('preCustomer/reserve/profile', {
                         reservationModel: reservationModel
                     });

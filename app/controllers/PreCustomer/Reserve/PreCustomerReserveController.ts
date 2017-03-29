@@ -36,7 +36,9 @@ export default class PreCustomerReserveController extends ReserveBaseController 
         } else {
             // 期限指定
             const now = moment();
-            if (now < moment(conf.get<string>('datetimes.reservation_start_pre_customers')) || moment(conf.get<string>('datetimes.reservation_end_pre_customers')) < now) {
+            const dateStartPreCustomerReservation = moment(conf.get<string>('datetimes.reservation_start_pre_customers'));
+            const dateEndPreCustomerReservation = moment(conf.get<string>('datetimes.reservation_end_pre_customers'));
+            if (now < dateStartPreCustomerReservation || dateEndPreCustomerReservation < now) {
                 this.res.render('preCustomer/reserve/outOfTerm', { layout: false });
                 return;
             }
@@ -121,7 +123,10 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                         if (this.req.form !== undefined && this.req.form.isValid) {
                             // パフォーマンスFIX
                             try {
-                                reservationModel = await this.processFixPerformance(<ReservationModel>reservationModel, (<any>this.req.form).performanceId);
+                                reservationModel = await this.processFixPerformance(
+                                    <ReservationModel>reservationModel,
+                                    (<any>this.req.form).performanceId
+                                );
                                 await reservationModel.save();
                                 this.res.redirect(this.router.build('pre.reserve.seats', { token: token }));
                             } catch (error) {
@@ -216,7 +221,9 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                         if (seatCodes.length > limit) {
                             lockFile.unlockSync(lockPath);
                             const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                            this.res.redirect(`${this.router.build('pre.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                            this.res.redirect(
+                                `${this.router.build('pre.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
+                            );
                             return;
                         }
 
@@ -238,7 +245,9 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                         } catch (error) {
                             await reservationModel.save();
                             const message = this.req.__('Message.SelectedSeatsUnavailable');
-                            this.res.redirect(`${this.router.build('pre.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                            this.res.redirect(
+                                `${this.router.build('pre.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
+                            );
                         }
                     } else {
                         lockFile.unlock(lockPath, () => {
@@ -327,7 +336,8 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                 this.res.locals.email = (!_.isEmpty(email)) ? email : '';
                 this.res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
                 this.res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
-                this.res.locals.paymentMethod = (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
+                this.res.locals.paymentMethod =
+                    (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
 
                 this.res.render('preCustomer/reserve/profile', {
                     reservationModel: reservationModel
@@ -356,7 +366,10 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                     reservationModel = await this.processConfirm(reservationModel);
                     await reservationModel.save();
                     this.logger.info('starting GMO payment...');
-                    this.res.redirect((<any>httpStatus).PERMANENT_REDIRECT, this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`);
+                    this.res.redirect(
+                        (<any>httpStatus).PERMANENT_REDIRECT,
+                        this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`
+                    );
                 } catch (error) {
                     await reservationModel.remove();
                     this.next(error);

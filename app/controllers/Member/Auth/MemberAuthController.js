@@ -33,7 +33,9 @@ class MemberAuthController extends BaseController_1.default {
     login() {
         // 期限指定
         const now = moment();
-        if (now < moment(conf.get('datetimes.reservation_start_members')) || moment(conf.get('datetimes.reservation_end_members')) < now) {
+        const dateStartMemberReservation = moment(conf.get('datetimes.reservation_start_members'));
+        const dateEndMemberReservation = moment(conf.get('datetimes.reservation_end_members'));
+        if (now < dateStartMemberReservation || dateEndMemberReservation < now) {
             this.next(new Error(this.req.__('Message.OutOfTerm')));
             return;
         }

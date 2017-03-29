@@ -28,7 +28,9 @@ export default class PreCustomerAuthController extends BaseController {
         } else {
             // 期限指定
             const now = moment();
-            if (now < moment(conf.get<string>('datetimes.reservation_start_pre_customers')) || moment(conf.get<string>('datetimes.reservation_end_pre_customers')) < now) {
+            const dateStartPreCustomerReservation = moment(conf.get<string>('datetimes.reservation_start_pre_customers'));
+            const dateEndPreCustomerReservation = moment(conf.get<string>('datetimes.reservation_end_pre_customers'));
+            if (now < dateStartPreCustomerReservation || dateEndPreCustomerReservation < now) {
                 this.res.render('preCustomer/reserve/outOfTerm', { layout: false });
                 return;
             }
@@ -53,14 +55,18 @@ export default class PreCustomerAuthController extends BaseController {
                         ).exec();
 
                         if (preCustomer === null) {
-                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            form.errors.push(
+                                this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') })
+                            );
                             this.res.render('preCustomer/auth/login');
                             return;
                         }
 
                         // パスワードチェック
                         if (preCustomer.get('password_hash') !== Util.createHash((<any>form).password, preCustomer.get('password_salt'))) {
-                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
+                            form.errors.push(
+                                this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') })
+                            );
                             this.res.render('preCustomer/auth/login');
                             return;
                         }
@@ -76,7 +82,10 @@ export default class PreCustomerAuthController extends BaseController {
                                 }
                             );
                             // tslint:disable-next-line:no-cookies
-                            this.res.cookie('remember_pre_customer', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                            this.res.cookie(
+                                'remember_pre_customer',
+                                authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 }
+                            );
                         }
 
                         // ログイン
