@@ -75,8 +75,8 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                 }
                 // 2次販売10分前より閉める
                 if (moment() < moment(conf.get('datetimes.reservation_start_customers_second')) &&
-                    moment() > moment(conf.get('datetimes.reservation_start_customers_second')).add(-15, 'minutes') // tslint:disable-line:no-magic-numbers
-                ) {
+                    // tslint:disable-next-line:no-magic-numbers
+                    moment() > moment(conf.get('datetimes.reservation_start_customers_second')).add(-15, 'minutes')) {
                     if (!_.isEmpty(this.req.query.locale)) {
                         this.req.setLocale(this.req.query.locale);
                     }
@@ -94,7 +94,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     // 今回は必ずパフォーマンス指定で遷移してくるはず
                     this.next(new Error(this.req.__('Message.UnexpectedError')));
                     // reservationModel.save(() => {
-                    //     this.res.redirect(this.router.build('customer.reserve.performances', {token: reservationModel.token}));
+                    //     this.res.redirect(this.router.build('customer.reserve.performances', {token: token}));
                     // });
                 }
             }
@@ -148,7 +148,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                             // 追加指定席を合わせて制限枚数を超過した場合
                             if (seatCodes.length > limit) {
                                 const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                                this.res.redirect(`${this.router.build('customer.reserve.seats', { token: reservationModel.token })}?message=${encodeURIComponent(message)}`);
+                                this.res.redirect(`${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
                             }
                             else {
                                 // 仮予約あればキャンセルする
@@ -164,17 +164,19 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                                     reservationModel = yield this.processFixSeats(reservationModel, seatCodes);
                                     yield reservationModel.save();
                                     // 券種選択へ
-                                    this.res.redirect(this.router.build('customer.reserve.tickets', { token: reservationModel.token }));
+                                    this.res.redirect(this.router.build('customer.reserve.tickets', { token: token }));
                                 }
                                 catch (error) {
                                     yield reservationModel.save();
                                     const message = this.req.__('Message.SelectedSeatsUnavailable');
-                                    this.res.redirect(`${this.router.build('customer.reserve.seats', { token: reservationModel.token })}?message=${encodeURIComponent(message)}`);
+                                    let url = this.router.build('customer.reserve.seats', { token: token });
+                                    url += '?message=' + encodeURIComponent(message);
+                                    this.res.redirect(url);
                                 }
                             }
                         }
                         else {
-                            this.res.redirect(this.router.build('customer.reserve.seats', { token: reservationModel.token }));
+                            this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
                         }
                     }));
                 }
@@ -207,10 +209,10 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     try {
                         reservationModel = yield this.processFixTickets(reservationModel);
                         yield reservationModel.save();
-                        this.res.redirect(this.router.build('customer.reserve.profile', { token: reservationModel.token }));
+                        this.res.redirect(this.router.build('customer.reserve.profile', { token: token }));
                     }
                     catch (error) {
-                        this.res.redirect(this.router.build('customer.reserve.tickets', { token: reservationModel.token }));
+                        this.res.redirect(this.router.build('customer.reserve.tickets', { token: token }));
                     }
                 }
                 else {
@@ -240,7 +242,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     try {
                         reservationModel = yield this.processFixProfile(reservationModel);
                         yield reservationModel.save();
-                        this.res.redirect(this.router.build('customer.reserve.confirm', { token: reservationModel.token }));
+                        this.res.redirect(this.router.build('customer.reserve.confirm', { token: token }));
                     }
                     catch (error) {
                         this.res.render('customer/reserve/profile', {
@@ -260,7 +262,8 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     this.res.locals.email = (!_.isEmpty(email)) ? email : '';
                     this.res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
                     this.res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
-                    this.res.locals.paymentMethod = (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
+                    this.res.locals.paymentMethod =
+                        (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
                     this.res.render('customer/reserve/profile', {
                         reservationModel: reservationModel
                     });
@@ -290,7 +293,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                         this.logger.info('starting GMO payment...');
                         // httpStatusの型定義不足のためanyにキャスト
                         // todo 一時的対処なので解決する
-                        this.res.redirect(httpStatus.PERMANENT_REDIRECT, this.router.build('gmo.reserve.start', { token: reservationModel.token }) + `?locale=${this.req.getLocale()}`);
+                        this.res.redirect(httpStatus.PERMANENT_REDIRECT, this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`);
                     }
                     catch (error) {
                         yield reservationModel.remove();

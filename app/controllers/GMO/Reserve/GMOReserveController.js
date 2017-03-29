@@ -14,6 +14,7 @@ const conf = require("config");
 const moment = require("moment");
 const querystring = require("querystring");
 const _ = require("underscore");
+const util = require("util");
 const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const Util = require("../../../../common/Util/Util");
 const GMOResultModel_1 = require("../../../models/Reserve/GMOResultModel");
@@ -94,11 +95,16 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 }
                 // tslint:disable-next-line:no-magic-numbers
                 this.res.locals.registerDisp1 = registerDisp1.mbSubstr(0, 32);
-                // tslint:disable-next-line:no-magic-numbers
-                this.res.locals.registerDisp2 = Util.toFullWidth(`${reservationModel.performance.day.substr(0, 4)}／${reservationModel.performance.day.substr(4, 2)}／${reservationModel.performance.day.substr(6)}`);
+                this.res.locals.registerDisp2 = Util.toFullWidth(util.format('%s／%s／%s', reservationModel.performance.day.substr(0, 4), // tslint:disable-line:no-magic-numbers
+                reservationModel.performance.day.substr(4, 2), // tslint:disable-line:no-magic-numbers
+                reservationModel.performance.day.substr(6) // tslint:disable-line:no-magic-numbers
+                ));
                 this.res.locals.registerDisp3 = Util.toFullWidth(reservationModel.performance.theater.name.ja);
-                // tslint:disable-next-line:no-magic-numbers
-                this.res.locals.registerDisp4 = Util.toFullWidth(`開場${reservationModel.performance.open_time.substr(0, 2)}:${reservationModel.performance.open_time.substr(2)}　開演${reservationModel.performance.start_time.substr(0, 2)}:${reservationModel.performance.start_time.substr(2)}`);
+                this.res.locals.registerDisp4 = Util.toFullWidth(util.format('開場%s:%s　開演%s:%s', reservationModel.performance.open_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
+                reservationModel.performance.open_time.substr(2), // tslint:disable-line:no-magic-numbers
+                reservationModel.performance.start_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
+                reservationModel.performance.start_time.substr(2) // tslint:disable-line:no-magic-numbers
+                ));
                 this.res.locals.shopId = conf.get('gmo_payment_shop_id');
                 this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(購入番号を使用)
                 this.res.locals.amount = reservationModel.getTotalCharge().toString();
@@ -106,9 +112,9 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
                 this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
                 this.res.locals.shopPassString = GMOUtil.createShopPassString(conf.get('gmo_payment_shop_id'), this.res.locals.orderID, this.res.locals.amount, conf.get('gmo_payment_shop_password'), this.res.locals.dateTime);
-                this.res.locals.retURL = `${process.env.FRONTEND_GMO_RESULT_ENDPOINT}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
+                this.res.locals.retURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, this.router.build('gmo.reserve.result'), this.req.getLocale());
                 // 決済キャンセル時に遷移する加盟店URL
-                this.res.locals.cancelURL = `${process.env.FRONTEND_GMO_RESULT_ENDPOINT}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;
+                this.res.locals.cancelURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo }), this.req.getLocale());
                 this.logger.info('redirecting to GMO payment...');
                 // GMOへの送信データをログに残すために、一度htmlを取得してからrender
                 this.res.render('gmo/reserve/start', undefined, (renderErr, html) => {

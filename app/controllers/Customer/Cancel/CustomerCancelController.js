@@ -16,6 +16,7 @@ const log4js = require("log4js");
 const moment = require("moment");
 const numeral = require("numeral");
 const sendgrid = require("sendgrid");
+const util = require("util");
 const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const customerCancelForm_1 = require("../../../forms/customer/customerCancelForm");
 const BaseController_1 = require("../../BaseController");
@@ -197,7 +198,7 @@ class CustomerCancelController extends BaseController_1.default {
                         }
                     }));
                     // クレジットカードの場合、GMO取消しを行えば通知で空席になる(この方法は保留)
-                    // // 取引状態参照
+                    // 取引状態参照
                     // this.logger.info('SearchTrade processing...');
                     // request.post({
                     //     url: 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
@@ -208,11 +209,24 @@ class CustomerCancelController extends BaseController_1.default {
                     //     }
                     // }, (error, response, body) => {
                     //     this.logger.info('SearchTrade processed', error, body);
-                    //     if (error) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
-                    //     if (response.statusCode !== 200) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                    //     if (error) {
+                    //         this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                    //         return;
+                    //     }
+                    //     if (response.statusCode !== 200) {
+                    //         this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                    //         return;
+                    //     }
                     //     let searchTradeResult = querystring.parse(body);
-                    //     if (searchTradeResult['ErrCode']) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
-                    //     if (searchTradeResult.Status !== GMOUtil.STATUS_CREDIT_CAPTURE) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')}); // 即時売上状態のみ先へ進める
+                    //     if (searchTradeResult['ErrCode']) {
+                    //         this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                    //         return;
+                    //     }
+                    //     // 即時売上状態のみ先へ進める
+                    //     if (searchTradeResult.Status !== GMOUtil.STATUS_CREDIT_CAPTURE) {
+                    //         this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                    //         return;
+                    //     }
                     //     this.logger.info('searchTradeResult is ', searchTradeResult);
                     //     // 決済変更
                     //     this.logger.info('AlterTran processing...');
@@ -227,16 +241,25 @@ class CustomerCancelController extends BaseController_1.default {
                     //         }
                     //     }, (error, response, body) => {
                     //         this.logger.info('AlterTran processed', error, body);
-                    //         if (error) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
-                    //         if (response.statusCode !== 200) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                    //         if (error) {
+                    //             this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                    //             return;
+                    //         }
+                    //         if (response.statusCode !== 200) {
+                    //             this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                    //             return;
+                    //         }
                     //         let alterTranResult = querystring.parse(body);
-                    //         if (alterTranResult['ErrCode']) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                    //         if (alterTranResult['ErrCode']) {
+                    //             this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                    //             return;
+                    //         }
                     //         this.logger.info('alterTranResult is ', alterTranResult);
                     //     });
                     // });
-                    // コンビニ決済の場合
                 }
                 else if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) {
+                    // コンビニ決済の場合
                     this.res.json({
                         success: false,
                         message: 'A system error has occurred. Please try again later. Sorry for the inconvenience'
@@ -294,7 +317,8 @@ function validate(reservations) {
  */
 function sendEmail(to, html) {
     return __awaiter(this, void 0, void 0, function* () {
-        const mail = new sendgrid.mail.Mail(new sendgrid.mail.Email(conf.get('email.from'), conf.get('email.fromname')), `${(process.env.NODE_ENV !== 'production') ? `[${process.env.NODE_ENV}]` : ''}CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ Notice of Completion of Cancel for CHEVRE Tickets`, new sendgrid.mail.Email(to), new sendgrid.mail.Content('text/html', html));
+        const subject = util.format('%s%s %s', (process.env.NODE_ENV !== 'production') ? `[${process.env.NODE_ENV}]` : '', 'CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ', 'Notice of Completion of Cancel for CHEVRE Tickets');
+        const mail = new sendgrid.mail.Mail(new sendgrid.mail.Email(conf.get('email.from'), conf.get('email.fromname')), subject, new sendgrid.mail.Email(to), new sendgrid.mail.Content('text/html', html));
         // logo
         const attachment = new sendgrid.mail.Attachment();
         attachment.setFilename('logo.png');

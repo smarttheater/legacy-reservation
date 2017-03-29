@@ -7,6 +7,8 @@ import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as numeral from 'numeral';
 import * as sendgrid from 'sendgrid';
+import * as util from 'util';
+
 import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import customerCancelForm from '../../../forms/customer/customerCancelForm';
 import BaseController from '../../BaseController';
@@ -215,7 +217,7 @@ export default class CustomerCancelController extends BaseController {
                 );
 
                 // クレジットカードの場合、GMO取消しを行えば通知で空席になる(この方法は保留)
-                // // 取引状態参照
+                // 取引状態参照
                 // this.logger.info('SearchTrade processing...');
                 // request.post({
                 //     url: 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
@@ -226,11 +228,24 @@ export default class CustomerCancelController extends BaseController {
                 //     }
                 // }, (error, response, body) => {
                 //     this.logger.info('SearchTrade processed', error, body);
-                //     if (error) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
-                //     if (response.statusCode !== 200) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                //     if (error) {
+                //         this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                //         return;
+                //     }
+                //     if (response.statusCode !== 200) {
+                //         this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                //         return;
+                //     }
                 //     let searchTradeResult = querystring.parse(body);
-                //     if (searchTradeResult['ErrCode']) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
-                //     if (searchTradeResult.Status !== GMOUtil.STATUS_CREDIT_CAPTURE) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')}); // 即時売上状態のみ先へ進める
+                //     if (searchTradeResult['ErrCode']) {
+                //         this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                //         return;
+                //     }
+                //     // 即時売上状態のみ先へ進める
+                //     if (searchTradeResult.Status !== GMOUtil.STATUS_CREDIT_CAPTURE) {
+                //         this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                //         return;
+                //     }
 
                 //     this.logger.info('searchTradeResult is ', searchTradeResult);
 
@@ -247,16 +262,25 @@ export default class CustomerCancelController extends BaseController {
                 //         }
                 //     }, (error, response, body) => {
                 //         this.logger.info('AlterTran processed', error, body);
-                //         if (error) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
-                //         if (response.statusCode !== 200) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                //         if (error) {
+                //             this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                //             return;
+                //         }
+                //         if (response.statusCode !== 200) {
+                //             this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                //             return;
+                //         }
                 //         let alterTranResult = querystring.parse(body);
-                //         if (alterTranResult['ErrCode']) return this.res.json({success: false, message: this.req.__('Message.UnexpectedError')});
+                //         if (alterTranResult['ErrCode']) {
+                //             this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
+                //             return;
+                //         }
 
                 //         this.logger.info('alterTranResult is ', alterTranResult);
                 //     });
                 // });
-                // コンビニ決済の場合
             } else if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) {
+                // コンビニ決済の場合
                 this.res.json({
                     success: false,
                     message: 'A system error has occurred. Please try again later. Sorry for the inconvenience'
@@ -312,9 +336,15 @@ async function validate(reservations: mongoose.Document[]): Promise<void> {
  * @ignore
  */
 async function sendEmail(to: string, html: string): Promise<void> {
+    const subject = util.format(
+        '%s%s %s',
+        (process.env.NODE_ENV !== 'production') ? `[${process.env.NODE_ENV}]` : '',
+        'CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ',
+        'Notice of Completion of Cancel for CHEVRE Tickets'
+    );
     const mail = new sendgrid.mail.Mail(
         new sendgrid.mail.Email(conf.get<string>('email.from'), conf.get<string>('email.fromname')),
-        `${(process.env.NODE_ENV !== 'production') ? `[${process.env.NODE_ENV}]` : ''}CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ Notice of Completion of Cancel for CHEVRE Tickets`,
+        subject,
         new sendgrid.mail.Email(to),
         new sendgrid.mail.Content('text/html', html)
     );

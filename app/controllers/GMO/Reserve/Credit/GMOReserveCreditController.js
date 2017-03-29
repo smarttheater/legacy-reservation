@@ -12,6 +12,7 @@ const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const crypto = require("crypto");
+const util = require("util");
 const ReserveBaseController_1 = require("../../../ReserveBaseController");
 /**
  * GMOクレジットカード決済コントローラー
@@ -53,9 +54,8 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                 }
                 // チェック文字列
                 // 8 ＋ 9 ＋ 10 ＋ 11 ＋ 12 ＋ 13 ＋ 14 ＋ ショップパスワード
-                const md5hash = crypto.createHash('md5');
-                md5hash.update(`${gmoResultModel.OrderID}${gmoResultModel.Forwarded}${gmoResultModel.Method}${gmoResultModel.PayTimes}${gmoResultModel.Approve}${gmoResultModel.TranID}${gmoResultModel.TranDate}${conf.get('gmo_payment_shop_password')}`, 'utf8');
-                const checkString = md5hash.digest('hex');
+                const data2cipher = util.format('%s%s%s%s%s%s%s%s', gmoResultModel.OrderID, gmoResultModel.Forwarded, gmoResultModel.Method, gmoResultModel.PayTimes, gmoResultModel.Approve, gmoResultModel.TranID, gmoResultModel.TranDate, conf.get('gmo_payment_shop_password'));
+                const checkString = crypto.createHash('md5').update(data2cipher, 'utf8').digest('hex');
                 this.logger.info('CheckString must be ', checkString);
                 if (checkString !== gmoResultModel.CheckString) {
                     throw new Error(this.req.__('Message.UnexpectedError'));

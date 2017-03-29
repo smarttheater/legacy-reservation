@@ -1,9 +1,9 @@
-import { Models } from '@motionpicture/chevre-domain';
-import { ReservationUtil } from '@motionpicture/chevre-domain';
-import { ReservationEmailCueUtil } from '@motionpicture/chevre-domain';
+import { Models, ReservationEmailCueUtil, ReservationUtil } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as crypto from 'crypto';
 import * as mongoose from 'mongoose';
+import * as util from 'util';
+
 import GMOResultModel from '../../../../models/Reserve/GMOResultModel';
 import ReserveBaseController from '../../../ReserveBaseController';
 
@@ -18,6 +18,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
     /**
      * GMOからの結果受信
      */
+    // tslint:disable-next-line:max-func-body-length
     public async result(gmoResultModel: GMOResultModel) {
         // 内容の整合性チェック
         let reservations: mongoose.Document[] = [];
@@ -36,10 +37,17 @@ export default class GMOReserveCvsController extends ReserveBaseController {
             }
             // チェック文字列
             // 8 ＋ 23 ＋ 24 ＋ 25 ＋ 39 + 14 ＋ショップパスワード
-            const md5hash = crypto.createHash('md5');
-            md5hash.update(`${gmoResultModel.OrderID}${gmoResultModel.CvsCode}${gmoResultModel.CvsConfNo}${gmoResultModel.CvsReceiptNo}${gmoResultModel.PaymentTerm}${gmoResultModel.TranDate}${conf.get<string>('gmo_payment_shop_password')}`, 'utf8');
-            const checkString = md5hash.digest('hex');
-
+            const data2cipher = util.format(
+                '%s%s%s%s%s%s%s',
+                gmoResultModel.OrderID,
+                gmoResultModel.CvsCode,
+                gmoResultModel.CvsConfNo,
+                gmoResultModel.CvsReceiptNo,
+                gmoResultModel.PaymentTerm,
+                gmoResultModel.TranDate,
+                conf.get<string>('gmo_payment_shop_password')
+            );
+            const checkString = crypto.createHash('md5').update(data2cipher, 'utf8').digest('hex');
             this.logger.info('CheckString must be ', checkString);
             if (checkString !== gmoResultModel.CheckString) {
                 throw new Error(this.req.__('Message.UnexpectedError'));

@@ -4,6 +4,7 @@ import * as conf from 'config';
 import * as moment from 'moment';
 import * as querystring from 'querystring';
 import * as _ from 'underscore';
+import * as util from 'util';
 
 import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import * as Util from '../../../../common/Util/Util';
@@ -95,11 +96,25 @@ export default class GMOReserveController extends ReserveBaseController {
 
             // tslint:disable-next-line:no-magic-numbers
             this.res.locals.registerDisp1 = (<any>registerDisp1).mbSubstr(0, 32);
-            // tslint:disable-next-line:no-magic-numbers
-            this.res.locals.registerDisp2 = Util.toFullWidth(`${reservationModel.performance.day.substr(0, 4)}／${reservationModel.performance.day.substr(4, 2)}／${reservationModel.performance.day.substr(6)}`);
+
+            this.res.locals.registerDisp2 = Util.toFullWidth(
+                util.format(
+                    '%s／%s／%s',
+                    reservationModel.performance.day.substr(0, 4), // tslint:disable-line:no-magic-numbers
+                    reservationModel.performance.day.substr(4, 2), // tslint:disable-line:no-magic-numbers
+                    reservationModel.performance.day.substr(6) // tslint:disable-line:no-magic-numbers
+                )
+            );
             this.res.locals.registerDisp3 = Util.toFullWidth(reservationModel.performance.theater.name.ja);
-            // tslint:disable-next-line:no-magic-numbers
-            this.res.locals.registerDisp4 = Util.toFullWidth(`開場${reservationModel.performance.open_time.substr(0, 2)}:${reservationModel.performance.open_time.substr(2)}　開演${reservationModel.performance.start_time.substr(0, 2)}:${reservationModel.performance.start_time.substr(2)}`);
+            this.res.locals.registerDisp4 = Util.toFullWidth(
+                util.format(
+                    '開場%s:%s　開演%s:%s',
+                    reservationModel.performance.open_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
+                    reservationModel.performance.open_time.substr(2), // tslint:disable-line:no-magic-numbers
+                    reservationModel.performance.start_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
+                    reservationModel.performance.start_time.substr(2) // tslint:disable-line:no-magic-numbers
+                )
+            );
 
             this.res.locals.shopId = conf.get<string>('gmo_payment_shop_id');
             this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(購入番号を使用)
@@ -115,9 +130,19 @@ export default class GMOReserveController extends ReserveBaseController {
                 this.res.locals.dateTime
             );
 
-            this.res.locals.retURL = `${process.env.FRONTEND_GMO_RESULT_ENDPOINT}${this.router.build('gmo.reserve.result')}?locale=${this.req.getLocale()}`;
+            this.res.locals.retURL = util.format(
+                '%s%s?locale=%s',
+                process.env.FRONTEND_GMO_RESULT_ENDPOINT,
+                this.router.build('gmo.reserve.result'),
+                this.req.getLocale()
+            );
             // 決済キャンセル時に遷移する加盟店URL
-            this.res.locals.cancelURL = `${process.env.FRONTEND_GMO_RESULT_ENDPOINT}${this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo })}?locale=${this.req.getLocale()}`;
+            this.res.locals.cancelURL = util.format(
+                '%s%s?locale=%s',
+                process.env.FRONTEND_GMO_RESULT_ENDPOINT,
+                this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo }),
+                this.req.getLocale()
+            );
 
             this.logger.info('redirecting to GMO payment...');
             // GMOへの送信データをログに残すために、一度htmlを取得してからrender

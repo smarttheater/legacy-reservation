@@ -9,10 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const chevre_domain_2 = require("@motionpicture/chevre-domain");
-const chevre_domain_3 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const crypto = require("crypto");
+const util = require("util");
 const ReserveBaseController_1 = require("../../../ReserveBaseController");
 /**
  * GMOコンビニ決済コントローラー
@@ -25,6 +24,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
     /**
      * GMOからの結果受信
      */
+    // tslint:disable-next-line:max-func-body-length
     result(gmoResultModel) {
         return __awaiter(this, void 0, void 0, function* () {
             // 内容の整合性チェック
@@ -40,9 +40,8 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                 }
                 // チェック文字列
                 // 8 ＋ 23 ＋ 24 ＋ 25 ＋ 39 + 14 ＋ショップパスワード
-                const md5hash = crypto.createHash('md5');
-                md5hash.update(`${gmoResultModel.OrderID}${gmoResultModel.CvsCode}${gmoResultModel.CvsConfNo}${gmoResultModel.CvsReceiptNo}${gmoResultModel.PaymentTerm}${gmoResultModel.TranDate}${conf.get('gmo_payment_shop_password')}`, 'utf8');
-                const checkString = md5hash.digest('hex');
+                const data2cipher = util.format('%s%s%s%s%s%s%s', gmoResultModel.OrderID, gmoResultModel.CvsCode, gmoResultModel.CvsConfNo, gmoResultModel.CvsReceiptNo, gmoResultModel.PaymentTerm, gmoResultModel.TranDate, conf.get('gmo_payment_shop_password'));
+                const checkString = crypto.createHash('md5').update(data2cipher, 'utf8').digest('hex');
                 this.logger.info('CheckString must be ', checkString);
                 if (checkString !== gmoResultModel.CheckString) {
                     throw new Error(this.req.__('Message.UnexpectedError'));
@@ -77,10 +76,10 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                 this.logger.info('creating reservationEmailCue...');
                 const cue = yield chevre_domain_1.Models.ReservationEmailCue.findOneAndUpdate({
                     payment_no: gmoResultModel.OrderID,
-                    template: chevre_domain_3.ReservationEmailCueUtil.TEMPLATE_TEMPORARY
+                    template: chevre_domain_1.ReservationEmailCueUtil.TEMPLATE_TEMPORARY
                 }, {
                     $set: { updated_at: Date.now() },
-                    $setOnInsert: { status: chevre_domain_3.ReservationEmailCueUtil.STATUS_UNSENT }
+                    $setOnInsert: { status: chevre_domain_1.ReservationEmailCueUtil.STATUS_UNSENT }
                 }, {
                     upsert: true,
                     new: true
@@ -94,7 +93,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
             // 購入者区分による振り分け
             const group = reservations[0].get('purchaser_group');
             switch (group) {
-                case chevre_domain_2.ReservationUtil.PURCHASER_GROUP_MEMBER:
+                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
                     this.res.redirect(this.router.build('member.reserve.waitingSettlement', { paymentNo: gmoResultModel.OrderID }));
                     break;
                 default:
