@@ -31,7 +31,7 @@ class WindowAuthController extends BaseController_1.default {
      */
     login() {
         if (this.req.windowUser !== undefined && this.req.windowUser.isAuthenticated()) {
-            this.res.redirect(this.router.build('window.mypage'));
+            this.res.redirect('/window/mypage');
             return;
         }
         if (this.req.method === 'POST') {
@@ -66,7 +66,7 @@ class WindowAuthController extends BaseController_1.default {
                         }
                         // ログイン
                         this.req.session[WindowUser_1.default.AUTH_SESSION_NAME] = window.toObject();
-                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('window.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/window/mypage';
                         this.res.redirect(cb);
                     }
                     catch (error) {
@@ -94,7 +94,7 @@ class WindowAuthController extends BaseController_1.default {
                 delete this.req.session[WindowUser_1.default.AUTH_SESSION_NAME];
                 yield chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_window }).exec();
                 this.res.clearCookie('remember_window');
-                this.res.redirect(this.router.build('window.mypage'));
+                this.res.redirect('/window/mypage');
             }
             catch (error) {
                 this.next(error);

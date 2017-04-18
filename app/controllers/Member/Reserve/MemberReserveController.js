@@ -80,7 +80,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                     });
                     // パフォーマンスと座席指定した状態で券種選択へ
                     yield reservationModel.save();
-                    this.res.redirect(this.router.build('member.reserve.tickets', { token: reservationModel.token }));
+                    this.res.redirect(`/member/reserve/${reservationModel.token}/tickets`);
                 }
             }
             catch (error) {
@@ -113,10 +113,10 @@ class MemberReserveController extends ReserveBaseController_1.default {
                     try {
                         reservationModel = yield this.processFixTickets(reservationModel);
                         yield reservationModel.save();
-                        this.res.redirect(this.router.build('member.reserve.profile', { token: token }));
+                        this.res.redirect(`/member/reserve/${token}/profile`);
                     }
                     catch (error) {
-                        this.res.redirect(this.router.build('member.reserve.tickets', { token: token }));
+                        this.res.redirect(`/member/reserve/${token}/tickets`);
                     }
                 }
                 else {
@@ -146,7 +146,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                     try {
                         reservationModel = yield this.processFixProfile(reservationModel);
                         yield reservationModel.save();
-                        this.res.redirect(this.router.build('member.reserve.confirm', { token: token }));
+                        this.res.redirect(`/member/reserve/${token}/confirm`);
                     }
                     catch (error) {
                         this.res.render('member/reserve/profile', {
@@ -195,7 +195,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                         reservationModel = yield this.processConfirm(reservationModel);
                         yield reservationModel.save();
                         this.logger.info('starting GMO payment...');
-                        this.res.redirect(httpStatus.PERMANENT_REDIRECT, this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`);
+                        this.res.redirect(httpStatus.PERMANENT_REDIRECT, `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`);
                     }
                     catch (error) {
                         yield reservationModel.remove();

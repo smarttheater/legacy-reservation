@@ -47,7 +47,7 @@ class PreCustomerAuthController extends BaseController_1.default {
             }
         }
         if (this.req.preCustomerUser !== undefined && this.req.preCustomerUser.isAuthenticated()) {
-            this.res.redirect(this.router.build('pre.reserve.start'));
+            this.res.redirect('/pre/reserve/start');
             return;
         }
         if (this.req.method === 'POST') {
@@ -85,7 +85,7 @@ class PreCustomerAuthController extends BaseController_1.default {
                         // ログイン
                         this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME] = preCustomer.toObject();
                         this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME].locale = this.req.form.language;
-                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('pre.reserve.start');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/pre/reserve/start';
                         this.res.redirect(cb);
                     }
                     catch (error) {
@@ -113,7 +113,7 @@ class PreCustomerAuthController extends BaseController_1.default {
                 delete this.req.session[PreCustomerUser_1.default.AUTH_SESSION_NAME];
                 yield chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_pre_customer }).exec();
                 this.res.clearCookie('remember_pre_customer');
-                this.res.redirect(this.router.build('pre.reserve.start'));
+                this.res.redirect('/pre/reserve/start');
             }
             catch (error) {
                 this.next(error);

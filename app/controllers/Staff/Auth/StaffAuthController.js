@@ -31,7 +31,7 @@ class StaffAuthController extends BaseController_1.default {
      */
     login() {
         if (this.req.staffUser !== undefined && this.req.staffUser.isAuthenticated()) {
-            this.res.redirect(this.router.build('staff.mypage'));
+            this.res.redirect('/staff/mypage');
             return;
         }
         if (this.req.method === 'POST') {
@@ -71,7 +71,7 @@ class StaffAuthController extends BaseController_1.default {
                         this.req.session[StaffUser_1.default.AUTH_SESSION_NAME] = staff.toObject();
                         this.req.session[StaffUser_1.default.AUTH_SESSION_NAME].signature = form.signature;
                         this.req.session[StaffUser_1.default.AUTH_SESSION_NAME].locale = form.language;
-                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('staff.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/staff/mypage';
                         this.res.redirect(cb);
                     }
                     catch (error) {
@@ -100,7 +100,7 @@ class StaffAuthController extends BaseController_1.default {
                 delete this.req.session[StaffUser_1.default.AUTH_SESSION_NAME];
                 yield chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_staff }).exec();
                 this.res.clearCookie('remember_staff');
-                this.res.redirect(this.router.build('staff.mypage'));
+                this.res.redirect('/staff/mypage');
             }
             catch (error) {
                 this.next(error);

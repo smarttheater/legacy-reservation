@@ -21,7 +21,7 @@ export default class StaffAuthController extends BaseController {
      */
     public login(): void {
         if (this.req.staffUser !== undefined && this.req.staffUser.isAuthenticated()) {
-            this.res.redirect(this.router.build('staff.mypage'));
+            this.res.redirect('/staff/mypage');
             return;
         }
 
@@ -79,7 +79,7 @@ export default class StaffAuthController extends BaseController {
                         (<Express.Session>this.req.session)[StaffUser.AUTH_SESSION_NAME].signature = (<any>form).signature;
                         (<Express.Session>this.req.session)[StaffUser.AUTH_SESSION_NAME].locale = (<any>form).language;
 
-                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('staff.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/staff/mypage';
                         this.res.redirect(cb);
                     } catch (error) {
                         this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -108,7 +108,7 @@ export default class StaffAuthController extends BaseController {
             await Models.Authentication.remove({ token: this.req.cookies.remember_staff }).exec();
 
             this.res.clearCookie('remember_staff');
-            this.res.redirect(this.router.build('staff.mypage'));
+            this.res.redirect('/staff/mypage');
         } catch (error) {
             this.next(error);
         }

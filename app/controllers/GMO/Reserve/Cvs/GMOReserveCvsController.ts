@@ -110,14 +110,14 @@ export default class GMOReserveCvsController extends ReserveBaseController {
         const group = reservations[0].get('purchaser_group');
         switch (group) {
             case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                this.res.redirect(this.router.build('member.reserve.waitingSettlement', { paymentNo: gmoResultModel.OrderID }));
+                this.res.redirect(`/member/reserve/${gmoResultModel.OrderID}/waitingSettlement`);
                 break;
 
             default:
                 if (reservations[0].get('pre_customer') !== undefined && reservations[0].get('pre_customer') !== null) {
-                    this.res.redirect(this.router.build('pre.reserve.waitingSettlement', { paymentNo: gmoResultModel.OrderID }));
+                    this.res.redirect(`/pre/reserve/${gmoResultModel.OrderID}/waitingSettlement`);
                 } else {
-                    this.res.redirect(this.router.build('customer.reserve.waitingSettlement', { paymentNo: gmoResultModel.OrderID }));
+                    this.res.redirect(`/customer/reserve/${gmoResultModel.OrderID}/waitingSettlement`);
                 }
 
                 break;

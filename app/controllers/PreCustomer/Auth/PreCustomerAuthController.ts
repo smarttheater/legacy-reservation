@@ -37,7 +37,7 @@ export default class PreCustomerAuthController extends BaseController {
         }
 
         if (this.req.preCustomerUser !== undefined && this.req.preCustomerUser.isAuthenticated()) {
-            this.res.redirect(this.router.build('pre.reserve.start'));
+            this.res.redirect('/pre/reserve/start');
             return;
         }
 
@@ -92,7 +92,7 @@ export default class PreCustomerAuthController extends BaseController {
                         (<Express.Session>this.req.session)[PreCustomerUser.AUTH_SESSION_NAME] = preCustomer.toObject();
                         (<Express.Session>this.req.session)[PreCustomerUser.AUTH_SESSION_NAME].locale = (<any>this.req.form).language;
 
-                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('pre.reserve.start');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/pre/reserve/start';
                         this.res.redirect(cb);
                     } catch (error) {
                         this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -120,7 +120,7 @@ export default class PreCustomerAuthController extends BaseController {
 
             await Models.Authentication.remove({ token: this.req.cookies.remember_pre_customer }).exec();
             this.res.clearCookie('remember_pre_customer');
-            this.res.redirect(this.router.build('pre.reserve.start'));
+            this.res.redirect('/pre/reserve/start');
         } catch (error) {
             this.next(error);
         }

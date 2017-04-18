@@ -38,12 +38,12 @@ class TelReserveController extends ReserveBaseController_1.default {
                 reservationModel.paymentNo = yield chevre_domain_1.ReservationUtil.publishPaymentNo();
                 yield reservationModel.save();
                 if (reservationModel.performance !== undefined) {
-                    const cb = this.router.build('tel.reserve.seats', { token: reservationModel.token });
-                    this.res.redirect(`${this.router.build('tel.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                    const cb = `/tel/reserve/${reservationModel.token}/seats`;
+                    this.res.redirect(`/tel/reserve/${reservationModel.token}/terms?cb=${encodeURIComponent(cb)}`);
                 }
                 else {
-                    const cb = this.router.build('tel.reserve.performances', { token: reservationModel.token });
-                    this.res.redirect(`${this.router.build('tel.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                    const cb = `/tel/reserve/${reservationModel.token}/performances`;
+                    this.res.redirect(`/tel/reserve/${reservationModel.token}/terms?cb=${encodeURIComponent(cb)}`);
                 }
             }
             catch (error) {
@@ -77,7 +77,7 @@ class TelReserveController extends ReserveBaseController_1.default {
                                 // パフォーマンスFIX
                                 reservationModel = yield this.processFixPerformance(reservationModel, this.req.form.performanceId);
                                 yield reservationModel.save();
-                                this.res.redirect(this.router.build('tel.reserve.seats', { token: token }));
+                                this.res.redirect(`/tel/reserve/${token}/seats`);
                             }
                             catch (error) {
                                 this.next(error);
@@ -128,7 +128,7 @@ class TelReserveController extends ReserveBaseController_1.default {
                             // 追加指定席を合わせて制限枚数を超過した場合
                             if (seatCodes.length > limit) {
                                 const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                                this.res.redirect(`${this.router.build('tel.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                                this.res.redirect(`/tel/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
                                 return;
                             }
                             // 仮予約あればキャンセルする
@@ -144,16 +144,16 @@ class TelReserveController extends ReserveBaseController_1.default {
                                 reservationModel = yield this.processFixSeats(reservationModel, seatCodes);
                                 yield reservationModel.save();
                                 // 券種選択へ
-                                this.res.redirect(this.router.build('tel.reserve.tickets', { token: token }));
+                                this.res.redirect(`/tel/reserve/${token}/tickets`);
                             }
                             catch (error) {
                                 yield reservationModel.save();
                                 const message = this.req.__('Message.SelectedSeatsUnavailable');
-                                this.res.redirect(`${this.router.build('tel.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                                this.res.redirect(`/tel/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
                             }
                         }
                         else {
-                            this.res.redirect(this.router.build('tel.reserve.seats', { token: token }));
+                            this.res.redirect(`/tel/reserve/${token}/seats`);
                         }
                     }));
                 }
@@ -186,10 +186,10 @@ class TelReserveController extends ReserveBaseController_1.default {
                     try {
                         reservationModel = yield this.processFixTickets(reservationModel);
                         yield reservationModel.save();
-                        this.res.redirect(this.router.build('tel.reserve.profile', { token: token }));
+                        this.res.redirect(`/tel/reserve/${token}/profile`);
                     }
                     catch (error) {
-                        this.res.redirect(this.router.build('tel.reserve.tickets', { token: token }));
+                        this.res.redirect(`/tel/reserve/${token}/tickets`);
                     }
                 }
                 else {
@@ -219,7 +219,7 @@ class TelReserveController extends ReserveBaseController_1.default {
                     try {
                         reservationModel = yield this.processFixProfile(reservationModel);
                         yield reservationModel.save();
-                        this.res.redirect(this.router.build('tel.reserve.confirm', { token: token }));
+                        this.res.redirect(`/tel/reserve/${token}/confirm`);
                     }
                     catch (error) {
                         this.res.render('tel/reserve/profile', {
@@ -276,7 +276,7 @@ class TelReserveController extends ReserveBaseController_1.default {
                         }).exec();
                         yield reservationModel.remove();
                         this.logger.info('redirecting to complete...');
-                        this.res.redirect(this.router.build('tel.reserve.complete', { paymentNo: reservationModel.paymentNo }));
+                        this.res.redirect(`/tel/reserve/${reservationModel.paymentNo}/complete`);
                     }
                     catch (error) {
                         yield reservationModel.remove();

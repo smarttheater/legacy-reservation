@@ -21,7 +21,7 @@ export default class WindowAuthController extends BaseController {
      */
     public login(): void {
         if (this.req.windowUser !== undefined && this.req.windowUser.isAuthenticated()) {
-            this.res.redirect(this.router.build('window.mypage'));
+            this.res.redirect('/window/mypage');
             return;
         }
 
@@ -74,7 +74,7 @@ export default class WindowAuthController extends BaseController {
                         // ログイン
                         (<Express.Session>this.req.session)[WindowUser.AUTH_SESSION_NAME] = window.toObject();
 
-                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('window.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/window/mypage';
                         this.res.redirect(cb);
                     } catch (error) {
                         this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -102,7 +102,7 @@ export default class WindowAuthController extends BaseController {
             await Models.Authentication.remove({ token: this.req.cookies.remember_window }).exec();
 
             this.res.clearCookie('remember_window');
-            this.res.redirect(this.router.build('window.mypage'));
+            this.res.redirect('/window/mypage');
         } catch (error) {
             this.next(error);
         }

@@ -31,7 +31,7 @@ class TelAuthController extends BaseController_1.default {
      */
     login() {
         if (this.req.telStaffUser !== undefined && this.req.telStaffUser.isAuthenticated()) {
-            this.res.redirect(this.router.build('tel.mypage'));
+            this.res.redirect('/tel/mypage');
             return;
         }
         if (this.req.method === 'POST') {
@@ -66,7 +66,7 @@ class TelAuthController extends BaseController_1.default {
                         }
                         // ログイン
                         this.req.session[TelStaffUser_1.default.AUTH_SESSION_NAME] = telStaff.toObject();
-                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('tel.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/tel/mypage';
                         this.res.redirect(cb);
                     }
                     catch (error) {
@@ -94,7 +94,7 @@ class TelAuthController extends BaseController_1.default {
                 delete this.req.session[TelStaffUser_1.default.AUTH_SESSION_NAME];
                 yield chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_tel_staff }).exec();
                 this.res.clearCookie('remember_tel_staff');
-                this.res.redirect(this.router.build('tel.mypage'));
+                this.res.redirect('/tel/mypage');
             }
             catch (error) {
                 this.next(error);

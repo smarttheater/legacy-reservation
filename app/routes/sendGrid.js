@@ -12,5 +12,5 @@ const SendGridController_1 = require("../controllers/SendGrid/SendGridController
 exports.default = (app) => {
     // tslint:disable:max-line-length
     // イベントフック
-    app.all('/sendGrid/event/notify', 'sendGrid.event.notify', (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SendGridController_1.default(req, res, next)).notifyEvent(); }));
+    app.all('/sendGrid/event/notify', (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SendGridController_1.default(req, res, next)).notifyEvent(); }));
 };

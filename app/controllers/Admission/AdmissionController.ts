@@ -24,9 +24,9 @@ export default class AdmissionController extends BaseController {
     public async performances() {
         if (this.req.method === 'POST') {
             if (!_.isEmpty(this.req.body.performanceId)) {
-                this.res.redirect(this.router.build('admission.confirm', { id: this.req.body.performanceId }));
+                this.res.redirect(`/admission/performance/${this.req.body.performanceId}/confirm`);
             } else {
-                this.res.redirect(this.router.build('admission.performances'));
+                this.res.redirect('/admission/performances');
             }
         } else {
             try {

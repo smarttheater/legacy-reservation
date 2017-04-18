@@ -43,13 +43,13 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                 const reservationModel = yield this.processStart();
                 if (reservationModel.performance !== undefined) {
                     yield reservationModel.save();
-                    const cb = this.router.build('sponsor.reserve.seats', { token: reservationModel.token });
-                    this.res.redirect(`${this.router.build('sponsor.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                    const cb = `/sponsor/reserve/${reservationModel.token}/seats`;
+                    this.res.redirect(`/sponsor/reserve/${reservationModel.token}/terms?cb=${encodeURIComponent(cb)}`);
                 }
                 else {
                     yield reservationModel.save();
-                    const cb = this.router.build('sponsor.reserve.performances', { token: reservationModel.token });
-                    this.res.redirect(`${this.router.build('sponsor.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`);
+                    const cb = `/sponsor/reserve/${reservationModel.token}/performances`;
+                    this.res.redirect(`/sponsor/reserve/${reservationModel.token}/terms?cb=${encodeURIComponent(cb)}`);
                 }
             }
             catch (error) {
@@ -100,7 +100,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                                 // パフォーマンスFIX
                                 reservationModel = yield this.processFixPerformance(reservationModel, this.req.form.performanceId);
                                 yield reservationModel.save();
-                                this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
+                                this.res.redirect(`/sponsor/reserve/${token}/seats`);
                             }
                             catch (error) {
                                 this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -170,7 +170,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                             if (seatCodes.length > limit) {
                                 lockFile.unlockSync(lockPath);
                                 const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                                this.res.redirect(`${this.router.build('sponsor.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                                this.res.redirect(`/sponsor/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
                                 return;
                             }
                             // 仮予約あればキャンセルする
@@ -187,17 +187,17 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                                 lockFile.unlockSync(lockPath);
                                 yield reservationModel.save();
                                 // 券種選択へ
-                                this.res.redirect(this.router.build('sponsor.reserve.tickets', { token: token }));
+                                this.res.redirect(`/sponsor/reserve/${token}/tickets`);
                             }
                             catch (error) {
                                 yield reservationModel.save();
                                 const message = this.req.__('Message.SelectedSeatsUnavailable');
-                                this.res.redirect(`${this.router.build('sponsor.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`);
+                                this.res.redirect(`/sponsor/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
                             }
                         }
                         else {
                             lockFile.unlockSync(lockPath);
-                            this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
+                            this.res.redirect(`/sponsor/reserve/${token}/seats`);
                         }
                     }));
                 }
@@ -232,10 +232,10 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                     try {
                         reservationModel = yield this.processFixTickets(reservationModel);
                         yield reservationModel.save();
-                        this.res.redirect(this.router.build('sponsor.reserve.profile', { token: token }));
+                        this.res.redirect(`/sponsor/reserve/${token}/profile`);
                     }
                     catch (error) {
-                        this.res.redirect(this.router.build('sponsor.reserve.tickets', { token: token }));
+                        this.res.redirect(`/sponsor/reserve/${token}/tickets`);
                     }
                 }
                 else {
@@ -265,7 +265,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                     try {
                         reservationModel = yield this.processFixProfile(reservationModel);
                         yield reservationModel.save();
-                        this.res.redirect(this.router.build('sponsor.reserve.confirm', { token: token }));
+                        this.res.redirect(`/sponsor/reserve/${token}/confirm`);
                     }
                     catch (error) {
                         this.res.render('sponsor/reserve/profile', {
@@ -315,7 +315,7 @@ class SponsorReserveController extends ReserveBaseController_1.default {
                         yield this.processFixReservations(reservationModel.paymentNo, {});
                         yield reservationModel.remove();
                         this.logger.info('redirecting to complete...');
-                        this.res.redirect(this.router.build('sponsor.reserve.complete', { paymentNo: reservationModel.paymentNo }));
+                        this.res.redirect(`/sponsor/reserve/${reservationModel.paymentNo}/complete`);
                     }
                     catch (error) {
                         yield reservationModel.remove();

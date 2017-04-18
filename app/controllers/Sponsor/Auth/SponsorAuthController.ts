@@ -21,7 +21,7 @@ export default class SponsorAuthController extends BaseController {
      */
     public login(): void {
         if (this.req.sponsorUser !== undefined && this.req.sponsorUser.isAuthenticated()) {
-            this.res.redirect(this.router.build('sponsor.reserve.start'));
+            this.res.redirect('/sponsor/reserve/start');
             return;
         }
 
@@ -78,7 +78,7 @@ export default class SponsorAuthController extends BaseController {
                         (<Express.Session>this.req.session)[SponsorUser.AUTH_SESSION_NAME].locale = (<any>this.req.form).language;
 
                         // if exist parameter cb, redirect to cb.
-                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('sponsor.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/sponsor/mypage';
                         this.res.redirect(cb);
                     } catch (error) {
                         this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -106,7 +106,7 @@ export default class SponsorAuthController extends BaseController {
             await Models.Authentication.remove({ token: this.req.cookies.remember_sponsor }).exec();
 
             this.res.clearCookie('remember_sponsor');
-            this.res.redirect(this.router.build('sponsor.reserve.start'));
+            this.res.redirect('/sponsor/reserve/start');
         } catch (error) {
             this.next(error);
         }

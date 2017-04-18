@@ -89,14 +89,14 @@ exports.default = (app) => {
     };
     // 外部関係者
     // tslint:disable:max-line-length
-    app.all('/pre/login', 'pre.reserve.terms', base, (req, res, next) => { (new PreCustomerAuthController_1.default(req, res, next)).login(); });
-    app.all('/pre/logout', 'pre.logout', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerAuthController_1.default(req, res, next)).logout(); }));
-    app.get('/pre/reserve/start', 'pre.reserve.start', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).start(); }));
-    app.all('/pre/reserve/:token/performances', 'pre.reserve.performances', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).performances(); }));
-    app.all('/pre/reserve/:token/seats', 'pre.reserve.seats', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).seats(); }));
-    app.all('/pre/reserve/:token/tickets', 'pre.reserve.tickets', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).tickets(); }));
-    app.all('/pre/reserve/:token/profile', 'pre.reserve.profile', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).profile(); }));
-    app.all('/pre/reserve/:token/confirm', 'pre.reserve.confirm', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).confirm(); }));
-    app.get('/pre/reserve/:paymentNo/waitingSettlement', 'pre.reserve.waitingSettlement', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).waitingSettlement(); }));
-    app.get('/pre/reserve/:paymentNo/complete', 'pre.reserve.complete', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).complete(); }));
+    app.all('/pre/login', base, (req, res, next) => { (new PreCustomerAuthController_1.default(req, res, next)).login(); });
+    app.all('/pre/logout', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerAuthController_1.default(req, res, next)).logout(); }));
+    app.get('/pre/reserve/start', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).start(); }));
+    app.all('/pre/reserve/:token/performances', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).performances(); }));
+    app.all('/pre/reserve/:token/seats', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).seats(); }));
+    app.all('/pre/reserve/:token/tickets', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).tickets(); }));
+    app.all('/pre/reserve/:token/profile', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).profile(); }));
+    app.all('/pre/reserve/:token/confirm', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).confirm(); }));
+    app.get('/pre/reserve/:paymentNo/waitingSettlement', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).waitingSettlement(); }));
+    app.get('/pre/reserve/:paymentNo/complete', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).complete(); }));
 };

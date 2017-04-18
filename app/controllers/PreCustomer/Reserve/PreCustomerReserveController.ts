@@ -50,10 +50,10 @@ export default class PreCustomerReserveController extends ReserveBaseController 
 
             if (reservationModel.performance !== undefined) {
                 // パフォーマンス指定で遷移してきたら座席選択へ
-                this.res.redirect(this.router.build('pre.reserve.seats', { token: reservationModel.token }));
+                this.res.redirect(`/pre/reserve/${reservationModel.token}/seats`);
             } else {
                 // パフォーマンス指定なければパフォーマンス選択へ
-                this.res.redirect(this.router.build('pre.reserve.performances', { token: reservationModel.token }));
+                this.res.redirect(`/pre/reserve/${reservationModel.token}/performances`);
             }
         } catch (error) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -128,7 +128,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                                     (<any>this.req.form).performanceId
                                 );
                                 await reservationModel.save();
-                                this.res.redirect(this.router.build('pre.reserve.seats', { token: token }));
+                                this.res.redirect(`/pre/reserve/${token}/seats`);
                             } catch (error) {
                                 this.next(new Error(this.req.__('Message.UnexpectedError')));
                             }
@@ -221,9 +221,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                         if (seatCodes.length > limit) {
                             lockFile.unlockSync(lockPath);
                             const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                            this.res.redirect(
-                                `${this.router.build('pre.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
-                            );
+                            this.res.redirect(`/pre/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
                             return;
                         }
 
@@ -241,17 +239,15 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                             lockFile.unlockSync(lockPath);
                             await reservationModel.save();
                             // 券種選択へ
-                            this.res.redirect(this.router.build('pre.reserve.tickets', { token: token }));
+                            this.res.redirect(`/pre/reserve/${token}/tickets`);
                         } catch (error) {
                             await reservationModel.save();
                             const message = this.req.__('Message.SelectedSeatsUnavailable');
-                            this.res.redirect(
-                                `${this.router.build('pre.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
-                            );
+                            this.res.redirect(`/pre/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
                         }
                     } else {
                         lockFile.unlock(lockPath, () => {
-                            this.res.redirect(this.router.build('pre.reserve.seats', { token: token }));
+                            this.res.redirect(`/pre/reserve/${token}/seats`);
                         });
                     }
                 });
@@ -287,9 +283,9 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                 try {
                     reservationModel = await this.processFixTickets(reservationModel);
                     await reservationModel.save();
-                    this.res.redirect(this.router.build('pre.reserve.profile', { token: token }));
+                    this.res.redirect(`/pre/reserve/${token}/profile`);
                 } catch (error) {
-                    this.res.redirect(this.router.build('pre.reserve.tickets', { token: token }));
+                    this.res.redirect(`/pre/reserve/${token}/tickets`);
                 }
             } else {
                 this.res.render('preCustomer/reserve/tickets', {
@@ -318,7 +314,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                 try {
                     reservationModel = await this.processFixProfile(reservationModel);
                     await reservationModel.save();
-                    this.res.redirect(this.router.build('pre.reserve.confirm', { token: token }));
+                    this.res.redirect(`/pre/reserve/${token}/confirm`);
                 } catch (error) {
                     this.res.render('preCustomer/reserve/profile', {
                         reservationModel: reservationModel
@@ -366,10 +362,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                     reservationModel = await this.processConfirm(reservationModel);
                     await reservationModel.save();
                     this.logger.info('starting GMO payment...');
-                    this.res.redirect(
-                        (<any>httpStatus).PERMANENT_REDIRECT,
-                        this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`
-                    );
+                    this.res.redirect((<any>httpStatus).PERMANENT_REDIRECT, `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`);
                 } catch (error) {
                     await reservationModel.remove();
                     this.next(error);

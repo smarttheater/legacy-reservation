@@ -112,9 +112,9 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
                 this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
                 this.res.locals.shopPassString = GMOUtil.createShopPassString(conf.get('gmo_payment_shop_id'), this.res.locals.orderID, this.res.locals.amount, conf.get('gmo_payment_shop_password'), this.res.locals.dateTime);
-                this.res.locals.retURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, this.router.build('gmo.reserve.result'), this.req.getLocale());
+                this.res.locals.retURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, '/GMO/reserve/result', this.req.getLocale());
                 // 決済キャンセル時に遷移する加盟店URL
-                this.res.locals.cancelURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo }), this.req.getLocale());
+                this.res.locals.cancelURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, `/GMO/reserve/${reservationModel.paymentNo}/cancel`, this.req.getLocale());
                 this.logger.info('redirecting to GMO payment...');
                 // GMOへの送信データをログに残すために、一度htmlを取得してからrender
                 this.res.render('gmo/reserve/start', undefined, (renderErr, html) => {

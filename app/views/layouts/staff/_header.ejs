@@ -1,7 +1,7 @@
 <%
 let routeName = '';
 if (req.hasOwnProperty('route')) {
-    routeName = req.route.name;
+    routeName = req.route.path;
 }
 %>
 <header>
@@ -10,22 +10,22 @@ if (req.hasOwnProperty('route')) {
         <a href="javascript:void(0);" class="header-logo"><img src="/images/common/logo.png" alt="CHEVRE"></a>
 
         <div class="header-menu">
-            <% if (routeName === 'staff.mypage' && req.staffUser.isAuthenticated()) { %>
+            <% if (routeName === '/staff/mypage' && req.staffUser.isAuthenticated()) { %>
             <div class="menu-staff">
                 <p class="myname"><%= req.staffUser.get('name') %> <%= __('Mr{{name}}', {name: req.staffUser.get('signature')}) %></p>
                 <div class="staff-btns">
-                    <a class="btn btn-logout" href="<%- url('staff.logout') %>"><span><%- __('Button.Logout') %></span></a>
-                    <a class="btn btn-newticket" href="<%- url('staff.reserve.start') %>"><span><%- __('Button.NewTicket') %></span></a>
+                    <a class="btn btn-logout" href="/staff/logout"><span><%- __('Button.Logout') %></span></a>
+                    <a class="btn btn-newticket" href="/staff/reserve/start"><span><%- __('Button.NewTicket') %></span></a>
                     <% if (req.staffUser.get('is_admin')) { %>
-                    <a class="btn btn-release" href="<%- url('staff.mypage.release') %>"><span><%- __('Button.ReleaseSeats') %></span></a>
+                    <a class="btn btn-release" href="/staff/mypage/release"><span><%- __('Button.ReleaseSeats') %></span></a>
                     <% } %>
                 </div>
             </div>
 
-            <% } else if (routeName !== 'staff.mypage' && req.staffUser.isAuthenticated()) { %>
+            <% } else if (routeName !== '/staff/mypage' && req.staffUser.isAuthenticated()) { %>
             <div class="menu-staff">
                 <p class="myname"><%= req.staffUser.get('name') %> <%= __('Mr{{name}}', {name: req.staffUser.get('signature')}) %></p>
-                <a href="<%= url('staff.mypage') %>"><%- __('Button.MyPage') %></a> / <a href="<%= url('staff.logout') %>"><%- __('Button.Logout') %></a>
+                <a href="<%= url('staff.mypage') %>"><%- __('Button.MyPage') %></a> / <a href="/staff/logout"><%- __('Button.Logout') %></a>
             </div>
 
             <% } else if (routeName.indexOf('login') >= 0) { %>

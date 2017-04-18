@@ -59,7 +59,7 @@
 
     <h2>
         <%- __('h2.Profile') %>
-        <a class="btn btn-default btn-change btn-icon-back" href="<%- url('member.reserve.profile', {token: reservationModel.token}) %>">
+        <a class="btn btn-default btn-change btn-icon-back" href="/member/reserve/<%= reservationModel.token %>/profile">
             <span><%- __('Button.Change') %></span>
         </a>
     </h2>
@@ -112,7 +112,7 @@
 
 <div class="btns2clm">
     <a class="btn btn-lg btn-next" href="javascript:void(0);"><span><%- __('Button.GoToPayment') %><span class="smalltext">(<%- __('Label.RedirectToThirdPartyWebsite') %>)</span></span></a>
-    <a class="btn btn-lg btn-back" href="<%- url('member.reserve.profile', {token: req.params.token}) %>"><span><%- __('Button.Back') %></span></a>
+    <a class="btn btn-lg btn-back" href="/member/reserve/<%= req.params.token %>/profile"><span><%- __('Button.Back') %></span></a>
 </div>
 
 <script>

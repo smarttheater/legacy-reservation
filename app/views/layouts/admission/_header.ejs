@@ -1,7 +1,7 @@
 <%
 let routeName = '';
 if (req.hasOwnProperty('route')) {
-    routeName = req.route.name;
+    routeName = req.route.path;
 }
 %>
 <header>
@@ -10,8 +10,8 @@ if (req.hasOwnProperty('route')) {
         <a href="javascript:void(0);" class="header-logo"><img src="/images/common/logo.png" alt="CHEVRE"></a>
 
         <div class="header-menu">
-            <% if (routeName === 'admission.confirm') { %>
-            <a class="navbar-brand" href="<%- url('admission.performances') %>"><%- __('Button.Back') %></a>
+            <% if (routeName.indexOf('/admission/performance/') > -1 && routeName.indexOf('/confirm') > -1) { %>
+            <a class="navbar-brand" href="/admission/performances"><%- __('Button.Back') %></a>
             <% } %>
         </div>
     </div>

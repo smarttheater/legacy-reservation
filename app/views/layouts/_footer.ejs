@@ -1,15 +1,15 @@
 <%
 let routeName = '';
 if (req.hasOwnProperty('route')) {
-    routeName = req.route.name;
+    routeName = req.route.path;
 }
 %>
 <footer>
     <% if (routeName.indexOf('mypage') < 0) { %>
     <ul>
-        <li><a href="<%- url('privacy') %>" target="_blank"><%- __('h1.Privacy') %></a></li>
-        <li><a href="<%- url('policy') %>" target="_blank"><%- __('h1.Policy') %></a></li>
-        <li><a href="<%- url('commercialTransactions') %>" target="_blank"><%- __('h1.ActOnSpecifiedCommercialTransactions') %></a></li>
+        <li><a href="/privacy" target="_blank"><%- __('h1.Privacy') %></a></li>
+        <li><a href="/policy" target="_blank"><%- __('h1.Policy') %></a></li>
+        <li><a href="/commercialTransactions" target="_blank"><%- __('h1.ActOnSpecifiedCommercialTransactions') %></a></li>
     </ul>
     <% } %>
     <div class="copyrights">

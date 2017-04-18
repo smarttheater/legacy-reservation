@@ -5,7 +5,7 @@
  * @ignore
  */
 import { Models } from '@motionpicture/chevre-domain';
-import { NextFunction, Request, Response } from 'express';
+import { Application, NextFunction, Request, Response } from 'express';
 import * as Util from '../../common/Util/Util';
 import WindowAuthController from '../controllers/Window/Auth/WindowAuthController';
 import WindowCancelController from '../controllers/Window/Cancel/WindowCancelController';
@@ -13,7 +13,7 @@ import WindowMyPageController from '../controllers/Window/MyPage/WindowMyPageCon
 import WindowReserveController from '../controllers/Window/Reserve/WindowReserveController';
 import WindowUser from '../models/User/WindowUser';
 
-export default (app: any) => {
+export default (app: Application) => {
     const authentication = async (req: Request, res: Response, next: NextFunction) => {
         if (req.windowUser === undefined) {
             next(new Error(req.__('Message.UnexpectedError')));
@@ -89,17 +89,17 @@ export default (app: any) => {
 
     // 当日窓口フロー
     // tslint:disable:max-line-length
-    app.all('/window/login', 'window.mypage.login', base, (req: Request, res: Response, next: NextFunction) => { (new WindowAuthController(req, res, next)).login(); });
-    app.all('/window/logout', 'window.logout', base, async (req: Request, res: Response, next: NextFunction) => { await (new WindowAuthController(req, res, next)).logout(); });
-    app.all('/window/mypage', 'window.mypage', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new WindowMyPageController(req, res, next)).index(); });
-    app.get('/window/mypage/search', 'window.mypage.search', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowMyPageController(req, res, next)).search(); });
-    app.get('/window/reserve/start', 'window.reserve.start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).start(); });
-    app.all('/window/reserve/:token/terms', 'window.reserve.terms', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new WindowReserveController(req, res, next)).terms(); });
-    app.all('/window/reserve/:token/performances', 'window.reserve.performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).performances(); });
-    app.all('/window/reserve/:token/seats', 'window.reserve.seats', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).seats(); });
-    app.all('/window/reserve/:token/tickets', 'window.reserve.tickets', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).tickets(); });
-    app.all('/window/reserve/:token/profile', 'window.reserve.profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).profile(); });
-    app.all('/window/reserve/:token/confirm', 'window.reserve.confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).confirm(); });
-    app.get('/window/reserve/:paymentNo/complete', 'window.reserve.complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).complete(); });
-    app.post('/window/cancel/execute', 'window.cancel.execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowCancelController(req, res, next)).execute(); });
+    app.all('/window/login', base, (req: Request, res: Response, next: NextFunction) => { (new WindowAuthController(req, res, next)).login(); });
+    app.all('/window/logout', base, async (req: Request, res: Response, next: NextFunction) => { await (new WindowAuthController(req, res, next)).logout(); });
+    app.all('/window/mypage', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new WindowMyPageController(req, res, next)).index(); });
+    app.get('/window/mypage/search', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowMyPageController(req, res, next)).search(); });
+    app.get('/window/reserve/start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).start(); });
+    app.all('/window/reserve/:token/terms', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new WindowReserveController(req, res, next)).terms(); });
+    app.all('/window/reserve/:token/performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).performances(); });
+    app.all('/window/reserve/:token/seats', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).seats(); });
+    app.all('/window/reserve/:token/tickets', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).tickets(); });
+    app.all('/window/reserve/:token/profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).profile(); });
+    app.all('/window/reserve/:token/confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).confirm(); });
+    app.get('/window/reserve/:paymentNo/complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).complete(); });
+    app.post('/window/cancel/execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowCancelController(req, res, next)).execute(); });
 };

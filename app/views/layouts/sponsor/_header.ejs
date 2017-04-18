@@ -1,7 +1,7 @@
 <%
 let routeName = '';
 if (req.hasOwnProperty('route')) {
-    routeName = req.route.name;
+    routeName = req.route.path;
 }
 %>
 <header>
@@ -15,20 +15,20 @@ if (req.hasOwnProperty('route')) {
                 <div class="menu-staff">
                     <p class="myname"><%= __('Mr{{name}}', {name: req.sponsorUser.get('name')}) %></p>
                     <div class="staff-btns">
-                        <a class="btn btn-logout" href="<%= url('sponsor.logout') %>"><span><%- __('Button.Logout') %></span></a>
-                        <a class="btn btn-newticket" href="<%= url('sponsor.reserve.start') %>"><span><%- __('Button.NewTicket') %></span></a>
+                        <a class="btn btn-logout" href="/sponsor/logout"><span><%- __('Button.Logout') %></span></a>
+                        <a class="btn btn-newticket" href="/sponsor/reserve/start"><span><%- __('Button.NewTicket') %></span></a>
                     </div>
                 </div>
 
-            <% } else if (routeName === 'sponsor.cancel') { %>
-                <a href="<%= url('sponsor.reserve.start') %>"><%- __('Button.NewTicket') %></a>
+            <% } else if (routeName === '/sponsor/cancel') { %>
+                <a href="/sponsor/reserve/start"><%- __('Button.NewTicket') %></a>
                 <a href="javascript:void(0)" class="update-locale" data-locale="en">English</a>
                 <a href="javascript:void(0)" class="update-locale" data-locale="ja">日本語</a>
 
             <% } else if (routeName.indexOf('mypage') < 0 && req.sponsorUser.isAuthenticated()) { %>
                 <div class="menu-user">
                     <p class="myname"><%= __('Mr{{name}}', {name: req.sponsorUser.get('name')}) %></p>
-                    <a href="<%= url('sponsor.cancel') %>"><%- __('Button.Cancel') %></a> / <a href="<%= url('sponsor.logout') %>"><%- __('Button.Logout') %></a>
+                    <a href="/sponsor/cancel"><%- __('Button.Cancel') %></a> / <a href="/sponsor/logout"><%- __('Button.Logout') %></a>
                 </div>
 
             <% } else if (routeName.indexOf('login') >= 0) { %>

@@ -34,10 +34,10 @@ class AdmissionController extends BaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.req.method === 'POST') {
                 if (!_.isEmpty(this.req.body.performanceId)) {
-                    this.res.redirect(this.router.build('admission.confirm', { id: this.req.body.performanceId }));
+                    this.res.redirect(`/admission/performance/${this.req.body.performanceId}/confirm`);
                 }
                 else {
-                    this.res.redirect(this.router.build('admission.performances'));
+                    this.res.redirect('/admission/performances');
                 }
             }
             else {

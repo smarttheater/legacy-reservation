@@ -12,14 +12,14 @@
             <tr>
                 <th><%- __('Label.FilmName') %>
                     <p class="visible-mobile-block">
-                        <a class="btn btn-default btn-change btn-icon-back" href="<%- url('sponsor.reserve.performances', {token: reservationModel.token}) %>">
+                        <a class="btn btn-default btn-change btn-icon-back" href="/sponsor/reserve/<%= reservationModel.token %>/performances">
                             <span><%- __('Button.Change') %></span>
                         </a>
                     </p>
                 </th>
                 <td>
                     <p><%- reservationModel.performance.film.name[locale] %></p>
-                    <a class="btn btn-default btn-change btn-icon-back visible-pc" href="<%- url('sponsor.reserve.performances', {token: reservationModel.token}) %>">
+                    <a class="btn btn-default btn-change btn-icon-back visible-pc" href="/sponsor/reserve/<%= reservationModel.token %>/performances">
                         <span><%- __('Button.Change') %></span>
                     </a>
                 </td>
@@ -38,7 +38,7 @@
                 <th>
                     <%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %>
                     <p class="visible-mobile-block">
-                        <a class="btn btn-default btn-change btn-icon-back" href="<%- url('sponsor.reserve.seats', {token: reservationModel.token}) %>"><span><%- __('Button.Change') %></span></a>
+                        <a class="btn btn-default btn-change btn-icon-back" href="/sponsor/reserve/<%= reservationModel.token %>/seats"><span><%- __('Button.Change') %></span></a>
                     </p>
                 </th>
                 <td>
@@ -49,7 +49,7 @@
                             <br>
                         <% }) %>
                     </p>
-                    <a class="btn btn-default btn-change btn-icon-back visible-pc" href="<%- url('sponsor.reserve.seats', {token: reservationModel.token}) %>">
+                    <a class="btn btn-default btn-change btn-icon-back visible-pc" href="/sponsor/reserve/<%= reservationModel.token %>/seats">
                         <span><%- __('Button.Change') %></span>
                     </a>
                 </td>
@@ -74,7 +74,7 @@
 
     <h2>
         <%- __('h2.Profile') %>
-        <a class="btn btn-default btn-change btn-icon-back" href="<%- url('sponsor.reserve.profile', {token: reservationModel.token}) %>">
+        <a class="btn btn-default btn-change btn-icon-back" href="/sponsor/reserve/<%= reservationModel.token %>/profile">
             <span><%- __('Button.Change') %></span>
         </a>
     </h2>
@@ -114,7 +114,7 @@
 
 <div class="btns2clm">
     <a class="btn btn-lg btn-next" href="javascript:void(0);"><span><%- __('Button.Next') %></span></a>
-    <a class="btn btn-lg btn-back" href="<%- url('sponsor.reserve.profile', {token: req.params.token}) %>"><span><%- __('Button.Back') %></span></a>
+    <a class="btn btn-lg btn-back" href="/sponsor/reserve/<%= req.params.token %>/profile"><span><%- __('Button.Back') %></span></a>
 </div>
 
 <script>

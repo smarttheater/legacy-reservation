@@ -78,7 +78,7 @@ export default class MemberReserveController extends ReserveBaseController imple
 
                 // パフォーマンスと座席指定した状態で券種選択へ
                 await reservationModel.save();
-                this.res.redirect(this.router.build('member.reserve.tickets', { token: reservationModel.token }));
+                this.res.redirect(`/member/reserve/${reservationModel.token}/tickets`);
             }
         } catch (error) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -114,9 +114,9 @@ export default class MemberReserveController extends ReserveBaseController imple
                 try {
                     reservationModel = await this.processFixTickets(reservationModel);
                     await reservationModel.save();
-                    this.res.redirect(this.router.build('member.reserve.profile', { token: token }));
+                    this.res.redirect(`/member/reserve/${token}/profile`);
                 } catch (error) {
-                    this.res.redirect(this.router.build('member.reserve.tickets', { token: token }));
+                    this.res.redirect(`/member/reserve/${token}/tickets`);
                 }
             } else {
                 this.res.render('member/reserve/tickets', {
@@ -145,7 +145,7 @@ export default class MemberReserveController extends ReserveBaseController imple
                 try {
                     reservationModel = await this.processFixProfile(reservationModel);
                     await reservationModel.save();
-                    this.res.redirect(this.router.build('member.reserve.confirm', { token: token }));
+                    this.res.redirect(`/member/reserve/${token}/confirm`);
                 } catch (error) {
                     this.res.render('member/reserve/profile', {
                         reservationModel: reservationModel
@@ -193,10 +193,7 @@ export default class MemberReserveController extends ReserveBaseController imple
                     reservationModel = await this.processConfirm(reservationModel);
                     await reservationModel.save();
                     this.logger.info('starting GMO payment...');
-                    this.res.redirect(
-                        (<any>httpStatus).PERMANENT_REDIRECT,
-                        this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`
-                    );
+                    this.res.redirect((<any>httpStatus).PERMANENT_REDIRECT, `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`);
                 } catch (error) {
                     await reservationModel.remove();
                     this.next(error);

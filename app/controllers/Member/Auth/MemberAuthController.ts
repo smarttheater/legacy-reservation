@@ -30,7 +30,7 @@ export default class MemberAuthController extends BaseController {
         }
 
         if (this.req.memberUser !== undefined && this.req.memberUser.isAuthenticated()) {
-            this.res.redirect(this.router.build('member.reserve.start'));
+            this.res.redirect('/member/reserve/start');
             return;
         }
 
@@ -61,7 +61,7 @@ export default class MemberAuthController extends BaseController {
 
                         // ログイン
                         (<Express.Session>this.req.session)[MemberUser.AUTH_SESSION_NAME] = member.toObject();
-                        this.res.redirect(this.router.build('member.reserve.start'));
+                        this.res.redirect('/member/reserve/start');
                     } catch (error) {
                         this.next(new Error(this.req.__('Message.UnexpectedError')));
                     }

@@ -31,7 +31,7 @@ class SponsorAuthController extends BaseController_1.default {
      */
     login() {
         if (this.req.sponsorUser !== undefined && this.req.sponsorUser.isAuthenticated()) {
-            this.res.redirect(this.router.build('sponsor.reserve.start'));
+            this.res.redirect('/sponsor/reserve/start');
             return;
         }
         if (this.req.method === 'POST') {
@@ -70,7 +70,7 @@ class SponsorAuthController extends BaseController_1.default {
                         this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME] = sponsor.toObject();
                         this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME].locale = this.req.form.language;
                         // if exist parameter cb, redirect to cb.
-                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('sponsor.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/sponsor/mypage';
                         this.res.redirect(cb);
                     }
                     catch (error) {
@@ -98,7 +98,7 @@ class SponsorAuthController extends BaseController_1.default {
                 delete this.req.session[SponsorUser_1.default.AUTH_SESSION_NAME];
                 yield chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_sponsor }).exec();
                 this.res.clearCookie('remember_sponsor');
-                this.res.redirect(this.router.build('sponsor.reserve.start'));
+                this.res.redirect('/sponsor/reserve/start');
             }
             catch (error) {
                 this.next(error);

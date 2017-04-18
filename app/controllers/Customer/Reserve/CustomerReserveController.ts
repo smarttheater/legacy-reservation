@@ -33,9 +33,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
             reservePerformanceForm(this.req, this.res, () => {
                 if (this.req.form !== undefined && this.req.form.isValid) {
                     const performaceId = (<any>this.req.form).performanceId;
-                    this.res.redirect(
-                        this.router.build('customer.reserve.start') + `?performance=${performaceId}&locale=${this.req.getLocale()}`
-                    );
+                    this.res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${this.req.getLocale()}`);
                 } else {
                     this.res.render('customer/reserve/performances');
                 }
@@ -84,12 +82,12 @@ export default class CustomerReserveController extends ReserveBaseController imp
 
             if (reservationModel.performance !== undefined) {
                 await reservationModel.save();
-                this.res.redirect(this.router.build('customer.reserve.terms', { token: reservationModel.token }));
+                this.res.redirect(`/customer/reserve/${reservationModel.token}/terms`);
             } else {
                 // 今回は必ずパフォーマンス指定で遷移してくるはず
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
                 // reservationModel.save(() => {
-                //     this.res.redirect(this.router.build('customer.reserve.performances', {token: token}));
+                //     this.res.redirect('/customer/reserve/performances');
                 // });
             }
         } catch (error) {
@@ -111,7 +109,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
             }
 
             if (this.req.method === 'POST') {
-                this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
+                this.res.redirect(`/customer/reserve/${token}/seats`);
             } else {
                 this.res.render('customer/reserve/terms');
             }
@@ -145,9 +143,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
                         // 追加指定席を合わせて制限枚数を超過した場合
                         if (seatCodes.length > limit) {
                             const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                            this.res.redirect(
-                                `${this.router.build('customer.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
-                            );
+                            this.res.redirect(`/customer/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
                         } else {
                             // 仮予約あればキャンセルする
                             try {
@@ -162,17 +158,17 @@ export default class CustomerReserveController extends ReserveBaseController imp
                                 reservationModel = await this.processFixSeats(reservationModel, seatCodes);
                                 await reservationModel.save();
                                 // 券種選択へ
-                                this.res.redirect(this.router.build('customer.reserve.tickets', { token: token }));
+                                this.res.redirect(`/customer/reserve/${token}/tickets`);
                             } catch (error) {
                                 await reservationModel.save();
                                 const message = this.req.__('Message.SelectedSeatsUnavailable');
-                                let url = this.router.build('customer.reserve.seats', { token: token });
+                                let url = `/customer/reserve/${token}/seats`;
                                 url += '?message=' + encodeURIComponent(message);
                                 this.res.redirect(url);
                             }
                         }
                     } else {
-                        this.res.redirect(this.router.build('customer.reserve.seats', { token: token }));
+                        this.res.redirect(`/customer/reserve/${token}/seats`);
                     }
                 });
             } else {
@@ -205,9 +201,9 @@ export default class CustomerReserveController extends ReserveBaseController imp
                 try {
                     reservationModel = await this.processFixTickets(reservationModel);
                     await reservationModel.save();
-                    this.res.redirect(this.router.build('customer.reserve.profile', { token: token }));
+                    this.res.redirect(`/customer/reserve/${token}/profile`);
                 } catch (error) {
-                    this.res.redirect(this.router.build('customer.reserve.tickets', { token: token }));
+                    this.res.redirect(`/customer/reserve/${token}/tickets`);
                 }
             } else {
                 this.res.render('customer/reserve/tickets', {
@@ -236,7 +232,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
                 try {
                     reservationModel = await this.processFixProfile(reservationModel);
                     await reservationModel.save();
-                    this.res.redirect(this.router.build('customer.reserve.confirm', { token: token }));
+                    this.res.redirect(`/customer/reserve/${token}/confirm`);
                 } catch (error) {
                     this.res.render('customer/reserve/profile', {
                         reservationModel: reservationModel
@@ -287,10 +283,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
                     this.logger.info('starting GMO payment...');
                     // httpStatusの型定義不足のためanyにキャスト
                     // todo 一時的対処なので解決する
-                    this.res.redirect(
-                        (<any>httpStatus).PERMANENT_REDIRECT,
-                        this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`
-                    );
+                    this.res.redirect((<any>httpStatus).PERMANENT_REDIRECT, `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`);
                 } catch (error) {
                     await reservationModel.remove();
                     this.next(error);

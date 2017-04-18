@@ -30,15 +30,11 @@ export default class TelReserveController extends ReserveBaseController implemen
             await reservationModel.save();
 
             if (reservationModel.performance !== undefined) {
-                const cb = this.router.build('tel.reserve.seats', { token: reservationModel.token });
-                this.res.redirect(
-                    `${this.router.build('tel.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`
-                );
+                const cb = `/tel/reserve/${reservationModel.token}/seats`;
+                this.res.redirect(`/tel/reserve/${reservationModel.token}/terms?cb=${encodeURIComponent(cb)}`);
             } else {
-                const cb = this.router.build('tel.reserve.performances', { token: reservationModel.token });
-                this.res.redirect(
-                    `${this.router.build('tel.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`
-                );
+                const cb = `/tel/reserve/${reservationModel.token}/performances`;
+                this.res.redirect(`/tel/reserve/${reservationModel.token}/terms?cb=${encodeURIComponent(cb)}`);
             }
         } catch (error) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -76,7 +72,7 @@ export default class TelReserveController extends ReserveBaseController implemen
                                 (<any>this.req.form).performanceId
                             );
                             await reservationModel.save();
-                            this.res.redirect(this.router.build('tel.reserve.seats', { token: token }));
+                            this.res.redirect(`/tel/reserve/${token}/seats`);
                         } catch (error) {
                             this.next(error);
                         }
@@ -127,9 +123,7 @@ export default class TelReserveController extends ReserveBaseController implemen
                         // 追加指定席を合わせて制限枚数を超過した場合
                         if (seatCodes.length > limit) {
                             const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                            this.res.redirect(
-                                `${this.router.build('tel.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
-                            );
+                            this.res.redirect(`/tel/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
                             return;
                         }
 
@@ -146,16 +140,14 @@ export default class TelReserveController extends ReserveBaseController implemen
                             reservationModel = await this.processFixSeats(reservationModel, seatCodes);
                             await reservationModel.save();
                             // 券種選択へ
-                            this.res.redirect(this.router.build('tel.reserve.tickets', { token: token }));
+                            this.res.redirect(`/tel/reserve/${token}/tickets`);
                         } catch (error) {
                             await reservationModel.save();
                             const message = this.req.__('Message.SelectedSeatsUnavailable');
-                            this.res.redirect(
-                                `${this.router.build('tel.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
-                            );
+                            this.res.redirect(`/tel/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
                         }
                     } else {
-                        this.res.redirect(this.router.build('tel.reserve.seats', { token: token }));
+                        this.res.redirect(`/tel/reserve/${token}/seats`);
                     }
                 });
             } else {
@@ -188,9 +180,9 @@ export default class TelReserveController extends ReserveBaseController implemen
                 try {
                     reservationModel = await this.processFixTickets(reservationModel);
                     await reservationModel.save();
-                    this.res.redirect(this.router.build('tel.reserve.profile', { token: token }));
+                    this.res.redirect(`/tel/reserve/${token}/profile`);
                 } catch (error) {
-                    this.res.redirect(this.router.build('tel.reserve.tickets', { token: token }));
+                    this.res.redirect(`/tel/reserve/${token}/tickets`);
                 }
             } else {
                 this.res.render('tel/reserve/tickets', {
@@ -219,7 +211,7 @@ export default class TelReserveController extends ReserveBaseController implemen
                 try {
                     reservationModel = await this.processFixProfile(reservationModel);
                     await reservationModel.save();
-                    this.res.redirect(this.router.build('tel.reserve.confirm', { token: token }));
+                    this.res.redirect(`/tel/reserve/${token}/confirm`);
                 } catch (error) {
                     this.res.render('tel/reserve/profile', {
                         reservationModel: reservationModel
@@ -280,7 +272,7 @@ export default class TelReserveController extends ReserveBaseController implemen
 
                     await reservationModel.remove();
                     this.logger.info('redirecting to complete...');
-                    this.res.redirect(this.router.build('tel.reserve.complete', { paymentNo: reservationModel.paymentNo }));
+                    this.res.redirect(`/tel/reserve/${reservationModel.paymentNo}/complete`);
                 } catch (error) {
                     await reservationModel.remove();
                     this.next(error);

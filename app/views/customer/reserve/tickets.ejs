@@ -2,5 +2,5 @@
 
 <div class="btns2clm">
     <a class="btn btn-lg btn-next" href="javascript:void(0);"><span><%- __('Button.Next') %></span></a>
-    <a class="btn btn-lg btn-back" href="<%- url('customer.reserve.seats', {token: req.params.token}) %>"><span><%- __('Button.Back') %></span></a>
+    <a class="btn btn-lg btn-back" href="/customer/reserve/<%= req.params.token %>/seats"><span><%- __('Button.Back') %></span></a>
 </div>

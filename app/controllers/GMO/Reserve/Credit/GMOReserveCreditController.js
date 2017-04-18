@@ -80,14 +80,14 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
             const group = reservations[0].get('purchaser_group');
             switch (group) {
                 case chevre_domain_2.ReservationUtil.PURCHASER_GROUP_MEMBER:
-                    this.res.redirect(this.router.build('member.reserve.complete', { paymentNo: gmoResultModel.OrderID }));
+                    this.res.redirect(`/member/reserve/${gmoResultModel.OrderID}/complete`);
                     break;
                 default:
                     if (reservations[0].get('pre_customer') !== undefined && reservations[0].get('pre_customer') !== null) {
-                        this.res.redirect(this.router.build('pre.reserve.complete', { paymentNo: gmoResultModel.OrderID }));
+                        this.res.redirect(`/pre/reserve/${gmoResultModel.OrderID}/complete`);
                     }
                     else {
-                        this.res.redirect(this.router.build('customer.reserve.complete', { paymentNo: gmoResultModel.OrderID }));
+                        this.res.redirect(`/customer/reserve/${gmoResultModel.OrderID}/complete`);
                     }
                     break;
             }

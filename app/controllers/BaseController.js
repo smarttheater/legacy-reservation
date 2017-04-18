@@ -21,7 +21,6 @@ class BaseController {
         this.res = res;
         this.next = next;
         this.logger = log4js.getLogger('system');
-        this.router = this.req.app.namedRoutes;
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;
         this.res.locals.numeral = numeral;

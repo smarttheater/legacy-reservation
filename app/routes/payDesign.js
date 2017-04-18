@@ -11,7 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const querystring = require("querystring");
 const PayDesignReserveController_1 = require("../controllers/PayDesign/Reserve/PayDesignReserveController");
 exports.default = (app) => {
-    app.post('/PayDesign/reserve/notify', '', (req, res, next) => {
+    app.post('/PayDesign/reserve/notify', (req, res, next) => {
         let content = new Buffer([]);
         req.on('data', (chunk) => {
             content = Buffer.concat([content, chunk]);
@@ -25,7 +25,7 @@ exports.default = (app) => {
             yield (new PayDesignReserveController_1.default(req, res, next)).notify();
         }));
     });
-    app.post('/PayDesign/reserve/cancel', '', (req, res, next) => {
+    app.post('/PayDesign/reserve/cancel', (req, res, next) => {
         let content = new Buffer([]);
         req.on('data', (chunk) => {
             content = Buffer.concat([content, chunk]);

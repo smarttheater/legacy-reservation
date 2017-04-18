@@ -21,7 +21,7 @@ export default class TelAuthController extends BaseController {
      */
     public login(): void {
         if (this.req.telStaffUser !== undefined && this.req.telStaffUser.isAuthenticated()) {
-            this.res.redirect(this.router.build('tel.mypage'));
+            this.res.redirect('/tel/mypage');
             return;
         }
 
@@ -74,7 +74,7 @@ export default class TelAuthController extends BaseController {
                         // ログイン
                         (<Express.Session>this.req.session)[TelStaffUser.AUTH_SESSION_NAME] = telStaff.toObject();
 
-                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : this.router.build('tel.mypage');
+                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/tel/mypage';
                         this.res.redirect(cb);
                     } catch (error) {
                         this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -102,7 +102,7 @@ export default class TelAuthController extends BaseController {
             await Models.Authentication.remove({ token: this.req.cookies.remember_tel_staff }).exec();
 
             this.res.clearCookie('remember_tel_staff');
-            this.res.redirect(this.router.build('tel.mypage'));
+            this.res.redirect('/tel/mypage');
         } catch (error) {
             this.next(error);
         }

@@ -5,7 +5,7 @@
  * @ignore
  */
 import { Models } from '@motionpicture/chevre-domain';
-import { NextFunction, Request, Response } from 'express';
+import { Application, NextFunction, Request, Response } from 'express';
 import * as Util from '../../common/Util/Util';
 import TelAuthController from '../controllers/Tel/Auth/TelAuthController';
 import TelCancelController from '../controllers/Tel/Cancel/TelCancelController';
@@ -13,7 +13,7 @@ import TelMyPageController from '../controllers/Tel/MyPage/TelMyPageController';
 import TelReserveController from '../controllers/Tel/Reserve/TelReserveController';
 import TelStaffUser from '../models/User/TelStaffUser';
 
-export default (app: any) => {
+export default (app: Application) => {
     const authentication = async (req: Request, res: Response, next: NextFunction) => {
         if (req.telStaffUser === undefined) {
             next(new Error(req.__('Message.UnexpectedError')));
@@ -90,18 +90,18 @@ export default (app: any) => {
 
     // 電話窓口フロー
     // tslint:disable:max-line-length
-    app.all('/tel/login', 'tel.mypage.login', base, (req: Request, res: Response, next: NextFunction) => { (new TelAuthController(req, res, next)).login(); });
-    app.all('/tel/logout', 'tel.logout', base, async (req: Request, res: Response, next: NextFunction) => { await (new TelAuthController(req, res, next)).logout(); });
-    app.all('/tel/mypage', 'tel.mypage', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new TelMyPageController(req, res, next)).index(); });
-    app.get('/tel/mypage/search', 'tel.mypage.search', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelMyPageController(req, res, next)).search(); });
-    app.get('/tel/reserve/start', 'tel.reserve.start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).start(); });
-    app.all('/tel/reserve/:token/terms', 'tel.reserve.terms', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new TelReserveController(req, res, next)).terms(); });
-    app.all('/tel/reserve/:token/performances', 'tel.reserve.performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).performances(); });
-    app.all('/tel/reserve/:token/seats', 'tel.reserve.seats', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).seats(); });
-    app.all('/tel/reserve/:token/tickets', 'tel.reserve.tickets', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).tickets(); });
-    app.all('/tel/reserve/:token/profile', 'tel.reserve.profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).profile(); });
-    app.all('/tel/reserve/:token/confirm', 'tel.reserve.confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).confirm(); });
-    app.get('/tel/reserve/:paymentNo/complete', 'tel.reserve.complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).complete(); });
-    app.post('/tel/cancel/execute', 'tel.cancel.execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelCancelController(req, res, next)).execute(); });
-    app.post('/tel/cancel2sagyo/execute', 'tel.cancel2sagyo.execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelCancelController(req, res, next)).execute2sagyo(); });
+    app.all('/tel/login', base, (req: Request, res: Response, next: NextFunction) => { (new TelAuthController(req, res, next)).login(); });
+    app.all('/tel/logout', base, async (req: Request, res: Response, next: NextFunction) => { await (new TelAuthController(req, res, next)).logout(); });
+    app.all('/tel/mypage', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new TelMyPageController(req, res, next)).index(); });
+    app.get('/tel/mypage/search', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelMyPageController(req, res, next)).search(); });
+    app.get('/tel/reserve/start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).start(); });
+    app.all('/tel/reserve/:token/terms', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new TelReserveController(req, res, next)).terms(); });
+    app.all('/tel/reserve/:token/performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).performances(); });
+    app.all('/tel/reserve/:token/seats', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).seats(); });
+    app.all('/tel/reserve/:token/tickets', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).tickets(); });
+    app.all('/tel/reserve/:token/profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).profile(); });
+    app.all('/tel/reserve/:token/confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).confirm(); });
+    app.get('/tel/reserve/:paymentNo/complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelReserveController(req, res, next)).complete(); });
+    app.post('/tel/cancel/execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelCancelController(req, res, next)).execute(); });
+    app.post('/tel/cancel2sagyo/execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelCancelController(req, res, next)).execute2sagyo(); });
 };
