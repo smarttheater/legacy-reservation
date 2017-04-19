@@ -39,112 +39,108 @@ export default class ReserveBaseController extends BaseController {
 
     /**
      * 券種FIXプロセス
+     * @method processFixTickets
+     * @param {ReservationModel} reservationModel
+     * @returns {Promise<ReservationModel>}
      */
     public async processFixTickets(reservationModel: ReservationModel): Promise<ReservationModel> {
-        return new Promise<ReservationModel>((resolve, reject) => {
-            reserveTicketForm(this.req, this.res, () => {
-                if (this.req.form === undefined) {
-                    reject(new Error(this.req.__('Message.UnexpectedError')));
-                    return;
-                }
-                if (!this.req.form.isValid) {
-                    reject(new Error(this.req.__('Message.UnexpectedError')));
-                    return;
-                }
+        reserveTicketForm(this.req);
+        const validationResult = await this.req.getValidationResult();
+        if (!validationResult.isEmpty()) {
+            throw new Error(this.req.__('Message.UnexpectedError'));
+        }
 
-                // 座席選択情報を保存して座席選択へ
-                const choices = JSON.parse((<any>this.req.form).choices);
-                if (!Array.isArray(choices)) {
-                    reject(new Error(this.req.__('Message.UnexpectedError')));
-                    return;
-                }
+        // 座席選択情報を保存して座席選択へ
+        const choices = JSON.parse(this.req.body.choices);
+        if (!Array.isArray(choices)) {
+            throw new Error(this.req.__('Message.UnexpectedError'));
+        }
 
-                choices.forEach((choice: any) => {
-                    const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => {
-                        return (ticketTypeInArray.code === choice.ticket_type_code);
-                    });
-                    if (ticketType === undefined) {
-                        throw new Error(this.req.__('Message.UnexpectedError'));
-                    }
-
-                    const reservation = reservationModel.getReservation(choice.seat_code);
-                    reservation.ticket_type_code = ticketType.code;
-                    reservation.ticket_type_name_ja = ticketType.name.ja;
-                    reservation.ticket_type_name_en = ticketType.name.en;
-                    reservation.ticket_type_charge = ticketType.charge;
-                    reservation.watcher_name = choice.watcher_name;
-
-                    reservationModel.setReservation(reservation.seat_code, reservation);
-                });
-
-                resolve(reservationModel);
+        choices.forEach((choice: any) => {
+            const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => {
+                return (ticketTypeInArray.code === choice.ticket_type_code);
             });
+            if (ticketType === undefined) {
+                throw new Error(this.req.__('Message.UnexpectedError'));
+            }
+
+            const reservation = reservationModel.getReservation(choice.seat_code);
+            reservation.ticket_type_code = ticketType.code;
+            reservation.ticket_type_name_ja = ticketType.name.ja;
+            reservation.ticket_type_name_en = ticketType.name.en;
+            reservation.ticket_type_charge = ticketType.charge;
+            reservation.watcher_name = choice.watcher_name;
+
+            reservationModel.setReservation(reservation.seat_code, reservation);
         });
+
+        return reservationModel;
     }
 
     /**
      * 券種FIXプロセス
+     * @method processFixProfile
+     * @param {ReservationModel} reservationModel
+     * @returns {Promise<ReservationModel>}
      */
     public async processFixProfile(reservationModel: ReservationModel): Promise<ReservationModel> {
-        return new Promise<ReservationModel>((resolve, reject) => {
-            const form = reserveProfileForm(this.req);
-            form(this.req, this.res, (err) => {
-                if (err instanceof Error) {
-                    reject(new Error(this.req.__('Message.UnexpectedError')));
-                    return;
-                }
-                if (this.req.form === undefined) {
-                    reject(new Error(this.req.__('Message.UnexpectedError')));
-                    return;
-                }
-                if (!this.req.form.isValid) {
-                    reject(new Error(this.req.__('Message.Invalid')));
-                    return;
-                }
+        reserveProfileForm(this.req);
+        const validationResult = await this.req.getValidationResult();
+        if (!validationResult.isEmpty()) {
+            this.res.locals.validation = validationResult.mapped();
+            this.res.locals.lastName = this.req.body.lastName;
+            this.res.locals.firstName = this.req.body.firstName;
+            this.res.locals.email = this.req.body.email;
+            this.res.locals.emailConfirm = this.req.body.emailConfirm;
+            this.res.locals.emailConfirmDomain = this.req.body.emailConfirmDomain;
+            this.res.locals.tel = this.req.body.tel;
+            this.res.locals.age = this.req.body.age;
+            this.res.locals.address = this.req.body.address;
+            this.res.locals.gender = this.req.body.gender;
+            this.res.locals.paymentMethod = this.req.body.paymentMethod;
+            throw new Error(this.req.__('Message.Invalid'));
+        }
+        // 購入者情報を保存して座席選択へ
+        reservationModel.purchaserLastName = this.req.body.lastName;
+        reservationModel.purchaserFirstName = this.req.body.firstName;
+        reservationModel.purchaserEmail = this.req.body.email;
+        reservationModel.purchaserTel = this.req.body.tel;
+        reservationModel.purchaserAge = this.req.body.age;
+        reservationModel.purchaserAddress = this.req.body.address;
+        reservationModel.purchaserGender = this.req.body.gender;
+        reservationModel.paymentMethod = this.req.body.paymentMethod;
 
-                // 購入者情報を保存して座席選択へ
-                reservationModel.purchaserLastName = (<any>this.req.form).lastName;
-                reservationModel.purchaserFirstName = (<any>this.req.form).firstName;
-                reservationModel.purchaserEmail = (<any>this.req.form).email;
-                reservationModel.purchaserTel = (<any>this.req.form).tel;
-                reservationModel.purchaserAge = (<any>this.req.form).age;
-                reservationModel.purchaserAddress = (<any>this.req.form).address;
-                reservationModel.purchaserGender = (<any>this.req.form).gender;
-                reservationModel.paymentMethod = (<any>this.req.form).paymentMethod;
+        // 主体によっては、決済方法を強制的に固定で
+        switch (this.purchaserGroup) {
+            case ReservationUtil.PURCHASER_GROUP_SPONSOR:
+            case ReservationUtil.PURCHASER_GROUP_STAFF:
+                reservationModel.paymentMethod = '';
+                break;
 
-                // 主体によっては、決済方法を強制的に固定で
-                switch (this.purchaserGroup) {
-                    case ReservationUtil.PURCHASER_GROUP_SPONSOR:
-                    case ReservationUtil.PURCHASER_GROUP_STAFF:
-                        reservationModel.paymentMethod = '';
-                        break;
+            case ReservationUtil.PURCHASER_GROUP_TEL:
+                reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CVS;
+                break;
 
-                    case ReservationUtil.PURCHASER_GROUP_TEL:
-                        reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CVS;
-                        break;
+            case ReservationUtil.PURCHASER_GROUP_MEMBER:
+                reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
+                break;
 
-                    case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                        reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
-                        break;
+            default:
+                break;
+        }
 
-                    default:
-                        break;
-                }
+        // セッションに購入者情報格納
+        this.savePurchaser(
+            this.req.body.lastName,
+            this.req.body.firstName,
+            this.req.body.tel,
+            this.req.body.email,
+            this.req.body.age,
+            this.req.body.address,
+            this.req.body.gender
+        );
 
-                // セッションに購入者情報格納
-                this.savePurchaser(
-                    (<any>this.req.form).lastName,
-                    (<any>this.req.form).firstName,
-                    (<any>this.req.form).tel,
-                    (<any>this.req.form).email,
-                    (<any>this.req.form).age,
-                    (<any>this.req.form).address,
-                    (<any>this.req.form).gender
-                );
-
-                resolve(reservationModel);
-            });
-        });
+        return reservationModel;
     }
 
     /**

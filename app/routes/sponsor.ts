@@ -92,7 +92,7 @@ export default (app: Application) => {
 
     // 外部関係者
     // tslint:disable:max-line-length
-    app.all('/sponsor/login', base, (req: Request, res: Response, next: NextFunction) => { (new SponsorAuthController(req, res, next)).login(); });
+    app.all('/sponsor/login', base, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorAuthController(req, res, next)).login(); });
     app.all('/sponsor/logout', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorAuthController(req, res, next)).logout(); });
     app.all('/sponsor/mypage', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new SponsorMyPageController(req, res, next)).index(); });
     app.get('/sponsor/mypage/search', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorMyPageController(req, res, next)).search(); });
@@ -106,6 +106,6 @@ export default (app: Application) => {
     app.get('/sponsor/reserve/:paymentNo/complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorReserveController(req, res, next)).complete(); });
     app.post('/sponsor/cancel/execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorCancelController(req, res, next)).execute(); });
     // ↓ログイン不要
-    app.all('/sponsor/cancel', base, (req: Request, res: Response, next: NextFunction) => { (new SponsorCancelController(req, res, next)).index(); });
+    app.all('/sponsor/cancel', base, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorCancelController(req, res, next)).index(); });
     app.post('/sponsor/cancel/executeByPaymentNo', base, async (req: Request, res: Response, next: NextFunction) => { await (new SponsorCancelController(req, res, next)).executeByPaymentNo(); });
 };

@@ -3,8 +3,7 @@
  *
  * @ignore
  */
-import * as form from 'express-form';
-
-export default form(
-    form.field('seatCodes').trim().required()
-);
+import { Request } from 'express';
+export default (req: Request): void => {
+    req.checkBody('seatCodes').notEmpty();
+};

@@ -90,7 +90,7 @@ export default (app: Application) => {
 
     // 電話窓口フロー
     // tslint:disable:max-line-length
-    app.all('/tel/login', base, (req: Request, res: Response, next: NextFunction) => { (new TelAuthController(req, res, next)).login(); });
+    app.all('/tel/login', base, async (req: Request, res: Response, next: NextFunction) => { await (new TelAuthController(req, res, next)).login(); });
     app.all('/tel/logout', base, async (req: Request, res: Response, next: NextFunction) => { await (new TelAuthController(req, res, next)).logout(); });
     app.all('/tel/mypage', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new TelMyPageController(req, res, next)).index(); });
     app.get('/tel/mypage/search', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new TelMyPageController(req, res, next)).search(); });

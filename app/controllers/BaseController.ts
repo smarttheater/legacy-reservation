@@ -52,6 +52,7 @@ export default class BaseController {
         this.res.locals.numeral = numeral;
         this.res.locals.conf = conf;
         this.res.locals.Util = Util;
+        this.res.locals.validation = null;
 
         // レイアウト指定があれば変更
         const render = this.res.render;

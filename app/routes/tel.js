@@ -88,7 +88,7 @@ exports.default = (app) => {
     };
     // 電話窓口フロー
     // tslint:disable:max-line-length
-    app.all('/tel/login', base, (req, res, next) => { (new TelAuthController_1.default(req, res, next)).login(); });
+    app.all('/tel/login', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelAuthController_1.default(req, res, next)).login(); }));
     app.all('/tel/logout', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelAuthController_1.default(req, res, next)).logout(); }));
     app.all('/tel/mypage', base, authentication, (req, res, next) => { (new TelMyPageController_1.default(req, res, next)).index(); });
     app.get('/tel/mypage/search', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelMyPageController_1.default(req, res, next)).search(); }));

@@ -90,7 +90,7 @@ export default (app: Application) => {
 
     // 外部関係者
     // tslint:disable:max-line-length
-    app.all('/pre/login', base, (req: Request, res: Response, next: NextFunction) => { (new PreCustomerAuthController(req, res, next)).login(); });
+    app.all('/pre/login', base, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerAuthController(req, res, next)).login(); });
     app.all('/pre/logout', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerAuthController(req, res, next)).logout(); });
     app.get('/pre/reserve/start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerReserveController(req, res, next)).start(); });
     app.all('/pre/reserve/:token/performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new PreCustomerReserveController(req, res, next)).performances(); });

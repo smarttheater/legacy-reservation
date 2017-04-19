@@ -14,6 +14,6 @@ export default (app: Application) => {
     };
 
     // tslint:disable:max-line-length
-    app.all('/customerSupport/cancel', base, (req: Request, res: Response, next: NextFunction) => { (new CustomerCancelController(req, res, next)).index(); });
+    app.all('/customerSupport/cancel', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerCancelController(req, res, next)).index(); });
     app.post('/customerSupport/cancel/executeByPaymentNo', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerCancelController(req, res, next)).executeByPaymentNo(); });
 };

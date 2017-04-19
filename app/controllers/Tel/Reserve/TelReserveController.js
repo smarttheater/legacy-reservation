@@ -60,6 +60,8 @@ class TelReserveController extends ReserveBaseController_1.default {
     }
     /**
      * スケジュール選択
+     * @method performances
+     * @returns {Promise<void>}
      */
     performances() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -71,22 +73,23 @@ class TelReserveController extends ReserveBaseController_1.default {
                     return;
                 }
                 if (this.req.method === 'POST') {
-                    reservePerformanceForm_1.default(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
-                        if (this.req.form !== undefined && this.req.form.isValid) {
-                            try {
-                                // パフォーマンスFIX
-                                reservationModel = yield this.processFixPerformance(reservationModel, this.req.form.performanceId);
-                                yield reservationModel.save();
-                                this.res.redirect(`/tel/reserve/${token}/seats`);
-                            }
-                            catch (error) {
-                                this.next(error);
-                            }
-                        }
-                        else {
-                            this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        }
-                    }));
+                    reservePerformanceForm_1.default(this.req);
+                    const validationResult = yield this.req.getValidationResult();
+                    if (!validationResult.isEmpty()) {
+                        this.next(new Error(this.req.__('Message.UnexpectedError')));
+                        return;
+                    }
+                    try {
+                        // パフォーマンスFIX
+                        reservationModel = yield this.processFixPerformance(reservationModel, this.req.body.performanceId);
+                        yield reservationModel.save();
+                        this.res.redirect(`/tel/reserve/${token}/seats`);
+                        return;
+                    }
+                    catch (error) {
+                        this.next(error);
+                        return;
+                    }
                 }
                 else {
                     // 仮予約あればキャンセルする
@@ -121,47 +124,49 @@ class TelReserveController extends ReserveBaseController_1.default {
                 }
                 const limit = reservationModel.getSeatsLimit();
                 if (this.req.method === 'POST') {
-                    reserveSeatForm_1.default(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
-                        reservationModel = reservationModel;
-                        if (this.req.form !== undefined && this.req.form.isValid) {
-                            const seatCodes = JSON.parse(this.req.form.seatCodes);
-                            // 追加指定席を合わせて制限枚数を超過した場合
-                            if (seatCodes.length > limit) {
-                                const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                                this.res.redirect(`/tel/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
-                                return;
-                            }
-                            // 仮予約あればキャンセルする
-                            try {
-                                reservationModel = yield this.processCancelSeats(reservationModel);
-                            }
-                            catch (error) {
-                                this.next(error);
-                                return;
-                            }
-                            try {
-                                // 座席FIX
-                                reservationModel = yield this.processFixSeats(reservationModel, seatCodes);
-                                yield reservationModel.save();
-                                // 券種選択へ
-                                this.res.redirect(`/tel/reserve/${token}/tickets`);
-                            }
-                            catch (error) {
-                                yield reservationModel.save();
-                                const message = this.req.__('Message.SelectedSeatsUnavailable');
-                                this.res.redirect(`/tel/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
-                            }
-                        }
-                        else {
-                            this.res.redirect(`/tel/reserve/${token}/seats`);
-                        }
-                    }));
+                    reserveSeatForm_1.default(this.req);
+                    const validationResult = yield this.req.getValidationResult();
+                    if (!validationResult.isEmpty()) {
+                        this.res.redirect(`/tel/reserve/${token}/seats`);
+                        return;
+                    }
+                    reservationModel = reservationModel;
+                    const seatCodes = JSON.parse(this.req.body.seatCodes);
+                    // 追加指定席を合わせて制限枚数を超過した場合
+                    if (seatCodes.length > limit) {
+                        const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
+                        this.res.redirect(`/tel/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
+                        return;
+                    }
+                    // 仮予約あればキャンセルする
+                    try {
+                        reservationModel = yield this.processCancelSeats(reservationModel);
+                    }
+                    catch (error) {
+                        this.next(error);
+                        return;
+                    }
+                    try {
+                        // 座席FIX
+                        reservationModel = yield this.processFixSeats(reservationModel, seatCodes);
+                        yield reservationModel.save();
+                        // 券種選択へ
+                        this.res.redirect(`/tel/reserve/${token}/tickets`);
+                        return;
+                    }
+                    catch (error) {
+                        yield reservationModel.save();
+                        const message = this.req.__('Message.SelectedSeatsUnavailable');
+                        this.res.redirect(`/tel/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
+                        return;
+                    }
                 }
                 else {
                     this.res.render('tel/reserve/seats', {
                         reservationModel: reservationModel,
                         limit: limit
                     });
+                    return;
                 }
             }
             catch (error) {

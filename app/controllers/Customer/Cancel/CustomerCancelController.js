@@ -30,16 +30,19 @@ const BaseController_1 = require("../../BaseController");
 class CustomerCancelController extends BaseController_1.default {
     /**
      * チケットキャンセル
+     * @method index
+     * @returns {Promise<void>}
      */
     index() {
-        if (moment('2016-11-19T00:00:00+09:00') <= moment()) {
-            this.res.render('customer/cancel/outOfTerm', { layout: false });
-            return;
-        }
-        if (this.req.method === 'POST') {
-            const form = customerCancelForm_1.default(this.req);
-            form(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
-                if (this.req.form !== undefined && !this.req.form.isValid) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (moment('2016-11-19T00:00:00+09:00') <= moment()) {
+                this.res.render('customer/cancel/outOfTerm', { layout: false });
+                return;
+            }
+            if (this.req.method === 'POST') {
+                customerCancelForm_1.default(this.req);
+                const validationResult = yield this.req.getValidationResult();
+                if (!validationResult.isEmpty()) {
                     this.res.json({
                         success: false,
                         message: '購入番号または電話番号下4ケタに誤りがあります<br>There are some mistakes in a transaction number or last 4 digits of tel'
@@ -49,8 +52,8 @@ class CustomerCancelController extends BaseController_1.default {
                 try {
                     // 予約を取得(クレジットカード決済のみ)
                     const reservations = yield chevre_domain_1.Models.Reservation.find({
-                        payment_no: this.req.form.paymentNo,
-                        purchaser_tel: { $regex: `${this.req.form.last4DigitsOfTel}$` },
+                        payment_no: this.req.body.paymentNo,
+                        purchaser_tel: { $regex: `${this.req.body.last4DigitsOfTel}$` },
                         purchaser_group: chevre_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
                         status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
                     }).exec();
@@ -83,12 +86,14 @@ class CustomerCancelController extends BaseController_1.default {
                             message: null,
                             reservations: results
                         });
+                        return;
                     }
                     catch (error) {
                         this.res.json({
                             success: false,
                             message: error.message
                         });
+                        return;
                     }
                 }
                 catch (error) {
@@ -96,14 +101,16 @@ class CustomerCancelController extends BaseController_1.default {
                         success: false,
                         message: 'A system error has occurred. Please try again later. Sorry for the inconvenience'
                     });
+                    return;
                 }
-            }));
-        }
-        else {
-            this.res.locals.paymentNo = '';
-            this.res.locals.last4DigitsOfTel = '';
-            this.res.render('customer/cancel');
-        }
+            }
+            else {
+                this.res.locals.paymentNo = '';
+                this.res.locals.last4DigitsOfTel = '';
+                this.res.render('customer/cancel');
+                return;
+            }
+        });
     }
     /**
      * 購入番号からキャンセルする

@@ -27,17 +27,20 @@ export default class CustomerReserveController extends ReserveBaseController imp
 
     /**
      * スケジュール選択(本番では存在しない、実際はポータル側のページ)
+     * @method performances
+     * @returns {Promise<void>}
      */
-    public performances(): void {
+    public async performances(): Promise<void> {
         if (this.req.method === 'POST') {
-            reservePerformanceForm(this.req, this.res, () => {
-                if (this.req.form !== undefined && this.req.form.isValid) {
-                    const performaceId = (<any>this.req.form).performanceId;
-                    this.res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${this.req.getLocale()}`);
-                } else {
-                    this.res.render('customer/reserve/performances');
-                }
-            });
+            reservePerformanceForm(this.req);
+            const validationResult = await this.req.getValidationResult();
+            if (!validationResult.isEmpty()) {
+                this.res.render('customer/reserve/performances');
+                return;
+            }
+            const performaceId = this.req.body.performanceId;
+            this.res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${this.req.getLocale()}`);
+            return;
         } else {
             this.res.render('customer/reserve/performances', {
                 FilmUtil: FilmUtil
@@ -120,6 +123,8 @@ export default class CustomerReserveController extends ReserveBaseController imp
 
     /**
      * 座席選択
+     * @method seats
+     * @returns {Promise<void>}
      */
     public async seats(): Promise<void> {
         try {
@@ -134,51 +139,54 @@ export default class CustomerReserveController extends ReserveBaseController imp
             const limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
-                reserveSeatForm(this.req, this.res, async () => {
-                    reservationModel = <ReservationModel>reservationModel;
+                reserveSeatForm(this.req);
+                const validationResult = await this.req.getValidationResult();
+                if (!validationResult.isEmpty()) {
+                    this.res.redirect(`/customer/reserve/${token}/seats`);
+                    return;
+                }
+                reservationModel = <ReservationModel>reservationModel;
+                const seatCodes: string[] = JSON.parse(this.req.body.seatCodes);
 
-                    if (this.req.form !== undefined && this.req.form.isValid) {
-                        const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
-
-                        // 追加指定席を合わせて制限枚数を超過した場合
-                        if (seatCodes.length > limit) {
-                            const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                            this.res.redirect(`/customer/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
-                        } else {
-                            // 仮予約あればキャンセルする
-                            try {
-                                reservationModel = await this.processCancelSeats(reservationModel);
-                            } catch (error) {
-                                this.next(error);
-                                return;
-                            }
-
-                            try {
-                                // 座席FIX
-                                reservationModel = await this.processFixSeats(reservationModel, seatCodes);
-                                await reservationModel.save();
-                                // 券種選択へ
-                                this.res.redirect(`/customer/reserve/${token}/tickets`);
-                            } catch (error) {
-                                await reservationModel.save();
-                                const message = this.req.__('Message.SelectedSeatsUnavailable');
-                                let url = `/customer/reserve/${token}/seats`;
-                                url += '?message=' + encodeURIComponent(message);
-                                this.res.redirect(url);
-                            }
-                        }
-                    } else {
-                        this.res.redirect(`/customer/reserve/${token}/seats`);
+                // 追加指定席を合わせて制限枚数を超過した場合
+                if (seatCodes.length > limit) {
+                    const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
+                    this.res.redirect(`/customer/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
+                } else {
+                    // 仮予約あればキャンセルする
+                    try {
+                        reservationModel = await this.processCancelSeats(reservationModel);
+                    } catch (error) {
+                        this.next(error);
+                        return;
                     }
-                });
+
+                    try {
+                        // 座席FIX
+                        reservationModel = await this.processFixSeats(reservationModel, seatCodes);
+                        await reservationModel.save();
+                        // 券種選択へ
+                        this.res.redirect(`/customer/reserve/${token}/tickets`);
+                        return;
+                    } catch (error) {
+                        await reservationModel.save();
+                        const message = this.req.__('Message.SelectedSeatsUnavailable');
+                        let url = `/customer/reserve/${token}/seats`;
+                        url += '?message=' + encodeURIComponent(message);
+                        this.res.redirect(url);
+                        return;
+                    }
+                }
             } else {
                 this.res.render('customer/reserve/seats', {
                     reservationModel: reservationModel,
                     limit: limit
                 });
+                return;
             }
         } catch (error) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));
+            return;
         }
     }
 

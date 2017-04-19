@@ -28,61 +28,75 @@ class WindowAuthController extends BaseController_1.default {
     }
     /**
      * 窓口担当者ログイン
+     * @method login
+     * @returns {Promise<void>}
      */
     login() {
-        if (this.req.windowUser !== undefined && this.req.windowUser.isAuthenticated()) {
-            this.res.redirect('/window/mypage');
-            return;
-        }
-        if (this.req.method === 'POST') {
-            windowLoginForm_1.default(this.req)(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
-                const form = this.req.form;
-                if (form !== undefined && form.isValid) {
-                    try {
-                        // ユーザー認証
-                        const window = yield chevre_domain_1.Models.Window.findOne({
-                            user_id: form.userId
-                        }).exec();
-                        if (window === null) {
-                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                            this.res.render('window/auth/login');
-                            return;
-                        }
-                        // パスワードチェック
-                        if (window.get('password_hash') !== Util.createHash(form.password, window.get('password_salt'))) {
-                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                            this.res.render('window/auth/login');
-                            return;
-                        }
-                        // ログイン記憶
-                        if (form.remember === 'on') {
-                            // トークン生成
-                            const authentication = yield chevre_domain_1.Models.Authentication.create({
-                                token: Util.createToken(),
-                                window: window.get('_id')
-                            });
-                            // tslint:disable-next-line:no-cookies
-                            this.res.cookie('remember_window', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
-                        }
-                        // ログイン
-                        this.req.session[WindowUser_1.default.AUTH_SESSION_NAME] = window.toObject();
-                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/window/mypage';
-                        this.res.redirect(cb);
-                    }
-                    catch (error) {
-                        this.next(new Error(this.req.__('Message.UnexpectedError')));
-                    }
-                }
-                else {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.req.windowUser !== undefined && this.req.windowUser.isAuthenticated()) {
+                this.res.redirect('/window/mypage');
+                return;
+            }
+            if (this.req.method === 'POST') {
+                windowLoginForm_1.default(this.req);
+                const validationResult = yield this.req.getValidationResult();
+                if (!validationResult.isEmpty()) {
+                    this.res.locals.userId = this.req.body.userId;
+                    this.res.locals.password = '';
+                    this.res.locals.validation = validationResult.array();
                     this.res.render('window/auth/login');
+                    return;
                 }
-            }));
-        }
-        else {
-            this.res.locals.userId = '';
-            this.res.locals.password = '';
-            this.res.render('window/auth/login');
-        }
+                try {
+                    // ユーザー認証
+                    const window = yield chevre_domain_1.Models.Window.findOne({
+                        user_id: this.req.body.userId
+                    }).exec();
+                    this.res.locals.userId = this.req.body.userId;
+                    this.res.locals.password = '';
+                    if (window === null) {
+                        this.res.locals.validation = [
+                            { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
+                        ];
+                        this.res.render('window/auth/login');
+                        return;
+                    }
+                    // パスワードチェック
+                    if (window.get('password_hash') !== Util.createHash(this.req.body.password, window.get('password_salt'))) {
+                        this.res.locals.validation = [
+                            { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
+                        ];
+                        this.res.render('window/auth/login');
+                        return;
+                    }
+                    // ログイン記憶
+                    if (this.req.body.remember === 'on') {
+                        // トークン生成
+                        const authentication = yield chevre_domain_1.Models.Authentication.create({
+                            token: Util.createToken(),
+                            window: window.get('_id')
+                        });
+                        // tslint:disable-next-line:no-cookies
+                        this.res.cookie('remember_window', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                    }
+                    // ログイン
+                    this.req.session[WindowUser_1.default.AUTH_SESSION_NAME] = window.toObject();
+                    const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/window/mypage';
+                    this.res.redirect(cb);
+                    return;
+                }
+                catch (error) {
+                    this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    return;
+                }
+            }
+            else {
+                this.res.locals.userId = '';
+                this.res.locals.password = '';
+                this.res.render('window/auth/login');
+                return;
+            }
+        });
     }
     logout() {
         return __awaiter(this, void 0, void 0, function* () {

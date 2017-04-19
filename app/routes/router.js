@@ -51,7 +51,7 @@ exports.default = (app) => {
     // 一般
     // 本番環境ではhomeは存在しない
     if (process.env.NODE_ENV !== 'production') {
-        app.all('/customer/reserve/performances', base, (req, res, next) => { (new CustomerReserveController_1.default(req, res, next)).performances(); });
+        app.all('/customer/reserve/performances', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).performances(); }));
     }
     app.get('/customer/reserve/start', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).start(); }));
     app.all('/customer/reserve/:token/terms', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).terms(); }));

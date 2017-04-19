@@ -94,7 +94,7 @@ export default (app: Application) => {
 
     // 内部関係者
     // tslint:disable:max-line-length
-    app.all('/staff/login', base, (req: Request, res: Response, next: NextFunction) => { (new StaffAuthController(req, res, next)).login(); });
+    app.all('/staff/login', base, async (req: Request, res: Response, next: NextFunction) => { await (new StaffAuthController(req, res, next)).login(); });
     app.all('/staff/logout', base, async (req: Request, res: Response, next: NextFunction) => { await (new StaffAuthController(req, res, next)).logout(); });
     app.all('/staff/mypage', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffMyPageController(req, res, next)).index(); });
     app.get('/staff/mypage/search', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffMyPageController(req, res, next)).search(); });

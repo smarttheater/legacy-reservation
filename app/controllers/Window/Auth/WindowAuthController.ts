@@ -18,76 +18,86 @@ export default class WindowAuthController extends BaseController {
 
     /**
      * 窓口担当者ログイン
+     * @method login
+     * @returns {Promise<void>}
      */
-    public login(): void {
+    public async login(): Promise<void> {
         if (this.req.windowUser !== undefined && this.req.windowUser.isAuthenticated()) {
             this.res.redirect('/window/mypage');
             return;
         }
 
         if (this.req.method === 'POST') {
-            windowLoginForm(this.req)(this.req, this.res, async () => {
-                const form = this.req.form;
-                if (form !== undefined && form.isValid) {
-                    try {
-                        // ユーザー認証
-                        const window = await Models.Window.findOne(
-                            {
-                                user_id: (<any>form).userId
-                            }
-                        ).exec();
-
-                        if (window === null) {
-                            form.errors.push(
-                                this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') })
-                            );
-                            this.res.render('window/auth/login');
-                            return;
-                        }
-
-                        // パスワードチェック
-                        if (window.get('password_hash') !== Util.createHash((<any>form).password, window.get('password_salt'))) {
-                            form.errors.push(
-                                this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') })
-                            );
-                            this.res.render('window/auth/login');
-                            return;
-                        }
-
-                        // ログイン記憶
-                        if ((<any>form).remember === 'on') {
-                            // トークン生成
-                            const authentication = await Models.Authentication.create(
-                                {
-                                    token: Util.createToken(),
-                                    window: window.get('_id')
-                                }
-                            );
-                            // tslint:disable-next-line:no-cookies
-                            this.res.cookie(
-                                'remember_window',
-                                authentication.get('token'),
-                                { path: '/', httpOnly: true, maxAge: 604800000 }
-                            );
-                        }
-
-                        // ログイン
-                        (<Express.Session>this.req.session)[WindowUser.AUTH_SESSION_NAME] = window.toObject();
-
-                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/window/mypage';
-                        this.res.redirect(cb);
-                    } catch (error) {
-                        this.next(new Error(this.req.__('Message.UnexpectedError')));
+            windowLoginForm(this.req);
+            const validationResult = await this.req.getValidationResult();
+            if (!validationResult.isEmpty()) {
+                this.res.locals.userId = this.req.body.userId;
+                this.res.locals.password = '';
+                this.res.locals.validation = validationResult.array();
+                this.res.render('window/auth/login');
+                return;
+            }
+            try {
+                // ユーザー認証
+                const window = await Models.Window.findOne(
+                    {
+                        user_id: this.req.body.userId
                     }
-                } else {
+                ).exec();
+
+                this.res.locals.userId = this.req.body.userId;
+                this.res.locals.password = '';
+
+                if (window === null) {
+                    this.res.locals.validation = [
+                        { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
+                    ];
                     this.res.render('window/auth/login');
+                    return;
                 }
-            });
+
+                // パスワードチェック
+                if (window.get('password_hash') !== Util.createHash(this.req.body.password, window.get('password_salt'))) {
+                    this.res.locals.validation = [
+                        { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
+                    ];
+                    this.res.render('window/auth/login');
+                    return;
+                }
+
+                // ログイン記憶
+                if (this.req.body.remember === 'on') {
+                    // トークン生成
+                    const authentication = await Models.Authentication.create(
+                        {
+                            token: Util.createToken(),
+                            window: window.get('_id')
+                        }
+                    );
+                    // tslint:disable-next-line:no-cookies
+                    this.res.cookie(
+                        'remember_window',
+                        authentication.get('token'),
+                        { path: '/', httpOnly: true, maxAge: 604800000 }
+                    );
+                }
+
+                // ログイン
+                (<Express.Session>this.req.session)[WindowUser.AUTH_SESSION_NAME] = window.toObject();
+
+                const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/window/mypage';
+                this.res.redirect(cb);
+                return;
+            } catch (error) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+                return;
+            }
         } else {
             this.res.locals.userId = '';
             this.res.locals.password = '';
 
             this.res.render('window/auth/login');
+            return;
         }
     }
 

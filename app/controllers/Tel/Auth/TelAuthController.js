@@ -28,61 +28,72 @@ class TelAuthController extends BaseController_1.default {
     }
     /**
      * 窓口担当者ログイン
+     * @method login
+     * @returns {Promise<void>}
      */
     login() {
-        if (this.req.telStaffUser !== undefined && this.req.telStaffUser.isAuthenticated()) {
-            this.res.redirect('/tel/mypage');
-            return;
-        }
-        if (this.req.method === 'POST') {
-            telLoginForm_1.default(this.req)(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
-                const form = this.req.form;
-                if (form !== undefined && form.isValid) {
-                    try {
-                        // ユーザー認証
-                        const telStaff = yield chevre_domain_1.Models.TelStaff.findOne({
-                            user_id: form.userId
-                        }).exec();
-                        if (telStaff === null) {
-                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                            this.res.render('tel/auth/login');
-                            return;
-                        }
-                        // パスワードチェック
-                        if (telStaff.get('password_hash') !== Util.createHash(form.password, telStaff.get('password_salt'))) {
-                            form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                            this.res.render('tel/auth/login');
-                            return;
-                        }
-                        // ログイン記憶
-                        if (form.remember === 'on') {
-                            // トークン生成
-                            const authentication = yield chevre_domain_1.Models.Authentication.create({
-                                token: Util.createToken(),
-                                tel_staff: telStaff.get('_id')
-                            });
-                            // tslint:disable-next-line:no-cookies
-                            this.res.cookie('remember_tel_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
-                        }
-                        // ログイン
-                        this.req.session[TelStaffUser_1.default.AUTH_SESSION_NAME] = telStaff.toObject();
-                        const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/tel/mypage';
-                        this.res.redirect(cb);
-                    }
-                    catch (error) {
-                        this.next(new Error(this.req.__('Message.UnexpectedError')));
-                    }
-                }
-                else {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.req.telStaffUser !== undefined && this.req.telStaffUser.isAuthenticated()) {
+                this.res.redirect('/tel/mypage');
+                return;
+            }
+            if (this.req.method === 'POST') {
+                telLoginForm_1.default(this.req);
+                const validationResult = yield this.req.getValidationResult();
+                if (!validationResult.isEmpty()) {
+                    this.res.locals.userId = this.req.body.userId;
+                    this.res.locals.password = '';
+                    this.res.locals.validation = validationResult.array();
                     this.res.render('tel/auth/login');
+                    return;
                 }
-            }));
-        }
-        else {
-            this.res.locals.userId = '';
-            this.res.locals.password = '';
-            this.res.render('tel/auth/login');
-        }
+                try {
+                    // ユーザー認証
+                    const telStaff = yield chevre_domain_1.Models.TelStaff.findOne({
+                        user_id: this.req.body.userId
+                    }).exec();
+                    this.res.locals.userId = this.req.body.userId;
+                    this.res.locals.password = '';
+                    if (telStaff === null) {
+                        this.res.locals.validation = [
+                            { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
+                        ];
+                        this.res.render('tel/auth/login');
+                        return;
+                    }
+                    // パスワードチェック
+                    if (telStaff.get('password_hash') !== Util.createHash(this.req.body.password, telStaff.get('password_salt'))) {
+                        this.res.locals.validation = [
+                            { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
+                        ];
+                        this.res.render('tel/auth/login');
+                        return;
+                    }
+                    // ログイン記憶
+                    if (this.req.body.remember === 'on') {
+                        // トークン生成
+                        const authentication = yield chevre_domain_1.Models.Authentication.create({
+                            token: Util.createToken(),
+                            tel_staff: telStaff.get('_id')
+                        });
+                        // tslint:disable-next-line:no-cookies
+                        this.res.cookie('remember_tel_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
+                    }
+                    // ログイン
+                    this.req.session[TelStaffUser_1.default.AUTH_SESSION_NAME] = telStaff.toObject();
+                    const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/tel/mypage';
+                    this.res.redirect(cb);
+                }
+                catch (error) {
+                    this.next(new Error(this.req.__('Message.UnexpectedError')));
+                }
+            }
+            else {
+                this.res.locals.userId = '';
+                this.res.locals.password = '';
+                this.res.render('tel/auth/login');
+            }
+        });
     }
     logout() {
         return __awaiter(this, void 0, void 0, function* () {

@@ -88,7 +88,7 @@ exports.default = (app) => {
     };
     // 当日窓口フロー
     // tslint:disable:max-line-length
-    app.all('/window/login', base, (req, res, next) => { (new WindowAuthController_1.default(req, res, next)).login(); });
+    app.all('/window/login', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowAuthController_1.default(req, res, next)).login(); }));
     app.all('/window/logout', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowAuthController_1.default(req, res, next)).logout(); }));
     app.all('/window/mypage', base, authentication, (req, res, next) => { (new WindowMyPageController_1.default(req, res, next)).index(); });
     app.get('/window/mypage/search', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowMyPageController_1.default(req, res, next)).search(); }));

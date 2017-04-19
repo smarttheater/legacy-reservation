@@ -91,7 +91,7 @@ exports.default = (app) => {
     };
     // 外部関係者
     // tslint:disable:max-line-length
-    app.all('/sponsor/login', base, (req, res, next) => { (new SponsorAuthController_1.default(req, res, next)).login(); });
+    app.all('/sponsor/login', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorAuthController_1.default(req, res, next)).login(); }));
     app.all('/sponsor/logout', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorAuthController_1.default(req, res, next)).logout(); }));
     app.all('/sponsor/mypage', base, authentication, (req, res, next) => { (new SponsorMyPageController_1.default(req, res, next)).index(); });
     app.get('/sponsor/mypage/search', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorMyPageController_1.default(req, res, next)).search(); }));
@@ -105,6 +105,6 @@ exports.default = (app) => {
     app.get('/sponsor/reserve/:paymentNo/complete', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorReserveController_1.default(req, res, next)).complete(); }));
     app.post('/sponsor/cancel/execute', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorCancelController_1.default(req, res, next)).execute(); }));
     // ↓ログイン不要
-    app.all('/sponsor/cancel', base, (req, res, next) => { (new SponsorCancelController_1.default(req, res, next)).index(); });
+    app.all('/sponsor/cancel', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorCancelController_1.default(req, res, next)).index(); }));
     app.post('/sponsor/cancel/executeByPaymentNo', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new SponsorCancelController_1.default(req, res, next)).executeByPaymentNo(); }));
 };

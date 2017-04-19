@@ -4,48 +4,69 @@
  * @ignore
  */
 import { Request } from 'express';
-import * as form from 'express-form';
 
 const NAME_MAX_LENGTH = 15;
 
 export default (req: Request) => {
-    return form(
-        form.field('lastName', req.__('Form.FieldName.lastName')).trim()
-            .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
-            .maxLength(
-            NAME_MAX_LENGTH,
-            req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: NAME_MAX_LENGTH.toString() })
-            )
-            .regex(/^[ァ-ロワヲンーa-zA-Z]*$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
-        form.field('firstName', req.__('Form.FieldName.firstName')).trim()
-            .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
-            .maxLength(
-            NAME_MAX_LENGTH,
-            req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: NAME_MAX_LENGTH.toString() })
-            )
-            .regex(/^[ァ-ロワヲンーa-zA-Z]*$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
-        form.field('tel', req.__('Form.FieldName.tel')).trim()
-            .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
-            .regex(/^[0-9]{7,13}$/, req.__('Message.regexTel')),
-        form.field('email', req.__('Form.FieldName.email')).trim()
-            .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
-            .isEmail(req.__('Message.invalid{{fieldName}}', { fieldName: '%s' }))
-            .custom((value: any, source: any, callback: (err: Error | null) => void) => {
-                if (value !== `${source.emailConfirm}@${source.emailConfirmDomain}`) {
-                    callback(new Error(req.__('Message.match{{fieldName}}', { fieldName: '%s' })));
-                } else {
-                    callback(null);
-                }
-            }),
-        form.field('emailConfirm', req.__('Form.FieldName.emailConfirm')).trim()
-            .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' })),
-        form.field('emailConfirmDomain', req.__('Form.FieldName.emailConfirmDomain')).trim()
-            .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' })),
-        form.field('paymentMethod', req.__('Form.FieldName.paymentMethod')).trim()
-            .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' })),
-        form.field('age', req.__('Form.FieldName.age')).trim()
-            .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' })),
-        form.field('address', req.__('Form.FieldName.address')).trim(),
-        form.field('gender', req.__('Form.FieldName.gender')).trim()
-    );
+    // lastName
+    req.checkBody('lastName', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.lastName') })).notEmpty();
+    req.checkBody(
+        'lastName',
+        req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: req.__('Form.FieldName.lastName'), max: NAME_MAX_LENGTH.toString() })
+    ).isLength({
+        max: NAME_MAX_LENGTH
+    });
+    req.checkBody(
+        'lastName',
+        req.__('Message.invalid{{fieldName}}', { fieldName: req.__('Form.FieldName.lastName') })
+    ).matches(/^[ァ-ロワヲンーa-zA-Z]*$/);
+
+    // firstName
+    req.checkBody('firstName', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.firstName') })).notEmpty();
+    req.checkBody(
+        'firstName',
+        req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: req.__('Form.FieldName.firstName'), max: NAME_MAX_LENGTH.toString() })
+    ).isLength({
+        max: NAME_MAX_LENGTH
+    });
+    req.checkBody(
+        'firstName',
+        req.__('Message.invalid{{fieldName}}', { fieldName: req.__('Form.FieldName.firstName') })
+    ).matches(/^[ァ-ロワヲンーa-zA-Z]*$/);
+
+    // tel
+    req.checkBody('tel', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.tel') })).notEmpty();
+    req.checkBody('tel', req.__('Message.regexTel')).matches(/^[0-9]{7,13}$/);
+
+    // email
+    req.checkBody('email', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.email') })).notEmpty();
+    req.checkBody('email', req.__('Message.invalid{{fieldName}}', { fieldName: req.__('Form.FieldName.email') })).isEmail();
+    req.checkBody(
+        'email',
+        req.__('Message.match{{fieldName}}', { fieldName: req.__('Form.FieldName.email') })
+    ).equals(`${req.body.emailConfirm}@${req.body.emailConfirmDomain}`);
+
+    // emailConfirm
+    req.checkBody('emailConfirm', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.emailConfirm') })).notEmpty();
+
+    // emailConfirmDomain
+    req.checkBody(
+        'emailConfirmDomain',
+        req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.emailConfirmDomain') })
+    ).notEmpty();
+
+    // address
+    // req.checkBody('address', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.address') })).notEmpty();
+
+    // paymentMethod
+    req.checkBody(
+        'paymentMethod',
+        req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.paymentMethod') })
+    ).notEmpty();
+
+    // age
+    req.checkBody('age', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.age') })).notEmpty();
+
+    // gender
+    req.checkBody('gender', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.gender') })).notEmpty();
 };

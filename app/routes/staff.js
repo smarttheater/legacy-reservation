@@ -93,7 +93,7 @@ exports.default = (app) => {
     };
     // 内部関係者
     // tslint:disable:max-line-length
-    app.all('/staff/login', base, (req, res, next) => { (new StaffAuthController_1.default(req, res, next)).login(); });
+    app.all('/staff/login', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffAuthController_1.default(req, res, next)).login(); }));
     app.all('/staff/logout', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffAuthController_1.default(req, res, next)).logout(); }));
     app.all('/staff/mypage', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffMyPageController_1.default(req, res, next)).index(); }));
     app.get('/staff/mypage/search', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffMyPageController_1.default(req, res, next)).search(); }));

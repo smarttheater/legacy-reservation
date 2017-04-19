@@ -40,7 +40,7 @@ export default (app: Application) => {
 
     // メルマガ先行
     // tslint:disable:max-line-length
-    app.all('/member/login', base, (req: Request, res: Response, next: NextFunction) => { (new MemberAuthController(req, res, next)).login(); });
+    app.all('/member/login', base, async (req: Request, res: Response, next: NextFunction) => { await (new MemberAuthController(req, res, next)).login(); });
     app.get('/member/reserve/start', base, async (req: Request, res: Response, next: NextFunction) => { await (new MemberReserveController(req, res, next)).start(); });
     app.all('/member/reserve/:token/tickets', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new MemberReserveController(req, res, next)).tickets(); });
     app.all('/member/reserve/:token/profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new MemberReserveController(req, res, next)).profile(); });

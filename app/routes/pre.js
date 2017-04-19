@@ -89,7 +89,7 @@ exports.default = (app) => {
     };
     // 外部関係者
     // tslint:disable:max-line-length
-    app.all('/pre/login', base, (req, res, next) => { (new PreCustomerAuthController_1.default(req, res, next)).login(); });
+    app.all('/pre/login', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerAuthController_1.default(req, res, next)).login(); }));
     app.all('/pre/logout', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerAuthController_1.default(req, res, next)).logout(); }));
     app.get('/pre/reserve/start', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).start(); }));
     app.all('/pre/reserve/:token/performances', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new PreCustomerReserveController_1.default(req, res, next)).performances(); }));

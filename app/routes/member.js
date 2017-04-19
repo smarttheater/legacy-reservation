@@ -39,7 +39,7 @@ exports.default = (app) => {
     });
     // メルマガ先行
     // tslint:disable:max-line-length
-    app.all('/member/login', base, (req, res, next) => { (new MemberAuthController_1.default(req, res, next)).login(); });
+    app.all('/member/login', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new MemberAuthController_1.default(req, res, next)).login(); }));
     app.get('/member/reserve/start', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new MemberReserveController_1.default(req, res, next)).start(); }));
     app.all('/member/reserve/:token/tickets', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new MemberReserveController_1.default(req, res, next)).tickets(); }));
     app.all('/member/reserve/:token/profile', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new MemberReserveController_1.default(req, res, next)).profile(); }));

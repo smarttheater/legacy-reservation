@@ -56,7 +56,7 @@ export default (app: Application) => {
     // 一般
     // 本番環境ではhomeは存在しない
     if (process.env.NODE_ENV !== 'production') {
-        app.all('/customer/reserve/performances', base, (req: Request, res: Response, next: NextFunction) => { (new CustomerReserveController(req, res, next)).performances(); });
+        app.all('/customer/reserve/performances', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).performances(); });
     }
     app.get('/customer/reserve/start', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).start(); });
     app.all('/customer/reserve/:token/terms', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).terms(); });

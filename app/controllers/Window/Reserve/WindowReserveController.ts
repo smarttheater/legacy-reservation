@@ -60,23 +60,24 @@ export default class WindowReserveController extends ReserveBaseController imple
             }
 
             if (this.req.method === 'POST') {
-                reservePerformanceForm(this.req, this.res, async () => {
-                    if (this.req.form !== undefined && this.req.form.isValid) {
-                        try {
-                            // パフォーマンスFIX
-                            reservationModel = await this.processFixPerformance(
-                                (<ReservationModel>reservationModel),
-                                (<any>this.req.form).performanceId
-                            );
-                            await reservationModel.save();
-                            this.res.redirect(`/window/reserve/${token}/seats`);
-                        } catch (error) {
-                            this.next(error);
-                        }
-                    } else {
-                        this.next(new Error(this.req.__('Message.UnexpectedError')));
-                    }
-                });
+                reservePerformanceForm(this.req);
+                const validationResult = await this.req.getValidationResult();
+                if (!validationResult.isEmpty()) {
+                    this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    return;
+                }
+                try {
+                    // パフォーマンスFIX
+                    reservationModel = await this.processFixPerformance(
+                        (<ReservationModel>reservationModel),
+                        this.req.body.performanceId
+                    );
+                    await reservationModel.save();
+                    this.res.redirect(`/window/reserve/${token}/seats`);
+                } catch (error) {
+                    this.next(error);
+                }
+
             } else {
                 // 仮予約あればキャンセルする
                 try {
@@ -111,49 +112,51 @@ export default class WindowReserveController extends ReserveBaseController imple
             const limit = reservationModel.getSeatsLimit();
 
             if (this.req.method === 'POST') {
-                reserveSeatForm(this.req, this.res, async () => {
-                    if (this.req.form !== undefined && this.req.form.isValid) {
-                        const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
+                reserveSeatForm(this.req);
+                const validationResult = await this.req.getValidationResult();
+                if (!validationResult.isEmpty()) {
+                    this.res.redirect(`/window/reserve/${token}/seats`);
+                    return;
+                }
+                const seatCodes: string[] = JSON.parse(this.req.body.seatCodes);
 
-                        // 追加指定席を合わせて制限枚数を超過した場合
-                        if (seatCodes.length > limit) {
-                            const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                            this.res.redirect(`/window/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
-                            return;
-                        }
+                // 追加指定席を合わせて制限枚数を超過した場合
+                if (seatCodes.length > limit) {
+                    const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
+                    this.res.redirect(`/window/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
+                    return;
+                }
 
-                        // 仮予約あればキャンセルする
-                        try {
-                            reservationModel = await this.processCancelSeats(<ReservationModel>reservationModel);
-                        } catch (error) {
-                            this.next(error);
-                            return;
-                        }
+                // 仮予約あればキャンセルする
+                try {
+                    reservationModel = await this.processCancelSeats(<ReservationModel>reservationModel);
+                } catch (error) {
+                    this.next(error);
+                    return;
+                }
 
-                        try {
-                            // 座席FIX
-                            reservationModel = await this.processFixSeats(reservationModel, seatCodes);
-                            await reservationModel.save();
-                            // 券種選択へ
-                            this.res.redirect(`/window/reserve/${token}/tickets`);
-                        } catch (error) {
-                            await reservationModel.save();
-                            const message = this.req.__('Message.SelectedSeatsUnavailable');
-                            this.res.redirect(`/window/reserve/${token}/seats?message=${encodeURIComponent(message)}`
-                            );
-                        }
-                    } else {
-                        this.res.redirect(`/window/reserve/${token}/seats`);
-                    }
-                });
+                try {
+                    // 座席FIX
+                    reservationModel = await this.processFixSeats(reservationModel, seatCodes);
+                    await reservationModel.save();
+                    // 券種選択へ
+                    this.res.redirect(`/window/reserve/${token}/tickets`);
+                } catch (error) {
+                    await reservationModel.save();
+                    const message = this.req.__('Message.SelectedSeatsUnavailable');
+                    this.res.redirect(`/window/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
+                    return;
+                }
             } else {
                 this.res.render('window/reserve/seats', {
                     reservationModel: reservationModel,
                     limit: limit
                 });
+                return;
             }
         } catch (error) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));
+            return;
         }
     }
 

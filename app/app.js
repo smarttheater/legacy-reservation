@@ -17,6 +17,8 @@ const favicon = require("serve-favicon");
 const _ = require("underscore");
 const basicAuth_1 = require("./middlewares/basicAuth");
 const benchmarks_1 = require("./middlewares/benchmarks");
+// tslint:disable-next-line:no-require-imports
+const expressValidator = require("express-validator");
 const logger_1 = require("./middlewares/logger");
 const session_1 = require("./middlewares/session");
 const app = express();
@@ -84,6 +86,7 @@ app.use((req, _res, next) => {
     }
     next();
 });
+app.use(expressValidator()); // バリデーション
 // ルーティング登録の順序に注意！
 member_1.default(app);
 sponsor_1.default(app);

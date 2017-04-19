@@ -27,72 +27,77 @@ class SponsorCancelController extends BaseController_1.default {
     }
     /**
      * チケットキャンセル
+     * @method index
+     * @returns {Promise<void>}
      */
     index() {
-        if (this.req.sponsorUser !== undefined && this.req.sponsorUser.isAuthenticated()) {
-            // ログイン時そのまま
-        }
-        else {
-            // this.req.setLocale('ja');
-        }
-        if (this.req.method === 'POST') {
-            const form = sponsorCancelForm_1.default(this.req);
-            form(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
-                if (this.req.form !== undefined && this.req.form.isValid) {
-                    try {
-                        // 予約を取得
-                        const reservations = yield chevre_domain_1.Models.Reservation.find({
-                            payment_no: this.req.form.paymentNo,
-                            purchaser_tel: { $regex: `${this.req.form.last4DigitsOfTel}$` },
-                            purchaser_group: chevre_domain_2.ReservationUtil.PURCHASER_GROUP_SPONSOR,
-                            status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
-                        }).exec();
-                        if (reservations.length === 0) {
-                            this.res.json({
-                                success: false,
-                                message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
-                            });
-                            return;
-                        }
-                        const results = reservations.map((reservation) => {
-                            return {
-                                _id: reservation.get('_id'),
-                                seat_code: reservation.get('seat_code'),
-                                payment_no: reservation.get('payment_no'),
-                                film_name_ja: reservation.get('film_name_ja'),
-                                film_name_en: reservation.get('film_name_en'),
-                                performance_start_str_ja: reservation.get('performance_start_str_ja'),
-                                performance_start_str_en: reservation.get('performance_start_str_en'),
-                                location_str_ja: reservation.get('location_str_ja'),
-                                location_str_en: reservation.get('location_str_en')
-                            };
-                        });
-                        this.res.json({
-                            success: true,
-                            message: null,
-                            reservations: results
-                        });
-                    }
-                    catch (error) {
-                        this.res.json({
-                            success: false,
-                            message: this.req.__('Message.UnexpectedError')
-                        });
-                    }
-                }
-                else {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.req.sponsorUser !== undefined && this.req.sponsorUser.isAuthenticated()) {
+                // ログイン時そのまま
+            }
+            else {
+                // this.req.setLocale('ja');
+            }
+            if (this.req.method === 'POST') {
+                sponsorCancelForm_1.default(this.req);
+                const validationResult = yield this.req.getValidationResult();
+                if (!validationResult.isEmpty()) {
                     this.res.json({
                         success: false,
                         message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
                     });
+                    return;
                 }
-            }));
-        }
-        else {
-            this.res.locals.paymentNo = '';
-            this.res.locals.last4DigitsOfTel = '';
-            this.res.render('sponsor/cancel');
-        }
+                try {
+                    // 予約を取得
+                    const reservations = yield chevre_domain_1.Models.Reservation.find({
+                        payment_no: this.req.body.paymentNo,
+                        purchaser_tel: { $regex: `${this.req.body.last4DigitsOfTel}$` },
+                        purchaser_group: chevre_domain_2.ReservationUtil.PURCHASER_GROUP_SPONSOR,
+                        status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
+                    }).exec();
+                    if (reservations.length === 0) {
+                        this.res.json({
+                            success: false,
+                            message: this.req.__('Message.invalidPaymentNoOrLast4DigitsOfTel')
+                        });
+                        return;
+                    }
+                    const results = reservations.map((reservation) => {
+                        return {
+                            _id: reservation.get('_id'),
+                            seat_code: reservation.get('seat_code'),
+                            payment_no: reservation.get('payment_no'),
+                            film_name_ja: reservation.get('film_name_ja'),
+                            film_name_en: reservation.get('film_name_en'),
+                            performance_start_str_ja: reservation.get('performance_start_str_ja'),
+                            performance_start_str_en: reservation.get('performance_start_str_en'),
+                            location_str_ja: reservation.get('location_str_ja'),
+                            location_str_en: reservation.get('location_str_en')
+                        };
+                    });
+                    this.res.json({
+                        success: true,
+                        message: null,
+                        reservations: results
+                    });
+                    return;
+                }
+                catch (error) {
+                    this.res.json({
+                        success: false,
+                        message: this.req.__('Message.UnexpectedError')
+                    });
+                    return;
+                }
+            }
+            else {
+                this.res.locals.paymentNo = '';
+                this.res.locals.last4DigitsOfTel = '';
+                this.res.render('sponsor/cancel');
+                return;
+            }
+        });
     }
     /**
      * 購入番号からキャンセルする
