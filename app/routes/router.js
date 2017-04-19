@@ -34,7 +34,6 @@ exports.default = (app) => {
     // 言語
     app.get('/language/update/:locale', base, (req, res, next) => { (new LanguageController_1.default(req, res, next)).update(); });
     app.get('/reserve/:token/getSeatProperties', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new ReserveController_1.default(req, res, next)).getSeatProperties(); }));
-    app.get('/reserve/:reservationId/qrcode', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new ReserveController_1.default(req, res, next)).qrcode(); }));
     app.get('/reserve/:performanceId/unavailableSeatCodes', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new ReserveController_1.default(req, res, next)).getUnavailableSeatCodes(); }));
     app.get('/reserve/print', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new ReserveController_1.default(req, res, next)).print(); }));
     // GMOプロセス

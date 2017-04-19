@@ -64,7 +64,9 @@ for (let reservation of reservationDocuments) {
 
                             </div>
                             <div class="cell-codeimg">
-                                <img class="codeimg-barcode" src="/reserve/<%= reservation._id %>/qrcode">
+                                
+                                <img class="codeimg-barcode" src="//chart.apis.google.com/chart?chs=150x150&cht=qr&chl=<%= reservation.qr_str %>" alt="">
+
                             </div>
 
                             <% if (reservation.purchaser_group !== ReservationUtil.PURCHASER_GROUP_WINDOW) { %>

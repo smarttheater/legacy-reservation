@@ -35,7 +35,6 @@ export default (app: Application) => {
     app.get('/language/update/:locale', base, (req: Request, res: Response, next: NextFunction) => { (new LanguageController(req, res, next)).update(); });
 
     app.get('/reserve/:token/getSeatProperties', base, async (req: Request, res: Response, next: NextFunction) => { await (new ReserveController(req, res, next)).getSeatProperties(); });
-    app.get('/reserve/:reservationId/qrcode', base, async (req: Request, res: Response, next: NextFunction) => { await (new ReserveController(req, res, next)).qrcode(); });
     app.get('/reserve/:performanceId/unavailableSeatCodes', base, async (req: Request, res: Response, next: NextFunction) => { await (new ReserveController(req, res, next)).getUnavailableSeatCodes(); });
     app.get('/reserve/print', base, async (req: Request, res: Response, next: NextFunction) => { await (new ReserveController(req, res, next)).print(); });
 

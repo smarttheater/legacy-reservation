@@ -1,7 +1,6 @@
 import { Models } from '@motionpicture/chevre-domain';
 import { ReservationUtil } from '@motionpicture/chevre-domain';
 import { ScreenUtil } from '@motionpicture/chevre-domain';
-import * as qr from 'qr-image';
 import ReservationModel from '../../models/Reserve/ReservationModel';
 import ReserveBaseController from '../ReserveBaseController';
 
@@ -103,22 +102,6 @@ export default class ReserveController extends ReserveBaseController {
             });
         } catch (error) {
             this.res.json({ propertiesBySeatCode: {} });
-        }
-    }
-
-    /**
-     * create qrcode by reservation token and reservation id.
-     */
-    public async qrcode() {
-        try {
-            const reservation = await Models.Reservation.findOne(
-                { _id: this.req.params.reservationId },
-                'payment_no payment_seat_index'
-            ).exec();
-            // this.res.setHeader('Content-Type', 'image/png');
-            qr.image(reservation.get('qr_str'), { type: 'png' }).pipe(this.res);
-        } catch (error) {
-            this.next(error);
         }
     }
 

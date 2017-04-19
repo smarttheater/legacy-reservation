@@ -11,7 +11,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const chevre_domain_3 = require("@motionpicture/chevre-domain");
-const qr = require("qr-image");
 const ReservationModel_1 = require("../../models/Reserve/ReservationModel");
 const ReserveBaseController_1 = require("../ReserveBaseController");
 /**
@@ -94,21 +93,6 @@ class ReserveController extends ReserveBaseController_1.default {
             }
             catch (error) {
                 this.res.json({ propertiesBySeatCode: {} });
-            }
-        });
-    }
-    /**
-     * create qrcode by reservation token and reservation id.
-     */
-    qrcode() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const reservation = yield chevre_domain_1.Models.Reservation.findOne({ _id: this.req.params.reservationId }, 'payment_no payment_seat_index').exec();
-                // this.res.setHeader('Content-Type', 'image/png');
-                qr.image(reservation.get('qr_str'), { type: 'png' }).pipe(this.res);
-            }
-            catch (error) {
-                this.next(error);
             }
         });
     }
