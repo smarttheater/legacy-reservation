@@ -62,7 +62,7 @@
                                 <input type="text" name="tel" id="id_tel" class="form-control" value="<%= tel %>">
                                 <p class="notice">※<%- __('Message.UseHalfWidthAlphanumericWithoutHyphens') %></p>
                                 <% if (validation && validation.tel) { %>
-                                <p class="errmsg"><%- validation.lastName.tel %></p>
+                                <p class="errmsg"><%- validation.tel.msg %></p>
                                 <% } %>
                             </td>
                         </tr>
