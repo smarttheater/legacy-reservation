@@ -1,5 +1,6 @@
 import { ReservationEmailCueUtil, ReservationUtil, ScreenUtil, TicketTypeGroupUtil } from '@motionpicture/chevre-domain';
 import { Models } from '@motionpicture/chevre-domain';
+import * as GMO from '@motionpicture/gmo-service';
 import * as conf from 'config';
 import * as express from 'express';
 import * as fs from 'fs-extra';
@@ -8,6 +9,7 @@ import * as _ from 'underscore';
 
 import * as GMOUtil from '../../common/Util/GMO/GMOUtil';
 import * as Util from '../../common/Util/Util';
+import reservePaymentCreditForm from '../forms/reserve/reservePaymentCreditForm';
 import reserveProfileForm from '../forms/reserve/reserveProfileForm';
 import reserveTicketForm from '../forms/reserve/reserveTicketForm';
 import ReservationModel from '../models/Reserve/ReservationModel';
@@ -78,7 +80,7 @@ export default class ReserveBaseController extends BaseController {
     }
 
     /**
-     * 券種FIXプロセス
+     * 購入者情報FIXプロセス
      * @method processFixProfile
      * @param {ReservationModel} reservationModel
      * @returns {Promise<ReservationModel>}
@@ -140,6 +142,69 @@ export default class ReserveBaseController extends BaseController {
             this.req.body.gender
         );
 
+        return reservationModel;
+    }
+
+    /**
+     * 決済クレジットカードFIXプロセス
+     * @method processFixPaymentOfCredit
+     * @param {ReservationModel} reservationModel
+     * @returns {Promise<ReservationModel>}
+     */
+    public async processFixPaymentOfCredit(reservationModel: ReservationModel): Promise<ReservationModel> {
+        reservePaymentCreditForm(this.req);
+        const validationResult = await this.req.getValidationResult();
+        if (!validationResult.isEmpty()) {
+            throw new Error(this.req.__('Message.Invalid'));
+        }
+
+        if (reservationModel.transactionGMO === undefined) {
+            reservationModel.transactionGMO = {
+                accessId: '',
+                accessPass: '',
+                count: 0,
+                orderId: ''
+            };
+        } else {
+            //GMOオーソリ取消
+            const alterTranIn = {
+                shopId: process.env.GMO_SHOP_ID,
+                shopPass: process.env.GMO_SHOP_PASS,
+                accessId: reservationModel.transactionGMO.accessId,
+                accessPass: reservationModel.transactionGMO.accessPass,
+                jobCd: GMO.Util.JOB_CD_VOID
+            };
+            await GMO.CreditService.alterTran(alterTranIn);
+        }
+        // GMO取引作成
+        reservationModel.transactionGMO.count += 1;
+        const day = moment().format('YYYYMMDD');
+        const paymentNo = reservationModel.paymentNo;
+        const count = reservationModel.transactionGMO.count;
+        const orderId = `${day}${paymentNo}${count}`;
+        const entryTranIn = {
+            shopId: process.env.GMO_SHOP_ID,
+            shopPass: process.env.GMO_SHOP_PASS,
+            orderId: orderId,
+            jobCd: GMO.Util.JOB_CD_AUTH,
+            amount: reservationModel.getTotalCharge()
+        };
+        reservationModel.transactionGMO.orderId = orderId;
+
+        const transactionGMO = await GMO.CreditService.entryTran(entryTranIn);
+        reservationModel.transactionGMO.accessId = transactionGMO.accessId;
+        reservationModel.transactionGMO.accessPass = transactionGMO.accessPass;
+
+        // GMOオーソリ
+        const execTranIn = {
+            accessId: transactionGMO.accessId,
+            accessPass: transactionGMO.accessPass,
+            orderId: orderId,
+            method: '1',
+            token: this.req.body.gmoTokenObject.token
+        };
+        await GMO.CreditService.execTran(execTranIn);
+        // 決済エラー判定
         return reservationModel;
     }
 

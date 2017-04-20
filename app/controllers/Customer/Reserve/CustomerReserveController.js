@@ -299,10 +299,14 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     try {
                         reservationModel = yield this.processConfirm(reservationModel);
                         yield reservationModel.save();
-                        this.logger.info('starting GMO payment...');
-                        // httpStatusの型定義不足のためanyにキャスト
-                        // todo 一時的対処なので解決する
-                        this.res.redirect(httpStatus.PERMANENT_REDIRECT, `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`);
+                        if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
+                            this.res.redirect(`/customer/reserve/${token}/payment`);
+                        }
+                        else {
+                            // httpStatusの型定義不足のためanyにキャスト
+                            // todo 一時的対処なので解決する
+                            this.res.redirect(httpStatus.PERMANENT_REDIRECT, `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`);
+                        }
                     }
                     catch (error) {
                         yield reservationModel.remove();
@@ -312,6 +316,51 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                 else {
                     this.res.render('customer/reserve/confirm', {
                         reservationModel: reservationModel
+                    });
+                }
+            }
+            catch (error) {
+                this.next(new Error(this.req.__('Message.UnexpectedError')));
+            }
+        });
+    }
+    /**
+     * 決済情報入力
+     * @method payment
+     * @returns {Promise<void>}
+     */
+    payment() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const token = this.req.params.token;
+                let reservationModel = yield ReservationModel_1.default.find(token);
+                if (reservationModel === null) {
+                    this.next(new Error(this.req.__('Message.Expired')));
+                    return;
+                }
+                if (this.req.method === 'POST') {
+                    try {
+                        reservationModel = yield this.processFixPaymentOfCredit(reservationModel);
+                        yield reservationModel.save();
+                        const paymentNo = reservationModel.transactionGMO.orderId;
+                        this.res.redirect(`/customer/reserve/${paymentNo}/complete`);
+                    }
+                    catch (error) {
+                        console.log(error);
+                        yield reservationModel.save();
+                        this.res.render('customer/reserve/payment', {
+                            reservationModel: reservationModel,
+                            GMO_ENDPOINT: process.env.GMO_ENDPOINT,
+                            GMO_SHOP_ID: process.env.GMO_SHOP_ID
+                        });
+                    }
+                }
+                else {
+                    // セッションに情報があれば、フォーム初期値設定
+                    this.res.render('customer/reserve/payment', {
+                        reservationModel: reservationModel,
+                        GMO_ENDPOINT: process.env.GMO_ENDPOINT,
+                        GMO_SHOP_ID: process.env.GMO_SHOP_ID
                     });
                 }
             }

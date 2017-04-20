@@ -10,12 +10,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
+const GMO = require("@motionpicture/gmo-service");
 const conf = require("config");
 const fs = require("fs-extra");
 const moment = require("moment");
 const _ = require("underscore");
 const GMOUtil = require("../../common/Util/GMO/GMOUtil");
 const Util = require("../../common/Util/Util");
+const reservePaymentCreditForm_1 = require("../forms/reserve/reservePaymentCreditForm");
 const reserveProfileForm_1 = require("../forms/reserve/reserveProfileForm");
 const reserveTicketForm_1 = require("../forms/reserve/reserveTicketForm");
 const ReservationModel_1 = require("../models/Reserve/ReservationModel");
@@ -73,7 +75,7 @@ class ReserveBaseController extends BaseController_1.default {
         });
     }
     /**
-     * 券種FIXプロセス
+     * 購入者情報FIXプロセス
      * @method processFixProfile
      * @param {ReservationModel} reservationModel
      * @returns {Promise<ReservationModel>}
@@ -122,6 +124,68 @@ class ReserveBaseController extends BaseController_1.default {
             }
             // セッションに購入者情報格納
             this.savePurchaser(this.req.body.lastName, this.req.body.firstName, this.req.body.tel, this.req.body.email, this.req.body.age, this.req.body.address, this.req.body.gender);
+            return reservationModel;
+        });
+    }
+    /**
+     * 決済クレジットカードFIXプロセス
+     * @method processFixPaymentOfCredit
+     * @param {ReservationModel} reservationModel
+     * @returns {Promise<ReservationModel>}
+     */
+    processFixPaymentOfCredit(reservationModel) {
+        return __awaiter(this, void 0, void 0, function* () {
+            reservePaymentCreditForm_1.default(this.req);
+            const validationResult = yield this.req.getValidationResult();
+            if (!validationResult.isEmpty()) {
+                throw new Error(this.req.__('Message.Invalid'));
+            }
+            if (reservationModel.transactionGMO === undefined) {
+                reservationModel.transactionGMO = {
+                    accessId: '',
+                    accessPass: '',
+                    count: 0,
+                    orderId: ''
+                };
+            }
+            else {
+                //GMOオーソリ取消
+                const alterTranIn = {
+                    shopId: process.env.GMO_SHOP_ID,
+                    shopPass: process.env.GMO_SHOP_PASS,
+                    accessId: reservationModel.transactionGMO.accessId,
+                    accessPass: reservationModel.transactionGMO.accessPass,
+                    jobCd: GMO.Util.JOB_CD_VOID
+                };
+                yield GMO.CreditService.alterTran(alterTranIn);
+            }
+            // GMO取引作成
+            reservationModel.transactionGMO.count += 1;
+            const day = moment().format('YYYYMMDD');
+            const paymentNo = reservationModel.paymentNo;
+            const count = reservationModel.transactionGMO.count;
+            const orderId = `${day}${paymentNo}${count}`;
+            const entryTranIn = {
+                shopId: process.env.GMO_SHOP_ID,
+                shopPass: process.env.GMO_SHOP_PASS,
+                orderId: orderId,
+                jobCd: GMO.Util.JOB_CD_AUTH,
+                amount: reservationModel.getTotalCharge()
+            };
+            reservationModel.transactionGMO.orderId = orderId;
+            const transactionGMO = yield GMO.CreditService.entryTran(entryTranIn);
+            reservationModel.transactionGMO.accessId = transactionGMO.accessId;
+            reservationModel.transactionGMO.accessPass = transactionGMO.accessPass;
+            // GMOオーソリ
+            const execTranIn = {
+                accessId: transactionGMO.accessId,
+                accessPass: transactionGMO.accessPass,
+                orderId: orderId,
+                method: '1',
+                token: this.req.body.gmoTokenObject.token
+            };
+            yield GMO.CreditService.execTran(execTranIn);
+            // 決済エラー判定
             return reservationModel;
         });
     }

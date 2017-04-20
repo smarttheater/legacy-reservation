@@ -54,6 +54,9 @@ set REDIS_PORT=**********session保管先redis port**********
 set REDIS_KEY=**********session保管先redis key**********
 set MONGOLAB_URI=**********mongodb接続URI**********
 set MONGOLAB_URI_GMO=**********gmo結果通知保管先mongodb接続URI**********
+set GMO_ENDPOINT=**********gmo apiのエンドポイント**********
+set GMO_SHOP_ID=**********gmo ショップID**********
+set GMO_SHOP_PASS=**********gmo ショップパスワード**********
 ```
 only on Aure WebApps
 

@@ -120,6 +120,10 @@ export default class ReservationModel {
      * 購入者区分
      */
     public purchaserGroup: string;
+    /**
+     * GMO取引
+     */
+    public transactionGMO: ITransactionGMO;
 
     /**
      * プロセス中の購入情報をセッションから取得する
@@ -454,4 +458,11 @@ interface IReservation {
     ticket_type_charge: number;
 
     watcher_name: string;
+}
+
+interface ITransactionGMO {
+    accessId: string;
+    accessPass: string;
+    count: number;
+    orderId: string;
 }
