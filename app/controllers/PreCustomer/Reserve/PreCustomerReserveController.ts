@@ -50,10 +50,10 @@ export default class PreCustomerReserveController extends ReserveBaseController 
 
             if (reservationModel.performance !== undefined) {
                 // パフォーマンス指定で遷移してきたら座席選択へ
-                this.res.redirect(this.router.build('pre.reserve.seats', { token: reservationModel.token }));
+                this.res.redirect(`/pre/reserve/${reservationModel.token}/seats`);
             } else {
                 // パフォーマンス指定なければパフォーマンス選択へ
-                this.res.redirect(this.router.build('pre.reserve.performances', { token: reservationModel.token }));
+                this.res.redirect(`/pre/reserve/${reservationModel.token}/performances`);
             }
         } catch (error) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -69,6 +69,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
 
     /**
      * スケジュール選択
+     * @returns {Promise<void>}
      */
     public async performances(): Promise<void> {
         if (this.req.preCustomerUser === undefined) {
@@ -119,23 +120,24 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                 }
 
                 if (this.req.method === 'POST') {
-                    reservePerformanceForm(this.req, this.res, async () => {
-                        if (this.req.form !== undefined && this.req.form.isValid) {
-                            // パフォーマンスFIX
-                            try {
-                                reservationModel = await this.processFixPerformance(
-                                    <ReservationModel>reservationModel,
-                                    (<any>this.req.form).performanceId
-                                );
-                                await reservationModel.save();
-                                this.res.redirect(this.router.build('pre.reserve.seats', { token: token }));
-                            } catch (error) {
-                                this.next(new Error(this.req.__('Message.UnexpectedError')));
-                            }
-                        } else {
-                            this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        }
-                    });
+                    reservePerformanceForm(this.req);
+                    const validationResult = await this.req.getValidationResult();
+                    if (!validationResult.isEmpty()) {
+                        this.next(new Error(this.req.__('Message.UnexpectedError')));
+                        return;
+                    }
+
+                    // パフォーマンスFIX
+                    try {
+                        reservationModel = await this.processFixPerformance(
+                            <ReservationModel>reservationModel,
+                            this.req.body.performanceId
+                        );
+                        await reservationModel.save();
+                        this.res.redirect(`/pre/reserve/${token}/seats`);
+                    } catch (error) {
+                        this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    }
                 } else {
                     this.res.render('preCustomer/reserve/performances', {
                         FilmUtil: FilmUtil,
@@ -152,6 +154,8 @@ export default class PreCustomerReserveController extends ReserveBaseController 
 
     /**
      * 座席選択
+     * @method seats
+     * @return {Promise<void>}
      */
     // tslint:disable-next-line:max-func-body-length
     public async seats(): Promise<void> {
@@ -213,48 +217,46 @@ export default class PreCustomerReserveController extends ReserveBaseController 
             }
 
             if (this.req.method === 'POST') {
-                reserveSeatForm(this.req, this.res, async () => {
-                    if (this.req.form !== undefined && this.req.form.isValid) {
-                        const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
+                reserveSeatForm(this.req);
+                const validationResult = await this.req.getValidationResult();
+                if (!validationResult.isEmpty()) {
+                    lockFile.unlock(lockPath, () => {
+                        this.res.redirect(`/pre/reserve/${token}/seats`);
+                        return;
+                    });
+                }
+                const seatCodes: string[] = JSON.parse(this.req.body.seatCodes);
 
-                        // 追加指定席を合わせて制限枚数を超過した場合
-                        if (seatCodes.length > limit) {
-                            lockFile.unlockSync(lockPath);
-                            const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                            this.res.redirect(
-                                `${this.router.build('pre.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
-                            );
-                            return;
-                        }
+                // 追加指定席を合わせて制限枚数を超過した場合
+                if (seatCodes.length > limit) {
+                    lockFile.unlockSync(lockPath);
+                    const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
+                    this.res.redirect(`/pre/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
+                    return;
+                }
 
-                        // 仮予約あればキャンセルする
-                        try {
-                            reservationModel = await this.processCancelSeats(<ReservationModel>reservationModel);
-                        } catch (error) {
-                            this.next(error);
-                            return;
-                        }
+                // 仮予約あればキャンセルする
+                try {
+                    reservationModel = await this.processCancelSeats(<ReservationModel>reservationModel);
+                } catch (error) {
+                    this.next(error);
+                    return;
+                }
 
-                        // 座席FIX
-                        try {
-                            reservationModel = await this.processFixSeats(reservationModel, seatCodes);
-                            lockFile.unlockSync(lockPath);
-                            await reservationModel.save();
-                            // 券種選択へ
-                            this.res.redirect(this.router.build('pre.reserve.tickets', { token: token }));
-                        } catch (error) {
-                            await reservationModel.save();
-                            const message = this.req.__('Message.SelectedSeatsUnavailable');
-                            this.res.redirect(
-                                `${this.router.build('pre.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
-                            );
-                        }
-                    } else {
-                        lockFile.unlock(lockPath, () => {
-                            this.res.redirect(this.router.build('pre.reserve.seats', { token: token }));
-                        });
-                    }
-                });
+                // 座席FIX
+                try {
+                    reservationModel = await this.processFixSeats(reservationModel, seatCodes);
+                    lockFile.unlockSync(lockPath);
+                    await reservationModel.save();
+                    // 券種選択へ
+                    this.res.redirect(`/pre/reserve/${token}/tickets`);
+                    return;
+                } catch (error) {
+                    await reservationModel.save();
+                    const message = this.req.__('Message.SelectedSeatsUnavailable');
+                    this.res.redirect(`/pre/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
+                    return;
+                }
             } else {
                 lockFile.unlockSync(lockPath);
                 this.res.render('preCustomer/reserve/seats', {
@@ -287,9 +289,9 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                 try {
                     reservationModel = await this.processFixTickets(reservationModel);
                     await reservationModel.save();
-                    this.res.redirect(this.router.build('pre.reserve.profile', { token: token }));
+                    this.res.redirect(`/pre/reserve/${token}/profile`);
                 } catch (error) {
-                    this.res.redirect(this.router.build('pre.reserve.tickets', { token: token }));
+                    this.res.redirect(`/pre/reserve/${token}/tickets`);
                 }
             } else {
                 this.res.render('preCustomer/reserve/tickets', {
@@ -318,7 +320,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                 try {
                     reservationModel = await this.processFixProfile(reservationModel);
                     await reservationModel.save();
-                    this.res.redirect(this.router.build('pre.reserve.confirm', { token: token }));
+                    this.res.redirect(`/pre/reserve/${token}/confirm`);
                 } catch (error) {
                     this.res.render('preCustomer/reserve/profile', {
                         reservationModel: reservationModel
@@ -366,10 +368,7 @@ export default class PreCustomerReserveController extends ReserveBaseController 
                     reservationModel = await this.processConfirm(reservationModel);
                     await reservationModel.save();
                     this.logger.info('starting GMO payment...');
-                    this.res.redirect(
-                        (<any>httpStatus).PERMANENT_REDIRECT,
-                        this.router.build('gmo.reserve.start', { token: token }) + `?locale=${this.req.getLocale()}`
-                    );
+                    this.res.redirect((<any>httpStatus).PERMANENT_REDIRECT, `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`);
                 } catch (error) {
                     await reservationModel.remove();
                     this.next(error);

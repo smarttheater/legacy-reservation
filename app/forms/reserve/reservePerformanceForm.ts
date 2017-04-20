@@ -5,9 +5,7 @@
  *
  * @ignore
  */
-import * as form from 'express-form';
-
-export default form(
-    form.field('performanceId').trim().required(),
-    form.field('locale').trim()
-);
+import { Request } from 'express';
+export default (req: Request): void => {
+    req.checkBody('performanceId').notEmpty();
+};

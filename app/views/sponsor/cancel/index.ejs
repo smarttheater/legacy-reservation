@@ -12,7 +12,7 @@
             <label><%- __('Form.FieldName.last4DigitsOfTel') %></label>
             <input type="text" class="form-control" name="last4DigitsOfTel" value="<%= last4DigitsOfTel %>">
         </div>
-        <p class="btn btn-big btn-confirmcancel confirm-cancel" data-url="<%- url('sponsor.cancel') %>"><span><%- __('Button.Cancel') %></span></p>
+        <p class="btn btn-big btn-confirmcancel confirm-cancel" data-url="/sponsor/cancel"><span><%- __('Button.Cancel') %></span></p>
     </form>
 </div>
 
@@ -26,7 +26,7 @@
                 <table class="table table-reservation-confirm">
                 </table>
                 <div class="btns2clm">
-                    <p class="btn btn-lg btn-next btn-exec execute-cancel" data-url="<%- url('sponsor.cancel.executeByPaymentNo') %>"><span><span><%- __('Button.Cancel') %></span></p>
+                    <p class="btn btn-lg btn-next btn-exec execute-cancel" data-url="/sponsor/cancel/executeByPaymentNo"><span><span><%- __('Button.Cancel') %></span></p>
                     <p class="btn btn-lg btn-back" data-dismiss="modal"><span><span><%- __('Button.Back') %></span></p>
                 </div>
             </div>

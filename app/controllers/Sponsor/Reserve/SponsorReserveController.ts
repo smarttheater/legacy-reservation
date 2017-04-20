@@ -36,16 +36,12 @@ export default class SponsorReserveController extends ReserveBaseController impl
 
             if (reservationModel.performance !== undefined) {
                 await reservationModel.save();
-                const cb = this.router.build('sponsor.reserve.seats', { token: reservationModel.token });
-                this.res.redirect(
-                    `${this.router.build('sponsor.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`
-                );
+                const cb = `/sponsor/reserve/${reservationModel.token}/seats`;
+                this.res.redirect(`/sponsor/reserve/${reservationModel.token}/terms?cb=${encodeURIComponent(cb)}`);
             } else {
                 await reservationModel.save();
-                const cb = this.router.build('sponsor.reserve.performances', { token: reservationModel.token });
-                this.res.redirect(
-                    `${this.router.build('sponsor.reserve.terms', { token: reservationModel.token })}?cb=${encodeURIComponent(cb)}`
-                );
+                const cb = `/sponsor/reserve/${reservationModel.token}/performances`;
+                this.res.redirect(`/sponsor/reserve/${reservationModel.token}/terms?cb=${encodeURIComponent(cb)}`);
             }
         } catch (error) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -62,6 +58,8 @@ export default class SponsorReserveController extends ReserveBaseController impl
 
     /**
      * スケジュール選択
+     * @method performances
+     * @returns {Promise<void>}
      */
     public async performances(): Promise<void> {
         if (this.req.sponsorUser === undefined) {
@@ -97,23 +95,27 @@ export default class SponsorReserveController extends ReserveBaseController impl
             }
 
             if (this.req.method === 'POST') {
-                reservePerformanceForm(this.req, this.res, async () => {
-                    if (this.req.form !== undefined && this.req.form.isValid) {
-                        try {
-                            // パフォーマンスFIX
-                            reservationModel = await this.processFixPerformance(
-                                <ReservationModel>reservationModel,
-                                (<any>this.req.form).performanceId
-                            );
-                            await reservationModel.save();
-                            this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
-                        } catch (error) {
-                            this.next(new Error(this.req.__('Message.UnexpectedError')));
-                        }
-                    } else {
-                        this.next(new Error(this.req.__('Message.UnexpectedError')));
-                    }
-                });
+                reservePerformanceForm(this.req);
+                const validationResult = await this.req.getValidationResult();
+                if (!validationResult.isEmpty()) {
+                    this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    return;
+                }
+
+                try {
+                    // パフォーマンスFIX
+                    reservationModel = await this.processFixPerformance(
+                        <ReservationModel>reservationModel,
+                        this.req.body.performanceId
+                    );
+                    await reservationModel.save();
+                    this.res.redirect(`/sponsor/reserve/${token}/seats`);
+                    return;
+                } catch (error) {
+                    this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    return;
+                }
+
             } else {
                 this.res.render('sponsor/reserve/performances', {
                     FilmUtil: FilmUtil,
@@ -127,6 +129,8 @@ export default class SponsorReserveController extends ReserveBaseController impl
 
     /**
      * 座席選択
+     * @method seats
+     * @return {Promise<void>}
      */
     // tslint:disable-next-line:max-func-body-length
     public async seats(): Promise<void> {
@@ -172,49 +176,47 @@ export default class SponsorReserveController extends ReserveBaseController impl
             }
 
             if (this.req.method === 'POST') {
-                reserveSeatForm(this.req, this.res, async () => {
-                    reservationModel = <ReservationModel>reservationModel;
+                reserveSeatForm(this.req);
+                const validationResult = await this.req.getValidationResult();
+                if (!validationResult.isEmpty()) {
+                    lockFile.unlockSync(lockPath);
+                    this.res.redirect(`/sponsor/reserve/${token}/seats`);
+                    return;
+                }
+                reservationModel = <ReservationModel>reservationModel;
+                const seatCodes: string[] = JSON.parse(this.req.body.seatCodes);
 
-                    if (this.req.form !== undefined && this.req.form.isValid) {
-                        const seatCodes: string[] = JSON.parse((<any>this.req.form).seatCodes);
+                // 追加指定席を合わせて制限枚数を超過した場合
+                if (seatCodes.length > limit) {
+                    lockFile.unlockSync(lockPath);
+                    const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
+                    this.res.redirect(`/sponsor/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
+                    return;
+                }
 
-                        // 追加指定席を合わせて制限枚数を超過した場合
-                        if (seatCodes.length > limit) {
-                            lockFile.unlockSync(lockPath);
-                            const message = this.req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                            this.res.redirect(
-                                `${this.router.build('sponsor.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
-                            );
-                            return;
-                        }
+                // 仮予約あればキャンセルする
+                try {
+                    reservationModel = await this.processCancelSeats(reservationModel);
+                } catch (error) {
+                    this.next(error);
+                    return;
+                }
 
-                        // 仮予約あればキャンセルする
-                        try {
-                            reservationModel = await this.processCancelSeats(reservationModel);
-                        } catch (error) {
-                            this.next(error);
-                            return;
-                        }
+                try {
+                    // 座席FIX
+                    reservationModel = await this.processFixSeats(reservationModel, seatCodes);
+                    lockFile.unlockSync(lockPath);
+                    await reservationModel.save();
+                    // 券種選択へ
+                    this.res.redirect(`/sponsor/reserve/${token}/tickets`);
+                    return;
+                } catch (error) {
+                    await reservationModel.save();
+                    const message = this.req.__('Message.SelectedSeatsUnavailable');
+                    this.res.redirect(`/sponsor/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
+                    return;
+                }
 
-                        try {
-                            // 座席FIX
-                            reservationModel = await this.processFixSeats(reservationModel, seatCodes);
-                            lockFile.unlockSync(lockPath);
-                            await reservationModel.save();
-                            // 券種選択へ
-                            this.res.redirect(this.router.build('sponsor.reserve.tickets', { token: token }));
-                        } catch (error) {
-                            await reservationModel.save();
-                            const message = this.req.__('Message.SelectedSeatsUnavailable');
-                            this.res.redirect(
-                                `${this.router.build('sponsor.reserve.seats', { token: token })}?message=${encodeURIComponent(message)}`
-                            );
-                        }
-                    } else {
-                        lockFile.unlockSync(lockPath);
-                        this.res.redirect(this.router.build('sponsor.reserve.seats', { token: token }));
-                    }
-                });
             } else {
                 lockFile.unlockSync(lockPath);
                 this.res.render('sponsor/reserve/seats', {
@@ -222,6 +224,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                     limit: limit,
                     reservableCount: reservableCount
                 });
+                return;
             }
         } catch (error) {
             console.error(error);
@@ -246,9 +249,9 @@ export default class SponsorReserveController extends ReserveBaseController impl
                 try {
                     reservationModel = await this.processFixTickets(reservationModel);
                     await reservationModel.save();
-                    this.res.redirect(this.router.build('sponsor.reserve.profile', { token: token }));
+                    this.res.redirect(`/sponsor/reserve/${token}/profile`);
                 } catch (error) {
-                    this.res.redirect(this.router.build('sponsor.reserve.tickets', { token: token }));
+                    this.res.redirect(`/sponsor/reserve/${token}/tickets`);
                 }
             } else {
                 this.res.render('sponsor/reserve/tickets', {
@@ -277,7 +280,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                 try {
                     reservationModel = await this.processFixProfile(reservationModel);
                     await reservationModel.save();
-                    this.res.redirect(this.router.build('sponsor.reserve.confirm', { token: token }));
+                    this.res.redirect(`/sponsor/reserve/${token}/confirm`);
                 } catch (error) {
                     this.res.render('sponsor/reserve/profile', {
                         reservationModel: reservationModel
@@ -327,7 +330,7 @@ export default class SponsorReserveController extends ReserveBaseController impl
                     await this.processFixReservations(reservationModel.paymentNo, {});
                     await reservationModel.remove();
                     this.logger.info('redirecting to complete...');
-                    this.res.redirect(this.router.build('sponsor.reserve.complete', { paymentNo: reservationModel.paymentNo }));
+                    this.res.redirect(`/sponsor/reserve/${reservationModel.paymentNo}/complete`);
                 } catch (error) {
                     await reservationModel.remove();
                     this.next(error);

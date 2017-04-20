@@ -13,7 +13,7 @@
 <input type="hidden" name="payment_method_str_<%- GMOUtil.PAY_TYPE_CASH %>" value="現金">
 
 <div class="wrapper-searchform">
-    <form class="search-form" action="<%- url('window.mypage.search') %>">
+    <form class="search-form" action="/window/mypage/search">
     <input type="hidden" name="limit" value="20">
 
     <table class="table">
@@ -206,7 +206,7 @@
     </div>
 </div>
 
-<input type="hidden" name="urlCancel" value="<%- url('window.cancel.execute') %>">
+<input type="hidden" name="urlCancel" value="/window/cancel/execute">
 <input type="hidden" name="messageAreYouSureCancel" value="<%- __('Message.AreYouSureCancel') %>">
 <input type="hidden" name="messageConfirmCancelSelectedTickets" value="<%- __('Message.ConfirmCancelSelectedTickets') %>">
 

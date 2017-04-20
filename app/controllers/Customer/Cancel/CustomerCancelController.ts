@@ -24,17 +24,37 @@ export default class CustomerCancelController extends BaseController {
 
     /**
      * チケットキャンセル
+     * @method index
+     * @returns {Promise<void>}
      */
-    public index(): void {
+    public async index(): Promise<void> {
         if (moment('2016-11-19T00:00:00+09:00') <= moment()) {
             this.res.render('customer/cancel/outOfTerm', { layout: false });
             return;
         }
 
         if (this.req.method === 'POST') {
-            const form = customerCancelForm(this.req);
-            form(this.req, this.res, async () => {
-                if (this.req.form !== undefined && !this.req.form.isValid) {
+            customerCancelForm(this.req);
+            const validationResult = await this.req.getValidationResult();
+            if (!validationResult.isEmpty()) {
+                this.res.json({
+                    success: false,
+                    message: '購入番号または電話番号下4ケタに誤りがあります<br>There are some mistakes in a transaction number or last 4 digits of tel'
+                });
+                return;
+            }
+            try {
+                // 予約を取得(クレジットカード決済のみ)
+                const reservations = await Models.Reservation.find(
+                    {
+                        payment_no: this.req.body.paymentNo,
+                        purchaser_tel: { $regex: `${this.req.body.last4DigitsOfTel}$` },
+                        purchaser_group: ReservationUtil.PURCHASER_GROUP_CUSTOMER,
+                        status: ReservationUtil.STATUS_RESERVED
+                    }
+                ).exec();
+
+                if (reservations.length === 0) {
                     this.res.json({
                         success: false,
                         message: '購入番号または電話番号下4ケタに誤りがあります<br>There are some mistakes in a transaction number or last 4 digits of tel'
@@ -43,66 +63,50 @@ export default class CustomerCancelController extends BaseController {
                 }
 
                 try {
-                    // 予約を取得(クレジットカード決済のみ)
-                    const reservations = await Models.Reservation.find(
-                        {
-                            payment_no: (<any>this.req.form).paymentNo,
-                            purchaser_tel: { $regex: `${(<any>this.req.form).last4DigitsOfTel}$` },
-                            purchaser_group: ReservationUtil.PURCHASER_GROUP_CUSTOMER,
-                            status: ReservationUtil.STATUS_RESERVED
-                        }
-                    ).exec();
+                    await validate(reservations);
 
-                    if (reservations.length === 0) {
-                        this.res.json({
-                            success: false,
-                            message: '購入番号または電話番号下4ケタに誤りがあります<br>There are some mistakes in a transaction number or last 4 digits of tel'
-                        });
-                        return;
-                    }
+                    const results = reservations.map((reservation) => {
+                        return {
+                            _id: reservation.get('_id'),
+                            seat_code: reservation.get('seat_code'),
+                            payment_no: reservation.get('payment_no'),
+                            film_name_ja: reservation.get('film_name_ja'),
+                            film_name_en: reservation.get('film_name_en'),
+                            performance_start_str_ja: reservation.get('performance_start_str_ja'),
+                            performance_start_str_en: reservation.get('performance_start_str_en'),
+                            location_str_ja: reservation.get('location_str_ja'),
+                            location_str_en: reservation.get('location_str_en'),
+                            payment_method: reservation.get('payment_method'),
+                            charge: reservation.get('charge')
+                        };
+                    });
 
-                    try {
-                        await validate(reservations);
-
-                        const results = reservations.map((reservation) => {
-                            return {
-                                _id: reservation.get('_id'),
-                                seat_code: reservation.get('seat_code'),
-                                payment_no: reservation.get('payment_no'),
-                                film_name_ja: reservation.get('film_name_ja'),
-                                film_name_en: reservation.get('film_name_en'),
-                                performance_start_str_ja: reservation.get('performance_start_str_ja'),
-                                performance_start_str_en: reservation.get('performance_start_str_en'),
-                                location_str_ja: reservation.get('location_str_ja'),
-                                location_str_en: reservation.get('location_str_en'),
-                                payment_method: reservation.get('payment_method'),
-                                charge: reservation.get('charge')
-                            };
-                        });
-
-                        this.res.json({
-                            success: true,
-                            message: null,
-                            reservations: results
-                        });
-                    } catch (error) {
-                        this.res.json({
-                            success: false,
-                            message: error.message
-                        });
-                    }
+                    this.res.json({
+                        success: true,
+                        message: null,
+                        reservations: results
+                    });
+                    return;
                 } catch (error) {
                     this.res.json({
                         success: false,
-                        message: 'A system error has occurred. Please try again later. Sorry for the inconvenience'
+                        message: error.message
                     });
+                    return;
                 }
-            });
+            } catch (error) {
+                this.res.json({
+                    success: false,
+                    message: 'A system error has occurred. Please try again later. Sorry for the inconvenience'
+                });
+                return;
+            }
         } else {
             this.res.locals.paymentNo = '';
             this.res.locals.last4DigitsOfTel = '';
 
             this.res.render('customer/cancel');
+            return;
         }
     }
 

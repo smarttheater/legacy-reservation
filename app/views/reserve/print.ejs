@@ -27,7 +27,7 @@
                 <span class="smalltext">Please scan this QR code when entering the screen.</span>
             </h2>
             <div class="wrapper-qrimg pr-bg">
-                <img src="<%- url('reserve.qrcode', {reservationId: reservation.get('_id')}) %>">
+                <img src="//chart.apis.google.com/chart?chs=150x150&cht=qr&chl=<%= reservation.qr_str %>">
             </div>
         </div>
     </div>

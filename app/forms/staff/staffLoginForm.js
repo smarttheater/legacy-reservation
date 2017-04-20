@@ -1,15 +1,21 @@
+/**
+ * 内部関係者ログインフォーム
+ *
+ * @ignore
+ */
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const form = require("express-form");
 const SIGNATURE_MAX_LENGTH = 10;
 exports.default = (req) => {
-    return form(form.field('userId', req.__('Form.FieldName.userId'))
-        .trim()
-        .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' })), form.field('password', req.__('Form.FieldName.password'))
-        .trim()
-        .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' })), form.field('signature', req.__('Form.FieldName.signature')).trim()
-        .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' }))
-        .maxLength(SIGNATURE_MAX_LENGTH, req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '%s', max: SIGNATURE_MAX_LENGTH.toString() })), form.field('language', req.__('Form.FieldName.language'))
-        .trim()
-        .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' })), form.field('remember', req.__('Form.FieldName.remember')));
+    // userId
+    req.checkBody('userId', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.userId') })).notEmpty();
+    // password
+    req.checkBody('password', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.password') })).notEmpty();
+    // language
+    req.checkBody('language', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.language') })).notEmpty();
+    // signature
+    req.checkBody('signature', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.signature') })).notEmpty();
+    req.checkBody('signature', req.__('Message.maxLength{{fieldName}}{{max}}', { fieldName: req.__('Form.FieldName.signature'), max: SIGNATURE_MAX_LENGTH.toString() })).isLength({
+        max: SIGNATURE_MAX_LENGTH
+    });
 };

@@ -1,7 +1,7 @@
 <%
 let routeName = '';
 if (req.hasOwnProperty('route')) {
-    routeName = req.route.name;
+    routeName = req.route.path;
 }
 %>
 <header>
@@ -14,11 +14,11 @@ if (req.hasOwnProperty('route')) {
             <div class="menu-staff">
                 <p class="myname"><%= __('Mr{{name}}', {name: req.telStaffUser.get('name')}) %></p>
                 <div class="staff-btns">
-                    <a class="btn btn-logout" href="<%- url('tel.logout') %>"><span><%- __('Button.Logout') %></span></a>
+                    <a class="btn btn-logout" href="/tel/logout"><span><%- __('Button.Logout') %></span></a>
                     <% if (routeName.indexOf('mypage') < 0) { %>
-                    <a class="btn" href="<%- url('tel.mypage') %>"><span>チケット照会</span></a>
+                    <a class="btn" href="/tel/mypage"><span>チケット照会</span></a>
                     <% } else { %>
-                    <a class="btn btn-newticket" href="<%- url('tel.reserve.start') %>"><span><%- __('Button.NewTicket') %></span></a>
+                    <a class="btn btn-newticket" href="/tel/reserve/start"><span><%- __('Button.NewTicket') %></span></a>
                     <% } %>
                 </div>
             </div>

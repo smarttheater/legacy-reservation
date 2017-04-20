@@ -2,9 +2,9 @@
     <h2><%- __('h2.LoginForStaffs') %></h2>
 
 
-    <% if (req.form) { %>
-    <% req.form.errors.forEach(function (error) { %>
-    <p class="errmsg"><%- error %></p>
+    <% if (validation) { %>
+    <% validation.forEach(function (error) { %>
+    <p class="errmsg"><%- error.msg %></p>
     <% }) %>
     <% } %>
 

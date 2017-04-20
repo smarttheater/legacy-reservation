@@ -24,7 +24,7 @@ body {
             <label>電話番号下4桁<br>Last 4 digits of telephone number</label>
             <input type="text" class="form-control" name="last4DigitsOfTel" value="<%= last4DigitsOfTel %>">
         </div>
-        <p class="btn btn-big btn-confirmcancel confirm-cancel" data-url="<%- url('customer.cancel') %>"><span>照会<br>Confirm</span></p>
+        <p class="btn btn-big btn-confirmcancel confirm-cancel" data-url="/customerSupport/cancel"><span>照会<br>Confirm</span></p>
     </form>
 
     <div class="center" style="padding:10px;">
@@ -53,7 +53,7 @@ body {
 
 
                 <div class="btns2clm">
-                    <p class="btn btn-lg btn-next btn-exec execute-cancel" data-url="<%- url('customer.cancel.executeByPaymentNo') %>"><span><span>返金(キャンセル)を申し込む<br>Request for<br>a refund(cancel)</span></p>
+                    <p class="btn btn-lg btn-next btn-exec execute-cancel" data-url="/customerSupport/cancel/executeByPaymentNo"><span><span>返金(キャンセル)を申し込む<br>Request for<br>a refund(cancel)</span></p>
                     <p class="btn btn-lg btn-back" data-dismiss="modal"><span><span>戻る<br><br>Back</span></p>
                 </div>
 

@@ -3,8 +3,8 @@
  *
  * @ignore
  */
-import * as form from 'express-form';
-
-export default form(
-    form.field('choices').trim().required()
-);
+import { Request } from 'express';
+export default (req: Request): void => {
+    // choices
+    req.checkBody('choices').notEmpty();
+};

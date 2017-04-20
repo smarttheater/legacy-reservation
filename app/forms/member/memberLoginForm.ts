@@ -3,9 +3,12 @@
  *
  * @ignore
  */
-import * as form from 'express-form';
+import { Request } from 'express';
 
-export default form(
-    form.field('userId').trim().required('', 'ログイン番号が未入力です'),
-    form.field('password').trim().required('', 'パスワードが未入力です')
-);
+export default (req: Request) => {
+    // userId
+    req.checkBody('userId', 'ログイン番号が未入力です').notEmpty();
+
+    // password
+    req.checkBody('password', 'パスワードが未入力です').notEmpty();
+};

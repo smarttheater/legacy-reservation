@@ -14,9 +14,10 @@ import * as mongoose from 'mongoose';
 import * as multer from 'multer';
 import * as favicon from 'serve-favicon';
 import * as _ from 'underscore';
-
 import basicAuth from './middlewares/basicAuth';
 import benchmarks from './middlewares/benchmarks';
+// tslint:disable-next-line:no-require-imports
+import expressValidator = require('express-validator');
 import logger from './middlewares/logger';
 import session from './middlewares/session';
 
@@ -33,7 +34,6 @@ app.use(session); // セッション
 app.use(basicAuth); // ベーシック認証
 
 // ルーティング
-import * as NamedRoutes from 'named-routes';
 import customerSupport from './routes/customerSupport';
 import memberRouter from './routes/member';
 import payDesign from './routes/payDesign';
@@ -44,10 +44,6 @@ import sponsorRouter from './routes/sponsor';
 import staffRouter from './routes/staff';
 import telRouter from './routes/tel';
 import windowRouter from './routes/window';
-
-const namedRoutes = new NamedRoutes();
-namedRoutes.extendExpress(app);
-namedRoutes.registerAppHelpers(app);
 
 if (process.env.NODE_ENV !== 'production') {
     // サーバーエラーテスト
@@ -105,6 +101,8 @@ app.use((req, _res, next) => {
 
     next();
 });
+
+app.use(expressValidator()); // バリデーション
 
 // ルーティング登録の順序に注意！
 memberRouter(app);

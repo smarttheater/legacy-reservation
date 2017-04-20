@@ -1,5 +1,5 @@
 <div class="wrapper-searchform">
-    <form class="search-form" action="<%- url('staff.mypage.search') %>">
+    <form class="search-form" action="/staff/mypage/search">
     <input type="hidden" name="limit" value="20">
 
     <table class="table">
@@ -167,8 +167,8 @@
 </div>
 
 <input type="hidden" name="userId" value="<%- req.staffUser.get('user_id') %>">
-<input type="hidden" name="urlCancel" value="<%- url('staff.cancel.execute') %>">
-<input type="hidden" name="urlUpdateWatcherName" value="<%- url('staff.mypage.updateWatcherName') %>">
+<input type="hidden" name="urlCancel" value="/staff/cancel/execute">
+<input type="hidden" name="urlUpdateWatcherName" value="/staff/mypage/updateWatcherName">
 <input type="hidden" name="messageAreYouSureCancel" value="<%- __('Message.AreYouSureCancel') %>">
 <input type="hidden" name="messageConfirmCancelSelectedTickets" value="<%- __('Message.ConfirmCancelSelectedTickets') %>">
 

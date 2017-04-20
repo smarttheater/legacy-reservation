@@ -133,14 +133,14 @@ export default class GMOReserveController extends ReserveBaseController {
             this.res.locals.retURL = util.format(
                 '%s%s?locale=%s',
                 process.env.FRONTEND_GMO_RESULT_ENDPOINT,
-                this.router.build('gmo.reserve.result'),
+                '/GMO/reserve/result',
                 this.req.getLocale()
             );
             // 決済キャンセル時に遷移する加盟店URL
             this.res.locals.cancelURL = util.format(
                 '%s%s?locale=%s',
                 process.env.FRONTEND_GMO_RESULT_ENDPOINT,
-                this.router.build('gmo.reserve.cancel', { paymentNo: reservationModel.paymentNo }),
+                `/GMO/reserve/${reservationModel.paymentNo}/cancel`,
                 this.req.getLocale()
             );
 

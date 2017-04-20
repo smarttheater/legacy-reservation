@@ -15,6 +15,6 @@ exports.default = (app) => {
         next();
     };
     // tslint:disable:max-line-length
-    app.all('/customerSupport/cancel', 'customer.cancel', base, (req, res, next) => { (new CustomerCancelController_1.default(req, res, next)).index(); });
-    app.post('/customerSupport/cancel/executeByPaymentNo', 'customer.cancel.executeByPaymentNo', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerCancelController_1.default(req, res, next)).executeByPaymentNo(); }));
+    app.all('/customerSupport/cancel', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerCancelController_1.default(req, res, next)).index(); }));
+    app.post('/customerSupport/cancel/executeByPaymentNo', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerCancelController_1.default(req, res, next)).executeByPaymentNo(); }));
 };

@@ -1,5 +1,5 @@
 <div class="wrapper-searchform">
-    <form class="search-form" action="<%- url('sponsor.mypage.search') %>">
+    <form class="search-form" action="/sponsor/mypage/search">
     <input type="hidden" name="limit" value="20">
 
     <table class="table">
@@ -129,7 +129,7 @@
     </div>
 </div>
 
-<input type="hidden" name="urlCancel" value="<%- url('sponsor.cancel.execute') %>">
+<input type="hidden" name="urlCancel" value="/sponsor/cancel/execute">
 <input type="hidden" name="messageAreYouSureCancel" value="<%- __('Message.AreYouSureCancel') %>">
 <input type="hidden" name="messageConfirmCancelSelectedTickets" value="<%- __('Message.ConfirmCancelSelectedTickets') %>">
 

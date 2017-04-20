@@ -1,7 +1,7 @@
 <%
 let routeName = '';
 if (req.hasOwnProperty('route')) {
-    routeName = req.route.name;
+    routeName = req.route.path;
 }
 %>
 <header>
@@ -23,7 +23,7 @@ if (req.hasOwnProperty('route')) {
                 <div class="menu-staff">
                     <p class="myname"></p>
                     <div class="staff-btns">
-                        <a class="btn btn-logout" href="<%= url('pre.logout') %>"><span><%- __('Button.Logout') %></span></a>
+                        <a class="btn btn-logout" href="/pre/logout"><span><%- __('Button.Logout') %></span></a>
                     </div>
                 </div>
                 <% } %>

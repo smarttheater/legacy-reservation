@@ -1,7 +1,7 @@
 <%- include('../../common/reserve/_complete') %>
 
 <%
-let preReserveStartUrl = url('pre.reserve.start');
+let preReserveStartUrl = '/pre/reserve/start';
 switch (process.env.NODE_ENV) {
     case 'production':
         preReserveStartUrl = 'https://pre.tiff-ticket.net' + preReserveStartUrl;

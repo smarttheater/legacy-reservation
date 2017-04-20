@@ -3,9 +3,6 @@
   "version": "0.0.0",
   "dependencies": {},
   "globalDependencies": {
-    "express-form": "file:./definitions/express-form.d.ts",
-    "named-routes": "file:./definitions/named-routes.d.ts",
-    "qr-image": "file:./definitions/qr-image.d.ts",
     "tiff": "file:./definitions/tiff.d.ts",
     "uniqid": "file:./definitions/uniqid.d.ts"
   }

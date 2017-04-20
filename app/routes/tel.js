@@ -88,18 +88,18 @@ exports.default = (app) => {
     };
     // 電話窓口フロー
     // tslint:disable:max-line-length
-    app.all('/tel/login', 'tel.mypage.login', base, (req, res, next) => { (new TelAuthController_1.default(req, res, next)).login(); });
-    app.all('/tel/logout', 'tel.logout', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelAuthController_1.default(req, res, next)).logout(); }));
-    app.all('/tel/mypage', 'tel.mypage', base, authentication, (req, res, next) => { (new TelMyPageController_1.default(req, res, next)).index(); });
-    app.get('/tel/mypage/search', 'tel.mypage.search', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelMyPageController_1.default(req, res, next)).search(); }));
-    app.get('/tel/reserve/start', 'tel.reserve.start', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).start(); }));
-    app.all('/tel/reserve/:token/terms', 'tel.reserve.terms', base, authentication, (req, res, next) => { (new TelReserveController_1.default(req, res, next)).terms(); });
-    app.all('/tel/reserve/:token/performances', 'tel.reserve.performances', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).performances(); }));
-    app.all('/tel/reserve/:token/seats', 'tel.reserve.seats', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).seats(); }));
-    app.all('/tel/reserve/:token/tickets', 'tel.reserve.tickets', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).tickets(); }));
-    app.all('/tel/reserve/:token/profile', 'tel.reserve.profile', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).profile(); }));
-    app.all('/tel/reserve/:token/confirm', 'tel.reserve.confirm', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).confirm(); }));
-    app.get('/tel/reserve/:paymentNo/complete', 'tel.reserve.complete', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).complete(); }));
-    app.post('/tel/cancel/execute', 'tel.cancel.execute', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelCancelController_1.default(req, res, next)).execute(); }));
-    app.post('/tel/cancel2sagyo/execute', 'tel.cancel2sagyo.execute', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelCancelController_1.default(req, res, next)).execute2sagyo(); }));
+    app.all('/tel/login', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelAuthController_1.default(req, res, next)).login(); }));
+    app.all('/tel/logout', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelAuthController_1.default(req, res, next)).logout(); }));
+    app.all('/tel/mypage', base, authentication, (req, res, next) => { (new TelMyPageController_1.default(req, res, next)).index(); });
+    app.get('/tel/mypage/search', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelMyPageController_1.default(req, res, next)).search(); }));
+    app.get('/tel/reserve/start', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).start(); }));
+    app.all('/tel/reserve/:token/terms', base, authentication, (req, res, next) => { (new TelReserveController_1.default(req, res, next)).terms(); });
+    app.all('/tel/reserve/:token/performances', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).performances(); }));
+    app.all('/tel/reserve/:token/seats', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).seats(); }));
+    app.all('/tel/reserve/:token/tickets', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).tickets(); }));
+    app.all('/tel/reserve/:token/profile', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).profile(); }));
+    app.all('/tel/reserve/:token/confirm', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).confirm(); }));
+    app.get('/tel/reserve/:paymentNo/complete', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelReserveController_1.default(req, res, next)).complete(); }));
+    app.post('/tel/cancel/execute', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelCancelController_1.default(req, res, next)).execute(); }));
+    app.post('/tel/cancel2sagyo/execute', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new TelCancelController_1.default(req, res, next)).execute2sagyo(); }));
 };

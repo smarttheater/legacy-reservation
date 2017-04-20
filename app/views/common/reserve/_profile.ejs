@@ -47,9 +47,11 @@
                                     </div>
                                 </div>
                                 <p class="notice">※<%- __('Message.EnterInFullWidthKatakana') %></p>
-                                <% if (req.form) { %>
-                                <p class="errmsg"><%- req.form.getErrors('lastName')[0] %></p>
-                                <p class="errmsg"><%- req.form.getErrors('firstName')[0] %></p>
+                                <% if (validation && validation.lastName) { %>
+                                <p class="errmsg"><%- validation.lastName.msg %></p>
+                                <% } %>
+                                <% if (validation && validation.firstName) { %>
+                                <p class="errmsg"><%- validation.firstName.msg %></p>
                                 <% } %>
                             </td>
                         </tr>
@@ -59,8 +61,8 @@
                             <td>
                                 <input type="text" name="tel" id="id_tel" class="form-control" value="<%= tel %>">
                                 <p class="notice">※<%- __('Message.UseHalfWidthAlphanumericWithoutHyphens') %></p>
-                                <% if (req.form) { %>
-                                <p class="errmsg"><%- req.form.getErrors('tel')[0] %></p>
+                                <% if (validation && validation.tel) { %>
+                                <p class="errmsg"><%- validation.tel.msg %></p>
                                 <% } %>
                             </td>
                         </tr>
@@ -80,9 +82,11 @@
                                     </div>
                                 </div>
                                 <p class="notice">※<%- __('Message.EnterInFullWidthKatakana') %></p>
-                                <% if (req.form) { %>
-                                <p class="errmsg"><%- req.form.getErrors('lastName')[0] %></p>
-                                <p class="errmsg"><%- req.form.getErrors('firstName')[0] %></p>
+                                <% if (validation && validation.lastName) { %>
+                                <p class="errmsg"><%- validation.lastName.msg %></p>
+                                <% } %>
+                                <% if (validation && validation.firstName) { %>
+                                <p class="errmsg"><%- validation.firstName.msg %></p>
                                 <% } %>
                             </td>
                         </tr>
@@ -98,10 +102,14 @@
                                     <input type="text" name="emailConfirmDomain" id="id_emailConfirmDomain" class="form-control" value="<%= emailConfirmDomain %>">
                                 </div>
                                 <p class="notice">※<%- __('Message.SettingForLimitingEmailReception') %></p>
-                                <% if (req.form) { %>
-                                <p class="errmsg"><%- req.form.getErrors('email')[0] %></p>
-                                <p class="errmsg"><%- req.form.getErrors('emailConfirm')[0] %></p>
-                                <p class="errmsg"><%- req.form.getErrors('emailConfirmDomain')[0] %></p>
+                                <% if (validation && validation.email) { %>
+                                <p class="errmsg"><%- validation.email.msg %></p>
+                                <% } %>
+                                <% if (validation && validation.emailConfirm) { %>
+                                <p class="errmsg"><%- validation.emailConfirm.msg %></p>
+                                <% } %>
+                                <% if (validation && validation.emailConfirmDomain) { %>
+                                <p class="errmsg"><%- validation.emailConfirmDomain.msg %></p>
                                 <% } %>
                             </td>
                         </tr>
@@ -111,8 +119,8 @@
                             <td>
                                 <input type="text" name="tel" id="id_tel" class="form-control" value="<%= tel %>">
                                 <p class="notice">※<%- __('Message.UseHalfWidthAlphanumericWithoutHyphens') %></p>
-                                <% if (req.form) { %>
-                                <p class="errmsg"><%- req.form.getErrors('tel')[0] %></p>
+                                <% if (validation && validation.tel) { %>
+                                <p class="errmsg"><%- validation.tel.msg %></p>
                                 <% } %>
                             </td>
                         </tr>
@@ -138,8 +146,8 @@
                                     <option value="<%= choice.code %>"<% if (age === choice.code) { %> selected="selected"<% } %>><%- choice.name[locale] %></option>
                                     <% } %>
                                 </select>
-                                <% if (req.form) { %>
-                                <p class="errmsg"><%- req.form.getErrors('age')[0] %></p>
+                                <% if (validation && validation.age) { %>
+                                <p class="errmsg"><%- validation.age.msg %></p>
                                 <% } %>
                             </td>
                         </tr>
@@ -165,8 +173,8 @@
                                     <option value="<%= choice.code %>"<% if (address === choice.code) { %> selected="selected"<% } %>><%- choice.name[locale] %></option>
                                     <% } %>
                                 </select>
-                                <% if (req.form) { %>
-                                <p class="errmsg"><%- req.form.getErrors('address')[0] %></p>
+                                <% if (validation && validation.address) { %>
+                                <p class="errmsg"><%- validation.address.msg %></p>
                                 <% } %>
                             </td>
                         </tr>
@@ -183,8 +191,8 @@
                                     </label>
                                 </div>
 
-                                <% if (req.form) { %>
-                                <p class="errmsg"><%- req.form.getErrors('gender')[0] %></p>
+                                <% if (validation && validation.gender) { %>
+                                <p class="errmsg"><%- validation.gender.msg %></p>
                                 <% } %>
                             </td>
                         </tr>
@@ -238,8 +246,8 @@
                                     <p class="notice"><span class="notice-cvs"><%- __('NoticeCVSMember') %></span></p>
                                 <% } %>
 
-                                <% if (req.form) { %>
-                                <p class="errmsg"><%- req.form.getErrors('paymentMethod')[0] %></p>
+                                <% if (validation && validation.paymentMethod) { %>
+                                <p class="errmsg"><%- validation.paymentMethod.msg %></p>
                                 <% } %>
                             </td>
                         </tr>

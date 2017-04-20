@@ -13,7 +13,7 @@
 <input type="hidden" name="payment_method_str_<%- GMOUtil.PAY_TYPE_CASH %>" value="現金">
 
 <div class="wrapper-searchform">
-    <form class="search-form" action="<%- url('tel.mypage.search') %>">
+    <form class="search-form" action="/tel/mypage/search">
     <input type="hidden" name="limit" value="20">
 
     <table class="table">
@@ -244,8 +244,8 @@
     </div>
 </div>
 
-<input type="hidden" name="urlCancel" value="<%- url('tel.cancel.execute') %>">
-<input type="hidden" name="urlCancel2sagyo" value="<%- url('tel.cancel2sagyo.execute') %>">
+<input type="hidden" name="urlCancel" value="/tel/cancel/execute">
+<input type="hidden" name="urlCancel2sagyo" value="/tel/cancel2sagyo/execute">
 <input type="hidden" name="messageAreYouSureCancel" value="<%- __('Message.AreYouSureCancel') %>">
 <input type="hidden" name="messageConfirmCancelSelectedTickets" value="<%- __('Message.ConfirmCancelSelectedTickets') %>">
 <input type="hidden" name="messageConfirmCancel2sagyoSelectedTickets" value="選択したチケットを「作業用２」アカウントで確保します">

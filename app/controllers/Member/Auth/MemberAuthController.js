@@ -29,59 +29,67 @@ class MemberAuthController extends BaseController_1.default {
     }
     /**
      * メルマガ会員ログイン
+     * @returns {Promise<void>}
      */
     login() {
-        // 期限指定
-        const now = moment();
-        const dateStartMemberReservation = moment(conf.get('datetimes.reservation_start_members'));
-        const dateEndMemberReservation = moment(conf.get('datetimes.reservation_end_members'));
-        if (now < dateStartMemberReservation || dateEndMemberReservation < now) {
-            this.next(new Error(this.req.__('Message.OutOfTerm')));
-            return;
-        }
-        if (this.req.memberUser !== undefined && this.req.memberUser.isAuthenticated()) {
-            this.res.redirect(this.router.build('member.reserve.start'));
-            return;
-        }
-        if (this.req.method === 'POST') {
-            memberLoginForm_1.default(this.req, this.res, () => __awaiter(this, void 0, void 0, function* () {
-                const form = this.req.form;
-                if (form !== undefined && form.isValid) {
-                    try {
-                        // ユーザー認証
-                        this.logger.debug('finding member... user_id:', form.userId);
-                        const member = yield chevre_domain_1.Models.Member.findOne({
-                            user_id: form.userId
-                        }).exec();
-                        if (member === null) {
-                            form.errors.push('ログイン番号またはパスワードに誤りがあります');
-                            this.res.render('member/auth/login');
-                            return;
-                        }
-                        // パスワードチェック
-                        if (member.get('password_hash') !== Util.createHash(form.password, member.get('password_salt'))) {
-                            form.errors.push('ログイン番号またはパスワードに誤りがあります');
-                            this.res.render('member/auth/login');
-                            return;
-                        }
-                        // ログイン
-                        this.req.session[MemberUser_1.default.AUTH_SESSION_NAME] = member.toObject();
-                        this.res.redirect(this.router.build('member.reserve.start'));
-                    }
-                    catch (error) {
-                        this.next(new Error(this.req.__('Message.UnexpectedError')));
-                    }
-                }
-                else {
+        return __awaiter(this, void 0, void 0, function* () {
+            // 期限指定
+            const now = moment();
+            const dateStartMemberReservation = moment(conf.get('datetimes.reservation_start_members'));
+            const dateEndMemberReservation = moment(conf.get('datetimes.reservation_end_members'));
+            if (now < dateStartMemberReservation || dateEndMemberReservation < now) {
+                this.next(new Error(this.req.__('Message.OutOfTerm')));
+                return;
+            }
+            if (this.req.memberUser !== undefined && this.req.memberUser.isAuthenticated()) {
+                this.res.redirect('/member/reserve/start');
+                return;
+            }
+            if (this.req.method === 'POST') {
+                memberLoginForm_1.default(this.req);
+                const validationResult = yield this.req.getValidationResult();
+                if (!validationResult.isEmpty()) {
+                    this.res.locals.userId = this.req.body.userId;
+                    this.res.locals.password = '';
+                    this.res.locals.validation = validationResult.array();
                     this.res.render('member/auth/login');
+                    return;
                 }
-            }));
-        }
-        else {
-            this.res.locals.userId = '';
-            this.res.locals.password = '';
-            this.res.render('member/auth/login');
-        }
+                try {
+                    // ユーザー認証
+                    this.logger.debug('finding member... user_id:', this.req.body.userId);
+                    const member = yield chevre_domain_1.Models.Member.findOne({
+                        user_id: this.req.body.userId
+                    }).exec();
+                    this.res.locals.userId = this.req.body.userId;
+                    this.res.locals.password = '';
+                    if (member === null) {
+                        this.res.locals.validation = [{ msg: 'ログイン番号またはパスワードに誤りがあります' }];
+                        this.res.render('member/auth/login');
+                        return;
+                    }
+                    // パスワードチェック
+                    if (member.get('password_hash') !== Util.createHash(this.req.body.password, member.get('password_salt'))) {
+                        this.res.locals.validation = [{ msg: 'ログイン番号またはパスワードに誤りがあります' }];
+                        this.res.render('member/auth/login');
+                        return;
+                    }
+                    // ログイン
+                    this.req.session[MemberUser_1.default.AUTH_SESSION_NAME] = member.toObject();
+                    this.res.redirect('/member/reserve/start');
+                    return;
+                }
+                catch (error) {
+                    this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    return;
+                }
+            }
+            else {
+                this.res.locals.userId = '';
+                this.res.locals.password = '';
+                this.res.render('member/auth/login');
+            }
+        });
     }
 }
 exports.default = MemberAuthController;

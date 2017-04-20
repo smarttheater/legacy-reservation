@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const form = require("express-form");
 exports.default = (req) => {
-    return form(form.field('isAgree').trim().required('', req.__('Message.RequiredAgree')).regex(/^on$/, 'Message.RequiredAgree'));
+    // isAgree
+    req.checkBody('isAgree', req.__('Message.RequiredAgree')).notEmpty();
+    req.checkBody('isAgree', 'Message.RequiredAgree').matches(/^on$/);
 };
