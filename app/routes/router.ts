@@ -76,7 +76,7 @@ export default (app: Application) => {
 
     // error handlers
     app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-        req.route.path = 'error/error';
+        req.route.path = '/error/error';
         (new ErrorController(req, res, next)).index(err);
     });
 };
