@@ -1,9 +1,9 @@
+"use strict";
 /**
  * 内部関係者ログインフォーム
  *
  * @ignore
  */
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const SIGNATURE_MAX_LENGTH = 10;
 exports.default = (req) => {

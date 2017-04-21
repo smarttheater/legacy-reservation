@@ -1,9 +1,9 @@
+"use strict";
 /**
  * ベーシック認証ミドルウェア
  *
  * @module basicAuthMiddleware
  */
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const basicAuth = require("basic-auth");
 const http_status_1 = require("http-status");

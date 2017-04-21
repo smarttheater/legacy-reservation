@@ -1,9 +1,9 @@
+"use strict";
 /**
  * セッションミドルウェア
  *
  * @module sessionMiddleware
  */
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const connectRedis = require("connect-redis");
 const session = require("express-session");

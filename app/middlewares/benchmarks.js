@@ -1,9 +1,9 @@
+"use strict";
 /**
  * ベンチマークミドルウェア
  *
  * @module benchmarksMiddleware
  */
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const log4js = require("log4js");
 // tslint:disable-next-line:variable-name
