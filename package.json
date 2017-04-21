@@ -79,8 +79,7 @@
     "rimraf": "^2.6.1",
     "tslint": "^4.5.1",
     "tslint-microsoft-contrib": "^4.0.1",
-    "typescript": "^2.2.2",
-    "typings": "^2.1.0"
+    "typescript": "^2.2.2"
   },
   "engines": {
     "node": ">=6.9.1",
@@ -94,7 +93,7 @@
   "repository": {},
   "scripts": {
     "build": "tsc",
-    "check": "tslint --type-check --project tsconfig.json -c tslint.json index.ts app/**/*.ts common/**/*.ts",
+    "check": "tslint --type-check --project tsconfig.json -c tslint.json index.ts app/**/*.ts common/**/*.ts && nsp check",
     "clean": "rimraf app/**/*.js common/**/*.js index.js npm-debug.log* docs/*",
     "css": "gulp",
     "jsdoc": "node_modules/.bin/jsdoc -c jsdoc.json",

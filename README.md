@@ -40,6 +40,12 @@ npm start
 npm run clean
 ```
 
+scssビルド
+
+```shell
+npm run css
+```
+
 ## Required environment variables
 ```shell
 set NODE_ENV=**********環境名(development,test,productionなど)**********

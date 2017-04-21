@@ -1,5 +1,6 @@
 // tslint:disable-next-line:no-reference
-/// <reference path='./typings/index.d.ts' />
+/// <reference path="definitions/tiff.d.ts" />
+/// <reference path="definitions/uniqid.d.ts" />
 
 /**
  * Module dependencies.
