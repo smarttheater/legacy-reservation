@@ -681,7 +681,6 @@ export default class ReserveBaseController extends BaseController {
                         commonUpdate.gmo_access_pass = reservationModel.transactionGMO.accessPass;
                         commonUpdate.gmo_status = GMO.Util.STATUS_CREDIT_AUTH;
                     }
- 
                     break;
 
                 case ReservationUtil.PURCHASER_GROUP_MEMBER:
