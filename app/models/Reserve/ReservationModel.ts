@@ -461,8 +461,10 @@ interface IReservation {
 }
 
 interface ITransactionGMO {
+    orderId: string;
     accessId: string;
     accessPass: string;
+    amount: number;
     count: number;
-    orderId: string;
+    status: string;
 }

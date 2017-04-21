@@ -63,7 +63,6 @@ export default (app: Application) => {
     app.all('/customer/reserve/:token/tickets', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).tickets(); });
     app.all('/customer/reserve/:token/profile', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).profile(); });
     app.all('/customer/reserve/:token/confirm', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).confirm(); });
-    app.all('/customer/reserve/:token/payment', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).payment(); });
     app.get('/customer/reserve/:paymentNo/waitingSettlement', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).waitingSettlement(); });
     app.get('/customer/reserve/:paymentNo/complete', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).complete(); });
 

@@ -239,11 +239,18 @@ export default class CustomerReserveController extends ReserveBaseController imp
             if (this.req.method === 'POST') {
                 try {
                     reservationModel = await this.processFixProfile(reservationModel);
+                    if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
+                        await this.processFixPaymentOfCredit(reservationModel);
+                        await reservationModel.save();
+                    }
+                    reservationModel = await this.processConfirm(reservationModel);
                     await reservationModel.save();
                     this.res.redirect(`/customer/reserve/${token}/confirm`);
                 } catch (error) {
                     this.res.render('customer/reserve/profile', {
-                        reservationModel: reservationModel
+                        reservationModel: reservationModel,
+                        GMO_ENDPOINT: process.env.GMO_ENDPOINT,
+                        GMO_SHOP_ID: process.env.GMO_SHOP_ID
                     });
                 }
             } else {
@@ -262,7 +269,9 @@ export default class CustomerReserveController extends ReserveBaseController imp
                     (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
 
                 this.res.render('customer/reserve/profile', {
-                    reservationModel: reservationModel
+                    reservationModel: reservationModel,
+                    GMO_ENDPOINT: process.env.GMO_ENDPOINT,
+                    GMO_SHOP_ID: process.env.GMO_SHOP_ID
                 });
             }
         } catch (error) {
@@ -276,7 +285,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
     public async confirm(): Promise<void> {
         try {
             const token = this.req.params.token;
-            let reservationModel = await ReservationModel.find(token);
+            const reservationModel = await ReservationModel.find(token);
 
             if (reservationModel === null) {
                 this.next(new Error(this.req.__('Message.Expired')));
@@ -285,17 +294,15 @@ export default class CustomerReserveController extends ReserveBaseController imp
 
             if (this.req.method === 'POST') {
                 try {
-                    reservationModel = await this.processConfirm(reservationModel);
-
-                    await reservationModel.save();
-
                     if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
-                        this.res.redirect(`/customer/reserve/${token}/payment`);
+                        await this.processFixReservations(reservationModel.paymentNo, {});
+                        this.logger.info('processFixReservations processed.');
+                        this.res.redirect(`/customer/reserve/${reservationModel.paymentNo}/complete`);
                     } else {
                         // httpStatusの型定義不足のためanyにキャスト
                         // todo 一時的対処なので解決する
                         this.res.redirect(
-                            (<any>httpStatus).PERMANENT_REDIRECT, 
+                            (<any>httpStatus).PERMANENT_REDIRECT,
                             `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`
                         );
                     }
@@ -306,49 +313,6 @@ export default class CustomerReserveController extends ReserveBaseController imp
             } else {
                 this.res.render('customer/reserve/confirm', {
                     reservationModel: reservationModel
-                });
-            }
-        } catch (error) {
-            this.next(new Error(this.req.__('Message.UnexpectedError')));
-        }
-    }
-
-    /**
-     * 決済情報入力
-     * @method payment
-     * @returns {Promise<void>}
-     */
-    public async payment(): Promise<void> {
-        try {
-            const token = this.req.params.token;
-            let reservationModel = await ReservationModel.find(token);
-
-            if (reservationModel === null) {
-                this.next(new Error(this.req.__('Message.Expired')));
-                return;
-            }
-
-            if (this.req.method === 'POST') {
-                try {
-                    reservationModel = await this.processFixPaymentOfCredit(reservationModel);
-                    await reservationModel.save();
-                    const paymentNo = reservationModel.transactionGMO.orderId;
-                    this.res.redirect(`/customer/reserve/${paymentNo}/complete`);
-                } catch (error) {
-                    console.log(error)
-                    await reservationModel.save();
-                    this.res.render('customer/reserve/payment', {
-                        reservationModel: reservationModel,
-                        GMO_ENDPOINT: process.env.GMO_ENDPOINT,
-                        GMO_SHOP_ID: process.env.GMO_SHOP_ID
-                    });
-                }
-            } else {
-                // セッションに情報があれば、フォーム初期値設定
-                this.res.render('customer/reserve/payment', {
-                    reservationModel: reservationModel,
-                    GMO_ENDPOINT: process.env.GMO_ENDPOINT,
-                    GMO_SHOP_ID: process.env.GMO_SHOP_ID
                 });
             }
         } catch (error) {

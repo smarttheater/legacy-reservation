@@ -53,7 +53,6 @@
                                 <% } %>
                             </select> <%- __('Form.FieldName.cardExpirationYear') %>
                             <input type="hidden" name="expire" id="expire" value="">
-                            <p class="notice">※<%- __('Message.cardNumber') %></p>
                             <% if (validation && validation.expire) { %>
                             <div class="validation-text expire"><%= validation.expire.msg %></div>
                             <% } %>
@@ -75,7 +74,6 @@
                         <th><label for="holdername"><%- __('Form.FieldName.holdername') %></label><span class="required"><%- __('Label.Required') %></span></th>
                         <td>
                             <input type="text" name="holdername" id="holdername" class="form-control" value="">
-                            <p class="notice">※<%- __('Message.holdername') %></p>
                             <% if (validation && validation.holdername) { %>
                             <p class="errmsg"><%- validation.holdername.msg %></p>
                             <% } %>

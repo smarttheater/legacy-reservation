@@ -149,9 +149,11 @@ export default class ReserveBaseController extends BaseController {
      * 決済クレジットカードFIXプロセス
      * @method processFixPaymentOfCredit
      * @param {ReservationModel} reservationModel
-     * @returns {Promise<ReservationModel>}
+     * @returns {Promise<void>}
      */
-    public async processFixPaymentOfCredit(reservationModel: ReservationModel): Promise<ReservationModel> {
+    public async processFixPaymentOfCredit(
+        reservationModel: ReservationModel
+    ): Promise<void> {
         reservePaymentCreditForm(this.req);
         const validationResult = await this.req.getValidationResult();
         if (!validationResult.isEmpty()) {
@@ -160,12 +162,16 @@ export default class ReserveBaseController extends BaseController {
 
         if (reservationModel.transactionGMO === undefined) {
             reservationModel.transactionGMO = {
+                orderId: '',
                 accessId: '',
                 accessPass: '',
+                amount: 0,
                 count: 0,
-                orderId: ''
+                status: GMO.Util.STATUS_CREDIT_UNPROCESSED
             };
-        } else {
+        }
+
+        if (reservationModel.transactionGMO.status === GMO.Util.STATUS_CREDIT_AUTH) {
             //GMOオーソリ取消
             const alterTranIn = {
                 shopId: process.env.GMO_SHOP_ID,
@@ -176,36 +182,40 @@ export default class ReserveBaseController extends BaseController {
             };
             await GMO.CreditService.alterTran(alterTranIn);
         }
+
         // GMO取引作成
         reservationModel.transactionGMO.count += 1;
         const day = moment().format('YYYYMMDD');
         const paymentNo = reservationModel.paymentNo;
-        const count = reservationModel.transactionGMO.count;
-        const orderId = `${day}${paymentNo}${count}`;
+        const digit = -2;
+        const count = `00${reservationModel.transactionGMO.count}`.slice(digit);
+        const orderId = `${day}${paymentNo}${count}`; // オーダーID 予約日 + 購入管理番号 + オーソリカウント(2桁)
+        const amount = reservationModel.getTotalCharge();
         const entryTranIn = {
             shopId: process.env.GMO_SHOP_ID,
             shopPass: process.env.GMO_SHOP_PASS,
             orderId: orderId,
             jobCd: GMO.Util.JOB_CD_AUTH,
-            amount: reservationModel.getTotalCharge()
+            amount: amount
         };
-        reservationModel.transactionGMO.orderId = orderId;
-
         const transactionGMO = await GMO.CreditService.entryTran(entryTranIn);
-        reservationModel.transactionGMO.accessId = transactionGMO.accessId;
-        reservationModel.transactionGMO.accessPass = transactionGMO.accessPass;
 
+        const gmoTokenObject = JSON.parse(this.req.body.gmoTokenObject);
         // GMOオーソリ
         const execTranIn = {
             accessId: transactionGMO.accessId,
             accessPass: transactionGMO.accessPass,
             orderId: orderId,
             method: '1',
-            token: this.req.body.gmoTokenObject.token
+            token: gmoTokenObject.token
         };
         await GMO.CreditService.execTran(execTranIn);
-        // 決済エラー判定
-        return reservationModel;
+        reservationModel.transactionGMO.accessId = transactionGMO.accessId;
+        reservationModel.transactionGMO.accessPass = transactionGMO.accessPass;
+        reservationModel.transactionGMO.orderId = orderId;
+        reservationModel.transactionGMO.amount = amount;
+        reservationModel.transactionGMO.status = GMO.Util.STATUS_CREDIT_AUTH;
+        return;
     }
 
     /**
@@ -661,6 +671,17 @@ export default class ReserveBaseController extends BaseController {
                         commonUpdate.pre_customer_user_id = this.req.preCustomerUser.get('user_id');
                     }
 
+                    // クレジット決済
+                    if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
+                        commonUpdate.gmo_shop_id = process.env.GMO_SHOP_ID;
+                        commonUpdate.gmo_shop_pass = process.env.GMO_SHOP_PASS;
+                        commonUpdate.gmo_order_id = reservationModel.transactionGMO.orderId;
+                        commonUpdate.gmo_amount = reservationModel.transactionGMO.amount;
+                        commonUpdate.gmo_access_id = reservationModel.transactionGMO.accessId;
+                        commonUpdate.gmo_access_pass = reservationModel.transactionGMO.accessPass;
+                        commonUpdate.gmo_status = GMO.Util.STATUS_CREDIT_AUTH;
+                    }
+ 
                     break;
 
                 case ReservationUtil.PURCHASER_GROUP_MEMBER:

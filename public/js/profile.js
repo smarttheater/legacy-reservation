@@ -1,6 +1,20 @@
 $(function () {
     $('.btn-next').on('click', function () {
-        getToken();
+        var paymentMethod = $('input[name=paymentMethod]:checked').val();
+        if (paymentMethod === '0') {
+            getToken();
+        } else {
+            $('form').submit();
+        }
+    });
+
+    $('input[name=paymentMethod]').on('change', function () {
+        var paymentMethod = $(this).val();
+        if (paymentMethod === '0') {
+            $('.credit').removeClass('hide');
+        } else {
+            $('.credit').addClass('hide');
+        }
     });
 });
 /**
@@ -19,6 +33,7 @@ function getToken() {
         securitycode: securitycode, // 加盟店様の購入フォームから取得したセキュリティコード
         holdername: holdername // 加盟店様の購入フォームから取得したカード名義人
     }
+    
     Multipayment.getToken(sendParam, someCallbackFunction);
 }
 /**
@@ -38,7 +53,7 @@ function someCallbackFunction(response) {
     $('input[name=securitycode]').val('');
     $('input[name=holdername]').val('');
     if (response.resultCode != 000) {
-        alert('')
+        alert('トークン取得エラー');
     } else {
         //予め購入フォームに用意した token フィールドに、値を設定
         $('input[name=gmoTokenObject]').val(JSON.stringify(response.tokenObject));

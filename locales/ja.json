@@ -155,7 +155,13 @@
 			"remember": "次回から自動的にログインする",
 			"age": "年齢",
 			"address": "お住まいの地域",
-			"gender": "性別"
+			"gender": "性別",
+			"cardNumber": "クレジットカード番号",
+			"expire": "有効期限",
+			"cardExpirationMonth": "月",
+			"cardExpirationYear": "年",
+			"securitycode": "セキュリティコード",
+			"holdername": "カード名義人"
 		}
 	},
 	"Message": {
@@ -192,7 +198,9 @@
 		"OutOfTerm": "期間外です",
 		"NoAvailableSeats": "予約可能な席がございません",
 		"UpdateWatcherNameHelp": "※日本人の場合は「全角カタカナ」外国人の場合は「半角英字」で入力してください。<br>※セイとメイの間に半角スペースを入れないでください。",
-		"invalidPaymentNoOrLast4DigitsOfTel": "購入番号または電話番号下4ケタに誤りがあります"
+		"invalidPaymentNoOrLast4DigitsOfTel": "購入番号または電話番号下4ケタに誤りがあります",
+		"cardNumber": "※半角数字、ハイフン「-」なしで入力してください",
+		"securitycode": "セキュリティーコードについて"
 	},
 	"{{price}} yen": "{{price}} 円",
 	"Mr{{name}}": "{{name}} 様",
