@@ -1,5 +1,4 @@
 import { Models, ReservationEmailCueUtil, ReservationUtil } from '@motionpicture/chevre-domain';
-import * as conf from 'config';
 import * as crypto from 'crypto';
 import * as mongoose from 'mongoose';
 import * as util from 'util';
@@ -45,7 +44,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                 gmoResultModel.CvsReceiptNo,
                 gmoResultModel.PaymentTerm,
                 gmoResultModel.TranDate,
-                conf.get<string>('gmo_payment_shop_password')
+                process.env.GMO_SHOP_PASS
             );
             const checkString = crypto.createHash('md5').update(data2cipher, 'utf8').digest('hex');
             this.logger.info('CheckString must be ', checkString);

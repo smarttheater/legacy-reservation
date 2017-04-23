@@ -210,8 +210,8 @@ class CustomerCancelController extends BaseController_1.default {
                     // request.post({
                     //     url: 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
                     //     form: {
-                    //         ShopID: conf.get<string>('gmo_payment_shop_id'),
-                    //         ShopPass: conf.get<string>('gmo_payment_shop_password'),
+                    //         ShopID: process.env.GMO_SHOP_ID,
+                    //         ShopPass: process.env.GMO_SHOP_PASS,
                     //         OrderID: paymentNo
                     //     }
                     // }, (error, response, body) => {
@@ -240,8 +240,8 @@ class CustomerCancelController extends BaseController_1.default {
                     //     request.post({
                     //         url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
                     //         form: {
-                    //             ShopID: conf.get<string>('gmo_payment_shop_id'),
-                    //             ShopPass: conf.get<string>('gmo_payment_shop_password'),
+                    //             ShopID: process.env.GMO_SHOP_ID,
+                    //             ShopPass: process.env.GMO_SHOP_PASS,
                     //             AccessID: searchTradeResult.AccessID,
                     //             AccessPass: searchTradeResult.AccessPass,
                     //             JobCd: GMOUtil.STATUS_CREDIT_VOID

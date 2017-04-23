@@ -8,9 +8,6 @@
         "from": "noreply@default.chevre.motionpicture.jp",
         "fromname": "CHEVRE_EVENT_NAME Online Ticket [dev]"
     },
-    "gmo_payment_site_id": "tsite00022126",
-    "gmo_payment_shop_id": "tshop00027145",
-    "gmo_payment_shop_password": "q7rf5zwm",
     "gmo_payment_api_link_multi_entry": "https://pt01.mul-pay.jp/link/tshop00027145/Multi/Entry",
     "datetimes": {
         "reservation_start_staffs": "2016-09-28T00:00:00+09:00",

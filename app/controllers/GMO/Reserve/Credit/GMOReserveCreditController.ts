@@ -1,6 +1,5 @@
 import { Models } from '@motionpicture/chevre-domain';
 import { ReservationUtil } from '@motionpicture/chevre-domain';
-import * as conf from 'config';
 import * as crypto from 'crypto';
 import * as mongoose from 'mongoose';
 import * as util from 'util';
@@ -62,7 +61,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 gmoResultModel.Approve,
                 gmoResultModel.TranID,
                 gmoResultModel.TranDate,
-                conf.get<string>('gmo_payment_shop_password')
+                process.env.GMO_SHOP_PASS
             );
             const checkString = crypto.createHash('md5').update(data2cipher, 'utf8').digest('hex');
             this.logger.info('CheckString must be ', checkString);
@@ -112,8 +111,8 @@ export default class GMOReserveCreditController extends ReserveBaseController {
         let options = {
             url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
             form: {
-                ShopID: conf.get<string>('gmo_payment_shop_id'),
-                ShopPass: conf.get<string>('gmo_payment_shop_password'),
+                ShopID: process.env.GMO_SHOP_ID,
+                ShopPass: process.env.GMO_SHOP_PASS,
                 AccessID: gmoNotificationModel.AccessID,
                 AccessPass: gmoNotificationModel.AccessPass,
                 JobCd: GMOUtil.STATUS_CREDIT_SALES,
@@ -161,8 +160,8 @@ export default class GMOReserveCreditController extends ReserveBaseController {
         let options = {
             url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
             form: {
-                ShopID: conf.get<string>('gmo_payment_shop_id'),
-                ShopPass: conf.get<string>('gmo_payment_shop_password'),
+                ShopID: process.env.GMO_SHOP_ID,
+                ShopPass: process.env.GMO_SHOP_PASS,
                 AccessID: gmoNotificationModel.AccessID,
                 AccessPass: gmoNotificationModel.AccessPass,
                 JobCd: GMOUtil.STATUS_CREDIT_VOID,

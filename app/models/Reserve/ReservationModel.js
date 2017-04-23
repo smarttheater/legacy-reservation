@@ -257,7 +257,7 @@ class ReservationModel {
             watcher_name: (reservation.watcher_name !== undefined) ? reservation.watcher_name : '',
             watcher_name_updated_at: (reservation.watcher_name !== undefined) ? moment().valueOf() : '',
             purchased_at: this.purchasedAt,
-            gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil.createShopPassString(conf.get('gmo_payment_shop_id'), this.paymentNo, this.getTotalCharge().toString(), conf.get('gmo_payment_shop_password'), moment(this.purchasedAt).format('YYYYMMDDHHmmss')) : '',
+            gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil.createShopPassString(process.env.GMO_SHOP_ID, this.paymentNo, this.getTotalCharge().toString(), process.env.GMO_SHOP_PASS, moment(this.purchasedAt).format('YYYYMMDDHHmmss')) : '',
             updated_user: 'ReservationModel'
         };
     }

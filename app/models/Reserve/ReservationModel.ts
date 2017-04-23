@@ -382,10 +382,10 @@ export default class ReservationModel {
             purchased_at: this.purchasedAt,
 
             gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil.createShopPassString(
-                conf.get<string>('gmo_payment_shop_id'),
+                process.env.GMO_SHOP_ID,
                 this.paymentNo,
                 this.getTotalCharge().toString(),
-                conf.get<string>('gmo_payment_shop_password'),
+                process.env.GMO_SHOP_PASS,
                 moment(this.purchasedAt).format('YYYYMMDDHHmmss')
             ) : '',
 

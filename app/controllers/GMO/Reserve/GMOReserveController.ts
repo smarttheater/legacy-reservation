@@ -1,6 +1,5 @@
 import { Models } from '@motionpicture/chevre-domain';
 import { ReservationUtil } from '@motionpicture/chevre-domain';
-import * as conf from 'config';
 import * as moment from 'moment';
 import * as querystring from 'querystring';
 import * as _ from 'underscore';
@@ -116,17 +115,17 @@ export default class GMOReserveController extends ReserveBaseController {
                 )
             );
 
-            this.res.locals.shopId = conf.get<string>('gmo_payment_shop_id');
+            this.res.locals.shopId = process.env.GMO_SHOP_ID;
             this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(購入番号を使用)
             this.res.locals.amount = reservationModel.getTotalCharge().toString();
             this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
             this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
             this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
             this.res.locals.shopPassString = GMOUtil.createShopPassString(
-                conf.get<string>('gmo_payment_shop_id'),
+                process.env.GMO_SHOP_ID,
                 this.res.locals.orderID,
                 this.res.locals.amount,
-                conf.get<string>('gmo_payment_shop_password'),
+                process.env.GMO_SHOP_PASS,
                 this.res.locals.dateTime
             );
 

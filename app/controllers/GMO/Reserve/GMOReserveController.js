@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
-const conf = require("config");
 const moment = require("moment");
 const querystring = require("querystring");
 const _ = require("underscore");
@@ -105,13 +104,13 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 reservationModel.performance.start_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
                 reservationModel.performance.start_time.substr(2) // tslint:disable-line:no-magic-numbers
                 ));
-                this.res.locals.shopId = conf.get('gmo_payment_shop_id');
+                this.res.locals.shopId = process.env.GMO_SHOP_ID;
                 this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(購入番号を使用)
                 this.res.locals.amount = reservationModel.getTotalCharge().toString();
                 this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
                 this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
                 this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
-                this.res.locals.shopPassString = GMOUtil.createShopPassString(conf.get('gmo_payment_shop_id'), this.res.locals.orderID, this.res.locals.amount, conf.get('gmo_payment_shop_password'), this.res.locals.dateTime);
+                this.res.locals.shopPassString = GMOUtil.createShopPassString(process.env.GMO_SHOP_ID, this.res.locals.orderID, this.res.locals.amount, process.env.GMO_SHOP_PASS, this.res.locals.dateTime);
                 this.res.locals.retURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, '/GMO/reserve/result', this.req.getLocale());
                 // 決済キャンセル時に遷移する加盟店URL
                 this.res.locals.cancelURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, `/GMO/reserve/${reservationModel.paymentNo}/cancel`, this.req.getLocale());
