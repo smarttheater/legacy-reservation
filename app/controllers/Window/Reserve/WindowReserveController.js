@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const gmo_service_1 = require("@motionpicture/gmo-service");
 const moment = require("moment");
 const _ = require("underscore");
-const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
@@ -237,7 +237,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
                     this.res.locals.email = (!_.isEmpty(email)) ? email : '';
                     this.res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
                     this.res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
-                    this.res.locals.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
+                    this.res.locals.paymentMethod = gmo_service_1.Util.PAY_TYPE_CREDIT;
                     if (!_.isEmpty(reservationModel.paymentMethod)) {
                         this.res.locals.paymentMethod = reservationModel.paymentMethod;
                     }

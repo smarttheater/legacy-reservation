@@ -17,7 +17,7 @@ const moment = require("moment");
 const numeral = require("numeral");
 const sendgrid = require("sendgrid");
 const util = require("util");
-const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
+const gmo_service_1 = require("@motionpicture/gmo-service");
 const customerCancelForm_1 = require("../../../forms/customer/customerCancelForm");
 const BaseController_1 = require("../../BaseController");
 /**
@@ -154,7 +154,7 @@ class CustomerCancelController extends BaseController_1.default {
                     });
                     return;
                 }
-                if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CREDIT) {
+                if (reservations[0].get('payment_method') === gmo_service_1.Util.PAY_TYPE_CREDIT) {
                     this.logger.info('removing reservations by customer... payment_no:', paymentNo);
                     yield chevre_domain_1.Models.Reservation.remove({
                         payment_no: paymentNo,
@@ -181,7 +181,7 @@ class CustomerCancelController extends BaseController_1.default {
                         moment: moment,
                         numeral: numeral,
                         conf: conf,
-                        GMOUtil: GMOUtil,
+                        GMOUtil: gmo_service_1.Util,
                         ReservationUtil: chevre_domain_2.ReservationUtil
                     }, (renderErr, html) => __awaiter(this, void 0, void 0, function* () {
                         this.logger.info('email rendered. html:', renderErr, html);
@@ -265,7 +265,7 @@ class CustomerCancelController extends BaseController_1.default {
                     //     });
                     // });
                 }
-                else if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) {
+                else if (reservations[0].get('payment_method') === gmo_service_1.Util.PAY_TYPE_CVS) {
                     // コンビニ決済の場合
                     this.res.json({
                         success: false,

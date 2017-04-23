@@ -9,7 +9,7 @@ import * as numeral from 'numeral';
 import * as sendgrid from 'sendgrid';
 import * as util from 'util';
 
-import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
+import { Util as GMOUtil } from '@motionpicture/gmo-service';
 import customerCancelForm from '../../../forms/customer/customerCancelForm';
 import BaseController from '../../BaseController';
 

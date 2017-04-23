@@ -15,7 +15,6 @@ const conf = require("config");
 const fs = require("fs-extra");
 const moment = require("moment");
 const _ = require("underscore");
-const GMOUtil = require("../../common/Util/GMO/GMOUtil");
 const Util = require("../../common/Util/Util");
 const reservePaymentCreditForm_1 = require("../forms/reserve/reservePaymentCreditForm");
 const reserveProfileForm_1 = require("../forms/reserve/reserveProfileForm");
@@ -33,7 +32,7 @@ const DEFAULT_RADIX = 10;
 class ReserveBaseController extends BaseController_1.default {
     constructor(req, res, next) {
         super(req, res, next);
-        this.res.locals.GMOUtil = GMOUtil;
+        this.res.locals.GMOUtil = GMO.Util;
         this.res.locals.ReservationUtil = chevre_domain_1.ReservationUtil;
         this.res.locals.ScreenUtil = chevre_domain_1.ScreenUtil;
         this.res.locals.Models = chevre_domain_2.Models;
@@ -113,7 +112,7 @@ class ReserveBaseController extends BaseController_1.default {
                     reservationModel.paymentMethod = '';
                     break;
                 case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
-                    reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
+                    reservationModel.paymentMethod = GMO.Util.PAY_TYPE_CREDIT;
                     break;
                 default:
                     break;
@@ -258,7 +257,7 @@ class ReserveBaseController extends BaseController_1.default {
                     reservationModel.purchaserAddress = purchaserFromSession.address;
                     reservationModel.purchaserGender = purchaserFromSession.gender;
                 }
-                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT, GMOUtil.PAY_TYPE_CVS];
+                reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT, GMO.Util.PAY_TYPE_CVS];
                 break;
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
                 if (purchaserFromSession !== undefined) {
@@ -270,7 +269,7 @@ class ReserveBaseController extends BaseController_1.default {
                     reservationModel.purchaserAddress = purchaserFromSession.address;
                     reservationModel.purchaserGender = purchaserFromSession.gender;
                 }
-                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
+                reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT];
                 break;
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
                 if (this.req.staffUser === undefined)
@@ -291,7 +290,7 @@ class ReserveBaseController extends BaseController_1.default {
                 reservationModel.purchaserAge = '00';
                 reservationModel.purchaserAddress = '';
                 reservationModel.purchaserGender = '1';
-                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT, GMOUtil.PAY_TYPE_CASH];
+                reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT, GMO.Util.PAY_TYPE_CASH];
                 break;
             default:
                 break;
@@ -432,8 +431,8 @@ class ReserveBaseController extends BaseController_1.default {
             // tslint:disable-next-line:no-magic-numbers
             const day5DaysAgo = parseInt(moment().add(+5, 'days').format('YYYYMMDD'), DEFAULT_RADIX);
             if (parseInt(reservationModel.performance.day, DEFAULT_RADIX) < day5DaysAgo) {
-                if (reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CVS) >= 0) {
-                    reservationModel.paymentMethodChoices.splice(reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CVS), 1);
+                if (reservationModel.paymentMethodChoices.indexOf(GMO.Util.PAY_TYPE_CVS) >= 0) {
+                    reservationModel.paymentMethodChoices.splice(reservationModel.paymentMethodChoices.indexOf(GMO.Util.PAY_TYPE_CVS), 1);
                 }
             }
             // スクリーン座席表HTMLを保管
@@ -540,7 +539,7 @@ class ReserveBaseController extends BaseController_1.default {
                         commonUpdate.status = chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT;
                         commonUpdate.expired_at = null;
                         // クレジット決済
-                        if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
+                        if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
                             commonUpdate.gmo_shop_id = process.env.GMO_SHOP_ID;
                             commonUpdate.gmo_shop_pass = process.env.GMO_SHOP_PASS;
                             commonUpdate.gmo_order_id = reservationModel.transactionGMO.orderId;

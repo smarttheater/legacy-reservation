@@ -7,7 +7,6 @@ import * as fs from 'fs-extra';
 import * as moment from 'moment';
 import * as _ from 'underscore';
 
-import * as GMOUtil from '../../common/Util/GMO/GMOUtil';
 import * as Util from '../../common/Util/Util';
 import reservePaymentCreditForm from '../forms/reserve/reservePaymentCreditForm';
 import reserveProfileForm from '../forms/reserve/reserveProfileForm';
@@ -33,7 +32,7 @@ export default class ReserveBaseController extends BaseController {
     constructor(req: express.Request, res: express.Response, next: express.NextFunction) {
         super(req, res, next);
 
-        this.res.locals.GMOUtil = GMOUtil;
+        this.res.locals.GMOUtil = GMO.Util;
         this.res.locals.ReservationUtil = ReservationUtil;
         this.res.locals.ScreenUtil = ScreenUtil;
         this.res.locals.Models = Models;
@@ -119,7 +118,7 @@ export default class ReserveBaseController extends BaseController {
                 break;
 
             case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
+                reservationModel.paymentMethod = GMO.Util.PAY_TYPE_CREDIT;
                 break;
 
             default:
@@ -286,7 +285,7 @@ export default class ReserveBaseController extends BaseController {
                     reservationModel.purchaserGender = purchaserFromSession.gender;
                 }
 
-                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT, GMOUtil.PAY_TYPE_CVS];
+                reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT, GMO.Util.PAY_TYPE_CVS];
                 break;
 
             case ReservationUtil.PURCHASER_GROUP_MEMBER:
@@ -300,7 +299,7 @@ export default class ReserveBaseController extends BaseController {
                     reservationModel.purchaserGender = purchaserFromSession.gender;
                 }
 
-                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
+                reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT];
                 break;
 
             case ReservationUtil.PURCHASER_GROUP_STAFF:
@@ -324,7 +323,7 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.purchaserAddress = '';
                 reservationModel.purchaserGender = '1';
 
-                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT, GMOUtil.PAY_TYPE_CASH];
+                reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT, GMO.Util.PAY_TYPE_CASH];
                 break;
 
             default:
@@ -495,8 +494,8 @@ export default class ReserveBaseController extends BaseController {
         // tslint:disable-next-line:no-magic-numbers
         const day5DaysAgo = parseInt(moment().add(+5, 'days').format('YYYYMMDD'), DEFAULT_RADIX);
         if (parseInt(reservationModel.performance.day, DEFAULT_RADIX) < day5DaysAgo) {
-            if (reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CVS) >= 0) {
-                reservationModel.paymentMethodChoices.splice(reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CVS), 1);
+            if (reservationModel.paymentMethodChoices.indexOf(GMO.Util.PAY_TYPE_CVS) >= 0) {
+                reservationModel.paymentMethodChoices.splice(reservationModel.paymentMethodChoices.indexOf(GMO.Util.PAY_TYPE_CVS), 1);
             }
         }
 
@@ -615,7 +614,7 @@ export default class ReserveBaseController extends BaseController {
                     commonUpdate.expired_at = null;
 
                     // クレジット決済
-                    if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
+                    if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
                         commonUpdate.gmo_shop_id = process.env.GMO_SHOP_ID;
                         commonUpdate.gmo_shop_pass = process.env.GMO_SHOP_PASS;
                         commonUpdate.gmo_order_id = reservationModel.transactionGMO.orderId;

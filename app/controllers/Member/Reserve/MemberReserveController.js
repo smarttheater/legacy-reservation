@@ -11,10 +11,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const chevre_domain_3 = require("@motionpicture/chevre-domain");
+const gmo_service_1 = require("@motionpicture/gmo-service");
 const httpStatus = require("http-status");
 const moment = require("moment");
 const _ = require("underscore");
-const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
 /**
@@ -163,7 +163,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                     this.res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
                     this.res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
                     this.res.locals.paymentMethod =
-                        (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
+                        (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : gmo_service_1.Util.PAY_TYPE_CREDIT;
                     this.res.render('member/reserve/profile', {
                         reservationModel: reservationModel
                     });

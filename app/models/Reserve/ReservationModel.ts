@@ -1,8 +1,8 @@
 import { ReservationUtil } from '@motionpicture/chevre-domain';
+import { Util as GMOUtil } from '@motionpicture/gmo-service';
 import * as conf from 'config';
 import * as moment from 'moment';
 import * as redis from 'redis';
-import * as GMOUtil from '../../../common/Util/GMO/GMOUtil';
 
 const DEFAULT_REDIS_TTL = 1800;
 const redisClient = redis.createClient(
@@ -378,13 +378,13 @@ export default class ReservationModel {
 
             purchased_at: this.purchasedAt,
 
-            gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil.createShopPassString(
-                process.env.GMO_SHOP_ID,
-                this.paymentNo,
-                this.getTotalCharge().toString(),
-                process.env.GMO_SHOP_PASS,
-                moment(this.purchasedAt).format('YYYYMMDDHHmmss')
-            ) : '',
+            gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil.createShopPassString({
+                shopId: process.env.GMO_SHOP_ID,
+                shopPass: process.env.GMO_SHOP_PASS,
+                orderId: this.paymentNo, // todo オーダーID仕様変更につき修正すべし
+                amount: this.getTotalCharge(),
+                dateTime: moment(this.purchasedAt).format('YYYYMMDDHHmmss')
+            }) : '',
 
             updated_user: 'ReservationModel'
         };

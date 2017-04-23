@@ -12,11 +12,11 @@ const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const chevre_domain_3 = require("@motionpicture/chevre-domain");
 const chevre_domain_4 = require("@motionpicture/chevre-domain");
+const gmo_service_1 = require("@motionpicture/gmo-service");
 const conf = require("config");
 const httpStatus = require("http-status");
 const moment = require("moment");
 const _ = require("underscore");
-const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
@@ -250,7 +250,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                 if (this.req.method === 'POST') {
                     try {
                         reservationModel = yield this.processFixProfile(reservationModel);
-                        if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
+                        if (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CREDIT) {
                             yield this.processFixPaymentOfCredit(reservationModel);
                             yield reservationModel.save();
                         }
@@ -259,6 +259,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                         this.res.redirect(`/customer/reserve/${token}/confirm`);
                     }
                     catch (error) {
+                        console.error(error);
                         this.res.render('customer/reserve/profile', {
                             reservationModel: reservationModel,
                             GMO_ENDPOINT: process.env.GMO_ENDPOINT,
@@ -279,7 +280,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     this.res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
                     this.res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
                     this.res.locals.paymentMethod =
-                        (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : GMOUtil.PAY_TYPE_CREDIT;
+                        (!_.isEmpty(reservationModel.paymentMethod)) ? reservationModel.paymentMethod : gmo_service_1.Util.PAY_TYPE_CREDIT;
                     this.res.render('customer/reserve/profile', {
                         reservationModel: reservationModel,
                         GMO_ENDPOINT: process.env.GMO_ENDPOINT,
@@ -306,7 +307,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                 }
                 if (this.req.method === 'POST') {
                     try {
-                        if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
+                        if (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CREDIT) {
                             yield this.processFixReservations(reservationModel.paymentNo, {});
                             this.logger.info('processFixReservations processed.');
                             this.res.redirect(`/customer/reserve/${reservationModel.paymentNo}/complete`);

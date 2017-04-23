@@ -1,11 +1,11 @@
 import { Models } from '@motionpicture/chevre-domain';
 import { ReservationUtil } from '@motionpicture/chevre-domain';
 import { ScreenUtil } from '@motionpicture/chevre-domain';
+import { Util as GMOUtil } from '@motionpicture/gmo-service';
 import * as httpStatus from 'http-status';
 import * as moment from 'moment';
 import * as _ from 'underscore';
 
-import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';

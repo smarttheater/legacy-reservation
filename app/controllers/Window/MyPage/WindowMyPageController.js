@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const gmo_service_1 = require("@motionpicture/gmo-service");
 const moment = require("moment");
 const _ = require("underscore");
-const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const Util = require("../../../../common/Util/Util");
 const BaseController_1 = require("../../BaseController");
 const DEFAULT_RADIX = 10;
@@ -29,7 +29,7 @@ class WindowMyPageController extends BaseController_1.default {
     }
     index() {
         this.res.render('window/mypage/index', {
-            GMOUtil: GMOUtil,
+            GMOUtil: gmo_service_1.Util,
             ReservationUtil: chevre_domain_1.ReservationUtil
         });
     }

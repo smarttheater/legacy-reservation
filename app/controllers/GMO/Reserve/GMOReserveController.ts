@@ -1,11 +1,11 @@
 import { Models } from '@motionpicture/chevre-domain';
 import { ReservationUtil } from '@motionpicture/chevre-domain';
+import { Util as GMOUtil } from '@motionpicture/gmo-service';
 import * as moment from 'moment';
 import * as querystring from 'querystring';
 import * as _ from 'underscore';
 import * as util from 'util';
 
-import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import * as Util from '../../../../common/Util/Util';
 import GMOResultModel from '../../../models/Reserve/GMOResultModel';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
@@ -121,13 +121,13 @@ export default class GMOReserveController extends ReserveBaseController {
             this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
             this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
             this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
-            this.res.locals.shopPassString = GMOUtil.createShopPassString(
-                process.env.GMO_SHOP_ID,
-                this.res.locals.orderID,
-                this.res.locals.amount,
-                process.env.GMO_SHOP_PASS,
-                this.res.locals.dateTime
-            );
+            this.res.locals.shopPassString = GMOUtil.createShopPassString({
+                shopId: process.env.GMO_SHOP_ID,
+                shopPass: process.env.GMO_SHOP_PASS,
+                orderId: this.res.locals.orderID,
+                amount: reservationModel.getTotalCharge(),
+                dateTime: this.res.locals.dateTime
+            });
 
             this.res.locals.retURL = util.format(
                 '%s%s?locale=%s',

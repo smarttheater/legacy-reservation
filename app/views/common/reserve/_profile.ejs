@@ -25,48 +25,6 @@
                         <input type="hidden" name="address" value="<%= address %>">
                         <input type="hidden" name="gender" value="<%= gender %>">
 
-                    <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL) { %>
-                        <input type="hidden" name="email" value="<%= email %>">
-                        <input type="hidden" name="emailConfirm" value="<%= emailConfirm %>">
-                        <input type="hidden" name="emailConfirmDomain" value="<%= emailConfirmDomain %>">
-                        <input type="hidden" name="age" value="<%= age %>">
-                        <input type="hidden" name="address" value="<%= address %>">
-                        <input type="hidden" name="gender" value="<%= gender %>">
-
-                        <tr>
-                            <th><%- __('Form.FieldName.name') %><span class="required"><%- __('Label.Required') %></span></th>
-                            <td>
-                                <div class="wrapper-names">
-                                    <div class="wrapper-nameinput">
-                                        <label for="id_lastName"><%- __('Form.FieldName.lastName') %></label>
-                                        <input type="text" name="lastName" id="id_lastName" class="form-control" value="<%= lastName %>">
-                                    </div>
-                                    <div class="wrapper-nameinput">
-                                        <label for="id_firstName"><%- __('Form.FieldName.firstName') %></label>
-                                        <input type="text" name="firstName" id="id_firstName" class="form-control" value="<%= firstName %>">
-                                    </div>
-                                </div>
-                                <p class="notice">※<%- __('Message.EnterInFullWidthKatakana') %></p>
-                                <% if (validation && validation.lastName) { %>
-                                <p class="errmsg"><%- validation.lastName.msg %></p>
-                                <% } %>
-                                <% if (validation && validation.firstName) { %>
-                                <p class="errmsg"><%- validation.firstName.msg %></p>
-                                <% } %>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th><label for="id_tel"><%- __('Form.FieldName.tel') %></label><span class="required"><%- __('Label.Required') %></span></th>
-                            <td>
-                                <input type="text" name="tel" id="id_tel" class="form-control" value="<%= tel %>">
-                                <p class="notice">※<%- __('Message.UseHalfWidthAlphanumericWithoutHyphens') %></p>
-                                <% if (validation && validation.tel) { %>
-                                <p class="errmsg"><%- validation.tel.msg %></p>
-                                <% } %>
-                            </td>
-                        </tr>
-
                     <% } else { %>
                         <tr>
                             <th><%- __('Form.FieldName.name') %><span class="required"><%- __('Label.Required') %></span></th>
@@ -201,8 +159,7 @@
 
 
 
-                    <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF
-                        || reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_SPONSOR) { %>
+                    <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) { %>
                         <input type="hidden" name="paymentMethod" value="<%= GMOUtil.PAY_TYPE_CREDIT %>">
 
                     <% } else { %>

@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const gmo_service_1 = require("@motionpicture/gmo-service");
 const conf = require("config");
 const moment = require("moment");
 const redis = require("redis");
-const GMOUtil = require("../../../common/Util/GMO/GMOUtil");
 const DEFAULT_REDIS_TTL = 1800;
 const redisClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST, {
     password: process.env.REDIS_KEY,
@@ -179,7 +179,7 @@ class ReservationModel {
                 charge += chevre_domain_1.ReservationUtil.CHARGE_MX4D;
             }
             // コンビニ手数料加算
-            if (this.paymentMethod === GMOUtil.PAY_TYPE_CVS) {
+            if (this.paymentMethod === gmo_service_1.Util.PAY_TYPE_CVS) {
                 charge += chevre_domain_1.ReservationUtil.CHARGE_CVS;
             }
         }
@@ -254,7 +254,13 @@ class ReservationModel {
             watcher_name: (reservation.watcher_name !== undefined) ? reservation.watcher_name : '',
             watcher_name_updated_at: (reservation.watcher_name !== undefined) ? moment().valueOf() : '',
             purchased_at: this.purchasedAt,
-            gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil.createShopPassString(process.env.GMO_SHOP_ID, this.paymentNo, this.getTotalCharge().toString(), process.env.GMO_SHOP_PASS, moment(this.purchasedAt).format('YYYYMMDDHHmmss')) : '',
+            gmo_shop_pass_string: (this.getTotalCharge() > 0) ? gmo_service_1.Util.createShopPassString({
+                shopId: process.env.GMO_SHOP_ID,
+                shopPass: process.env.GMO_SHOP_PASS,
+                orderId: this.paymentNo,
+                amount: this.getTotalCharge(),
+                dateTime: moment(this.purchasedAt).format('YYYYMMDDHHmmss')
+            }) : '',
             updated_user: 'ReservationModel'
         };
     }

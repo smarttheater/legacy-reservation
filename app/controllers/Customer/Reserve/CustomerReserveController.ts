@@ -2,12 +2,12 @@ import { Models } from '@motionpicture/chevre-domain';
 import { ScreenUtil } from '@motionpicture/chevre-domain';
 import { FilmUtil } from '@motionpicture/chevre-domain';
 import { ReservationUtil } from '@motionpicture/chevre-domain';
+import { Util as GMOUtil } from '@motionpicture/gmo-service';
 import * as conf from 'config';
 import * as httpStatus from 'http-status';
 import * as moment from 'moment';
 import * as _ from 'underscore';
 
-import * as GMOUtil from '../../../../common/Util/GMO/GMOUtil';
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
 import ReservationModel from '../../../models/Reserve/ReservationModel';
@@ -247,6 +247,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
                     await reservationModel.save();
                     this.res.redirect(`/customer/reserve/${token}/confirm`);
                 } catch (error) {
+                    console.error(error);
                     this.res.render('customer/reserve/profile', {
                         reservationModel: reservationModel,
                         GMO_ENDPOINT: process.env.GMO_ENDPOINT,

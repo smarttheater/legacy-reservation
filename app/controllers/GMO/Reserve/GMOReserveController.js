@@ -10,11 +10,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
+const gmo_service_1 = require("@motionpicture/gmo-service");
 const moment = require("moment");
 const querystring = require("querystring");
 const _ = require("underscore");
 const util = require("util");
-const GMOUtil = require("../../../../common/Util/GMO/GMOUtil");
 const Util = require("../../../../common/Util/Util");
 const GMOResultModel_1 = require("../../../models/Reserve/GMOResultModel");
 const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
@@ -108,9 +108,15 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(購入番号を使用)
                 this.res.locals.amount = reservationModel.getTotalCharge().toString();
                 this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
-                this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
-                this.res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
-                this.res.locals.shopPassString = GMOUtil.createShopPassString(process.env.GMO_SHOP_ID, this.res.locals.orderID, this.res.locals.amount, process.env.GMO_SHOP_PASS, this.res.locals.dateTime);
+                this.res.locals.useCredit = (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CREDIT) ? '1' : '0';
+                this.res.locals.useCvs = (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CVS) ? '1' : '0';
+                this.res.locals.shopPassString = gmo_service_1.Util.createShopPassString({
+                    shopId: process.env.GMO_SHOP_ID,
+                    shopPass: process.env.GMO_SHOP_PASS,
+                    orderId: this.res.locals.orderID,
+                    amount: reservationModel.getTotalCharge(),
+                    dateTime: this.res.locals.dateTime
+                });
                 this.res.locals.retURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, '/GMO/reserve/result', this.req.getLocale());
                 // 決済キャンセル時に遷移する加盟店URL
                 this.res.locals.cancelURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, `/GMO/reserve/${reservationModel.paymentNo}/cancel`, this.req.getLocale());
@@ -164,13 +170,13 @@ class GMOReserveController extends ReserveBaseController_1.default {
             else {
                 // 決済方法によって振り分け
                 switch (gmoResultModel.PayType) {
-                    case GMOUtil.PAY_TYPE_CREDIT:
+                    case gmo_service_1.Util.PAY_TYPE_CREDIT:
                         this.logger.info('starting GMOReserveCreditController.result...');
                         const creditController = new GMOReserveCreditController_1.default(this.req, this.res, this.next);
                         creditController.logger = this.logger;
                         yield creditController.result(gmoResultModel);
                         break;
-                    case GMOUtil.PAY_TYPE_CVS:
+                    case gmo_service_1.Util.PAY_TYPE_CVS:
                         this.logger.info('starting GMOReserveCsvController.result...');
                         const cvsController = new GMOReserveCvsController_1.default(this.req, this.res, this.next);
                         cvsController.logger = this.logger;
