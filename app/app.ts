@@ -36,13 +36,9 @@ app.use(basicAuth); // ベーシック認証
 // ルーティング
 import customerSupport from './routes/customerSupport';
 import memberRouter from './routes/member';
-import payDesign from './routes/payDesign';
-import preRouter from './routes/pre';
 import router from './routes/router';
 import sendGridRouter from './routes/sendGrid';
-import sponsorRouter from './routes/sponsor';
 import staffRouter from './routes/staff';
-import telRouter from './routes/tel';
 import windowRouter from './routes/window';
 
 if (process.env.NODE_ENV !== 'production') {
@@ -56,9 +52,6 @@ if (process.env.NODE_ENV !== 'production') {
         });
     });
 }
-
-// ペイデザイン連携のため
-payDesign(app);
 
 // view engine setup
 app.set('views', `${__dirname}/views`);
@@ -106,12 +99,9 @@ app.use(expressValidator()); // バリデーション
 
 // ルーティング登録の順序に注意！
 memberRouter(app);
-sponsorRouter(app);
 staffRouter(app);
-telRouter(app);
 windowRouter(app);
 customerSupport(app);
-preRouter(app);
 sendGridRouter(app);
 router(app);
 

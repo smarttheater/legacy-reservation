@@ -109,12 +109,8 @@ class ReserveBaseController extends BaseController_1.default {
             reservationModel.paymentMethod = this.req.body.paymentMethod;
             // 主体によっては、決済方法を強制的に固定で
             switch (this.purchaserGroup) {
-                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
                 case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
                     reservationModel.paymentMethod = '';
-                    break;
-                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
-                    reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CVS;
                     break;
                 case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
                     reservationModel.paymentMethod = GMOUtil.PAY_TYPE_CREDIT;
@@ -221,14 +217,7 @@ class ReserveBaseController extends BaseController_1.default {
             try {
                 reservationModel.paymentNo = yield chevre_domain_1.ReservationUtil.publishPaymentNo();
                 // パフォーマンスFIX
-                if (this.purchaserGroup === chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR &&
-                    this.req.sponsorUser !== undefined &&
-                    this.req.sponsorUser.get('performance') !== null) {
-                    // パフォーマンスFIX
-                    // tslint:disable-next-line:no-shadowed-variable
-                    reservationModel = yield this.processFixPerformance(reservationModel, this.req.sponsorUser.get('performance'));
-                }
-                else if (!_.isEmpty(this.req.query.performance)) {
+                if (!_.isEmpty(this.req.query.performance)) {
                     // パフォーマンス指定遷移の場合
                     // パフォーマンスFIX
                     // tslint:disable-next-line:no-shadowed-variable
@@ -283,17 +272,6 @@ class ReserveBaseController extends BaseController_1.default {
                 }
                 reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CREDIT];
                 break;
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
-                if (purchaserFromSession !== undefined) {
-                    reservationModel.purchaserLastName = purchaserFromSession.lastName;
-                    reservationModel.purchaserFirstName = purchaserFromSession.firstName;
-                    reservationModel.purchaserTel = purchaserFromSession.tel;
-                    reservationModel.purchaserEmail = purchaserFromSession.email;
-                    reservationModel.purchaserAge = purchaserFromSession.age;
-                    reservationModel.purchaserAddress = purchaserFromSession.address;
-                    reservationModel.purchaserGender = purchaserFromSession.gender;
-                }
-                break;
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
                 if (this.req.staffUser === undefined)
                     throw new Error(this.req.__('Message.UnexpectedError'));
@@ -304,16 +282,6 @@ class ReserveBaseController extends BaseController_1.default {
                 reservationModel.purchaserAge = '00';
                 reservationModel.purchaserAddress = '';
                 reservationModel.purchaserGender = '1';
-                break;
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
-                reservationModel.purchaserLastName = '';
-                reservationModel.purchaserFirstName = '';
-                reservationModel.purchaserTel = '';
-                reservationModel.purchaserEmail = 'chevre@localhost.net';
-                reservationModel.purchaserAge = '00';
-                reservationModel.purchaserAddress = '';
-                reservationModel.purchaserGender = '1';
-                reservationModel.paymentMethodChoices = [GMOUtil.PAY_TYPE_CVS];
                 break;
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
                 reservationModel.purchaserLastName = 'マドグチ';
@@ -391,9 +359,6 @@ class ReserveBaseController extends BaseController_1.default {
             switch (this.purchaserGroup) {
                 case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
                     reservationModel.ticketTypes = chevre_domain_1.TicketTypeGroupUtil.getOne4staff();
-                    break;
-                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
-                    reservationModel.ticketTypes = chevre_domain_1.TicketTypeGroupUtil.getOne4sponsor();
                     break;
                 case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
                     // メルマガ当選者の場合、一般だけ
@@ -513,22 +478,11 @@ class ReserveBaseController extends BaseController_1.default {
                     case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
                         newReservation.staff = this.req.staffUser.get('_id');
                         break;
-                    case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
-                        newReservation.sponsor = this.req.sponsorUser.get('_id');
-                        break;
                     case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
                         newReservation.member = this.req.memberUser.get('_id');
                         break;
-                    case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
-                        newReservation.tel = this.req.telStaffUser.get('_id');
-                        break;
                     case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
                         newReservation.window = this.req.windowUser.get('_id');
-                        break;
-                    case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-                        if (this.req.preCustomerUser !== undefined) {
-                            newReservation.pre_customer = this.req.preCustomerUser.get('_id');
-                        }
                         break;
                     default:
                         break;
@@ -585,11 +539,6 @@ class ReserveBaseController extends BaseController_1.default {
                         // GMO決済の場合、この時点で決済中ステータスに変更
                         commonUpdate.status = chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT;
                         commonUpdate.expired_at = null;
-                        // 1.5次販売ユーザーの場合
-                        if (this.req.preCustomerUser !== undefined) {
-                            commonUpdate.pre_customer = this.req.preCustomerUser.get('_id');
-                            commonUpdate.pre_customer_user_id = this.req.preCustomerUser.get('user_id');
-                        }
                         // クレジット決済
                         if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
                             commonUpdate.gmo_shop_id = process.env.GMO_SHOP_ID;
@@ -605,11 +554,6 @@ class ReserveBaseController extends BaseController_1.default {
                         commonUpdate.member = this.req.memberUser.get('_id');
                         commonUpdate.member_user_id = this.req.memberUser.get('user_id');
                         break;
-                    case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
-                        commonUpdate.sponsor = this.req.sponsorUser.get('_id');
-                        commonUpdate.sponsor_user_id = this.req.sponsorUser.get('user_id');
-                        commonUpdate.sponsor_name = this.req.sponsorUser.get('name');
-                        break;
                     case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
                         commonUpdate.staff = this.req.staffUser.get('_id');
                         commonUpdate.staff_user_id = this.req.staffUser.get('user_id');
@@ -620,14 +564,6 @@ class ReserveBaseController extends BaseController_1.default {
                         commonUpdate.purchaser_first_name = '';
                         commonUpdate.purchaser_email = '';
                         commonUpdate.purchaser_tel = '';
-                        commonUpdate.purchaser_age = '';
-                        commonUpdate.purchaser_address = '';
-                        commonUpdate.purchaser_gender = '';
-                        break;
-                    case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
-                        commonUpdate.tel_staff = this.req.telStaffUser.get('_id');
-                        commonUpdate.tel_staff_user_id = this.req.telStaffUser.get('user_id');
-                        commonUpdate.purchaser_email = '';
                         commonUpdate.purchaser_age = '';
                         commonUpdate.purchaser_address = '';
                         commonUpdate.purchaser_gender = '';

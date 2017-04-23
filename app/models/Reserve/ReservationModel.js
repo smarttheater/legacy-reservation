@@ -123,13 +123,11 @@ class ReservationModel {
         let limit = MAX_RESERVATION_SEATS_DEFAULT;
         // 主体によっては、決済方法を強制的に固定で
         switch (this.purchaserGroup) {
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_SPONSOR:
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
                 limit = MAX_RESERVATION_SEATS_STAFFS;
                 break;
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_TEL:
                 if (this.performance !== undefined) {
                     // 制限枚数指定のパフォーマンスの場合
                     const performanceIds4limit2 = conf.get('performanceIds4limit2');
@@ -170,8 +168,7 @@ class ReservationModel {
     getChargeExceptTicketTypeBySeatCode(seatCode) {
         let charge = 0;
         if (this.purchaserGroup === chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER
-            || this.purchaserGroup === chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW
-            || this.purchaserGroup === chevre_domain_1.ReservationUtil.PURCHASER_GROUP_TEL) {
+            || this.purchaserGroup === chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW) {
             const reservation = this.getReservation(seatCode);
             // 座席グレード分加算
             if (reservation.seat_grade_additional_charge > 0) {

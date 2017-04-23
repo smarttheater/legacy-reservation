@@ -46,41 +46,38 @@ export default class MemberReserveController extends ReserveBaseController imple
 
             let reservationModel = await this.processStart();
 
-            if (reservationModel.performance === undefined) {
-                throw new Error('no performance specified');
-            } else {
-                // パフォーマンスFIX
-                // tslint:disable-next-line:no-shadowed-variable
-                reservationModel = await this.processFixPerformance(reservationModel, reservations[0].get('performance').toString());
+            // パフォーマンスFIX
+            // tslint:disable-next-line:no-shadowed-variable
+            reservationModel = await this.processFixPerformance(reservationModel, reservations[0].get('performance').toString());
 
-                // 座席FIX
-                reservations.forEach((reservation) => {
-                    const seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
-                        return (seat.code === reservation.get('seat_code'));
-                    });
-                    if (seatInfo === undefined) throw new Error(this.req.__('Message.UnexpectedError'));
-
-                    reservationModel.seatCodes.push(reservation.get('seat_code'));
-                    reservationModel.setReservation(reservation.get('seat_code'), {
-                        _id: reservation.get('_id'),
-                        status: reservation.get('status'),
-                        seat_code: reservation.get('seat_code'),
-                        seat_grade_name_ja: seatInfo.grade.name.ja,
-                        seat_grade_name_en: seatInfo.grade.name.en,
-                        seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                        ticket_type_code: '',
-                        ticket_type_name_ja: '',
-                        ticket_type_name_en: '',
-                        ticket_type_charge: 0,
-                        watcher_name: ''
-                    });
+            // 座席FIX
+            reservations.forEach((reservation) => {
+                const seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
+                    return (seat.code === reservation.get('seat_code'));
                 });
+                if (seatInfo === undefined) throw new Error(this.req.__('Message.UnexpectedError'));
 
-                // パフォーマンスと座席指定した状態で券種選択へ
-                await reservationModel.save();
-                this.res.redirect(`/member/reserve/${reservationModel.token}/tickets`);
-            }
+                reservationModel.seatCodes.push(reservation.get('seat_code'));
+                reservationModel.setReservation(reservation.get('seat_code'), {
+                    _id: reservation.get('_id'),
+                    status: reservation.get('status'),
+                    seat_code: reservation.get('seat_code'),
+                    seat_grade_name_ja: seatInfo.grade.name.ja,
+                    seat_grade_name_en: seatInfo.grade.name.en,
+                    seat_grade_additional_charge: seatInfo.grade.additional_charge,
+                    ticket_type_code: '',
+                    ticket_type_name_ja: '',
+                    ticket_type_name_en: '',
+                    ticket_type_charge: 0,
+                    watcher_name: ''
+                });
+            });
+
+            // パフォーマンスと座席指定した状態で券種選択へ
+            await reservationModel.save();
+            this.res.redirect(`/member/reserve/${reservationModel.token}/tickets`);
         } catch (error) {
+            console.error(error);
             this.next(new Error(this.req.__('Message.UnexpectedError')));
         }
     }

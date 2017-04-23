@@ -32,13 +32,9 @@ app.use(basicAuth_1.default); // ベーシック認証
 // ルーティング
 const customerSupport_1 = require("./routes/customerSupport");
 const member_1 = require("./routes/member");
-const payDesign_1 = require("./routes/payDesign");
-const pre_1 = require("./routes/pre");
 const router_1 = require("./routes/router");
 const sendGrid_1 = require("./routes/sendGrid");
-const sponsor_1 = require("./routes/sponsor");
 const staff_1 = require("./routes/staff");
-const tel_1 = require("./routes/tel");
 const window_1 = require("./routes/window");
 if (process.env.NODE_ENV !== 'production') {
     // サーバーエラーテスト
@@ -50,8 +46,6 @@ if (process.env.NODE_ENV !== 'production') {
         });
     });
 }
-// ペイデザイン連携のため
-payDesign_1.default(app);
 // view engine setup
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
@@ -89,12 +83,9 @@ app.use((req, _res, next) => {
 app.use(expressValidator()); // バリデーション
 // ルーティング登録の順序に注意！
 member_1.default(app);
-sponsor_1.default(app);
 staff_1.default(app);
-tel_1.default(app);
 window_1.default(app);
 customerSupport_1.default(app);
-pre_1.default(app);
 sendGrid_1.default(app);
 router_1.default(app);
 /*

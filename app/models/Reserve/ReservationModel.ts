@@ -217,14 +217,12 @@ export default class ReservationModel {
 
         // 主体によっては、決済方法を強制的に固定で
         switch (this.purchaserGroup) {
-            case ReservationUtil.PURCHASER_GROUP_SPONSOR:
             case ReservationUtil.PURCHASER_GROUP_STAFF:
             case ReservationUtil.PURCHASER_GROUP_WINDOW:
                 limit = MAX_RESERVATION_SEATS_STAFFS;
                 break;
 
             case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-            case ReservationUtil.PURCHASER_GROUP_TEL:
                 if (this.performance !== undefined) {
                     // 制限枚数指定のパフォーマンスの場合
                     const performanceIds4limit2 = conf.get<string[]>('performanceIds4limit2');
@@ -277,7 +275,6 @@ export default class ReservationModel {
 
         if (this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER
             || this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW
-            || this.purchaserGroup === ReservationUtil.PURCHASER_GROUP_TEL
         ) {
             const reservation = this.getReservation(seatCode);
 

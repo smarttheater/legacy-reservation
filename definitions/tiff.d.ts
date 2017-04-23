@@ -1,10 +1,7 @@
 declare namespace Express {
     export interface Request {
         memberUser?: MemberUser;
-        preCustomerUser?: PreCustomerUser;
-        sponsorUser?: SponsorUser;
         staffUser?: StaffUser;
-        telStaffUser?: TelStaffUser;
         windowUser?: WindowUser;
     }
 
