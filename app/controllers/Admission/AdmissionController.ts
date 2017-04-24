@@ -81,7 +81,7 @@ export default class AdmissionController extends BaseController {
                     performance: performance.get('_id'),
                     status: ReservationUtil.STATUS_RESERVED
                 },
-                'seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en entered payment_no payment_seat_index'
+                'performance_day seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en entered payment_no payment_seat_index'
             ).exec();
 
             const reservationsById: {

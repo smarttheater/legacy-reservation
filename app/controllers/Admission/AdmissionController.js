@@ -82,7 +82,7 @@ class AdmissionController extends BaseController_1.default {
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
                     performance: performance.get('_id'),
                     status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
-                }, 'seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en entered payment_no payment_seat_index').exec();
+                }, 'performance_day seat_code ticket_type_code ticket_type_name_ja ticket_type_name_en entered payment_no payment_seat_index').exec();
                 const reservationsById = {};
                 const reservationIdsByQrStr = {};
                 reservations.forEach((reservation) => {
