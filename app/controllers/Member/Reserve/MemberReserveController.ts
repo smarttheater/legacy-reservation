@@ -187,7 +187,7 @@ export default class MemberReserveController extends ReserveBaseController imple
 
             if (this.req.method === 'POST') {
                 try {
-                    reservationModel = await this.processConfirm(reservationModel);
+                    await this.processConfirm(reservationModel);
                     await reservationModel.save();
                     this.logger.info('starting GMO payment...');
                     this.res.redirect((<any>httpStatus).PERMANENT_REDIRECT, `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`);

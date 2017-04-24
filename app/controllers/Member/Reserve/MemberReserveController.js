@@ -188,7 +188,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                 }
                 if (this.req.method === 'POST') {
                     try {
-                        reservationModel = yield this.processConfirm(reservationModel);
+                        yield this.processConfirm(reservationModel);
                         yield reservationModel.save();
                         this.logger.info('starting GMO payment...');
                         this.res.redirect(httpStatus.PERMANENT_REDIRECT, `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`);

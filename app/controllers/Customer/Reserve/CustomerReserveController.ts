@@ -239,11 +239,13 @@ export default class CustomerReserveController extends ReserveBaseController imp
             if (this.req.method === 'POST') {
                 try {
                     reservationModel = await this.processFixProfile(reservationModel);
+
+                    // クレジットカード決済であればGMO処理
                     if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
                         await this.processFixPaymentOfCredit(reservationModel);
                         await reservationModel.save();
                     }
-                    reservationModel = await this.processConfirm(reservationModel);
+
                     await reservationModel.save();
                     this.res.redirect(`/customer/reserve/${token}/confirm`);
                 } catch (error) {
@@ -295,13 +297,17 @@ export default class CustomerReserveController extends ReserveBaseController imp
 
             if (this.req.method === 'POST') {
                 try {
+                    await this.processConfirm(reservationModel);
+
                     if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
                         await this.processFixReservations(reservationModel.paymentNo, {});
                         this.logger.info('processFixReservations processed.');
+                        await reservationModel.remove();
                         this.res.redirect(`/customer/reserve/${reservationModel.paymentNo}/complete`);
                     } else {
                         // httpStatusの型定義不足のためanyにキャスト
                         // todo 一時的対処なので解決する
+                        await reservationModel.save();
                         this.res.redirect(
                             (<any>httpStatus).PERMANENT_REDIRECT,
                             `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`

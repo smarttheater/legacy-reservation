@@ -224,7 +224,7 @@ export default class StaffReserveController extends ReserveBaseController implem
     public async confirm(): Promise<void> {
         try {
             const token = this.req.params.token;
-            let reservationModel = await ReservationModel.find(token);
+            const reservationModel = await ReservationModel.find(token);
 
             if (reservationModel === null) {
                 this.next(new Error(this.req.__('Message.Expired')));
@@ -233,7 +233,7 @@ export default class StaffReserveController extends ReserveBaseController implem
 
             if (this.req.method === 'POST') {
                 try {
-                    reservationModel = await this.processConfirm(reservationModel);
+                    await this.processConfirm(reservationModel);
 
                     // 予約確定
                     await this.processFixReservations(reservationModel.paymentNo, {});

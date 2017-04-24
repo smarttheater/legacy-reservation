@@ -83,18 +83,18 @@ class ReserveBaseController extends BaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             reserveProfileForm_1.default(this.req);
             const validationResult = yield this.req.getValidationResult();
+            this.res.locals.validation = validationResult.mapped();
+            this.res.locals.lastName = this.req.body.lastName;
+            this.res.locals.firstName = this.req.body.firstName;
+            this.res.locals.email = this.req.body.email;
+            this.res.locals.emailConfirm = this.req.body.emailConfirm;
+            this.res.locals.emailConfirmDomain = this.req.body.emailConfirmDomain;
+            this.res.locals.tel = this.req.body.tel;
+            this.res.locals.age = this.req.body.age;
+            this.res.locals.address = this.req.body.address;
+            this.res.locals.gender = this.req.body.gender;
+            this.res.locals.paymentMethod = this.req.body.paymentMethod;
             if (!validationResult.isEmpty()) {
-                this.res.locals.validation = validationResult.mapped();
-                this.res.locals.lastName = this.req.body.lastName;
-                this.res.locals.firstName = this.req.body.firstName;
-                this.res.locals.email = this.req.body.email;
-                this.res.locals.emailConfirm = this.req.body.emailConfirm;
-                this.res.locals.emailConfirmDomain = this.req.body.emailConfirmDomain;
-                this.res.locals.tel = this.req.body.tel;
-                this.res.locals.age = this.req.body.age;
-                this.res.locals.address = this.req.body.address;
-                this.res.locals.gender = this.req.body.gender;
-                this.res.locals.paymentMethod = this.req.body.paymentMethod;
                 throw new Error(this.req.__('Message.Invalid'));
             }
             // 購入者情報を保存して座席選択へ
@@ -162,7 +162,8 @@ class ReserveBaseController extends BaseController_1.default {
             const paymentNo = reservationModel.paymentNo;
             const digit = -2;
             const count = `00${reservationModel.transactionGMO.count}`.slice(digit);
-            const orderId = `${day}${paymentNo}${count}`; // オーダーID 予約日 + 購入管理番号 + オーソリカウント(2桁)
+            // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
+            const orderId = `${day}${reservationModel.performance.day}${paymentNo}${count}`;
             const amount = reservationModel.getTotalCharge();
             const entryTranIn = {
                 shopId: process.env.GMO_SHOP_ID,
@@ -178,7 +179,7 @@ class ReserveBaseController extends BaseController_1.default {
                 accessId: transactionGMO.accessId,
                 accessPass: transactionGMO.accessPass,
                 orderId: orderId,
-                method: '1',
+                method: GMO.Util.METHOD_LUMP,
                 token: gmoTokenObject.token
             };
             yield GMO.CreditService.execTran(execTranIn);
@@ -512,7 +513,6 @@ class ReserveBaseController extends BaseController_1.default {
      * 予約情報を確定してDBに保存するプロセス
      */
     // tslint:disable-next-line:max-func-body-length
-    // tslint:disable-next-line:max-func-body-length
     processConfirm(reservationModel) {
         return __awaiter(this, void 0, void 0, function* () {
             // 仮押さえ有効期限チェック
@@ -585,18 +585,13 @@ class ReserveBaseController extends BaseController_1.default {
                 update = Object.assign(update, commonUpdate);
                 update.payment_seat_index = index;
                 this.logger.info('updating reservation all infos...update:', update);
-                const reservation = yield chevre_domain_2.Models.Reservation.findOneAndUpdate({
-                    _id: update._id
-                }, update, {
-                    new: true
-                }).exec();
+                const reservation = yield chevre_domain_2.Models.Reservation.findByIdAndUpdate(update._id, update, { new: true }).exec();
                 this.logger.info('reservation updated.', reservation);
                 if (reservation === null) {
                     throw new Error(this.req.__('Message.UnexpectedError'));
                 }
             }));
             yield Promise.all(promises);
-            return reservationModel;
         });
     }
     /**

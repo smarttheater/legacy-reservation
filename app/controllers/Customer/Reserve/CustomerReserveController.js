@@ -250,11 +250,11 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                 if (this.req.method === 'POST') {
                     try {
                         reservationModel = yield this.processFixProfile(reservationModel);
+                        // クレジットカード決済であればGMO処理
                         if (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CREDIT) {
                             yield this.processFixPaymentOfCredit(reservationModel);
                             yield reservationModel.save();
                         }
-                        reservationModel = yield this.processConfirm(reservationModel);
                         yield reservationModel.save();
                         this.res.redirect(`/customer/reserve/${token}/confirm`);
                     }
@@ -307,14 +307,17 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                 }
                 if (this.req.method === 'POST') {
                     try {
+                        yield this.processConfirm(reservationModel);
                         if (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CREDIT) {
                             yield this.processFixReservations(reservationModel.paymentNo, {});
                             this.logger.info('processFixReservations processed.');
+                            yield reservationModel.remove();
                             this.res.redirect(`/customer/reserve/${reservationModel.paymentNo}/complete`);
                         }
                         else {
                             // httpStatusの型定義不足のためanyにキャスト
                             // todo 一時的対処なので解決する
+                            yield reservationModel.save();
                             this.res.redirect(httpStatus.PERMANENT_REDIRECT, `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`);
                         }
                     }

@@ -86,21 +86,24 @@ export default class ReserveBaseController extends BaseController {
      */
     public async processFixProfile(reservationModel: ReservationModel): Promise<ReservationModel> {
         reserveProfileForm(this.req);
+
         const validationResult = await this.req.getValidationResult();
+        this.res.locals.validation = validationResult.mapped();
+        this.res.locals.lastName = this.req.body.lastName;
+        this.res.locals.firstName = this.req.body.firstName;
+        this.res.locals.email = this.req.body.email;
+        this.res.locals.emailConfirm = this.req.body.emailConfirm;
+        this.res.locals.emailConfirmDomain = this.req.body.emailConfirmDomain;
+        this.res.locals.tel = this.req.body.tel;
+        this.res.locals.age = this.req.body.age;
+        this.res.locals.address = this.req.body.address;
+        this.res.locals.gender = this.req.body.gender;
+        this.res.locals.paymentMethod = this.req.body.paymentMethod;
+
         if (!validationResult.isEmpty()) {
-            this.res.locals.validation = validationResult.mapped();
-            this.res.locals.lastName = this.req.body.lastName;
-            this.res.locals.firstName = this.req.body.firstName;
-            this.res.locals.email = this.req.body.email;
-            this.res.locals.emailConfirm = this.req.body.emailConfirm;
-            this.res.locals.emailConfirmDomain = this.req.body.emailConfirmDomain;
-            this.res.locals.tel = this.req.body.tel;
-            this.res.locals.age = this.req.body.age;
-            this.res.locals.address = this.req.body.address;
-            this.res.locals.gender = this.req.body.gender;
-            this.res.locals.paymentMethod = this.req.body.paymentMethod;
             throw new Error(this.req.__('Message.Invalid'));
         }
+
         // 購入者情報を保存して座席選択へ
         reservationModel.purchaserLastName = this.req.body.lastName;
         reservationModel.purchaserFirstName = this.req.body.firstName;
@@ -183,7 +186,8 @@ export default class ReserveBaseController extends BaseController {
         const paymentNo = reservationModel.paymentNo;
         const digit = -2;
         const count = `00${reservationModel.transactionGMO.count}`.slice(digit);
-        const orderId = `${day}${paymentNo}${count}`; // オーダーID 予約日 + 購入管理番号 + オーソリカウント(2桁)
+        // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
+        const orderId = `${day}${reservationModel.performance.day}${paymentNo}${count}`;
         const amount = reservationModel.getTotalCharge();
         const entryTranIn = {
             shopId: process.env.GMO_SHOP_ID,
@@ -200,7 +204,7 @@ export default class ReserveBaseController extends BaseController {
             accessId: transactionGMO.accessId,
             accessPass: transactionGMO.accessPass,
             orderId: orderId,
-            method: '1',
+            method: GMO.Util.METHOD_LUMP, // 支払い方法は一括
             token: gmoTokenObject.token
         };
         await GMO.CreditService.execTran(execTranIn);
@@ -585,8 +589,7 @@ export default class ReserveBaseController extends BaseController {
      * 予約情報を確定してDBに保存するプロセス
      */
     // tslint:disable-next-line:max-func-body-length
-    // tslint:disable-next-line:max-func-body-length
-    protected async processConfirm(reservationModel: ReservationModel): Promise<ReservationModel> {
+    protected async processConfirm(reservationModel: ReservationModel): Promise<void> {
         // 仮押さえ有効期限チェック
         if (reservationModel.expiredAt !== undefined && reservationModel.expiredAt < moment().valueOf()) {
             throw new Error(this.res.__('Message.Expired'));
@@ -670,14 +673,10 @@ export default class ReserveBaseController extends BaseController {
             (<any>update).payment_seat_index = index;
 
             this.logger.info('updating reservation all infos...update:', update);
-            const reservation = await Models.Reservation.findOneAndUpdate(
-                {
-                    _id: update._id
-                },
+            const reservation = await Models.Reservation.findByIdAndUpdate(
+                update._id,
                 update,
-                {
-                    new: true
-                }
+                { new: true }
             ).exec();
             this.logger.info('reservation updated.', reservation);
 
@@ -687,8 +686,6 @@ export default class ReserveBaseController extends BaseController {
         });
 
         await Promise.all(promises);
-
-        return reservationModel;
     }
 
     /**
