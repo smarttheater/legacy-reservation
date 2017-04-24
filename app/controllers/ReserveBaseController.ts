@@ -235,14 +235,9 @@ export default class ReserveBaseController extends BaseController {
         reservationModel.purchaserGroup = this.purchaserGroup;
         reservationModel = this.initializePayment(reservationModel);
 
-        // この時点でトークンに対して購入番号を発行しておかないと、複数ウィンドウで購入番号がずれる可能性あり
         try {
-            reservationModel.paymentNo = await ReservationUtil.publishPaymentNo();
-
-            // パフォーマンスFIX
             if (!_.isEmpty(this.req.query.performance)) {
-                // パフォーマンス指定遷移の場合
-                // パフォーマンスFIX
+                // パフォーマンス指定遷移の場合 パフォーマンスFIX
                 // tslint:disable-next-line:no-shadowed-variable
                 reservationModel = await this.processFixPerformance(reservationModel, this.req.query.performance);
             }
@@ -504,6 +499,10 @@ export default class ReserveBaseController extends BaseController {
             `${__dirname}/../../common/views/screens/${performance.get('screen').get('_id').toString()}.ejs`,
             'utf8'
         );
+
+        // この時点でトークンに対して購入番号発行(上映日が決まれば購入番号を発行できる)
+        reservationModel.paymentNo = await ReservationUtil.publishPaymentNo(reservationModel.performance.day);
+
         return reservationModel;
     }
 
@@ -593,115 +592,103 @@ export default class ReserveBaseController extends BaseController {
             throw new Error(this.res.__('Message.Expired'));
         }
 
-        // tslint:disable-next-line:max-func-body-length no-shadowed-variable
-        const next = async (reservationModel: ReservationModel): Promise<ReservationModel> => {
-            // 購入日時確定
-            reservationModel.purchasedAt = moment().valueOf();
+        if (reservationModel.paymentNo === undefined) {
+            console.error('paymentNo undefined');
+            throw new Error(this.req.__('Message.UnexpectedError'));
+        }
 
-            // 予約プロセス固有のログファイルをセット
-            // tslint:disable-next-line:max-func-body-length
-            this.setProcessLogger(reservationModel.paymentNo);
-            this.logger.info('paymentNo published. paymentNo:', reservationModel.paymentNo);
+        // 購入日時確定
+        reservationModel.purchasedAt = moment().valueOf();
 
-            const commonUpdate: any = {
-                // 決済移行のタイミングで仮予約有効期限を更新
-                expired_at: moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').valueOf()
-            };
-            switch (this.purchaserGroup) {
-                case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-                    // GMO決済の場合、この時点で決済中ステータスに変更
-                    commonUpdate.status = ReservationUtil.STATUS_WAITING_SETTLEMENT;
-                    commonUpdate.expired_at = null;
+        // 予約プロセス固有のログファイルをセット
+        this.setProcessLogger(reservationModel.paymentNo);
 
-                    // クレジット決済
-                    if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
-                        commonUpdate.gmo_shop_id = process.env.GMO_SHOP_ID;
-                        commonUpdate.gmo_shop_pass = process.env.GMO_SHOP_PASS;
-                        commonUpdate.gmo_order_id = reservationModel.transactionGMO.orderId;
-                        commonUpdate.gmo_amount = reservationModel.transactionGMO.amount;
-                        commonUpdate.gmo_access_id = reservationModel.transactionGMO.accessId;
-                        commonUpdate.gmo_access_pass = reservationModel.transactionGMO.accessPass;
-                        commonUpdate.gmo_status = GMO.Util.STATUS_CREDIT_AUTH;
-                    }
-                    break;
-
-                case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                    commonUpdate.member = (<Express.MemberUser>this.req.memberUser).get('_id');
-                    commonUpdate.member_user_id = (<Express.MemberUser>this.req.memberUser).get('user_id');
-                    break;
-
-                case ReservationUtil.PURCHASER_GROUP_STAFF:
-                    commonUpdate.staff = (<Express.StaffUser>this.req.staffUser).get('_id');
-                    commonUpdate.staff_user_id = (<Express.StaffUser>this.req.staffUser).get('user_id');
-                    commonUpdate.staff_name = (<Express.StaffUser>this.req.staffUser).get('name');
-                    commonUpdate.staff_email = (<Express.StaffUser>this.req.staffUser).get('email');
-                    commonUpdate.staff_signature = (<Express.StaffUser>this.req.staffUser).get('signature');
-
-                    commonUpdate.purchaser_last_name = '';
-                    commonUpdate.purchaser_first_name = '';
-                    commonUpdate.purchaser_email = '';
-                    commonUpdate.purchaser_tel = '';
-                    commonUpdate.purchaser_age = '';
-                    commonUpdate.purchaser_address = '';
-                    commonUpdate.purchaser_gender = '';
-                    break;
-
-                case ReservationUtil.PURCHASER_GROUP_WINDOW:
-                    commonUpdate.window = (<Express.WindowUser>this.req.windowUser).get('_id');
-                    commonUpdate.window_user_id = (<Express.WindowUser>this.req.windowUser).get('user_id');
-
-                    commonUpdate.purchaser_last_name = '';
-                    commonUpdate.purchaser_first_name = '';
-                    commonUpdate.purchaser_email = '';
-                    commonUpdate.purchaser_tel = '';
-                    commonUpdate.purchaser_age = '';
-                    commonUpdate.purchaser_address = '';
-                    commonUpdate.purchaser_gender = '';
-                    break;
-
-                default:
-                    throw new Error(this.req.__('Message.UnexpectedError'));
-            }
-
-            // いったん全情報をDBに保存
-            const promises = reservationModel.seatCodes.map(async (seatCode, index) => {
-                let update = reservationModel.seatCode2reservationDocument(seatCode);
-                update = Object.assign(update, commonUpdate);
-                (<any>update).payment_seat_index = index;
-
-                this.logger.info('updating reservation all infos...update:', update);
-                const reservation = await Models.Reservation.findOneAndUpdate(
-                    {
-                        _id: update._id
-                    },
-                    update,
-                    {
-                        new: true
-                    }
-                ).exec();
-                this.logger.info('reservation updated.', reservation);
-
-                if (reservation === null) {
-                    throw new Error(this.req.__('Message.UnexpectedError'));
-                }
-            });
-
-            await Promise.all(promises);
-            return reservationModel;
+        const commonUpdate: any = {
+            // 決済移行のタイミングで仮予約有効期限を更新
+            expired_at: moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').valueOf()
         };
+        switch (this.purchaserGroup) {
+            case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
+                // GMO決済の場合、この時点で決済中ステータスに変更
+                commonUpdate.status = ReservationUtil.STATUS_WAITING_SETTLEMENT;
+                commonUpdate.expired_at = null;
 
-        if (reservationModel.paymentNo !== undefined) {
-            return next(reservationModel);
-        } else {
-            // 購入番号発行
-            try {
-                reservationModel.paymentNo = await ReservationUtil.publishPaymentNo();
-                return next(reservationModel);
-            } catch (error) {
-                console.error(error);
+                // クレジット決済
+                if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
+                    commonUpdate.gmo_shop_id = process.env.GMO_SHOP_ID;
+                    commonUpdate.gmo_shop_pass = process.env.GMO_SHOP_PASS;
+                    commonUpdate.gmo_order_id = reservationModel.transactionGMO.orderId;
+                    commonUpdate.gmo_amount = reservationModel.transactionGMO.amount;
+                    commonUpdate.gmo_access_id = reservationModel.transactionGMO.accessId;
+                    commonUpdate.gmo_access_pass = reservationModel.transactionGMO.accessPass;
+                    commonUpdate.gmo_status = GMO.Util.STATUS_CREDIT_AUTH;
+                }
+                break;
+
+            case ReservationUtil.PURCHASER_GROUP_MEMBER:
+                commonUpdate.member = (<Express.MemberUser>this.req.memberUser).get('_id');
+                commonUpdate.member_user_id = (<Express.MemberUser>this.req.memberUser).get('user_id');
+                break;
+
+            case ReservationUtil.PURCHASER_GROUP_STAFF:
+                commonUpdate.staff = (<Express.StaffUser>this.req.staffUser).get('_id');
+                commonUpdate.staff_user_id = (<Express.StaffUser>this.req.staffUser).get('user_id');
+                commonUpdate.staff_name = (<Express.StaffUser>this.req.staffUser).get('name');
+                commonUpdate.staff_email = (<Express.StaffUser>this.req.staffUser).get('email');
+                commonUpdate.staff_signature = (<Express.StaffUser>this.req.staffUser).get('signature');
+
+                commonUpdate.purchaser_last_name = '';
+                commonUpdate.purchaser_first_name = '';
+                commonUpdate.purchaser_email = '';
+                commonUpdate.purchaser_tel = '';
+                commonUpdate.purchaser_age = '';
+                commonUpdate.purchaser_address = '';
+                commonUpdate.purchaser_gender = '';
+                break;
+
+            case ReservationUtil.PURCHASER_GROUP_WINDOW:
+                commonUpdate.window = (<Express.WindowUser>this.req.windowUser).get('_id');
+                commonUpdate.window_user_id = (<Express.WindowUser>this.req.windowUser).get('user_id');
+
+                commonUpdate.purchaser_last_name = '';
+                commonUpdate.purchaser_first_name = '';
+                commonUpdate.purchaser_email = '';
+                commonUpdate.purchaser_tel = '';
+                commonUpdate.purchaser_age = '';
+                commonUpdate.purchaser_address = '';
+                commonUpdate.purchaser_gender = '';
+                break;
+
+            default:
+                throw new Error(this.req.__('Message.UnexpectedError'));
+        }
+
+        // いったん全情報をDBに保存
+        const promises = reservationModel.seatCodes.map(async (seatCode, index) => {
+            let update = reservationModel.seatCode2reservationDocument(seatCode);
+            update = Object.assign(update, commonUpdate);
+            (<any>update).payment_seat_index = index;
+
+            this.logger.info('updating reservation all infos...update:', update);
+            const reservation = await Models.Reservation.findOneAndUpdate(
+                {
+                    _id: update._id
+                },
+                update,
+                {
+                    new: true
+                }
+            ).exec();
+            this.logger.info('reservation updated.', reservation);
+
+            if (reservation === null) {
                 throw new Error(this.req.__('Message.UnexpectedError'));
             }
-        }
+        });
+
+        await Promise.all(promises);
+
+        return reservationModel;
     }
 
     /**
