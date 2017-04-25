@@ -9,15 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const gmo_service_1 = require("@motionpicture/gmo-service");
 const moment = require("moment");
 const querystring = require("querystring");
 const _ = require("underscore");
 const util = require("util");
-const Util = require("../../../../common/Util/Util");
-const GMOResultModel_1 = require("../../../models/Reserve/GMOResultModel");
-const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
+const result_1 = require("../../../models/gmo/result");
+const session_1 = require("../../../models/reserve/session");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
 const GMOReserveCreditController_1 = require("./Credit/GMOReserveCreditController");
 const GMOReserveCvsController_1 = require("./Cvs/GMOReserveCvsController");
@@ -66,7 +64,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = this.req.params.token;
-                const reservationModel = yield ReservationModel_1.default.find(token);
+                const reservationModel = yield session_1.default.find(token);
                 if (reservationModel === null) {
                     this.next(new Error(this.req.__('Message.Expired')));
                     return;
@@ -77,7 +75,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 this.setProcessLogger(reservationModel.paymentNo);
                 // GMOへ遷移画面
                 // 作品名から、特定文字以外を取り除く
-                const filmNameFullWidth = Util.toFullWidth(reservationModel.performance.film.name.ja);
+                const filmNameFullWidth = chevre_domain_1.CommonUtil.toFullWidth(reservationModel.performance.film.name.ja);
                 const filmNameFullWidthLength = filmNameFullWidth.length;
                 let registerDisp1 = '';
                 // todo 文字列のループはこの書き方は本来よろしくないので、暇があったら直す
@@ -94,12 +92,12 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 }
                 // tslint:disable-next-line:no-magic-numbers
                 this.res.locals.registerDisp1 = registerDisp1.mbSubstr(0, 32);
-                this.res.locals.registerDisp2 = Util.toFullWidth(util.format('%s／%s／%s', reservationModel.performance.day.substr(0, 4), // tslint:disable-line:no-magic-numbers
+                this.res.locals.registerDisp2 = chevre_domain_1.CommonUtil.toFullWidth(util.format('%s／%s／%s', reservationModel.performance.day.substr(0, 4), // tslint:disable-line:no-magic-numbers
                 reservationModel.performance.day.substr(4, 2), // tslint:disable-line:no-magic-numbers
                 reservationModel.performance.day.substr(6) // tslint:disable-line:no-magic-numbers
                 ));
-                this.res.locals.registerDisp3 = Util.toFullWidth(reservationModel.performance.theater.name.ja);
-                this.res.locals.registerDisp4 = Util.toFullWidth(util.format('開場%s:%s　開演%s:%s', reservationModel.performance.open_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
+                this.res.locals.registerDisp3 = chevre_domain_1.CommonUtil.toFullWidth(reservationModel.performance.theater.name.ja);
+                this.res.locals.registerDisp4 = chevre_domain_1.CommonUtil.toFullWidth(util.format('開場%s:%s　開演%s:%s', reservationModel.performance.open_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
                 reservationModel.performance.open_time.substr(2), // tslint:disable-line:no-magic-numbers
                 reservationModel.performance.start_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
                 reservationModel.performance.start_time.substr(2) // tslint:disable-line:no-magic-numbers
@@ -142,7 +140,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
      */
     result() {
         return __awaiter(this, void 0, void 0, function* () {
-            const gmoResultModel = GMOResultModel_1.default.parse(this.req.body);
+            const gmoResultModel = result_1.default.parse(this.req.body);
             const paymentNo = gmoResultModel.OrderID;
             // 予約プロセス固有のログファイルをセット
             this.setProcessLogger(paymentNo);
@@ -195,7 +193,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
     cancel() {
         return __awaiter(this, void 0, void 0, function* () {
             const paymentNo = this.req.params.paymentNo;
-            if (!chevre_domain_2.ReservationUtil.isValidPaymentNo(paymentNo)) {
+            if (!chevre_domain_1.ReservationUtil.isValidPaymentNo(paymentNo)) {
                 this.next(new Error(this.req.__('Message.Invalid')));
                 return;
             }
@@ -205,7 +203,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
             try {
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
                     payment_no: paymentNo,
-                    status: chevre_domain_2.ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
+                    status: chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
                 }, 'purchaser_group').exec();
                 this.logger.info('reservations found.', reservations);
                 if (reservations.length === 0) {

@@ -1,9 +1,8 @@
-import { Models } from '@motionpicture/chevre-domain';
+import { CommonUtil, Models } from '@motionpicture/chevre-domain';
 import * as _ from 'underscore';
 
-import * as Util from '../../../../common/Util/Util';
 import staffLoginForm from '../../../forms/staff/staffLoginForm';
-import StaffUser from '../../../models/User/StaffUser';
+import StaffUser from '../../../models/user/staff';
 import BaseController from '../../BaseController';
 
 /**
@@ -64,7 +63,7 @@ export default class StaffAuthController extends BaseController {
                 }
 
                 // パスワードチェック
-                if (staff.get('password_hash') !== Util.createHash(this.req.body.password, staff.get('password_salt'))) {
+                if (staff.get('password_hash') !== CommonUtil.createHash(this.req.body.password, staff.get('password_salt'))) {
                     this.res.locals.validation = [
                         { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
                     ];
@@ -77,7 +76,7 @@ export default class StaffAuthController extends BaseController {
                     // トークン生成
                     const authentication = await Models.Authentication.create(
                         {
-                            token: Util.createToken(),
+                            token: CommonUtil.createToken(),
                             staff: staff.get('_id'),
                             signature: this.req.body.signature,
                             locale: this.req.body.language

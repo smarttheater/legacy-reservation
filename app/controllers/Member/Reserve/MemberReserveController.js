@@ -15,7 +15,7 @@ const gmo_service_1 = require("@motionpicture/gmo-service");
 const httpStatus = require("http-status");
 const moment = require("moment");
 const _ = require("underscore");
-const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
+const session_1 = require("../../../models/reserve/session");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
 /**
  * メルマガ先行会員座席予約コントローラー
@@ -100,7 +100,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = this.req.params.token;
-                let reservationModel = yield ReservationModel_1.default.find(token);
+                let reservationModel = yield session_1.default.find(token);
                 if (reservationModel === null) {
                     this.next(new Error(this.req.__('Message.Expired')));
                     return;
@@ -133,7 +133,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = this.req.params.token;
-                let reservationModel = yield ReservationModel_1.default.find(token);
+                let reservationModel = yield session_1.default.find(token);
                 if (reservationModel === null) {
                     this.next(new Error(this.req.__('Message.Expired')));
                     return;
@@ -181,7 +181,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = this.req.params.token;
-                let reservationModel = yield ReservationModel_1.default.find(token);
+                const reservationModel = yield session_1.default.find(token);
                 if (reservationModel === null) {
                     this.next(new Error(this.req.__('Message.Expired')));
                     return;

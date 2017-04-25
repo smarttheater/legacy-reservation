@@ -1,4 +1,4 @@
-import BaseUser from './BaseUser';
+import BaseUser from './base';
 
 /**
  * 当日窓口ユーザー

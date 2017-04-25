@@ -12,13 +12,7 @@ declare namespace Express {
 
     export class MemberUser extends BaseUser {
     }
-    export class PreCustomerUser extends BaseUser {
-    }
-    export class SponsorUser extends BaseUser {
-    }
     export class StaffUser extends BaseUser {
-    }
-    export class TelStaffUser extends BaseUser {
     }
     export class WindowUser extends BaseUser {
     }

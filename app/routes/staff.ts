@@ -4,14 +4,13 @@
  * @function staffRouter
  * @ignore
  */
-import { Models } from '@motionpicture/chevre-domain';
+import { CommonUtil, Models } from '@motionpicture/chevre-domain';
 import { Application, NextFunction, Request, Response } from 'express';
-import * as Util from '../../common/Util/Util';
 import StaffAuthController from '../controllers/Staff/Auth/StaffAuthController';
 import StaffCancelController from '../controllers/Staff/Cancel/StaffCancelController';
 import StaffMyPageController from '../controllers/Staff/MyPage/StaffMyPageController';
 import StaffReserveController from '../controllers/Staff/Reserve/StaffReserveController';
-import StaffUser from '../models/User/StaffUser';
+import StaffUser from '../models/user/staff';
 
 export default (app: Application) => {
     const authentication = async (req: Request, res: Response, next: NextFunction) => {
@@ -51,7 +50,7 @@ export default (app: Application) => {
                 }
 
                 // トークン再生成
-                const token = Util.createToken();
+                const token = CommonUtil.createToken();
                 await authenticationDoc.update({ token: token }).exec();
 
                 // tslint:disable-next-line:no-cookies

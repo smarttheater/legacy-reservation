@@ -29,16 +29,16 @@ const MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES = 10;
  * この情報をセッションで引き継くことで、予約プロセスを管理しています
  *
  * @export
- * @class ReservationModel
+ * @class ReserveSessionModel
  */
-class ReservationModel {
+class ReserveSessionModel {
     /**
      * プロセス中の購入情報をセッションから取得する
      */
     // tslint:disable-next-line:function-name
     static find(token) {
         return __awaiter(this, void 0, void 0, function* () {
-            const key = ReservationModel.getRedisKey(token);
+            const key = ReserveSessionModel.getRedisKey(token);
             return new Promise((resolve, reject) => {
                 redisClient.get(key, (err, reply) => {
                     if (err instanceof Error) {
@@ -49,7 +49,7 @@ class ReservationModel {
                         resolve(null);
                         return;
                     }
-                    const reservationModel = new ReservationModel();
+                    const reservationModel = new ReserveSessionModel();
                     try {
                         const reservationModelInRedis = JSON.parse(reply.toString());
                         Object.keys(reservationModelInRedis).forEach((propertyName) => {
@@ -81,7 +81,7 @@ class ReservationModel {
      */
     save(ttl) {
         return __awaiter(this, void 0, void 0, function* () {
-            const key = ReservationModel.getRedisKey(this.token);
+            const key = ReserveSessionModel.getRedisKey(this.token);
             if (ttl === undefined) {
                 ttl = DEFAULT_REDIS_TTL;
             }
@@ -103,7 +103,7 @@ class ReservationModel {
      */
     remove() {
         return __awaiter(this, void 0, void 0, function* () {
-            const key = ReservationModel.getRedisKey(this.token);
+            const key = ReserveSessionModel.getRedisKey(this.token);
             return new Promise((resolve, reject) => {
                 redisClient.del(key, (err) => {
                     if (err instanceof Error) {
@@ -261,8 +261,8 @@ class ReservationModel {
                 amount: this.getTotalCharge(),
                 dateTime: moment(this.purchasedAt).format('YYYYMMDDHHmmss')
             }) : '',
-            updated_user: 'ReservationModel'
+            updated_user: 'ReserveSessionModel'
         };
     }
 }
-exports.default = ReservationModel;
+exports.default = ReserveSessionModel;

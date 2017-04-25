@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const _ = require("underscore");
-const Util = require("../../../../common/Util/Util");
 const BaseController_1 = require("../../BaseController");
 const DEFAULT_RADIX = 10;
 /**
@@ -112,7 +111,7 @@ class StaffMyPageController extends BaseController_1.default {
             }
             if (paymentNo !== null) {
                 // remove space characters
-                paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
+                paymentNo = chevre_domain_1.CommonUtil.toHalfWidth(paymentNo.replace(/\s/g, ''));
                 conditions.push({ payment_no: { $regex: `${paymentNo}` } });
             }
             try {

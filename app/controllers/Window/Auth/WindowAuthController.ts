@@ -1,9 +1,8 @@
-import { Models } from '@motionpicture/chevre-domain';
+import { CommonUtil, Models } from '@motionpicture/chevre-domain';
 import * as _ from 'underscore';
 
-import * as Util from '../../../../common/Util/Util';
 import windowLoginForm from '../../../forms/window/windowLoginForm';
-import WindowUser from '../../../models/User/WindowUser';
+import WindowUser from '../../../models/user/window';
 import BaseController from '../../BaseController';
 
 /**
@@ -57,7 +56,7 @@ export default class WindowAuthController extends BaseController {
                 }
 
                 // パスワードチェック
-                if (window.get('password_hash') !== Util.createHash(this.req.body.password, window.get('password_salt'))) {
+                if (window.get('password_hash') !== CommonUtil.createHash(this.req.body.password, window.get('password_salt'))) {
                     this.res.locals.validation = [
                         { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
                     ];
@@ -70,7 +69,7 @@ export default class WindowAuthController extends BaseController {
                     // トークン生成
                     const authentication = await Models.Authentication.create(
                         {
-                            token: Util.createToken(),
+                            token: CommonUtil.createToken(),
                             window: window.get('_id')
                         }
                     );

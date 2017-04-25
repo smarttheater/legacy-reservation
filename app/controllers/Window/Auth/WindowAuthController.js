@@ -10,9 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const _ = require("underscore");
-const Util = require("../../../../common/Util/Util");
 const windowLoginForm_1 = require("../../../forms/window/windowLoginForm");
-const WindowUser_1 = require("../../../models/User/WindowUser");
+const window_1 = require("../../../models/user/window");
 const BaseController_1 = require("../../BaseController");
 /**
  * 当日窓口認証コントローラー
@@ -62,7 +61,7 @@ class WindowAuthController extends BaseController_1.default {
                         return;
                     }
                     // パスワードチェック
-                    if (window.get('password_hash') !== Util.createHash(this.req.body.password, window.get('password_salt'))) {
+                    if (window.get('password_hash') !== chevre_domain_1.CommonUtil.createHash(this.req.body.password, window.get('password_salt'))) {
                         this.res.locals.validation = [
                             { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
                         ];
@@ -73,14 +72,14 @@ class WindowAuthController extends BaseController_1.default {
                     if (this.req.body.remember === 'on') {
                         // トークン生成
                         const authentication = yield chevre_domain_1.Models.Authentication.create({
-                            token: Util.createToken(),
+                            token: chevre_domain_1.CommonUtil.createToken(),
                             window: window.get('_id')
                         });
                         // tslint:disable-next-line:no-cookies
                         this.res.cookie('remember_window', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
                     }
                     // ログイン
-                    this.req.session[WindowUser_1.default.AUTH_SESSION_NAME] = window.toObject();
+                    this.req.session[window_1.default.AUTH_SESSION_NAME] = window.toObject();
                     const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/window/mypage';
                     this.res.redirect(cb);
                     return;
@@ -105,7 +104,7 @@ class WindowAuthController extends BaseController_1.default {
                     this.next(new Error(this.req.__('Message.UnexpectedError')));
                     return;
                 }
-                delete this.req.session[WindowUser_1.default.AUTH_SESSION_NAME];
+                delete this.req.session[window_1.default.AUTH_SESSION_NAME];
                 yield chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_window }).exec();
                 this.res.clearCookie('remember_window');
                 this.res.redirect('/window/mypage');

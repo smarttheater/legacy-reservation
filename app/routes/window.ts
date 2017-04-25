@@ -4,14 +4,13 @@
  * @function windowRouter
  * @ignore
  */
-import { Models } from '@motionpicture/chevre-domain';
+import { CommonUtil, Models } from '@motionpicture/chevre-domain';
 import { Application, NextFunction, Request, Response } from 'express';
-import * as Util from '../../common/Util/Util';
 import WindowAuthController from '../controllers/Window/Auth/WindowAuthController';
 import WindowCancelController from '../controllers/Window/Cancel/WindowCancelController';
 import WindowMyPageController from '../controllers/Window/MyPage/WindowMyPageController';
 import WindowReserveController from '../controllers/Window/Reserve/WindowReserveController';
-import WindowUser from '../models/User/WindowUser';
+import WindowUser from '../models/user/window';
 
 export default (app: Application) => {
     const authentication = async (req: Request, res: Response, next: NextFunction) => {
@@ -51,7 +50,7 @@ export default (app: Application) => {
                 }
 
                 // トークン再生成
-                const token = Util.createToken();
+                const token = CommonUtil.createToken();
                 await authenticationDoc.update({ token: token }).exec();
 
                 // tslint:disable-next-line:no-cookies

@@ -1,7 +1,6 @@
-import { Models } from '@motionpicture/chevre-domain';
-import { GMONotificationUtil } from '@motionpicture/chevre-domain';
-import GMONotificationModel from '../../models/Reserve/GMONotificationModel';
-import GMONotificationResponseModel from '../../models/Reserve/GMONotificationResponseModel';
+import { GMONotificationUtil, Models } from '@motionpicture/chevre-domain';
+import GMONotificationModel from '../../models/gmo/notification';
+import GMONotificationResponseModel from '../../models/gmo/notificationResponse';
 import BaseController from '../BaseController';
 
 /**

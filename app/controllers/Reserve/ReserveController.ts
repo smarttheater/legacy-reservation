@@ -1,7 +1,7 @@
 import { Models } from '@motionpicture/chevre-domain';
 import { ReservationUtil } from '@motionpicture/chevre-domain';
 import { ScreenUtil } from '@motionpicture/chevre-domain';
-import ReservationModel from '../../models/Reserve/ReservationModel';
+import ReservationModel from '../../models/reserve/session';
 import ReserveBaseController from '../ReserveBaseController';
 
 /**

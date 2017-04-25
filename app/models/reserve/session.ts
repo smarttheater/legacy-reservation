@@ -41,9 +41,9 @@ interface ISection {
  * この情報をセッションで引き継くことで、予約プロセスを管理しています
  *
  * @export
- * @class ReservationModel
+ * @class ReserveSessionModel
  */
-export default class ReservationModel {
+export default class ReserveSessionModel {
     /**
      * 予約トークン
      */
@@ -129,9 +129,9 @@ export default class ReservationModel {
      * プロセス中の購入情報をセッションから取得する
      */
     // tslint:disable-next-line:function-name
-    public static async find(token: string): Promise<ReservationModel | null> {
-        const key = ReservationModel.getRedisKey(token);
-        return new Promise<ReservationModel | null>((resolve, reject) => {
+    public static async find(token: string): Promise<ReserveSessionModel | null> {
+        const key = ReserveSessionModel.getRedisKey(token);
+        return new Promise<ReserveSessionModel | null>((resolve, reject) => {
             redisClient.get(key, (err, reply) => {
                 if (err instanceof Error) {
                     reject(err);
@@ -142,7 +142,7 @@ export default class ReservationModel {
                     return;
                 }
 
-                const reservationModel = new ReservationModel();
+                const reservationModel = new ReserveSessionModel();
 
                 try {
                     const reservationModelInRedis = JSON.parse(reply.toString());
@@ -175,7 +175,7 @@ export default class ReservationModel {
      * @param {number} [ttl] 有効期間(default: 1800)
      */
     public async save(ttl?: number): Promise<void> {
-        const key = ReservationModel.getRedisKey(this.token);
+        const key = ReserveSessionModel.getRedisKey(this.token);
 
         if (ttl === undefined) {
             ttl = DEFAULT_REDIS_TTL;
@@ -197,7 +197,7 @@ export default class ReservationModel {
      * プロセス中の購入情報をセッションから削除する
      */
     public async remove(): Promise<void> {
-        const key = ReservationModel.getRedisKey(this.token);
+        const key = ReserveSessionModel.getRedisKey(this.token);
         return new Promise<void>((resolve, reject) => {
             redisClient.del(key, (err: Error | void) => {
                 if (err instanceof Error) {
@@ -386,7 +386,7 @@ export default class ReservationModel {
                 dateTime: moment(this.purchasedAt).format('YYYYMMDDHHmmss')
             }) : '',
 
-            updated_user: 'ReservationModel'
+            updated_user: 'ReserveSessionModel'
         };
     }
 }

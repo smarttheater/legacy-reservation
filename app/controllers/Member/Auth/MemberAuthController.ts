@@ -1,9 +1,9 @@
-import { Models } from '@motionpicture/chevre-domain';
+import { CommonUtil, Models } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as moment from 'moment';
-import * as Util from '../../../../common/Util/Util';
+
 import memberLoginForm from '../../../forms/member/memberLoginForm';
-import MemberUser from '../../../models/User/MemberUser';
+import MemberUser from '../../../models/user/member';
 import BaseController from '../../BaseController';
 
 /**
@@ -61,7 +61,7 @@ export default class MemberAuthController extends BaseController {
                     return;
                 }
                 // パスワードチェック
-                if (member.get('password_hash') !== Util.createHash(this.req.body.password, member.get('password_salt'))) {
+                if (member.get('password_hash') !== CommonUtil.createHash(this.req.body.password, member.get('password_salt'))) {
                     this.res.locals.validation = [{ msg: 'ログイン番号またはパスワードに誤りがあります' }];
                     this.res.render('member/auth/login');
                     return;

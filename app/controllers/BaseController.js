@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const log4js = require("log4js");
 const moment = require("moment");
 const numeral = require("numeral");
 const _ = require("underscore");
-const Util = require("../../common/Util/Util");
 /**
  * ベースコントローラー
  *
@@ -25,7 +25,7 @@ class BaseController {
         this.res.locals.moment = moment;
         this.res.locals.numeral = numeral;
         this.res.locals.conf = conf;
-        this.res.locals.Util = Util;
+        this.res.locals.Util = chevre_domain_1.CommonUtil;
         this.res.locals.validation = null;
         // レイアウト指定があれば変更
         const render = this.res.render;

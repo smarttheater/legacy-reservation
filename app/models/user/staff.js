@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const BaseUser_1 = require("./BaseUser");
+const base_1 = require("./base");
 /**
  * 内部関係者ユーザー
  *
@@ -8,7 +8,7 @@ const BaseUser_1 = require("./BaseUser");
  * @class StaffUser
  * @extends {BaseUser}
  */
-class StaffUser extends BaseUser_1.default {
+class StaffUser extends base_1.default {
     // tslint:disable-next-line:function-name
     static parse(session) {
         const user = new StaffUser();

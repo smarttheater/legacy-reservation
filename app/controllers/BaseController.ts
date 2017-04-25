@@ -1,11 +1,10 @@
+import { CommonUtil } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import { NextFunction, Request, Response } from 'express';
 import * as log4js from 'log4js';
 import * as moment from 'moment';
 import * as numeral from 'numeral';
 import * as _ from 'underscore';
-
-import * as Util from '../../common/Util/Util';
 
 /**
  * ベースコントローラー
@@ -51,7 +50,7 @@ export default class BaseController {
         this.res.locals.moment = moment;
         this.res.locals.numeral = numeral;
         this.res.locals.conf = conf;
-        this.res.locals.Util = Util;
+        this.res.locals.Util = CommonUtil;
         this.res.locals.validation = null;
 
         // レイアウト指定があれば変更

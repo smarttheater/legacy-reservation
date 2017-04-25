@@ -5,7 +5,7 @@ import * as _ from 'underscore';
 
 import reservePerformanceForm from '../../../forms/reserve/reservePerformanceForm';
 import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
-import ReservationModel from '../../../models/Reserve/ReservationModel';
+import ReservationModel from '../../../models/reserve/session';
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
 

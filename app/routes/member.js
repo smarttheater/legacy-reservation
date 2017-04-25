@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const MemberAuthController_1 = require("../controllers/Member/Auth/MemberAuthController");
 const MemberReserveController_1 = require("../controllers/Member/Reserve/MemberReserveController");
-const MemberUser_1 = require("../models/User/MemberUser");
+const member_1 = require("../models/user/member");
 exports.default = (app) => {
     const authentication = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         if (req.memberUser === undefined) {
@@ -34,7 +34,7 @@ exports.default = (app) => {
     });
     // tslint:disable-next-line:variable-name
     const base = (req, _res, next) => __awaiter(this, void 0, void 0, function* () {
-        req.memberUser = MemberUser_1.default.parse(req.session);
+        req.memberUser = member_1.default.parse(req.session);
         next();
     });
     // メルマガ先行

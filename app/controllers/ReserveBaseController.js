@@ -15,11 +15,10 @@ const conf = require("config");
 const fs = require("fs-extra");
 const moment = require("moment");
 const _ = require("underscore");
-const Util = require("../../common/Util/Util");
 const reservePaymentCreditForm_1 = require("../forms/reserve/reservePaymentCreditForm");
 const reserveProfileForm_1 = require("../forms/reserve/reserveProfileForm");
 const reserveTicketForm_1 = require("../forms/reserve/reserveTicketForm");
-const ReservationModel_1 = require("../models/Reserve/ReservationModel");
+const session_1 = require("../models/reserve/session");
 const BaseController_1 = require("./BaseController");
 const DEFAULT_RADIX = 10;
 /**
@@ -208,8 +207,8 @@ class ReserveBaseController extends BaseController_1.default {
                 this.req.session.locale = 'ja';
             }
             // 予約トークンを発行
-            const token = Util.createToken();
-            let reservationModel = new ReservationModel_1.default();
+            const token = chevre_domain_2.CommonUtil.createToken();
+            let reservationModel = new session_1.default();
             reservationModel.token = token;
             reservationModel.purchaserGroup = this.purchaserGroup;
             reservationModel = this.initializePayment(reservationModel);
@@ -433,7 +432,7 @@ class ReserveBaseController extends BaseController_1.default {
                 }
             }
             // スクリーン座席表HTMLを保管
-            reservationModel.screenHtml = fs.readFileSync(`${__dirname}/../../common/views/screens/${performance.get('screen').get('_id').toString()}.ejs`, 'utf8');
+            reservationModel.screenHtml = fs.readFileSync(`${__dirname}/../views/_screens/${performance.get('screen').get('_id').toString()}.ejs`, 'utf8');
             // この時点でトークンに対して購入番号発行(上映日が決まれば購入番号を発行できる)
             reservationModel.paymentNo = yield chevre_domain_1.ReservationUtil.publishPaymentNo(reservationModel.performance.day);
             return reservationModel;
@@ -635,9 +634,10 @@ class ReserveBaseController extends BaseController_1.default {
      *
      * @param {string} paymentNo 購入番号
      */
-    setProcessLogger(paymentNo) {
-        const logger = Util.getReservationLogger(paymentNo);
-        this.logger = logger;
+    // tslint:disable-next-line:prefer-function-over-method
+    setProcessLogger(__) {
+        // const logger = Util.getReservationLogger(paymentNo);
+        // this.logger = logger;
     }
     /**
      * 購入者情報をセッションに保管する

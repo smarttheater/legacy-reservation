@@ -1,5 +1,5 @@
 import { ReservationEmailCueUtil, ReservationUtil, ScreenUtil, TicketTypeGroupUtil } from '@motionpicture/chevre-domain';
-import { Models } from '@motionpicture/chevre-domain';
+import { CommonUtil, Models } from '@motionpicture/chevre-domain';
 import * as GMO from '@motionpicture/gmo-service';
 import * as conf from 'config';
 import * as express from 'express';
@@ -7,11 +7,10 @@ import * as fs from 'fs-extra';
 import * as moment from 'moment';
 import * as _ from 'underscore';
 
-import * as Util from '../../common/Util/Util';
 import reservePaymentCreditForm from '../forms/reserve/reservePaymentCreditForm';
 import reserveProfileForm from '../forms/reserve/reserveProfileForm';
 import reserveTicketForm from '../forms/reserve/reserveTicketForm';
-import ReservationModel from '../models/Reserve/ReservationModel';
+import ReservationModel from '../models/reserve/session';
 import BaseController from './BaseController';
 
 const DEFAULT_RADIX = 10;
@@ -233,7 +232,7 @@ export default class ReserveBaseController extends BaseController {
         }
 
         // 予約トークンを発行
-        const token = Util.createToken();
+        const token = CommonUtil.createToken();
         let reservationModel = new ReservationModel();
         reservationModel.token = token;
         reservationModel.purchaserGroup = this.purchaserGroup;
@@ -500,7 +499,7 @@ export default class ReserveBaseController extends BaseController {
 
         // スクリーン座席表HTMLを保管
         reservationModel.screenHtml = fs.readFileSync(
-            `${__dirname}/../../common/views/screens/${performance.get('screen').get('_id').toString()}.ejs`,
+            `${__dirname}/../views/_screens/${performance.get('screen').get('_id').toString()}.ejs`,
             'utf8'
         );
 
@@ -737,9 +736,10 @@ export default class ReserveBaseController extends BaseController {
      *
      * @param {string} paymentNo 購入番号
      */
-    protected setProcessLogger(paymentNo: string) {
-        const logger = Util.getReservationLogger(paymentNo);
-        this.logger = logger;
+    // tslint:disable-next-line:prefer-function-over-method
+    protected setProcessLogger(__: string) {
+        // const logger = Util.getReservationLogger(paymentNo);
+        // this.logger = logger;
     }
 
     /**

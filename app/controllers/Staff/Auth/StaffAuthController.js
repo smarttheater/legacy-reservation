@@ -10,9 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const _ = require("underscore");
-const Util = require("../../../../common/Util/Util");
 const staffLoginForm_1 = require("../../../forms/staff/staffLoginForm");
-const StaffUser_1 = require("../../../models/User/StaffUser");
+const staff_1 = require("../../../models/user/staff");
 const BaseController_1 = require("../../BaseController");
 /**
  * 内部関係者認証コントローラー
@@ -69,7 +68,7 @@ class StaffAuthController extends BaseController_1.default {
                         return;
                     }
                     // パスワードチェック
-                    if (staff.get('password_hash') !== Util.createHash(this.req.body.password, staff.get('password_salt'))) {
+                    if (staff.get('password_hash') !== chevre_domain_1.CommonUtil.createHash(this.req.body.password, staff.get('password_salt'))) {
                         this.res.locals.validation = [
                             { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
                         ];
@@ -80,7 +79,7 @@ class StaffAuthController extends BaseController_1.default {
                     if (this.req.body.remember === 'on') {
                         // トークン生成
                         const authentication = yield chevre_domain_1.Models.Authentication.create({
-                            token: Util.createToken(),
+                            token: chevre_domain_1.CommonUtil.createToken(),
                             staff: staff.get('_id'),
                             signature: this.req.body.signature,
                             locale: this.req.body.language
@@ -89,9 +88,9 @@ class StaffAuthController extends BaseController_1.default {
                         this.res.cookie('remember_staff', authentication.get('token'), { path: '/', httpOnly: true, maxAge: 604800000 });
                     }
                     // ログイン
-                    this.req.session[StaffUser_1.default.AUTH_SESSION_NAME] = staff.toObject();
-                    this.req.session[StaffUser_1.default.AUTH_SESSION_NAME].signature = this.req.body.signature;
-                    this.req.session[StaffUser_1.default.AUTH_SESSION_NAME].locale = this.req.body.language;
+                    this.req.session[staff_1.default.AUTH_SESSION_NAME] = staff.toObject();
+                    this.req.session[staff_1.default.AUTH_SESSION_NAME].signature = this.req.body.signature;
+                    this.req.session[staff_1.default.AUTH_SESSION_NAME].locale = this.req.body.language;
                     const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/staff/mypage';
                     this.res.redirect(cb);
                     return;
@@ -116,7 +115,7 @@ class StaffAuthController extends BaseController_1.default {
                     this.next(new Error(this.req.__('Message.UnexpectedError')));
                     return;
                 }
-                delete this.req.session[StaffUser_1.default.AUTH_SESSION_NAME];
+                delete this.req.session[staff_1.default.AUTH_SESSION_NAME];
                 yield chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_staff }).exec();
                 this.res.clearCookie('remember_staff');
                 this.res.redirect('/staff/mypage');

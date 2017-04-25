@@ -7,7 +7,7 @@
 import { Application, NextFunction, Request, Response } from 'express';
 import MemberAuthController from '../controllers/Member/Auth/MemberAuthController';
 import MemberReserveController from '../controllers/Member/Reserve/MemberReserveController';
-import MemberUser from '../models/User/MemberUser';
+import MemberUser from '../models/user/member';
 
 export default (app: Application) => {
     const authentication = async (req: Request, res: Response, next: NextFunction) => {

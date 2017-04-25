@@ -6,7 +6,7 @@ import * as httpStatus from 'http-status';
 import * as moment from 'moment';
 import * as _ from 'underscore';
 
-import ReservationModel from '../../../models/Reserve/ReservationModel';
+import ReservationModel from '../../../models/reserve/session';
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
 
@@ -178,7 +178,7 @@ export default class MemberReserveController extends ReserveBaseController imple
     public async confirm(): Promise<void> {
         try {
             const token = this.req.params.token;
-            let reservationModel = await ReservationModel.find(token);
+            const reservationModel = await ReservationModel.find(token);
 
             if (reservationModel === null) {
                 this.next(new Error(this.req.__('Message.Expired')));

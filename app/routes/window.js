@@ -15,12 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @ignore
  */
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const Util = require("../../common/Util/Util");
 const WindowAuthController_1 = require("../controllers/Window/Auth/WindowAuthController");
 const WindowCancelController_1 = require("../controllers/Window/Cancel/WindowCancelController");
 const WindowMyPageController_1 = require("../controllers/Window/MyPage/WindowMyPageController");
 const WindowReserveController_1 = require("../controllers/Window/Reserve/WindowReserveController");
-const WindowUser_1 = require("../models/User/WindowUser");
+const window_1 = require("../models/user/window");
 exports.default = (app) => {
     const authentication = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         if (req.windowUser === undefined) {
@@ -51,7 +50,7 @@ exports.default = (app) => {
                     return null;
                 }
                 // トークン再生成
-                const token = Util.createToken();
+                const token = chevre_domain_1.CommonUtil.createToken();
                 yield authenticationDoc.update({ token: token }).exec();
                 // tslint:disable-next-line:no-cookies
                 res.cookie('remember_window', token, { path: '/', httpOnly: true, maxAge: 604800000 });
@@ -64,7 +63,7 @@ exports.default = (app) => {
         const user = yield checkRemember();
         if (user !== null && req.session !== undefined) {
             // ログインしてリダイレクト
-            req.session[WindowUser_1.default.AUTH_SESSION_NAME] = user.toObject();
+            req.session[window_1.default.AUTH_SESSION_NAME] = user.toObject();
             res.redirect(req.originalUrl);
         }
         else {
@@ -83,7 +82,7 @@ exports.default = (app) => {
     const base = (req, _res, next) => {
         // 基本的に日本語
         req.setLocale('ja');
-        req.windowUser = WindowUser_1.default.parse(req.session);
+        req.windowUser = window_1.default.parse(req.session);
         next();
     };
     // 当日窓口フロー

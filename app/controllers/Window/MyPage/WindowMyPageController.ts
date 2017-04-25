@@ -1,9 +1,8 @@
-import { Models, ReservationUtil, ScreenUtil } from '@motionpicture/chevre-domain';
+import { CommonUtil, Models, ReservationUtil, ScreenUtil } from '@motionpicture/chevre-domain';
 import { Util as GMOUtil } from '@motionpicture/gmo-service';
 import * as moment from 'moment';
 import * as _ from 'underscore';
 
-import * as Util from '../../../../common/Util/Util';
 import BaseController from '../../BaseController';
 
 const DEFAULT_RADIX = 10;
@@ -85,13 +84,13 @@ export default class WindowMyPageController extends BaseController {
 
         if (email !== null) {
             // remove space characters
-            email = Util.toHalfWidth(email.replace(/\s/g, ''));
+            email = CommonUtil.toHalfWidth(email.replace(/\s/g, ''));
             conditions.push({ purchaser_email: { $regex: new RegExp(email, 'i') } });
         }
 
         if (tel !== null) {
             // remove space characters
-            tel = Util.toHalfWidth(tel.replace(/\s/g, ''));
+            tel = CommonUtil.toHalfWidth(tel.replace(/\s/g, ''));
             conditions.push({ purchaser_tel: { $regex: new RegExp(tel, 'i') } });
         }
 
@@ -118,7 +117,7 @@ export default class WindowMyPageController extends BaseController {
 
         if (paymentNo !== null) {
             // remove space characters
-            paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
+            paymentNo = CommonUtil.toHalfWidth(paymentNo.replace(/\s/g, ''));
             conditions.push({ payment_no: { $regex: new RegExp(paymentNo, 'i') } });
         }
 

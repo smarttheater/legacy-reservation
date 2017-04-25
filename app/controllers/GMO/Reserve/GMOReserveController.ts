@@ -1,14 +1,12 @@
-import { Models } from '@motionpicture/chevre-domain';
-import { ReservationUtil } from '@motionpicture/chevre-domain';
+import { CommonUtil, Models, ReservationUtil } from '@motionpicture/chevre-domain';
 import { Util as GMOUtil } from '@motionpicture/gmo-service';
 import * as moment from 'moment';
 import * as querystring from 'querystring';
 import * as _ from 'underscore';
 import * as util from 'util';
 
-import * as Util from '../../../../common/Util/Util';
-import GMOResultModel from '../../../models/Reserve/GMOResultModel';
-import ReservationModel from '../../../models/Reserve/ReservationModel';
+import GMOResultModel from '../../../models/gmo/result';
+import ReservationModel from '../../../models/reserve/session';
 import ReserveBaseController from '../../ReserveBaseController';
 import GMOReserveCreditController from './Credit/GMOReserveCreditController';
 import GMOReserveCvsController from './Cvs/GMOReserveCvsController';
@@ -76,7 +74,7 @@ export default class GMOReserveController extends ReserveBaseController {
             // GMOへ遷移画面
 
             // 作品名から、特定文字以外を取り除く
-            const filmNameFullWidth = Util.toFullWidth(reservationModel.performance.film.name.ja);
+            const filmNameFullWidth = CommonUtil.toFullWidth(reservationModel.performance.film.name.ja);
             const filmNameFullWidthLength = filmNameFullWidth.length;
             let registerDisp1 = '';
             // todo 文字列のループはこの書き方は本来よろしくないので、暇があったら直す
@@ -96,7 +94,7 @@ export default class GMOReserveController extends ReserveBaseController {
             // tslint:disable-next-line:no-magic-numbers
             this.res.locals.registerDisp1 = (<any>registerDisp1).mbSubstr(0, 32);
 
-            this.res.locals.registerDisp2 = Util.toFullWidth(
+            this.res.locals.registerDisp2 = CommonUtil.toFullWidth(
                 util.format(
                     '%s／%s／%s',
                     reservationModel.performance.day.substr(0, 4), // tslint:disable-line:no-magic-numbers
@@ -104,8 +102,8 @@ export default class GMOReserveController extends ReserveBaseController {
                     reservationModel.performance.day.substr(6) // tslint:disable-line:no-magic-numbers
                 )
             );
-            this.res.locals.registerDisp3 = Util.toFullWidth(reservationModel.performance.theater.name.ja);
-            this.res.locals.registerDisp4 = Util.toFullWidth(
+            this.res.locals.registerDisp3 = CommonUtil.toFullWidth(reservationModel.performance.theater.name.ja);
+            this.res.locals.registerDisp4 = CommonUtil.toFullWidth(
                 util.format(
                     '開場%s:%s　開演%s:%s',
                     reservationModel.performance.open_time.substr(0, 2), // tslint:disable-line:no-magic-numbers

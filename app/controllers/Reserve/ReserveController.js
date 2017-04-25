@@ -11,7 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const chevre_domain_3 = require("@motionpicture/chevre-domain");
-const ReservationModel_1 = require("../../models/Reserve/ReservationModel");
+const session_1 = require("../../models/reserve/session");
 const ReserveBaseController_1 = require("../ReserveBaseController");
 /**
  * 座席予約状態参照コントローラー
@@ -44,7 +44,7 @@ class ReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = this.req.params.token;
-                const reservationModel = yield ReservationModel_1.default.find(token);
+                const reservationModel = yield session_1.default.find(token);
                 if (reservationModel === null) {
                     this.res.json({ propertiesBySeatCode: {} });
                     return;

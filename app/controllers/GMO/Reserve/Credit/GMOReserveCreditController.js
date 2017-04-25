@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const crypto = require("crypto");
 const util = require("util");
 const ReserveBaseController_1 = require("../../../ReserveBaseController");
@@ -78,7 +77,7 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
             // 購入者区分による振り分け
             const group = reservations[0].get('purchaser_group');
             switch (group) {
-                case chevre_domain_2.ReservationUtil.PURCHASER_GROUP_MEMBER:
+                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
                     this.res.redirect(`/member/reserve/${gmoResultModel.OrderID}/complete`);
                     break;
                 default:

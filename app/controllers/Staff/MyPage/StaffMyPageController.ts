@@ -1,8 +1,7 @@
-import { Models, ReservationUtil, ScreenUtil } from '@motionpicture/chevre-domain';
+import { CommonUtil, Models, ReservationUtil, ScreenUtil } from '@motionpicture/chevre-domain';
 import * as mongoose from 'mongoose';
 import * as _ from 'underscore';
 
-import * as Util from '../../../../common/Util/Util';
 import BaseController from '../../BaseController';
 
 const DEFAULT_RADIX = 10;
@@ -115,7 +114,7 @@ export default class StaffMyPageController extends BaseController {
 
         if (paymentNo !== null) {
             // remove space characters
-            paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
+            paymentNo = CommonUtil.toHalfWidth(paymentNo.replace(/\s/g, ''));
             conditions.push({ payment_no: { $regex: `${paymentNo}` } });
         }
 

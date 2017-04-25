@@ -12,7 +12,6 @@ const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const gmo_service_1 = require("@motionpicture/gmo-service");
 const moment = require("moment");
 const _ = require("underscore");
-const Util = require("../../../../common/Util/Util");
 const BaseController_1 = require("../../BaseController");
 const DEFAULT_RADIX = 10;
 /**
@@ -82,12 +81,12 @@ class WindowMyPageController extends BaseController_1.default {
             }
             if (email !== null) {
                 // remove space characters
-                email = Util.toHalfWidth(email.replace(/\s/g, ''));
+                email = chevre_domain_1.CommonUtil.toHalfWidth(email.replace(/\s/g, ''));
                 conditions.push({ purchaser_email: { $regex: new RegExp(email, 'i') } });
             }
             if (tel !== null) {
                 // remove space characters
-                tel = Util.toHalfWidth(tel.replace(/\s/g, ''));
+                tel = chevre_domain_1.CommonUtil.toHalfWidth(tel.replace(/\s/g, ''));
                 conditions.push({ purchaser_tel: { $regex: new RegExp(tel, 'i') } });
             }
             // 空白つなぎでAND検索
@@ -112,7 +111,7 @@ class WindowMyPageController extends BaseController_1.default {
             }
             if (paymentNo !== null) {
                 // remove space characters
-                paymentNo = Util.toHalfWidth(paymentNo.replace(/\s/g, ''));
+                paymentNo = chevre_domain_1.CommonUtil.toHalfWidth(paymentNo.replace(/\s/g, ''));
                 conditions.push({ payment_no: { $regex: new RegExp(paymentNo, 'i') } });
             }
             if (day !== null) {

@@ -15,12 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @ignore
  */
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const Util = require("../../common/Util/Util");
 const StaffAuthController_1 = require("../controllers/Staff/Auth/StaffAuthController");
 const StaffCancelController_1 = require("../controllers/Staff/Cancel/StaffCancelController");
 const StaffMyPageController_1 = require("../controllers/Staff/MyPage/StaffMyPageController");
 const StaffReserveController_1 = require("../controllers/Staff/Reserve/StaffReserveController");
-const StaffUser_1 = require("../models/User/StaffUser");
+const staff_1 = require("../models/user/staff");
 exports.default = (app) => {
     const authentication = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         if (req.staffUser === undefined) {
@@ -51,7 +50,7 @@ exports.default = (app) => {
                     return null;
                 }
                 // トークン再生成
-                const token = Util.createToken();
+                const token = chevre_domain_1.CommonUtil.createToken();
                 yield authenticationDoc.update({ token: token }).exec();
                 // tslint:disable-next-line:no-cookies
                 res.cookie('remember_staff', token, { path: '/', httpOnly: true, maxAge: 604800000 });
@@ -69,9 +68,9 @@ exports.default = (app) => {
         const userSession = yield checkRemember();
         if (userSession !== null && req.session !== undefined) {
             // ログインしてリダイレクト
-            req.session[StaffUser_1.default.AUTH_SESSION_NAME] = userSession.staff.toObject();
-            req.session[StaffUser_1.default.AUTH_SESSION_NAME].signature = userSession.signature;
-            req.session[StaffUser_1.default.AUTH_SESSION_NAME].locale = userSession.locale;
+            req.session[staff_1.default.AUTH_SESSION_NAME] = userSession.staff.toObject();
+            req.session[staff_1.default.AUTH_SESSION_NAME].signature = userSession.signature;
+            req.session[staff_1.default.AUTH_SESSION_NAME].locale = userSession.locale;
             res.redirect(req.originalUrl);
         }
         else {
@@ -88,7 +87,7 @@ exports.default = (app) => {
     });
     // tslint:disable-next-line:variable-name
     const base = (req, _res, next) => {
-        req.staffUser = StaffUser_1.default.parse(req.session);
+        req.staffUser = staff_1.default.parse(req.session);
         next();
     };
     // 内部関係者

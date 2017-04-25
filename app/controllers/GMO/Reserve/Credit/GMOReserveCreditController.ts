@@ -1,10 +1,9 @@
-import { Models } from '@motionpicture/chevre-domain';
-import { ReservationUtil } from '@motionpicture/chevre-domain';
+import { Models, ReservationUtil } from '@motionpicture/chevre-domain';
 import * as crypto from 'crypto';
 import * as mongoose from 'mongoose';
 import * as util from 'util';
 
-import GMOResultModel from '../../../../models/Reserve/GMOResultModel';
+import GMOResultModel from '../../../../models/gmo/result';
 import ReserveBaseController from '../../../ReserveBaseController';
 
 /**

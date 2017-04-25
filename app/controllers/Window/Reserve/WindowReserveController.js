@@ -14,7 +14,7 @@ const moment = require("moment");
 const _ = require("underscore");
 const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerformanceForm");
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
-const ReservationModel_1 = require("../../../models/Reserve/ReservationModel");
+const session_1 = require("../../../models/reserve/session");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
 /**
  * 当日窓口座席予約コントローラー
@@ -63,7 +63,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = this.req.params.token;
-                let reservationModel = yield ReservationModel_1.default.find(token);
+                let reservationModel = yield session_1.default.find(token);
                 if (reservationModel === null) {
                     this.next(new Error(this.req.__('Message.Expired')));
                     return;
@@ -111,7 +111,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = this.req.params.token;
-                let reservationModel = yield ReservationModel_1.default.find(token);
+                let reservationModel = yield session_1.default.find(token);
                 if (reservationModel === null) {
                     this.next(new Error(this.req.__('Message.Expired')));
                     return;
@@ -174,7 +174,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = this.req.params.token;
-                let reservationModel = yield ReservationModel_1.default.find(token);
+                let reservationModel = yield session_1.default.find(token);
                 if (reservationModel === null) {
                     this.next(new Error(this.req.__('Message.Expired')));
                     return;
@@ -208,7 +208,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = this.req.params.token;
-                let reservationModel = yield ReservationModel_1.default.find(token);
+                let reservationModel = yield session_1.default.find(token);
                 if (reservationModel === null) {
                     this.next(new Error(this.req.__('Message.Expired')));
                     return;
@@ -258,7 +258,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = this.req.params.token;
-                const reservationModel = yield ReservationModel_1.default.find(token);
+                const reservationModel = yield session_1.default.find(token);
                 if (reservationModel === null) {
                     this.next(new Error(this.req.__('Message.Expired')));
                     return;

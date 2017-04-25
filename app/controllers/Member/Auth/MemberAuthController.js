@@ -11,9 +11,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const moment = require("moment");
-const Util = require("../../../../common/Util/Util");
 const memberLoginForm_1 = require("../../../forms/member/memberLoginForm");
-const MemberUser_1 = require("../../../models/User/MemberUser");
+const member_1 = require("../../../models/user/member");
 const BaseController_1 = require("../../BaseController");
 /**
  * メルマガ先行会員認証コントローラー
@@ -69,13 +68,13 @@ class MemberAuthController extends BaseController_1.default {
                         return;
                     }
                     // パスワードチェック
-                    if (member.get('password_hash') !== Util.createHash(this.req.body.password, member.get('password_salt'))) {
+                    if (member.get('password_hash') !== chevre_domain_1.CommonUtil.createHash(this.req.body.password, member.get('password_salt'))) {
                         this.res.locals.validation = [{ msg: 'ログイン番号またはパスワードに誤りがあります' }];
                         this.res.render('member/auth/login');
                         return;
                     }
                     // ログイン
-                    this.req.session[MemberUser_1.default.AUTH_SESSION_NAME] = member.toObject();
+                    this.req.session[member_1.default.AUTH_SESSION_NAME] = member.toObject();
                     this.res.redirect('/member/reserve/start');
                     return;
                 }
