@@ -8,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const AdmissionController_1 = require("../controllers/Admission/AdmissionController");
 const CustomerReserveController_1 = require("../controllers/Customer/Reserve/CustomerReserveController");
 const ErrorController_1 = require("../controllers/Error/ErrorController");
 const GMOController_1 = require("../controllers/GMO/GMOController");
@@ -41,9 +40,6 @@ exports.default = (app) => {
     app.post('/GMO/reserve/result', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOReserveController_1.default(req, res, next)).result(); }));
     app.get('/GMO/reserve/:paymentNo/cancel', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOReserveController_1.default(req, res, next)).cancel(); }));
     app.all('/GMO/notify', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOController_1.default(req, res, next)).notify(); }));
-    // admission
-    app.all('/admission/performances', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new AdmissionController_1.default(req, res, next)).performances(); }));
-    app.get('/admission/performance/:id/confirm', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new AdmissionController_1.default(req, res, next)).confirm(); }));
     app.get('/policy', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).policy(); });
     app.get('/privacy', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).privacy(); });
     app.get('/commercialTransactions', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).commercialTransactions(); });

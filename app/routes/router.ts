@@ -5,7 +5,6 @@
  * @ignore
  */
 import { Application, NextFunction, Request, Response } from 'express';
-import AdmissionController from '../controllers/Admission/AdmissionController';
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
 import ErrorController from '../controllers/Error/ErrorController';
 import GMOController from '../controllers/GMO/GMOController';
@@ -43,10 +42,6 @@ export default (app: Application) => {
     app.post('/GMO/reserve/result', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOReserveController(req, res, next)).result(); });
     app.get('/GMO/reserve/:paymentNo/cancel', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOReserveController(req, res, next)).cancel(); });
     app.all('/GMO/notify', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOController(req, res, next)).notify(); });
-
-    // admission
-    app.all('/admission/performances', base, async (req: Request, res: Response, next: NextFunction) => { await (new AdmissionController(req, res, next)).performances(); });
-    app.get('/admission/performance/:id/confirm', base, async (req: Request, res: Response, next: NextFunction) => { await (new AdmissionController(req, res, next)).confirm(); });
 
     app.get('/policy', base, (req: Request, res: Response, next: NextFunction) => { (new OtherController(req, res, next)).policy(); });
     app.get('/privacy', base, (req: Request, res: Response, next: NextFunction) => { (new OtherController(req, res, next)).privacy(); });
