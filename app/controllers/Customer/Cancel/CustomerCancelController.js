@@ -298,7 +298,7 @@ function validate(reservations) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => {
             // 入場済みの座席があるかどうか確認
-            const notEntered = reservations.every((reservation) => (reservation.get('entered') !== true));
+            const notEntered = reservations.every((reservation) => (reservation.get('checked_in') !== true));
             if (!notEntered) {
                 reject(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable'));
                 return;

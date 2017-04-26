@@ -74,7 +74,7 @@ class ReserveController extends ReserveBaseController_1.default {
                     propertiesBySeatCode[seatCode] = {
                         avalilable: avalilable,
                         baloonContent: baloonContent,
-                        entered: reservation.get('entered')
+                        entered: reservation.get('checked_in')
                     };
                 });
                 // 予約のない座席は全て空席

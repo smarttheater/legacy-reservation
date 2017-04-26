@@ -312,7 +312,7 @@ export default class CustomerCancelController extends BaseController {
 async function validate(reservations: mongoose.Document[]): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         // 入場済みの座席があるかどうか確認
-        const notEntered = reservations.every((reservation) => (reservation.get('entered') !== true));
+        const notEntered = reservations.every((reservation) => (reservation.get('checked_in') !== true));
         if (!notEntered) {
             reject(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable'));
             return;

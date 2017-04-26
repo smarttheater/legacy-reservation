@@ -82,7 +82,7 @@ export default class ReserveController extends ReserveBaseController {
                 propertiesBySeatCode[seatCode] = {
                     avalilable: avalilable,
                     baloonContent: baloonContent,
-                    entered: reservation.get('entered')
+                    entered: reservation.get('checked_in')
                 };
             });
 
