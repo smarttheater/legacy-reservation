@@ -9,17 +9,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const GMO = require("@motionpicture/gmo-service");
 const conf = require("config");
+const createDebug = require("debug");
 const fs = require("fs-extra");
 const moment = require("moment");
+const numeral = require("numeral");
 const _ = require("underscore");
 const reservePaymentCreditForm_1 = require("../forms/reserve/reservePaymentCreditForm");
 const reserveProfileForm_1 = require("../forms/reserve/reserveProfileForm");
 const reserveTicketForm_1 = require("../forms/reserve/reserveTicketForm");
 const session_1 = require("../models/reserve/session");
 const BaseController_1 = require("./BaseController");
+const debug = createDebug('chevre-frontend:controller:reserveBase');
 const DEFAULT_RADIX = 10;
 /**
  * 座席予約ベースコントローラー
@@ -34,7 +36,7 @@ class ReserveBaseController extends BaseController_1.default {
         this.res.locals.GMOUtil = GMO.Util;
         this.res.locals.ReservationUtil = chevre_domain_1.ReservationUtil;
         this.res.locals.ScreenUtil = chevre_domain_1.ScreenUtil;
-        this.res.locals.Models = chevre_domain_2.Models;
+        this.res.locals.Models = chevre_domain_1.Models;
     }
     /**
      * 券種FIXプロセス
@@ -56,13 +58,13 @@ class ReserveBaseController extends BaseController_1.default {
             }
             choices.forEach((choice) => {
                 const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => {
-                    return (ticketTypeInArray.code === choice.ticket_type_code);
+                    return (ticketTypeInArray._id === choice.ticket_type);
                 });
                 if (ticketType === undefined) {
                     throw new Error(this.req.__('Message.UnexpectedError'));
                 }
                 const reservation = reservationModel.getReservation(choice.seat_code);
-                reservation.ticket_type_code = ticketType.code;
+                reservation.ticket_type = ticketType._id;
                 reservation.ticket_type_name_ja = ticketType.name.ja;
                 reservation.ticket_type_name_en = ticketType.name.en;
                 reservation.ticket_type_charge = ticketType.charge;
@@ -207,7 +209,7 @@ class ReserveBaseController extends BaseController_1.default {
                 this.req.session.locale = 'ja';
             }
             // 予約トークンを発行
-            const token = chevre_domain_2.CommonUtil.createToken();
+            const token = chevre_domain_1.CommonUtil.createToken();
             let reservationModel = new session_1.default();
             reservationModel.token = token;
             reservationModel.purchaserGroup = this.purchaserGroup;
@@ -309,7 +311,7 @@ class ReserveBaseController extends BaseController_1.default {
             reservationModel.seatCodes = [];
             // 仮予約を空席ステータスに戻す
             try {
-                yield chevre_domain_2.Models.Reservation.remove({ _id: { $in: ids } }).exec();
+                yield chevre_domain_1.Models.Reservation.remove({ _id: { $in: ids } }).exec();
             }
             catch (error) {
                 // 失敗したとしても時間経過で消えるので放置
@@ -325,11 +327,11 @@ class ReserveBaseController extends BaseController_1.default {
     processFixPerformance(reservationModel, perfomanceId) {
         return __awaiter(this, void 0, void 0, function* () {
             // パフォーマンス取得
-            const performance = yield chevre_domain_2.Models.Performance.findOne({
+            const performance = yield chevre_domain_1.Models.Performance.findOne({
                 _id: perfomanceId
-            }, 'day open_time start_time end_time canceled film screen screen_name theater theater_name' // 必要な項目だけ指定すること
+            }, 'day open_time start_time end_time canceled film screen screen_name theater theater_name ticket_type_group' // 必要な項目だけ指定すること
             )
-                .populate('film', 'name ticket_type_group is_mx4d copyright') // 必要な項目だけ指定すること
+                .populate('film', 'name is_mx4d copyright') // 必要な項目だけ指定すること
                 .populate('screen', 'name sections') // 必要な項目だけ指定すること
                 .populate('theater', 'name address') // 必要な項目だけ指定すること
                 .exec();
@@ -347,7 +349,7 @@ class ReserveBaseController extends BaseController_1.default {
                 }
             }
             // 券種取得
-            const ticketTypeGroup = yield chevre_domain_2.Models.TicketTypeGroup.findOne({ _id: performance.get('film').get('ticket_type_group') }).exec();
+            const ticketTypeGroup = yield chevre_domain_1.Models.TicketTypeGroup.findOne({ _id: performance.get('ticket_type_group') }).populate('ticket_types').exec();
             reservationModel.seatCodes = [];
             // 券種リストは、予約する主体によって異なる
             // 内部関係者の場合
@@ -358,17 +360,17 @@ class ReserveBaseController extends BaseController_1.default {
                 case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
                     // メルマガ当選者の場合、一般だけ
                     reservationModel.ticketTypes = [];
-                    for (const ticketType of ticketTypeGroup.get('types')) {
-                        if (ticketType.get('code') === chevre_domain_1.TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS) {
+                    for (const ticketType of ticketTypeGroup.get('ticket_types')) {
+                        if (ticketType.get('_id') === chevre_domain_1.TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS) {
                             reservationModel.ticketTypes.push(ticketType);
                         }
                     }
                     break;
                 default:
-                    // 一般、当日窓口、電話予約の場合
+                    // 一般、当日窓口の場合
                     reservationModel.ticketTypes = [];
-                    for (const ticketType of ticketTypeGroup.get('types')) {
-                        switch (ticketType.get('code')) {
+                    for (const ticketType of ticketTypeGroup.get('ticket_types')) {
+                        switch (ticketType.get('_id')) {
                             // 学生当日は、当日だけ
                             case chevre_domain_1.TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY:
                                 if (moment().format('YYYYMMDD') === performance.get('day')) {
@@ -485,7 +487,7 @@ class ReserveBaseController extends BaseController_1.default {
                         break;
                 }
                 // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
-                const reservation = yield chevre_domain_2.Models.Reservation.create(newReservation);
+                const reservation = yield chevre_domain_1.Models.Reservation.create(newReservation);
                 // ステータス更新に成功したらセッションに保管
                 reservationModel.seatCodes.push(seatCode);
                 reservationModel.setReservation(seatCode, {
@@ -495,7 +497,7 @@ class ReserveBaseController extends BaseController_1.default {
                     seat_grade_name_ja: seatInfo.grade.name.ja,
                     seat_grade_name_en: seatInfo.grade.name.en,
                     seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                    ticket_type_code: '',
+                    ticket_type: '',
                     ticket_type_name_ja: '',
                     ticket_type_name_en: '',
                     ticket_type_charge: 0,
@@ -524,8 +526,6 @@ class ReserveBaseController extends BaseController_1.default {
             }
             // 購入日時確定
             reservationModel.purchasedAt = moment().valueOf();
-            // 予約プロセス固有のログファイルをセット
-            this.setProcessLogger(reservationModel.paymentNo);
             const commonUpdate = {
                 // 決済移行のタイミングで仮予約有効期限を更新
                 expired_at: moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').valueOf()
@@ -583,9 +583,9 @@ class ReserveBaseController extends BaseController_1.default {
                 let update = reservationModel.seatCode2reservationDocument(seatCode);
                 update = Object.assign(update, commonUpdate);
                 update.payment_seat_index = index;
-                this.logger.info('updating reservation all infos...update:', update);
-                const reservation = yield chevre_domain_2.Models.Reservation.findByIdAndUpdate(update._id, update, { new: true }).exec();
-                this.logger.info('reservation updated.', reservation);
+                console.log('updating reservation all infos...update:', update);
+                const reservation = yield chevre_domain_1.Models.Reservation.findByIdAndUpdate(update._id, update, { new: true }).exec();
+                console.log('reservation updated.', reservation);
                 if (reservation === null) {
                     throw new Error(this.req.__('Message.UnexpectedError'));
                 }
@@ -599,45 +599,29 @@ class ReserveBaseController extends BaseController_1.default {
      * @param {string} paymentNo 購入番号
      * @param {Object} update 追加更新パラメータ
      */
-    processFixReservations(paymentNo, update) {
+    processFixReservations(performanceDay, paymentNo, update) {
         return __awaiter(this, void 0, void 0, function* () {
             update.status = chevre_domain_1.ReservationUtil.STATUS_RESERVED;
             update.updated_user = 'ReserveBaseController';
             // 予約完了ステータスへ変更
-            this.logger.info('updating reservations by paymentNo...', paymentNo, update);
-            const raw = yield chevre_domain_2.Models.Reservation.update({ payment_no: paymentNo }, update, { multi: true }).exec();
-            this.logger.info('reservations updated.', raw);
+            console.log('updating reservations by paymentNo...', paymentNo, update);
+            const raw = yield chevre_domain_1.Models.Reservation.update({
+                performance_day: performanceDay,
+                payment_no: paymentNo
+            }, update, { multi: true }).exec();
+            console.log('reservations updated.', raw);
             try {
                 // 完了メールキュー追加(あれば更新日時を更新するだけ)
-                this.logger.info('creating reservationEmailCue...');
-                const cue = yield chevre_domain_2.Models.ReservationEmailCue.findOneAndUpdate({
-                    payment_no: paymentNo,
-                    template: chevre_domain_1.ReservationEmailCueUtil.TEMPLATE_COMPLETE
-                }, {
-                    $set: { updated_at: Date.now() },
-                    $setOnInsert: { status: chevre_domain_1.ReservationEmailCueUtil.STATUS_UNSENT }
-                }, {
-                    upsert: true,
-                    new: true
-                }).exec();
-                this.logger.info('reservationEmailCue created.', cue);
+                const emailQueue = yield createEmailQueue(this.res, performanceDay, paymentNo);
+                console.log('creating reservationEmailCue...');
+                yield chevre_domain_1.Models.EmailQueue.create(emailQueue);
+                console.log('reservationEmailCue created.');
             }
             catch (error) {
                 console.error(error);
                 // 失敗してもスルー(ログと運用でなんとかする)
             }
         });
-    }
-    /**
-     * 予約プロセス用のロガーを設定する
-     * 1決済管理番号につき、1ログファイル
-     *
-     * @param {string} paymentNo 購入番号
-     */
-    // tslint:disable-next-line:prefer-function-over-method
-    setProcessLogger(__) {
-        // const logger = Util.getReservationLogger(paymentNo);
-        // this.logger = logger;
     }
     /**
      * 購入者情報をセッションに保管する
@@ -661,3 +645,89 @@ class ReserveBaseController extends BaseController_1.default {
     }
 }
 exports.default = ReserveBaseController;
+/**
+ * 予約完了メールを作成する
+ *
+ * @memberOf ReserveBaseController
+ */
+function createEmailQueue(res, performanceDay, paymentNo) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const reservations = yield chevre_domain_1.Models.Reservation.find({
+            performance_day: performanceDay,
+            payment_no: paymentNo
+        }).exec();
+        debug('reservations for email found.', reservations.length);
+        if (reservations.length === 0) {
+            throw new Error(`reservations of payment_no ${paymentNo} not found`);
+        }
+        let to = '';
+        switch (reservations[0].get('purchaser_group')) {
+            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
+                to = reservations[0].get('staff_email');
+                break;
+            default:
+                to = reservations[0].get('purchaser_email');
+                break;
+        }
+        debug('to is', to);
+        if (to.length === 0) {
+            throw new Error('email to unknown');
+        }
+        // const EmailTemplate = emailTemplates.EmailTemplate;
+        const dir = `${__dirname}/../views/email/reserve/complete`;
+        const titleJa = 'CHEVRE_EVENT_NAMEチケット 購入完了のお知らせ';
+        const titleEn = 'Notice of Completion of CHEVRE Ticket Purchase';
+        // switch (cue.get('template')) {
+        //     case ReservationEmailCueUtil.TEMPLATE_COMPLETE:
+        //         dir = `${process.cwd()}/app/views/email/reserve/complete`;
+        //         titleJa = 'CHEVRE_EVENT_NAMEチケット 購入完了のお知らせ';
+        //         titleEn = 'Notice of Completion of CHEVRE Ticket Purchase';
+        //         break;
+        //     case ReservationEmailCueUtil.TEMPLATE_TEMPORARY:
+        //         dir = `${process.cwd()}/app/views/email/reserve/waitingSettlement`;
+        //         titleJa = 'CHEVRE_EVENT_NAMEチケット 仮予約完了のお知らせ';
+        //         titleEn = 'Notice of Completion of Tentative Reservation for CHEVRE Tickets';
+        //         break;
+        //     default:
+        //         throw new Error(`${cue.get('template')} not implemented.`);
+        // }
+        // const template = new EmailTemplate(dir);
+        const locals = {
+            title_ja: titleJa,
+            title_en: titleEn,
+            reservations: reservations,
+            moment: moment,
+            numeral: numeral,
+            conf: conf,
+            GMOUtil: GMO.Util,
+            ReservationUtil: chevre_domain_1.ReservationUtil
+        };
+        debug('rendering template...dir:', dir);
+        return new Promise((resolve, reject) => {
+            res.render('email/reserve/complete', locals, (renderErr, text) => __awaiter(this, void 0, void 0, function* () {
+                debug('email template rendered.', renderErr);
+                if (renderErr instanceof Error) {
+                    reject(new Error('failed in rendering an email.'));
+                    return;
+                }
+                const emailQueue = {
+                    from: {
+                        address: conf.get('email.from'),
+                        name: conf.get('email.fromname')
+                    },
+                    to: {
+                        address: to
+                        // name: 'testto'
+                    },
+                    subject: `${titleJa} ${titleEn}`,
+                    content: {
+                        mimetype: 'text/plain',
+                        text: text
+                    },
+                    status: chevre_domain_1.EmailQueueUtil.STATUS_UNSENT
+                };
+                resolve(emailQueue);
+            }));
+        });
+    });
+}

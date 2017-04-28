@@ -65,7 +65,7 @@ export default class MemberReserveController extends ReserveBaseController imple
                     seat_grade_name_ja: seatInfo.grade.name.ja,
                     seat_grade_name_en: seatInfo.grade.name.en,
                     seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                    ticket_type_code: '',
+                    ticket_type: '',
                     ticket_type_name_ja: '',
                     ticket_type_name_en: '',
                     ticket_type_charge: 0,
@@ -189,7 +189,7 @@ export default class MemberReserveController extends ReserveBaseController imple
                 try {
                     await this.processConfirm(reservationModel);
                     await reservationModel.save();
-                    this.logger.info('starting GMO payment...');
+                    console.log('starting GMO payment...');
                     this.res.redirect((<any>httpStatus).PERMANENT_REDIRECT, `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`);
                 } catch (error) {
                     await reservationModel.remove();
@@ -210,10 +210,10 @@ export default class MemberReserveController extends ReserveBaseController imple
      */
     public async complete(): Promise<void> {
         try {
-            const paymentNo = this.req.params.paymentNo;
             const reservations = await Models.Reservation.find(
                 {
-                    payment_no: paymentNo,
+                    performance_day: this.req.params.performanceDay,
+                    payment_no: this.req.params.paymentNo,
                     status: ReservationUtil.STATUS_RESERVED,
                     purchased_at: { // 購入確定から30分有効
                         // tslint:disable-next-line:no-magic-numbers

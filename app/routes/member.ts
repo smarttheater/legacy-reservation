@@ -45,5 +45,5 @@ export default (app: Application) => {
     app.all('/member/reserve/:token/tickets', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new MemberReserveController(req, res, next)).tickets(); });
     app.all('/member/reserve/:token/profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new MemberReserveController(req, res, next)).profile(); });
     app.all('/member/reserve/:token/confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new MemberReserveController(req, res, next)).confirm(); });
-    app.get('/member/reserve/:paymentNo/complete', base, async (req: Request, res: Response, next: NextFunction) => { await (new MemberReserveController(req, res, next)).complete(); });
+    app.get('/member/reserve/:performanceDay/:paymentNo/complete', base, async (req: Request, res: Response, next: NextFunction) => { await (new MemberReserveController(req, res, next)).complete(); });
 };

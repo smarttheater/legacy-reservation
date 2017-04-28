@@ -23,15 +23,15 @@ class SendGridController extends BaseController_1.default {
      */
     notifyEvent() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.logger.info('SendGrid event notification is', this.req.body);
+            console.log('SendGrid event notification is', this.req.body);
             if (this.req.method === 'GET') {
                 this.res.send('0');
                 return;
             }
             try {
-                this.logger.info('creating sendgrid_event_notifications...');
+                console.log('creating sendgrid_event_notifications...');
                 const notifications = yield chevre_domain_1.Models.SendGridEventNotification.create(this.req.body);
-                this.logger.info('sendgrid_event_notifications created.', notifications);
+                console.log('sendgrid_event_notifications created.', notifications);
                 this.res.send('0');
             }
             catch (error) {

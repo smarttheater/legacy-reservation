@@ -58,8 +58,8 @@ export default (app: Application) => {
     app.all('/customer/reserve/:token/tickets', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).tickets(); });
     app.all('/customer/reserve/:token/profile', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).profile(); });
     app.all('/customer/reserve/:token/confirm', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).confirm(); });
-    app.get('/customer/reserve/:paymentNo/waitingSettlement', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).waitingSettlement(); });
-    app.get('/customer/reserve/:paymentNo/complete', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).complete(); });
+    app.get('/customer/reserve/:performanceDay/:paymentNo/waitingSettlement', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).waitingSettlement(); });
+    app.get('/customer/reserve/:performanceDay/:paymentNo/complete', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).complete(); });
 
     app.get('/error/notFound', base, (req: Request, res: Response, next: NextFunction) => { (new ErrorController(req, res, next)).notFound(); });
 

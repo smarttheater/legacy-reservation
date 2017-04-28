@@ -14,6 +14,7 @@ const util = require("util");
 const ReserveBaseController_1 = require("../../../ReserveBaseController");
 /**
  * GMOクレジットカード決済コントローラー
+ * todo OrderIDの仕様変更にともない、上映日と購入番号を取り出すように改修する必要あり
  *
  * @export
  * @class GMOReserveCreditController
@@ -42,11 +43,11 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
             // 内容の整合性チェック
             let reservations = [];
             try {
-                this.logger.info('finding reservations...payment_no:', gmoResultModel.OrderID);
+                console.log('finding reservations...payment_no:', gmoResultModel.OrderID);
                 reservations = yield chevre_domain_1.Models.Reservation.find({
                     payment_no: gmoResultModel.OrderID
                 }, '_id purchaser_group pre_customer').exec();
-                this.logger.info('reservations found.', reservations.length);
+                console.log('reservations found.', reservations.length);
                 if (reservations.length === 0) {
                     throw new Error(this.req.__('Message.UnexpectedError'));
                 }
@@ -54,7 +55,7 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                 // 8 ＋ 9 ＋ 10 ＋ 11 ＋ 12 ＋ 13 ＋ 14 ＋ ショップパスワード
                 const data2cipher = util.format('%s%s%s%s%s%s%s%s', gmoResultModel.OrderID, gmoResultModel.Forwarded, gmoResultModel.Method, gmoResultModel.PayTimes, gmoResultModel.Approve, gmoResultModel.TranID, gmoResultModel.TranDate, process.env.GMO_SHOP_PASS);
                 const checkString = crypto.createHash('md5').update(data2cipher, 'utf8').digest('hex');
-                this.logger.info('CheckString must be ', checkString);
+                console.log('CheckString must be ', checkString);
                 if (checkString !== gmoResultModel.CheckString) {
                     throw new Error(this.req.__('Message.UnexpectedError'));
                 }
@@ -64,16 +65,19 @@ class GMOReserveCreditController extends ReserveBaseController_1.default {
                 return;
             }
             try {
-                this.logger.info('processFixReservations processing... update:', update);
-                yield this.processFixReservations(gmoResultModel.OrderID, update);
-                this.logger.info('processFixReservations processed.');
+                // todo 正しい値に
+                const performanceDay = 'xxx';
+                const paymentNo = 'xxx';
+                console.log('processFixReservations processing... update:', update);
+                yield this.processFixReservations(performanceDay, paymentNo, update);
+                console.log('processFixReservations processed.');
             }
             catch (error) {
                 // 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
                 this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
                 return;
             }
-            this.logger.info('redirecting to complete...');
+            console.log('redirecting to complete...');
             // 購入者区分による振り分け
             const group = reservations[0].get('purchaser_group');
             switch (group) {

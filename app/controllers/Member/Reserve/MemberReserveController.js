@@ -67,7 +67,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                         seat_grade_name_ja: seatInfo.grade.name.ja,
                         seat_grade_name_en: seatInfo.grade.name.en,
                         seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                        ticket_type_code: '',
+                        ticket_type: '',
                         ticket_type_name_ja: '',
                         ticket_type_name_en: '',
                         ticket_type_charge: 0,
@@ -190,7 +190,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                     try {
                         yield this.processConfirm(reservationModel);
                         yield reservationModel.save();
-                        this.logger.info('starting GMO payment...');
+                        console.log('starting GMO payment...');
                         this.res.redirect(httpStatus.PERMANENT_REDIRECT, `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`);
                     }
                     catch (error) {
@@ -215,9 +215,9 @@ class MemberReserveController extends ReserveBaseController_1.default {
     complete() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const paymentNo = this.req.params.paymentNo;
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
-                    payment_no: paymentNo,
+                    performance_day: this.req.params.performanceDay,
+                    payment_no: this.req.params.paymentNo,
                     status: chevre_domain_2.ReservationUtil.STATUS_RESERVED,
                     purchased_at: {
                         // tslint:disable-next-line:no-magic-numbers

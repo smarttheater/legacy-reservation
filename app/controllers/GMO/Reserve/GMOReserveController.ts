@@ -68,8 +68,6 @@ export default class GMOReserveController extends ReserveBaseController {
 
             // 予約情報セッション削除
             await reservationModel.remove();
-            // 予約プロセス固有のログファイルをセット
-            this.setProcessLogger(reservationModel.paymentNo);
 
             // GMOへ遷移画面
 
@@ -141,7 +139,7 @@ export default class GMOReserveController extends ReserveBaseController {
                 this.req.getLocale()
             );
 
-            this.logger.info('redirecting to GMO payment...');
+            console.log('redirecting to GMO payment...');
             // GMOへの送信データをログに残すために、一度htmlを取得してからrender
             this.res.render('gmo/reserve/start', undefined, (renderErr, html) => {
                 if (renderErr instanceof Error) {
@@ -149,7 +147,7 @@ export default class GMOReserveController extends ReserveBaseController {
                     return;
                 }
 
-                this.logger.info('rendering gmo/reserve/start...html:', html);
+                console.log('rendering gmo/reserve/start...html:', html);
                 this.res.render('gmo/reserve/start');
             });
 
@@ -166,22 +164,20 @@ export default class GMOReserveController extends ReserveBaseController {
         const gmoResultModel = GMOResultModel.parse(this.req.body);
         const paymentNo = gmoResultModel.OrderID;
 
-        // 予約プロセス固有のログファイルをセット
-        this.setProcessLogger(paymentNo);
-        this.logger.info('gmoResultModel is', gmoResultModel);
+        console.log('gmoResultModel is', gmoResultModel);
 
         // エラー結果の場合
         if (!_.isEmpty(gmoResultModel.ErrCode)) {
             // 空席に戻す
             try {
-                this.logger.info('finding reservations...payment_no:', paymentNo);
+                console.log('finding reservations...payment_no:', paymentNo);
                 const reservations = await Models.Reservation.find(
                     {
                         payment_no: paymentNo
                     },
                     'gmo_shop_pass_string purchased_at'
                 ).exec();
-                this.logger.info('reservations found.', reservations.length);
+                console.log('reservations found.', reservations.length);
 
                 if (reservations.length === 0) {
                     this.next(new Error(this.req.__('Message.NotFound')));
@@ -197,16 +193,14 @@ export default class GMOReserveController extends ReserveBaseController {
             // 決済方法によって振り分け
             switch (gmoResultModel.PayType) {
                 case GMOUtil.PAY_TYPE_CREDIT:
-                    this.logger.info('starting GMOReserveCreditController.result...');
+                    console.log('starting GMOReserveCreditController.result...');
                     const creditController = new GMOReserveCreditController(this.req, this.res, this.next);
-                    creditController.logger = this.logger;
                     await creditController.result(gmoResultModel);
                     break;
 
                 case GMOUtil.PAY_TYPE_CVS:
-                    this.logger.info('starting GMOReserveCsvController.result...');
+                    console.log('starting GMOReserveCsvController.result...');
                     const cvsController = new GMOReserveCvsController(this.req, this.res, this.next);
-                    cvsController.logger = this.logger;
                     await cvsController.result(gmoResultModel);
                     break;
 
@@ -227,10 +221,9 @@ export default class GMOReserveController extends ReserveBaseController {
             return;
         }
 
-        this.setProcessLogger(paymentNo);
-        this.logger.info('start process GMOReserveController.cancel.');
+        console.log('start process GMOReserveController.cancel.');
 
-        this.logger.info('finding reservations...');
+        console.log('finding reservations...');
         try {
             const reservations = await Models.Reservation.find(
                 {
@@ -239,7 +232,7 @@ export default class GMOReserveController extends ReserveBaseController {
                 },
                 'purchaser_group'
             ).exec();
-            this.logger.info('reservations found.', reservations);
+            console.log('reservations found.', reservations);
 
             if (reservations.length === 0) {
                 this.next(new Error(this.req.__('Message.NotFound')));

@@ -99,6 +99,6 @@ export default (app: Application) => {
     app.all('/window/reserve/:token/tickets', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).tickets(); });
     app.all('/window/reserve/:token/profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).profile(); });
     app.all('/window/reserve/:token/confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).confirm(); });
-    app.get('/window/reserve/:paymentNo/complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).complete(); });
+    app.get('/window/reserve/:performanceDay/:paymentNo/complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).complete(); });
     app.post('/window/cancel/execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowCancelController(req, res, next)).execute(); });
 };

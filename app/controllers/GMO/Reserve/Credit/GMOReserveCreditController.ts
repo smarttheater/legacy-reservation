@@ -8,6 +8,7 @@ import ReserveBaseController from '../../../ReserveBaseController';
 
 /**
  * GMOクレジットカード決済コントローラー
+ * todo OrderIDの仕様変更にともない、上映日と購入番号を取り出すように改修する必要あり
  *
  * @export
  * @class GMOReserveCreditController
@@ -36,14 +37,14 @@ export default class GMOReserveCreditController extends ReserveBaseController {
         // 内容の整合性チェック
         let reservations: mongoose.Document[] = [];
         try {
-            this.logger.info('finding reservations...payment_no:', gmoResultModel.OrderID);
+            console.log('finding reservations...payment_no:', gmoResultModel.OrderID);
             reservations = await Models.Reservation.find(
                 {
                     payment_no: gmoResultModel.OrderID
                 },
                 '_id purchaser_group pre_customer'
             ).exec();
-            this.logger.info('reservations found.', reservations.length);
+            console.log('reservations found.', reservations.length);
 
             if (reservations.length === 0) {
                 throw new Error(this.req.__('Message.UnexpectedError'));
@@ -63,7 +64,7 @@ export default class GMOReserveCreditController extends ReserveBaseController {
                 process.env.GMO_SHOP_PASS
             );
             const checkString = crypto.createHash('md5').update(data2cipher, 'utf8').digest('hex');
-            this.logger.info('CheckString must be ', checkString);
+            console.log('CheckString must be ', checkString);
             if (checkString !== gmoResultModel.CheckString) {
                 throw new Error(this.req.__('Message.UnexpectedError'));
             }
@@ -73,16 +74,19 @@ export default class GMOReserveCreditController extends ReserveBaseController {
         }
 
         try {
-            this.logger.info('processFixReservations processing... update:', update);
-            await this.processFixReservations(gmoResultModel.OrderID, update);
-            this.logger.info('processFixReservations processed.');
+            // todo 正しい値に
+            const performanceDay = 'xxx';
+            const paymentNo = 'xxx';
+            console.log('processFixReservations processing... update:', update);
+            await this.processFixReservations(performanceDay, paymentNo, update);
+            console.log('processFixReservations processed.');
         } catch (error) {
             // 売上取消したいところだが、結果通知も裏で動いているので、うかつにできない
             this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
             return;
         }
 
-        this.logger.info('redirecting to complete...');
+        console.log('redirecting to complete...');
         // 購入者区分による振り分け
         const group = reservations[0].get('purchaser_group');
         switch (group) {
@@ -119,9 +123,9 @@ export default class GMOReserveCreditController extends ReserveBaseController {
             }
         };
 
-        this.logger.info('requesting... options:', options);
+        console.log('requesting... options:', options);
         request.post(options, (error, response, body) => {
-            this.logger.info('request processed.', error, response, body);
+            console.log('request processed.', error, response, body);
 
             if (error) {
                 return cb(error);
@@ -168,9 +172,9 @@ export default class GMOReserveCreditController extends ReserveBaseController {
             }
         };
 
-        this.logger.info('requesting... options:', options);
+        console.log('requesting... options:', options);
         request.post(options, (error, response, body) => {
-            this.logger.info('request processed.', error, response, body);
+            console.log('request processed.', error, response, body);
 
             if (error) {
                 return cb(error);

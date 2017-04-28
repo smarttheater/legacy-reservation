@@ -54,8 +54,8 @@ exports.default = (app) => {
     app.all('/customer/reserve/:token/tickets', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).tickets(); }));
     app.all('/customer/reserve/:token/profile', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).profile(); }));
     app.all('/customer/reserve/:token/confirm', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).confirm(); }));
-    app.get('/customer/reserve/:paymentNo/waitingSettlement', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).waitingSettlement(); }));
-    app.get('/customer/reserve/:paymentNo/complete', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).complete(); }));
+    app.get('/customer/reserve/:performanceDay/:paymentNo/waitingSettlement', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).waitingSettlement(); }));
+    app.get('/customer/reserve/:performanceDay/:paymentNo/complete', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).complete(); }));
     app.get('/error/notFound', base, (req, res, next) => { (new ErrorController_1.default(req, res, next)).notFound(); });
     // 404
     // tslint:disable-next-line:variable-name

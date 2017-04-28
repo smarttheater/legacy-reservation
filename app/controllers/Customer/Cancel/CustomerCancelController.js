@@ -12,7 +12,6 @@ const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
 const conf = require("config");
 const fs = require("fs-extra");
-const log4js = require("log4js");
 const moment = require("moment");
 const numeral = require("numeral");
 const sendgrid = require("sendgrid");
@@ -125,18 +124,17 @@ class CustomerCancelController extends BaseController_1.default {
                 });
                 return;
             }
-            this.logger = log4js.getLogger('cancel');
             const paymentNo = this.req.body.paymentNo;
             const last4DigitsOfTel = this.req.body.last4DigitsOfTel;
             try {
-                this.logger.info('finding reservations...');
+                console.log('finding reservations...');
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
                     payment_no: paymentNo,
                     purchaser_tel: { $regex: `${last4DigitsOfTel}$` },
                     purchaser_group: chevre_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
                     status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
                 }).exec();
-                this.logger.info('reservations found', reservations);
+                console.log('reservations found', reservations);
                 if (reservations.length === 0) {
                     this.res.json({
                         success: false,
@@ -155,23 +153,23 @@ class CustomerCancelController extends BaseController_1.default {
                     return;
                 }
                 if (reservations[0].get('payment_method') === gmo_service_1.Util.PAY_TYPE_CREDIT) {
-                    this.logger.info('removing reservations by customer... payment_no:', paymentNo);
+                    console.log('removing reservations by customer... payment_no:', paymentNo);
                     yield chevre_domain_1.Models.Reservation.remove({
                         payment_no: paymentNo,
                         purchaser_tel: { $regex: `${last4DigitsOfTel}$` },
                         purchaser_group: chevre_domain_2.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
                         status: chevre_domain_2.ReservationUtil.STATUS_RESERVED
                     }).exec();
-                    this.logger.info('reservations removed by customer', 'payment_no:', paymentNo);
+                    console.log('reservations removed by customer', 'payment_no:', paymentNo);
                     // キャンセルリクエスト保管
-                    this.logger.info('creating CustomerCancelRequest...');
+                    console.log('creating CustomerCancelRequest...');
                     yield chevre_domain_1.Models.CustomerCancelRequest.create({
                         payment_no: paymentNo,
                         payment_method: reservations[0].get('payment_method'),
                         email: reservations[0].get('purchaser_email'),
                         tel: reservations[0].get('purchaser_tel')
                     });
-                    this.logger.info('CustomerCancelRequest created');
+                    console.log('CustomerCancelRequest created');
                     // メール送信
                     const to = reservations[0].get('purchaser_email');
                     this.res.render('email/customer/cancel', {
@@ -184,16 +182,16 @@ class CustomerCancelController extends BaseController_1.default {
                         GMOUtil: gmo_service_1.Util,
                         ReservationUtil: chevre_domain_2.ReservationUtil
                     }, (renderErr, html) => __awaiter(this, void 0, void 0, function* () {
-                        this.logger.info('email rendered. html:', renderErr, html);
+                        console.log('email rendered. html:', renderErr, html);
                         // メール失敗してもキャンセル成功
                         if (renderErr instanceof Error) {
                             this.res.json({ success: true, message: null });
                         }
                         else {
                             try {
-                                this.logger.info('sending an email...');
+                                console.log('sending an email...');
                                 yield sendEmail(to, html);
-                                this.logger.info('an email sent');
+                                console.log('an email sent');
                             }
                             catch (error) {
                                 // メールが送れなくてもキャンセルは成功
@@ -206,7 +204,7 @@ class CustomerCancelController extends BaseController_1.default {
                     }));
                     // クレジットカードの場合、GMO取消しを行えば通知で空席になる(この方法は保留)
                     // 取引状態参照
-                    // this.logger.info('SearchTrade processing...');
+                    // console.log('SearchTrade processing...');
                     // request.post({
                     //     url: 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
                     //     form: {
@@ -215,7 +213,7 @@ class CustomerCancelController extends BaseController_1.default {
                     //         OrderID: paymentNo
                     //     }
                     // }, (error, response, body) => {
-                    //     this.logger.info('SearchTrade processed', error, body);
+                    //     console.log('SearchTrade processed', error, body);
                     //     if (error) {
                     //         this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
                     //         return;
@@ -234,9 +232,9 @@ class CustomerCancelController extends BaseController_1.default {
                     //         this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
                     //         return;
                     //     }
-                    //     this.logger.info('searchTradeResult is ', searchTradeResult);
+                    //     console.log('searchTradeResult is ', searchTradeResult);
                     //     // 決済変更
-                    //     this.logger.info('AlterTran processing...');
+                    //     console.log('AlterTran processing...');
                     //     request.post({
                     //         url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
                     //         form: {
@@ -247,7 +245,7 @@ class CustomerCancelController extends BaseController_1.default {
                     //             JobCd: GMOUtil.STATUS_CREDIT_VOID
                     //         }
                     //     }, (error, response, body) => {
-                    //         this.logger.info('AlterTran processed', error, body);
+                    //         console.log('AlterTran processed', error, body);
                     //         if (error) {
                     //             this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
                     //             return;
@@ -261,7 +259,7 @@ class CustomerCancelController extends BaseController_1.default {
                     //             this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
                     //             return;
                     //         }
-                    //         this.logger.info('alterTranResult is ', alterTranResult);
+                    //         console.log('alterTranResult is ', alterTranResult);
                     //     });
                     // });
                 }

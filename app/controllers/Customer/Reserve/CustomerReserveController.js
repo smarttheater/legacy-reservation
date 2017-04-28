@@ -309,10 +309,10 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                     try {
                         yield this.processConfirm(reservationModel);
                         if (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CREDIT) {
-                            yield this.processFixReservations(reservationModel.paymentNo, {});
-                            this.logger.info('processFixReservations processed.');
+                            yield this.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {});
+                            console.log('processFixReservations processed.');
                             yield reservationModel.remove();
-                            this.res.redirect(`/customer/reserve/${reservationModel.paymentNo}/complete`);
+                            this.res.redirect(`/customer/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                         }
                         else {
                             // httpStatusの型定義不足のためanyにキャスト
@@ -343,9 +343,9 @@ class CustomerReserveController extends ReserveBaseController_1.default {
     waitingSettlement() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const paymentNo = this.req.params.paymentNo;
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
-                    payment_no: paymentNo,
+                    performance_day: this.req.params.performanceDay,
+                    payment_no: this.req.params.paymentNo,
                     purchaser_group: this.purchaserGroup,
                     status: chevre_domain_4.ReservationUtil.STATUS_WAITING_SETTLEMENT,
                     purchased_at: {
@@ -374,9 +374,9 @@ class CustomerReserveController extends ReserveBaseController_1.default {
     complete() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const paymentNo = this.req.params.paymentNo;
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
-                    payment_no: paymentNo,
+                    performance_day: this.req.params.performanceDay,
+                    payment_no: this.req.params.paymentNo,
                     purchaser_group: this.purchaserGroup,
                     status: chevre_domain_4.ReservationUtil.STATUS_RESERVED,
                     purchased_at: {

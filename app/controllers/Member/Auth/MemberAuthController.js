@@ -56,7 +56,6 @@ class MemberAuthController extends BaseController_1.default {
                 }
                 try {
                     // ユーザー認証
-                    this.logger.debug('finding member... user_id:', this.req.body.userId);
                     const member = yield chevre_domain_1.Models.Member.findOne({
                         user_id: this.req.body.userId
                     }).exec();

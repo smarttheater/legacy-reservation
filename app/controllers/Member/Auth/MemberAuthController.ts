@@ -47,7 +47,6 @@ export default class MemberAuthController extends BaseController {
             }
             try {
                 // ユーザー認証
-                this.logger.debug('finding member... user_id:', this.req.body.userId);
                 const member = await Models.Member.findOne(
                     {
                         user_id: this.req.body.userId

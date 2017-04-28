@@ -241,10 +241,10 @@ class StaffReserveController extends ReserveBaseController_1.default {
                     try {
                         yield this.processConfirm(reservationModel);
                         // 予約確定
-                        yield this.processFixReservations(reservationModel.paymentNo, {});
+                        yield this.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {});
                         yield reservationModel.remove();
-                        this.logger.info('redirecting to complete...');
-                        this.res.redirect(`/staff/reserve/${reservationModel.paymentNo}/complete`);
+                        console.log('redirecting to complete...');
+                        this.res.redirect(`/staff/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                     }
                     catch (error) {
                         yield reservationModel.remove();
@@ -269,9 +269,9 @@ class StaffReserveController extends ReserveBaseController_1.default {
                 return;
             }
             try {
-                const paymentNo = this.req.params.paymentNo;
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
-                    payment_no: paymentNo,
+                    performance_day: this.req.params.performanceDay,
+                    payment_no: this.req.params.paymentNo,
                     status: chevre_domain_1.ReservationUtil.STATUS_RESERVED,
                     staff: this.req.staffUser.get('_id'),
                     purchased_at: {
@@ -378,7 +378,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                         seat_grade_name_ja: seatInfo.grade.name.ja,
                         seat_grade_name_en: seatInfo.grade.name.en,
                         seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                        ticket_type_code: '',
+                        ticket_type: '',
                         ticket_type_name_ja: '',
                         ticket_type_name_en: '',
                         ticket_type_charge: 0,
@@ -410,7 +410,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                         seat_grade_name_ja: seatInfo.grade.name.ja,
                         seat_grade_name_en: seatInfo.grade.name.en,
                         seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                        ticket_type_code: '',
+                        ticket_type: '',
                         ticket_type_name_ja: '',
                         ticket_type_name_en: '',
                         ticket_type_charge: 0,

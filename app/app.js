@@ -19,13 +19,9 @@ const basicAuth_1 = require("./middlewares/basicAuth");
 const benchmarks_1 = require("./middlewares/benchmarks");
 // tslint:disable-next-line:no-require-imports
 const expressValidator = require("express-validator");
-const logger_1 = require("./middlewares/logger");
 const session_1 = require("./middlewares/session");
 const app = express();
 app.use(partials()); // レイアウト&パーシャルサポート
-if (process.env.NODE_ENV === 'development') {
-    app.use(logger_1.default); // ロガー
-}
 app.use(benchmarks_1.default); // ベンチマーク的な
 app.use(session_1.default); // セッション
 app.use(basicAuth_1.default); // ベーシック認証

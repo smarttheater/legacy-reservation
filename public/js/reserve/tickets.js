@@ -13,7 +13,7 @@ $(function(){
         $('.table-tickets tbody tr').each(function(){
             choices.push({
                 seat_code: $(this).attr('data-seat-code'),
-                ticket_type_code: $('option:selected', this).val(),
+                ticket_type: $('option:selected', this).val(),
                 watcher_name: $('input', this).val()
             });
         });

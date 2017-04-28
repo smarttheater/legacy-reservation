@@ -1,7 +1,6 @@
 import { CommonUtil } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import { NextFunction, Request, Response } from 'express';
-import * as log4js from 'log4js';
 import * as moment from 'moment';
 import * as numeral from 'numeral';
 import * as _ from 'underscore';
@@ -30,11 +29,6 @@ export default class BaseController {
     public readonly next: NextFunction;
 
     /**
-     * ロガー
-     */
-    public logger: log4js.Logger;
-
-    /**
      * レイアウトファイル
      */
     public layout: string;
@@ -43,8 +37,6 @@ export default class BaseController {
         this.req = req;
         this.res = res;
         this.next = next;
-
-        this.logger = log4js.getLogger('system');
 
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;

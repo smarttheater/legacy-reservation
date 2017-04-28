@@ -300,10 +300,10 @@ export default class CustomerReserveController extends ReserveBaseController imp
                     await this.processConfirm(reservationModel);
 
                     if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
-                        await this.processFixReservations(reservationModel.paymentNo, {});
-                        this.logger.info('processFixReservations processed.');
+                        await this.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {});
+                        console.log('processFixReservations processed.');
                         await reservationModel.remove();
-                        this.res.redirect(`/customer/reserve/${reservationModel.paymentNo}/complete`);
+                        this.res.redirect(`/customer/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                     } else {
                         // httpStatusの型定義不足のためanyにキャスト
                         // todo 一時的対処なので解決する
@@ -332,10 +332,10 @@ export default class CustomerReserveController extends ReserveBaseController imp
      */
     public async waitingSettlement(): Promise<void> {
         try {
-            const paymentNo = this.req.params.paymentNo;
             const reservations = await Models.Reservation.find(
                 {
-                    payment_no: paymentNo,
+                    performance_day: this.req.params.performanceDay,
+                    payment_no: this.req.params.paymentNo,
                     purchaser_group: this.purchaserGroup,
                     status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
                     purchased_at: { // 購入確定から30分有効
@@ -366,10 +366,10 @@ export default class CustomerReserveController extends ReserveBaseController imp
      */
     public async complete(): Promise<void> {
         try {
-            const paymentNo = this.req.params.paymentNo;
             const reservations = await Models.Reservation.find(
                 {
-                    payment_no: paymentNo,
+                    performance_day: this.req.params.performanceDay,
+                    payment_no: this.req.params.paymentNo,
                     purchaser_group: this.purchaserGroup,
                     status: ReservationUtil.STATUS_RESERVED,
                     purchased_at: { // 購入確定から30分有効

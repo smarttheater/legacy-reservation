@@ -34,7 +34,7 @@ class GMOController extends BaseController_1.default {
     notify() {
         return __awaiter(this, void 0, void 0, function* () {
             const gmoNotificationModel = notification_1.default.parse(this.req.body);
-            this.logger.info('gmoNotificationModel is', gmoNotificationModel);
+            console.log('gmoNotificationModel is', gmoNotificationModel);
             if (gmoNotificationModel.OrderID === undefined) {
                 this.res.send(notificationResponse_1.default.RECV_RES_OK);
                 return;
@@ -61,7 +61,7 @@ class GMOController extends BaseController_1.default {
                     payment_term: gmoNotificationModel.PaymentTerm,
                     process_status: chevre_domain_1.GMONotificationUtil.PROCESS_STATUS_UNPROCESSED
                 });
-                this.logger.info('notification created.', notification);
+                console.log('notification created.', notification);
                 this.res.send(notificationResponse_1.default.RECV_RES_OK);
             }
             catch (error) {

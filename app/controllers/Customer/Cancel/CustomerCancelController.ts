@@ -2,7 +2,6 @@ import { Models } from '@motionpicture/chevre-domain';
 import { ReservationUtil } from '@motionpicture/chevre-domain';
 import * as conf from 'config';
 import * as fs from 'fs-extra';
-import * as log4js from 'log4js';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as numeral from 'numeral';
@@ -123,13 +122,11 @@ export default class CustomerCancelController extends BaseController {
             return;
         }
 
-        this.logger = log4js.getLogger('cancel');
-
         const paymentNo = this.req.body.paymentNo;
         const last4DigitsOfTel = this.req.body.last4DigitsOfTel;
 
         try {
-            this.logger.info('finding reservations...');
+            console.log('finding reservations...');
             const reservations = await Models.Reservation.find(
                 {
                     payment_no: paymentNo,
@@ -138,7 +135,7 @@ export default class CustomerCancelController extends BaseController {
                     status: ReservationUtil.STATUS_RESERVED
                 }
             ).exec();
-            this.logger.info('reservations found', reservations);
+            console.log('reservations found', reservations);
 
             if (reservations.length === 0) {
                 this.res.json({
@@ -159,7 +156,7 @@ export default class CustomerCancelController extends BaseController {
             }
 
             if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CREDIT) {
-                this.logger.info('removing reservations by customer... payment_no:', paymentNo);
+                console.log('removing reservations by customer... payment_no:', paymentNo);
                 await Models.Reservation.remove(
                     {
                         payment_no: paymentNo,
@@ -168,10 +165,10 @@ export default class CustomerCancelController extends BaseController {
                         status: ReservationUtil.STATUS_RESERVED
                     }
                 ).exec();
-                this.logger.info('reservations removed by customer', 'payment_no:', paymentNo);
+                console.log('reservations removed by customer', 'payment_no:', paymentNo);
 
                 // キャンセルリクエスト保管
-                this.logger.info('creating CustomerCancelRequest...');
+                console.log('creating CustomerCancelRequest...');
                 await Models.CustomerCancelRequest.create(
                     {
                         payment_no: paymentNo,
@@ -180,7 +177,7 @@ export default class CustomerCancelController extends BaseController {
                         tel: reservations[0].get('purchaser_tel')
                     }
                 );
-                this.logger.info('CustomerCancelRequest created');
+                console.log('CustomerCancelRequest created');
 
                 // メール送信
                 const to = reservations[0].get('purchaser_email');
@@ -198,16 +195,16 @@ export default class CustomerCancelController extends BaseController {
                         ReservationUtil: ReservationUtil
                     },
                     async (renderErr, html) => {
-                        this.logger.info('email rendered. html:', renderErr, html);
+                        console.log('email rendered. html:', renderErr, html);
 
                         // メール失敗してもキャンセル成功
                         if (renderErr instanceof Error) {
                             this.res.json({ success: true, message: null });
                         } else {
                             try {
-                                this.logger.info('sending an email...');
+                                console.log('sending an email...');
                                 await sendEmail(to, html);
-                                this.logger.info('an email sent');
+                                console.log('an email sent');
                             } catch (error) {
                                 // メールが送れなくてもキャンセルは成功
                             }
@@ -222,7 +219,7 @@ export default class CustomerCancelController extends BaseController {
 
                 // クレジットカードの場合、GMO取消しを行えば通知で空席になる(この方法は保留)
                 // 取引状態参照
-                // this.logger.info('SearchTrade processing...');
+                // console.log('SearchTrade processing...');
                 // request.post({
                 //     url: 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
                 //     form: {
@@ -231,7 +228,7 @@ export default class CustomerCancelController extends BaseController {
                 //         OrderID: paymentNo
                 //     }
                 // }, (error, response, body) => {
-                //     this.logger.info('SearchTrade processed', error, body);
+                //     console.log('SearchTrade processed', error, body);
                 //     if (error) {
                 //         this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
                 //         return;
@@ -251,10 +248,10 @@ export default class CustomerCancelController extends BaseController {
                 //         return;
                 //     }
 
-                //     this.logger.info('searchTradeResult is ', searchTradeResult);
+                //     console.log('searchTradeResult is ', searchTradeResult);
 
                 //     // 決済変更
-                //     this.logger.info('AlterTran processing...');
+                //     console.log('AlterTran processing...');
                 //     request.post({
                 //         url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
                 //         form: {
@@ -265,7 +262,7 @@ export default class CustomerCancelController extends BaseController {
                 //             JobCd: GMOUtil.STATUS_CREDIT_VOID
                 //         }
                 //     }, (error, response, body) => {
-                //         this.logger.info('AlterTran processed', error, body);
+                //         console.log('AlterTran processed', error, body);
                 //         if (error) {
                 //             this.res.json({ success: false, message: this.req.__('Message.UnexpectedError') });
                 //             return;
@@ -280,7 +277,7 @@ export default class CustomerCancelController extends BaseController {
                 //             return;
                 //         }
 
-                //         this.logger.info('alterTranResult is ', alterTranResult);
+                //         console.log('alterTranResult is ', alterTranResult);
                 //     });
                 // });
             } else if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) {

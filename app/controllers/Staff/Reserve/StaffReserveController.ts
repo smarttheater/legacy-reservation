@@ -236,10 +236,10 @@ export default class StaffReserveController extends ReserveBaseController implem
                     await this.processConfirm(reservationModel);
 
                     // 予約確定
-                    await this.processFixReservations(reservationModel.paymentNo, {});
+                    await this.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {});
                     await reservationModel.remove();
-                    this.logger.info('redirecting to complete...');
-                    this.res.redirect(`/staff/reserve/${reservationModel.paymentNo}/complete`);
+                    console.log('redirecting to complete...');
+                    this.res.redirect(`/staff/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                 } catch (error) {
                     await reservationModel.remove();
                     this.next(error);
@@ -261,10 +261,10 @@ export default class StaffReserveController extends ReserveBaseController implem
         }
 
         try {
-            const paymentNo = this.req.params.paymentNo;
             const reservations = await Models.Reservation.find(
                 {
-                    payment_no: paymentNo,
+                    performance_day: this.req.params.performanceDay,
+                    payment_no: this.req.params.paymentNo,
                     status: ReservationUtil.STATUS_RESERVED,
                     staff: this.req.staffUser.get('_id'),
                     purchased_at: { // 購入確定から30分有効
@@ -389,7 +389,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                     seat_grade_name_ja: seatInfo.grade.name.ja,
                     seat_grade_name_en: seatInfo.grade.name.en,
                     seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                    ticket_type_code: '',
+                    ticket_type: '',
                     ticket_type_name_ja: '',
                     ticket_type_name_en: '',
                     ticket_type_charge: 0,
@@ -426,7 +426,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                     seat_grade_name_ja: seatInfo.grade.name.ja,
                     seat_grade_name_en: seatInfo.grade.name.en,
                     seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                    ticket_type_code: '',
+                    ticket_type: '',
                     ticket_type_name_ja: '',
                     ticket_type_name_en: '',
                     ticket_type_charge: 0,

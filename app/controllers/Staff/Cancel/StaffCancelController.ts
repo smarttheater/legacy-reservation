@@ -1,6 +1,5 @@
 import { Models } from '@motionpicture/chevre-domain';
 import { ReservationUtil } from '@motionpicture/chevre-domain';
-import * as log4js from 'log4js';
 import BaseController from '../../BaseController';
 
 /**
@@ -18,8 +17,6 @@ export default class StaffCancelController extends BaseController {
         }
         const staffUser = this.req.staffUser;
 
-        this.logger = log4js.getLogger('cancel');
-
         try {
             // 予約IDリストをjson形式で受け取る
             const reservationIds = JSON.parse(this.req.body.reservationIds);
@@ -28,7 +25,7 @@ export default class StaffCancelController extends BaseController {
             }
 
             const promises = reservationIds.map(async (id) => {
-                this.logger.info(
+                console.log(
                     'updating to STATUS_KEPT_BY_CHEVRE by staff... staff:', staffUser.get('user_id'),
                     'signature:', staffUser.get('signature'),
                     'id:', id
@@ -38,7 +35,7 @@ export default class StaffCancelController extends BaseController {
                     { status: ReservationUtil.STATUS_KEPT_BY_CHEVRE },
                     { new: true }
                 ).exec();
-                this.logger.info(
+                console.log(
                     'updated to STATUS_KEPT_BY_CHEVRE by staff.', reservation,
                     'staff:', staffUser.get('user_id'),
                     'signature:', staffUser.get('signature'),

@@ -24,7 +24,7 @@ export default class GMOController extends BaseController {
      */
     public async notify() {
         const gmoNotificationModel = GMONotificationModel.parse(this.req.body);
-        this.logger.info('gmoNotificationModel is', gmoNotificationModel);
+        console.log('gmoNotificationModel is', gmoNotificationModel);
 
         if (gmoNotificationModel.OrderID === undefined) {
             this.res.send(GMONotificationResponseModel.RECV_RES_OK);
@@ -59,7 +59,7 @@ export default class GMOController extends BaseController {
                 }
             );
 
-            this.logger.info('notification created.', notification);
+            console.log('notification created.', notification);
             this.res.send(GMONotificationResponseModel.RECV_RES_OK);
         } catch (error) {
             this.res.send(GMONotificationResponseModel.RECV_RES_NG);

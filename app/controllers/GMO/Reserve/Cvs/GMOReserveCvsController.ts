@@ -22,14 +22,14 @@ export default class GMOReserveCvsController extends ReserveBaseController {
         // 内容の整合性チェック
         let reservations: mongoose.Document[] = [];
         try {
-            this.logger.info('finding reservations...payment_no:', gmoResultModel.OrderID);
+            console.log('finding reservations...payment_no:', gmoResultModel.OrderID);
             reservations = await Models.Reservation.find(
                 {
                     payment_no: gmoResultModel.OrderID
                 },
                 '_id purchaser_group pre_customer'
             ).exec();
-            this.logger.info('reservations found.', reservations.length);
+            console.log('reservations found.', reservations.length);
 
             if (reservations.length === 0) {
                 throw new Error(this.req.__('Message.UnexpectedError'));
@@ -47,7 +47,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                 process.env.GMO_SHOP_PASS
             );
             const checkString = crypto.createHash('md5').update(data2cipher, 'utf8').digest('hex');
-            this.logger.info('CheckString must be ', checkString);
+            console.log('CheckString must be ', checkString);
             if (checkString !== gmoResultModel.CheckString) {
                 throw new Error(this.req.__('Message.UnexpectedError'));
             }
@@ -59,7 +59,8 @@ export default class GMOReserveCvsController extends ReserveBaseController {
 
         try {
             // 決済待ちステータスへ変更
-            this.logger.info('updating reservations by paymentNo...', gmoResultModel.OrderID);
+            // todo 上映日を条件に含める必要あり
+            console.log('updating reservations by paymentNo...', gmoResultModel.OrderID);
             const raw = await Models.Reservation.update(
                 { payment_no: gmoResultModel.OrderID },
                 {
@@ -75,7 +76,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                 },
                 { multi: true }
             ).exec();
-            this.logger.info('reservations updated.', raw);
+            console.log('reservations updated.', raw);
         } catch (error) {
             this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
             return;
@@ -83,7 +84,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
 
         // 仮予約完了メールキュー追加(あれば更新日時を更新するだけ)
         try {
-            this.logger.info('creating reservationEmailCue...');
+            console.log('creating reservationEmailCue...');
             const cue = await Models.ReservationEmailCue.findOneAndUpdate(
                 {
                     payment_no: gmoResultModel.OrderID,
@@ -98,12 +99,12 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                     new: true
                 }
             ).exec();
-            this.logger.info('reservationEmailCue created.', cue);
+            console.log('reservationEmailCue created.', cue);
         } catch (error) {
             // 失敗してもスルー(ログと運用でなんとかする)
         }
 
-        this.logger.info('redirecting to waitingSettlement...');
+        console.log('redirecting to waitingSettlement...');
 
         // 購入者区分による振り分け
         const group = reservations[0].get('purchaser_group');

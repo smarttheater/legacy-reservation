@@ -105,7 +105,7 @@ export default (app: Application) => {
     app.all('/staff/reserve/:token/tickets', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).tickets(); });
     app.all('/staff/reserve/:token/profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).profile(); });
     app.all('/staff/reserve/:token/confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).confirm(); });
-    app.get('/staff/reserve/:paymentNo/complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).complete(); });
+    app.get('/staff/reserve/:performanceDay/:paymentNo/complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).complete(); });
     app.post('/staff/cancel/execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffCancelController(req, res, next)).execute(); });
     app.all('/staff/mypage/release', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffMyPageController(req, res, next)).release(); });
 };

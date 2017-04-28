@@ -260,10 +260,10 @@ export default class WindowReserveController extends ReserveBaseController imple
                     await this.processConfirm(reservationModel);
 
                     // 予約確定
-                    await this.processFixReservations(reservationModel.paymentNo, {});
+                    await this.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {});
                     await reservationModel.remove();
-                    this.logger.info('redirecting to complete...');
-                    this.res.redirect(`/window/reserve/${reservationModel.paymentNo}/complete`);
+                    console.log('redirecting to complete...');
+                    this.res.redirect(`/window/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                 } catch (error) {
                     await reservationModel.remove();
                     this.next(error);
@@ -288,10 +288,10 @@ export default class WindowReserveController extends ReserveBaseController imple
         }
 
         try {
-            const paymentNo = this.req.params.paymentNo;
             const reservations = await Models.Reservation.find(
                 {
-                    payment_no: paymentNo,
+                    performance_day: this.req.params.performanceDay,
+                    payment_no: this.req.params.paymentNo,
                     status: ReservationUtil.STATUS_RESERVED,
                     window: this.req.windowUser.get('_id'),
                     purchased_at: { // 購入確定から30分有効

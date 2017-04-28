@@ -104,7 +104,7 @@ exports.default = (app) => {
     app.all('/staff/reserve/:token/tickets', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffReserveController_1.default(req, res, next)).tickets(); }));
     app.all('/staff/reserve/:token/profile', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffReserveController_1.default(req, res, next)).profile(); }));
     app.all('/staff/reserve/:token/confirm', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffReserveController_1.default(req, res, next)).confirm(); }));
-    app.get('/staff/reserve/:paymentNo/complete', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffReserveController_1.default(req, res, next)).complete(); }));
+    app.get('/staff/reserve/:performanceDay/:paymentNo/complete', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffReserveController_1.default(req, res, next)).complete(); }));
     app.post('/staff/cancel/execute', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffCancelController_1.default(req, res, next)).execute(); }));
     app.all('/staff/mypage/release', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new StaffMyPageController_1.default(req, res, next)).release(); }));
 };

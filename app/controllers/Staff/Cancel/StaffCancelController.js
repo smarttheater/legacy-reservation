@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const chevre_domain_2 = require("@motionpicture/chevre-domain");
-const log4js = require("log4js");
 const BaseController_1 = require("../../BaseController");
 /**
  * 内部関係者座席予約キャンセルコントローラー
@@ -27,7 +26,6 @@ class StaffCancelController extends BaseController_1.default {
                 return;
             }
             const staffUser = this.req.staffUser;
-            this.logger = log4js.getLogger('cancel');
             try {
                 // 予約IDリストをjson形式で受け取る
                 const reservationIds = JSON.parse(this.req.body.reservationIds);
@@ -35,9 +33,9 @@ class StaffCancelController extends BaseController_1.default {
                     throw new Error(this.req.__('Message.UnexpectedError'));
                 }
                 const promises = reservationIds.map((id) => __awaiter(this, void 0, void 0, function* () {
-                    this.logger.info('updating to STATUS_KEPT_BY_CHEVRE by staff... staff:', staffUser.get('user_id'), 'signature:', staffUser.get('signature'), 'id:', id);
+                    console.log('updating to STATUS_KEPT_BY_CHEVRE by staff... staff:', staffUser.get('user_id'), 'signature:', staffUser.get('signature'), 'id:', id);
                     const reservation = yield chevre_domain_1.Models.Reservation.findOneAndUpdate({ _id: id }, { status: chevre_domain_2.ReservationUtil.STATUS_KEPT_BY_CHEVRE }, { new: true }).exec();
-                    this.logger.info('updated to STATUS_KEPT_BY_CHEVRE by staff.', reservation, 'staff:', staffUser.get('user_id'), 'signature:', staffUser.get('signature'), 'id:', id);
+                    console.log('updated to STATUS_KEPT_BY_CHEVRE by staff.', reservation, 'staff:', staffUser.get('user_id'), 'signature:', staffUser.get('signature'), 'id:', id);
                 }));
                 yield Promise.all(promises);
                 this.res.json({

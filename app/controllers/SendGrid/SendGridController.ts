@@ -13,7 +13,7 @@ export default class SendGridController extends BaseController {
      * SendGridイベントフック
      */
     public async notifyEvent() {
-        this.logger.info('SendGrid event notification is', this.req.body);
+        console.log('SendGrid event notification is', this.req.body);
 
         if (this.req.method === 'GET') {
             this.res.send('0');
@@ -21,9 +21,9 @@ export default class SendGridController extends BaseController {
         }
 
         try {
-            this.logger.info('creating sendgrid_event_notifications...');
+            console.log('creating sendgrid_event_notifications...');
             const notifications = await Models.SendGridEventNotification.create(this.req.body);
-            this.logger.info('sendgrid_event_notifications created.', notifications);
+            console.log('sendgrid_event_notifications created.', notifications);
 
             this.res.send('0');
         } catch (error) {

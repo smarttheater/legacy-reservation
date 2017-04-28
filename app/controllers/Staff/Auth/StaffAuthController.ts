@@ -41,7 +41,6 @@ export default class StaffAuthController extends BaseController {
             }
             try {
                 // ユーザー認証
-                this.logger.debug('finding staff... user_id:', this.req.body.userId);
                 const staff = await Models.Staff.findOne(
                     {
                         user_id: this.req.body.userId

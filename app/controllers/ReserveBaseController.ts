@@ -1,10 +1,11 @@
-import { ReservationEmailCueUtil, ReservationUtil, ScreenUtil, TicketTypeGroupUtil } from '@motionpicture/chevre-domain';
-import { CommonUtil, Models } from '@motionpicture/chevre-domain';
+import { CommonUtil, EmailQueueUtil, Models, ReservationUtil, ScreenUtil, TicketTypeGroupUtil } from '@motionpicture/chevre-domain';
 import * as GMO from '@motionpicture/gmo-service';
 import * as conf from 'config';
+import * as createDebug from 'debug';
 import * as express from 'express';
 import * as fs from 'fs-extra';
 import * as moment from 'moment';
+import * as numeral from 'numeral';
 import * as _ from 'underscore';
 
 import reservePaymentCreditForm from '../forms/reserve/reservePaymentCreditForm';
@@ -13,6 +14,7 @@ import reserveTicketForm from '../forms/reserve/reserveTicketForm';
 import ReservationModel from '../models/reserve/session';
 import BaseController from './BaseController';
 
+const debug = createDebug('chevre-frontend:controller:reserveBase');
 const DEFAULT_RADIX = 10;
 
 /**
@@ -58,14 +60,14 @@ export default class ReserveBaseController extends BaseController {
 
         choices.forEach((choice: any) => {
             const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => {
-                return (ticketTypeInArray.code === choice.ticket_type_code);
+                return (ticketTypeInArray._id === choice.ticket_type);
             });
             if (ticketType === undefined) {
                 throw new Error(this.req.__('Message.UnexpectedError'));
             }
 
             const reservation = reservationModel.getReservation(choice.seat_code);
-            reservation.ticket_type_code = ticketType.code;
+            reservation.ticket_type = ticketType._id;
             reservation.ticket_type_name_ja = ticketType.name.ja;
             reservation.ticket_type_name_en = ticketType.name.en;
             reservation.ticket_type_charge = ticketType.charge;
@@ -369,9 +371,9 @@ export default class ReserveBaseController extends BaseController {
             {
                 _id: perfomanceId
             },
-            'day open_time start_time end_time canceled film screen screen_name theater theater_name' // 必要な項目だけ指定すること
+            'day open_time start_time end_time canceled film screen screen_name theater theater_name ticket_type_group' // 必要な項目だけ指定すること
         )
-            .populate('film', 'name ticket_type_group is_mx4d copyright') // 必要な項目だけ指定すること
+            .populate('film', 'name is_mx4d copyright') // 必要な項目だけ指定すること
             .populate('screen', 'name sections') // 必要な項目だけ指定すること
             .populate('theater', 'name address') // 必要な項目だけ指定すること
             // tslint:disable-next-line:max-func-body-length
@@ -395,8 +397,8 @@ export default class ReserveBaseController extends BaseController {
 
         // 券種取得
         const ticketTypeGroup = await Models.TicketTypeGroup.findOne(
-            { _id: performance.get('film').get('ticket_type_group') }
-        ).exec();
+            { _id: performance.get('ticket_type_group') }
+        ).populate('ticket_types').exec();
 
         reservationModel.seatCodes = [];
 
@@ -411,8 +413,8 @@ export default class ReserveBaseController extends BaseController {
                 // メルマガ当選者の場合、一般だけ
                 reservationModel.ticketTypes = [];
 
-                for (const ticketType of ticketTypeGroup.get('types')) {
-                    if (ticketType.get('code') === TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS) {
+                for (const ticketType of ticketTypeGroup.get('ticket_types')) {
+                    if (ticketType.get('_id') === TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS) {
                         reservationModel.ticketTypes.push(ticketType);
                     }
                 }
@@ -420,11 +422,11 @@ export default class ReserveBaseController extends BaseController {
                 break;
 
             default:
-                // 一般、当日窓口、電話予約の場合
+                // 一般、当日窓口の場合
                 reservationModel.ticketTypes = [];
 
-                for (const ticketType of ticketTypeGroup.get('types')) {
-                    switch (ticketType.get('code')) {
+                for (const ticketType of ticketTypeGroup.get('ticket_types')) {
+                    switch (ticketType.get('_id')) {
                         // 学生当日は、当日だけ
                         case TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY:
                             if (moment().format('YYYYMMDD') === performance.get('day')) {
@@ -570,7 +572,7 @@ export default class ReserveBaseController extends BaseController {
                 seat_grade_name_ja: seatInfo.grade.name.ja,
                 seat_grade_name_en: seatInfo.grade.name.en,
                 seat_grade_additional_charge: seatInfo.grade.additional_charge,
-                ticket_type_code: '',
+                ticket_type: '',
                 ticket_type_name_ja: '',
                 ticket_type_name_en: '',
                 ticket_type_charge: 0,
@@ -601,9 +603,6 @@ export default class ReserveBaseController extends BaseController {
 
         // 購入日時確定
         reservationModel.purchasedAt = moment().valueOf();
-
-        // 予約プロセス固有のログファイルをセット
-        this.setProcessLogger(reservationModel.paymentNo);
 
         const commonUpdate: any = {
             // 決済移行のタイミングで仮予約有効期限を更新
@@ -671,13 +670,13 @@ export default class ReserveBaseController extends BaseController {
             update = Object.assign(update, commonUpdate);
             (<any>update).payment_seat_index = index;
 
-            this.logger.info('updating reservation all infos...update:', update);
+            console.log('updating reservation all infos...update:', update);
             const reservation = await Models.Reservation.findByIdAndUpdate(
                 update._id,
                 update,
                 { new: true }
             ).exec();
-            this.logger.info('reservation updated.', reservation);
+            console.log('reservation updated.', reservation);
 
             if (reservation === null) {
                 throw new Error(this.req.__('Message.UnexpectedError'));
@@ -693,53 +692,32 @@ export default class ReserveBaseController extends BaseController {
      * @param {string} paymentNo 購入番号
      * @param {Object} update 追加更新パラメータ
      */
-    protected async processFixReservations(paymentNo: string, update: any) {
+    protected async processFixReservations(performanceDay: string, paymentNo: string, update: any): Promise<void> {
         (<any>update).status = ReservationUtil.STATUS_RESERVED;
         (<any>update).updated_user = 'ReserveBaseController';
 
         // 予約完了ステータスへ変更
-        this.logger.info('updating reservations by paymentNo...', paymentNo, update);
+        console.log('updating reservations by paymentNo...', paymentNo, update);
         const raw = await Models.Reservation.update(
-            { payment_no: paymentNo },
+            {
+                performance_day: performanceDay,
+                payment_no: paymentNo
+            },
             update,
             { multi: true }
         ).exec();
-        this.logger.info('reservations updated.', raw);
+        console.log('reservations updated.', raw);
 
         try {
             // 完了メールキュー追加(あれば更新日時を更新するだけ)
-            this.logger.info('creating reservationEmailCue...');
-            const cue = await Models.ReservationEmailCue.findOneAndUpdate(
-                {
-                    payment_no: paymentNo,
-                    template: ReservationEmailCueUtil.TEMPLATE_COMPLETE
-                },
-                {
-                    $set: { updated_at: Date.now() },
-                    $setOnInsert: { status: ReservationEmailCueUtil.STATUS_UNSENT }
-                },
-                {
-                    upsert: true,
-                    new: true
-                }
-            ).exec();
-            this.logger.info('reservationEmailCue created.', cue);
+            const emailQueue = await createEmailQueue(this.res, performanceDay, paymentNo);
+            console.log('creating reservationEmailCue...');
+            await Models.EmailQueue.create(emailQueue);
+            console.log('reservationEmailCue created.');
         } catch (error) {
             console.error(error);
             // 失敗してもスルー(ログと運用でなんとかする)
         }
-    }
-
-    /**
-     * 予約プロセス用のロガーを設定する
-     * 1決済管理番号につき、1ログファイル
-     *
-     * @param {string} paymentNo 購入番号
-     */
-    // tslint:disable-next-line:prefer-function-over-method
-    protected setProcessLogger(__: string) {
-        // const logger = Util.getReservationLogger(paymentNo);
-        // this.logger = logger;
     }
 
     /**
@@ -776,4 +754,121 @@ interface IPurchaser {
     age: string;
     address: string;
     gender: string;
+}
+
+/**
+ * 完了メールキューインタフェース
+ *
+ * @interface IEmailQueue
+ */
+interface IEmailQueue {
+    // tslint:disable-next-line:no-reserved-keywords
+    from: { // 送信者
+        address: string;
+        name: string;
+    };
+    to: { // 送信先
+        address: string;
+        name?: string;
+    };
+    subject: string;
+    content: { // 本文
+        mimetype: string;
+        text: string;
+    };
+    status: string;
+}
+
+/**
+ * 予約完了メールを作成する
+ *
+ * @memberOf ReserveBaseController
+ */
+async function createEmailQueue(res: express.Response, performanceDay: string, paymentNo: string): Promise<IEmailQueue> {
+    const reservations = await Models.Reservation.find({
+        performance_day: performanceDay,
+        payment_no: paymentNo
+    }).exec();
+    debug('reservations for email found.', reservations.length);
+    if (reservations.length === 0) {
+        throw new Error(`reservations of payment_no ${paymentNo} not found`);
+    }
+
+    let to = '';
+    switch (reservations[0].get('purchaser_group')) {
+        case ReservationUtil.PURCHASER_GROUP_STAFF:
+            to = reservations[0].get('staff_email');
+            break;
+
+        default:
+            to = reservations[0].get('purchaser_email');
+            break;
+    }
+
+    debug('to is', to);
+    if (to.length === 0) {
+        throw new Error('email to unknown');
+    }
+
+    // const EmailTemplate = emailTemplates.EmailTemplate;
+    const dir = `${__dirname}/../views/email/reserve/complete`;
+    const titleJa = 'CHEVRE_EVENT_NAMEチケット 購入完了のお知らせ';
+    const titleEn = 'Notice of Completion of CHEVRE Ticket Purchase';
+    // switch (cue.get('template')) {
+    //     case ReservationEmailCueUtil.TEMPLATE_COMPLETE:
+    //         dir = `${process.cwd()}/app/views/email/reserve/complete`;
+    //         titleJa = 'CHEVRE_EVENT_NAMEチケット 購入完了のお知らせ';
+    //         titleEn = 'Notice of Completion of CHEVRE Ticket Purchase';
+
+    //         break;
+    //     case ReservationEmailCueUtil.TEMPLATE_TEMPORARY:
+    //         dir = `${process.cwd()}/app/views/email/reserve/waitingSettlement`;
+    //         titleJa = 'CHEVRE_EVENT_NAMEチケット 仮予約完了のお知らせ';
+    //         titleEn = 'Notice of Completion of Tentative Reservation for CHEVRE Tickets';
+
+    //         break;
+    //     default:
+    //         throw new Error(`${cue.get('template')} not implemented.`);
+    // }
+
+    // const template = new EmailTemplate(dir);
+    const locals = {
+        title_ja: titleJa,
+        title_en: titleEn,
+        reservations: reservations,
+        moment: moment,
+        numeral: numeral,
+        conf: conf,
+        GMOUtil: GMO.Util,
+        ReservationUtil: ReservationUtil
+    };
+
+    debug('rendering template...dir:', dir);
+    return new Promise<IEmailQueue>((resolve, reject) => {
+        res.render('email/reserve/complete', locals, async (renderErr, text) => {
+            debug('email template rendered.', renderErr);
+            if (renderErr instanceof Error) {
+                reject(new Error('failed in rendering an email.'));
+                return;
+            }
+
+            const emailQueue = {
+                from: { // 送信者
+                    address: conf.get<string>('email.from'),
+                    name: conf.get<string>('email.fromname')
+                },
+                to: { // 送信先
+                    address: to
+                    // name: 'testto'
+                },
+                subject: `${titleJa} ${titleEn}`,
+                content: { // 本文
+                    mimetype: 'text/plain',
+                    text: text
+                },
+                status: EmailQueueUtil.STATUS_UNSENT
+            };
+            resolve(emailQueue);
+        });
+    });
 }

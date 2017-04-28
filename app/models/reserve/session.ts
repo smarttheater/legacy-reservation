@@ -332,7 +332,7 @@ export default class ReserveSessionModel {
             seat_grade_name_ja: reservation.seat_grade_name_ja,
             seat_grade_name_en: reservation.seat_grade_name_en,
             seat_grade_additional_charge: reservation.seat_grade_additional_charge,
-            ticket_type_code: reservation.ticket_type_code,
+            ticket_type: reservation.ticket_type,
             ticket_type_name_ja: reservation.ticket_type_name_ja,
             ticket_type_name_en: reservation.ticket_type_name_en,
             ticket_type_charge: reservation.ticket_type_charge,
@@ -433,7 +433,7 @@ interface IPerformance {
 }
 
 interface ITicketType {
-    code: string;
+    _id: string;
     name: {
         ja: string,
         en: string
@@ -449,7 +449,7 @@ interface IReservation {
     seat_grade_name_en: string;
     seat_grade_additional_charge: number;
 
-    ticket_type_code: string;
+    ticket_type: string;
     ticket_type_name_ja: string;
     ticket_type_name_en: string;
     ticket_type_charge: number;

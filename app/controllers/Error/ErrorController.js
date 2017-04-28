@@ -26,7 +26,7 @@ class ErrorController extends BaseController_1.default {
      * エラーページ
      */
     index(err) {
-        this.logger.error(err.message, err.stack);
+        console.error(err.message, err.stack);
         if (this.req.xhr) {
             this.res.status(http_status_1.INTERNAL_SERVER_ERROR).json({
                 success: false,

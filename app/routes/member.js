@@ -44,5 +44,5 @@ exports.default = (app) => {
     app.all('/member/reserve/:token/tickets', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new MemberReserveController_1.default(req, res, next)).tickets(); }));
     app.all('/member/reserve/:token/profile', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new MemberReserveController_1.default(req, res, next)).profile(); }));
     app.all('/member/reserve/:token/confirm', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new MemberReserveController_1.default(req, res, next)).confirm(); }));
-    app.get('/member/reserve/:paymentNo/complete', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new MemberReserveController_1.default(req, res, next)).complete(); }));
+    app.get('/member/reserve/:performanceDay/:paymentNo/complete', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new MemberReserveController_1.default(req, res, next)).complete(); }));
 };

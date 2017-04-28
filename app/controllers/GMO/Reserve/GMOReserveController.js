@@ -71,8 +71,6 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 }
                 // 予約情報セッション削除
                 yield reservationModel.remove();
-                // 予約プロセス固有のログファイルをセット
-                this.setProcessLogger(reservationModel.paymentNo);
                 // GMOへ遷移画面
                 // 作品名から、特定文字以外を取り除く
                 const filmNameFullWidth = chevre_domain_1.CommonUtil.toFullWidth(reservationModel.performance.film.name.ja);
@@ -118,14 +116,14 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 this.res.locals.retURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, '/GMO/reserve/result', this.req.getLocale());
                 // 決済キャンセル時に遷移する加盟店URL
                 this.res.locals.cancelURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, `/GMO/reserve/${reservationModel.paymentNo}/cancel`, this.req.getLocale());
-                this.logger.info('redirecting to GMO payment...');
+                console.log('redirecting to GMO payment...');
                 // GMOへの送信データをログに残すために、一度htmlを取得してからrender
                 this.res.render('gmo/reserve/start', undefined, (renderErr, html) => {
                     if (renderErr instanceof Error) {
                         this.next(renderErr);
                         return;
                     }
-                    this.logger.info('rendering gmo/reserve/start...html:', html);
+                    console.log('rendering gmo/reserve/start...html:', html);
                     this.res.render('gmo/reserve/start');
                 });
             }
@@ -142,18 +140,16 @@ class GMOReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             const gmoResultModel = result_1.default.parse(this.req.body);
             const paymentNo = gmoResultModel.OrderID;
-            // 予約プロセス固有のログファイルをセット
-            this.setProcessLogger(paymentNo);
-            this.logger.info('gmoResultModel is', gmoResultModel);
+            console.log('gmoResultModel is', gmoResultModel);
             // エラー結果の場合
             if (!_.isEmpty(gmoResultModel.ErrCode)) {
                 // 空席に戻す
                 try {
-                    this.logger.info('finding reservations...payment_no:', paymentNo);
+                    console.log('finding reservations...payment_no:', paymentNo);
                     const reservations = yield chevre_domain_1.Models.Reservation.find({
                         payment_no: paymentNo
                     }, 'gmo_shop_pass_string purchased_at').exec();
-                    this.logger.info('reservations found.', reservations.length);
+                    console.log('reservations found.', reservations.length);
                     if (reservations.length === 0) {
                         this.next(new Error(this.req.__('Message.NotFound')));
                         return;
@@ -169,15 +165,13 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 // 決済方法によって振り分け
                 switch (gmoResultModel.PayType) {
                     case gmo_service_1.Util.PAY_TYPE_CREDIT:
-                        this.logger.info('starting GMOReserveCreditController.result...');
+                        console.log('starting GMOReserveCreditController.result...');
                         const creditController = new GMOReserveCreditController_1.default(this.req, this.res, this.next);
-                        creditController.logger = this.logger;
                         yield creditController.result(gmoResultModel);
                         break;
                     case gmo_service_1.Util.PAY_TYPE_CVS:
-                        this.logger.info('starting GMOReserveCsvController.result...');
+                        console.log('starting GMOReserveCsvController.result...');
                         const cvsController = new GMOReserveCvsController_1.default(this.req, this.res, this.next);
-                        cvsController.logger = this.logger;
                         yield cvsController.result(gmoResultModel);
                         break;
                     default:
@@ -197,15 +191,14 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 this.next(new Error(this.req.__('Message.Invalid')));
                 return;
             }
-            this.setProcessLogger(paymentNo);
-            this.logger.info('start process GMOReserveController.cancel.');
-            this.logger.info('finding reservations...');
+            console.log('start process GMOReserveController.cancel.');
+            console.log('finding reservations...');
             try {
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
                     payment_no: paymentNo,
                     status: chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
                 }, 'purchaser_group').exec();
-                this.logger.info('reservations found.', reservations);
+                console.log('reservations found.', reservations);
                 if (reservations.length === 0) {
                     this.next(new Error(this.req.__('Message.NotFound')));
                     return;

@@ -18,16 +18,11 @@ import basicAuth from './middlewares/basicAuth';
 import benchmarks from './middlewares/benchmarks';
 // tslint:disable-next-line:no-require-imports
 import expressValidator = require('express-validator');
-import logger from './middlewares/logger';
 import session from './middlewares/session';
 
 const app = express();
 
 app.use(partials()); // レイアウト&パーシャルサポート
-
-if (process.env.NODE_ENV === 'development') {
-    app.use(logger); // ロガー
-}
 
 app.use(benchmarks); // ベンチマーク的な
 app.use(session); // セッション

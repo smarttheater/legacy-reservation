@@ -51,7 +51,6 @@ class StaffAuthController extends BaseController_1.default {
                 }
                 try {
                     // ユーザー認証
-                    this.logger.debug('finding staff... user_id:', this.req.body.userId);
                     const staff = yield chevre_domain_1.Models.Staff.findOne({
                         user_id: this.req.body.userId
                     }).exec();

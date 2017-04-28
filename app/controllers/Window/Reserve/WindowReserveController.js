@@ -267,10 +267,10 @@ class WindowReserveController extends ReserveBaseController_1.default {
                     try {
                         yield this.processConfirm(reservationModel);
                         // 予約確定
-                        yield this.processFixReservations(reservationModel.paymentNo, {});
+                        yield this.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {});
                         yield reservationModel.remove();
-                        this.logger.info('redirecting to complete...');
-                        this.res.redirect(`/window/reserve/${reservationModel.paymentNo}/complete`);
+                        console.log('redirecting to complete...');
+                        this.res.redirect(`/window/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                     }
                     catch (error) {
                         yield reservationModel.remove();
@@ -298,9 +298,9 @@ class WindowReserveController extends ReserveBaseController_1.default {
                 return;
             }
             try {
-                const paymentNo = this.req.params.paymentNo;
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
-                    payment_no: paymentNo,
+                    performance_day: this.req.params.performanceDay,
+                    payment_no: this.req.params.paymentNo,
                     status: chevre_domain_1.ReservationUtil.STATUS_RESERVED,
                     window: this.req.windowUser.get('_id'),
                     purchased_at: {
