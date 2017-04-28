@@ -810,8 +810,6 @@ async function createEmailQueue(res: express.Response, performanceDay: string, p
         throw new Error('email to unknown');
     }
 
-    // const EmailTemplate = emailTemplates.EmailTemplate;
-    const dir = `${__dirname}/../views/email/reserve/complete`;
     const titleJa = 'CHEVRE_EVENT_NAMEチケット 購入完了のお知らせ';
     const titleEn = 'Notice of Completion of CHEVRE Ticket Purchase';
     // switch (cue.get('template')) {
@@ -831,44 +829,45 @@ async function createEmailQueue(res: express.Response, performanceDay: string, p
     //         throw new Error(`${cue.get('template')} not implemented.`);
     // }
 
-    // const template = new EmailTemplate(dir);
-    const locals = {
-        title_ja: titleJa,
-        title_en: titleEn,
-        reservations: reservations,
-        moment: moment,
-        numeral: numeral,
-        conf: conf,
-        GMOUtil: GMO.Util,
-        ReservationUtil: ReservationUtil
-    };
-
-    debug('rendering template...dir:', dir);
+    debug('rendering template...');
     return new Promise<IEmailQueue>((resolve, reject) => {
-        res.render('email/reserve/complete', locals, async (renderErr, text) => {
-            debug('email template rendered.', renderErr);
-            if (renderErr instanceof Error) {
-                reject(new Error('failed in rendering an email.'));
-                return;
-            }
+        res.render(
+            'email/reserve/complete',
+            {
+                layout: false,
+                title_ja: titleJa,
+                title_en: titleEn,
+                reservations: reservations,
+                moment: moment,
+                numeral: numeral,
+                conf: conf,
+                GMOUtil: GMO.Util,
+                ReservationUtil: ReservationUtil
+            },
+            async (renderErr, text) => {
+                debug('email template rendered.', renderErr);
+                if (renderErr instanceof Error) {
+                    reject(new Error('failed in rendering an email.'));
+                    return;
+                }
 
-            const emailQueue = {
-                from: { // 送信者
-                    address: conf.get<string>('email.from'),
-                    name: conf.get<string>('email.fromname')
-                },
-                to: { // 送信先
-                    address: to
-                    // name: 'testto'
-                },
-                subject: `${titleJa} ${titleEn}`,
-                content: { // 本文
-                    mimetype: 'text/plain',
-                    text: text
-                },
-                status: EmailQueueUtil.STATUS_UNSENT
-            };
-            resolve(emailQueue);
-        });
+                const emailQueue = {
+                    from: { // 送信者
+                        address: conf.get<string>('email.from'),
+                        name: conf.get<string>('email.fromname')
+                    },
+                    to: { // 送信先
+                        address: to
+                        // name: 'testto'
+                    },
+                    subject: `${titleJa} ${titleEn}`,
+                    content: { // 本文
+                        mimetype: 'text/plain',
+                        text: text
+                    },
+                    status: EmailQueueUtil.STATUS_UNSENT
+                };
+                resolve(emailQueue);
+            });
     });
 }

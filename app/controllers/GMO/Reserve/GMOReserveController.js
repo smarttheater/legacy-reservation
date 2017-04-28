@@ -17,7 +17,6 @@ const util = require("util");
 const result_1 = require("../../../models/gmo/result");
 const session_1 = require("../../../models/reserve/session");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
-const GMOReserveCreditController_1 = require("./Credit/GMOReserveCreditController");
 const GMOReserveCvsController_1 = require("./Cvs/GMOReserveCvsController");
 /**
  * マルチバイト文字列対応String.substr
@@ -148,7 +147,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
                     console.log('finding reservations...payment_no:', paymentNo);
                     const reservations = yield chevre_domain_1.Models.Reservation.find({
                         payment_no: paymentNo
-                    }, 'gmo_shop_pass_string purchased_at').exec();
+                    }, 'purchased_at').exec();
                     console.log('reservations found.', reservations.length);
                     if (reservations.length === 0) {
                         this.next(new Error(this.req.__('Message.NotFound')));
@@ -164,11 +163,6 @@ class GMOReserveController extends ReserveBaseController_1.default {
             else {
                 // 決済方法によって振り分け
                 switch (gmoResultModel.PayType) {
-                    case gmo_service_1.Util.PAY_TYPE_CREDIT:
-                        console.log('starting GMOReserveCreditController.result...');
-                        const creditController = new GMOReserveCreditController_1.default(this.req, this.res, this.next);
-                        yield creditController.result(gmoResultModel);
-                        break;
                     case gmo_service_1.Util.PAY_TYPE_CVS:
                         console.log('starting GMOReserveCsvController.result...');
                         const cvsController = new GMOReserveCvsController_1.default(this.req, this.res, this.next);

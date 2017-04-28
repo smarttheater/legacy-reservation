@@ -8,7 +8,6 @@ import * as util from 'util';
 import GMOResultModel from '../../../models/gmo/result';
 import ReservationModel from '../../../models/reserve/session';
 import ReserveBaseController from '../../ReserveBaseController';
-import GMOReserveCreditController from './Credit/GMOReserveCreditController';
 import GMOReserveCvsController from './Cvs/GMOReserveCvsController';
 
 /**
@@ -175,7 +174,7 @@ export default class GMOReserveController extends ReserveBaseController {
                     {
                         payment_no: paymentNo
                     },
-                    'gmo_shop_pass_string purchased_at'
+                    'purchased_at'
                 ).exec();
                 console.log('reservations found.', reservations.length);
 
@@ -192,12 +191,6 @@ export default class GMOReserveController extends ReserveBaseController {
         } else {
             // 決済方法によって振り分け
             switch (gmoResultModel.PayType) {
-                case GMOUtil.PAY_TYPE_CREDIT:
-                    console.log('starting GMOReserveCreditController.result...');
-                    const creditController = new GMOReserveCreditController(this.req, this.res, this.next);
-                    await creditController.result(gmoResultModel);
-                    break;
-
                 case GMOUtil.PAY_TYPE_CVS:
                     console.log('starting GMOReserveCsvController.result...');
                     const cvsController = new GMOReserveCvsController(this.req, this.res, this.next);

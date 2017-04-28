@@ -378,14 +378,6 @@ export default class ReserveSessionModel {
 
             purchased_at: this.purchasedAt,
 
-            gmo_shop_pass_string: (this.getTotalCharge() > 0) ? GMOUtil.createShopPassString({
-                shopId: process.env.GMO_SHOP_ID,
-                shopPass: process.env.GMO_SHOP_PASS,
-                orderId: this.paymentNo, // todo オーダーID仕様変更につき修正すべし
-                amount: this.getTotalCharge(),
-                dateTime: moment(this.purchasedAt).format('YYYYMMDDHHmmss')
-            }) : '',
-
             updated_user: 'ReserveSessionModel'
         };
     }

@@ -673,8 +673,6 @@ function createEmailQueue(res, performanceDay, paymentNo) {
         if (to.length === 0) {
             throw new Error('email to unknown');
         }
-        // const EmailTemplate = emailTemplates.EmailTemplate;
-        const dir = `${__dirname}/../views/email/reserve/complete`;
         const titleJa = 'CHEVRE_EVENT_NAMEチケット 購入完了のお知らせ';
         const titleEn = 'Notice of Completion of CHEVRE Ticket Purchase';
         // switch (cue.get('template')) {
@@ -691,20 +689,19 @@ function createEmailQueue(res, performanceDay, paymentNo) {
         //     default:
         //         throw new Error(`${cue.get('template')} not implemented.`);
         // }
-        // const template = new EmailTemplate(dir);
-        const locals = {
-            title_ja: titleJa,
-            title_en: titleEn,
-            reservations: reservations,
-            moment: moment,
-            numeral: numeral,
-            conf: conf,
-            GMOUtil: GMO.Util,
-            ReservationUtil: chevre_domain_1.ReservationUtil
-        };
-        debug('rendering template...dir:', dir);
+        debug('rendering template...');
         return new Promise((resolve, reject) => {
-            res.render('email/reserve/complete', locals, (renderErr, text) => __awaiter(this, void 0, void 0, function* () {
+            res.render('email/reserve/complete', {
+                layout: false,
+                title_ja: titleJa,
+                title_en: titleEn,
+                reservations: reservations,
+                moment: moment,
+                numeral: numeral,
+                conf: conf,
+                GMOUtil: GMO.Util,
+                ReservationUtil: chevre_domain_1.ReservationUtil
+            }, (renderErr, text) => __awaiter(this, void 0, void 0, function* () {
                 debug('email template rendered.', renderErr);
                 if (renderErr instanceof Error) {
                     reject(new Error('failed in rendering an email.'));
