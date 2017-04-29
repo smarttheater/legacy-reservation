@@ -111,7 +111,7 @@ export default class GMOReserveController extends ReserveBaseController {
             );
 
             this.res.locals.shopId = process.env.GMO_SHOP_ID;
-            this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(購入番号を使用)
+            this.res.locals.orderID = ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, '00');
             this.res.locals.amount = reservationModel.getTotalCharge().toString();
             this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
             this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';

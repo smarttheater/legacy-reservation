@@ -1,10 +1,18 @@
-import { Models, ReservationEmailCueUtil, ReservationUtil } from '@motionpicture/chevre-domain';
+import { EmailQueueUtil, Models, ReservationUtil } from '@motionpicture/chevre-domain';
+import * as GMO from '@motionpicture/gmo-service';
+import * as conf from 'config';
 import * as crypto from 'crypto';
+import * as createDebug from 'debug';
+import * as express from 'express';
+import * as moment from 'moment';
 import * as mongoose from 'mongoose';
+import * as numeral from 'numeral';
 import * as util from 'util';
 
 import GMOResultModel from '../../../../models/gmo/result';
 import ReserveBaseController from '../../../ReserveBaseController';
+
+const debug = createDebug('chevre-frontend:controller:gmo:reserve:cvs');
 
 /**
  * GMOコンビニ決済コントローラー
@@ -19,17 +27,21 @@ export default class GMOReserveCvsController extends ReserveBaseController {
      */
     // tslint:disable-next-line:max-func-body-length
     public async result(gmoResultModel: GMOResultModel) {
+        // GMOのオーダーIDから上映日と購入番号を取り出す
+        const parsedOrderId = ReservationUtil.parseGMOOrderId(gmoResultModel.OrderID);
+
         // 内容の整合性チェック
         let reservations: mongoose.Document[] = [];
         try {
-            console.log('finding reservations...payment_no:', gmoResultModel.OrderID);
+            debug('finding reservations...payment_no:', parsedOrderId.paymentNo);
             reservations = await Models.Reservation.find(
                 {
-                    payment_no: gmoResultModel.OrderID
+                    performance_day: parsedOrderId.performanceDay,
+                    payment_no: parsedOrderId.paymentNo
                 },
-                '_id purchaser_group pre_customer'
+                '_id purchaser_group'
             ).exec();
-            console.log('reservations found.', reservations.length);
+            debug('reservations found.', reservations.length);
 
             if (reservations.length === 0) {
                 throw new Error(this.req.__('Message.UnexpectedError'));
@@ -47,7 +59,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                 process.env.GMO_SHOP_PASS
             );
             const checkString = crypto.createHash('md5').update(data2cipher, 'utf8').digest('hex');
-            console.log('CheckString must be ', checkString);
+            debug('CheckString must be ', checkString);
             if (checkString !== gmoResultModel.CheckString) {
                 throw new Error(this.req.__('Message.UnexpectedError'));
             }
@@ -59,12 +71,15 @@ export default class GMOReserveCvsController extends ReserveBaseController {
 
         try {
             // 決済待ちステータスへ変更
-            // todo 上映日を条件に含める必要あり
-            console.log('updating reservations by paymentNo...', gmoResultModel.OrderID);
+            debug('updating reservations by paymentNo...', gmoResultModel.OrderID);
             const raw = await Models.Reservation.update(
-                { payment_no: gmoResultModel.OrderID },
+                {
+                    performance_day: parsedOrderId.performanceDay,
+                    payment_no: parsedOrderId.paymentNo
+                },
                 {
                     gmo_shop_id: gmoResultModel.ShopID,
+                    gmo_order_id: gmoResultModel.OrderID,
                     gmo_amount: gmoResultModel.Amount,
                     gmo_tax: gmoResultModel.Tax,
                     gmo_cvs_code: gmoResultModel.CvsCode,
@@ -76,7 +91,7 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                 },
                 { multi: true }
             ).exec();
-            console.log('reservations updated.', raw);
+            debug('reservations updated.', raw);
         } catch (error) {
             this.next(new Error(this.req.__('Message.ReservationNotCompleted')));
             return;
@@ -84,27 +99,14 @@ export default class GMOReserveCvsController extends ReserveBaseController {
 
         // 仮予約完了メールキュー追加(あれば更新日時を更新するだけ)
         try {
-            console.log('creating reservationEmailCue...');
-            const cue = await Models.ReservationEmailCue.findOneAndUpdate(
-                {
-                    payment_no: gmoResultModel.OrderID,
-                    template: ReservationEmailCueUtil.TEMPLATE_TEMPORARY
-                },
-                {
-                    $set: { updated_at: Date.now() },
-                    $setOnInsert: { status: ReservationEmailCueUtil.STATUS_UNSENT }
-                },
-                {
-                    upsert: true,
-                    new: true
-                }
-            ).exec();
-            console.log('reservationEmailCue created.', cue);
+            const emailQueue = createEmailQueue(this.res, reservations[0].get('performance_day'), parsedOrderId.paymentNo);
+            await Models.EmailQueue.create(emailQueue);
         } catch (error) {
+            console.error(error);
             // 失敗してもスルー(ログと運用でなんとかする)
         }
 
-        console.log('redirecting to waitingSettlement...');
+        debug('redirecting to waitingSettlement...');
 
         // 購入者区分による振り分け
         const group = reservations[0].get('purchaser_group');
@@ -114,13 +116,108 @@ export default class GMOReserveCvsController extends ReserveBaseController {
                 break;
 
             default:
-                if (reservations[0].get('pre_customer') !== undefined && reservations[0].get('pre_customer') !== null) {
-                    this.res.redirect(`/pre/reserve/${gmoResultModel.OrderID}/waitingSettlement`);
-                } else {
-                    this.res.redirect(`/customer/reserve/${gmoResultModel.OrderID}/waitingSettlement`);
-                }
-
+                this.res.redirect(`/customer/reserve/${gmoResultModel.OrderID}/waitingSettlement`);
                 break;
         }
     }
+}
+
+/**
+ * 完了メールキューインタフェース
+ *
+ * @interface IEmailQueue
+ */
+interface IEmailQueue {
+    // tslint:disable-next-line:no-reserved-keywords
+    from: { // 送信者
+        address: string;
+        name: string;
+    };
+    to: { // 送信先
+        address: string;
+        name?: string;
+    };
+    subject: string;
+    content: { // 本文
+        mimetype: string;
+        text: string;
+    };
+    status: string;
+}
+
+/**
+ * 仮予約完了メールを作成する
+ *
+ * @memberOf ReserveBaseController
+ */
+async function createEmailQueue(res: express.Response, performanceDay: string, paymentNo: string): Promise<IEmailQueue> {
+    const reservations = await Models.Reservation.find({
+        performance_day: performanceDay,
+        payment_no: paymentNo
+    }).exec();
+    debug('reservations for email found.', reservations.length);
+    if (reservations.length === 0) {
+        throw new Error(`reservations of payment_no ${paymentNo} not found`);
+    }
+
+    let to = '';
+    switch (reservations[0].get('purchaser_group')) {
+        case ReservationUtil.PURCHASER_GROUP_STAFF:
+            to = reservations[0].get('staff_email');
+            break;
+
+        default:
+            to = reservations[0].get('purchaser_email');
+            break;
+    }
+
+    debug('to is', to);
+    if (to.length === 0) {
+        throw new Error('email to unknown');
+    }
+
+    const titleJa = 'CHEVRE_EVENT_NAMEチケット 仮予約完了のお知らせ';
+    const titleEn = 'Notice of Completion of Tentative Reservation for CHEVRE Tickets';
+
+    debug('rendering template...');
+    return new Promise<IEmailQueue>((resolve, reject) => {
+        res.render(
+            'email/reserve/waitingSettlement',
+            {
+                layout: false,
+                title_ja: titleJa,
+                title_en: titleEn,
+                reservations: reservations,
+                moment: moment,
+                numeral: numeral,
+                conf: conf,
+                GMOUtil: GMO.Util,
+                ReservationUtil: ReservationUtil
+            },
+            async (renderErr, text) => {
+                debug('email template rendered.', renderErr);
+                if (renderErr instanceof Error) {
+                    reject(new Error('failed in rendering an email.'));
+                    return;
+                }
+
+                const emailQueue = {
+                    from: { // 送信者
+                        address: conf.get<string>('email.from'),
+                        name: conf.get<string>('email.fromname')
+                    },
+                    to: { // 送信先
+                        address: to
+                        // name: 'testto'
+                    },
+                    subject: `${titleJa} ${titleEn}`,
+                    content: { // 本文
+                        mimetype: 'text/plain',
+                        text: text
+                    },
+                    status: EmailQueueUtil.STATUS_UNSENT
+                };
+                resolve(emailQueue);
+            });
+    });
 }

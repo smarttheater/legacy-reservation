@@ -159,12 +159,11 @@ class ReserveBaseController extends BaseController_1.default {
             }
             // GMO取引作成
             reservationModel.transactionGMO.count += 1;
-            const day = moment().format('YYYYMMDD');
             const paymentNo = reservationModel.paymentNo;
             const digit = -2;
             const count = `00${reservationModel.transactionGMO.count}`.slice(digit);
             // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
-            const orderId = `${day}${reservationModel.performance.day}${paymentNo}${count}`;
+            const orderId = chevre_domain_1.ReservationUtil.createGMOOrderId(reservationModel.performance.day, paymentNo, count);
             const amount = reservationModel.getTotalCharge();
             const entryTranIn = {
                 shopId: process.env.GMO_SHOP_ID,
@@ -467,11 +466,9 @@ class ReserveBaseController extends BaseController_1.default {
                     status: chevre_domain_1.ReservationUtil.STATUS_TEMPORARY,
                     expired_at: reservationModel.expiredAt,
                     staff: undefined,
-                    sponsor: undefined,
                     member: undefined,
                     tel: undefined,
-                    window: undefined,
-                    pre_customer: undefined
+                    window: undefined
                 };
                 switch (this.purchaserGroup) {
                     case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
@@ -583,9 +580,9 @@ class ReserveBaseController extends BaseController_1.default {
                 let update = reservationModel.seatCode2reservationDocument(seatCode);
                 update = Object.assign(update, commonUpdate);
                 update.payment_seat_index = index;
-                console.log('updating reservation all infos...update:', update);
+                debug('updating reservation all infos...update:', update);
                 const reservation = yield chevre_domain_1.Models.Reservation.findByIdAndUpdate(update._id, update, { new: true }).exec();
-                console.log('reservation updated.', reservation);
+                debug('reservation updated.', reservation);
                 if (reservation === null) {
                     throw new Error(this.req.__('Message.UnexpectedError'));
                 }
@@ -604,18 +601,18 @@ class ReserveBaseController extends BaseController_1.default {
             update.status = chevre_domain_1.ReservationUtil.STATUS_RESERVED;
             update.updated_user = 'ReserveBaseController';
             // 予約完了ステータスへ変更
-            console.log('updating reservations by paymentNo...', paymentNo, update);
+            debug('updating reservations by paymentNo...', paymentNo, update);
             const raw = yield chevre_domain_1.Models.Reservation.update({
                 performance_day: performanceDay,
                 payment_no: paymentNo
             }, update, { multi: true }).exec();
-            console.log('reservations updated.', raw);
+            debug('reservations updated.', raw);
             try {
                 // 完了メールキュー追加(あれば更新日時を更新するだけ)
                 const emailQueue = yield createEmailQueue(this.res, performanceDay, paymentNo);
-                console.log('creating reservationEmailCue...');
+                debug('creating reservationEmailCue...');
                 yield chevre_domain_1.Models.EmailQueue.create(emailQueue);
-                console.log('reservationEmailCue created.');
+                debug('reservationEmailCue created.');
             }
             catch (error) {
                 console.error(error);

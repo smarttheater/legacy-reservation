@@ -4,6 +4,7 @@ import { FilmUtil } from '@motionpicture/chevre-domain';
 import { ReservationUtil } from '@motionpicture/chevre-domain';
 import { Util as GMOUtil } from '@motionpicture/gmo-service';
 import * as conf from 'config';
+import * as createDebug from 'debug';
 import * as httpStatus from 'http-status';
 import * as moment from 'moment';
 import * as _ from 'underscore';
@@ -13,6 +14,8 @@ import reserveSeatForm from '../../../forms/reserve/reserveSeatForm';
 import ReservationModel from '../../../models/reserve/session';
 import ReserveBaseController from '../../ReserveBaseController';
 import ReserveControllerInterface from '../../ReserveControllerInterface';
+
+const debug = createDebug('chevre-frontend:controller:customerReserve');
 
 /**
  * 一般座席予約コントローラー
@@ -301,7 +304,7 @@ export default class CustomerReserveController extends ReserveBaseController imp
 
                     if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
                         await this.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {});
-                        console.log('processFixReservations processed.');
+                        debug('processFixReservations processed.');
                         await reservationModel.remove();
                         this.res.redirect(`/customer/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                     } else {

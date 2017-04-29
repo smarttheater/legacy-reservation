@@ -306,11 +306,6 @@ function validate(reservations) {
                 resolve();
                 return;
             }
-            // 先行販売(19日)許可
-            if (reservations[0].get('pre_customer') !== undefined && reservations[0].get('pre_customer') !== null) {
-                resolve();
-                return;
-            }
             reject(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable'));
         });
     });

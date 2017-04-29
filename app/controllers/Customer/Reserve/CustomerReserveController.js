@@ -14,6 +14,7 @@ const chevre_domain_3 = require("@motionpicture/chevre-domain");
 const chevre_domain_4 = require("@motionpicture/chevre-domain");
 const gmo_service_1 = require("@motionpicture/gmo-service");
 const conf = require("config");
+const createDebug = require("debug");
 const httpStatus = require("http-status");
 const moment = require("moment");
 const _ = require("underscore");
@@ -21,6 +22,7 @@ const reservePerformanceForm_1 = require("../../../forms/reserve/reservePerforma
 const reserveSeatForm_1 = require("../../../forms/reserve/reserveSeatForm");
 const session_1 = require("../../../models/reserve/session");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
+const debug = createDebug('chevre-frontend:controller:customerReserve');
 /**
  * 一般座席予約コントローラー
  *
@@ -310,7 +312,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                         yield this.processConfirm(reservationModel);
                         if (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CREDIT) {
                             yield this.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {});
-                            console.log('processFixReservations processed.');
+                            debug('processFixReservations processed.');
                             yield reservationModel.remove();
                             this.res.redirect(`/customer/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                         }

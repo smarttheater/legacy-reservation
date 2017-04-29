@@ -100,7 +100,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 reservationModel.performance.start_time.substr(2) // tslint:disable-line:no-magic-numbers
                 ));
                 this.res.locals.shopId = process.env.GMO_SHOP_ID;
-                this.res.locals.orderID = reservationModel.paymentNo; // 27桁まで(購入番号を使用)
+                this.res.locals.orderID = chevre_domain_1.ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, '00');
                 this.res.locals.amount = reservationModel.getTotalCharge().toString();
                 this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
                 this.res.locals.useCredit = (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CREDIT) ? '1' : '0';
