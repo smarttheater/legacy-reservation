@@ -8,32 +8,20 @@ Dear <%= reservations[0].get('purchaser_name_en') %>,
 ご入場の際に本メールのQRコードが必要となりますので、ご鑑賞当日は必ずお持ちください。
 QRコードは画像保存もしくは印刷していただくと便利です。
 尚、お取り扱いには十分ご注意ください。
-<% if (reservations[0].get('purchaser_group') === ReservationUtil.PURCHASER_GROUP_SPONSOR) { %>
-キャンセルを行う場合は
-<%= process.env.FRONTEND_ENDPOINT %>/sponsor/cancel
-よりキャンセルを行ってください。
-<% } %>
 ＊本メールはご鑑賞後まで、大切に保管してください。
 
 Thank you very much for your purchase.
 Please be sure to bring the QR code attached to the email with you when attending your screening as it is required for admission. 
 It is recommended to save the QR code as image data or to print it for your convenience. Please handle carefully.
-<% if (reservations[0].get('purchaser_group') === ReservationUtil.PURCHASER_GROUP_SPONSOR) { %>
-If you want to cancel the reservation, please go to the following page.
-<%= process.env.FRONTEND_ENDPOINT %>/sponsor/cancel
-<% } %>
 *Please keep this email until your screening is finished.
-
 
 
 作品名 (Title) :
 <%- reservations[0].get('film_name_ja') %>
 <%- reservations[0].get('film_name_en') %>
 
-
 購入番号 (Transaction number) :
 <%- reservations[0].get('payment_no') %>
-
 
 劇場 (Location) :
 <%- reservations[0].get('location_str_ja') %>
@@ -41,47 +29,29 @@ If you want to cancel the reservation, please go to the following page.
 <%- reservations[0].get('theater_name_en') %> <%- reservations[0].get('screen_name_en') %>
 <%- reservations[0].get('theater_address_en') %>
 
-
 時間 (Date and time) :
 <%- reservations[0].get('performance_start_str_ja') %>
 <%- reservations[0].get('performance_start_str_en') %>
 
-
 券種 (Type of ticket) :
-
-<% reservations.forEach((reservation, index) => { %>
-<%- reservation.get('ticket_type_detail_str_ja').replace(/\\/g, '&yen;') %>
-
-<% }) %>
-
-<% reservations.forEach((reservation, index) => { %>
-<%- reservation.get('ticket_type_detail_str_en').replace(/\\/g, '&yen;') %>
-
-<% }) %>
+<%= reservations.map((reservation) => reservation.get('ticket_type_detail_str_ja').replace(/\\/g, '￥')).join('\n') %>
+<%= reservations.map((reservation) => reservation.get('ticket_type_detail_str_en').replace(/\\/g, '￥')).join('\n') %>
 
 <% if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) { %>
-<!-- 「コンビニ決済完了」の場合 -->
 コンビニ決済手数料 (Handling charge) :
-&yen;<%- ReservationUtil.CHARGE_CVS %> x <%- reservations.length %>
-<!-- /「コンビニ決済完了」の場合 -->
+￥<%- ReservationUtil.CHARGE_CVS %> x <%- reservations.length %>
 <% } %>
 
 購入枚数 (Number of tickets purchased) :
 <%- reservations.length %>枚
 <%- reservations.length %> ticket(s)
 
-<%
-let totalCharge = 0;
-reservations.forEach((reservation) => {
-totalCharge += reservation.get('charge');
-});
-%>
+<% const totalCharge = reservations.reduce((a, b) => a  + b.get('charge'), 0); %>
 <% if (totalCharge > 0) { %>
 合計金額 (Total) :
-&yen;<%- numeral(totalCharge).format('0,0') %>(税込)
+￥<%- numeral(totalCharge).format('0,0') %>(税込)
 <%- numeral(totalCharge).format('0,0') %> yen (including tax)
 <% } %>
-
 
 
 ※学生（小学生は除く）の方は、劇場へのご入場の際に、必ず学生証または生徒手帳のご提示をお願いします。
