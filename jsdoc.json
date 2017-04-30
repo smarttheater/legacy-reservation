@@ -14,8 +14,7 @@
     "source": {
         "include": [
             "README.md",
-            "app",
-            "common"
+            "app"
         ],
         "exclude": []
     },
