@@ -9,7 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const createDebug = require("debug");
 const BaseController_1 = require("../BaseController");
+const debug = createDebug('chevre-frontend:controller:sendGrid');
 /**
  * SendGridウェブフックコントローラー
  *
@@ -23,15 +25,15 @@ class SendGridController extends BaseController_1.default {
      */
     notifyEvent() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('SendGrid event notification is', this.req.body);
+            debug('SendGrid event notification is', this.req.body);
             if (this.req.method === 'GET') {
                 this.res.send('0');
                 return;
             }
             try {
-                console.log('creating sendgrid_event_notifications...');
+                debug('creating sendgrid_event_notifications...');
                 const notifications = yield chevre_domain_1.Models.SendGridEventNotification.create(this.req.body);
-                console.log('sendgrid_event_notifications created.', notifications);
+                debug('sendgrid_event_notifications created.', notifications);
                 this.res.send('0');
             }
             catch (error) {

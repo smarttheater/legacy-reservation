@@ -269,8 +269,9 @@ class ReserveBaseController extends BaseController_1.default {
                 reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT];
                 break;
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
-                if (this.req.staffUser === undefined)
+                if (this.req.staffUser === undefined) {
                     throw new Error(this.req.__('Message.UnexpectedError'));
+                }
                 reservationModel.purchaserLastName = 'ナイブ';
                 reservationModel.purchaserFirstName = 'カンケイシャ';
                 reservationModel.purchaserTel = '0362263025';

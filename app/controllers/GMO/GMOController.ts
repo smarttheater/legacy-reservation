@@ -1,7 +1,11 @@
 import { GMONotificationUtil, Models } from '@motionpicture/chevre-domain';
+import * as createDebug from 'debug';
+
 import GMONotificationModel from '../../models/gmo/notification';
 import GMONotificationResponseModel from '../../models/gmo/notificationResponse';
 import BaseController from '../BaseController';
+
+const debug = createDebug('chevre-frontend:controller:gmo');
 
 /**
  * GMOウェブフックコントローラー
@@ -24,7 +28,7 @@ export default class GMOController extends BaseController {
      */
     public async notify() {
         const gmoNotificationModel = GMONotificationModel.parse(this.req.body);
-        console.log('gmoNotificationModel is', gmoNotificationModel);
+        debug('gmoNotificationModel is', gmoNotificationModel);
 
         if (gmoNotificationModel.OrderID === undefined) {
             this.res.send(GMONotificationResponseModel.RECV_RES_OK);
@@ -33,7 +37,7 @@ export default class GMOController extends BaseController {
 
         // 何を最低限保管する？
         try {
-            const notification = await Models.GMONotification.create(
+            await Models.GMONotification.create(
                 {
                     shop_id: gmoNotificationModel.ShopID,
                     order_id: gmoNotificationModel.OrderID,
@@ -59,7 +63,6 @@ export default class GMOController extends BaseController {
                 }
             );
 
-            console.log('notification created.', notification);
             this.res.send(GMONotificationResponseModel.RECV_RES_OK);
         } catch (error) {
             this.res.send(GMONotificationResponseModel.RECV_RES_NG);

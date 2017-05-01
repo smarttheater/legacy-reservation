@@ -1,6 +1,10 @@
 import { Models } from '@motionpicture/chevre-domain';
 import { ReservationUtil } from '@motionpicture/chevre-domain';
+import * as createDebug from 'debug';
+
 import BaseController from '../../BaseController';
+
+const debug = createDebug('chevre-frontend:controller:staffCancel');
 
 /**
  * 内部関係者座席予約キャンセルコントローラー
@@ -25,7 +29,7 @@ export default class StaffCancelController extends BaseController {
             }
 
             const promises = reservationIds.map(async (id) => {
-                console.log(
+                debug(
                     'updating to STATUS_KEPT_BY_CHEVRE by staff... staff:', staffUser.get('user_id'),
                     'signature:', staffUser.get('signature'),
                     'id:', id
@@ -35,7 +39,7 @@ export default class StaffCancelController extends BaseController {
                     { status: ReservationUtil.STATUS_KEPT_BY_CHEVRE },
                     { new: true }
                 ).exec();
-                console.log(
+                debug(
                     'updated to STATUS_KEPT_BY_CHEVRE by staff.', reservation,
                     'staff:', staffUser.get('user_id'),
                     'signature:', staffUser.get('signature'),

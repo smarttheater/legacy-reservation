@@ -9,8 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const chevre_domain_2 = require("@motionpicture/chevre-domain");
-const chevre_domain_3 = require("@motionpicture/chevre-domain");
 const gmo_service_1 = require("@motionpicture/gmo-service");
 const httpStatus = require("http-status");
 const moment = require("moment");
@@ -28,7 +26,7 @@ const ReserveBaseController_1 = require("../../ReserveBaseController");
 class MemberReserveController extends ReserveBaseController_1.default {
     constructor() {
         super(...arguments);
-        this.purchaserGroup = chevre_domain_2.ReservationUtil.PURCHASER_GROUP_MEMBER;
+        this.purchaserGroup = chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER;
         this.layout = 'layouts/member/layout';
     }
     start() {
@@ -42,7 +40,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
                     member_user_id: this.req.memberUser.get('user_id'),
                     purchaser_group: this.purchaserGroup,
-                    status: chevre_domain_2.ReservationUtil.STATUS_KEPT_BY_MEMBER
+                    status: chevre_domain_1.ReservationUtil.STATUS_KEPT_BY_MEMBER
                 }, 'performance seat_code status').exec();
                 if (reservations.length === 0) {
                     this.next(new Error(this.req.__('Message.NoAvailableSeats')));
@@ -57,8 +55,9 @@ class MemberReserveController extends ReserveBaseController_1.default {
                     const seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
                         return (seat.code === reservation.get('seat_code'));
                     });
-                    if (seatInfo === undefined)
+                    if (seatInfo === undefined) {
                         throw new Error(this.req.__('Message.UnexpectedError'));
+                    }
                     reservationModel.seatCodes.push(reservation.get('seat_code'));
                     reservationModel.setReservation(reservation.get('seat_code'), {
                         _id: reservation.get('_id'),
@@ -190,7 +189,6 @@ class MemberReserveController extends ReserveBaseController_1.default {
                     try {
                         yield this.processConfirm(reservationModel);
                         yield reservationModel.save();
-                        console.log('starting GMO payment...');
                         this.res.redirect(httpStatus.PERMANENT_REDIRECT, `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`);
                     }
                     catch (error) {
@@ -218,7 +216,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
                     performance_day: this.req.params.performanceDay,
                     payment_no: this.req.params.paymentNo,
-                    status: chevre_domain_2.ReservationUtil.STATUS_RESERVED,
+                    status: chevre_domain_1.ReservationUtil.STATUS_RESERVED,
                     purchased_at: {
                         // tslint:disable-next-line:no-magic-numbers
                         $gt: moment().add(-30, 'minutes').toISOString()
@@ -229,7 +227,7 @@ class MemberReserveController extends ReserveBaseController_1.default {
                     return;
                 }
                 reservations.sort((a, b) => {
-                    return chevre_domain_3.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                    return chevre_domain_1.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
                 });
                 this.res.render('member/reserve/complete', {
                     reservationDocuments: reservations

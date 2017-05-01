@@ -302,7 +302,9 @@ export default class ReserveBaseController extends BaseController {
                 break;
 
             case ReservationUtil.PURCHASER_GROUP_STAFF:
-                if (this.req.staffUser === undefined) throw new Error(this.req.__('Message.UnexpectedError'));
+                if (this.req.staffUser === undefined) {
+                    throw new Error(this.req.__('Message.UnexpectedError'));
+                }
 
                 reservationModel.purchaserLastName = 'ナイブ';
                 reservationModel.purchaserFirstName = 'カンケイシャ';

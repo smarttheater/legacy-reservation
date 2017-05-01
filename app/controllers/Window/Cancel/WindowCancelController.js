@@ -24,19 +24,16 @@ class WindowCancelController extends BaseController_1.default {
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
                 return;
             }
-            const userId = this.req.windowUser.get('user_id');
             try {
                 // 予約IDリストをjson形式で受け取る
                 const reservationIds = JSON.parse(this.req.body.reservationIds);
                 if (!Array.isArray(reservationIds)) {
                     throw new Error(this.req.__('Message.UnexpectedError'));
                 }
-                console.log('removing reservation by window... window:', userId, 'reservationIds:', reservationIds);
                 yield chevre_domain_1.Models.Reservation.remove({
                     _id: { $in: reservationIds },
                     purchaser_group: { $ne: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF } // 念のため、内部は除外
                 }).exec();
-                console.log('reservation removed by window.', 'window:', userId, 'reservationIds:', reservationIds);
                 this.res.json({
                     success: true,
                     message: null

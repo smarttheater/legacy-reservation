@@ -1,5 +1,9 @@
 import { Models } from '@motionpicture/chevre-domain';
+import * as createDebug from 'debug';
+
 import BaseController from '../BaseController';
+
+const debug = createDebug('chevre-frontend:controller:sendGrid');
 
 /**
  * SendGridウェブフックコントローラー
@@ -13,7 +17,7 @@ export default class SendGridController extends BaseController {
      * SendGridイベントフック
      */
     public async notifyEvent() {
-        console.log('SendGrid event notification is', this.req.body);
+        debug('SendGrid event notification is', this.req.body);
 
         if (this.req.method === 'GET') {
             this.res.send('0');
@@ -21,9 +25,9 @@ export default class SendGridController extends BaseController {
         }
 
         try {
-            console.log('creating sendgrid_event_notifications...');
+            debug('creating sendgrid_event_notifications...');
             const notifications = await Models.SendGridEventNotification.create(this.req.body);
-            console.log('sendgrid_event_notifications created.', notifications);
+            debug('sendgrid_event_notifications created.', notifications);
 
             this.res.send('0');
         } catch (error) {

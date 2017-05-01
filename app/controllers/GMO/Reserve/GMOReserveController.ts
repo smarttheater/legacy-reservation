@@ -1,5 +1,6 @@
 import { CommonUtil, Models, ReservationUtil } from '@motionpicture/chevre-domain';
 import { Util as GMOUtil } from '@motionpicture/gmo-service';
+import * as createDebug from 'debug';
 import * as moment from 'moment';
 import * as querystring from 'querystring';
 import * as _ from 'underscore';
@@ -9,6 +10,8 @@ import GMOResultModel from '../../../models/gmo/result';
 import ReservationModel from '../../../models/reserve/session';
 import ReserveBaseController from '../../ReserveBaseController';
 import GMOReserveCvsController from './Cvs/GMOReserveCvsController';
+
+const debug = createDebug('chevre-frontend:controller:gmoReserve');
 
 /**
  * マルチバイト文字列対応String.substr
@@ -27,14 +30,18 @@ import GMOReserveCvsController from './Cvs/GMOReserveCvsController';
     // todo 文字列のループはこの書き方は本来よろしくないので、暇があったら直す
     // tslint:disable-next-line:no-increment-decrement
     for (let i = 0; i < textLength; i++) {
-        if (i + start > textLength - 1) break;
+        if (i + start > textLength - 1) {
+            break;
+        }
 
         // マルチバイト文字列かどうか
         const letter = letters[i + start];
         // tslint:disable-next-line:no-magic-numbers
         count += (querystring.escape(letter).length < 4) ? 1 : 2;
 
-        if (count > length) break;
+        if (count > length) {
+            break;
+        }
 
         result += letter;
     }
@@ -138,7 +145,7 @@ export default class GMOReserveController extends ReserveBaseController {
                 this.req.getLocale()
             );
 
-            console.log('redirecting to GMO payment...');
+            debug('redirecting to GMO payment...');
             // GMOへの送信データをログに残すために、一度htmlを取得してからrender
             this.res.render('gmo/reserve/start', undefined, (renderErr, html) => {
                 if (renderErr instanceof Error) {
@@ -146,7 +153,7 @@ export default class GMOReserveController extends ReserveBaseController {
                     return;
                 }
 
-                console.log('rendering gmo/reserve/start...html:', html);
+                debug('rendering gmo/reserve/start...html:', html);
                 this.res.render('gmo/reserve/start');
             });
 
@@ -163,20 +170,20 @@ export default class GMOReserveController extends ReserveBaseController {
         const gmoResultModel = GMOResultModel.parse(this.req.body);
         const paymentNo = gmoResultModel.OrderID;
 
-        console.log('gmoResultModel is', gmoResultModel);
+        debug('gmoResultModel is', gmoResultModel);
 
         // エラー結果の場合
         if (!_.isEmpty(gmoResultModel.ErrCode)) {
             // 空席に戻す
             try {
-                console.log('finding reservations...payment_no:', paymentNo);
+                debug('finding reservations...payment_no:', paymentNo);
                 const reservations = await Models.Reservation.find(
                     {
                         payment_no: paymentNo
                     },
                     'purchased_at'
                 ).exec();
-                console.log('reservations found.', reservations.length);
+                debug('reservations found.', reservations.length);
 
                 if (reservations.length === 0) {
                     this.next(new Error(this.req.__('Message.NotFound')));
@@ -192,7 +199,7 @@ export default class GMOReserveController extends ReserveBaseController {
             // 決済方法によって振り分け
             switch (gmoResultModel.PayType) {
                 case GMOUtil.PAY_TYPE_CVS:
-                    console.log('starting GMOReserveCsvController.result...');
+                    debug('starting GMOReserveCsvController.result...');
                     const cvsController = new GMOReserveCvsController(this.req, this.res, this.next);
                     await cvsController.result(gmoResultModel);
                     break;
@@ -214,9 +221,9 @@ export default class GMOReserveController extends ReserveBaseController {
             return;
         }
 
-        console.log('start process GMOReserveController.cancel.');
+        debug('start process GMOReserveController.cancel.');
 
-        console.log('finding reservations...');
+        debug('finding reservations...');
         try {
             const reservations = await Models.Reservation.find(
                 {
@@ -225,7 +232,7 @@ export default class GMOReserveController extends ReserveBaseController {
                 },
                 'purchaser_group'
             ).exec();
-            console.log('reservations found.', reservations);
+            debug('reservations found.', reservations);
 
             if (reservations.length === 0) {
                 this.next(new Error(this.req.__('Message.NotFound')));

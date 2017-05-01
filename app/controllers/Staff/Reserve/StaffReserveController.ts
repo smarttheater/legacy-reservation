@@ -238,7 +238,6 @@ export default class StaffReserveController extends ReserveBaseController implem
                     // 予約確定
                     await this.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {});
                     await reservationModel.remove();
-                    console.log('redirecting to complete...');
                     this.res.redirect(`/staff/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                 } catch (error) {
                     await reservationModel.remove();

@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const gmo_service_1 = require("@motionpicture/gmo-service");
+const createDebug = require("debug");
 const moment = require("moment");
 const querystring = require("querystring");
 const _ = require("underscore");
@@ -18,6 +19,7 @@ const result_1 = require("../../../models/gmo/result");
 const session_1 = require("../../../models/reserve/session");
 const ReserveBaseController_1 = require("../../ReserveBaseController");
 const GMOReserveCvsController_1 = require("./Cvs/GMOReserveCvsController");
+const debug = createDebug('chevre-frontend:controller:gmoReserve');
 /**
  * マルチバイト文字列対応String.substr
  *
@@ -34,14 +36,16 @@ String.prototype.mbSubstr = function (start, length) {
     // todo 文字列のループはこの書き方は本来よろしくないので、暇があったら直す
     // tslint:disable-next-line:no-increment-decrement
     for (let i = 0; i < textLength; i++) {
-        if (i + start > textLength - 1)
+        if (i + start > textLength - 1) {
             break;
+        }
         // マルチバイト文字列かどうか
         const letter = letters[i + start];
         // tslint:disable-next-line:no-magic-numbers
         count += (querystring.escape(letter).length < 4) ? 1 : 2;
-        if (count > length)
+        if (count > length) {
             break;
+        }
         result += letter;
     }
     return result;
@@ -115,14 +119,14 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 this.res.locals.retURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, '/GMO/reserve/result', this.req.getLocale());
                 // 決済キャンセル時に遷移する加盟店URL
                 this.res.locals.cancelURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, `/GMO/reserve/${reservationModel.paymentNo}/cancel`, this.req.getLocale());
-                console.log('redirecting to GMO payment...');
+                debug('redirecting to GMO payment...');
                 // GMOへの送信データをログに残すために、一度htmlを取得してからrender
                 this.res.render('gmo/reserve/start', undefined, (renderErr, html) => {
                     if (renderErr instanceof Error) {
                         this.next(renderErr);
                         return;
                     }
-                    console.log('rendering gmo/reserve/start...html:', html);
+                    debug('rendering gmo/reserve/start...html:', html);
                     this.res.render('gmo/reserve/start');
                 });
             }
@@ -139,16 +143,16 @@ class GMOReserveController extends ReserveBaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             const gmoResultModel = result_1.default.parse(this.req.body);
             const paymentNo = gmoResultModel.OrderID;
-            console.log('gmoResultModel is', gmoResultModel);
+            debug('gmoResultModel is', gmoResultModel);
             // エラー結果の場合
             if (!_.isEmpty(gmoResultModel.ErrCode)) {
                 // 空席に戻す
                 try {
-                    console.log('finding reservations...payment_no:', paymentNo);
+                    debug('finding reservations...payment_no:', paymentNo);
                     const reservations = yield chevre_domain_1.Models.Reservation.find({
                         payment_no: paymentNo
                     }, 'purchased_at').exec();
-                    console.log('reservations found.', reservations.length);
+                    debug('reservations found.', reservations.length);
                     if (reservations.length === 0) {
                         this.next(new Error(this.req.__('Message.NotFound')));
                         return;
@@ -164,7 +168,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 // 決済方法によって振り分け
                 switch (gmoResultModel.PayType) {
                     case gmo_service_1.Util.PAY_TYPE_CVS:
-                        console.log('starting GMOReserveCsvController.result...');
+                        debug('starting GMOReserveCsvController.result...');
                         const cvsController = new GMOReserveCvsController_1.default(this.req, this.res, this.next);
                         yield cvsController.result(gmoResultModel);
                         break;
@@ -185,14 +189,14 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 this.next(new Error(this.req.__('Message.Invalid')));
                 return;
             }
-            console.log('start process GMOReserveController.cancel.');
-            console.log('finding reservations...');
+            debug('start process GMOReserveController.cancel.');
+            debug('finding reservations...');
             try {
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
                     payment_no: paymentNo,
                     status: chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
                 }, 'purchaser_group').exec();
-                console.log('reservations found.', reservations);
+                debug('reservations found.', reservations);
                 if (reservations.length === 0) {
                     this.next(new Error(this.req.__('Message.NotFound')));
                     return;

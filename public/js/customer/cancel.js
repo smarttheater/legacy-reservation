@@ -50,7 +50,6 @@ $(function(){
                 html += '<tr><th>合計金額<br>Total</th><td>';
                     var total = 0;
                     data.reservations.forEach(function(reservation, index){
-                        console.log(reservation);
                         total += parseInt(reservation.charge);
                     });
                     var totalStr = total.toString().replace(/(\d)(?=(\d{3})+$)/g , '$1,');

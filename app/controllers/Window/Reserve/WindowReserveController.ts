@@ -262,7 +262,6 @@ export default class WindowReserveController extends ReserveBaseController imple
                     // 予約確定
                     await this.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {});
                     await reservationModel.remove();
-                    console.log('redirecting to complete...');
                     this.res.redirect(`/window/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                 } catch (error) {
                     await reservationModel.remove();

@@ -269,7 +269,6 @@ class WindowReserveController extends ReserveBaseController_1.default {
                         // 予約確定
                         yield this.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {});
                         yield reservationModel.remove();
-                        console.log('redirecting to complete...');
                         this.res.redirect(`/window/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                     }
                     catch (error) {

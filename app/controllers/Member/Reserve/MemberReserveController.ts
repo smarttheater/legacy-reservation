@@ -1,6 +1,4 @@
-import { Models } from '@motionpicture/chevre-domain';
-import { ReservationUtil } from '@motionpicture/chevre-domain';
-import { ScreenUtil } from '@motionpicture/chevre-domain';
+import { Models, ReservationUtil, ScreenUtil } from '@motionpicture/chevre-domain';
 import { Util as GMOUtil } from '@motionpicture/gmo-service';
 import * as httpStatus from 'http-status';
 import * as moment from 'moment';
@@ -55,7 +53,9 @@ export default class MemberReserveController extends ReserveBaseController imple
                 const seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
                     return (seat.code === reservation.get('seat_code'));
                 });
-                if (seatInfo === undefined) throw new Error(this.req.__('Message.UnexpectedError'));
+                if (seatInfo === undefined) {
+                    throw new Error(this.req.__('Message.UnexpectedError'));
+                }
 
                 reservationModel.seatCodes.push(reservation.get('seat_code'));
                 reservationModel.setReservation(reservation.get('seat_code'), {
@@ -189,7 +189,6 @@ export default class MemberReserveController extends ReserveBaseController imple
                 try {
                     await this.processConfirm(reservationModel);
                     await reservationModel.save();
-                    console.log('starting GMO payment...');
                     this.res.redirect((<any>httpStatus).PERMANENT_REDIRECT, `/GMO/reserve/${token}/start?locale=${this.req.getLocale()}`);
                 } catch (error) {
                     await reservationModel.remove();
