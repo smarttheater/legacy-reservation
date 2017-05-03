@@ -32,16 +32,13 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
     // tslint:disable-next-line:max-func-body-length
     result(gmoResultModel) {
         return __awaiter(this, void 0, void 0, function* () {
-            // GMOのオーダーIDから上映日と購入番号を取り出す
-            const parsedOrderId = chevre_domain_1.ReservationUtil.parseGMOOrderId(gmoResultModel.OrderID);
             // 内容の整合性チェック
             let reservations = [];
             try {
-                debug('finding reservations...payment_no:', parsedOrderId.paymentNo);
+                debug('finding reservations...:');
                 reservations = yield chevre_domain_1.Models.Reservation.find({
-                    performance_day: parsedOrderId.performanceDay,
-                    payment_no: parsedOrderId.paymentNo
-                }, '_id purchaser_group').exec();
+                    gmo_order_id: gmoResultModel.OrderID
+                }, '_id performance_day payment_no').exec();
                 debug('reservations found.', reservations.length);
                 if (reservations.length === 0) {
                     throw new Error(this.req.__('Message.UnexpectedError'));
@@ -60,14 +57,11 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                 return;
             }
             try {
-                // 決済待ちステータスへ変更
                 debug('updating reservations by paymentNo...', gmoResultModel.OrderID);
                 const raw = yield chevre_domain_1.Models.Reservation.update({
-                    performance_day: parsedOrderId.performanceDay,
-                    payment_no: parsedOrderId.paymentNo
+                    gmo_order_id: gmoResultModel.OrderID
                 }, {
                     gmo_shop_id: gmoResultModel.ShopID,
-                    gmo_order_id: gmoResultModel.OrderID,
                     gmo_amount: gmoResultModel.Amount,
                     gmo_tax: gmoResultModel.Tax,
                     gmo_cvs_code: gmoResultModel.CvsCode,
@@ -85,7 +79,8 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
             }
             // 仮予約完了メールキュー追加(あれば更新日時を更新するだけ)
             try {
-                const emailQueue = createEmailQueue(this.res, reservations[0].get('performance_day'), parsedOrderId.paymentNo);
+                // GMOのオーダーIDから上映日と購入番号を取り出す
+                const emailQueue = yield createEmailQueue(this.res, reservations[0].get('performance_day'), reservations[0].get('payment_no'));
                 yield chevre_domain_1.Models.EmailQueue.create(emailQueue);
             }
             catch (error) {
@@ -93,7 +88,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                 // 失敗してもスルー(ログと運用でなんとかする)
             }
             debug('redirecting to waitingSettlement...');
-            this.res.redirect(`/customer/reserve/${gmoResultModel.OrderID}/waitingSettlement`);
+            this.res.redirect(`/customer/reserve/${reservations[0].get('performance_day')}/${reservations[0].get('payment_no')}/waitingSettlement`);
         });
     }
 }
@@ -113,16 +108,8 @@ function createEmailQueue(res, performanceDay, paymentNo) {
         if (reservations.length === 0) {
             throw new Error(`reservations of payment_no ${paymentNo} not found`);
         }
-        let to = '';
-        switch (reservations[0].get('purchaser_group')) {
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
-                to = reservations[0].get('staff_email');
-                break;
-            default:
-                to = reservations[0].get('purchaser_email');
-                break;
-        }
-        debug('to is', to);
+        const to = reservations[0].get('purchaser_email');
+        debug('to:', to);
         if (to.length === 0) {
             throw new Error('email to unknown');
         }

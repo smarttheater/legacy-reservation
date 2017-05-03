@@ -38,7 +38,7 @@ exports.default = (app) => {
     // GMOプロセス
     app.post('/GMO/reserve/:token/start', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOReserveController_1.default(req, res, next)).start(); }));
     app.post('/GMO/reserve/result', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOReserveController_1.default(req, res, next)).result(); }));
-    app.get('/GMO/reserve/:paymentNo/cancel', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOReserveController_1.default(req, res, next)).cancel(); }));
+    app.get('/GMO/reserve/:orderId/cancel', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOReserveController_1.default(req, res, next)).cancel(); }));
     app.all('/GMO/notify', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOController_1.default(req, res, next)).notify(); }));
     app.get('/policy', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).policy(); });
     app.get('/privacy', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).privacy(); });

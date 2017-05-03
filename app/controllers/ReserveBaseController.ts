@@ -140,76 +140,105 @@ export default class ReserveBaseController extends BaseController {
     }
 
     /**
-     * 決済クレジットカードFIXプロセス
-     * @method processFixPaymentOfCredit
+     * GMO決済FIXプロセス
+     *
+     * @method processFixGMO
      * @param {ReservationModel} reservationModel
      * @returns {Promise<void>}
      */
-    public async processFixPaymentOfCredit(
-        reservationModel: ReservationModel
-    ): Promise<void> {
-        reservePaymentCreditForm(this.req);
-        const validationResult = await this.req.getValidationResult();
-        if (!validationResult.isEmpty()) {
-            throw new Error(this.req.__('Message.Invalid'));
+    protected async processFixGMO(reservationModel: ReservationModel): Promise<void> {
+        const DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID = -2;
+        let orderId: string;
+
+        switch (reservationModel.paymentMethod) {
+            case GMO.Util.PAY_TYPE_CREDIT:
+                reservePaymentCreditForm(this.req);
+                const validationResult = await this.req.getValidationResult();
+                if (!validationResult.isEmpty()) {
+                    throw new Error(this.req.__('Message.Invalid'));
+                }
+
+                if (reservationModel.transactionGMO === undefined) {
+                    reservationModel.transactionGMO = {
+                        orderId: '',
+                        accessId: '',
+                        accessPass: '',
+                        amount: 0,
+                        count: 0,
+                        status: GMO.Util.STATUS_CREDIT_UNPROCESSED
+                    };
+                }
+
+                if (reservationModel.transactionGMO.status === GMO.Util.STATUS_CREDIT_AUTH) {
+                    //GMOオーソリ取消
+                    const alterTranIn = {
+                        shopId: process.env.GMO_SHOP_ID,
+                        shopPass: process.env.GMO_SHOP_PASS,
+                        accessId: reservationModel.transactionGMO.accessId,
+                        accessPass: reservationModel.transactionGMO.accessPass,
+                        jobCd: GMO.Util.JOB_CD_VOID
+                    };
+                    await GMO.CreditService.alterTran(alterTranIn);
+                }
+
+                // GMO取引作成
+                reservationModel.transactionGMO.count += 1;
+                const paymentNo = reservationModel.paymentNo;
+                const count = `00${reservationModel.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
+                // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
+                orderId = ReservationUtil.createGMOOrderId(reservationModel.performance.day, paymentNo, count);
+                const amount = reservationModel.getTotalCharge();
+                const entryTranIn = {
+                    shopId: process.env.GMO_SHOP_ID,
+                    shopPass: process.env.GMO_SHOP_PASS,
+                    orderId: orderId,
+                    jobCd: GMO.Util.JOB_CD_AUTH,
+                    amount: amount
+                };
+                const transactionGMO = await GMO.CreditService.entryTran(entryTranIn);
+
+                const gmoTokenObject = JSON.parse(this.req.body.gmoTokenObject);
+                // GMOオーソリ
+                const execTranIn = {
+                    accessId: transactionGMO.accessId,
+                    accessPass: transactionGMO.accessPass,
+                    orderId: orderId,
+                    method: GMO.Util.METHOD_LUMP, // 支払い方法は一括
+                    token: gmoTokenObject.token
+                };
+                await GMO.CreditService.execTran(execTranIn);
+                reservationModel.transactionGMO.accessId = transactionGMO.accessId;
+                reservationModel.transactionGMO.accessPass = transactionGMO.accessPass;
+                reservationModel.transactionGMO.orderId = orderId;
+                reservationModel.transactionGMO.amount = amount;
+                reservationModel.transactionGMO.status = GMO.Util.STATUS_CREDIT_AUTH;
+
+                break;
+
+            case GMO.Util.PAY_TYPE_CVS:
+                // コンビニ決済の場合、オーダーIDの発行だけ行う
+
+                if (reservationModel.transactionGMO === undefined) {
+                    reservationModel.transactionGMO = {
+                        orderId: '',
+                        accessId: '',
+                        accessPass: '',
+                        amount: 0,
+                        count: 0,
+                        status: GMO.Util.STATUS_CVS_UNPROCESSED
+                    };
+                }
+
+                const serialNumber = `00${reservationModel.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
+                // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
+                orderId = ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, serialNumber);
+                reservationModel.transactionGMO.orderId = orderId;
+
+                break;
+
+            default:
+                break;
         }
-
-        if (reservationModel.transactionGMO === undefined) {
-            reservationModel.transactionGMO = {
-                orderId: '',
-                accessId: '',
-                accessPass: '',
-                amount: 0,
-                count: 0,
-                status: GMO.Util.STATUS_CREDIT_UNPROCESSED
-            };
-        }
-
-        if (reservationModel.transactionGMO.status === GMO.Util.STATUS_CREDIT_AUTH) {
-            //GMOオーソリ取消
-            const alterTranIn = {
-                shopId: process.env.GMO_SHOP_ID,
-                shopPass: process.env.GMO_SHOP_PASS,
-                accessId: reservationModel.transactionGMO.accessId,
-                accessPass: reservationModel.transactionGMO.accessPass,
-                jobCd: GMO.Util.JOB_CD_VOID
-            };
-            await GMO.CreditService.alterTran(alterTranIn);
-        }
-
-        // GMO取引作成
-        reservationModel.transactionGMO.count += 1;
-        const paymentNo = reservationModel.paymentNo;
-        const digit = -2;
-        const count = `00${reservationModel.transactionGMO.count}`.slice(digit);
-        // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
-        const orderId = ReservationUtil.createGMOOrderId(reservationModel.performance.day, paymentNo, count);
-        const amount = reservationModel.getTotalCharge();
-        const entryTranIn = {
-            shopId: process.env.GMO_SHOP_ID,
-            shopPass: process.env.GMO_SHOP_PASS,
-            orderId: orderId,
-            jobCd: GMO.Util.JOB_CD_AUTH,
-            amount: amount
-        };
-        const transactionGMO = await GMO.CreditService.entryTran(entryTranIn);
-
-        const gmoTokenObject = JSON.parse(this.req.body.gmoTokenObject);
-        // GMOオーソリ
-        const execTranIn = {
-            accessId: transactionGMO.accessId,
-            accessPass: transactionGMO.accessPass,
-            orderId: orderId,
-            method: GMO.Util.METHOD_LUMP, // 支払い方法は一括
-            token: gmoTokenObject.token
-        };
-        await GMO.CreditService.execTran(execTranIn);
-        reservationModel.transactionGMO.accessId = transactionGMO.accessId;
-        reservationModel.transactionGMO.accessPass = transactionGMO.accessPass;
-        reservationModel.transactionGMO.orderId = orderId;
-        reservationModel.transactionGMO.amount = amount;
-        reservationModel.transactionGMO.status = GMO.Util.STATUS_CREDIT_AUTH;
-        return;
     }
 
     /**
@@ -571,7 +600,8 @@ export default class ReserveBaseController extends BaseController {
                     commonUpdate.gmo_access_pass = reservationModel.transactionGMO.accessPass;
                     commonUpdate.gmo_status = GMO.Util.STATUS_CREDIT_AUTH;
                 } else if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CVS) {
-                    // todo オーダーID保管
+                    // オーダーID保管
+                    commonUpdate.gmo_order_id = reservationModel.transactionGMO.orderId;
                 }
 
                 break;
@@ -610,7 +640,7 @@ export default class ReserveBaseController extends BaseController {
         }
 
         // いったん全情報をDBに保存
-        Promise.all(reservationModel.seatCodes.map(async (seatCode, index) => {
+        await Promise.all(reservationModel.seatCodes.map(async (seatCode, index) => {
             let update = reservationModel.seatCode2reservationDocument(seatCode);
             update = Object.assign(update, commonUpdate);
             (<any>update).payment_seat_index = index;
@@ -641,6 +671,23 @@ export default class ReserveBaseController extends BaseController {
         if (reservationModel.paymentNo === undefined) {
             console.error('paymentNo undefined');
             throw new Error(this.req.__('Message.UnexpectedError'));
+        }
+
+        // コンビニ決済の場合
+        // 決済移行のタイミングで仮予約有効期限を更新 & 決済中ステータスに変更
+        if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CVS) {
+            await Models.Reservation.update(
+                {
+                    performance_day: reservationModel.performance.day,
+                    payment_no: reservationModel.paymentNo
+                },
+                {
+                    status: ReservationUtil.STATUS_WAITING_SETTLEMENT,
+                    expired_at: moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').toDate(),
+                    purchased_at: moment().toDate()
+                },
+                { multi: true }
+            ).exec();
         }
     }
 
@@ -771,22 +818,6 @@ async function createEmailQueue(res: express.Response, performanceDay: string, p
 
     const titleJa = 'CHEVRE_EVENT_NAMEチケット 購入完了のお知らせ';
     const titleEn = 'Notice of Completion of CHEVRE Ticket Purchase';
-    // switch (cue.get('template')) {
-    //     case ReservationEmailCueUtil.TEMPLATE_COMPLETE:
-    //         dir = `${process.cwd()}/app/views/email/reserve/complete`;
-    //         titleJa = 'CHEVRE_EVENT_NAMEチケット 購入完了のお知らせ';
-    //         titleEn = 'Notice of Completion of CHEVRE Ticket Purchase';
-
-    //         break;
-    //     case ReservationEmailCueUtil.TEMPLATE_TEMPORARY:
-    //         dir = `${process.cwd()}/app/views/email/reserve/waitingSettlement`;
-    //         titleJa = 'CHEVRE_EVENT_NAMEチケット 仮予約完了のお知らせ';
-    //         titleEn = 'Notice of Completion of Tentative Reservation for CHEVRE Tickets';
-
-    //         break;
-    //     default:
-    //         throw new Error(`${cue.get('template')} not implemented.`);
-    // }
 
     debug('rendering template...');
     return new Promise<IEmailQueue>((resolve, reject) => {

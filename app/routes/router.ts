@@ -40,7 +40,7 @@ export default (app: Application) => {
     // GMOプロセス
     app.post('/GMO/reserve/:token/start', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOReserveController(req, res, next)).start(); });
     app.post('/GMO/reserve/result', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOReserveController(req, res, next)).result(); });
-    app.get('/GMO/reserve/:paymentNo/cancel', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOReserveController(req, res, next)).cancel(); });
+    app.get('/GMO/reserve/:orderId/cancel', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOReserveController(req, res, next)).cancel(); });
     app.all('/GMO/notify', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOController(req, res, next)).notify(); });
 
     app.get('/policy', base, (req: Request, res: Response, next: NextFunction) => { (new OtherController(req, res, next)).policy(); });

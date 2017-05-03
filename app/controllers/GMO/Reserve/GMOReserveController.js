@@ -104,7 +104,8 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 reservationModel.performance.start_time.substr(2) // tslint:disable-line:no-magic-numbers
                 ));
                 this.res.locals.shopId = process.env.GMO_SHOP_ID;
-                this.res.locals.orderID = chevre_domain_1.ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, '00');
+                this.res.locals.orderID = reservationModel.transactionGMO.orderId;
+                this.res.locals.reserveNo = reservationModel.paymentNo;
                 this.res.locals.amount = reservationModel.getTotalCharge().toString();
                 this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
                 this.res.locals.useCredit = (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CREDIT) ? '1' : '0';
@@ -118,17 +119,10 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 });
                 this.res.locals.retURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, '/GMO/reserve/result', this.req.getLocale());
                 // 決済キャンセル時に遷移する加盟店URL
-                this.res.locals.cancelURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, `/GMO/reserve/${reservationModel.paymentNo}/cancel`, this.req.getLocale());
+                this.res.locals.cancelURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, `/GMO/reserve/${this.res.locals.orderID}/cancel`, this.req.getLocale());
                 debug('redirecting to GMO payment...');
                 // GMOへの送信データをログに残すために、一度htmlを取得してからrender
-                this.res.render('gmo/reserve/start', undefined, (renderErr, html) => {
-                    if (renderErr instanceof Error) {
-                        this.next(renderErr);
-                        return;
-                    }
-                    debug('rendering gmo/reserve/start...html:', html);
-                    this.res.render('gmo/reserve/start');
-                });
+                this.res.render('gmo/reserve/start');
             }
             catch (error) {
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
@@ -142,15 +136,13 @@ class GMOReserveController extends ReserveBaseController_1.default {
     result() {
         return __awaiter(this, void 0, void 0, function* () {
             const gmoResultModel = result_1.default.parse(this.req.body);
-            const paymentNo = gmoResultModel.OrderID;
-            debug('gmoResultModel is', gmoResultModel);
+            debug('gmoResultModel:', gmoResultModel);
             // エラー結果の場合
             if (!_.isEmpty(gmoResultModel.ErrCode)) {
-                // 空席に戻す
                 try {
-                    debug('finding reservations...payment_no:', paymentNo);
+                    debug('finding reservations...');
                     const reservations = yield chevre_domain_1.Models.Reservation.find({
-                        payment_no: paymentNo
+                        gmo_order_id: gmoResultModel.OrderID
                     }, 'purchased_at').exec();
                     debug('reservations found.', reservations.length);
                     if (reservations.length === 0) {
@@ -184,18 +176,13 @@ class GMOReserveController extends ReserveBaseController_1.default {
      */
     cancel() {
         return __awaiter(this, void 0, void 0, function* () {
-            const paymentNo = this.req.params.paymentNo;
-            if (!chevre_domain_1.ReservationUtil.isValidPaymentNo(paymentNo)) {
-                this.next(new Error(this.req.__('Message.Invalid')));
-                return;
-            }
             debug('start process GMOReserveController.cancel.');
-            debug('finding reservations...');
             try {
+                debug('finding reservations...', this.req.params.orderId);
                 const reservations = yield chevre_domain_1.Models.Reservation.find({
-                    payment_no: paymentNo,
+                    gmo_order_id: this.req.params.orderId,
                     status: chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
-                }, 'purchaser_group').exec();
+                }).exec();
                 debug('reservations found.', reservations);
                 if (reservations.length === 0) {
                     this.next(new Error(this.req.__('Message.NotFound')));
@@ -205,6 +192,7 @@ class GMOReserveController extends ReserveBaseController_1.default {
                 this.res.render('gmo/reserve/cancel');
             }
             catch (error) {
+                console.error(error);
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
             }
         });

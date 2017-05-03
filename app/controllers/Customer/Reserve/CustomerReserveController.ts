@@ -243,10 +243,8 @@ export default class CustomerReserveController extends ReserveBaseController imp
                 try {
                     reservationModel = await this.processFixProfile(reservationModel);
 
-                    // クレジットカード決済であればGMO処理
-                    if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
-                        await this.processFixPaymentOfCredit(reservationModel);
-                    }
+                    // クレジットカード決済のオーソリ、あるいは、オーダーID発行
+                    await this.processFixGMO(reservationModel);
 
                     // 予約情報確定
                     await this.processAllExceptConfirm(reservationModel);
@@ -310,6 +308,8 @@ export default class CustomerReserveController extends ReserveBaseController imp
                         await reservationModel.remove();
                         this.res.redirect(`/customer/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                     } else {
+                        // todo リンク決済に備えて、ステータスを期限を更新する
+
                         // httpStatusの型定義不足のためanyにキャスト
                         // todo 一時的対処なので解決する
                         await reservationModel.save();

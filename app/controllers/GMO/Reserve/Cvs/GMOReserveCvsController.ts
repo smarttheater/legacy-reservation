@@ -27,19 +27,15 @@ export default class GMOReserveCvsController extends ReserveBaseController {
      */
     // tslint:disable-next-line:max-func-body-length
     public async result(gmoResultModel: GMOResultModel) {
-        // GMOのオーダーIDから上映日と購入番号を取り出す
-        const parsedOrderId = ReservationUtil.parseGMOOrderId(gmoResultModel.OrderID);
-
         // 内容の整合性チェック
         let reservations: mongoose.Document[] = [];
         try {
-            debug('finding reservations...payment_no:', parsedOrderId.paymentNo);
+            debug('finding reservations...:');
             reservations = await Models.Reservation.find(
                 {
-                    performance_day: parsedOrderId.performanceDay,
-                    payment_no: parsedOrderId.paymentNo
+                    gmo_order_id: gmoResultModel.OrderID
                 },
-                '_id purchaser_group'
+                '_id performance_day payment_no'
             ).exec();
             debug('reservations found.', reservations.length);
 
@@ -70,16 +66,13 @@ export default class GMOReserveCvsController extends ReserveBaseController {
         }
 
         try {
-            // 決済待ちステータスへ変更
             debug('updating reservations by paymentNo...', gmoResultModel.OrderID);
             const raw = await Models.Reservation.update(
                 {
-                    performance_day: parsedOrderId.performanceDay,
-                    payment_no: parsedOrderId.paymentNo
+                    gmo_order_id: gmoResultModel.OrderID
                 },
                 {
                     gmo_shop_id: gmoResultModel.ShopID,
-                    gmo_order_id: gmoResultModel.OrderID,
                     gmo_amount: gmoResultModel.Amount,
                     gmo_tax: gmoResultModel.Tax,
                     gmo_cvs_code: gmoResultModel.CvsCode,
@@ -99,7 +92,8 @@ export default class GMOReserveCvsController extends ReserveBaseController {
 
         // 仮予約完了メールキュー追加(あれば更新日時を更新するだけ)
         try {
-            const emailQueue = createEmailQueue(this.res, reservations[0].get('performance_day'), parsedOrderId.paymentNo);
+            // GMOのオーダーIDから上映日と購入番号を取り出す
+            const emailQueue = await createEmailQueue(this.res, reservations[0].get('performance_day'), reservations[0].get('payment_no'));
             await Models.EmailQueue.create(emailQueue);
         } catch (error) {
             console.error(error);
@@ -108,7 +102,9 @@ export default class GMOReserveCvsController extends ReserveBaseController {
 
         debug('redirecting to waitingSettlement...');
 
-        this.res.redirect(`/customer/reserve/${gmoResultModel.OrderID}/waitingSettlement`);
+        this.res.redirect(
+            `/customer/reserve/${reservations[0].get('performance_day')}/${reservations[0].get('payment_no')}/waitingSettlement`
+        );
     }
 }
 
@@ -150,18 +146,8 @@ async function createEmailQueue(res: express.Response, performanceDay: string, p
         throw new Error(`reservations of payment_no ${paymentNo} not found`);
     }
 
-    let to = '';
-    switch (reservations[0].get('purchaser_group')) {
-        case ReservationUtil.PURCHASER_GROUP_STAFF:
-            to = reservations[0].get('staff_email');
-            break;
-
-        default:
-            to = reservations[0].get('purchaser_email');
-            break;
-    }
-
-    debug('to is', to);
+    const to = reservations[0].get('purchaser_email');
+    debug('to:', to);
     if (to.length === 0) {
         throw new Error('email to unknown');
     }

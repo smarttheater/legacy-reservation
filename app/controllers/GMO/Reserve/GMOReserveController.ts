@@ -118,7 +118,8 @@ export default class GMOReserveController extends ReserveBaseController {
             );
 
             this.res.locals.shopId = process.env.GMO_SHOP_ID;
-            this.res.locals.orderID = ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, '00');
+            this.res.locals.orderID = reservationModel.transactionGMO.orderId;
+            this.res.locals.reserveNo = reservationModel.paymentNo;
             this.res.locals.amount = reservationModel.getTotalCharge().toString();
             this.res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
             this.res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
@@ -141,22 +142,13 @@ export default class GMOReserveController extends ReserveBaseController {
             this.res.locals.cancelURL = util.format(
                 '%s%s?locale=%s',
                 process.env.FRONTEND_GMO_RESULT_ENDPOINT,
-                `/GMO/reserve/${reservationModel.paymentNo}/cancel`,
+                `/GMO/reserve/${this.res.locals.orderID}/cancel`,
                 this.req.getLocale()
             );
 
             debug('redirecting to GMO payment...');
             // GMOへの送信データをログに残すために、一度htmlを取得してからrender
-            this.res.render('gmo/reserve/start', undefined, (renderErr, html) => {
-                if (renderErr instanceof Error) {
-                    this.next(renderErr);
-                    return;
-                }
-
-                debug('rendering gmo/reserve/start...html:', html);
-                this.res.render('gmo/reserve/start');
-            });
-
+            this.res.render('gmo/reserve/start');
         } catch (error) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));
         }
@@ -168,18 +160,15 @@ export default class GMOReserveController extends ReserveBaseController {
      */
     public async result(): Promise<void> {
         const gmoResultModel = GMOResultModel.parse(this.req.body);
-        const paymentNo = gmoResultModel.OrderID;
-
-        debug('gmoResultModel is', gmoResultModel);
+        debug('gmoResultModel:', gmoResultModel);
 
         // エラー結果の場合
         if (!_.isEmpty(gmoResultModel.ErrCode)) {
-            // 空席に戻す
             try {
-                debug('finding reservations...payment_no:', paymentNo);
+                debug('finding reservations...');
                 const reservations = await Models.Reservation.find(
                     {
-                        payment_no: paymentNo
+                        gmo_order_id: gmoResultModel.OrderID
                     },
                     'purchased_at'
                 ).exec();
@@ -215,22 +204,14 @@ export default class GMOReserveController extends ReserveBaseController {
      * 決済キャンセル時に遷移
      */
     public async cancel(): Promise<void> {
-        const paymentNo = this.req.params.paymentNo;
-        if (!ReservationUtil.isValidPaymentNo(paymentNo)) {
-            this.next(new Error(this.req.__('Message.Invalid')));
-            return;
-        }
-
         debug('start process GMOReserveController.cancel.');
-
-        debug('finding reservations...');
         try {
+            debug('finding reservations...', this.req.params.orderId);
             const reservations = await Models.Reservation.find(
                 {
-                    payment_no: paymentNo,
+                    gmo_order_id: this.req.params.orderId,
                     status: ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
-                },
-                'purchaser_group'
+                }
             ).exec();
             debug('reservations found.', reservations);
 
@@ -242,6 +223,7 @@ export default class GMOReserveController extends ReserveBaseController {
             // 特に何もしない
             this.res.render('gmo/reserve/cancel');
         } catch (error) {
+            console.error(error);
             this.next(new Error(this.req.__('Message.UnexpectedError')));
         }
     }

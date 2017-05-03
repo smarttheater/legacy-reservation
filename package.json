@@ -21,8 +21,8 @@
     "@motionpicture/gmo-service": "^3.0.4",
     "basic-auth": "^1.0.4",
     "body-parser": "^1.17.1",
-    "config": "^1.21.0",
-    "connect-redis": "^3.1.0",
+    "config": "^1.26.1",
+    "connect-redis": "^3.3.0",
     "cookie-parser": "^1.4.1",
     "debug": "^2.6.6",
     "ejs": "^2.5.2",
@@ -33,7 +33,6 @@
     "fs-extra": "^3.0.0",
     "http-status": "^1.0.1",
     "i18n": "^0.8.3",
-    "mocha": "^3.3.0",
     "moment": "^2.18.1",
     "multer": "^1.1.0",
     "numeral": "^1.5.3",
@@ -106,5 +105,5 @@
     "version": "git add -A",
     "postversion": "git push origin --tags"
   },
-  "version": "2.0.7"
+  "version": "2.0.8"
 }

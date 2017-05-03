@@ -252,10 +252,8 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                 if (this.req.method === 'POST') {
                     try {
                         reservationModel = yield this.processFixProfile(reservationModel);
-                        // クレジットカード決済であればGMO処理
-                        if (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CREDIT) {
-                            yield this.processFixPaymentOfCredit(reservationModel);
-                        }
+                        // クレジットカード決済のオーソリ、あるいは、オーダーID発行
+                        yield this.processFixGMO(reservationModel);
                         // 予約情報確定
                         yield this.processAllExceptConfirm(reservationModel);
                         yield reservationModel.save();
@@ -318,6 +316,7 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                             this.res.redirect(`/customer/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                         }
                         else {
+                            // todo リンク決済に備えて、ステータスを期限を更新する
                             // httpStatusの型定義不足のためanyにキャスト
                             // todo 一時的対処なので解決する
                             yield reservationModel.save();
