@@ -27,7 +27,6 @@ app.use(session_1.default); // セッション
 app.use(basicAuth_1.default); // ベーシック認証
 // ルーティング
 const customerSupport_1 = require("./routes/customerSupport");
-const member_1 = require("./routes/member");
 const router_1 = require("./routes/router");
 const sendGrid_1 = require("./routes/sendGrid");
 const staff_1 = require("./routes/staff");
@@ -78,7 +77,6 @@ app.use((req, _res, next) => {
 });
 app.use(expressValidator()); // バリデーション
 // ルーティング登録の順序に注意！
-member_1.default(app);
 staff_1.default(app);
 window_1.default(app);
 customerSupport_1.default(app);

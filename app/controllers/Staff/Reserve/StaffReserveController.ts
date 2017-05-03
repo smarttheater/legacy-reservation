@@ -212,6 +212,7 @@ export default class StaffReserveController extends ReserveBaseController implem
                 return;
             }
 
+            await this.processAllExceptConfirm(reservationModel);
             this.res.redirect(`/staff/reserve/${token}/confirm`);
         } catch (error) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));

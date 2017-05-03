@@ -218,6 +218,7 @@ class StaffReserveController extends ReserveBaseController_1.default {
                     this.next(new Error(this.req.__('Message.Expired')));
                     return;
                 }
+                yield this.processAllExceptConfirm(reservationModel);
                 this.res.redirect(`/staff/reserve/${token}/confirm`);
             }
             catch (error) {

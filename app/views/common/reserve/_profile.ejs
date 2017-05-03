@@ -199,8 +199,6 @@
 
                                 <% if (reservationModel.paymentMethodChoices.indexOf(GMOUtil.PAY_TYPE_CVS) >= 0) { %>
                                     <p class="notice"><span class="notice-cvs"><%- __('NoticeCVS') %></span></p>
-                                <% } else if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_MEMBER) { %>
-                                    <p class="notice"><span class="notice-cvs"><%- __('NoticeCVSMember') %></span></p>
                                 <% } %>
 
                                 <% if (validation && validation.paymentMethod) { %>

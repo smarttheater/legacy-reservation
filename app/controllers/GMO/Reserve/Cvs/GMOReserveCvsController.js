@@ -93,16 +93,7 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
                 // 失敗してもスルー(ログと運用でなんとかする)
             }
             debug('redirecting to waitingSettlement...');
-            // 購入者区分による振り分け
-            const group = reservations[0].get('purchaser_group');
-            switch (group) {
-                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
-                    this.res.redirect(`/member/reserve/${gmoResultModel.OrderID}/waitingSettlement`);
-                    break;
-                default:
-                    this.res.redirect(`/customer/reserve/${gmoResultModel.OrderID}/waitingSettlement`);
-                    break;
-            }
+            this.res.redirect(`/customer/reserve/${gmoResultModel.OrderID}/waitingSettlement`);
         });
     }
 }

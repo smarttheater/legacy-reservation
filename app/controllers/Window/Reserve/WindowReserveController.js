@@ -216,6 +216,7 @@ class WindowReserveController extends ReserveBaseController_1.default {
                 if (this.req.method === 'POST') {
                     try {
                         reservationModel = yield this.processFixProfile(reservationModel);
+                        yield this.processAllExceptConfirm(reservationModel);
                         yield reservationModel.save();
                         this.res.redirect(`/window/reserve/${token}/confirm`);
                     }

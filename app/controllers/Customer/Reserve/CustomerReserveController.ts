@@ -246,8 +246,10 @@ export default class CustomerReserveController extends ReserveBaseController imp
                     // クレジットカード決済であればGMO処理
                     if (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) {
                         await this.processFixPaymentOfCredit(reservationModel);
-                        await reservationModel.save();
                     }
+
+                    // 予約情報確定
+                    await this.processAllExceptConfirm(reservationModel);
 
                     await reservationModel.save();
                     this.res.redirect(`/customer/reserve/${token}/confirm`);

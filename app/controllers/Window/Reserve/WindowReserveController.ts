@@ -209,6 +209,7 @@ export default class WindowReserveController extends ReserveBaseController imple
             if (this.req.method === 'POST') {
                 try {
                     reservationModel = await this.processFixProfile(reservationModel);
+                    await this.processAllExceptConfirm(reservationModel);
                     await reservationModel.save();
                     this.res.redirect(`/window/reserve/${token}/confirm`);
                 } catch (error) {

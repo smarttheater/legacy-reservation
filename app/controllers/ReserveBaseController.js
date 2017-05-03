@@ -112,9 +112,6 @@ class ReserveBaseController extends BaseController_1.default {
                 case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
                     reservationModel.paymentMethod = '';
                     break;
-                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
-                    reservationModel.paymentMethod = GMO.Util.PAY_TYPE_CREDIT;
-                    break;
                 default:
                     break;
             }
@@ -256,18 +253,6 @@ class ReserveBaseController extends BaseController_1.default {
                 }
                 reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT, GMO.Util.PAY_TYPE_CVS];
                 break;
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
-                if (purchaserFromSession !== undefined) {
-                    reservationModel.purchaserLastName = purchaserFromSession.lastName;
-                    reservationModel.purchaserFirstName = purchaserFromSession.firstName;
-                    reservationModel.purchaserTel = purchaserFromSession.tel;
-                    reservationModel.purchaserEmail = purchaserFromSession.email;
-                    reservationModel.purchaserAge = purchaserFromSession.age;
-                    reservationModel.purchaserAddress = purchaserFromSession.address;
-                    reservationModel.purchaserGender = purchaserFromSession.gender;
-                }
-                reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT];
-                break;
             case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
                 if (this.req.staffUser === undefined) {
                     throw new Error(this.req.__('Message.UnexpectedError'));
@@ -356,15 +341,6 @@ class ReserveBaseController extends BaseController_1.default {
             switch (this.purchaserGroup) {
                 case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
                     reservationModel.ticketTypes = chevre_domain_1.TicketTypeGroupUtil.getOne4staff();
-                    break;
-                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
-                    // メルマガ当選者の場合、一般だけ
-                    reservationModel.ticketTypes = [];
-                    for (const ticketType of ticketTypeGroup.get('ticket_types')) {
-                        if (ticketType.get('_id') === chevre_domain_1.TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS) {
-                            reservationModel.ticketTypes.push(ticketType);
-                        }
-                    }
                     break;
                 default:
                     // 一般、当日窓口の場合
@@ -475,9 +451,6 @@ class ReserveBaseController extends BaseController_1.default {
                     case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
                         newReservation.staff = this.req.staffUser.get('_id');
                         break;
-                    case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
-                        newReservation.member = this.req.memberUser.get('_id');
-                        break;
                     case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
                         newReservation.window = this.req.windowUser.get('_id');
                         break;
@@ -509,30 +482,13 @@ class ReserveBaseController extends BaseController_1.default {
         });
     }
     /**
-     * 予約情報を確定してDBに保存するプロセス
+     * 確定以外の全情報を確定するプロセス
      */
-    // tslint:disable-next-line:max-func-body-length
-    processConfirm(reservationModel) {
+    processAllExceptConfirm(reservationModel) {
         return __awaiter(this, void 0, void 0, function* () {
-            // 仮押さえ有効期限チェック
-            if (reservationModel.expiredAt !== undefined && reservationModel.expiredAt < moment().valueOf()) {
-                throw new Error(this.res.__('Message.Expired'));
-            }
-            if (reservationModel.paymentNo === undefined) {
-                console.error('paymentNo undefined');
-                throw new Error(this.req.__('Message.UnexpectedError'));
-            }
-            // 購入日時確定
-            reservationModel.purchasedAt = moment().valueOf();
-            const commonUpdate = {
-                // 決済移行のタイミングで仮予約有効期限を更新
-                expired_at: moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').valueOf()
-            };
+            const commonUpdate = {};
             switch (this.purchaserGroup) {
                 case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-                    // GMO決済の場合、この時点で決済中ステータスに変更
-                    commonUpdate.status = chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT;
-                    commonUpdate.expired_at = null;
                     // クレジット決済
                     if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
                         commonUpdate.gmo_shop_id = process.env.GMO_SHOP_ID;
@@ -543,10 +499,9 @@ class ReserveBaseController extends BaseController_1.default {
                         commonUpdate.gmo_access_pass = reservationModel.transactionGMO.accessPass;
                         commonUpdate.gmo_status = GMO.Util.STATUS_CREDIT_AUTH;
                     }
-                    break;
-                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_MEMBER:
-                    commonUpdate.member = this.req.memberUser.get('_id');
-                    commonUpdate.member_user_id = this.req.memberUser.get('user_id');
+                    else if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CVS) {
+                        // todo オーダーID保管
+                    }
                     break;
                 case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
                     commonUpdate.staff = this.req.staffUser.get('_id');
@@ -577,18 +532,32 @@ class ReserveBaseController extends BaseController_1.default {
                     throw new Error(this.req.__('Message.UnexpectedError'));
             }
             // いったん全情報をDBに保存
-            const promises = reservationModel.seatCodes.map((seatCode, index) => __awaiter(this, void 0, void 0, function* () {
+            Promise.all(reservationModel.seatCodes.map((seatCode, index) => __awaiter(this, void 0, void 0, function* () {
                 let update = reservationModel.seatCode2reservationDocument(seatCode);
                 update = Object.assign(update, commonUpdate);
                 update.payment_seat_index = index;
                 debug('updating reservation all infos...update:', update);
                 const reservation = yield chevre_domain_1.Models.Reservation.findByIdAndUpdate(update._id, update, { new: true }).exec();
-                debug('reservation updated.', reservation);
+                debug('reservation updated');
                 if (reservation === null) {
                     throw new Error(this.req.__('Message.UnexpectedError'));
                 }
-            }));
-            yield Promise.all(promises);
+            })));
+        });
+    }
+    /**
+     * 予約情報を確定するプロセス
+     */
+    processConfirm(reservationModel) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // 仮押さえ有効期限チェック
+            if (reservationModel.expiredAt !== undefined && reservationModel.expiredAt < moment().valueOf()) {
+                throw new Error(this.res.__('Message.Expired'));
+            }
+            if (reservationModel.paymentNo === undefined) {
+                console.error('paymentNo undefined');
+                throw new Error(this.req.__('Message.UnexpectedError'));
+            }
         });
     }
     /**
@@ -599,6 +568,7 @@ class ReserveBaseController extends BaseController_1.default {
      */
     processFixReservations(performanceDay, paymentNo, update) {
         return __awaiter(this, void 0, void 0, function* () {
+            update.purchased_at = moment().valueOf();
             update.status = chevre_domain_1.ReservationUtil.STATUS_RESERVED;
             update.updated_user = 'ReserveBaseController';
             // 予約完了ステータスへ変更

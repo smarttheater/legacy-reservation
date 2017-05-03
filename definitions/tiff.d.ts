@@ -1,6 +1,5 @@
 declare namespace Express {
     export interface Request {
-        memberUser?: MemberUser;
         staffUser?: StaffUser;
         windowUser?: WindowUser;
     }
@@ -10,8 +9,6 @@ declare namespace Express {
         public get(key: string): any;
     }
 
-    export class MemberUser extends BaseUser {
-    }
     export class StaffUser extends BaseUser {
     }
     export class WindowUser extends BaseUser {

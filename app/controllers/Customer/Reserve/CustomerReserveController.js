@@ -255,8 +255,9 @@ class CustomerReserveController extends ReserveBaseController_1.default {
                         // クレジットカード決済であればGMO処理
                         if (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CREDIT) {
                             yield this.processFixPaymentOfCredit(reservationModel);
-                            yield reservationModel.save();
                         }
+                        // 予約情報確定
+                        yield this.processAllExceptConfirm(reservationModel);
                         yield reservationModel.save();
                         this.res.redirect(`/customer/reserve/${token}/confirm`);
                     }

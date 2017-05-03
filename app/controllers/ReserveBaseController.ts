@@ -121,10 +121,6 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.paymentMethod = '';
                 break;
 
-            case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                reservationModel.paymentMethod = GMO.Util.PAY_TYPE_CREDIT;
-                break;
-
             default:
                 break;
         }
@@ -287,20 +283,6 @@ export default class ReserveBaseController extends BaseController {
                 reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT, GMO.Util.PAY_TYPE_CVS];
                 break;
 
-            case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                if (purchaserFromSession !== undefined) {
-                    reservationModel.purchaserLastName = purchaserFromSession.lastName;
-                    reservationModel.purchaserFirstName = purchaserFromSession.firstName;
-                    reservationModel.purchaserTel = purchaserFromSession.tel;
-                    reservationModel.purchaserEmail = purchaserFromSession.email;
-                    reservationModel.purchaserAge = purchaserFromSession.age;
-                    reservationModel.purchaserAddress = purchaserFromSession.address;
-                    reservationModel.purchaserGender = purchaserFromSession.gender;
-                }
-
-                reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT];
-                break;
-
             case ReservationUtil.PURCHASER_GROUP_STAFF:
                 if (this.req.staffUser === undefined) {
                     throw new Error(this.req.__('Message.UnexpectedError'));
@@ -408,18 +390,6 @@ export default class ReserveBaseController extends BaseController {
         switch (this.purchaserGroup) {
             case ReservationUtil.PURCHASER_GROUP_STAFF:
                 reservationModel.ticketTypes = TicketTypeGroupUtil.getOne4staff();
-                break;
-
-            case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                // メルマガ当選者の場合、一般だけ
-                reservationModel.ticketTypes = [];
-
-                for (const ticketType of ticketTypeGroup.get('ticket_types')) {
-                    if (ticketType.get('_id') === TicketTypeGroupUtil.TICKET_TYPE_CODE_ADULTS) {
-                        reservationModel.ticketTypes.push(ticketType);
-                    }
-                }
-
                 break;
 
             default:
@@ -549,9 +519,6 @@ export default class ReserveBaseController extends BaseController {
                 case ReservationUtil.PURCHASER_GROUP_STAFF:
                     newReservation.staff = (<Express.StaffUser>this.req.staffUser).get('_id');
                     break;
-                case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                    newReservation.member = (<Express.MemberUser>this.req.memberUser).get('_id');
-                    break;
                 case ReservationUtil.PURCHASER_GROUP_WINDOW:
                     newReservation.window = (<Express.WindowUser>this.req.windowUser).get('_id');
                     break;
@@ -586,33 +553,14 @@ export default class ReserveBaseController extends BaseController {
     }
 
     /**
-     * 予約情報を確定してDBに保存するプロセス
+     * 確定以外の全情報を確定するプロセス
      */
-    // tslint:disable-next-line:max-func-body-length
-    protected async processConfirm(reservationModel: ReservationModel): Promise<void> {
-        // 仮押さえ有効期限チェック
-        if (reservationModel.expiredAt !== undefined && reservationModel.expiredAt < moment().valueOf()) {
-            throw new Error(this.res.__('Message.Expired'));
-        }
-
-        if (reservationModel.paymentNo === undefined) {
-            console.error('paymentNo undefined');
-            throw new Error(this.req.__('Message.UnexpectedError'));
-        }
-
-        // 購入日時確定
-        reservationModel.purchasedAt = moment().valueOf();
-
+    protected async processAllExceptConfirm(reservationModel: ReservationModel): Promise<void> {
         const commonUpdate: any = {
-            // 決済移行のタイミングで仮予約有効期限を更新
-            expired_at: moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').valueOf()
         };
+
         switch (this.purchaserGroup) {
             case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-                // GMO決済の場合、この時点で決済中ステータスに変更
-                commonUpdate.status = ReservationUtil.STATUS_WAITING_SETTLEMENT;
-                commonUpdate.expired_at = null;
-
                 // クレジット決済
                 if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
                     commonUpdate.gmo_shop_id = process.env.GMO_SHOP_ID;
@@ -622,12 +570,10 @@ export default class ReserveBaseController extends BaseController {
                     commonUpdate.gmo_access_id = reservationModel.transactionGMO.accessId;
                     commonUpdate.gmo_access_pass = reservationModel.transactionGMO.accessPass;
                     commonUpdate.gmo_status = GMO.Util.STATUS_CREDIT_AUTH;
+                } else if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CVS) {
+                    // todo オーダーID保管
                 }
-                break;
 
-            case ReservationUtil.PURCHASER_GROUP_MEMBER:
-                commonUpdate.member = (<Express.MemberUser>this.req.memberUser).get('_id');
-                commonUpdate.member_user_id = (<Express.MemberUser>this.req.memberUser).get('user_id');
                 break;
 
             case ReservationUtil.PURCHASER_GROUP_STAFF:
@@ -664,7 +610,7 @@ export default class ReserveBaseController extends BaseController {
         }
 
         // いったん全情報をDBに保存
-        const promises = reservationModel.seatCodes.map(async (seatCode, index) => {
+        Promise.all(reservationModel.seatCodes.map(async (seatCode, index) => {
             let update = reservationModel.seatCode2reservationDocument(seatCode);
             update = Object.assign(update, commonUpdate);
             (<any>update).payment_seat_index = index;
@@ -675,14 +621,27 @@ export default class ReserveBaseController extends BaseController {
                 update,
                 { new: true }
             ).exec();
-            debug('reservation updated.', reservation);
+            debug('reservation updated');
 
             if (reservation === null) {
                 throw new Error(this.req.__('Message.UnexpectedError'));
             }
-        });
+        }));
+    }
 
-        await Promise.all(promises);
+    /**
+     * 予約情報を確定するプロセス
+     */
+    protected async processConfirm(reservationModel: ReservationModel): Promise<void> {
+        // 仮押さえ有効期限チェック
+        if (reservationModel.expiredAt !== undefined && reservationModel.expiredAt < moment().valueOf()) {
+            throw new Error(this.res.__('Message.Expired'));
+        }
+
+        if (reservationModel.paymentNo === undefined) {
+            console.error('paymentNo undefined');
+            throw new Error(this.req.__('Message.UnexpectedError'));
+        }
     }
 
     /**
@@ -692,6 +651,7 @@ export default class ReserveBaseController extends BaseController {
      * @param {Object} update 追加更新パラメータ
      */
     protected async processFixReservations(performanceDay: string, paymentNo: string, update: any): Promise<void> {
+        (<any>update).purchased_at = moment().valueOf();
         (<any>update).status = ReservationUtil.STATUS_RESERVED;
         (<any>update).updated_user = 'ReserveBaseController';
 

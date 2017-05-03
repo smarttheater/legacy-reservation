@@ -30,7 +30,6 @@ app.use(basicAuth); // ベーシック認証
 
 // ルーティング
 import customerSupport from './routes/customerSupport';
-import memberRouter from './routes/member';
 import router from './routes/router';
 import sendGridRouter from './routes/sendGrid';
 import staffRouter from './routes/staff';
@@ -93,7 +92,6 @@ app.use((req, _res, next) => {
 app.use(expressValidator()); // バリデーション
 
 // ルーティング登録の順序に注意！
-memberRouter(app);
 staffRouter(app);
 windowRouter(app);
 customerSupport(app);
