@@ -1,129 +1,126 @@
+/**
+ * 内部関係者認証コントローラー
+ *
+ * @namespace controller/staff/auth
+ */
+
 import { CommonUtil, Models } from '@motionpicture/chevre-domain';
+import { NextFunction, Request, Response } from 'express';
 import * as _ from 'underscore';
 
 import staffLoginForm from '../../forms/staff/staffLoginForm';
 import StaffUser from '../../models/user/staff';
-import BaseController from '../base';
+
+const layout: string = 'layouts/staff/layout';
 
 /**
- * 内部関係者認証コントローラー
- *
- * @export
- * @class StaffAuthController
- * @extends {BaseController}
+ * 内部関係者ログイン
+ * @method login
+ * @returns {Promise<void>}
  */
-export default class StaffAuthController extends BaseController {
-    public layout: string = 'layouts/staff/layout';
+export async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
+    if (req.staffUser !== undefined && req.staffUser.isAuthenticated()) {
+        res.redirect('/staff/mypage');
+        return;
+    }
 
-    /**
-     * 内部関係者ログイン
-     * @method login
-     * @returns {Promise<void>}
-     */
-    public async login(): Promise<void> {
-        if (this.req.staffUser !== undefined && this.req.staffUser.isAuthenticated()) {
-            this.res.redirect('/staff/mypage');
+    if (req.method === 'POST') {
+        staffLoginForm(req);
+        const validationResult = await req.getValidationResult();
+        if (!validationResult.isEmpty()) {
+            res.locals.userId = req.body.userId;
+            res.locals.password = '';
+            res.locals.language = req.body.language;
+            res.locals.remember = req.body.remember;
+            res.locals.signature = req.body.signature;
+            res.locals.validation = validationResult.array();
+            res.render('staff/auth/login', { layout: layout });
+            return;
+        }
+        try {
+            // ユーザー認証
+            const staff = await Models.Staff.findOne(
+                {
+                    user_id: req.body.userId
+                }
+            ).exec();
+
+            res.locals.userId = req.body.userId;
+            res.locals.password = '';
+            res.locals.language = req.body.language;
+            res.locals.remember = req.body.remember;
+            res.locals.signature = req.body.signature;
+
+            if (staff === null) {
+                res.locals.validation = [
+                    { msg: req.__('Message.invalid{{fieldName}}', { fieldName: req.__('Form.FieldName.password') }) }
+                ];
+                res.render('staff/auth/login', { layout: layout });
+                return;
+            }
+
+            // パスワードチェック
+            if (staff.get('password_hash') !== CommonUtil.createHash(req.body.password, staff.get('password_salt'))) {
+                res.locals.validation = [
+                    { msg: req.__('Message.invalid{{fieldName}}', { fieldName: req.__('Form.FieldName.password') }) }
+                ];
+                res.render('staff/auth/login', { layout: layout });
+                return;
+            }
+
+            // ログイン記憶
+            if (req.body.remember === 'on') {
+                // トークン生成
+                const authentication = await Models.Authentication.create(
+                    {
+                        token: CommonUtil.createToken(),
+                        staff: staff.get('_id'),
+                        signature: req.body.signature,
+                        locale: req.body.language
+                    }
+                );
+                // tslint:disable-next-line:no-cookies
+                res.cookie(
+                    'remember_staff',
+                    authentication.get('token'),
+                    { path: '/', httpOnly: true, maxAge: 604800000 }
+                );
+            }
+
+            // ログイン
+            (<Express.Session>req.session)[StaffUser.AUTH_SESSION_NAME] = staff.toObject();
+            (<Express.Session>req.session)[StaffUser.AUTH_SESSION_NAME].signature = req.body.signature;
+            (<Express.Session>req.session)[StaffUser.AUTH_SESSION_NAME].locale = req.body.language;
+
+            const cb = (!_.isEmpty(req.query.cb)) ? req.query.cb : '/staff/mypage';
+            res.redirect(cb);
+            return;
+        } catch (error) {
+            next(new Error(req.__('Message.UnexpectedError')));
+            return;
+        }
+    } else {
+        res.locals.userId = '';
+        res.locals.password = '';
+        res.locals.signature = '';
+
+        res.render('staff/auth/login', { layout: layout });
+    }
+}
+
+export async function logout(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        if (req.session === undefined) {
+            next(new Error(req.__('Message.UnexpectedError')));
             return;
         }
 
-        if (this.req.method === 'POST') {
-            staffLoginForm(this.req);
-            const validationResult = await this.req.getValidationResult();
-            if (!validationResult.isEmpty()) {
-                this.res.locals.userId = this.req.body.userId;
-                this.res.locals.password = '';
-                this.res.locals.language = this.req.body.language;
-                this.res.locals.remember = this.req.body.remember;
-                this.res.locals.signature = this.req.body.signature;
-                this.res.locals.validation = validationResult.array();
-                this.res.render('staff/auth/login', { layout: this.layout });
-                return;
-            }
-            try {
-                // ユーザー認証
-                const staff = await Models.Staff.findOne(
-                    {
-                        user_id: this.req.body.userId
-                    }
-                ).exec();
+        delete req.session[StaffUser.AUTH_SESSION_NAME];
+        await Models.Authentication.remove({ token: req.cookies.remember_staff }).exec();
 
-                this.res.locals.userId = this.req.body.userId;
-                this.res.locals.password = '';
-                this.res.locals.language = this.req.body.language;
-                this.res.locals.remember = this.req.body.remember;
-                this.res.locals.signature = this.req.body.signature;
-
-                if (staff === null) {
-                    this.res.locals.validation = [
-                        { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
-                    ];
-                    this.res.render('staff/auth/login', { layout: this.layout });
-                    return;
-                }
-
-                // パスワードチェック
-                if (staff.get('password_hash') !== CommonUtil.createHash(this.req.body.password, staff.get('password_salt'))) {
-                    this.res.locals.validation = [
-                        { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
-                    ];
-                    this.res.render('staff/auth/login', { layout: this.layout });
-                    return;
-                }
-
-                // ログイン記憶
-                if (this.req.body.remember === 'on') {
-                    // トークン生成
-                    const authentication = await Models.Authentication.create(
-                        {
-                            token: CommonUtil.createToken(),
-                            staff: staff.get('_id'),
-                            signature: this.req.body.signature,
-                            locale: this.req.body.language
-                        }
-                    );
-                    // tslint:disable-next-line:no-cookies
-                    this.res.cookie(
-                        'remember_staff',
-                        authentication.get('token'),
-                        { path: '/', httpOnly: true, maxAge: 604800000 }
-                    );
-                }
-
-                // ログイン
-                (<Express.Session>this.req.session)[StaffUser.AUTH_SESSION_NAME] = staff.toObject();
-                (<Express.Session>this.req.session)[StaffUser.AUTH_SESSION_NAME].signature = this.req.body.signature;
-                (<Express.Session>this.req.session)[StaffUser.AUTH_SESSION_NAME].locale = this.req.body.language;
-
-                const cb = (!_.isEmpty(this.req.query.cb)) ? this.req.query.cb : '/staff/mypage';
-                this.res.redirect(cb);
-                return;
-            } catch (error) {
-                this.next(new Error(this.req.__('Message.UnexpectedError')));
-                return;
-            }
-        } else {
-            this.res.locals.userId = '';
-            this.res.locals.password = '';
-            this.res.locals.signature = '';
-
-            this.res.render('staff/auth/login', { layout: this.layout });
-        }
-    }
-
-    public async logout(): Promise<void> {
-        try {
-            if (this.req.session === undefined) {
-                this.next(new Error(this.req.__('Message.UnexpectedError')));
-                return;
-            }
-
-            delete this.req.session[StaffUser.AUTH_SESSION_NAME];
-            await Models.Authentication.remove({ token: this.req.cookies.remember_staff }).exec();
-
-            this.res.clearCookie('remember_staff');
-            this.res.redirect('/staff/mypage');
-        } catch (error) {
-            this.next(error);
-        }
+        res.clearCookie('remember_staff');
+        res.redirect('/staff/mypage');
+    } catch (error) {
+        next(error);
     }
 }

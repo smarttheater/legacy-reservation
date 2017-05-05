@@ -6,9 +6,9 @@
  */
 import { CommonUtil, Models } from '@motionpicture/chevre-domain';
 import { Application, NextFunction, Request, Response } from 'express';
-import StaffAuthController from '../controllers/staff/auth';
-import StaffCancelController from '../controllers/staff/cancel';
-import StaffMyPageController from '../controllers/staff/mypage';
+import * as staffAuthController from '../controllers/staff/auth';
+import * as staffCancelController from '../controllers/staff/cancel';
+import * as staffMyPageController from '../controllers/staff/mypage';
 import StaffReserveController from '../controllers/staff/reserve';
 import StaffUser from '../models/user/staff';
 
@@ -93,11 +93,11 @@ export default (app: Application) => {
 
     // 内部関係者
     // tslint:disable:max-line-length
-    app.all('/staff/login', base, async (req: Request, res: Response, next: NextFunction) => { await (new StaffAuthController(req, res, next)).login(); });
-    app.all('/staff/logout', base, async (req: Request, res: Response, next: NextFunction) => { await (new StaffAuthController(req, res, next)).logout(); });
-    app.all('/staff/mypage', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffMyPageController(req, res, next)).index(); });
-    app.get('/staff/mypage/search', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffMyPageController(req, res, next)).search(); });
-    app.post('/staff/mypage/updateWatcherName', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffMyPageController(req, res, next)).updateWatcherName(); });
+    app.all('/staff/login', base, staffAuthController.login);
+    app.all('/staff/logout', base, staffAuthController.logout);
+    app.all('/staff/mypage', base, authentication, staffMyPageController.index);
+    app.get('/staff/mypage/search', base, authentication, staffMyPageController.search);
+    app.post('/staff/mypage/updateWatcherName', base, authentication, staffMyPageController.updateWatcherName);
     app.get('/staff/reserve/start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).start(); });
     app.all('/staff/reserve/:token/terms', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new StaffReserveController(req, res, next)).terms(); });
     app.all('/staff/reserve/:token/performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).performances(); });
@@ -106,6 +106,6 @@ export default (app: Application) => {
     app.all('/staff/reserve/:token/profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).profile(); });
     app.all('/staff/reserve/:token/confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).confirm(); });
     app.get('/staff/reserve/:performanceDay/:paymentNo/complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).complete(); });
-    app.post('/staff/cancel/execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffCancelController(req, res, next)).execute(); });
-    app.all('/staff/mypage/release', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffMyPageController(req, res, next)).release(); });
+    app.post('/staff/cancel/execute', base, authentication, staffCancelController.execute);
+    app.all('/staff/mypage/release', base, authentication, staffMyPageController.release);
 };

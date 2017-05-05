@@ -6,9 +6,9 @@
  */
 import { CommonUtil, Models } from '@motionpicture/chevre-domain';
 import { Application, NextFunction, Request, Response } from 'express';
-import WindowAuthController from '../controllers/window/auth';
-import WindowCancelController from '../controllers/window/cancel';
-import WindowMyPageController from '../controllers/window/mypage';
+import * as windowAuthController from '../controllers/window/auth';
+import * as windowCancelController from '../controllers/window/cancel';
+import * as windowMyPageController from '../controllers/window/mypage';
 import WindowReserveController from '../controllers/window/reserve';
 import WindowUser from '../models/user/window';
 
@@ -88,10 +88,10 @@ export default (app: Application) => {
 
     // 当日窓口フロー
     // tslint:disable:max-line-length
-    app.all('/window/login', base, async (req: Request, res: Response, next: NextFunction) => { await (new WindowAuthController(req, res, next)).login(); });
-    app.all('/window/logout', base, async (req: Request, res: Response, next: NextFunction) => { await (new WindowAuthController(req, res, next)).logout(); });
-    app.all('/window/mypage', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new WindowMyPageController(req, res, next)).index(); });
-    app.get('/window/mypage/search', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowMyPageController(req, res, next)).search(); });
+    app.all('/window/login', base, windowAuthController.login);
+    app.all('/window/logout', base, windowAuthController.logout);
+    app.all('/window/mypage', base, authentication, windowMyPageController.index);
+    app.get('/window/mypage/search', base, authentication, windowMyPageController.search);
     app.get('/window/reserve/start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).start(); });
     app.all('/window/reserve/:token/terms', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new WindowReserveController(req, res, next)).terms(); });
     app.all('/window/reserve/:token/performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).performances(); });
@@ -100,5 +100,5 @@ export default (app: Application) => {
     app.all('/window/reserve/:token/profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).profile(); });
     app.all('/window/reserve/:token/confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).confirm(); });
     app.get('/window/reserve/:performanceDay/:paymentNo/complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).complete(); });
-    app.post('/window/cancel/execute', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowCancelController(req, res, next)).execute(); });
+    app.post('/window/cancel/execute', base, authentication, windowCancelController.execute);
 };
