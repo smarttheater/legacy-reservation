@@ -9,6 +9,7 @@ import * as mongoose from 'mongoose';
 import * as numeral from 'numeral';
 import * as util from 'util';
 
+import GMONotificationModel from '../../../../models/gmo/notification';
 import GMOResultModel from '../../../../models/gmo/result';
 import ReserveBaseController from '../../../ReserveBaseController';
 
@@ -105,6 +106,30 @@ export default class GMOReserveCvsController extends ReserveBaseController {
         this.res.redirect(
             `/customer/reserve/${reservations[0].get('performance_day')}/${reservations[0].get('payment_no')}/waitingSettlement`
         );
+    }
+
+    public async fixReservation4cvs(gmoNotificationModel: GMONotificationModel) {
+        debug('finding reservations...:');
+        const reservations = await Models.Reservation.find(
+            {
+                gmo_order_id: gmoNotificationModel.OrderID
+            }
+        ).exec();
+        debug('reservations found.', reservations.length);
+
+        if (reservations.length === 0) {
+            throw new Error('reservation not found');
+        }
+
+        // todo 内容の整合性チェック
+
+        // fix
+        await this.processFixReservations(
+            reservations[0].get('performance_day'),
+            reservations[0].get('payment_no'),
+            {}
+        );
+        debug('reservations updated');
     }
 }
 

@@ -1,9 +1,11 @@
 import { GMONotificationUtil, Models } from '@motionpicture/chevre-domain';
+import * as GMO from '@motionpicture/gmo-service';
 import * as createDebug from 'debug';
 
 import GMONotificationModel from '../../models/gmo/notification';
 import GMONotificationResponseModel from '../../models/gmo/notificationResponse';
 import BaseController from '../BaseController';
+import GMOReserveCvsController from './Reserve/Cvs/GMOReserveCvsController';
 
 const debug = createDebug('chevre-frontend:controller:gmo');
 
@@ -62,6 +64,13 @@ export default class GMOController extends BaseController {
                     process_status: GMONotificationUtil.PROCESS_STATUS_UNPROCESSED
                 }
             );
+
+            // コンビニ決済入金通知の場合、予約完了処理
+            if (gmoNotificationModel.PayType === GMO.Util.PAY_TYPE_CVS &&
+                gmoNotificationModel.Status === GMO.Util.STATUS_CVS_PAYSUCCESS) {
+                const cvsReserveController = new GMOReserveCvsController(this.req, this.res, this.next);
+                await cvsReserveController.fixReservation4cvs(gmoNotificationModel);
+            }
 
             this.res.send(GMONotificationResponseModel.RECV_RES_OK);
         } catch (error) {

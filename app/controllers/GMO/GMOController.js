@@ -9,10 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const GMO = require("@motionpicture/gmo-service");
 const createDebug = require("debug");
 const notification_1 = require("../../models/gmo/notification");
 const notificationResponse_1 = require("../../models/gmo/notificationResponse");
 const BaseController_1 = require("../BaseController");
+const GMOReserveCvsController_1 = require("./Reserve/Cvs/GMOReserveCvsController");
 const debug = createDebug('chevre-frontend:controller:gmo');
 /**
  * GMOウェブフックコントローラー
@@ -63,6 +65,12 @@ class GMOController extends BaseController_1.default {
                     payment_term: gmoNotificationModel.PaymentTerm,
                     process_status: chevre_domain_1.GMONotificationUtil.PROCESS_STATUS_UNPROCESSED
                 });
+                // コンビニ決済入金通知の場合、予約完了処理
+                if (gmoNotificationModel.PayType === GMO.Util.PAY_TYPE_CVS &&
+                    gmoNotificationModel.Status === GMO.Util.STATUS_CVS_PAYSUCCESS) {
+                    const cvsReserveController = new GMOReserveCvsController_1.default(this.req, this.res, this.next);
+                    yield cvsReserveController.fixReservation4cvs(gmoNotificationModel);
+                }
                 this.res.send(notificationResponse_1.default.RECV_RES_OK);
             }
             catch (error) {
