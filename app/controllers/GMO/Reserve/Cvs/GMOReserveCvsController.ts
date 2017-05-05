@@ -161,8 +161,8 @@ async function createEmailQueue(res: express.Response, performanceDay: string, p
             'email/reserve/waitingSettlement',
             {
                 layout: false,
-                title_ja: titleJa,
-                title_en: titleEn,
+                titleJa: titleJa,
+                titleEn: titleEn,
                 reservations: reservations,
                 moment: moment,
                 numeral: numeral,

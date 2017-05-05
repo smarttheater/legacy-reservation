@@ -39,9 +39,9 @@
 
             <h3>作品名<span class="smalltext">Title</span></h3>
 
-            <strong class="filmtitle<%- (reservation.get('film_name_ja').length > 63) ? ' filmtitle-long' : '' %>"><%= reservation.get('film_name_ja') %></strong>
+            <strong class="filmtitle<%- (reservation.get('film_name').ja.length > 63) ? ' filmtitle-long' : '' %>"><%= reservation.get('film_name').ja %></strong>
 
-            <span class="smalltext"><%= reservation.get('film_name_en') %></span>
+            <span class="smalltext"><%= reservation.get('film_name').en %></span>
 
         </div>
 
@@ -66,13 +66,13 @@
 
                 <h3>劇場<span class="smalltext">Venue</span></h3>
 
-                <strong><%- reservation.get('theater_name_ja') %> <%- reservation.get('screen_name_ja') %></strong>
-                <span class="smalltext"><%- reservation.get('theater_name_en') %> <%- reservation.get('screen_name_en') %></span>
+                <strong><%- reservation.get('theater_name').ja %> <%- reservation.get('screen_name').ja %></strong>
+                <span class="smalltext"><%- reservation.get('theater_name').en %> <%- reservation.get('screen_name').en %></span>
 
                 <p class="theateraddress">
-                    <%= reservation.get('theater_address_ja') %>
+                    <%= reservation.get('theater_address').ja %>
                     <span class="smalltext">
-                        <%= reservation.get('theater_address_en') %>
+                        <%= reservation.get('theater_address').en %>
                     </span>
                 </p>
 
@@ -111,8 +111,8 @@
 
                 <h3>券種・金額<span class="smalltext">Type of ticket / Charge Amount</span></h3>
 
-                <strong><%- reservation.get('ticket_type_detail_str_ja').replace(/\\/g, '&yen;') %></strong>
-                <span class="smalltext"><%- reservation.get('ticket_type_detail_str_en').replace(/\\/g, '&yen;') %></span>
+                <strong><%- reservation.get('ticket_type_detail_str').ja.replace(/\\/g, '&yen;') %></strong>
+                <span class="smalltext"><%- reservation.get('ticket_type_detail_str').en.replace(/\\/g, '&yen;') %></span>
 
             </td></tr>
 

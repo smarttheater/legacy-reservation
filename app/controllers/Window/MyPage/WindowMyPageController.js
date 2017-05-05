@@ -127,10 +127,10 @@ class WindowMyPageController extends BaseController_1.default {
                         conditions.push({
                             $or: [
                                 {
-                                    film_name_ja: { $regex: regex }
+                                    'film_name.ja': { $regex: regex }
                                 },
                                 {
-                                    film_name_en: { $regex: regex }
+                                    'film_name.en': { $regex: regex }
                                 }
                             ]
                         });

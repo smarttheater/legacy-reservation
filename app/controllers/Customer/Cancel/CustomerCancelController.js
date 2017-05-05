@@ -35,10 +35,11 @@ class CustomerCancelController extends BaseController_1.default {
      */
     index() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (moment('2016-11-19T00:00:00+09:00') <= moment()) {
-                this.res.render('customer/cancel/outOfTerm', { layout: false });
-                return;
-            }
+            // 返金期限
+            // if (moment('2016-11-19T00:00:00+09:00') <= moment()) {
+            //     this.res.render('customer/cancel/outOfTerm', { layout: false });
+            //     return;
+            // }
             if (this.req.method === 'POST') {
                 customerCancelForm_1.default(this.req);
                 const validationResult = yield this.req.getValidationResult();
@@ -71,12 +72,9 @@ class CustomerCancelController extends BaseController_1.default {
                                 _id: reservation.get('_id'),
                                 seat_code: reservation.get('seat_code'),
                                 payment_no: reservation.get('payment_no'),
-                                film_name_ja: reservation.get('film_name_ja'),
-                                film_name_en: reservation.get('film_name_en'),
-                                performance_start_str_ja: reservation.get('performance_start_str_ja'),
-                                performance_start_str_en: reservation.get('performance_start_str_en'),
-                                location_str_ja: reservation.get('location_str_ja'),
-                                location_str_en: reservation.get('location_str_en'),
+                                film_name: reservation.get('film_name'),
+                                performance_start_str: reservation.get('performance_start_str'),
+                                location_str: reservation.get('location_str'),
                                 payment_method: reservation.get('payment_method'),
                                 charge: reservation.get('charge')
                             };

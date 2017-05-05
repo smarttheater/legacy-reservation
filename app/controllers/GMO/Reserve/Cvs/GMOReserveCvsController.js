@@ -119,8 +119,8 @@ function createEmailQueue(res, performanceDay, paymentNo) {
         return new Promise((resolve, reject) => {
             res.render('email/reserve/waitingSettlement', {
                 layout: false,
-                title_ja: titleJa,
-                title_en: titleEn,
+                titleJa: titleJa,
+                titleEn: titleEn,
                 reservations: reservations,
                 moment: moment,
                 numeral: numeral,

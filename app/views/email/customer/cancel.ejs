@@ -19,8 +19,8 @@
     <h1 style="margin:0;font-size:20px;text-align:center;">CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ</h1>
     <h2 style="margin:0;font-size:16px;text-align:center;">Notice of Completion of Cancel for CHEVRE Tickets</h2>
 
-    <p style="font-weight:bold;"><%= reservations[0].get('purchaser_name_ja') %> 様</p>
-    <p style="font-weight:bold;font-size:12px;">Dear <%= reservations[0].get('purchaser_name_en') %>,</p>
+    <p style="font-weight:bold;"><%= reservations[0].get('purchaser_name').ja %> 様</p>
+    <p style="font-weight:bold;font-size:12px;">Dear <%= reservations[0].get('purchaser_name').en %>,</p>
 
     <p style="font-size:14px;">
         CHEVRE_EVENT_NAMEの鑑賞キャンセルを受け付けました。<br>
@@ -39,8 +39,8 @@
 
     <div style="margin-bottom:1em;">
         <h3 style="font-weight:normal;font-size:14px;margin:0;">作品名 (Title) :</h3>
-        <strong><%- reservations[0].get('film_name_ja') %></strong><br>
-        <span style="font-size:12px;"><%- reservations[0].get('film_name_en') %></span>
+        <strong><%- reservations[0].get('film_name').ja %></strong><br>
+        <span style="font-size:12px;"><%- reservations[0].get('film_name').en %></span>
     </div>
 
 
@@ -52,19 +52,19 @@
 
     <div style="margin-bottom:1em;">
         <h3 style="font-weight:normal;font-size:14px;margin:0;">劇場 (Location) :</h3>
-        <strong><%- reservations[0].get('location_str_ja') %></strong><br>
-        <%- reservations[0].get('theater_address_ja') %><br>
+        <strong><%- reservations[0].get('location_str').ja %></strong><br>
+        <%- reservations[0].get('theater_address').ja %><br>
         <p style="font-size:12px;">
-            <%- reservations[0].get('theater_name_en') %> <%- reservations[0].get('screen_name_en') %><br>
-            <%- reservations[0].get('theater_address_en') %>
+            <%- reservations[0].get('theater_name').en %> <%- reservations[0].get('screen_name').en %><br>
+            <%- reservations[0].get('theater_address').en %>
         </p>
     </div>
 
 
     <div style="margin-bottom:1em;">
         <h3 style="font-weight:normal;font-size:14px;margin:0;">時間 (Date and time) :</h3>
-        <strong><%- reservations[0].get('performance_start_str_ja') %></strong><br>
-        <span style="font-size:12px;"><%- reservations[0].get('performance_start_str_en') %></span>
+        <strong><%- reservations[0].get('performance_start_str').ja %></strong><br>
+        <span style="font-size:12px;"><%- reservations[0].get('performance_start_str').en %></span>
     </div>
 
 
@@ -73,13 +73,13 @@
 
         <% reservations.forEach((reservation, index) => { %>
         <%- (index > 0) ? '<br>' : '' %>
-        <strong><%- reservation.get('ticket_type_detail_str_ja').replace(/\\/g, '&yen;') %>
+        <strong><%- reservation.get('ticket_type_detail_str').ja.replace(/\\/g, '&yen;') %>
         <% }) %>
 
         <p style="font-size:12px;">
             <% reservations.forEach((reservation, index) => { %>
             <%- (index > 0) ? '<br>' : '' %>
-            <%- reservation.get('ticket_type_detail_str_en').replace(/\\/g, '&yen;') %>
+            <%- reservation.get('ticket_type_detail_str').en.replace(/\\/g, '&yen;') %>
             <% }) %>
         </p>
 

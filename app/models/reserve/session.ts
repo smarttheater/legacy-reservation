@@ -329,14 +329,11 @@ export default class ReserveSessionModel {
             _id: reservation._id,
             status: reservation.status,
             seat_code: seatCode,
-            seat_grade_name_ja: reservation.seat_grade_name_ja,
-            seat_grade_name_en: reservation.seat_grade_name_en,
+            seat_grade_name: reservation.seat_grade_name,
             seat_grade_additional_charge: reservation.seat_grade_additional_charge,
             ticket_type: reservation.ticket_type,
-            ticket_type_name_ja: reservation.ticket_type_name_ja,
-            ticket_type_name_en: reservation.ticket_type_name_en,
+            ticket_type_name: reservation.ticket_type_name,
             ticket_type_charge: reservation.ticket_type_charge,
-
             charge: this.getChargeBySeatCode(seatCode),
             payment_no: this.paymentNo,
             purchaser_group: this.purchaserGroup,
@@ -346,20 +343,15 @@ export default class ReserveSessionModel {
             performance_open_time: this.performance.open_time,
             performance_start_time: this.performance.start_time,
             performance_end_time: this.performance.end_time,
-
             theater: this.performance.theater._id,
-            theater_name_ja: this.performance.theater.name.ja,
-            theater_name_en: this.performance.theater.name.en,
-            theater_address_ja: this.performance.theater.address.ja,
-            theater_address_en: this.performance.theater.address.en,
+            theater_name: this.performance.theater.name,
+            theater_address: this.performance.theater.address,
 
             screen: this.performance.screen._id,
-            screen_name_ja: this.performance.screen.name.ja,
-            screen_name_en: this.performance.screen.name.en,
+            screen_name: this.performance.screen.name,
 
             film: this.performance.film._id,
-            film_name_ja: this.performance.film.name.ja,
-            film_name_en: this.performance.film.name.en,
+            film_name: this.performance.film.name,
             film_image: this.performance.film.image,
             film_is_mx4d: this.performance.film.is_mx4d,
             film_copyright: this.performance.film.copyright,
@@ -389,10 +381,14 @@ interface IPerformance {
     open_time: string;
     start_time: string;
     end_time: string;
-    start_str_ja: string;
-    start_str_en: string;
-    location_str_ja: string;
-    location_str_en: string;
+    start_str: {
+        ja: string,
+        en: string
+    },
+    location_str: {
+        ja: string,
+        en: string
+    },
     theater: {
         _id: string,
         name: {
@@ -437,15 +433,17 @@ interface IReservation {
     _id: string;
     status: string;
     seat_code: string;
-    seat_grade_name_ja: string;
-    seat_grade_name_en: string;
+    seat_grade_name: {
+        ja: string;
+        en: string;
+    };
     seat_grade_additional_charge: number;
-
     ticket_type: string;
-    ticket_type_name_ja: string;
-    ticket_type_name_en: string;
+    ticket_type_name: {
+        ja: string;
+        en: string;
+    };
     ticket_type_charge: number;
-
     watcher_name: string;
 }
 

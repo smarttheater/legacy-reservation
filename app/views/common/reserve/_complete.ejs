@@ -2,8 +2,7 @@
 let reservationsById = {};
 for (let reservation of reservationDocuments) {
     let _reservation = reservation.toObject();
-    _reservation['ticket_type_detail_str_ja'] = reservation.get('ticket_type_detail_str_ja');
-    _reservation['ticket_type_detail_str_en'] = reservation.get('ticket_type_detail_str_en');
+    _reservation['ticket_type_detail_str'] = reservation.get('ticket_type_detail_str');
     _reservation['qr_str'] = reservation.get('qr_str');
     reservationsById[reservation._id.toString()] = _reservation;
 }
@@ -32,12 +31,12 @@ for (let reservation of reservationDocuments) {
         </tr>
         <tr>
             <th><%- __('Label.FilmName') %></th>
-            <td><%= reservationDocuments[0].get(`film_name_${locale}`) %></td>
+            <td><%= reservationDocuments[0].get(`film_name`)[locale] %></td>
         </tr>
         <tr>
             <th><%- __('Label.PerformanceTime') %>/<%- __('Label.PerformancePlace') %></th>
             <td>
-                <%= reservationDocuments[0].get(`performance_start_str_${locale}`) %>&nbsp;&nbsp;<%= reservationDocuments[0].get(`location_str_${locale}`) %>
+                <%= reservationDocuments[0].get(`performance_start_str`)[locale] %>&nbsp;&nbsp;<%= reservationDocuments[0].get(`location_str`)[locale] %>
             </td>
         </tr>
     </thead>

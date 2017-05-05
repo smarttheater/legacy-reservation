@@ -2,12 +2,12 @@
 * 当日入場券をスター精密社製サーマルプリンタで印刷(要専用ブラウザ)する用モジュール
 * StarWebPRNT = http://www.star-m.jp/products/s_print/solutions/sdk/webprnt.html
 */
-window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
+window.tiffThermalPrint = (function (d, StarWebPrintBuilder, StarWebPrintTrader) {
 
     'use strict';
 
     //印刷ボタンを連打させないための「印刷中...」モーダル
-    d.body.insertAdjacentHTML('afterbegin','<div id="modal_thermalprinting"><div><span>印刷中...</span></div></div>');
+    d.body.insertAdjacentHTML('afterbegin', '<div id="modal_thermalprinting"><div><span>印刷中...</span></div></div>');
     var modal = d.getElementById('modal_thermalprinting');
 
 
@@ -22,7 +22,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
         blackmark_sensor: 'front_side'
     });
     //印刷命令失敗時処理(trader.urlへのajax:errorの意味であって印刷のエラーで着火するものではない)
-    trader.onError = function(response){
+    trader.onError = function (response) {
         var msg = 'プリンターとの通信に失敗しました\n\n';
         msg += 'ErrorStatus:' + response.status + '\n';
         msg += 'ResponseText:' + response.responseText;
@@ -30,46 +30,46 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
         modal.style.display = 'none';
     };
     //命令送信完了時処理(trader.urlへのajax:successの意味でしかないので印刷のエラーハンドリングはこの中で行う)
-    trader.onReceive = function(response){
+    trader.onReceive = function (response) {
         var msg = '';
-        try{
-            if(trader.isOffLine({traderStatus:response.traderStatus})) {
+        try {
+            if (trader.isOffLine({ traderStatus: response.traderStatus })) {
                 alert('プリンターがオフラインです\n"isOffLine"');
             }
-            if(trader.isNonRecoverableError({traderStatus:response.traderStatus})) {
+            if (trader.isNonRecoverableError({ traderStatus: response.traderStatus })) {
                 alert('プリンターに復帰不可能エラーが発生しています\n"isNonRecoverableError"'); //(どういう状態と対処が考えられるか要確認)
             }
-            if(response.traderCode === '1100'){
+            if (response.traderCode === '1100') {
                 alert('プリンターまたはご利用端末が通信不能な状態です\n"traderCode:1100"');
             }
-            if(response.traderCode === '2001'){
+            if (response.traderCode === '2001') {
                 alert('プリンターがビジー状態です\n（他の端末機器がプリンター使用中：要再送）\n"traderCode:2001"');
             }
-            if(trader.isHighTemperatureStop({traderStatus:response.traderStatus})){
+            if (trader.isHighTemperatureStop({ traderStatus: response.traderStatus })) {
                 alert('印字ヘッドが高温のため停止しています\n"isHighTemperatureStop"');
             }
-            if(trader.isAutoCutterError({traderStatus:response.traderStatus})){
+            if (trader.isAutoCutterError({ traderStatus: response.traderStatus })) {
                 alert('用紙カッターに異常が起きています\n"isAutoCutterError"');
             }
-            if(trader.isBlackMarkError({traderStatus:response.traderStatus})){
+            if (trader.isBlackMarkError({ traderStatus: response.traderStatus })) {
                 alert('ブラックマークエラー\n"isBlackMarkError"'); //(意味と対処について要確認)
             }
-            if(trader.isPaperEnd({traderStatus:response.traderStatus})){
+            if (trader.isPaperEnd({ traderStatus: response.traderStatus })) {
                 alert('用紙切れです\n"isPaperEnd"');
             }
-            if(trader.isPaperNearEnd({traderStatus:response.traderStatus})){
+            if (trader.isPaperNearEnd({ traderStatus: response.traderStatus })) {
                 alert('用紙の残りが少なくなっています\n"isPaperNearEnd"');
             }
-            if(!response.traderSuccess || response.traderCode !== '0'){
+            if (!response.traderSuccess || response.traderCode !== '0') {
                 msg = '印刷に失敗しました\n\n';
                 msg += 'traderSuccess:' + response.traderSuccess + '\n';
                 msg += 'TraderCode:' + response.traderCode + '\n';
                 msg += 'TraderStatus:' + response.traderStatus + '\n';
                 msg += 'Status:' + response.status + '\n';
-            }else{
+            } else {
                 msg = '印刷に成功しました';
             }
-        }catch(e){
+        } catch (e) {
             msg = e.message;
         }
         alert(msg);
@@ -82,45 +82,40 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
 
 
     //打刻用ゼロパディング
-    var zp = function(num){return (num < 10) ? '0'+num : num;};
+    var zp = function (num) { return (num < 10) ? '0' + num : num; };
 
 
     //印刷命令組み立て(参考: http://www.star-m.jp/products/s_print/sdk_webprnt/manual/_StarWebPrintBuilder-js.htm )
-    var genRequestByReservationObj = function(reservation){
+    var genRequestByReservationObj = function (reservation) {
         //印刷命令
         var request = '';
 
-        try{
+        try {
             //印刷に必要な情報が欠けていないか確認する
             var missings = [
                 '_id',
                 'payment_no',
-                'film_name_ja',
-                'film_name_en',
-                'theater_name_ja',
-                'theater_name_en',
-                'screen_name_ja',
-                'screen_name_en',
+                'film_name',
+                'theater_name',
+                'screen_name',
                 'performance_day',
                 'performance_open_time',
                 'performance_start_time',
                 'seat_code',
-                'ticket_type_name_ja',
-                'ticket_type_name_en',
-                'ticket_type_detail_str_ja',
-                'ticket_type_detail_str_en',
+                'ticket_type_name',
+                'ticket_type_detail_str',
                 'qr_str'
-            ].filter(function(item){
+            ].filter(function (item) {
                 return (!reservation[item]);
             });
-            if(missings[0]){
-                throw({message:'[!] 予約番号'+reservation._id+'の以下の情報が見つかりませんでした\n'+missings.join('\n')});
+            if (missings[0]) {
+                throw ({ message: '[!] 予約番号' + reservation._id + 'の以下の情報が見つかりませんでした\n' + missings.join('\n') });
             }
 
 
             //印刷時刻 (Y/m/d H:i:s)
             var dateObj = new Date();
-            var dateStr = dateObj.getFullYear()+'/'+zp(dateObj.getMonth()+1)+'/'+zp(dateObj.getDate())+' '+zp(dateObj.getHours())+':'+zp(dateObj.getMinutes())+':'+zp(dateObj.getSeconds());
+            var dateStr = dateObj.getFullYear() + '/' + zp(dateObj.getMonth() + 1) + '/' + zp(dateObj.getDate()) + ' ' + zp(dateObj.getHours()) + ':' + zp(dateObj.getMinutes()) + ':' + zp(dateObj.getSeconds());
 
 
             //中央揃え開始
@@ -149,7 +144,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
 
             //中央揃え解除
             request += builder.createAlignmentElement({
-                position:'left'
+                position: 'left'
             });
 
             //強調を解除して日本語作品名見出し
@@ -160,12 +155,12 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
             //日本語タイトルを強調
             request += builder.createTextElement({
                 emphasis: true,
-                data: reservation.film_name_ja+'\n'
+                data: reservation.film_name.ja + '\n'
             });
             //強調を解除して英語タイトル
             request += builder.createTextElement({
                 emphasis: false,
-                data: reservation.film_name_en+'\n\n'
+                data: reservation.film_name.en + '\n\n'
             });
 
             request += builder.createTextElement({
@@ -174,9 +169,9 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
             //日付と上映時刻を強調
             request += builder.createTextElement({
                 emphasis: true,
-                data:reservation.performance_day.substr(0, 4) + '/' + reservation.performance_day.substr(4, 2) + '/' + reservation.performance_day.substr(6)+'\n'+
-                    'OPEN:'+reservation.performance_open_time.substr(0, 2) + ':' + reservation.performance_open_time.substr(2)+'\n'+
-                    'START:'+reservation.performance_start_time.substr(0, 2) + ':' + reservation.performance_start_time.substr(2)+'\n'
+                data: reservation.performance_day.substr(0, 4) + '/' + reservation.performance_day.substr(4, 2) + '/' + reservation.performance_day.substr(6) + '\n' +
+                'OPEN:' + reservation.performance_open_time.substr(0, 2) + ':' + reservation.performance_open_time.substr(2) + '\n' +
+                'START:' + reservation.performance_start_time.substr(0, 2) + ':' + reservation.performance_start_time.substr(2) + '\n'
             });
 
             //文字サイズを戻して座席位置の見出し
@@ -194,49 +189,49 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
             request += builder.createTextElement({
                 width: 2,
                 height: 2,
-                data: reservation.screen_name_en+'\n'
+                data: reservation.screen_name.en + '\n'
             });
             //文字サイズ3で座席コード
             request += builder.createTextElement({
                 width: 3,
                 height: 3,
-                data: reservation.seat_code+'\n'
+                data: reservation.seat_code + '\n'
             });
             //中央揃え解除
             request += builder.createAlignmentElement({
-                position:'left'
+                position: 'left'
             });
 
             //文字サイズを戻して劇場名
             request += builder.createTextElement({
                 width: 1,
                 height: 1,
-                data:　'劇場-THEATER-\n'
+                data: '劇場-THEATER-\n'
             });
             //日本語劇場名を強調
             request += builder.createTextElement({
                 emphasis: true,
-                data: reservation.theater_name_ja+'\n'
+                data: reservation.theater_name.ja + '\n'
             });
             //強調を解除して英語劇場名
             request += builder.createTextElement({
                 emphasis: false,
-                data: reservation.theater_name_en+'\n\n'
+                data: reservation.theater_name.en + '\n\n'
             });
 
 
             request += builder.createTextElement({
-                data: '券種・金額-TICKET/PRICE-\n' 
+                data: '券種・金額-TICKET/PRICE-\n'
             });
             //日本語券種・金額を強調
             request += builder.createTextElement({
                 emphasis: true,
-                data: reservation.ticket_type_detail_str_ja+'\n'
+                data: reservation.ticket_type_detail_str.ja + '\n'
             });
             //強調を解除して英語券種・金額
             request += builder.createTextElement({
                 emphasis: false,
-                data: reservation.ticket_type_detail_str_en+'\n\n'
+                data: reservation.ticket_type_detail_str.en + '\n\n'
             });
 
 
@@ -246,7 +241,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
             //予約番号を強調
             request += builder.createTextElement({
                 emphasis: true,
-                data: reservation.payment_no+'\n\n'
+                data: reservation.payment_no + '\n\n'
             });
 
 
@@ -264,7 +259,7 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
                 type: 'partial' //(プリンタから落ちないように首の皮一枚残す)
             });
 
-        }catch(e){
+        } catch (e) {
             alert(e.message);
             request = null;
         }
@@ -274,19 +269,19 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
 
 
     //予約単体印刷
-    var printReservation = function(reservation){
+    var printReservation = function (reservation) {
         modal.style.display = 'block';
-        try{
+        try {
             //予約情報を印刷データに変換
             var request = genRequestByReservationObj(reservation);
-            if(!request){
-                throw({message:'[!] 購入番号'+reservation.payment_no+'の印刷データ作成に失敗しました'});
+            if (!request) {
+                throw ({ message: '[!] 購入番号' + reservation.payment_no + 'の印刷データ作成に失敗しました' });
             }
 
             //プリンターに送信
-            trader.sendMessage({request:request});
+            trader.sendMessage({ request: request });
         }
-        catch(e){
+        catch (e) {
             alert(e.message);
             modal.style.display = 'none';
         }
@@ -294,27 +289,27 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
 
 
     //予約一括印刷 (予約配列をforEachして1本の長いrequestを作って送信する)
-    var printReservationArray = function(reservations){
+    var printReservationArray = function (reservations) {
         modal.style.display = 'block';
-        try{
+        try {
             //予約情報の配列を印刷データに変換
             var request = '';
-            reservations.forEach(function(reservation){
+            reservations.forEach(function (reservation) {
                 var temp = genRequestByReservationObj(reservation);
-                if(!temp){
-                    alert('[!] 購入番号'+reservation.payment_no+'の印刷は印刷データ作成エラーが起きたためスキップされました');
-                }else{
+                if (!temp) {
+                    alert('[!] 購入番号' + reservation.payment_no + 'の印刷は印刷データ作成エラーが起きたためスキップされました');
+                } else {
                     request += temp;
                 }
             });
-            if(!request){
-                throw({message:'[!] 印刷に失敗しました'});
+            if (!request) {
+                throw ({ message: '[!] 印刷に失敗しました' });
             }
 
             //プリンターに送信
-            trader.sendMessage({request:request});
+            trader.sendMessage({ request: request });
         }
-        catch(e){
+        catch (e) {
             alert(e.message);
             modal.style.display = 'none';
         }
@@ -322,10 +317,10 @@ window.tiffThermalPrint = (function(d,StarWebPrintBuilder,StarWebPrintTrader){
 
 
     return {
-        builder:builder,
-        trader:trader,
-        printReservation:printReservation,
-        printReservationArray:printReservationArray
+        builder: builder,
+        trader: trader,
+        printReservation: printReservation,
+        printReservationArray: printReservationArray
     };
 
-})(document,StarWebPrintBuilder,StarWebPrintTrader);
+})(document, StarWebPrintBuilder, StarWebPrintTrader);

@@ -25,7 +25,7 @@
                         <select class="form-control">
                             <% reservationModel.ticketTypes.forEach(function(ticketType) { %>
                             <option value="<%- ticketType._id %>" data-charge="<%= ticketType.charge %>"<%- (reservation.get('ticket_type') === ticketType._id) ? ' selected="selected"' : '' %>>
-                                <%- reservation.set(`ticket_type_name_${locale}`, ticketType.name[locale]).set('ticket_type_charge', ticketType.charge).get('ticket_type_detail_str_' + locale).replace(/\\/g, '&yen;') %>
+                                <%- reservation.set(`ticket_type_name`, ticketType.name).set('ticket_type_charge', ticketType.charge).get('ticket_type_detail_str')[locale].replace(/\\/g, '&yen;') %>
                             </option>
                             <% }) %>
                         </select>

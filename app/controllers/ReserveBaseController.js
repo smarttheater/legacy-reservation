@@ -65,8 +65,7 @@ class ReserveBaseController extends BaseController_1.default {
                 }
                 const reservation = reservationModel.getReservation(choice.seat_code);
                 reservation.ticket_type = ticketType._id;
-                reservation.ticket_type_name_ja = ticketType.name.ja;
-                reservation.ticket_type_name_en = ticketType.name.en;
+                reservation.ticket_type_name = ticketType.name;
                 reservation.ticket_type_charge = ticketType.charge;
                 reservation.watcher_name = choice.watcher_name;
                 reservationModel.setReservation(reservation.seat_code, reservation);
@@ -396,10 +395,8 @@ class ReserveBaseController extends BaseController_1.default {
                 open_time: performance.get('open_time'),
                 start_time: performance.get('start_time'),
                 end_time: performance.get('end_time'),
-                start_str_ja: performance.get('start_str_ja'),
-                start_str_en: performance.get('start_str_en'),
-                location_str_ja: performance.get('location_str_ja'),
-                location_str_en: performance.get('location_str_en'),
+                start_str: performance.get('start_str'),
+                location_str: performance.get('location_str'),
                 theater: {
                     _id: performance.get('theater').get('_id'),
                     name: performance.get('theater').get('name'),
@@ -489,12 +486,13 @@ class ReserveBaseController extends BaseController_1.default {
                     _id: reservation.get('_id'),
                     status: reservation.get('status'),
                     seat_code: reservation.get('seat_code'),
-                    seat_grade_name_ja: seatInfo.grade.name.ja,
-                    seat_grade_name_en: seatInfo.grade.name.en,
+                    seat_grade_name: seatInfo.grade.name,
                     seat_grade_additional_charge: seatInfo.grade.additional_charge,
                     ticket_type: '',
-                    ticket_type_name_ja: '',
-                    ticket_type_name_en: '',
+                    ticket_type_name: {
+                        ja: '',
+                        en: ''
+                    },
                     ticket_type_charge: 0,
                     watcher_name: ''
                 });
@@ -684,8 +682,8 @@ function createEmailQueue(res, performanceDay, paymentNo) {
         return new Promise((resolve, reject) => {
             res.render('email/reserve/complete', {
                 layout: false,
-                title_ja: titleJa,
-                title_en: titleEn,
+                titleJa: titleJa,
+                titleEn: titleEn,
                 reservations: reservations,
                 moment: moment,
                 numeral: numeral,

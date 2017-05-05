@@ -386,12 +386,13 @@ export default class StaffReserveController extends ReserveBaseController implem
                     _id: reservation.get('_id'),
                     status: reservation.get('status'),
                     seat_code: reservation.get('seat_code'),
-                    seat_grade_name_ja: seatInfo.grade.name.ja,
-                    seat_grade_name_en: seatInfo.grade.name.en,
+                    seat_grade_name: seatInfo.grade.name,
                     seat_grade_additional_charge: seatInfo.grade.additional_charge,
                     ticket_type: '',
-                    ticket_type_name_ja: '',
-                    ticket_type_name_en: '',
+                    ticket_type_name: {
+                        ja: '',
+                        en: ''
+                    },
                     ticket_type_charge: 0,
                     watcher_name: ''
                 });
@@ -423,12 +424,13 @@ export default class StaffReserveController extends ReserveBaseController implem
                     _id: reservation.get('_id'),
                     status: reservation.get('status'),
                     seat_code: reservation.get('seat_code'),
-                    seat_grade_name_ja: seatInfo.grade.name.ja,
-                    seat_grade_name_en: seatInfo.grade.name.en,
+                    seat_grade_name: seatInfo.grade.name,
                     seat_grade_additional_charge: seatInfo.grade.additional_charge,
                     ticket_type: '',
-                    ticket_type_name_ja: '',
-                    ticket_type_name_en: '',
+                    ticket_type_name: {
+                        ja: '',
+                        en: ''
+                    },
                     ticket_type_charge: 0,
                     watcher_name: ''
                 });

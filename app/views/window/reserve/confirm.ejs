@@ -28,7 +28,7 @@
                 <th><%- __('Label.DatetimeAndLocation') %></th>
                 <td>
                     <p>
-                        <%- reservationModel.performance[`start_str_${locale}`] %>&nbsp;&nbsp;<%- reservationModel.performance[`location_str_${locale}`] %> 
+                        <%- reservationModel.performance[`start_str`][locale] %>&nbsp;&nbsp;<%- reservationModel.performance[`location_str`][locale] %> 
                     </p>
                 </td>
             </tr>
@@ -44,7 +44,7 @@
                     <p>
                         <% reservationModel.seatCodes.forEach((seatCode) => { %>
                             <% let reservation = new Models.Reservation(reservationModel.seatCode2reservationDocument(seatCode)); %>
-                            <%- reservation.get('seat_code') %> / <%- reservation.get(`ticket_type_detail_str_${locale}`).replace(/\\/g, '&yen;') %>
+                            <%- reservation.get('seat_code') %> / <%- reservation.get(`ticket_type_detail_str`)[locale].replace(/\\/g, '&yen;') %>
                             <%- (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? `[+${ReservationUtil.CHARGE_CVS}(${__('Label.PaymentMethodName.CVS')})]` : '' %>
                             <br>
                         <% }) %>
