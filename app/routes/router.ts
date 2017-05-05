@@ -6,13 +6,13 @@
  */
 
 import { Application, NextFunction, Request, Response } from 'express';
-import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
+import CustomerReserveController from '../controllers/customer/reserve';
 import * as errorController from '../controllers/error';
 import * as gmoController from '../controllers/gmo';
-import GMOReserveController from '../controllers/GMO/Reserve/GMOReserveController';
+import GMOReserveController from '../controllers/gmo/reserve';
 import * as languageController from '../controllers/language';
 import * as otherController from '../controllers/other';
-import ReserveController from '../controllers/Reserve/ReserveController';
+import ReserveController from '../controllers/reserve';
 
 /**
  * URLルーティング

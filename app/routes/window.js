@@ -15,10 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @ignore
  */
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const WindowAuthController_1 = require("../controllers/Window/Auth/WindowAuthController");
-const WindowCancelController_1 = require("../controllers/Window/Cancel/WindowCancelController");
-const WindowMyPageController_1 = require("../controllers/Window/MyPage/WindowMyPageController");
-const WindowReserveController_1 = require("../controllers/Window/Reserve/WindowReserveController");
+const auth_1 = require("../controllers/window/auth");
+const cancel_1 = require("../controllers/window/cancel");
+const mypage_1 = require("../controllers/window/mypage");
+const reserve_1 = require("../controllers/window/reserve");
 const window_1 = require("../models/user/window");
 exports.default = (app) => {
     const authentication = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
@@ -87,17 +87,17 @@ exports.default = (app) => {
     };
     // 当日窓口フロー
     // tslint:disable:max-line-length
-    app.all('/window/login', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowAuthController_1.default(req, res, next)).login(); }));
-    app.all('/window/logout', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowAuthController_1.default(req, res, next)).logout(); }));
-    app.all('/window/mypage', base, authentication, (req, res, next) => { (new WindowMyPageController_1.default(req, res, next)).index(); });
-    app.get('/window/mypage/search', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowMyPageController_1.default(req, res, next)).search(); }));
-    app.get('/window/reserve/start', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowReserveController_1.default(req, res, next)).start(); }));
-    app.all('/window/reserve/:token/terms', base, authentication, (req, res, next) => { (new WindowReserveController_1.default(req, res, next)).terms(); });
-    app.all('/window/reserve/:token/performances', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowReserveController_1.default(req, res, next)).performances(); }));
-    app.all('/window/reserve/:token/seats', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowReserveController_1.default(req, res, next)).seats(); }));
-    app.all('/window/reserve/:token/tickets', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowReserveController_1.default(req, res, next)).tickets(); }));
-    app.all('/window/reserve/:token/profile', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowReserveController_1.default(req, res, next)).profile(); }));
-    app.all('/window/reserve/:token/confirm', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowReserveController_1.default(req, res, next)).confirm(); }));
-    app.get('/window/reserve/:performanceDay/:paymentNo/complete', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowReserveController_1.default(req, res, next)).complete(); }));
-    app.post('/window/cancel/execute', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new WindowCancelController_1.default(req, res, next)).execute(); }));
+    app.all('/window/login', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new auth_1.default(req, res, next)).login(); }));
+    app.all('/window/logout', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new auth_1.default(req, res, next)).logout(); }));
+    app.all('/window/mypage', base, authentication, (req, res, next) => { (new mypage_1.default(req, res, next)).index(); });
+    app.get('/window/mypage/search', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new mypage_1.default(req, res, next)).search(); }));
+    app.get('/window/reserve/start', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).start(); }));
+    app.all('/window/reserve/:token/terms', base, authentication, (req, res, next) => { (new reserve_1.default(req, res, next)).terms(); });
+    app.all('/window/reserve/:token/performances', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).performances(); }));
+    app.all('/window/reserve/:token/seats', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).seats(); }));
+    app.all('/window/reserve/:token/tickets', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).tickets(); }));
+    app.all('/window/reserve/:token/profile', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).profile(); }));
+    app.all('/window/reserve/:token/confirm', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).confirm(); }));
+    app.get('/window/reserve/:performanceDay/:paymentNo/complete', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).complete(); }));
+    app.post('/window/cancel/execute', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new cancel_1.default(req, res, next)).execute(); }));
 };

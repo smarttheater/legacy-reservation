@@ -6,10 +6,10 @@
  */
 import { CommonUtil, Models } from '@motionpicture/chevre-domain';
 import { Application, NextFunction, Request, Response } from 'express';
-import StaffAuthController from '../controllers/Staff/Auth/StaffAuthController';
-import StaffCancelController from '../controllers/Staff/Cancel/StaffCancelController';
-import StaffMyPageController from '../controllers/Staff/MyPage/StaffMyPageController';
-import StaffReserveController from '../controllers/Staff/Reserve/StaffReserveController';
+import StaffAuthController from '../controllers/staff/auth';
+import StaffCancelController from '../controllers/staff/cancel';
+import StaffMyPageController from '../controllers/staff/mypage';
+import StaffReserveController from '../controllers/staff/reserve';
 import StaffUser from '../models/user/staff';
 
 export default (app: Application) => {

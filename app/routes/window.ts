@@ -6,10 +6,10 @@
  */
 import { CommonUtil, Models } from '@motionpicture/chevre-domain';
 import { Application, NextFunction, Request, Response } from 'express';
-import WindowAuthController from '../controllers/Window/Auth/WindowAuthController';
-import WindowCancelController from '../controllers/Window/Cancel/WindowCancelController';
-import WindowMyPageController from '../controllers/Window/MyPage/WindowMyPageController';
-import WindowReserveController from '../controllers/Window/Reserve/WindowReserveController';
+import WindowAuthController from '../controllers/window/auth';
+import WindowCancelController from '../controllers/window/cancel';
+import WindowMyPageController from '../controllers/window/mypage';
+import WindowReserveController from '../controllers/window/reserve';
 import WindowUser from '../models/user/window';
 
 export default (app: Application) => {
