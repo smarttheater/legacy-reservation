@@ -91,22 +91,6 @@ class GMOReserveCvsController extends ReserveBaseController_1.default {
             this.res.redirect(`/customer/reserve/${reservations[0].get('performance_day')}/${reservations[0].get('payment_no')}/waitingSettlement`);
         });
     }
-    fixReservation4cvs(gmoNotificationModel) {
-        return __awaiter(this, void 0, void 0, function* () {
-            debug('finding reservations...:');
-            const reservations = yield chevre_domain_1.Models.Reservation.find({
-                gmo_order_id: gmoNotificationModel.OrderID
-            }).exec();
-            debug('reservations found.', reservations.length);
-            if (reservations.length === 0) {
-                throw new Error('reservation not found');
-            }
-            // todo 内容の整合性チェック
-            // fix
-            yield this.processFixReservations(reservations[0].get('performance_day'), reservations[0].get('payment_no'), {});
-            debug('reservations updated');
-        });
-    }
 }
 exports.default = GMOReserveCvsController;
 /**
