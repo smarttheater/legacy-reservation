@@ -384,11 +384,11 @@ interface IPerformance {
     start_str: {
         ja: string,
         en: string
-    },
+    };
     location_str: {
         ja: string,
         en: string
-    },
+    };
     theater: {
         _id: string,
         name: {

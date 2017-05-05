@@ -1,7 +1,6 @@
 "use strict";
 // tslint:disable-next-line:no-reference
 /// <reference path="definitions/tiff.d.ts" />
-/// <reference path="definitions/uniqid.d.ts" />
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Module dependencies.
