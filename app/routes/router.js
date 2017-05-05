@@ -1,4 +1,10 @@
 "use strict";
+/**
+ * デフォルトルーター
+ *
+ * @function router
+ * @ignore
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -9,11 +15,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const CustomerReserveController_1 = require("../controllers/Customer/Reserve/CustomerReserveController");
-const ErrorController_1 = require("../controllers/Error/ErrorController");
-const GMOController_1 = require("../controllers/GMO/GMOController");
+const errorController = require("../controllers/error");
+const gmoController = require("../controllers/gmo");
 const GMOReserveController_1 = require("../controllers/GMO/Reserve/GMOReserveController");
-const LanguageController_1 = require("../controllers/Language/LanguageController");
-const OtherController_1 = require("../controllers/Other/OtherController");
+const languageController = require("../controllers/language");
+const otherController = require("../controllers/other");
 const ReserveController_1 = require("../controllers/Reserve/ReserveController");
 /**
  * URLルーティング
@@ -31,7 +37,7 @@ exports.default = (app) => {
     };
     // tslint:disable:max-line-length
     // 言語
-    app.get('/language/update/:locale', base, (req, res, next) => { (new LanguageController_1.default(req, res, next)).update(); });
+    app.get('/language/update/:locale', base, languageController.update);
     app.get('/reserve/:token/getSeatProperties', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new ReserveController_1.default(req, res, next)).getSeatProperties(); }));
     app.get('/reserve/:performanceId/unavailableSeatCodes', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new ReserveController_1.default(req, res, next)).getUnavailableSeatCodes(); }));
     app.get('/reserve/print', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new ReserveController_1.default(req, res, next)).print(); }));
@@ -39,10 +45,10 @@ exports.default = (app) => {
     app.post('/GMO/reserve/:token/start', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOReserveController_1.default(req, res, next)).start(); }));
     app.post('/GMO/reserve/result', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOReserveController_1.default(req, res, next)).result(); }));
     app.get('/GMO/reserve/:orderId/cancel', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOReserveController_1.default(req, res, next)).cancel(); }));
-    app.all('/GMO/notify', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new GMOController_1.default(req, res, next)).notify(); }));
-    app.get('/policy', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).policy(); });
-    app.get('/privacy', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).privacy(); });
-    app.get('/commercialTransactions', base, (req, res, next) => { (new OtherController_1.default(req, res, next)).commercialTransactions(); });
+    app.all('/GMO/notify', base, gmoController.notify);
+    app.get('/policy', base, otherController.policy);
+    app.get('/privacy', base, otherController.privacy);
+    app.get('/commercialTransactions', base, otherController.commercialTransactions);
     // 一般
     // 本番環境ではhomeは存在しない
     if (process.env.NODE_ENV !== 'production') {
@@ -56,15 +62,14 @@ exports.default = (app) => {
     app.all('/customer/reserve/:token/confirm', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).confirm(); }));
     app.get('/customer/reserve/:performanceDay/:paymentNo/waitingSettlement', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).waitingSettlement(); }));
     app.get('/customer/reserve/:performanceDay/:paymentNo/complete', base, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new CustomerReserveController_1.default(req, res, next)).complete(); }));
-    app.get('/error/notFound', base, (req, res, next) => { (new ErrorController_1.default(req, res, next)).notFound(); });
+    app.get('/error/notFound', base, errorController.notFound);
     // 404
-    // tslint:disable-next-line:variable-name
-    app.use((_req, res) => {
+    app.use((__, res) => {
         res.redirect('/error/notFound');
     });
     // error handlers
     app.use((err, req, res, next) => {
         req.route.path = '/error/error';
-        (new ErrorController_1.default(req, res, next)).index(err);
+        errorController.index(err, req, res, next);
     });
 };

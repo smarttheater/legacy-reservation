@@ -4,11 +4,10 @@
  * @function sendGridRouter
  * @ignore
  */
-import { Application, NextFunction, Request, Response } from 'express';
-import SendGridController from '../controllers/SendGrid/SendGridController';
+
+import { Application } from 'express';
+import * as sendGridController from '../controllers/sendGrid';
 
 export default (app: Application) => {
-    // tslint:disable:max-line-length
-    // イベントフック
-    app.all('/sendGrid/event/notify', async (req: Request, res: Response, next: NextFunction) => { await (new SendGridController(req, res, next)).notifyEvent(); });
+    app.all('/sendGrid/event/notify', sendGridController.notifyEvent);
 };

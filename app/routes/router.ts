@@ -4,13 +4,14 @@
  * @function router
  * @ignore
  */
+
 import { Application, NextFunction, Request, Response } from 'express';
 import CustomerReserveController from '../controllers/Customer/Reserve/CustomerReserveController';
-import ErrorController from '../controllers/Error/ErrorController';
-import GMOController from '../controllers/GMO/GMOController';
+import * as errorController from '../controllers/error';
+import * as gmoController from '../controllers/gmo';
 import GMOReserveController from '../controllers/GMO/Reserve/GMOReserveController';
-import LanguageController from '../controllers/Language/LanguageController';
-import OtherController from '../controllers/Other/OtherController';
+import * as languageController from '../controllers/language';
+import * as otherController from '../controllers/other';
 import ReserveController from '../controllers/Reserve/ReserveController';
 
 /**
@@ -31,7 +32,7 @@ export default (app: Application) => {
     // tslint:disable:max-line-length
 
     // 言語
-    app.get('/language/update/:locale', base, (req: Request, res: Response, next: NextFunction) => { (new LanguageController(req, res, next)).update(); });
+    app.get('/language/update/:locale', base, languageController.update);
 
     app.get('/reserve/:token/getSeatProperties', base, async (req: Request, res: Response, next: NextFunction) => { await (new ReserveController(req, res, next)).getSeatProperties(); });
     app.get('/reserve/:performanceId/unavailableSeatCodes', base, async (req: Request, res: Response, next: NextFunction) => { await (new ReserveController(req, res, next)).getUnavailableSeatCodes(); });
@@ -41,11 +42,11 @@ export default (app: Application) => {
     app.post('/GMO/reserve/:token/start', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOReserveController(req, res, next)).start(); });
     app.post('/GMO/reserve/result', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOReserveController(req, res, next)).result(); });
     app.get('/GMO/reserve/:orderId/cancel', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOReserveController(req, res, next)).cancel(); });
-    app.all('/GMO/notify', base, async (req: Request, res: Response, next: NextFunction) => { await (new GMOController(req, res, next)).notify(); });
+    app.all('/GMO/notify', base, gmoController.notify);
 
-    app.get('/policy', base, (req: Request, res: Response, next: NextFunction) => { (new OtherController(req, res, next)).policy(); });
-    app.get('/privacy', base, (req: Request, res: Response, next: NextFunction) => { (new OtherController(req, res, next)).privacy(); });
-    app.get('/commercialTransactions', base, (req: Request, res: Response, next: NextFunction) => { (new OtherController(req, res, next)).commercialTransactions(); });
+    app.get('/policy', base, otherController.policy);
+    app.get('/privacy', base, otherController.privacy);
+    app.get('/commercialTransactions', base, otherController.commercialTransactions);
 
     // 一般
     // 本番環境ではhomeは存在しない
@@ -61,17 +62,16 @@ export default (app: Application) => {
     app.get('/customer/reserve/:performanceDay/:paymentNo/waitingSettlement', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).waitingSettlement(); });
     app.get('/customer/reserve/:performanceDay/:paymentNo/complete', base, async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).complete(); });
 
-    app.get('/error/notFound', base, (req: Request, res: Response, next: NextFunction) => { (new ErrorController(req, res, next)).notFound(); });
+    app.get('/error/notFound', base, errorController.notFound);
 
     // 404
-    // tslint:disable-next-line:variable-name
-    app.use((_req: Request, res: Response) => {
+    app.use((__: Request, res: Response) => {
         res.redirect('/error/notFound');
     });
 
     // error handlers
     app.use((err: any, req: Request, res: Response, next: NextFunction) => {
         req.route.path = '/error/error';
-        (new ErrorController(req, res, next)).index(err);
+        errorController.index(err, req, res, next);
     });
 };
