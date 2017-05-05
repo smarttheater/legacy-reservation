@@ -43,7 +43,7 @@ class WindowAuthController extends BaseController_1.default {
                     this.res.locals.userId = this.req.body.userId;
                     this.res.locals.password = '';
                     this.res.locals.validation = validationResult.array();
-                    this.res.render('window/auth/login');
+                    this.res.render('window/auth/login', { layout: this.layout });
                     return;
                 }
                 try {
@@ -57,7 +57,7 @@ class WindowAuthController extends BaseController_1.default {
                         this.res.locals.validation = [
                             { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
                         ];
-                        this.res.render('window/auth/login');
+                        this.res.render('window/auth/login', { layout: this.layout });
                         return;
                     }
                     // パスワードチェック
@@ -65,7 +65,7 @@ class WindowAuthController extends BaseController_1.default {
                         this.res.locals.validation = [
                             { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
                         ];
-                        this.res.render('window/auth/login');
+                        this.res.render('window/auth/login', { layout: this.layout });
                         return;
                     }
                     // ログイン記憶
@@ -92,7 +92,7 @@ class WindowAuthController extends BaseController_1.default {
             else {
                 this.res.locals.userId = '';
                 this.res.locals.password = '';
-                this.res.render('window/auth/login');
+                this.res.render('window/auth/login', { layout: this.layout });
                 return;
             }
         });

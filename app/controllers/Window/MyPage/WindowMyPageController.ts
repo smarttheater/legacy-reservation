@@ -20,7 +20,8 @@ export default class WindowMyPageController extends BaseController {
     public index(): void {
         this.res.render('window/mypage/index', {
             GMOUtil: GMOUtil,
-            ReservationUtil: ReservationUtil
+            ReservationUtil: ReservationUtil,
+            layout: this.layout
         });
     }
 

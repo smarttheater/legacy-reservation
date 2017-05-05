@@ -20,17 +20,17 @@ const benchmarks_1 = require("./middlewares/benchmarks");
 // tslint:disable-next-line:no-require-imports
 const expressValidator = require("express-validator");
 const session_1 = require("./middlewares/session");
-const app = express();
-app.use(partials()); // レイアウト&パーシャルサポート
-app.use(benchmarks_1.default); // ベンチマーク的な
-app.use(session_1.default); // セッション
-app.use(basicAuth_1.default); // ベーシック認証
-// ルーティング
+const setLocals_1 = require("./middlewares/setLocals");
 const customerSupport_1 = require("./routes/customerSupport");
 const router_1 = require("./routes/router");
 const sendGrid_1 = require("./routes/sendGrid");
 const staff_1 = require("./routes/staff");
 const window_1 = require("./routes/window");
+const app = express();
+app.use(partials()); // レイアウト&パーシャルサポート
+app.use(benchmarks_1.default); // ベンチマーク的な
+app.use(session_1.default); // セッション
+app.use(basicAuth_1.default); // ベーシック認証
 if (process.env.NODE_ENV !== 'production') {
     // サーバーエラーテスト
     app.get('/500', (req) => {
@@ -76,6 +76,7 @@ app.use((req, _res, next) => {
     next();
 });
 app.use(expressValidator()); // バリデーション
+app.use(setLocals_1.default); // ローカル変数セット
 // ルーティング登録の順序に注意！
 staff_1.default(app);
 window_1.default(app);

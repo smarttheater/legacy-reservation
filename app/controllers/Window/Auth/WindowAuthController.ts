@@ -33,7 +33,7 @@ export default class WindowAuthController extends BaseController {
                 this.res.locals.userId = this.req.body.userId;
                 this.res.locals.password = '';
                 this.res.locals.validation = validationResult.array();
-                this.res.render('window/auth/login');
+                this.res.render('window/auth/login', { layout: this.layout });
                 return;
             }
             try {
@@ -51,7 +51,7 @@ export default class WindowAuthController extends BaseController {
                     this.res.locals.validation = [
                         { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
                     ];
-                    this.res.render('window/auth/login');
+                    this.res.render('window/auth/login', { layout: this.layout });
                     return;
                 }
 
@@ -60,7 +60,7 @@ export default class WindowAuthController extends BaseController {
                     this.res.locals.validation = [
                         { msg: this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }) }
                     ];
-                    this.res.render('window/auth/login');
+                    this.res.render('window/auth/login', { layout: this.layout });
                     return;
                 }
 
@@ -95,7 +95,7 @@ export default class WindowAuthController extends BaseController {
             this.res.locals.userId = '';
             this.res.locals.password = '';
 
-            this.res.render('window/auth/login');
+            this.res.render('window/auth/login', { layout: this.layout });
             return;
         }
     }

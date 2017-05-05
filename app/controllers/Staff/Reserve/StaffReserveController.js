@@ -99,7 +99,8 @@ class StaffReserveController extends ReserveBaseController_1.default {
                     reservationModel = yield this.processCancelSeats(reservationModel);
                     yield reservationModel.save();
                     this.res.render('staff/reserve/performances', {
-                        FilmUtil: chevre_domain_1.FilmUtil
+                        FilmUtil: chevre_domain_1.FilmUtil,
+                        layout: this.layout
                     });
                 }
             }
@@ -162,7 +163,8 @@ class StaffReserveController extends ReserveBaseController_1.default {
                 else {
                     this.res.render('staff/reserve/seats', {
                         reservationModel: reservationModel,
-                        limit: limit
+                        limit: limit,
+                        layout: this.layout
                     });
                     return;
                 }
@@ -197,7 +199,8 @@ class StaffReserveController extends ReserveBaseController_1.default {
                 }
                 else {
                     this.res.render('staff/reserve/tickets', {
-                        reservationModel: reservationModel
+                        reservationModel: reservationModel,
+                        layout: this.layout
                     });
                 }
             }
@@ -253,7 +256,8 @@ class StaffReserveController extends ReserveBaseController_1.default {
                 }
                 else {
                     this.res.render('staff/reserve/confirm', {
-                        reservationModel: reservationModel
+                        reservationModel: reservationModel,
+                        layout: this.layout
                     });
                 }
             }
@@ -286,7 +290,8 @@ class StaffReserveController extends ReserveBaseController_1.default {
                     return chevre_domain_1.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
                 });
                 this.res.render('staff/reserve/complete', {
-                    reservationDocuments: reservations
+                    reservationDocuments: reservations,
+                    layout: this.layout
                 });
             }
             catch (error) {

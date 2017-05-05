@@ -31,7 +31,8 @@ class StaffMyPageController extends BaseController_1.default {
                 const films = yield chevre_domain_1.Models.Film.find({}, 'name', { sort: { _id: 1 } }).exec();
                 this.res.render('staff/mypage/index', {
                     theaters: theaters,
-                    films: films
+                    films: films,
+                    layout: this.layout
                 });
             }
             catch (error) {
@@ -247,7 +248,8 @@ class StaffMyPageController extends BaseController_1.default {
                         reservationsByDay[reservation.get('performance_day')].push(reservation);
                     });
                     this.res.render('staff/mypage/release', {
-                        reservationsByDay: reservationsByDay
+                        reservationsByDay: reservationsByDay,
+                        layout: this.layout
                     });
                 }
                 catch (error) {

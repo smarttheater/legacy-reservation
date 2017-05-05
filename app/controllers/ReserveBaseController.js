@@ -130,22 +130,25 @@ class ReserveBaseController extends BaseController_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             const DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID = -2;
             let orderId;
+            if (reservationModel.transactionGMO === undefined) {
+                reservationModel.transactionGMO = {
+                    orderId: '',
+                    accessId: '',
+                    accessPass: '',
+                    amount: 0,
+                    count: 0,
+                    status: GMO.Util.STATUS_CREDIT_UNPROCESSED
+                };
+            }
+            // GMOリクエスト前にカウントアップ
+            reservationModel.transactionGMO.count += 1;
+            yield reservationModel.save();
             switch (reservationModel.paymentMethod) {
                 case GMO.Util.PAY_TYPE_CREDIT:
                     reservePaymentCreditForm_1.default(this.req);
                     const validationResult = yield this.req.getValidationResult();
                     if (!validationResult.isEmpty()) {
                         throw new Error(this.req.__('Message.Invalid'));
-                    }
-                    if (reservationModel.transactionGMO === undefined) {
-                        reservationModel.transactionGMO = {
-                            orderId: '',
-                            accessId: '',
-                            accessPass: '',
-                            amount: 0,
-                            count: 0,
-                            status: GMO.Util.STATUS_CREDIT_UNPROCESSED
-                        };
                     }
                     if (reservationModel.transactionGMO.status === GMO.Util.STATUS_CREDIT_AUTH) {
                         //GMOオーソリ取消
@@ -159,11 +162,10 @@ class ReserveBaseController extends BaseController_1.default {
                         yield GMO.CreditService.alterTran(alterTranIn);
                     }
                     // GMO取引作成
-                    reservationModel.transactionGMO.count += 1;
-                    const paymentNo = reservationModel.paymentNo;
                     const count = `00${reservationModel.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
                     // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
-                    orderId = chevre_domain_1.ReservationUtil.createGMOOrderId(reservationModel.performance.day, paymentNo, count);
+                    orderId = chevre_domain_1.ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, count);
+                    debug('orderId:', orderId);
                     const amount = reservationModel.getTotalCharge();
                     const entryTranIn = {
                         shopId: process.env.GMO_SHOP_ID,
@@ -191,16 +193,6 @@ class ReserveBaseController extends BaseController_1.default {
                     break;
                 case GMO.Util.PAY_TYPE_CVS:
                     // コンビニ決済の場合、オーダーIDの発行だけ行う
-                    if (reservationModel.transactionGMO === undefined) {
-                        reservationModel.transactionGMO = {
-                            orderId: '',
-                            accessId: '',
-                            accessPass: '',
-                            amount: 0,
-                            count: 0,
-                            status: GMO.Util.STATUS_CVS_UNPROCESSED
-                        };
-                    }
                     const serialNumber = `00${reservationModel.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
                     // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
                     orderId = chevre_domain_1.ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, serialNumber);

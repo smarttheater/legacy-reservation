@@ -29,7 +29,8 @@ class WindowMyPageController extends BaseController_1.default {
     index() {
         this.res.render('window/mypage/index', {
             GMOUtil: gmo_service_1.Util,
-            ReservationUtil: chevre_domain_1.ReservationUtil
+            ReservationUtil: chevre_domain_1.ReservationUtil,
+            layout: this.layout
         });
     }
     /**

@@ -91,7 +91,8 @@ class WindowReserveController extends ReserveBaseController_1.default {
                         reservationModel = yield this.processCancelSeats(reservationModel);
                         yield reservationModel.save();
                         this.res.render('window/reserve/performances', {
-                            FilmUtil: chevre_domain_1.FilmUtil
+                            FilmUtil: chevre_domain_1.FilmUtil,
+                            layout: this.layout
                         });
                     }
                     catch (error) {
@@ -156,7 +157,8 @@ class WindowReserveController extends ReserveBaseController_1.default {
                 else {
                     this.res.render('window/reserve/seats', {
                         reservationModel: reservationModel,
-                        limit: limit
+                        limit: limit,
+                        layout: this.layout
                     });
                     return;
                 }
@@ -192,7 +194,8 @@ class WindowReserveController extends ReserveBaseController_1.default {
                 }
                 else {
                     this.res.render('window/reserve/tickets', {
-                        reservationModel: reservationModel
+                        reservationModel: reservationModel,
+                        layout: this.layout
                     });
                 }
             }
@@ -222,7 +225,8 @@ class WindowReserveController extends ReserveBaseController_1.default {
                     }
                     catch (error) {
                         this.res.render('window/reserve/profile', {
-                            reservationModel: reservationModel
+                            reservationModel: reservationModel,
+                            layout: this.layout
                         });
                     }
                 }
@@ -243,7 +247,8 @@ class WindowReserveController extends ReserveBaseController_1.default {
                         this.res.locals.paymentMethod = reservationModel.paymentMethod;
                     }
                     this.res.render('window/reserve/profile', {
-                        reservationModel: reservationModel
+                        reservationModel: reservationModel,
+                        layout: this.layout
                     });
                 }
             }
@@ -279,7 +284,8 @@ class WindowReserveController extends ReserveBaseController_1.default {
                 }
                 else {
                     this.res.render('window/reserve/confirm', {
-                        reservationModel: reservationModel
+                        reservationModel: reservationModel,
+                        layout: this.layout
                     });
                 }
             }
@@ -315,7 +321,8 @@ class WindowReserveController extends ReserveBaseController_1.default {
                     return chevre_domain_1.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
                 });
                 this.res.render('window/reserve/complete', {
-                    reservationDocuments: reservations
+                    reservationDocuments: reservations,
+                    layout: this.layout
                 });
             }
             catch (error) {

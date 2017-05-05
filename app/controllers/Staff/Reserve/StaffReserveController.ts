@@ -93,7 +93,8 @@ export default class StaffReserveController extends ReserveBaseController implem
                 await reservationModel.save();
 
                 this.res.render('staff/reserve/performances', {
-                    FilmUtil: FilmUtil
+                    FilmUtil: FilmUtil,
+                    layout: this.layout
                 });
             }
         } catch (error) {
@@ -157,7 +158,8 @@ export default class StaffReserveController extends ReserveBaseController implem
             } else {
                 this.res.render('staff/reserve/seats', {
                     reservationModel: reservationModel,
-                    limit: limit
+                    limit: limit,
+                    layout: this.layout
                 });
                 return;
             }
@@ -191,7 +193,8 @@ export default class StaffReserveController extends ReserveBaseController implem
                 }
             } else {
                 this.res.render('staff/reserve/tickets', {
-                    reservationModel: reservationModel
+                    reservationModel: reservationModel,
+                    layout: this.layout
                 });
             }
         } catch (error) {
@@ -246,7 +249,8 @@ export default class StaffReserveController extends ReserveBaseController implem
                 }
             } else {
                 this.res.render('staff/reserve/confirm', {
-                    reservationModel: reservationModel
+                    reservationModel: reservationModel,
+                    layout: this.layout
                 });
             }
         } catch (error) {
@@ -283,7 +287,8 @@ export default class StaffReserveController extends ReserveBaseController implem
             });
 
             this.res.render('staff/reserve/complete', {
-                reservationDocuments: reservations
+                reservationDocuments: reservations,
+                layout: this.layout
             });
         } catch (error) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));

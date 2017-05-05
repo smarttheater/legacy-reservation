@@ -85,7 +85,8 @@ export default class WindowReserveController extends ReserveBaseController imple
                     await reservationModel.save();
 
                     this.res.render('window/reserve/performances', {
-                        FilmUtil: FilmUtil
+                        FilmUtil: FilmUtil,
+                        layout: this.layout
                     });
                 } catch (error) {
                     this.next(error);
@@ -150,7 +151,8 @@ export default class WindowReserveController extends ReserveBaseController imple
             } else {
                 this.res.render('window/reserve/seats', {
                     reservationModel: reservationModel,
-                    limit: limit
+                    limit: limit,
+                    layout: this.layout
                 });
                 return;
             }
@@ -185,7 +187,8 @@ export default class WindowReserveController extends ReserveBaseController imple
                 }
             } else {
                 this.res.render('window/reserve/tickets', {
-                    reservationModel: reservationModel
+                    reservationModel: reservationModel,
+                    layout: this.layout
                 });
             }
         } catch (error) {
@@ -214,7 +217,8 @@ export default class WindowReserveController extends ReserveBaseController imple
                     this.res.redirect(`/window/reserve/${token}/confirm`);
                 } catch (error) {
                     this.res.render('window/reserve/profile', {
-                        reservationModel: reservationModel
+                        reservationModel: reservationModel,
+                        layout: this.layout
                     });
                 }
             } else {
@@ -235,7 +239,8 @@ export default class WindowReserveController extends ReserveBaseController imple
                 }
 
                 this.res.render('window/reserve/profile', {
-                    reservationModel: reservationModel
+                    reservationModel: reservationModel,
+                    layout: this.layout
                 });
             }
         } catch (error) {
@@ -270,7 +275,8 @@ export default class WindowReserveController extends ReserveBaseController imple
                 }
             } else {
                 this.res.render('window/reserve/confirm', {
-                    reservationModel: reservationModel
+                    reservationModel: reservationModel,
+                    layout: this.layout
                 });
             }
         } catch (error) {
@@ -310,7 +316,8 @@ export default class WindowReserveController extends ReserveBaseController imple
             });
 
             this.res.render('window/reserve/complete', {
-                reservationDocuments: reservations
+                reservationDocuments: reservations,
+                layout: this.layout
             });
         } catch (error) {
             this.next(new Error(this.req.__('Message.UnexpectedError')));

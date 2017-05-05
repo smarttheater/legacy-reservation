@@ -24,7 +24,8 @@ export default class StaffMyPageController extends BaseController {
 
             this.res.render('staff/mypage/index', {
                 theaters: theaters,
-                films: films
+                films: films,
+                layout: this.layout
             });
         } catch (error) {
             this.next(error);
@@ -270,7 +271,8 @@ export default class StaffMyPageController extends BaseController {
                 });
 
                 this.res.render('staff/mypage/release', {
-                    reservationsByDay: reservationsByDay
+                    reservationsByDay: reservationsByDay,
+                    layout: this.layout
                 });
             } catch (error) {
                 this.next(new Error(this.req.__('Message.UnexpectedError')));
