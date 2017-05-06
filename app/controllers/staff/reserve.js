@@ -32,14 +32,14 @@ function start(req, res, next) {
         }
         try {
             const reservationModel = yield reserveBaseController.processStart(PURCHASER_GROUP, req);
-            yield reservationModel.save();
+            reservationModel.save(req);
             if (reservationModel.performance !== undefined) {
-                const cb = `/staff/reserve/${reservationModel.token}/seats`;
-                res.redirect(`/staff/reserve/${reservationModel.token}/terms?cb=${encodeURIComponent(cb)}`);
+                const cb = '/staff/reserve/seats';
+                res.redirect(`/staff/reserve/terms?cb=${encodeURIComponent(cb)}`);
             }
             else {
-                const cb = `/staff/reserve/${reservationModel.token}/performances`;
-                res.redirect(`/staff/reserve/${reservationModel.token}/terms?cb=${encodeURIComponent(cb)}`);
+                const cb = '/staff/reserve/performances';
+                res.redirect(`/staff/reserve/terms?cb=${encodeURIComponent(cb)}`);
             }
         }
         catch (error) {
@@ -64,8 +64,7 @@ exports.terms = terms;
 function performances(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = req.params.token;
-            const reservationModel = yield session_1.default.find(token);
+            const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null) {
                 next(new Error(req.__('Message.Expired')));
                 return;
@@ -80,8 +79,8 @@ function performances(req, res, next) {
                 try {
                     // パフォーマンスFIX
                     yield reserveBaseController.processFixPerformance(reservationModel, req.body.performanceId, req);
-                    yield reservationModel.save();
-                    res.redirect(`/staff/reserve/${token}/seats`);
+                    reservationModel.save(req);
+                    res.redirect('/staff/reserve/seats');
                     return;
                 }
                 catch (error) {
@@ -92,7 +91,7 @@ function performances(req, res, next) {
             else {
                 // 仮予約あればキャンセルする
                 yield processCancelSeats(reservationModel);
-                yield reservationModel.save();
+                reservationModel.save(req);
                 res.render('staff/reserve/performances', {
                     FilmUtil: chevre.FilmUtil,
                     layout: layout
@@ -111,8 +110,7 @@ exports.performances = performances;
 function seats(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = req.params.token;
-            let reservationModel = yield session_1.default.find(token);
+            let reservationModel = session_1.default.FIND(req);
             if (reservationModel === null) {
                 next(new Error(req.__('Message.Expired')));
                 return;
@@ -122,7 +120,7 @@ function seats(req, res, next) {
                 reserveSeatForm_1.default(req);
                 const validationResult = yield req.getValidationResult();
                 if (!validationResult.isEmpty()) {
-                    res.redirect(`/staff/reserve/${token}/seats`);
+                    res.redirect('/staff/reserve/seats');
                     return;
                 }
                 reservationModel = reservationModel;
@@ -130,7 +128,7 @@ function seats(req, res, next) {
                 // 追加指定席を合わせて制限枚数を超過した場合
                 if (seatCodes.length > limit) {
                     const message = req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                    res.redirect(`/staff/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
+                    res.redirect(`/staff/reserve/seats?message=${encodeURIComponent(message)}`);
                     return;
                 }
                 // 仮予約あればキャンセルする
@@ -138,15 +136,15 @@ function seats(req, res, next) {
                 try {
                     // 座席FIX
                     yield processFixSeats(reservationModel, seatCodes, req);
-                    yield reservationModel.save();
+                    reservationModel.save(req);
                     // 券種選択へ
-                    res.redirect(`/staff/reserve/${token}/tickets`);
+                    res.redirect('/staff/reserve/tickets');
                     return;
                 }
                 catch (error) {
-                    yield reservationModel.save();
+                    reservationModel.save(req);
                     const message = req.__('Message.SelectedSeatsUnavailable');
-                    res.redirect(`/staff/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
+                    res.redirect(`/staff/reserve/seats?message=${encodeURIComponent(message)}`);
                     return;
                 }
             }
@@ -172,8 +170,7 @@ exports.seats = seats;
 function tickets(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = req.params.token;
-            const reservationModel = yield session_1.default.find(token);
+            const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null) {
                 next(new Error(req.__('Message.Expired')));
                 return;
@@ -181,11 +178,11 @@ function tickets(req, res, next) {
             if (req.method === 'POST') {
                 try {
                     yield reserveBaseController.processFixTickets(reservationModel, req);
-                    yield reservationModel.save();
-                    res.redirect(`/staff/reserve/${token}/profile`);
+                    reservationModel.save(req);
+                    res.redirect('/staff/reserve/profile');
                 }
                 catch (error) {
-                    res.redirect(`/staff/reserve/${token}/tickets`);
+                    res.redirect('/staff/reserve/tickets');
                 }
             }
             else {
@@ -207,14 +204,13 @@ exports.tickets = tickets;
 function profile(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = req.params.token;
-            const reservationModel = yield session_1.default.find(token);
+            const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null) {
                 next(new Error(req.__('Message.Expired')));
                 return;
             }
             yield reserveBaseController.processAllExceptConfirm(reservationModel, req);
-            res.redirect(`/staff/reserve/${token}/confirm`);
+            res.redirect('/staff/reserve/confirm');
         }
         catch (error) {
             next(new Error(req.__('Message.UnexpectedError')));
@@ -228,8 +224,7 @@ exports.profile = profile;
 function confirm(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = req.params.token;
-            const reservationModel = yield session_1.default.find(token);
+            const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null) {
                 next(new Error(req.__('Message.Expired')));
                 return;
@@ -239,11 +234,11 @@ function confirm(req, res, next) {
                     yield reserveBaseController.processConfirm(reservationModel, req);
                     // 予約確定
                     yield reserveBaseController.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {}, res);
-                    yield reservationModel.remove();
+                    session_1.default.REMOVE(req);
                     res.redirect(`/staff/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                 }
                 catch (error) {
-                    yield reservationModel.remove();
+                    session_1.default.REMOVE(req);
                     next(error);
                 }
             }

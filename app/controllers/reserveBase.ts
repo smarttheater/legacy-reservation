@@ -4,7 +4,7 @@
  * @namespace controller/reserveBase
  */
 
-import { CommonUtil, EmailQueueUtil, Models, ReservationUtil, ScreenUtil, TicketTypeGroupUtil } from '@motionpicture/chevre-domain';
+import { EmailQueueUtil, Models, ReservationUtil, ScreenUtil, TicketTypeGroupUtil } from '@motionpicture/chevre-domain';
 import * as GMO from '@motionpicture/gmo-service';
 import * as conf from 'config';
 import * as createDebug from 'debug';
@@ -32,7 +32,7 @@ export async function processFixTickets(reservationModel: ReservationModel, req:
     reserveTicketForm(req);
     const validationResult = await req.getValidationResult();
     if (!validationResult.isEmpty()) {
-        throw new Error(req.__('Message.UnexpectedError'));
+        throw new Error(req.__('Message.Invalid'));
     }
 
     // 座席選択情報を保存して座席選択へ
@@ -42,9 +42,7 @@ export async function processFixTickets(reservationModel: ReservationModel, req:
     }
 
     choices.forEach((choice: any) => {
-        const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => {
-            return (ticketTypeInArray._id === choice.ticket_type);
-        });
+        const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === choice.ticket_type));
         if (ticketType === undefined) {
             throw new Error(req.__('Message.UnexpectedError'));
         }
@@ -140,7 +138,7 @@ export async function processFixGMO(reservationModel: ReservationModel, req: Req
 
     // GMOリクエスト前にカウントアップ
     reservationModel.transactionGMO.count += 1;
-    await reservationModel.save();
+    reservationModel.save(req);
 
     switch (reservationModel.paymentMethod) {
         case GMO.Util.PAY_TYPE_CREDIT:
@@ -223,9 +221,7 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
     }
 
     // 予約トークンを発行
-    const token = CommonUtil.createToken();
     const reservationModel = new ReservationModel();
-    reservationModel.token = token;
     reservationModel.purchaserGroup = purchaserGroup;
     initializePayment(reservationModel, req);
 
@@ -309,18 +305,16 @@ export function initializePayment(reservationModel: ReservationModel, req: Reque
  */
 export async function processCancelSeats(reservationModel: ReservationModel): Promise<void> {
     const ids = reservationModel.getReservationIds();
-    if (ids.length === 0) {
-        return;
-    }
+    if (ids.length > 0) {
+        // セッション中の予約リストを初期化
+        reservationModel.seatCodes = [];
 
-    // セッション中の予約リストを初期化
-    reservationModel.seatCodes = [];
-
-    // 仮予約を空席ステータスに戻す
-    try {
-        await Models.Reservation.remove({ _id: { $in: ids } }).exec();
-    } catch (error) {
-        // 失敗したとしても時間経過で消えるので放置
+        // 仮予約を空席ステータスに戻す
+        try {
+            await Models.Reservation.remove({ _id: { $in: ids } }).exec();
+        } catch (error) {
+            // 失敗したとしても時間経過で消えるので放置
+        }
     }
 }
 

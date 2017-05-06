@@ -32,8 +32,7 @@ export async function getUnavailableSeatCodes(req: Request, res: Response, __: N
  */
 export async function getSeatProperties(req: Request, res: Response, __: NextFunction) {
     try {
-        const token = req.params.token;
-        const reservationModel = await ReservationModel.find(token);
+        const reservationModel = ReservationModel.FIND(req);
 
         if (reservationModel === null) {
             res.json({ propertiesBySeatCode: {} });

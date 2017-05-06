@@ -91,12 +91,12 @@ export default (app: Application) => {
     app.all('/window/mypage', base, authentication, windowMyPageController.index);
     app.get('/window/mypage/search', base, authentication, windowMyPageController.search);
     app.get('/window/reserve/start', base, authentication, windowReserveController.start);
-    app.all('/window/reserve/:token/terms', base, authentication, windowReserveController.terms);
-    app.all('/window/reserve/:token/performances', base, authentication, windowReserveController.performances);
-    app.all('/window/reserve/:token/seats', base, authentication, windowReserveController.seats);
-    app.all('/window/reserve/:token/tickets', base, authentication, windowReserveController.tickets);
-    app.all('/window/reserve/:token/profile', base, authentication, windowReserveController.profile);
-    app.all('/window/reserve/:token/confirm', base, authentication, windowReserveController.confirm);
+    app.all('/window/reserve/terms', base, authentication, windowReserveController.terms);
+    app.all('/window/reserve/performances', base, authentication, windowReserveController.performances);
+    app.all('/window/reserve/seats', base, authentication, windowReserveController.seats);
+    app.all('/window/reserve/tickets', base, authentication, windowReserveController.tickets);
+    app.all('/window/reserve/profile', base, authentication, windowReserveController.profile);
+    app.all('/window/reserve/confirm', base, authentication, windowReserveController.confirm);
     app.get('/window/reserve/:performanceDay/:paymentNo/complete', base, authentication, windowReserveController.complete);
     app.post('/window/cancel/execute', base, authentication, windowCancelController.execute);
 };

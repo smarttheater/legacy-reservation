@@ -60,14 +60,13 @@ String.prototype.mbSubstr = function (start, length) {
 function start(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = req.params.token;
-            const reservationModel = yield session_1.default.find(token);
+            const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null) {
                 next(new Error(req.__('Message.Expired')));
                 return;
             }
             // 予約情報セッション削除
-            yield reservationModel.remove();
+            session_1.default.REMOVE(req);
             // GMOへ遷移画面
             // 作品名から、特定文字以外を取り除く
             const filmNameFullWidth = chevre_domain_1.CommonUtil.toFullWidth(reservationModel.performance.film.name.ja);

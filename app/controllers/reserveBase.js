@@ -38,7 +38,7 @@ function processFixTickets(reservationModel, req) {
         reserveTicketForm_1.default(req);
         const validationResult = yield req.getValidationResult();
         if (!validationResult.isEmpty()) {
-            throw new Error(req.__('Message.UnexpectedError'));
+            throw new Error(req.__('Message.Invalid'));
         }
         // 座席選択情報を保存して座席選択へ
         const choices = JSON.parse(req.body.choices);
@@ -46,9 +46,7 @@ function processFixTickets(reservationModel, req) {
             throw new Error(req.__('Message.UnexpectedError'));
         }
         choices.forEach((choice) => {
-            const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => {
-                return (ticketTypeInArray._id === choice.ticket_type);
-            });
+            const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === choice.ticket_type));
             if (ticketType === undefined) {
                 throw new Error(req.__('Message.UnexpectedError'));
             }
@@ -138,7 +136,7 @@ function processFixGMO(reservationModel, req) {
         }
         // GMOリクエスト前にカウントアップ
         reservationModel.transactionGMO.count += 1;
-        yield reservationModel.save();
+        reservationModel.save(req);
         switch (reservationModel.paymentMethod) {
             case GMO.Util.PAY_TYPE_CREDIT:
                 reservePaymentCreditForm_1.default(req);
@@ -215,9 +213,7 @@ function processStart(purchaserGroup, req) {
             req.session.locale = 'ja';
         }
         // 予約トークンを発行
-        const token = chevre_domain_1.CommonUtil.createToken();
         const reservationModel = new session_1.default();
-        reservationModel.token = token;
         reservationModel.purchaserGroup = purchaserGroup;
         initializePayment(reservationModel, req);
         if (!_.isEmpty(req.query.performance)) {
@@ -292,17 +288,16 @@ exports.initializePayment = initializePayment;
 function processCancelSeats(reservationModel) {
     return __awaiter(this, void 0, void 0, function* () {
         const ids = reservationModel.getReservationIds();
-        if (ids.length === 0) {
-            return;
-        }
-        // セッション中の予約リストを初期化
-        reservationModel.seatCodes = [];
-        // 仮予約を空席ステータスに戻す
-        try {
-            yield chevre_domain_1.Models.Reservation.remove({ _id: { $in: ids } }).exec();
-        }
-        catch (error) {
-            // 失敗したとしても時間経過で消えるので放置
+        if (ids.length > 0) {
+            // セッション中の予約リストを初期化
+            reservationModel.seatCodes = [];
+            // 仮予約を空席ステータスに戻す
+            try {
+                yield chevre_domain_1.Models.Reservation.remove({ _id: { $in: ids } }).exec();
+            }
+            catch (error) {
+                // 失敗したとしても時間経過で消えるので放置
+            }
         }
     });
 }

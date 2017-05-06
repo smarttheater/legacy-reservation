@@ -60,8 +60,7 @@ const debug = createDebug('chevre-frontend:controller:gmoReserve');
  */
 export async function start(req: Request, res: Response, next: NextFunction) {
     try {
-        const token = req.params.token;
-        const reservationModel = await ReservationModel.find(token);
+        const reservationModel = ReservationModel.FIND(req);
 
         if (reservationModel === null) {
             next(new Error(req.__('Message.Expired')));
@@ -69,7 +68,7 @@ export async function start(req: Request, res: Response, next: NextFunction) {
         }
 
         // 予約情報セッション削除
-        await reservationModel.remove();
+        ReservationModel.REMOVE(req);
 
         // GMOへ遷移画面
 

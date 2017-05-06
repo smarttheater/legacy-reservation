@@ -1,19 +1,8 @@
 import { ReservationUtil } from '@motionpicture/chevre-domain';
 import { Util as GMOUtil } from '@motionpicture/gmo-service';
 import * as conf from 'config';
+import { Request } from 'express';
 import * as moment from 'moment';
-import * as redis from 'redis';
-
-const DEFAULT_REDIS_TTL = 1800;
-const redisClient = redis.createClient(
-    process.env.REDIS_PORT,
-    process.env.REDIS_HOST,
-    {
-        password: process.env.REDIS_KEY,
-        tls: { servername: process.env.REDIS_HOST },
-        return_buffers: true
-    }
-);
 
 const MAX_RESERVATION_SEATS_DEFAULT = 4;
 const MAX_RESERVATION_SEATS_STAFFS = 10;
@@ -44,10 +33,8 @@ interface ISection {
  * @class ReserveSessionModel
  */
 export default class ReserveSessionModel {
-    /**
-     * 予約トークン
-     */
-    public token: string;
+    private static SESSION_KEY: string = 'chevre-reserve-session';
+
     /**
      * 購入管理番号
      */
@@ -128,85 +115,31 @@ export default class ReserveSessionModel {
     /**
      * プロセス中の購入情報をセッションから取得する
      */
-    // tslint:disable-next-line:function-name
-    public static async find(token: string): Promise<ReserveSessionModel | null> {
-        const key = ReserveSessionModel.getRedisKey(token);
-        return new Promise<ReserveSessionModel | null>((resolve, reject) => {
-            redisClient.get(key, (err, reply) => {
-                if (err instanceof Error) {
-                    reject(err);
-                    return;
-                }
-                if (reply === null) {
-                    resolve(null);
-                    return;
-                }
-
-                const reservationModel = new ReserveSessionModel();
-
-                try {
-                    const reservationModelInRedis = JSON.parse(reply.toString());
-                    Object.keys(reservationModelInRedis).forEach((propertyName) => {
-                        (<any>reservationModel)[propertyName] = reservationModelInRedis[propertyName];
-                    });
-                } catch (error) {
-                    reject(error);
-                    return;
-                }
-
-                resolve(reservationModel);
-            });
-        });
-    }
-
-    /**
-     * ネームスペースを取得
-     *
-     * @param {string} token
-     * @return {string}
-     */
-    private static getRedisKey(token: string): string {
-        return `CHEVREReservation_${token}`;
-    }
-
-    /**
-     * プロセス中の購入情報をセッションに保存する
-     *
-     * @param {number} [ttl] 有効期間(default: 1800)
-     */
-    public async save(ttl?: number): Promise<void> {
-        const key = ReserveSessionModel.getRedisKey(this.token);
-
-        if (ttl === undefined) {
-            ttl = DEFAULT_REDIS_TTL;
+    public static FIND(req: Request): ReserveSessionModel | null {
+        const reservationModelInSession = (<any>req.session)[ReserveSessionModel.SESSION_KEY];
+        if (reservationModelInSession === undefined) {
+            return null;
         }
 
-        return new Promise<void>((resolve, reject) => {
-            redisClient.setex(key, ttl, JSON.stringify(this), (err: Error | void) => {
-                if (err instanceof Error) {
-                    console.error(err);
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
+        const reservationModel = new ReserveSessionModel();
+        Object.keys(reservationModelInSession).forEach((propertyName) => {
+            (<any>reservationModel)[propertyName] = reservationModelInSession[propertyName];
         });
+        return reservationModel;
     }
 
     /**
      * プロセス中の購入情報をセッションから削除する
      */
-    public async remove(): Promise<void> {
-        const key = ReserveSessionModel.getRedisKey(this.token);
-        return new Promise<void>((resolve, reject) => {
-            redisClient.del(key, (err: Error | void) => {
-                if (err instanceof Error) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        });
+    public static REMOVE(req: Request): void {
+        delete (<any>req.session)[ReserveSessionModel.SESSION_KEY];
+    }
+
+    /**
+     * プロセス中の購入情報をセッションに保存する
+     */
+    public save(req: Request): void {
+        (<any>req.session)[ReserveSessionModel.SESSION_KEY] = this;
     }
 
     /**

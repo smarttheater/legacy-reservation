@@ -80,8 +80,8 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
         const reservationModel = await reserveBaseController.processStart(PURCHASER_GROUP, req);
 
         if (reservationModel.performance !== undefined) {
-            await reservationModel.save();
-            res.redirect(`/customer/reserve/${reservationModel.token}/terms`);
+            reservationModel.save(req);
+            res.redirect('/customer/reserve/terms');
         } else {
             // 今回は必ずパフォーマンス指定で遷移してくるはず
             next(new Error(req.__('Message.UnexpectedError')));
@@ -100,8 +100,7 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
  */
 export async function terms(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const token = req.params.token;
-        const reservationModel = await ReservationModel.find(token);
+        const reservationModel = ReservationModel.FIND(req);
 
         if (reservationModel === null) {
             next(new Error(req.__('Message.Expired')));
@@ -109,7 +108,7 @@ export async function terms(req: Request, res: Response, next: NextFunction): Pr
         }
 
         if (req.method === 'POST') {
-            res.redirect(`/customer/reserve/${token}/seats`);
+            res.redirect('/customer/reserve/seats');
         } else {
             res.render('customer/reserve/terms');
         }
@@ -125,8 +124,7 @@ export async function terms(req: Request, res: Response, next: NextFunction): Pr
  */
 export async function seats(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const token = req.params.token;
-        let reservationModel = await ReservationModel.find(token);
+        let reservationModel = ReservationModel.FIND(req);
 
         if (reservationModel === null) {
             next(new Error(req.__('Message.Expired')));
@@ -139,7 +137,7 @@ export async function seats(req: Request, res: Response, next: NextFunction): Pr
             reserveSeatForm(req);
             const validationResult = await req.getValidationResult();
             if (!validationResult.isEmpty()) {
-                res.redirect(`/customer/reserve/${token}/seats`);
+                res.redirect('/customer/reserve/seats');
                 return;
             }
             reservationModel = <ReservationModel>reservationModel;
@@ -148,7 +146,7 @@ export async function seats(req: Request, res: Response, next: NextFunction): Pr
             // 追加指定席を合わせて制限枚数を超過した場合
             if (seatCodes.length > limit) {
                 const message = req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-                res.redirect(`/customer/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
+                res.redirect(`/customer/reserve/seats?message=${encodeURIComponent(message)}`);
             } else {
                 // 仮予約あればキャンセルする
                 try {
@@ -161,14 +159,14 @@ export async function seats(req: Request, res: Response, next: NextFunction): Pr
                 try {
                     // 座席FIX
                     await reserveBaseController.processFixSeats(reservationModel, seatCodes, req);
-                    await reservationModel.save();
+                    reservationModel.save(req);
                     // 券種選択へ
-                    res.redirect(`/customer/reserve/${token}/tickets`);
+                    res.redirect('/customer/reserve/tickets');
                     return;
                 } catch (error) {
-                    await reservationModel.save();
+                    reservationModel.save(req);
                     const message = req.__('Message.SelectedSeatsUnavailable');
-                    res.redirect(`/customer/reserve/${token}/seats?message=${encodeURIComponent(message)}`);
+                    res.redirect(`/customer/reserve/seats?message=${encodeURIComponent(message)}`);
                     return;
                 }
             }
@@ -190,8 +188,7 @@ export async function seats(req: Request, res: Response, next: NextFunction): Pr
  */
 export async function tickets(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const token = req.params.token;
-        const reservationModel = await ReservationModel.find(token);
+        const reservationModel = ReservationModel.FIND(req);
 
         if (reservationModel === null) {
             next(new Error(req.__('Message.Expired')));
@@ -203,10 +200,10 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
         if (req.method === 'POST') {
             try {
                 await reserveBaseController.processFixTickets(reservationModel, req);
-                await reservationModel.save();
-                res.redirect(`/customer/reserve/${token}/profile`);
+                reservationModel.save(req);
+                res.redirect('/customer/reserve/profile');
             } catch (error) {
-                res.redirect(`/customer/reserve/${token}/tickets`);
+                res.redirect('/customer/reserve/tickets');
             }
         } else {
             res.render('customer/reserve/tickets', {
@@ -223,8 +220,7 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
  */
 export async function profile(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const token = req.params.token;
-        const reservationModel = await ReservationModel.find(token);
+        const reservationModel = ReservationModel.FIND(req);
 
         if (reservationModel === null) {
             next(new Error(req.__('Message.Expired')));
@@ -241,8 +237,8 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
                 // 予約情報確定
                 await reserveBaseController.processAllExceptConfirm(reservationModel, req);
 
-                await reservationModel.save();
-                res.redirect(`/customer/reserve/${token}/confirm`);
+                reservationModel.save(req);
+                res.redirect('/customer/reserve/confirm');
             } catch (error) {
                 console.error(error);
                 res.render('customer/reserve/profile', {
@@ -282,8 +278,7 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
  */
 export async function confirm(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const token = req.params.token;
-        const reservationModel = await ReservationModel.find(token);
+        const reservationModel = ReservationModel.FIND(req);
 
         if (reservationModel === null) {
             next(new Error(req.__('Message.Expired')));
@@ -299,21 +294,21 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                         reservationModel.performance.day, reservationModel.paymentNo, {}, res
                     );
                     debug('processFixReservations processed.');
-                    await reservationModel.remove();
+                    ReservationModel.REMOVE(req);
                     res.redirect(`/customer/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                 } else {
                     // todo リンク決済に備えて、ステータスを期限を更新する
 
                     // httpStatusの型定義不足のためanyにキャスト
                     // todo 一時的対処なので解決する
-                    await reservationModel.save();
+                    reservationModel.save(req);
                     res.redirect(
                         (<any>httpStatus).PERMANENT_REDIRECT,
-                        `/GMO/reserve/${token}/start?locale=${req.getLocale()}`
+                        `/GMO/reserve/start?locale=${req.getLocale()}`
                     );
                 }
             } catch (error) {
-                await reservationModel.remove();
+                ReservationModel.REMOVE(req);
                 next(error);
             }
         } else {

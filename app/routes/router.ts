@@ -29,12 +29,12 @@ export default (app: Application) => {
     // 言語
     app.get('/language/update/:locale', languageController.update);
 
-    app.get('/reserve/:token/getSeatProperties', reserveController.getSeatProperties);
+    app.get('/reserve/getSeatProperties', reserveController.getSeatProperties);
     app.get('/reserve/:performanceId/unavailableSeatCodes', reserveController.getUnavailableSeatCodes);
     app.get('/reserve/print', reserveController.print);
 
     // GMOプロセス
-    app.post('/GMO/reserve/:token/start', gmoReserveController.start);
+    app.post('/GMO/reserve/start', gmoReserveController.start);
     app.post('/GMO/reserve/result', gmoReserveController.result);
     app.get('/GMO/reserve/:orderId/cancel', gmoReserveController.cancel);
     app.all('/GMO/notify', gmoController.notify);
@@ -49,11 +49,11 @@ export default (app: Application) => {
         app.all('/customer/reserve/performances', customerReserveController.performances);
     }
     app.get('/customer/reserve/start', customerReserveController.start);
-    app.all('/customer/reserve/:token/terms', customerReserveController.terms);
-    app.all('/customer/reserve/:token/seats', customerReserveController.seats);
-    app.all('/customer/reserve/:token/tickets', customerReserveController.tickets);
-    app.all('/customer/reserve/:token/profile', customerReserveController.profile);
-    app.all('/customer/reserve/:token/confirm', customerReserveController.confirm);
+    app.all('/customer/reserve/terms', customerReserveController.terms);
+    app.all('/customer/reserve/seats', customerReserveController.seats);
+    app.all('/customer/reserve/tickets', customerReserveController.tickets);
+    app.all('/customer/reserve/profile', customerReserveController.profile);
+    app.all('/customer/reserve/confirm', customerReserveController.confirm);
     app.get('/customer/reserve/:performanceDay/:paymentNo/waitingSettlement', customerReserveController.waitingSettlement);
     app.get('/customer/reserve/:performanceDay/:paymentNo/complete', customerReserveController.complete);
 

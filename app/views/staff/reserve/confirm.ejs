@@ -12,14 +12,14 @@
             <tr>
                 <th><%- __('Label.FilmName') %>
                     <p class="visible-mobile-block">
-                        <a class="btn btn-default btn-change btn-icon-back" href="/staff/reserve/<%= reservationModel.token %>/performances">
+                        <a class="btn btn-default btn-change btn-icon-back" href="/staff/reserve/performances">
                             <span><%- __('Button.Change') %></span>
                         </a>
                     </p>
                 </th>
                 <td>
                     <p><%- reservationModel.performance.film.name[locale] %></p>
-                    <a class="btn btn-default btn-change btn-icon-back visible-pc" href="/staff/reserve/<%= reservationModel.token %>/performances">
+                    <a class="btn btn-default btn-change btn-icon-back visible-pc" href="/staff/reserve/performances">
                         <span><%- __('Button.Change') %></span>
                     </a>
                 </td>
@@ -38,7 +38,7 @@
                 <th>
                     <%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %>
                     <p class="visible-mobile-block">
-                        <a class="btn btn-default btn-change btn-icon-back" href="/staff/reserve/<%= reservationModel.token %>/seats"><span><%- __('Button.Change') %></span></a>
+                        <a class="btn btn-default btn-change btn-icon-back" href="/staff/reserve/seats"><span><%- __('Button.Change') %></span></a>
                     </p>
                 </th>
                 <td>
@@ -50,7 +50,7 @@
                             <br>
                         <% }) %>
                     </p>
-                    <a class="btn btn-default btn-change btn-icon-back visible-pc" href="/staff/reserve/<%= reservationModel.token %>/seats">
+                    <a class="btn btn-default btn-change btn-icon-back visible-pc" href="/staff/reserve/seats">
                         <span><%- __('Button.Change') %></span>
                     </a>
                 </td>
@@ -109,7 +109,7 @@
 
 <div class="btns2clm">
     <a class="btn btn-lg btn-next" href="javascript:void(0);"><span><%- __('Button.Next') %></span></a>
-    <a class="btn btn-lg btn-back" href="/staff/reserve/<%= req.params.token %>/tickets"><span><%- __('Button.Back') %></span></a>
+    <a class="btn btn-lg btn-back" href="/staff/reserve/tickets"><span><%- __('Button.Back') %></span></a>
 </div>
 
 <script>

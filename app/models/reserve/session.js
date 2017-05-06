@@ -1,24 +1,9 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const gmo_service_1 = require("@motionpicture/gmo-service");
 const conf = require("config");
 const moment = require("moment");
-const redis = require("redis");
-const DEFAULT_REDIS_TTL = 1800;
-const redisClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST, {
-    password: process.env.REDIS_KEY,
-    tls: { servername: process.env.REDIS_HOST },
-    return_buffers: true
-});
 const MAX_RESERVATION_SEATS_DEFAULT = 4;
 const MAX_RESERVATION_SEATS_STAFFS = 10;
 const MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES = 10;
@@ -35,86 +20,28 @@ class ReserveSessionModel {
     /**
      * プロセス中の購入情報をセッションから取得する
      */
-    // tslint:disable-next-line:function-name
-    static find(token) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const key = ReserveSessionModel.getRedisKey(token);
-            return new Promise((resolve, reject) => {
-                redisClient.get(key, (err, reply) => {
-                    if (err instanceof Error) {
-                        reject(err);
-                        return;
-                    }
-                    if (reply === null) {
-                        resolve(null);
-                        return;
-                    }
-                    const reservationModel = new ReserveSessionModel();
-                    try {
-                        const reservationModelInRedis = JSON.parse(reply.toString());
-                        Object.keys(reservationModelInRedis).forEach((propertyName) => {
-                            reservationModel[propertyName] = reservationModelInRedis[propertyName];
-                        });
-                    }
-                    catch (error) {
-                        reject(error);
-                        return;
-                    }
-                    resolve(reservationModel);
-                });
-            });
+    static FIND(req) {
+        const reservationModelInSession = req.session[ReserveSessionModel.SESSION_KEY];
+        if (reservationModelInSession === undefined) {
+            return null;
+        }
+        const reservationModel = new ReserveSessionModel();
+        Object.keys(reservationModelInSession).forEach((propertyName) => {
+            reservationModel[propertyName] = reservationModelInSession[propertyName];
         });
-    }
-    /**
-     * ネームスペースを取得
-     *
-     * @param {string} token
-     * @return {string}
-     */
-    static getRedisKey(token) {
-        return `CHEVREReservation_${token}`;
-    }
-    /**
-     * プロセス中の購入情報をセッションに保存する
-     *
-     * @param {number} [ttl] 有効期間(default: 1800)
-     */
-    save(ttl) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const key = ReserveSessionModel.getRedisKey(this.token);
-            if (ttl === undefined) {
-                ttl = DEFAULT_REDIS_TTL;
-            }
-            return new Promise((resolve, reject) => {
-                redisClient.setex(key, ttl, JSON.stringify(this), (err) => {
-                    if (err instanceof Error) {
-                        console.error(err);
-                        reject(err);
-                    }
-                    else {
-                        resolve();
-                    }
-                });
-            });
-        });
+        return reservationModel;
     }
     /**
      * プロセス中の購入情報をセッションから削除する
      */
-    remove() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const key = ReserveSessionModel.getRedisKey(this.token);
-            return new Promise((resolve, reject) => {
-                redisClient.del(key, (err) => {
-                    if (err instanceof Error) {
-                        reject(err);
-                    }
-                    else {
-                        resolve();
-                    }
-                });
-            });
-        });
+    static REMOVE(req) {
+        delete req.session[ReserveSessionModel.SESSION_KEY];
+    }
+    /**
+     * プロセス中の購入情報をセッションに保存する
+     */
+    save(req) {
+        req.session[ReserveSessionModel.SESSION_KEY] = this;
     }
     /**
      * 一度の購入で予約できる座席数を取得する
@@ -252,4 +179,5 @@ class ReserveSessionModel {
         };
     }
 }
+ReserveSessionModel.SESSION_KEY = 'chevre-reserve-session';
 exports.default = ReserveSessionModel;

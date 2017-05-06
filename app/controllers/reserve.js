@@ -38,8 +38,7 @@ exports.getUnavailableSeatCodes = getUnavailableSeatCodes;
 function getSeatProperties(req, res, __) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = req.params.token;
-            const reservationModel = yield session_1.default.find(token);
+            const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null) {
                 res.json({ propertiesBySeatCode: {} });
                 return;

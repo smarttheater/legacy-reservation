@@ -97,12 +97,12 @@ export default (app: Application) => {
     app.get('/staff/mypage/search', base, authentication, staffMyPageController.search);
     app.post('/staff/mypage/updateWatcherName', base, authentication, staffMyPageController.updateWatcherName);
     app.get('/staff/reserve/start', base, authentication, staffReserveController.start);
-    app.all('/staff/reserve/:token/terms', base, authentication, staffReserveController.terms);
-    app.all('/staff/reserve/:token/performances', base, authentication, staffReserveController.performances);
-    app.all('/staff/reserve/:token/seats', base, authentication, staffReserveController.seats);
-    app.all('/staff/reserve/:token/tickets', base, authentication, staffReserveController.tickets);
-    app.all('/staff/reserve/:token/profile', base, authentication, staffReserveController.profile);
-    app.all('/staff/reserve/:token/confirm', base, authentication, staffReserveController.confirm);
+    app.all('/staff/reserve/terms', base, authentication, staffReserveController.terms);
+    app.all('/staff/reserve/performances', base, authentication, staffReserveController.performances);
+    app.all('/staff/reserve/seats', base, authentication, staffReserveController.seats);
+    app.all('/staff/reserve/tickets', base, authentication, staffReserveController.tickets);
+    app.all('/staff/reserve/profile', base, authentication, staffReserveController.profile);
+    app.all('/staff/reserve/confirm', base, authentication, staffReserveController.confirm);
     app.get('/staff/reserve/:performanceDay/:paymentNo/complete', base, authentication, staffReserveController.complete);
     app.post('/staff/cancel/execute', base, authentication, staffCancelController.execute);
     app.all('/staff/mypage/release', base, authentication, staffMyPageController.release);
