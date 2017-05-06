@@ -1,15 +1,16 @@
 /**
  * 内部関係者ルーター
  *
- * @function staffRouter
+ * @function routes/staff
  * @ignore
  */
+
 import { CommonUtil, Models } from '@motionpicture/chevre-domain';
 import { Application, NextFunction, Request, Response } from 'express';
 import * as staffAuthController from '../controllers/staff/auth';
 import * as staffCancelController from '../controllers/staff/cancel';
 import * as staffMyPageController from '../controllers/staff/mypage';
-import StaffReserveController from '../controllers/staff/reserve';
+import * as staffReserveController from '../controllers/staff/reserve';
 import StaffUser from '../models/user/staff';
 
 export default (app: Application) => {
@@ -85,27 +86,24 @@ export default (app: Application) => {
         }
     };
 
-    // tslint:disable-next-line:variable-name
-    const base = (req: Request, _res: Response, next: NextFunction) => {
+    const base = (req: Request, __: Response, next: NextFunction) => {
         req.staffUser = StaffUser.parse(req.session);
         next();
     };
 
-    // 内部関係者
-    // tslint:disable:max-line-length
     app.all('/staff/login', base, staffAuthController.login);
     app.all('/staff/logout', base, staffAuthController.logout);
     app.all('/staff/mypage', base, authentication, staffMyPageController.index);
     app.get('/staff/mypage/search', base, authentication, staffMyPageController.search);
     app.post('/staff/mypage/updateWatcherName', base, authentication, staffMyPageController.updateWatcherName);
-    app.get('/staff/reserve/start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).start(); });
-    app.all('/staff/reserve/:token/terms', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new StaffReserveController(req, res, next)).terms(); });
-    app.all('/staff/reserve/:token/performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).performances(); });
-    app.all('/staff/reserve/:token/seats', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).seats(); });
-    app.all('/staff/reserve/:token/tickets', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).tickets(); });
-    app.all('/staff/reserve/:token/profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).profile(); });
-    app.all('/staff/reserve/:token/confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).confirm(); });
-    app.get('/staff/reserve/:performanceDay/:paymentNo/complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new StaffReserveController(req, res, next)).complete(); });
+    app.get('/staff/reserve/start', base, authentication, staffReserveController.start);
+    app.all('/staff/reserve/:token/terms', base, authentication, staffReserveController.terms);
+    app.all('/staff/reserve/:token/performances', base, authentication, staffReserveController.performances);
+    app.all('/staff/reserve/:token/seats', base, authentication, staffReserveController.seats);
+    app.all('/staff/reserve/:token/tickets', base, authentication, staffReserveController.tickets);
+    app.all('/staff/reserve/:token/profile', base, authentication, staffReserveController.profile);
+    app.all('/staff/reserve/:token/confirm', base, authentication, staffReserveController.confirm);
+    app.get('/staff/reserve/:performanceDay/:paymentNo/complete', base, authentication, staffReserveController.complete);
     app.post('/staff/cancel/execute', base, authentication, staffCancelController.execute);
     app.all('/staff/mypage/release', base, authentication, staffMyPageController.release);
 };

@@ -6,7 +6,7 @@
  */
 
 import { Application, NextFunction, Request, Response } from 'express';
-import CustomerReserveController from '../controllers/customer/reserve';
+import * as customerReserveController from '../controllers/customer/reserve';
 import * as errorController from '../controllers/error';
 import * as gmoController from '../controllers/gmo';
 import * as gmoReserveController from '../controllers/gmo/reserve';
@@ -46,16 +46,16 @@ export default (app: Application) => {
     // 一般
     // 本番環境ではhomeは存在しない
     if (process.env.NODE_ENV !== 'production') {
-        app.all('/customer/reserve/performances', async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).performances(); });
+        app.all('/customer/reserve/performances', customerReserveController.performances);
     }
-    app.get('/customer/reserve/start', async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).start(); });
-    app.all('/customer/reserve/:token/terms', async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).terms(); });
-    app.all('/customer/reserve/:token/seats', async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).seats(); });
-    app.all('/customer/reserve/:token/tickets', async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).tickets(); });
-    app.all('/customer/reserve/:token/profile', async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).profile(); });
-    app.all('/customer/reserve/:token/confirm', async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).confirm(); });
-    app.get('/customer/reserve/:performanceDay/:paymentNo/waitingSettlement', async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).waitingSettlement(); });
-    app.get('/customer/reserve/:performanceDay/:paymentNo/complete', async (req: Request, res: Response, next: NextFunction) => { await (new CustomerReserveController(req, res, next)).complete(); });
+    app.get('/customer/reserve/start', customerReserveController.start);
+    app.all('/customer/reserve/:token/terms', customerReserveController.terms);
+    app.all('/customer/reserve/:token/seats', customerReserveController.seats);
+    app.all('/customer/reserve/:token/tickets', customerReserveController.tickets);
+    app.all('/customer/reserve/:token/profile', customerReserveController.profile);
+    app.all('/customer/reserve/:token/confirm', customerReserveController.confirm);
+    app.get('/customer/reserve/:performanceDay/:paymentNo/waitingSettlement', customerReserveController.waitingSettlement);
+    app.get('/customer/reserve/:performanceDay/:paymentNo/complete', customerReserveController.complete);
 
     app.get('/error/notFound', errorController.notFound);
 

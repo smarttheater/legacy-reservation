@@ -1,4 +1,10 @@
 "use strict";
+/**
+ * 内部関係者ルーター
+ *
+ * @function routes/staff
+ * @ignore
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -8,17 +14,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * 内部関係者ルーター
- *
- * @function staffRouter
- * @ignore
- */
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const staffAuthController = require("../controllers/staff/auth");
 const staffCancelController = require("../controllers/staff/cancel");
 const staffMyPageController = require("../controllers/staff/mypage");
-const reserve_1 = require("../controllers/staff/reserve");
+const staffReserveController = require("../controllers/staff/reserve");
 const staff_1 = require("../models/user/staff");
 exports.default = (app) => {
     const authentication = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
@@ -85,26 +85,23 @@ exports.default = (app) => {
             }
         }
     });
-    // tslint:disable-next-line:variable-name
-    const base = (req, _res, next) => {
+    const base = (req, __, next) => {
         req.staffUser = staff_1.default.parse(req.session);
         next();
     };
-    // 内部関係者
-    // tslint:disable:max-line-length
     app.all('/staff/login', base, staffAuthController.login);
     app.all('/staff/logout', base, staffAuthController.logout);
     app.all('/staff/mypage', base, authentication, staffMyPageController.index);
     app.get('/staff/mypage/search', base, authentication, staffMyPageController.search);
     app.post('/staff/mypage/updateWatcherName', base, authentication, staffMyPageController.updateWatcherName);
-    app.get('/staff/reserve/start', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).start(); }));
-    app.all('/staff/reserve/:token/terms', base, authentication, (req, res, next) => { (new reserve_1.default(req, res, next)).terms(); });
-    app.all('/staff/reserve/:token/performances', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).performances(); }));
-    app.all('/staff/reserve/:token/seats', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).seats(); }));
-    app.all('/staff/reserve/:token/tickets', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).tickets(); }));
-    app.all('/staff/reserve/:token/profile', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).profile(); }));
-    app.all('/staff/reserve/:token/confirm', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).confirm(); }));
-    app.get('/staff/reserve/:performanceDay/:paymentNo/complete', base, authentication, (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).complete(); }));
+    app.get('/staff/reserve/start', base, authentication, staffReserveController.start);
+    app.all('/staff/reserve/:token/terms', base, authentication, staffReserveController.terms);
+    app.all('/staff/reserve/:token/performances', base, authentication, staffReserveController.performances);
+    app.all('/staff/reserve/:token/seats', base, authentication, staffReserveController.seats);
+    app.all('/staff/reserve/:token/tickets', base, authentication, staffReserveController.tickets);
+    app.all('/staff/reserve/:token/profile', base, authentication, staffReserveController.profile);
+    app.all('/staff/reserve/:token/confirm', base, authentication, staffReserveController.confirm);
+    app.get('/staff/reserve/:performanceDay/:paymentNo/complete', base, authentication, staffReserveController.complete);
     app.post('/staff/cancel/execute', base, authentication, staffCancelController.execute);
     app.all('/staff/mypage/release', base, authentication, staffMyPageController.release);
 };

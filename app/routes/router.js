@@ -5,16 +5,8 @@
  * @function router
  * @ignore
  */
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const reserve_1 = require("../controllers/customer/reserve");
+const customerReserveController = require("../controllers/customer/reserve");
 const errorController = require("../controllers/error");
 const gmoController = require("../controllers/gmo");
 const gmoReserveController = require("../controllers/gmo/reserve");
@@ -48,16 +40,16 @@ exports.default = (app) => {
     // 一般
     // 本番環境ではhomeは存在しない
     if (process.env.NODE_ENV !== 'production') {
-        app.all('/customer/reserve/performances', (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).performances(); }));
+        app.all('/customer/reserve/performances', customerReserveController.performances);
     }
-    app.get('/customer/reserve/start', (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).start(); }));
-    app.all('/customer/reserve/:token/terms', (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).terms(); }));
-    app.all('/customer/reserve/:token/seats', (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).seats(); }));
-    app.all('/customer/reserve/:token/tickets', (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).tickets(); }));
-    app.all('/customer/reserve/:token/profile', (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).profile(); }));
-    app.all('/customer/reserve/:token/confirm', (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).confirm(); }));
-    app.get('/customer/reserve/:performanceDay/:paymentNo/waitingSettlement', (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).waitingSettlement(); }));
-    app.get('/customer/reserve/:performanceDay/:paymentNo/complete', (req, res, next) => __awaiter(this, void 0, void 0, function* () { yield (new reserve_1.default(req, res, next)).complete(); }));
+    app.get('/customer/reserve/start', customerReserveController.start);
+    app.all('/customer/reserve/:token/terms', customerReserveController.terms);
+    app.all('/customer/reserve/:token/seats', customerReserveController.seats);
+    app.all('/customer/reserve/:token/tickets', customerReserveController.tickets);
+    app.all('/customer/reserve/:token/profile', customerReserveController.profile);
+    app.all('/customer/reserve/:token/confirm', customerReserveController.confirm);
+    app.get('/customer/reserve/:performanceDay/:paymentNo/waitingSettlement', customerReserveController.waitingSettlement);
+    app.get('/customer/reserve/:performanceDay/:paymentNo/complete', customerReserveController.complete);
     app.get('/error/notFound', errorController.notFound);
     // 404
     app.use((__, res) => {

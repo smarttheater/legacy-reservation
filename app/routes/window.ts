@@ -1,15 +1,16 @@
 /**
  * 当日窓口ルーター
  *
- * @function windowRouter
+ * @function routes/window
  * @ignore
  */
+
 import { CommonUtil, Models } from '@motionpicture/chevre-domain';
 import { Application, NextFunction, Request, Response } from 'express';
 import * as windowAuthController from '../controllers/window/auth';
 import * as windowCancelController from '../controllers/window/cancel';
 import * as windowMyPageController from '../controllers/window/mypage';
-import WindowReserveController from '../controllers/window/reserve';
+import * as windowReserveController from '../controllers/window/reserve';
 import WindowUser from '../models/user/window';
 
 export default (app: Application) => {
@@ -78,27 +79,24 @@ export default (app: Application) => {
         }
     };
 
-    // tslint:disable-next-line:variable-name
-    const base = (req: Request, _res: Response, next: NextFunction) => {
+    const base = (req: Request, __: Response, next: NextFunction) => {
         // 基本的に日本語
         req.setLocale('ja');
         req.windowUser = WindowUser.parse(req.session);
         next();
     };
 
-    // 当日窓口フロー
-    // tslint:disable:max-line-length
     app.all('/window/login', base, windowAuthController.login);
     app.all('/window/logout', base, windowAuthController.logout);
     app.all('/window/mypage', base, authentication, windowMyPageController.index);
     app.get('/window/mypage/search', base, authentication, windowMyPageController.search);
-    app.get('/window/reserve/start', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).start(); });
-    app.all('/window/reserve/:token/terms', base, authentication, (req: Request, res: Response, next: NextFunction) => { (new WindowReserveController(req, res, next)).terms(); });
-    app.all('/window/reserve/:token/performances', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).performances(); });
-    app.all('/window/reserve/:token/seats', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).seats(); });
-    app.all('/window/reserve/:token/tickets', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).tickets(); });
-    app.all('/window/reserve/:token/profile', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).profile(); });
-    app.all('/window/reserve/:token/confirm', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).confirm(); });
-    app.get('/window/reserve/:performanceDay/:paymentNo/complete', base, authentication, async (req: Request, res: Response, next: NextFunction) => { await (new WindowReserveController(req, res, next)).complete(); });
+    app.get('/window/reserve/start', base, authentication, windowReserveController.start);
+    app.all('/window/reserve/:token/terms', base, authentication, windowReserveController.terms);
+    app.all('/window/reserve/:token/performances', base, authentication, windowReserveController.performances);
+    app.all('/window/reserve/:token/seats', base, authentication, windowReserveController.seats);
+    app.all('/window/reserve/:token/tickets', base, authentication, windowReserveController.tickets);
+    app.all('/window/reserve/:token/profile', base, authentication, windowReserveController.profile);
+    app.all('/window/reserve/:token/confirm', base, authentication, windowReserveController.confirm);
+    app.get('/window/reserve/:performanceDay/:paymentNo/complete', base, authentication, windowReserveController.complete);
     app.post('/window/cancel/execute', base, authentication, windowCancelController.execute);
 };
