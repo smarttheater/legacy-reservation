@@ -252,7 +252,7 @@ function initializePayment(reservationModel: ReservationModel, req: Request): vo
         email: '',
         age: '',
         address: '',
-        gender: ''
+        gender: '1'
     };
     reservationModel.paymentMethodChoices = [];
 

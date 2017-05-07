@@ -75,7 +75,7 @@
             <tr>
                 <th><%- __('Label.FullName') %></th>
                 <td>
-                    <p><%= reservationModel.purchaserLastName %> <%= reservationModel.purchaserFirstName %></p>
+                    <p><%= reservationModel.purchaser.lastName %> <%= reservationModel.purchaser.firstName %></p>
                 </td>
             </tr>
 
@@ -83,14 +83,14 @@
             <tr>
                 <th><%- __('Label.Email') %></th>
                 <td>
-                    <p><%= reservationModel.purchaserEmail %></p>
+                    <p><%= reservationModel.purchaser.email %></p>
                 </td>
             </tr>
 
             <tr>
                 <th><%- __('Label.Tel') %></th>
                 <td>
-                    <p><%= reservationModel.purchaserTel %></p>
+                    <p><%= reservationModel.purchaser.tel %></p>
                 </td>
             </tr>
 

@@ -241,7 +241,7 @@ function initializePayment(reservationModel, req) {
         email: '',
         age: '',
         address: '',
-        gender: ''
+        gender: '1'
     };
     reservationModel.paymentMethodChoices = [];
     switch (reservationModel.purchaserGroup) {
