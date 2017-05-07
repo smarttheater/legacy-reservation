@@ -3,7 +3,7 @@
  * GMO関連予約コントローラー
  * 座席予約フローのうちGMOと連携するアクションを実装しています。
  *
- * @namespace controller/customer/gmo/reserve
+ * @namespace controller/customer/reserve/gmo
  */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -23,7 +23,7 @@ const _ = require("underscore");
 const util = require("util");
 const result_1 = require("../../../models/gmo/result");
 const session_1 = require("../../../models/reserve/session");
-const gmoReserveCvsController = require("./reserve/cvs");
+const gmoReserveCvsController = require("./gmo/cvs");
 const debug = createDebug('chevre-frontend:controller:gmoReserve');
 /**
  * マルチバイト文字列対応String.substr
@@ -115,7 +115,7 @@ function start(req, res, next) {
             res.locals.cancelURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, `/customer/reserve/gmo/${res.locals.orderID}/cancel`, req.getLocale());
             debug('redirecting to GMO payment...');
             // GMOへの送信データをログに残すために、一度htmlを取得してからrender
-            res.render('gmo/reserve/start');
+            res.render('customer/reserve/gmo/start');
         }
         catch (error) {
             next(new Error(req.__('Message.UnexpectedError')));
@@ -144,7 +144,7 @@ function result(req, res, next) {
                     return;
                 }
                 // 特に何もしない
-                res.render('gmo/reserve/cancel');
+                res.render('customer/reserve/gmo/cancel');
             }
             catch (error) {
                 next(new Error(req.__('Message.UnexpectedError')));
@@ -183,7 +183,7 @@ function cancel(req, res, next) {
                 return;
             }
             // 特に何もしない
-            res.render('gmo/reserve/cancel');
+            res.render('customer/reserve/gmo/cancel');
         }
         catch (error) {
             console.error(error);

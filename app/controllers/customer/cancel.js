@@ -2,7 +2,7 @@
 /**
  * 一般予約キャンセルコントローラー
  *
- * @namespace controller/customerCancel
+ * @namespace controller/customer/cancel
  */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -17,12 +17,11 @@ const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const gmo_service_1 = require("@motionpicture/gmo-service");
 const conf = require("config");
 const createDebug = require("debug");
-const fs = require("fs-extra");
 const moment = require("moment");
 const numeral = require("numeral");
 const sendgrid = require("sendgrid");
 const util = require("util");
-const customerCancelForm_1 = require("../forms/customer/customerCancelForm");
+const customerCancelForm_1 = require("../../forms/customer/customerCancelForm");
 const debug = createDebug('chevre-frontend:controller:customerCancel');
 /**
  * チケットキャンセル
@@ -307,6 +306,7 @@ function validate(reservations) {
 }
 /**
  * メールを送信する
+ * todo テキストメールに変更すべし
  *
  * @ignore
  */
@@ -315,13 +315,13 @@ function sendEmail(to, html) {
         const subject = util.format('%s%s %s', (process.env.NODE_ENV !== 'production') ? `[${process.env.NODE_ENV}]` : '', 'CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ', 'Notice of Completion of Cancel for CHEVRE Tickets');
         const mail = new sendgrid.mail.Mail(new sendgrid.mail.Email(conf.get('email.from'), conf.get('email.fromname')), subject, new sendgrid.mail.Email(to), new sendgrid.mail.Content('text/html', html));
         // logo
-        const attachment = new sendgrid.mail.Attachment();
-        attachment.setFilename('logo.png');
-        attachment.setType('image/png');
-        attachment.setContent(fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`).toString('base64'));
-        attachment.setDisposition('inline');
-        attachment.setContentId('logo');
-        mail.addAttachment(attachment);
+        // const attachment = new sendgrid.mail.Attachment();
+        // attachment.setFilename('logo.png');
+        // attachment.setType('image/png');
+        // attachment.setContent(fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`).toString('base64'));
+        // attachment.setDisposition('inline');
+        // attachment.setContentId('logo');
+        // mail.addAttachment(attachment);
         const sg = sendgrid(process.env.SENDGRID_API_KEY);
         const request = sg.emptyRequest({
             host: 'api.sendgrid.com',

@@ -24,7 +24,6 @@ const notFoundHandler_1 = require("./middlewares/notFoundHandler");
 const session_1 = require("./middlewares/session");
 const setLocals_1 = require("./middlewares/setLocals");
 const customer_1 = require("./routes/customer");
-const customerSupport_1 = require("./routes/customerSupport");
 const gmo_1 = require("./routes/gmo");
 const router_1 = require("./routes/router");
 const sendGrid_1 = require("./routes/sendGrid");
@@ -85,7 +84,6 @@ app.use(setLocals_1.default); // ローカル変数セット
 app.use('/customer', customer_1.default);
 app.use('/staff', staff_1.default);
 app.use('/window', window_1.default);
-app.use('/customerSupport', customerSupport_1.default);
 app.use('/gmo', gmo_1.default);
 app.use('/sendGrid', sendGrid_1.default);
 app.use('/', router_1.default);

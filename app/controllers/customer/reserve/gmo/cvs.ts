@@ -1,7 +1,7 @@
 /**
  * GMOコンビニ決済コントローラー
  *
- * @namespace controller/customer/gmo/reserve/cvs
+ * @namespace controller/customer/reserve/gmo/cvs
  */
 
 import { EmailQueueUtil, Models, ReservationUtil } from '@motionpicture/chevre-domain';

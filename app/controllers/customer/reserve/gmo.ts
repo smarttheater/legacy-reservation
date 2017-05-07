@@ -2,7 +2,7 @@
  * GMO関連予約コントローラー
  * 座席予約フローのうちGMOと連携するアクションを実装しています。
  *
- * @namespace controller/customer/gmo/reserve
+ * @namespace controller/customer/reserve/gmo
  */
 
 import { CommonUtil, Models, ReservationUtil } from '@motionpicture/chevre-domain';
@@ -16,7 +16,7 @@ import * as util from 'util';
 
 import GMOResultModel from '../../../models/gmo/result';
 import ReservationModel from '../../../models/reserve/session';
-import * as gmoReserveCvsController from './reserve/cvs';
+import * as gmoReserveCvsController from './gmo/cvs';
 
 const debug = createDebug('chevre-frontend:controller:gmoReserve');
 
@@ -143,7 +143,7 @@ export async function start(req: Request, res: Response, next: NextFunction) {
 
         debug('redirecting to GMO payment...');
         // GMOへの送信データをログに残すために、一度htmlを取得してからrender
-        res.render('gmo/reserve/start');
+        res.render('customer/reserve/gmo/start');
     } catch (error) {
         next(new Error(req.__('Message.UnexpectedError')));
     }
@@ -175,7 +175,7 @@ export async function result(req: Request, res: Response, next: NextFunction): P
             }
 
             // 特に何もしない
-            res.render('gmo/reserve/cancel');
+            res.render('customer/reserve/gmo/cancel');
         } catch (error) {
             next(new Error(req.__('Message.UnexpectedError')));
         }
@@ -215,7 +215,7 @@ export async function cancel(req: Request, res: Response, next: NextFunction): P
         }
 
         // 特に何もしない
-        res.render('gmo/reserve/cancel');
+        res.render('customer/reserve/gmo/cancel');
     } catch (error) {
         console.error(error);
         next(new Error(req.__('Message.UnexpectedError')));

@@ -6,10 +6,10 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
-const customerGmoReserveController = require("../controllers/customer/gmo/reserve");
+const customerCancelController = require("../controllers/customer/cancel");
 const customerReserveController = require("../controllers/customer/reserve");
+const customerReserveGmoController = require("../controllers/customer/reserve/gmo");
 const router = express.Router();
-// 一般
 // 本番環境ではhomeは存在しない
 if (process.env.NODE_ENV !== 'production') {
     router.all('/reserve/performances', customerReserveController.performances);
@@ -22,7 +22,9 @@ router.all('/reserve/profile', customerReserveController.profile);
 router.all('/reserve/confirm', customerReserveController.confirm);
 router.get('/reserve/:performanceDay/:paymentNo/waitingSettlement', customerReserveController.waitingSettlement);
 router.get('/reserve/:performanceDay/:paymentNo/complete', customerReserveController.complete);
-router.post('/reserve/gmo/start', customerGmoReserveController.start);
-router.post('/reserve/gmo/result', customerGmoReserveController.result);
-router.get('/reserve/gmo/:orderId/cancel', customerGmoReserveController.cancel);
+router.post('/reserve/gmo/start', customerReserveGmoController.start);
+router.post('/reserve/gmo/result', customerReserveGmoController.result);
+router.get('/reserve/gmo/:orderId/cancel', customerReserveGmoController.cancel);
+router.all('/cancel', customerCancelController.index);
+router.post('/cancel/executeByPaymentNo', customerCancelController.executeByPaymentNo);
 exports.default = router;

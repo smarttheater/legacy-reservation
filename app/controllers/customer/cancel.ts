@@ -1,7 +1,7 @@
 /**
  * 一般予約キャンセルコントローラー
  *
- * @namespace controller/customerCancel
+ * @namespace controller/customer/cancel
  */
 
 import { Models, ReservationUtil } from '@motionpicture/chevre-domain';
@@ -9,14 +9,13 @@ import { Util as GMOUtil } from '@motionpicture/gmo-service';
 import * as conf from 'config';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
-import * as fs from 'fs-extra';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as numeral from 'numeral';
 import * as sendgrid from 'sendgrid';
 import * as util from 'util';
 
-import customerCancelForm from '../forms/customer/customerCancelForm';
+import customerCancelForm from '../../forms/customer/customerCancelForm';
 
 const debug = createDebug('chevre-frontend:controller:customerCancel');
 
@@ -323,6 +322,7 @@ async function validate(reservations: mongoose.Document[]): Promise<void> {
 
 /**
  * メールを送信する
+ * todo テキストメールに変更すべし
  *
  * @ignore
  */
@@ -341,13 +341,13 @@ async function sendEmail(to: string, html: string): Promise<void> {
     );
 
     // logo
-    const attachment = new sendgrid.mail.Attachment();
-    attachment.setFilename('logo.png');
-    attachment.setType('image/png');
-    attachment.setContent(fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`).toString('base64'));
-    attachment.setDisposition('inline');
-    attachment.setContentId('logo');
-    mail.addAttachment(attachment);
+    // const attachment = new sendgrid.mail.Attachment();
+    // attachment.setFilename('logo.png');
+    // attachment.setType('image/png');
+    // attachment.setContent(fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`).toString('base64'));
+    // attachment.setDisposition('inline');
+    // attachment.setContentId('logo');
+    // mail.addAttachment(attachment);
 
     const sg = sendgrid(process.env.SENDGRID_API_KEY);
     const request = sg.emptyRequest({

@@ -2,7 +2,7 @@
 /**
  * GMOコンビニ決済コントローラー
  *
- * @namespace controller/customer/gmo/reserve/cvs
+ * @namespace controller/customer/reserve/gmo/cvs
  */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
