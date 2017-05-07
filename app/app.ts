@@ -4,6 +4,7 @@
  * @module app
  * @global
  */
+
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
@@ -14,14 +15,17 @@ import * as mongoose from 'mongoose';
 import * as multer from 'multer';
 import * as favicon from 'serve-favicon';
 import * as _ from 'underscore';
+// tslint:disable-next-line:no-require-imports
+import expressValidator = require('express-validator');
 
 import basicAuth from './middlewares/basicAuth';
 import benchmarks from './middlewares/benchmarks';
-// tslint:disable-next-line:no-require-imports
-import expressValidator = require('express-validator');
+import errorHandler from './middlewares/errorHandler';
+import notFoundHandler from './middlewares/notFoundHandler';
 import session from './middlewares/session';
 import setLocals from './middlewares/setLocals';
 
+import customerRouter from './routes/customer';
 import customerSupport from './routes/customerSupport';
 import router from './routes/router';
 import sendGridRouter from './routes/sendGrid';
@@ -95,11 +99,18 @@ app.use(expressValidator()); // バリデーション
 app.use(setLocals); // ローカル変数セット
 
 // ルーティング登録の順序に注意！
-staffRouter(app);
-windowRouter(app);
-customerSupport(app);
-sendGridRouter(app);
-router(app);
+app.use('/customer', customerRouter);
+app.use('/staff', staffRouter);
+app.use('/window', windowRouter);
+app.use('/customerSupport', customerSupport);
+app.use('/sendGrid', sendGridRouter);
+app.use('/', router);
+
+// 404
+app.use(notFoundHandler);
+
+// error handlers
+app.use(errorHandler);
 
 /*
  * Mongoose by default sets the auto_reconnect option to true.

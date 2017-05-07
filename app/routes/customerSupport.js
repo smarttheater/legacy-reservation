@@ -1,13 +1,13 @@
 "use strict";
 /**
- * 一般座席予約キャンセルルーター
+ * 一般座席予約キャンセルルーティング
  *
- * @function customerSupportRouter
  * @ignore
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+const express = require("express");
 const customerCancelController = require("../controllers/customerCancel");
-exports.default = (app) => {
-    app.all('/customerSupport/cancel', customerCancelController.index);
-    app.post('/customerSupport/cancel/executeByPaymentNo', customerCancelController.executeByPaymentNo);
-};
+const router = express.Router();
+router.all('/cancel', customerCancelController.index);
+router.post('/cancel/executeByPaymentNo', customerCancelController.executeByPaymentNo);
+exports.default = router;

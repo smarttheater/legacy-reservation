@@ -1,13 +1,14 @@
 /**
- * SendGridルーター
+ * SendGridルーティング
  *
- * @function sendGridRouter
  * @ignore
  */
 
-import { Application } from 'express';
+import * as express from 'express';
 import * as sendGridController from '../controllers/sendGrid';
 
-export default (app: Application) => {
-    app.all('/sendGrid/event/notify', sendGridController.notifyEvent);
-};
+const router = express.Router();
+
+router.post('/event/notify', sendGridController.notifyEvent);
+
+export default router;

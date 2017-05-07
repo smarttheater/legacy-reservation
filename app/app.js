@@ -15,12 +15,15 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 const favicon = require("serve-favicon");
 const _ = require("underscore");
-const basicAuth_1 = require("./middlewares/basicAuth");
-const benchmarks_1 = require("./middlewares/benchmarks");
 // tslint:disable-next-line:no-require-imports
 const expressValidator = require("express-validator");
+const basicAuth_1 = require("./middlewares/basicAuth");
+const benchmarks_1 = require("./middlewares/benchmarks");
+const errorHandler_1 = require("./middlewares/errorHandler");
+const notFoundHandler_1 = require("./middlewares/notFoundHandler");
 const session_1 = require("./middlewares/session");
 const setLocals_1 = require("./middlewares/setLocals");
+const customer_1 = require("./routes/customer");
 const customerSupport_1 = require("./routes/customerSupport");
 const router_1 = require("./routes/router");
 const sendGrid_1 = require("./routes/sendGrid");
@@ -78,11 +81,16 @@ app.use((req, _res, next) => {
 app.use(expressValidator()); // バリデーション
 app.use(setLocals_1.default); // ローカル変数セット
 // ルーティング登録の順序に注意！
-staff_1.default(app);
-window_1.default(app);
-customerSupport_1.default(app);
-sendGrid_1.default(app);
-router_1.default(app);
+app.use('/customer', customer_1.default);
+app.use('/staff', staff_1.default);
+app.use('/window', window_1.default);
+app.use('/customerSupport', customerSupport_1.default);
+app.use('/sendGrid', sendGrid_1.default);
+app.use('/', router_1.default);
+// 404
+app.use(notFoundHandler_1.default);
+// error handlers
+app.use(errorHandler_1.default);
 /*
  * Mongoose by default sets the auto_reconnect option to true.
  * We recommend setting socket options at both the server and replica set level.
