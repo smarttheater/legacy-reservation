@@ -84,13 +84,15 @@ export async function processFixProfile(reservationModel: ReservationModel, req:
     }
 
     // 購入者情報を保存して座席選択へ
-    reservationModel.purchaserLastName = req.body.lastName;
-    reservationModel.purchaserFirstName = req.body.firstName;
-    reservationModel.purchaserEmail = req.body.email;
-    reservationModel.purchaserTel = req.body.tel;
-    reservationModel.purchaserAge = req.body.age;
-    reservationModel.purchaserAddress = req.body.address;
-    reservationModel.purchaserGender = req.body.gender;
+    reservationModel.purchaser = {
+        lastName: req.body.lastName,
+        firstName: req.body.firstName,
+        tel: req.body.tel,
+        email: req.body.email,
+        age: req.body.age,
+        address: req.body.address,
+        gender: req.body.gender
+    };
     reservationModel.paymentMethod = req.body.paymentMethod;
 
     // 主体によっては、決済方法を強制的に固定で
@@ -236,32 +238,28 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
 /**
  * 購入情報を初期化する
  */
-export function initializePayment(reservationModel: ReservationModel, req: Request): void {
+function initializePayment(reservationModel: ReservationModel, req: Request): void {
     if (reservationModel.purchaserGroup === undefined) {
         throw new Error('purchaser group undefined.');
     }
 
     const purchaserFromSession = <IPurchaser | undefined>(<any>req.session).purchaser;
 
-    reservationModel.purchaserLastName = '';
-    reservationModel.purchaserFirstName = '';
-    reservationModel.purchaserTel = '';
-    reservationModel.purchaserEmail = '';
-    reservationModel.purchaserAge = '';
-    reservationModel.purchaserAddress = '';
-    reservationModel.purchaserGender = '1';
+    reservationModel.purchaser = {
+        lastName: '',
+        firstName: '',
+        tel: '',
+        email: '',
+        age: '',
+        address: '',
+        gender: ''
+    };
     reservationModel.paymentMethodChoices = [];
 
     switch (reservationModel.purchaserGroup) {
         case ReservationUtil.PURCHASER_GROUP_CUSTOMER:
             if (purchaserFromSession !== undefined) {
-                reservationModel.purchaserLastName = purchaserFromSession.lastName;
-                reservationModel.purchaserFirstName = purchaserFromSession.firstName;
-                reservationModel.purchaserTel = purchaserFromSession.tel;
-                reservationModel.purchaserEmail = purchaserFromSession.email;
-                reservationModel.purchaserAge = purchaserFromSession.age;
-                reservationModel.purchaserAddress = purchaserFromSession.address;
-                reservationModel.purchaserGender = purchaserFromSession.gender;
+                reservationModel.purchaser = purchaserFromSession;
             }
 
             reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT, GMO.Util.PAY_TYPE_CVS];
@@ -272,23 +270,27 @@ export function initializePayment(reservationModel: ReservationModel, req: Reque
                 throw new Error(req.__('Message.UnexpectedError'));
             }
 
-            reservationModel.purchaserLastName = 'ナイブ';
-            reservationModel.purchaserFirstName = 'カンケイシャ';
-            reservationModel.purchaserTel = '0362263025';
-            reservationModel.purchaserEmail = req.staffUser.get('email');
-            reservationModel.purchaserAge = '00';
-            reservationModel.purchaserAddress = '';
-            reservationModel.purchaserGender = '1';
+            reservationModel.purchaser = {
+                lastName: 'ナイブ',
+                firstName: 'カンケイシャ',
+                tel: '0362263025',
+                email: req.staffUser.get('email'),
+                age: '00',
+                address: '',
+                gender: '1'
+            };
             break;
 
         case ReservationUtil.PURCHASER_GROUP_WINDOW:
-            reservationModel.purchaserLastName = 'マドグチ';
-            reservationModel.purchaserFirstName = 'タントウシャ';
-            reservationModel.purchaserTel = '0362263025';
-            reservationModel.purchaserEmail = 'chevre@localhost.net';
-            reservationModel.purchaserAge = '00';
-            reservationModel.purchaserAddress = '';
-            reservationModel.purchaserGender = '1';
+            reservationModel.purchaser = {
+                lastName: 'マドグチ',
+                firstName: 'タントウシャ',
+                tel: '0362263025',
+                email: 'chevre@localhost.net',
+                age: '00',
+                address: '',
+                gender: '1'
+            };
 
             reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT, GMO.Util.PAY_TYPE_CASH];
             break;

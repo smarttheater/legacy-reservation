@@ -220,13 +220,13 @@ function profile(req, res, next) {
             }
             else {
                 // セッションに情報があれば、フォーム初期値設定
-                const email = reservationModel.purchaserEmail;
-                res.locals.lastName = reservationModel.purchaserLastName;
-                res.locals.firstName = reservationModel.purchaserFirstName;
-                res.locals.tel = reservationModel.purchaserTel;
-                res.locals.age = reservationModel.purchaserAge;
-                res.locals.address = reservationModel.purchaserAddress;
-                res.locals.gender = reservationModel.purchaserGender;
+                const email = reservationModel.purchaser.email;
+                res.locals.lastName = reservationModel.purchaser.lastName;
+                res.locals.firstName = reservationModel.purchaser.firstName;
+                res.locals.tel = reservationModel.purchaser.tel;
+                res.locals.age = reservationModel.purchaser.age;
+                res.locals.address = reservationModel.purchaser.address;
+                res.locals.gender = reservationModel.purchaser.gender;
                 res.locals.email = (!_.isEmpty(email)) ? email : '';
                 res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
                 res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';

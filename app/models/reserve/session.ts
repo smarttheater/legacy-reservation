@@ -72,33 +72,10 @@ export default class ReserveSessionModel {
      */
     public seatCodes: string[];
     /**
-     * 購入者セイ
+     * 予約座席コードリスト
      */
-    public purchaserLastName: string;
-    /**
-     * 購入者メイ
-     */
-    public purchaserFirstName: string;
-    /**
-     * 購入者メールアドレス
-     */
-    public purchaserEmail: string;
-    /**
-     * 購入者電話番号
-     */
-    public purchaserTel: string;
-    /**
-     * 年代
-     */
-    public purchaserAge: string;
-    /**
-     * 住所
-     */
-    public purchaserAddress: string;
-    /**
-     * 性別
-     */
-    public purchaserGender: string;
+    public purchaser: IPurchaser;
+
     /**
      * 決済方法
      */
@@ -289,13 +266,13 @@ export default class ReserveSessionModel {
             film_is_mx4d: this.performance.film.is_mx4d,
             film_copyright: this.performance.film.copyright,
 
-            purchaser_last_name: (this.purchaserLastName !== undefined) ? this.purchaserLastName : '',
-            purchaser_first_name: (this.purchaserFirstName !== undefined) ? this.purchaserFirstName : '',
-            purchaser_email: (this.purchaserEmail !== undefined) ? this.purchaserEmail : '',
-            purchaser_tel: (this.purchaserTel !== undefined) ? this.purchaserTel : '',
-            purchaser_age: (this.purchaserAge !== undefined) ? this.purchaserAge : '',
-            purchaser_address: (this.purchaserAddress !== undefined) ? this.purchaserAddress : '',
-            purchaser_gender: (this.purchaserGender !== undefined) ? this.purchaserGender : '',
+            purchaser_last_name: (this.purchaser !== undefined) ? this.purchaser.lastName : '',
+            purchaser_first_name: (this.purchaser !== undefined) ? this.purchaser.firstName : '',
+            purchaser_email: (this.purchaser !== undefined) ? this.purchaser.email : '',
+            purchaser_tel: (this.purchaser !== undefined) ? this.purchaser.tel : '',
+            purchaser_age: (this.purchaser !== undefined) ? this.purchaser.age : '',
+            purchaser_address: (this.purchaser !== undefined) ? this.purchaser.address : '',
+            purchaser_gender: (this.purchaser !== undefined) ? this.purchaser.gender : '',
             payment_method: (this.paymentMethod !== undefined) ? this.paymentMethod : '',
 
             watcher_name: (reservation.watcher_name !== undefined) ? reservation.watcher_name : '',
@@ -378,6 +355,19 @@ interface IReservation {
     };
     ticket_type_charge: number;
     watcher_name: string;
+}
+
+/**
+ * 購入者情報インターフェース
+ */
+interface IPurchaser {
+    lastName: string;
+    firstName: string;
+    tel: string;
+    email: string;
+    age: string;
+    address: string;
+    gender: string;
 }
 
 interface ITransactionGMO {
