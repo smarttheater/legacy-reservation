@@ -110,9 +110,9 @@ function start(req, res, next) {
                 amount: reservationModel.getTotalCharge(),
                 dateTime: res.locals.dateTime
             });
-            res.locals.retURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, '/GMO/reserve/result', req.getLocale());
+            res.locals.retURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, '/customer/reserve/gmo/result', req.getLocale());
             // 決済キャンセル時に遷移する加盟店URL
-            res.locals.cancelURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, `/GMO/reserve/${res.locals.orderID}/cancel`, req.getLocale());
+            res.locals.cancelURL = util.format('%s%s?locale=%s', process.env.FRONTEND_GMO_RESULT_ENDPOINT, `/customer/reserve/gmo/${res.locals.orderID}/cancel`, req.getLocale());
             debug('redirecting to GMO payment...');
             // GMOへの送信データをログに残すために、一度htmlを取得してからrender
             res.render('gmo/reserve/start');

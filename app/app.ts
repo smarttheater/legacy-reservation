@@ -27,6 +27,7 @@ import setLocals from './middlewares/setLocals';
 
 import customerRouter from './routes/customer';
 import customerSupport from './routes/customerSupport';
+import gmoRouter from './routes/gmo';
 import router from './routes/router';
 import sendGridRouter from './routes/sendGrid';
 import staffRouter from './routes/staff';
@@ -103,6 +104,7 @@ app.use('/customer', customerRouter);
 app.use('/staff', staffRouter);
 app.use('/window', windowRouter);
 app.use('/customerSupport', customerSupport);
+app.use('/gmo', gmoRouter);
 app.use('/sendGrid', sendGridRouter);
 app.use('/', router);
 

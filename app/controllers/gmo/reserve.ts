@@ -130,14 +130,14 @@ export async function start(req: Request, res: Response, next: NextFunction) {
         res.locals.retURL = util.format(
             '%s%s?locale=%s',
             process.env.FRONTEND_GMO_RESULT_ENDPOINT,
-            '/GMO/reserve/result',
+            '/customer/reserve/gmo/result',
             req.getLocale()
         );
         // 決済キャンセル時に遷移する加盟店URL
         res.locals.cancelURL = util.format(
             '%s%s?locale=%s',
             process.env.FRONTEND_GMO_RESULT_ENDPOINT,
-            `/GMO/reserve/${res.locals.orderID}/cancel`,
+            `/customer/reserve/gmo/${res.locals.orderID}/cancel`,
             req.getLocale()
         );
 

@@ -310,7 +310,7 @@ function confirm(req, res, next) {
                         // httpStatusの型定義不足のためanyにキャスト
                         // todo 一時的対処なので解決する
                         reservationModel.save(req);
-                        res.redirect(httpStatus.PERMANENT_REDIRECT, `/GMO/reserve/start?locale=${req.getLocale()}`);
+                        res.redirect(httpStatus.PERMANENT_REDIRECT, `/customer/reserve/gmo/start?locale=${req.getLocale()}`);
                     }
                 }
                 catch (error) {

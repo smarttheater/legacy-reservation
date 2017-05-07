@@ -304,7 +304,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                     reservationModel.save(req);
                     res.redirect(
                         (<any>httpStatus).PERMANENT_REDIRECT,
-                        `/GMO/reserve/start?locale=${req.getLocale()}`
+                        `/customer/reserve/gmo/start?locale=${req.getLocale()}`
                     );
                 }
             } catch (error) {
