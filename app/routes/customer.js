@@ -6,8 +6,8 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
+const customerGmoReserveController = require("../controllers/customer/gmo/reserve");
 const customerReserveController = require("../controllers/customer/reserve");
-const gmoReserveController = require("../controllers/gmo/reserve");
 const router = express.Router();
 // 一般
 // 本番環境ではhomeは存在しない
@@ -22,7 +22,7 @@ router.all('/reserve/profile', customerReserveController.profile);
 router.all('/reserve/confirm', customerReserveController.confirm);
 router.get('/reserve/:performanceDay/:paymentNo/waitingSettlement', customerReserveController.waitingSettlement);
 router.get('/reserve/:performanceDay/:paymentNo/complete', customerReserveController.complete);
-router.post('/reserve/gmo/start', gmoReserveController.start);
-router.post('/reserve/gmo/result', gmoReserveController.result);
-router.get('/reserve/gmo/:orderId/cancel', gmoReserveController.cancel);
+router.post('/reserve/gmo/start', customerGmoReserveController.start);
+router.post('/reserve/gmo/result', customerGmoReserveController.result);
+router.get('/reserve/gmo/:orderId/cancel', customerGmoReserveController.cancel);
 exports.default = router;

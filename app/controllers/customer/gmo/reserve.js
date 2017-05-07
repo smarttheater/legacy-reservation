@@ -3,7 +3,7 @@
  * GMO関連予約コントローラー
  * 座席予約フローのうちGMOと連携するアクションを実装しています。
  *
- * @namespace controller/gmo/reserve
+ * @namespace controller/customer/gmo/reserve
  */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -21,8 +21,8 @@ const moment = require("moment");
 const querystring = require("querystring");
 const _ = require("underscore");
 const util = require("util");
-const result_1 = require("../../models/gmo/result");
-const session_1 = require("../../models/reserve/session");
+const result_1 = require("../../../models/gmo/result");
+const session_1 = require("../../../models/reserve/session");
 const gmoReserveCvsController = require("./reserve/cvs");
 const debug = createDebug('chevre-frontend:controller:gmoReserve');
 /**

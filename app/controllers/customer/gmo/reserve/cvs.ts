@@ -1,7 +1,7 @@
 /**
  * GMOコンビニ決済コントローラー
  *
- * @namespace controller/gmo/reserve/cvs
+ * @namespace controller/customer/gmo/reserve/cvs
  */
 
 import { EmailQueueUtil, Models, ReservationUtil } from '@motionpicture/chevre-domain';
@@ -15,7 +15,7 @@ import * as mongoose from 'mongoose';
 import * as numeral from 'numeral';
 import * as util from 'util';
 
-import GMOResultModel from '../../../models/gmo/result';
+import GMOResultModel from '../../../../models/gmo/result';
 
 const debug = createDebug('chevre-frontend:controller:gmo:reserve:cvs');
 

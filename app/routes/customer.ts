@@ -5,8 +5,8 @@
  */
 
 import * as express from 'express';
+import * as customerGmoReserveController from '../controllers/customer/gmo/reserve';
 import * as customerReserveController from '../controllers/customer/reserve';
-import * as gmoReserveController from '../controllers/gmo/reserve';
 
 const router = express.Router();
 
@@ -24,8 +24,8 @@ router.all('/reserve/confirm', customerReserveController.confirm);
 router.get('/reserve/:performanceDay/:paymentNo/waitingSettlement', customerReserveController.waitingSettlement);
 router.get('/reserve/:performanceDay/:paymentNo/complete', customerReserveController.complete);
 
-router.post('/reserve/gmo/start', gmoReserveController.start);
-router.post('/reserve/gmo/result', gmoReserveController.result);
-router.get('/reserve/gmo/:orderId/cancel', gmoReserveController.cancel);
+router.post('/reserve/gmo/start', customerGmoReserveController.start);
+router.post('/reserve/gmo/result', customerGmoReserveController.result);
+router.get('/reserve/gmo/:orderId/cancel', customerGmoReserveController.cancel);
 
 export default router;

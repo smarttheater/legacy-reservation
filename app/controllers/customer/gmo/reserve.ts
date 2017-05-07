@@ -2,7 +2,7 @@
  * GMO関連予約コントローラー
  * 座席予約フローのうちGMOと連携するアクションを実装しています。
  *
- * @namespace controller/gmo/reserve
+ * @namespace controller/customer/gmo/reserve
  */
 
 import { CommonUtil, Models, ReservationUtil } from '@motionpicture/chevre-domain';
@@ -14,8 +14,8 @@ import * as querystring from 'querystring';
 import * as _ from 'underscore';
 import * as util from 'util';
 
-import GMOResultModel from '../../models/gmo/result';
-import ReservationModel from '../../models/reserve/session';
+import GMOResultModel from '../../../models/gmo/result';
+import ReservationModel from '../../../models/reserve/session';
 import * as gmoReserveCvsController from './reserve/cvs';
 
 const debug = createDebug('chevre-frontend:controller:gmoReserve');
