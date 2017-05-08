@@ -26,9 +26,7 @@ import session from './middlewares/session';
 import setLocals from './middlewares/setLocals';
 
 import customerRouter from './routes/customer';
-import gmoRouter from './routes/gmo';
 import router from './routes/router';
-import sendGridRouter from './routes/sendGrid';
 import staffRouter from './routes/staff';
 import windowRouter from './routes/window';
 
@@ -102,8 +100,6 @@ app.use(setLocals); // ローカル変数セット
 app.use('/customer', customerRouter);
 app.use('/staff', staffRouter);
 app.use('/window', windowRouter);
-app.use('/gmo', gmoRouter);
-app.use('/sendGrid', sendGridRouter);
 app.use('/', router);
 
 // 404
