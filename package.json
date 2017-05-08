@@ -94,7 +94,8 @@
   "repository": {},
   "scripts": {
     "build": "tsc",
-    "check": "tslint --type-check --project tsconfig.json -c tslint.json index.ts app/**/*.ts && nsp check && snyk auth && snyk test --ignore-policy",
+    "check": "tslint --type-check --project tsconfig.json -c tslint.json index.ts app/**/*.ts && nsp check",
+    "snyk": "snyk auth && snyk test --ignore-policy",
     "clean": "rimraf app/**/*.js index.js npm-debug.log* docs/*",
     "css": "gulp",
     "jsdoc": "node_modules/.bin/jsdoc -c jsdoc.json",
@@ -104,5 +105,5 @@
     "version": "git add -A",
     "postversion": "git push origin --tags"
   },
-  "version": "4.0.9"
+  "version": "5.0.0"
 }

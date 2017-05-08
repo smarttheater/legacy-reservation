@@ -54,13 +54,7 @@ for (let reservation of reservationDocuments) {
                                 <%- reservation.seat_code %>
                             </div>
                             <div class="cell-btn cell-print">
-
-                                <% if (reservation.purchaser_group === ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
-                                <a class="btn btn-icon-print btn-thermalprint" data-reservation-id="<%- reservation._id %>" href="javascript:void(0)"><span><%- __('Button.ThermalPrint') %></span></a>
-                                <% } else { %>
                                 <a class="btn btn-default btn-icon-print" target="_blank" href="/reserve/print?ids=<%= JSON.stringify([reservation._id.toString()]) %>"><span><%- __('Button.Print') %></span></a>
-                                <% } %>
-
                             </div>
                             <div class="cell-codeimg">
                                 
@@ -68,11 +62,9 @@ for (let reservation of reservationDocuments) {
 
                             </div>
 
-                            <% if (reservation.purchaser_group !== ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
                             <div class="cell-btn cell-mail">
                                 <a class="btn btn-default btn-icon-mail send-mail" href="javascript:void(0)" data-reservation-id="<%- reservation._id %>" data-url="<%= process.env.API_ENDPOINT %>/<%- locale %>/reservation/<%= reservation._id.toString() %>/transfer"><span><%- __('Button.InformFriends') %></span></a>
                             </div>
-                            <% } %>
 
                             <div class="cell-btn cell-showseat">
                                 <a class="btn btn-showseat show-seat-position" href="javascript:void(0)" data-screen-id="<%- reservation.screen %>" data-seat-codes="<%- reservation.seat_code %>"><span><%- __('Label.ShowSeats') %></span></a>

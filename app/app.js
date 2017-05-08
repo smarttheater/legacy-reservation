@@ -25,8 +25,6 @@ const session_1 = require("./middlewares/session");
 const setLocals_1 = require("./middlewares/setLocals");
 const customer_1 = require("./routes/customer");
 const router_1 = require("./routes/router");
-const staff_1 = require("./routes/staff");
-const window_1 = require("./routes/window");
 const app = express();
 app.use(partials()); // レイアウト&パーシャルサポート
 app.use(benchmarks_1.default); // ベンチマーク的な
@@ -80,8 +78,6 @@ app.use(expressValidator()); // バリデーション
 app.use(setLocals_1.default); // ローカル変数セット
 // ルーティング登録の順序に注意！
 app.use('/customer', customer_1.default);
-app.use('/staff', staff_1.default);
-app.use('/window', window_1.default);
 app.use('/', router_1.default);
 // 404
 app.use(notFoundHandler_1.default);

@@ -2,7 +2,7 @@
 
 <h1 class="pagetitle"><%- __('h1.EnterProfile') %></h1>
 
-<p class="guidetext"><%= (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) ? __('Label.EnterProfileGuideTextWindow') : __('Label.EnterProfileGuideText') %></p>
+<p class="guidetext"><%= __('Label.EnterProfileGuideText') %></p>
 
 <div class="wrapper-2clm">
 
@@ -14,18 +14,7 @@
 
                 <tbody>
 
-                    <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_WINDOW) { %>
-                        <input type="hidden" name="lastName" value="<%= lastName %>">
-                        <input type="hidden" name="firstName" value="<%= firstName %>">
-                        <input type="hidden" name="tel" value="<%= tel %>">
-                        <input type="hidden" name="email" value="<%= email %>">
-                        <input type="hidden" name="emailConfirm" value="<%= emailConfirm %>">
-                        <input type="hidden" name="emailConfirmDomain" value="<%= emailConfirmDomain %>">
-                        <input type="hidden" name="age" value="<%= age %>">
-                        <input type="hidden" name="address" value="<%= address %>">
-                        <input type="hidden" name="gender" value="<%= gender %>">
-
-                    <% } else { %>
+                    
                         <tr>
                             <th><%- __('Form.FieldName.name') %><span class="required"><%- __('Label.Required') %></span></th>
                             <td>
@@ -155,14 +144,9 @@
                             </td>
                         </tr>
 
-                    <% } %>
 
 
 
-                    <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) { %>
-                        <input type="hidden" name="paymentMethod" value="<%= GMOUtil.PAY_TYPE_CREDIT %>">
-
-                    <% } else { %>
                         <tr>
                             <th><%- __('Form.FieldName.paymentMethod') %><span class="required"><%- __('Label.Required') %></span></th>
                             <td>
@@ -206,7 +190,7 @@
                                 <% } %>
                             </td>
                         </tr>
-                        <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER) { %>
+
                         <% let credit = (paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? 'credit' : 'credit hide' %>
                         <tr class="<%- credit %>">
                             <th><label for="cardNumber"><%- __('Form.FieldName.cardNumber') %></label><span class="required"><%- __('Label.Required') %></span></th>
@@ -271,8 +255,7 @@
                                 <% } %>
                             </td>
                         </tr>
-                        <% } %>
-                        <% } %>
+
 
                 </tbody>
 
@@ -288,17 +271,6 @@
 
 </div>
 
-
-<% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_CUSTOMER) { %>
 <script src="<%= GMO_ENDPOINT %>/ext/js/token.js"></script>
 <script>Multipayment.init('<%= GMO_SHOP_ID %>');</script>
 <script src="/js/profile.js"></script>
-<% } else { %>
-<script>
-$(function () {
-    $('.btn-next').on('click', function () {
-        $('form').submit();
-    });
-});
-</script>
-<% } %>

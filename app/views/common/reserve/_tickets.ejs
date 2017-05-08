@@ -3,10 +3,6 @@
 <h1 class="pagetitle"><%- __('h1.SelectTickets') %></h1>
 <p class="guidetext"><%- __('Label.SelectTicketsGuideText') %></p>
 
-<% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) { %>
-<p class="row small text-left errmsg"><%- __('Label.NameOfPersonWhoWillSeeFilm') %>:<br><%- __('Message.UpdateWatcherNameHelp') %></p>
-<% } %>
-
 <div class="wrapper-2clm">
 
     <div class="clm-left" data-token="">
@@ -30,9 +26,6 @@
                             <% }) %>
                         </select>
 
-                        <% if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) { %>
-                        <input type="text" name="watcherName" class="form-control" placeholder="<%- __('Label.PleaseEnterWatcherName') %>" value="<%- reservation.get('watcher_name') %>">
-                        <% } %>
                     </td>
                 </tr>
                 <% } %>
