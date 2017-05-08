@@ -176,8 +176,8 @@ function executeByPaymentNo(req, res, __) {
                     conf: conf,
                     GMOUtil: gmo_service_1.Util,
                     ReservationUtil: chevre_domain_1.ReservationUtil
-                }, (renderErr, html) => __awaiter(this, void 0, void 0, function* () {
-                    debug('email rendered. html:', renderErr, html);
+                }, (renderErr, text) => __awaiter(this, void 0, void 0, function* () {
+                    debug('email rendered. text:', renderErr, text);
                     // メール失敗してもキャンセル成功
                     if (renderErr instanceof Error) {
                         res.json({ success: true, message: null });
@@ -185,7 +185,7 @@ function executeByPaymentNo(req, res, __) {
                     else {
                         try {
                             debug('sending an email...');
-                            yield sendEmail(to, html);
+                            yield sendEmail(to, text);
                             debug('an email sent');
                         }
                         catch (error) {
@@ -197,66 +197,6 @@ function executeByPaymentNo(req, res, __) {
                         });
                     }
                 }));
-                // クレジットカードの場合、GMO取消しを行えば通知で空席になる(この方法は保留)
-                // 取引状態参照
-                // debug('SearchTrade processing...');
-                // request.post({
-                //     url: 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
-                //     form: {
-                //         ShopID: process.env.GMO_SHOP_ID,
-                //         ShopPass: process.env.GMO_SHOP_PASS,
-                //         OrderID: paymentNo
-                //     }
-                // }, (error, response, body) => {
-                //     debug('SearchTrade processed', error, body);
-                //     if (error) {
-                //         res.json({ success: false, message: req.__('Message.UnexpectedError') });
-                //         return;
-                //     }
-                //     if (response.statusCode !== 200) {
-                //         res.json({ success: false, message: req.__('Message.UnexpectedError') });
-                //         return;
-                //     }
-                //     let searchTradeResult = querystring.parse(body);
-                //     if (searchTradeResult['ErrCode']) {
-                //         res.json({ success: false, message: req.__('Message.UnexpectedError') });
-                //         return;
-                //     }
-                //     // 即時売上状態のみ先へ進める
-                //     if (searchTradeResult.Status !== GMOUtil.STATUS_CREDIT_CAPTURE) {
-                //         res.json({ success: false, message: req.__('Message.UnexpectedError') });
-                //         return;
-                //     }
-                //     debug('searchTradeResult is ', searchTradeResult);
-                //     // 決済変更
-                //     debug('AlterTran processing...');
-                //     request.post({
-                //         url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
-                //         form: {
-                //             ShopID: process.env.GMO_SHOP_ID,
-                //             ShopPass: process.env.GMO_SHOP_PASS,
-                //             AccessID: searchTradeResult.AccessID,
-                //             AccessPass: searchTradeResult.AccessPass,
-                //             JobCd: GMOUtil.STATUS_CREDIT_VOID
-                //         }
-                //     }, (error, response, body) => {
-                //         debug('AlterTran processed', error, body);
-                //         if (error) {
-                //             res.json({ success: false, message: req.__('Message.UnexpectedError') });
-                //             return;
-                //         }
-                //         if (response.statusCode !== 200) {
-                //             res.json({ success: false, message: req.__('Message.UnexpectedError') });
-                //             return;
-                //         }
-                //         let alterTranResult = querystring.parse(body);
-                //         if (alterTranResult['ErrCode']) {
-                //             res.json({ success: false, message: req.__('Message.UnexpectedError') });
-                //             return;
-                //         }
-                //         debug('alterTranResult is ', alterTranResult);
-                //     });
-                // });
             }
             else if (reservations[0].get('payment_method') === gmo_service_1.Util.PAY_TYPE_CVS) {
                 // コンビニ決済の場合
@@ -306,22 +246,13 @@ function validate(reservations) {
 }
 /**
  * メールを送信する
- * todo テキストメールに変更すべし
  *
  * @ignore
  */
-function sendEmail(to, html) {
+function sendEmail(to, text) {
     return __awaiter(this, void 0, void 0, function* () {
         const subject = util.format('%s%s %s', (process.env.NODE_ENV !== 'production') ? `[${process.env.NODE_ENV}]` : '', 'CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ', 'Notice of Completion of Cancel for CHEVRE Tickets');
-        const mail = new sendgrid.mail.Mail(new sendgrid.mail.Email(conf.get('email.from'), conf.get('email.fromname')), subject, new sendgrid.mail.Email(to), new sendgrid.mail.Content('text/html', html));
-        // logo
-        // const attachment = new sendgrid.mail.Attachment();
-        // attachment.setFilename('logo.png');
-        // attachment.setType('image/png');
-        // attachment.setContent(fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`).toString('base64'));
-        // attachment.setDisposition('inline');
-        // attachment.setContentId('logo');
-        // mail.addAttachment(attachment);
+        const mail = new sendgrid.mail.Mail(new sendgrid.mail.Email(conf.get('email.from'), conf.get('email.fromname')), subject, new sendgrid.mail.Email(to), new sendgrid.mail.Content('text/plain', text));
         const sg = sendgrid(process.env.SENDGRID_API_KEY);
         const request = sg.emptyRequest({
             host: 'api.sendgrid.com',

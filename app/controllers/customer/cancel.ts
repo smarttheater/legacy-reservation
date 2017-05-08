@@ -190,8 +190,8 @@ export async function executeByPaymentNo(req: Request, res: Response, __: NextFu
                     GMOUtil: GMOUtil,
                     ReservationUtil: ReservationUtil
                 },
-                async (renderErr, html) => {
-                    debug('email rendered. html:', renderErr, html);
+                async (renderErr, text) => {
+                    debug('email rendered. text:', renderErr, text);
 
                     // メール失敗してもキャンセル成功
                     if (renderErr instanceof Error) {
@@ -199,7 +199,7 @@ export async function executeByPaymentNo(req: Request, res: Response, __: NextFu
                     } else {
                         try {
                             debug('sending an email...');
-                            await sendEmail(to, html);
+                            await sendEmail(to, text);
                             debug('an email sent');
                         } catch (error) {
                             // メールが送れなくてもキャンセルは成功
@@ -212,70 +212,6 @@ export async function executeByPaymentNo(req: Request, res: Response, __: NextFu
                     }
                 }
             );
-
-            // クレジットカードの場合、GMO取消しを行えば通知で空席になる(この方法は保留)
-            // 取引状態参照
-            // debug('SearchTrade processing...');
-            // request.post({
-            //     url: 'https://pt01.mul-pay.jp/payment/SearchTrade.idPass',
-            //     form: {
-            //         ShopID: process.env.GMO_SHOP_ID,
-            //         ShopPass: process.env.GMO_SHOP_PASS,
-            //         OrderID: paymentNo
-            //     }
-            // }, (error, response, body) => {
-            //     debug('SearchTrade processed', error, body);
-            //     if (error) {
-            //         res.json({ success: false, message: req.__('Message.UnexpectedError') });
-            //         return;
-            //     }
-            //     if (response.statusCode !== 200) {
-            //         res.json({ success: false, message: req.__('Message.UnexpectedError') });
-            //         return;
-            //     }
-            //     let searchTradeResult = querystring.parse(body);
-            //     if (searchTradeResult['ErrCode']) {
-            //         res.json({ success: false, message: req.__('Message.UnexpectedError') });
-            //         return;
-            //     }
-            //     // 即時売上状態のみ先へ進める
-            //     if (searchTradeResult.Status !== GMOUtil.STATUS_CREDIT_CAPTURE) {
-            //         res.json({ success: false, message: req.__('Message.UnexpectedError') });
-            //         return;
-            //     }
-
-            //     debug('searchTradeResult is ', searchTradeResult);
-
-            //     // 決済変更
-            //     debug('AlterTran processing...');
-            //     request.post({
-            //         url: 'https://pt01.mul-pay.jp/payment/AlterTran.idPass',
-            //         form: {
-            //             ShopID: process.env.GMO_SHOP_ID,
-            //             ShopPass: process.env.GMO_SHOP_PASS,
-            //             AccessID: searchTradeResult.AccessID,
-            //             AccessPass: searchTradeResult.AccessPass,
-            //             JobCd: GMOUtil.STATUS_CREDIT_VOID
-            //         }
-            //     }, (error, response, body) => {
-            //         debug('AlterTran processed', error, body);
-            //         if (error) {
-            //             res.json({ success: false, message: req.__('Message.UnexpectedError') });
-            //             return;
-            //         }
-            //         if (response.statusCode !== 200) {
-            //             res.json({ success: false, message: req.__('Message.UnexpectedError') });
-            //             return;
-            //         }
-            //         let alterTranResult = querystring.parse(body);
-            //         if (alterTranResult['ErrCode']) {
-            //             res.json({ success: false, message: req.__('Message.UnexpectedError') });
-            //             return;
-            //         }
-
-            //         debug('alterTranResult is ', alterTranResult);
-            //     });
-            // });
         } else if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) {
             // コンビニ決済の場合
             res.json({
@@ -322,11 +258,10 @@ async function validate(reservations: mongoose.Document[]): Promise<void> {
 
 /**
  * メールを送信する
- * todo テキストメールに変更すべし
  *
  * @ignore
  */
-async function sendEmail(to: string, html: string): Promise<void> {
+async function sendEmail(to: string, text: string): Promise<void> {
     const subject = util.format(
         '%s%s %s',
         (process.env.NODE_ENV !== 'production') ? `[${process.env.NODE_ENV}]` : '',
@@ -337,17 +272,8 @@ async function sendEmail(to: string, html: string): Promise<void> {
         new sendgrid.mail.Email(conf.get<string>('email.from'), conf.get<string>('email.fromname')),
         subject,
         new sendgrid.mail.Email(to),
-        new sendgrid.mail.Content('text/html', html)
+        new sendgrid.mail.Content('text/plain', text)
     );
-
-    // logo
-    // const attachment = new sendgrid.mail.Attachment();
-    // attachment.setFilename('logo.png');
-    // attachment.setType('image/png');
-    // attachment.setContent(fs.readFileSync(`${__dirname}/../../../../public/images/email/logo.png`).toString('base64'));
-    // attachment.setDisposition('inline');
-    // attachment.setContentId('logo');
-    // mail.addAttachment(attachment);
 
     const sg = sendgrid(process.env.SENDGRID_API_KEY);
     const request = sg.emptyRequest({

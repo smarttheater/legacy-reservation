@@ -1,155 +1,67 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ Notice of Completion of Cancel for CHEVRE Tickets</title>
-<!--
-    gmailはstyle要素とlink要素を無効にするので全タグにstyle属性を付けるしかない
-    https://www.campaignmonitor.com/css/    
--->
-</head>
-<body>
+CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ
+Notice of Completion of Cancel for CHEVRE Tickets
 
-<div style="background-color:#fff;height:80px;text-align:center;">
-    <img src="cid:logo" alt="CHEVRE_EVENT_NAME" >
-</div>
+<%= reservations[0].get('purchaser_name').ja %> 様
+Dear <%= reservations[0].get('purchaser_name').en %>,
 
+CHEVRE_EVENT_NAMEの鑑賞キャンセルを受け付けました。
+キャンセルした内容は以下の通りとなりますのでご確認ください。
+皆さまに大変ご迷惑をおかけしております事、深くお詫び申し上げます。
+We have received your request for CHEVRE tickets cancellation.
+Please check your cancellation details as follows. 
+We sincerely apologize for the inconvenience we caused you.
 
-<div style="padding:0 30px;font-family:'游ゴシック',meiryo,sans-serif;">
-    <h1 style="margin:0;font-size:20px;text-align:center;">CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ</h1>
-    <h2 style="margin:0;font-size:16px;text-align:center;">Notice of Completion of Cancel for CHEVRE Tickets</h2>
+--------------------
 
-    <p style="font-weight:bold;"><%= reservations[0].get('purchaser_name').ja %> 様</p>
-    <p style="font-weight:bold;font-size:12px;">Dear <%= reservations[0].get('purchaser_name').en %>,</p>
+作品名 (Title) :
+<%- reservations[0].get('film_name').ja %>
+<%- reservations[0].get('film_name').en %>
 
-    <p style="font-size:14px;">
-        CHEVRE_EVENT_NAMEの鑑賞キャンセルを受け付けました。<br>
-        キャンセルした内容は以下の通りとなりますのでご確認ください。<br>
-        皆さまに大変ご迷惑をおかけしております事、深くお詫び申し上げます。
-    </p>
-    <p style="font-size:12px;">
-        We have received your request for CHEVRE tickets cancellation.<br>
-        Please check your cancellation details as follows. <br>
-        We sincerely apologize for the inconvenience we caused you.
-    </p>
+購入番号 (Transaction number) :
+<%- reservations[0].get('payment_no') %>
 
+劇場 (Location) :
+<%- reservations[0].get('location_str').ja %>
+<%- reservations[0].get('theater_address').ja %>
+<%- reservations[0].get('theater_name').en %> <%- reservations[0].get('screen_name').en %>
+<%- reservations[0].get('theater_address').en %>
 
-    <hr style="margin:1em 0;">
+時間 (Date and time) :
+<%- reservations[0].get('performance_start_str').ja %>
+<%- reservations[0].get('performance_start_str').en %>
 
+券種 (Type of ticket) :
+<%= reservations.map((reservation) => reservation.get('ticket_type_detail_str').ja.replace(/\\/g, '￥')).join('\n') %>
+<%= reservations.map((reservation) => reservation.get('ticket_type_detail_str').en.replace(/\\/g, '￥')).join('\n') %>
 
-    <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">作品名 (Title) :</h3>
-        <strong><%- reservations[0].get('film_name').ja %></strong><br>
-        <span style="font-size:12px;"><%- reservations[0].get('film_name').en %></span>
-    </div>
+<% if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) { %>
+コンビニ決済手数料 (Handling charge) :
+￥<%- ReservationUtil.CHARGE_CVS %> x <%- reservations.length %>
+<% } %>
 
+購入枚数 (Number of tickets purchased) :
+<%- reservations.length %>枚
+<%- reservations.length %> ticket(s)
 
-    <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入番号 (Transaction number) :</h3>
-        <strong><%- reservations[0].get('payment_no') %></strong>
-    </div>
+<% const totalCharge = reservations.reduce((a, b) => a  + b.get('charge'), 0); %>
+<% if (totalCharge > 0) { %>
+合計金額 (Total) :
+￥<%- numeral(totalCharge).format('0,0') %>(税込)
+<%- numeral(totalCharge).format('0,0') %> yen (including tax)
+<% } %>
 
+座席番号 (Seat number) :
+<%= reservations.map((reservation) => reservation.get('seat_code').join('、') %>
 
-    <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">劇場 (Location) :</h3>
-        <strong><%- reservations[0].get('location_str').ja %></strong><br>
-        <%- reservations[0].get('theater_address').ja %><br>
-        <p style="font-size:12px;">
-            <%- reservations[0].get('theater_name').en %> <%- reservations[0].get('screen_name').en %><br>
-            <%- reservations[0].get('theater_address').en %>
-        </p>
-    </div>
+お客様ならびに関係する皆様に多大なるご迷惑、ご心配をお掛けしたことを重ねてお詫び申し上げます。
+Again, we are deeply sorry for the anxiety and inconvenience we caused you and all parties concerned. 
 
-
-    <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">時間 (Date and time) :</h3>
-        <strong><%- reservations[0].get('performance_start_str').ja %></strong><br>
-        <span style="font-size:12px;"><%- reservations[0].get('performance_start_str').en %></span>
-    </div>
-
-
-    <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">券種 (Type of ticket) :</h3>
-
-        <% reservations.forEach((reservation, index) => { %>
-        <%- (index > 0) ? '<br>' : '' %>
-        <strong><%- reservation.get('ticket_type_detail_str').ja.replace(/\\/g, '&yen;') %>
-        <% }) %>
-
-        <p style="font-size:12px;">
-            <% reservations.forEach((reservation, index) => { %>
-            <%- (index > 0) ? '<br>' : '' %>
-            <%- reservation.get('ticket_type_detail_str').en.replace(/\\/g, '&yen;') %>
-            <% }) %>
-        </p>
-
-    </div>
-
-    <% if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) { %>
-    <!-- 「コンビニ決済完了」の場合 -->
-    <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">コンビニ決済手数料 (Handling charge) :</h3>
-        <strong>&yen;<%- ReservationUtil.CHARGE_CVS %> x <%- reservations.length %></strong>
-    </div>
-    <!-- /「コンビニ決済完了」の場合 -->
-    <% } %>
-
-    <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">購入枚数 (Number of tickets purchased) :</h3>
-        <strong><%- reservations.length %>枚</strong>
-        <span style="font-size:12px;"><%- reservations.length %> ticket(s)</span>
-    </div>
-
-
-    <%
-    let totalCharge = 0;
-    reservations.forEach((reservation) => {
-        totalCharge += reservation.get('charge');
-    });
-    %>
-    <% if (totalCharge > 0) { %>
-    <div style="margin-bottom:1em;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">合計金額 (Total) :</h3>
-        <strong>&yen;<%- numeral(totalCharge).format('0,0') %>(税込)</strong>
-        <span style="font-size:12px;"><%- numeral(totalCharge).format('0,0') %> yen (including tax)</span>
-    </div>
-    <% } %>
-
-
-    <div style="margin-bottom:1em;page-break-inside:avoid;">
-        <h3 style="font-weight:normal;font-size:14px;margin:0;">座席番号 (Seat number) :</h3>
-
-        <% reservations.forEach((reservation) => { %>
-        <p>
-            <strong><%- reservation.get('seat_code') %></strong><br>
-        </p>
-        <% }) %>
-    </div>
-
-
-    <p style="font-size:12px;">
-        お客様ならびに関係する皆様に多大なるご迷惑、ご心配をお掛けしたことを重ねてお詫び申し上げます。<br>
-        Again, we are deeply sorry for the anxiety and inconvenience we caused you and all parties concerned. 
-    </p>
-
-
-    <strong style="font-size:14px;">CHEVRE_EVENT_NAME  CHEVRE 2016</strong>
-    <p style="font-size:14px;">
-        本メールアドレスは送信専用です。返信はできませんのであらかじめご了承ください。<br>
-        本メールに心当たりのない方やチケットに関してご不明な点は、下記電話番号までお問い合わせください。<br>
-        チケットのお問合せ：050-3786-0368　/12:00～18:00（休業：土/日/祝日　CHEVRE_EVENT_NAME開催期間中は無休）<br>
-        オフィシャルサイト： <a href="<%= conf.get('official_website_url') %>" target="_blank" style="color:#000;"><%= conf.get('official_website_url') %></a>
-    </p>
-    <p style="font-size:10px;">
-        This email was sent from a send-only address. Please do not reply to this message.<br>
-        If you are not the intended recipient of this email or have any questions about tickets, contact us at the telephone number below.<br>
-        For inquiries about tickets: 050-3786-0368/12:00 p.m. to 6:00 p.m. (Closed on Saturdays, Sundays, and national holidays, except during CHEVRE)<br>
-        Official website: <a href="<%= conf.get('official_website_url') %>" target="_blank" style="color:#000;"><%= conf.get('official_website_url') %></a>
-    </p>
-</div>
-
-
-
-
-</body>
-</html>
+CHEVRE_EVENT_NAME  CHEVRE 2016
+本メールアドレスは送信専用です。返信はできませんのであらかじめご了承ください。
+本メールに心当たりのない方やチケットに関してご不明な点は、下記電話番号までお問い合わせください。
+チケットのお問合せ：050-3786-0368　/12:00～18:00（休業：土/日/祝日　CHEVRE_EVENT_NAME開催期間中は無休）
+オフィシャルサイト： <%= conf.get('official_website_url') %>
+This email was sent from a send-only address. Please do not reply to this message.
+If you are not the intended recipient of this email or have any questions about tickets, contact us at the telephone number below.
+For inquiries about tickets: 050-3786-0368/12:00 p.m. to 6:00 p.m. (Closed on Saturdays, Sundays, and national holidays, except during CHEVRE)
+Official website: <%= conf.get('official_website_url') %>
