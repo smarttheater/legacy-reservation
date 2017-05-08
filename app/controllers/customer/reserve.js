@@ -20,6 +20,7 @@ const createDebug = require("debug");
 const httpStatus = require("http-status");
 const moment = require("moment");
 const _ = require("underscore");
+const reservePaymentCreditForm_1 = require("../../forms/reserve/reservePaymentCreditForm");
 const reservePerformanceForm_1 = require("../../forms/reserve/reservePerformanceForm");
 const reserveSeatForm_1 = require("../../forms/reserve/reserveSeatForm");
 const session_1 = require("../../models/reserve/session");
@@ -243,7 +244,7 @@ function profile(req, res, next) {
                 try {
                     yield reserveBaseController.processFixProfile(reservationModel, req, res);
                     // クレジットカード決済のオーソリ、あるいは、オーダーID発行
-                    yield reserveBaseController.processFixGMO(reservationModel, req);
+                    yield processFixGMO(reservationModel, req);
                     // 予約情報確定
                     yield reserveBaseController.processAllExceptConfirm(reservationModel, req);
                     reservationModel.save(req);
@@ -298,7 +299,22 @@ function confirm(req, res, next) {
             }
             if (req.method === 'POST') {
                 try {
-                    yield reserveBaseController.processConfirm(reservationModel, req);
+                    // 仮押さえ有効期限チェック
+                    if (reservationModel.expiredAt !== undefined && reservationModel.expiredAt < moment().valueOf()) {
+                        throw new Error(req.__('Message.Expired'));
+                    }
+                    // コンビニ決済の場合
+                    // 決済移行のタイミングで仮予約有効期限を更新 & 決済中ステータスに変更
+                    if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CVS) {
+                        yield chevre.Models.Reservation.update({
+                            performance_day: reservationModel.performance.day,
+                            payment_no: reservationModel.paymentNo
+                        }, {
+                            status: chevre.ReservationUtil.STATUS_WAITING_SETTLEMENT,
+                            expired_at: moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').toDate(),
+                            purchased_at: moment().toDate()
+                        }, { multi: true }).exec();
+                    }
                     if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
                         yield reserveBaseController.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {}, res);
                         debug('processFixReservations processed.');
@@ -394,3 +410,86 @@ function complete(req, res, next) {
     });
 }
 exports.complete = complete;
+/**
+ * GMO決済FIXプロセス
+ *
+ * @param {ReservationModel} reservationModel
+ * @returns {Promise<void>}
+ */
+function processFixGMO(reservationModel, req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID = -2;
+        let orderId;
+        if (reservationModel.transactionGMO === undefined) {
+            reservationModel.transactionGMO = {
+                orderId: '',
+                accessId: '',
+                accessPass: '',
+                amount: 0,
+                count: 0,
+                status: GMO.Util.STATUS_CREDIT_UNPROCESSED
+            };
+        }
+        // GMOリクエスト前にカウントアップ
+        reservationModel.transactionGMO.count += 1;
+        reservationModel.save(req);
+        switch (reservationModel.paymentMethod) {
+            case GMO.Util.PAY_TYPE_CREDIT:
+                reservePaymentCreditForm_1.default(req);
+                const validationResult = yield req.getValidationResult();
+                if (!validationResult.isEmpty()) {
+                    throw new Error(req.__('Message.Invalid'));
+                }
+                if (reservationModel.transactionGMO.status === GMO.Util.STATUS_CREDIT_AUTH) {
+                    //GMOオーソリ取消
+                    const alterTranIn = {
+                        shopId: process.env.GMO_SHOP_ID,
+                        shopPass: process.env.GMO_SHOP_PASS,
+                        accessId: reservationModel.transactionGMO.accessId,
+                        accessPass: reservationModel.transactionGMO.accessPass,
+                        jobCd: GMO.Util.JOB_CD_VOID
+                    };
+                    yield GMO.CreditService.alterTran(alterTranIn);
+                }
+                // GMO取引作成
+                const count = `00${reservationModel.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
+                // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
+                orderId = chevre.ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, count);
+                debug('orderId:', orderId);
+                const amount = reservationModel.getTotalCharge();
+                const entryTranIn = {
+                    shopId: process.env.GMO_SHOP_ID,
+                    shopPass: process.env.GMO_SHOP_PASS,
+                    orderId: orderId,
+                    jobCd: GMO.Util.JOB_CD_AUTH,
+                    amount: amount
+                };
+                const transactionGMO = yield GMO.CreditService.entryTran(entryTranIn);
+                const gmoTokenObject = JSON.parse(req.body.gmoTokenObject);
+                // GMOオーソリ
+                const execTranIn = {
+                    accessId: transactionGMO.accessId,
+                    accessPass: transactionGMO.accessPass,
+                    orderId: orderId,
+                    method: GMO.Util.METHOD_LUMP,
+                    token: gmoTokenObject.token
+                };
+                yield GMO.CreditService.execTran(execTranIn);
+                reservationModel.transactionGMO.accessId = transactionGMO.accessId;
+                reservationModel.transactionGMO.accessPass = transactionGMO.accessPass;
+                reservationModel.transactionGMO.orderId = orderId;
+                reservationModel.transactionGMO.amount = amount;
+                reservationModel.transactionGMO.status = GMO.Util.STATUS_CREDIT_AUTH;
+                break;
+            case GMO.Util.PAY_TYPE_CVS:
+                // コンビニ決済の場合、オーダーIDの発行だけ行う
+                const serialNumber = `00${reservationModel.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
+                // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
+                orderId = chevre.ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, serialNumber);
+                reservationModel.transactionGMO.orderId = orderId;
+                break;
+            default:
+                break;
+        }
+    });
+}

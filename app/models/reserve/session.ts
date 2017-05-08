@@ -278,9 +278,7 @@ export default class ReserveSessionModel {
             watcher_name: (reservation.watcher_name !== undefined) ? reservation.watcher_name : '',
             watcher_name_updated_at: (reservation.watcher_name !== undefined) ? moment().valueOf() : '',
 
-            purchased_at: this.purchasedAt,
-
-            updated_user: 'ReserveSessionModel'
+            purchased_at: this.purchasedAt
         };
     }
 }

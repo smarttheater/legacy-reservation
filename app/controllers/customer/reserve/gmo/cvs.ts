@@ -75,8 +75,7 @@ export async function result(gmoResultModel: GMOResultModel, req: Request, res: 
                 gmo_cvs_conf_no: gmoResultModel.CvsConfNo,
                 gmo_cvs_receipt_no: gmoResultModel.CvsReceiptNo,
                 gmo_cvs_receipt_url: gmoResultModel.CvsReceiptUrl,
-                gmo_payment_term: gmoResultModel.PaymentTerm,
-                updated_user: 'GMOReserveCsvController'
+                gmo_payment_term: gmoResultModel.PaymentTerm
             },
             { multi: true }
         ).exec();

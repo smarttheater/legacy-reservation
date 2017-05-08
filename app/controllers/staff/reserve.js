@@ -231,7 +231,10 @@ function confirm(req, res, next) {
             }
             if (req.method === 'POST') {
                 try {
-                    yield reserveBaseController.processConfirm(reservationModel, req);
+                    // 仮押さえ有効期限チェック
+                    if (reservationModel.expiredAt !== undefined && reservationModel.expiredAt < moment().valueOf()) {
+                        throw new Error(req.__('Message.Expired'));
+                    }
                     // 予約確定
                     yield reserveBaseController.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {}, res);
                     session_1.default.REMOVE(req);

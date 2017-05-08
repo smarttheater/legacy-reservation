@@ -21,7 +21,6 @@ const fs = require("fs-extra");
 const moment = require("moment");
 const numeral = require("numeral");
 const _ = require("underscore");
-const reservePaymentCreditForm_1 = require("../forms/reserve/reservePaymentCreditForm");
 const reserveProfileForm_1 = require("../forms/reserve/reserveProfileForm");
 const reserveTicketForm_1 = require("../forms/reserve/reserveTicketForm");
 const session_1 = require("../models/reserve/session");
@@ -116,90 +115,6 @@ function processFixProfile(reservationModel, req, res) {
     });
 }
 exports.processFixProfile = processFixProfile;
-/**
- * GMO決済FIXプロセス
- *
- * @param {ReservationModel} reservationModel
- * @returns {Promise<void>}
- */
-function processFixGMO(reservationModel, req) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID = -2;
-        let orderId;
-        if (reservationModel.transactionGMO === undefined) {
-            reservationModel.transactionGMO = {
-                orderId: '',
-                accessId: '',
-                accessPass: '',
-                amount: 0,
-                count: 0,
-                status: GMO.Util.STATUS_CREDIT_UNPROCESSED
-            };
-        }
-        // GMOリクエスト前にカウントアップ
-        reservationModel.transactionGMO.count += 1;
-        reservationModel.save(req);
-        switch (reservationModel.paymentMethod) {
-            case GMO.Util.PAY_TYPE_CREDIT:
-                reservePaymentCreditForm_1.default(req);
-                const validationResult = yield req.getValidationResult();
-                if (!validationResult.isEmpty()) {
-                    throw new Error(req.__('Message.Invalid'));
-                }
-                if (reservationModel.transactionGMO.status === GMO.Util.STATUS_CREDIT_AUTH) {
-                    //GMOオーソリ取消
-                    const alterTranIn = {
-                        shopId: process.env.GMO_SHOP_ID,
-                        shopPass: process.env.GMO_SHOP_PASS,
-                        accessId: reservationModel.transactionGMO.accessId,
-                        accessPass: reservationModel.transactionGMO.accessPass,
-                        jobCd: GMO.Util.JOB_CD_VOID
-                    };
-                    yield GMO.CreditService.alterTran(alterTranIn);
-                }
-                // GMO取引作成
-                const count = `00${reservationModel.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
-                // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
-                orderId = chevre_domain_1.ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, count);
-                debug('orderId:', orderId);
-                const amount = reservationModel.getTotalCharge();
-                const entryTranIn = {
-                    shopId: process.env.GMO_SHOP_ID,
-                    shopPass: process.env.GMO_SHOP_PASS,
-                    orderId: orderId,
-                    jobCd: GMO.Util.JOB_CD_AUTH,
-                    amount: amount
-                };
-                const transactionGMO = yield GMO.CreditService.entryTran(entryTranIn);
-                const gmoTokenObject = JSON.parse(req.body.gmoTokenObject);
-                // GMOオーソリ
-                const execTranIn = {
-                    accessId: transactionGMO.accessId,
-                    accessPass: transactionGMO.accessPass,
-                    orderId: orderId,
-                    method: GMO.Util.METHOD_LUMP,
-                    token: gmoTokenObject.token
-                };
-                yield GMO.CreditService.execTran(execTranIn);
-                reservationModel.transactionGMO.accessId = transactionGMO.accessId;
-                reservationModel.transactionGMO.accessPass = transactionGMO.accessPass;
-                reservationModel.transactionGMO.orderId = orderId;
-                reservationModel.transactionGMO.amount = amount;
-                reservationModel.transactionGMO.status = GMO.Util.STATUS_CREDIT_AUTH;
-                break;
-            case GMO.Util.PAY_TYPE_CVS:
-                // コンビニ決済の場合、オーダーIDの発行だけ行う
-                const serialNumber = `00${reservationModel.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
-                // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
-                orderId = chevre_domain_1.ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, serialNumber);
-                reservationModel.transactionGMO.orderId = orderId;
-                break;
-            default:
-                break;
-        }
-    });
-}
-exports.processFixGMO = processFixGMO;
 /**
  * 購入開始プロセス
  *
@@ -307,12 +222,11 @@ exports.processCancelSeats = processCancelSeats;
  * パフォーマンスをFIXするプロセス
  * パフォーマンスIDから、パフォーマンスを検索し、その後プロセスに必要な情報をreservationModelに追加する
  */
+// tslint:disable-next-line:max-func-body-length
 function processFixPerformance(reservationModel, perfomanceId, req) {
     return __awaiter(this, void 0, void 0, function* () {
         // パフォーマンス取得
-        const performance = yield chevre_domain_1.Models.Performance.findOne({
-            _id: perfomanceId
-        }, 'day open_time start_time end_time canceled film screen screen_name theater theater_name ticket_type_group' // 必要な項目だけ指定すること
+        const performance = yield chevre_domain_1.Models.Performance.findById(perfomanceId, 'day open_time start_time end_time canceled film screen screen_name theater theater_name ticket_type_group' // 必要な項目だけ指定すること
         )
             .populate('film', 'name is_mx4d copyright') // 必要な項目だけ指定すること
             .populate('screen', 'name sections') // 必要な項目だけ指定すること
@@ -342,25 +256,7 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
                 break;
             default:
                 // 一般、当日窓口の場合
-                reservationModel.ticketTypes = [];
-                for (const ticketType of ticketTypeGroup.get('ticket_types')) {
-                    switch (ticketType.get('_id')) {
-                        // 学生当日は、当日だけ
-                        case chevre_domain_1.TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS_ON_THE_DAY:
-                            if (moment().format('YYYYMMDD') === performance.get('day')) {
-                                reservationModel.ticketTypes.push(ticketType);
-                            }
-                            break;
-                        case chevre_domain_1.TicketTypeGroupUtil.TICKET_TYPE_CODE_STUDENTS:
-                            if (moment().format('YYYYMMDD') !== performance.get('day')) {
-                                reservationModel.ticketTypes.push(ticketType);
-                            }
-                            break;
-                        default:
-                            reservationModel.ticketTypes.push(ticketType);
-                            break;
-                    }
-                }
+                reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');
                 break;
         }
         // パフォーマンス情報を保管
@@ -391,12 +287,9 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
             }
         };
         // 座席グレードリスト抽出
-        reservationModel.seatGradeCodesInScreen = [];
-        for (const seat of reservationModel.performance.screen.sections[0].seats) {
-            if (reservationModel.seatGradeCodesInScreen.indexOf(seat.grade.code) < 0) {
-                reservationModel.seatGradeCodesInScreen.push(seat.grade.code);
-            }
-        }
+        reservationModel.seatGradeCodesInScreen = reservationModel.performance.screen.sections[0].seats
+            .map((seat) => seat.grade.code)
+            .filter((seatCode, index, seatCodes) => seatCodes.indexOf(seatCode) === index);
         // コンビニ決済はパフォーマンス上映の5日前まで
         // tslint:disable-next-line:no-magic-numbers
         const day5DaysAgo = parseInt(moment().add(+5, 'days').format('YYYYMMDD'), DEFAULT_RADIX);
@@ -426,9 +319,7 @@ function processFixSeats(reservationModel, seatCodes, req) {
         reservationModel.expiredAt = moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').valueOf();
         // 新たな座席指定と、既に仮予約済みの座席コードについて
         const promises = seatCodes.map((seatCode) => __awaiter(this, void 0, void 0, function* () {
-            const seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => {
-                return (seat.code === seatCode);
-            });
+            const seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => (seat.code === seatCode));
             // 万が一、座席が存在しなかったら
             if (seatInfo === undefined) {
                 throw new Error(req.__('Message.InvalidSeatCode'));
@@ -439,8 +330,6 @@ function processFixSeats(reservationModel, seatCodes, req) {
                 status: chevre_domain_1.ReservationUtil.STATUS_TEMPORARY,
                 expired_at: reservationModel.expiredAt,
                 staff: undefined,
-                member: undefined,
-                tel: undefined,
                 window: undefined
             };
             switch (reservationModel.purchaserGroup) {
@@ -534,9 +423,8 @@ function processAllExceptConfirm(reservationModel, req) {
             let update = reservationModel.seatCode2reservationDocument(seatCode);
             update = Object.assign(update, commonUpdate);
             update.payment_seat_index = index;
-            debug('updating reservation all infos...update:', update);
             const reservation = yield chevre_domain_1.Models.Reservation.findByIdAndUpdate(update._id, update, { new: true }).exec();
-            debug('reservation updated');
+            // IDの予約ドキュメントが万が一なければ予期せぬエラー(基本的にありえないフローのはず)
             if (reservation === null) {
                 throw new Error(req.__('Message.UnexpectedError'));
             }
@@ -544,30 +432,6 @@ function processAllExceptConfirm(reservationModel, req) {
     });
 }
 exports.processAllExceptConfirm = processAllExceptConfirm;
-/**
- * 予約情報を確定するプロセス
- */
-function processConfirm(reservationModel, req) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // 仮押さえ有効期限チェック
-        if (reservationModel.expiredAt !== undefined && reservationModel.expiredAt < moment().valueOf()) {
-            throw new Error(req.__('Message.Expired'));
-        }
-        // コンビニ決済の場合
-        // 決済移行のタイミングで仮予約有効期限を更新 & 決済中ステータスに変更
-        if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CVS) {
-            yield chevre_domain_1.Models.Reservation.update({
-                performance_day: reservationModel.performance.day,
-                payment_no: reservationModel.paymentNo
-            }, {
-                status: chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT,
-                expired_at: moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').toDate(),
-                purchased_at: moment().toDate()
-            }, { multi: true }).exec();
-        }
-    });
-}
-exports.processConfirm = processConfirm;
 /**
  * 購入番号から全ての予約を完了にする
  *
@@ -578,20 +442,16 @@ function processFixReservations(performanceDay, paymentNo, update, res) {
     return __awaiter(this, void 0, void 0, function* () {
         update.purchased_at = moment().valueOf();
         update.status = chevre_domain_1.ReservationUtil.STATUS_RESERVED;
-        update.updated_user = 'ReserveBaseController';
         // 予約完了ステータスへ変更
-        debug('updating reservations by paymentNo...', paymentNo, update);
-        const raw = yield chevre_domain_1.Models.Reservation.update({
+        yield chevre_domain_1.Models.Reservation.update({
             performance_day: performanceDay,
             payment_no: paymentNo
-        }, update, { multi: true }).exec();
-        debug('reservations updated.', raw);
+        }, update, { multi: true } // 必須！複数予約ドキュメントを一度に更新するため
+        ).exec();
         try {
             // 完了メールキュー追加(あれば更新日時を更新するだけ)
             const emailQueue = yield createEmailQueue(res, performanceDay, paymentNo);
-            debug('creating reservationEmailCue...');
             yield chevre_domain_1.Models.EmailQueue.create(emailQueue);
-            debug('reservationEmailCue created.');
         }
         catch (error) {
             console.error(error);
