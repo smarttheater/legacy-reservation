@@ -13,7 +13,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const chevre = require("@motionpicture/chevre-domain");
+const TTTS = require("@motionpicture/ttts-domain");
 const GMO = require("@motionpicture/gmo-service");
 const conf = require("config");
 const createDebug = require("debug");
@@ -25,8 +25,8 @@ const reservePerformanceForm_1 = require("../../forms/reserve/reservePerformance
 const reserveSeatForm_1 = require("../../forms/reserve/reserveSeatForm");
 const session_1 = require("../../models/reserve/session");
 const reserveBaseController = require("../reserveBase");
-const debug = createDebug('chevre-frontend:controller:customerReserve');
-const PURCHASER_GROUP = chevre.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
+const debug = createDebug('ttts-frontend:controller:customerReserve');
+const PURCHASER_GROUP = TTTS.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
 /**
  * スケジュール選択(本番では存在しない、実際はポータル側のページ)
  * @method performances
@@ -47,7 +47,7 @@ function performances(req, res, __) {
         }
         else {
             res.render('customer/reserve/performances', {
-                FilmUtil: chevre.FilmUtil
+                FilmUtil: TTTS.FilmUtil
             });
         }
     });
@@ -306,11 +306,11 @@ function confirm(req, res, next) {
                     // コンビニ決済の場合
                     // 決済移行のタイミングで仮予約有効期限を更新 & 決済中ステータスに変更
                     if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CVS) {
-                        yield chevre.Models.Reservation.update({
+                        yield TTTS.Models.Reservation.update({
                             performance_day: reservationModel.performance.day,
                             payment_no: reservationModel.paymentNo
                         }, {
-                            status: chevre.ReservationUtil.STATUS_WAITING_SETTLEMENT,
+                            status: TTTS.ReservationUtil.STATUS_WAITING_SETTLEMENT,
                             expired_at: moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').toDate(),
                             purchased_at: moment().toDate()
                         }, { multi: true }).exec();
@@ -352,11 +352,11 @@ exports.confirm = confirm;
 function waitingSettlement(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const reservations = yield chevre.Models.Reservation.find({
+            const reservations = yield TTTS.Models.Reservation.find({
                 performance_day: req.params.performanceDay,
                 payment_no: req.params.paymentNo,
                 purchaser_group: PURCHASER_GROUP,
-                status: chevre.ReservationUtil.STATUS_WAITING_SETTLEMENT,
+                status: TTTS.ReservationUtil.STATUS_WAITING_SETTLEMENT,
                 purchased_at: {
                     $gt: moment().add(-30, 'minutes').toISOString() // tslint:disable-line:no-magic-numbers
                 }
@@ -366,7 +366,7 @@ function waitingSettlement(req, res, next) {
                 return;
             }
             reservations.sort((a, b) => {
-                return chevre.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return TTTS.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             res.render('customer/reserve/waitingSettlement', {
                 reservationDocuments: reservations
@@ -384,11 +384,11 @@ exports.waitingSettlement = waitingSettlement;
 function complete(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const reservations = yield chevre.Models.Reservation.find({
+            const reservations = yield TTTS.Models.Reservation.find({
                 performance_day: req.params.performanceDay,
                 payment_no: req.params.paymentNo,
                 purchaser_group: PURCHASER_GROUP,
-                status: chevre.ReservationUtil.STATUS_RESERVED,
+                status: TTTS.ReservationUtil.STATUS_RESERVED,
                 purchased_at: {
                     $gt: moment().add(-30, 'minutes').toISOString() // tslint:disable-line:no-magic-numbers
                 }
@@ -398,7 +398,7 @@ function complete(req, res, next) {
                 return;
             }
             reservations.sort((a, b) => {
-                return chevre.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return TTTS.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             res.render('customer/reserve/complete', {
                 reservationDocuments: reservations
@@ -454,7 +454,7 @@ function processFixGMO(reservationModel, req) {
                 // GMO取引作成
                 const count = `00${reservationModel.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
                 // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
-                orderId = chevre.ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, count);
+                orderId = TTTS.ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, count);
                 debug('orderId:', orderId);
                 const amount = reservationModel.getTotalCharge();
                 const entryTranIn = {
@@ -485,7 +485,7 @@ function processFixGMO(reservationModel, req) {
                 // コンビニ決済の場合、オーダーIDの発行だけ行う
                 const serialNumber = `00${reservationModel.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
                 // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
-                orderId = chevre.ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, serialNumber);
+                orderId = TTTS.ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, serialNumber);
                 reservationModel.transactionGMO.orderId = orderId;
                 break;
             default:

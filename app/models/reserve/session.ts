@@ -1,4 +1,4 @@
-import { ReservationUtil } from '@motionpicture/chevre-domain';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
 import { Util as GMOUtil } from '@motionpicture/gmo-service';
 import * as conf from 'config';
 import { Request } from 'express';
@@ -32,7 +32,7 @@ interface ISection {
  * @class ReserveSessionModel
  */
 export default class ReserveSessionModel {
-    private static SESSION_KEY: string = 'chevre-reserve-session';
+    private static SESSION_KEY: string = 'ttts-reserve-session';
 
     /**
      * 購入管理番号

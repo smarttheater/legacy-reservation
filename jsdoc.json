@@ -24,7 +24,7 @@
         "dateFormat": "ddd MMM Do YYYY",
         "outputSourceFiles": true,
         "outputSourcePath": true,
-        "systemName": "元祖興行パッケージチケット予約ウェブアプリケーション",
+        "systemName": "TTTSチケット予約ウェブアプリケーション",
         "footer": "",
         "navType": "vertical",
         "theme": "cosmo",

@@ -4,7 +4,7 @@
  * @namespace controller/customer/cancel
  */
 
-import { Models, ReservationUtil } from '@motionpicture/chevre-domain';
+import { Models, ReservationUtil } from '@motionpicture/ttts-domain';
 import { Util as GMOUtil } from '@motionpicture/gmo-service';
 import * as conf from 'config';
 import * as createDebug from 'debug';
@@ -17,7 +17,7 @@ import * as util from 'util';
 
 import customerCancelForm from '../../forms/customer/customerCancelForm';
 
-const debug = createDebug('chevre-frontend:controller:customerCancel');
+const debug = createDebug('ttts-frontend:controller:customerCancel');
 
 /**
  * チケットキャンセル
@@ -265,8 +265,8 @@ async function sendEmail(to: string, text: string): Promise<void> {
     const subject = util.format(
         '%s%s %s',
         (process.env.NODE_ENV !== 'production') ? `[${process.env.NODE_ENV}]` : '',
-        'CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ',
-        'Notice of Completion of Cancel for CHEVRE Tickets'
+        'TTTS_EVENT_NAMEチケット キャンセル完了のお知らせ',
+        'Notice of Completion of Cancel for TTTS Tickets'
     );
     const mail = new sendgrid.mail.Mail(
         new sendgrid.mail.Email(conf.get<string>('email.from'), conf.get<string>('email.fromname')),

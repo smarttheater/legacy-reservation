@@ -13,7 +13,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const gmo_service_1 = require("@motionpicture/gmo-service");
 const conf = require("config");
 const createDebug = require("debug");
@@ -22,7 +22,7 @@ const numeral = require("numeral");
 const sendgrid = require("sendgrid");
 const util = require("util");
 const customerCancelForm_1 = require("../../forms/customer/customerCancelForm");
-const debug = createDebug('chevre-frontend:controller:customerCancel');
+const debug = createDebug('ttts-frontend:controller:customerCancel');
 /**
  * チケットキャンセル
  * @method index
@@ -47,11 +47,11 @@ function index(req, res, __) {
             }
             try {
                 // 予約を取得(クレジットカード決済のみ)
-                const reservations = yield chevre_domain_1.Models.Reservation.find({
+                const reservations = yield ttts_domain_1.Models.Reservation.find({
                     payment_no: req.body.paymentNo,
                     purchaser_tel: { $regex: `${req.body.last4DigitsOfTel}$` },
-                    purchaser_group: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
-                    status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
+                    purchaser_group: ttts_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
+                    status: ttts_domain_1.ReservationUtil.STATUS_RESERVED
                 }).exec();
                 if (reservations.length === 0) {
                     res.json({
@@ -123,11 +123,11 @@ function executeByPaymentNo(req, res, __) {
         const last4DigitsOfTel = req.body.last4DigitsOfTel;
         try {
             debug('finding reservations...');
-            const reservations = yield chevre_domain_1.Models.Reservation.find({
+            const reservations = yield ttts_domain_1.Models.Reservation.find({
                 payment_no: paymentNo,
                 purchaser_tel: { $regex: `${last4DigitsOfTel}$` },
-                purchaser_group: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
-                status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
+                purchaser_group: ttts_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
+                status: ttts_domain_1.ReservationUtil.STATUS_RESERVED
             }).exec();
             debug('reservations found', reservations);
             if (reservations.length === 0) {
@@ -149,16 +149,16 @@ function executeByPaymentNo(req, res, __) {
             }
             if (reservations[0].get('payment_method') === gmo_service_1.Util.PAY_TYPE_CREDIT) {
                 debug('removing reservations by customer... payment_no:', paymentNo);
-                yield chevre_domain_1.Models.Reservation.remove({
+                yield ttts_domain_1.Models.Reservation.remove({
                     payment_no: paymentNo,
                     purchaser_tel: { $regex: `${last4DigitsOfTel}$` },
-                    purchaser_group: chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
-                    status: chevre_domain_1.ReservationUtil.STATUS_RESERVED
+                    purchaser_group: ttts_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER,
+                    status: ttts_domain_1.ReservationUtil.STATUS_RESERVED
                 }).exec();
                 debug('reservations removed by customer', 'payment_no:', paymentNo);
                 // キャンセルリクエスト保管
                 debug('creating CustomerCancelRequest...');
-                yield chevre_domain_1.Models.CustomerCancelRequest.create({
+                yield ttts_domain_1.Models.CustomerCancelRequest.create({
                     payment_no: paymentNo,
                     payment_method: reservations[0].get('payment_method'),
                     email: reservations[0].get('purchaser_email'),
@@ -175,7 +175,7 @@ function executeByPaymentNo(req, res, __) {
                     numeral: numeral,
                     conf: conf,
                     GMOUtil: gmo_service_1.Util,
-                    ReservationUtil: chevre_domain_1.ReservationUtil
+                    ReservationUtil: ttts_domain_1.ReservationUtil
                 }, (renderErr, text) => __awaiter(this, void 0, void 0, function* () {
                     debug('email rendered. text:', renderErr, text);
                     // メール失敗してもキャンセル成功
@@ -251,7 +251,7 @@ function validate(reservations) {
  */
 function sendEmail(to, text) {
     return __awaiter(this, void 0, void 0, function* () {
-        const subject = util.format('%s%s %s', (process.env.NODE_ENV !== 'production') ? `[${process.env.NODE_ENV}]` : '', 'CHEVRE_EVENT_NAMEチケット キャンセル完了のお知らせ', 'Notice of Completion of Cancel for CHEVRE Tickets');
+        const subject = util.format('%s%s %s', (process.env.NODE_ENV !== 'production') ? `[${process.env.NODE_ENV}]` : '', 'TTTS_EVENT_NAMEチケット キャンセル完了のお知らせ', 'Notice of Completion of Cancel for TTTS Tickets');
         const mail = new sendgrid.mail.Mail(new sendgrid.mail.Email(conf.get('email.from'), conf.get('email.fromname')), subject, new sendgrid.mail.Email(to), new sendgrid.mail.Content('text/plain', text));
         const sg = sendgrid(process.env.SENDGRID_API_KEY);
         const request = sg.emptyRequest({

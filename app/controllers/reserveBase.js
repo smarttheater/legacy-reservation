@@ -13,7 +13,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const GMO = require("@motionpicture/gmo-service");
 const conf = require("config");
 const createDebug = require("debug");
@@ -24,7 +24,7 @@ const _ = require("underscore");
 const reserveProfileForm_1 = require("../forms/reserve/reserveProfileForm");
 const reserveTicketForm_1 = require("../forms/reserve/reserveTicketForm");
 const session_1 = require("../models/reserve/session");
-const debug = createDebug('chevre-frontend:controller:reserveBase');
+const debug = createDebug('ttts-frontend:controller:reserveBase');
 const DEFAULT_RADIX = 10;
 /**
  * 券種FIXプロセス
@@ -168,7 +168,7 @@ function processCancelSeats(reservationModel) {
             reservationModel.seatCodes = [];
             // 仮予約を空席ステータスに戻す
             try {
-                yield chevre_domain_1.Models.Reservation.remove({ _id: { $in: ids } }).exec();
+                yield ttts_domain_1.Models.Reservation.remove({ _id: { $in: ids } }).exec();
             }
             catch (error) {
                 // 失敗したとしても時間経過で消えるので放置
@@ -185,7 +185,7 @@ exports.processCancelSeats = processCancelSeats;
 function processFixPerformance(reservationModel, perfomanceId, req) {
     return __awaiter(this, void 0, void 0, function* () {
         // パフォーマンス取得
-        const performance = yield chevre_domain_1.Models.Performance.findById(perfomanceId, 'day open_time start_time end_time canceled film screen screen_name theater theater_name ticket_type_group' // 必要な項目だけ指定すること
+        const performance = yield ttts_domain_1.Models.Performance.findById(perfomanceId, 'day open_time start_time end_time canceled film screen screen_name theater theater_name ticket_type_group' // 必要な項目だけ指定すること
         )
             .populate('film', 'name is_mx4d copyright') // 必要な項目だけ指定すること
             .populate('screen', 'name sections') // 必要な項目だけ指定すること
@@ -202,7 +202,7 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
             throw new Error('You cannot reserve this performance.');
         }
         // 券種取得
-        const ticketTypeGroup = yield chevre_domain_1.Models.TicketTypeGroup.findOne({ _id: performance.get('ticket_type_group') }).populate('ticket_types').exec();
+        const ticketTypeGroup = yield ttts_domain_1.Models.TicketTypeGroup.findOne({ _id: performance.get('ticket_type_group') }).populate('ticket_types').exec();
         reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');
         reservationModel.seatCodes = [];
         // パフォーマンス情報を保管
@@ -247,7 +247,7 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         // スクリーン座席表HTMLを保管
         reservationModel.screenHtml = fs.readFileSync(`${__dirname}/../views/_screens/${performance.get('screen').get('_id').toString()}.ejs`, 'utf8');
         // この時点でトークンに対して購入番号発行(上映日が決まれば購入番号を発行できる)
-        reservationModel.paymentNo = yield chevre_domain_1.ReservationUtil.publishPaymentNo(reservationModel.performance.day);
+        reservationModel.paymentNo = yield ttts_domain_1.ReservationUtil.publishPaymentNo(reservationModel.performance.day);
     });
 }
 exports.processFixPerformance = processFixPerformance;
@@ -271,10 +271,10 @@ function processFixSeats(reservationModel, seatCodes, req) {
                 throw new Error(req.__('Message.InvalidSeatCode'));
             }
             // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
-            const reservation = yield chevre_domain_1.Models.Reservation.create({
+            const reservation = yield ttts_domain_1.Models.Reservation.create({
                 performance: reservationModel.performance._id,
                 seat_code: seatCode,
-                status: chevre_domain_1.ReservationUtil.STATUS_TEMPORARY,
+                status: ttts_domain_1.ReservationUtil.STATUS_TEMPORARY,
                 expired_at: reservationModel.expiredAt
             });
             // ステータス更新に成功したらセッションに保管
@@ -296,7 +296,7 @@ function processFixSeats(reservationModel, seatCodes, req) {
         }));
         yield Promise.all(promises);
         // 座席コードのソート(文字列順に)
-        reservationModel.seatCodes.sort(chevre_domain_1.ScreenUtil.sortBySeatCode);
+        reservationModel.seatCodes.sort(ttts_domain_1.ScreenUtil.sortBySeatCode);
     });
 }
 exports.processFixSeats = processFixSeats;
@@ -325,7 +325,7 @@ function processAllExceptConfirm(reservationModel, req) {
             let update = reservationModel.seatCode2reservationDocument(seatCode);
             update = Object.assign(update, commonUpdate);
             update.payment_seat_index = index;
-            const reservation = yield chevre_domain_1.Models.Reservation.findByIdAndUpdate(update._id, update, { new: true }).exec();
+            const reservation = yield ttts_domain_1.Models.Reservation.findByIdAndUpdate(update._id, update, { new: true }).exec();
             // IDの予約ドキュメントが万が一なければ予期せぬエラー(基本的にありえないフローのはず)
             if (reservation === null) {
                 throw new Error(req.__('Message.UnexpectedError'));
@@ -343,9 +343,9 @@ exports.processAllExceptConfirm = processAllExceptConfirm;
 function processFixReservations(performanceDay, paymentNo, update, res) {
     return __awaiter(this, void 0, void 0, function* () {
         update.purchased_at = moment().valueOf();
-        update.status = chevre_domain_1.ReservationUtil.STATUS_RESERVED;
+        update.status = ttts_domain_1.ReservationUtil.STATUS_RESERVED;
         // 予約完了ステータスへ変更
-        yield chevre_domain_1.Models.Reservation.update({
+        yield ttts_domain_1.Models.Reservation.update({
             performance_day: performanceDay,
             payment_no: paymentNo
         }, update, { multi: true } // 必須！複数予約ドキュメントを一度に更新するため
@@ -353,7 +353,7 @@ function processFixReservations(performanceDay, paymentNo, update, res) {
         try {
             // 完了メールキュー追加(あれば更新日時を更新するだけ)
             const emailQueue = yield createEmailQueue(res, performanceDay, paymentNo);
-            yield chevre_domain_1.Models.EmailQueue.create(emailQueue);
+            yield ttts_domain_1.Models.EmailQueue.create(emailQueue);
         }
         catch (error) {
             console.error(error);
@@ -369,7 +369,7 @@ exports.processFixReservations = processFixReservations;
  */
 function createEmailQueue(res, performanceDay, paymentNo) {
     return __awaiter(this, void 0, void 0, function* () {
-        const reservations = yield chevre_domain_1.Models.Reservation.find({
+        const reservations = yield ttts_domain_1.Models.Reservation.find({
             performance_day: performanceDay,
             payment_no: paymentNo
         }).exec();
@@ -382,8 +382,8 @@ function createEmailQueue(res, performanceDay, paymentNo) {
         if (to.length === 0) {
             throw new Error('email to unknown');
         }
-        const titleJa = 'CHEVRE_EVENT_NAMEチケット 購入完了のお知らせ';
-        const titleEn = 'Notice of Completion of CHEVRE Ticket Purchase';
+        const titleJa = 'TTTS_EVENT_NAMEチケット 購入完了のお知らせ';
+        const titleEn = 'Notice of Completion of TTTS Ticket Purchase';
         debug('rendering template...');
         return new Promise((resolve, reject) => {
             res.render('email/reserve/complete', {
@@ -395,7 +395,7 @@ function createEmailQueue(res, performanceDay, paymentNo) {
                 numeral: numeral,
                 conf: conf,
                 GMOUtil: GMO.Util,
-                ReservationUtil: chevre_domain_1.ReservationUtil
+                ReservationUtil: ttts_domain_1.ReservationUtil
             }, (renderErr, text) => __awaiter(this, void 0, void 0, function* () {
                 debug('email template rendered.', renderErr);
                 if (renderErr instanceof Error) {
@@ -416,7 +416,7 @@ function createEmailQueue(res, performanceDay, paymentNo) {
                         mimetype: 'text/plain',
                         text: text
                     },
-                    status: chevre_domain_1.EmailQueueUtil.STATUS_UNSENT
+                    status: ttts_domain_1.EmailQueueUtil.STATUS_UNSENT
                 };
                 resolve(emailQueue);
             }));

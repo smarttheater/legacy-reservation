@@ -13,7 +13,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const GMO = require("@motionpicture/gmo-service");
 const conf = require("config");
 const crypto = require("crypto");
@@ -21,7 +21,7 @@ const createDebug = require("debug");
 const moment = require("moment");
 const numeral = require("numeral");
 const util = require("util");
-const debug = createDebug('chevre-frontend:controller:gmo:reserve:cvs');
+const debug = createDebug('ttts-frontend:controller:gmo:reserve:cvs');
 /**
  * GMOからの結果受信
  */
@@ -31,7 +31,7 @@ function result(gmoResultModel, req, res, next) {
         let reservations = [];
         try {
             debug('finding reservations...:');
-            reservations = yield chevre_domain_1.Models.Reservation.find({
+            reservations = yield ttts_domain_1.Models.Reservation.find({
                 gmo_order_id: gmoResultModel.OrderID
             }, '_id performance_day payment_no').exec();
             debug('reservations found.', reservations.length);
@@ -53,7 +53,7 @@ function result(gmoResultModel, req, res, next) {
         }
         try {
             debug('updating reservations by paymentNo...', gmoResultModel.OrderID);
-            const raw = yield chevre_domain_1.Models.Reservation.update({
+            const raw = yield ttts_domain_1.Models.Reservation.update({
                 gmo_order_id: gmoResultModel.OrderID
             }, {
                 gmo_shop_id: gmoResultModel.ShopID,
@@ -75,7 +75,7 @@ function result(gmoResultModel, req, res, next) {
         try {
             // GMOのオーダーIDから上映日と購入番号を取り出す
             const emailQueue = yield createEmailQueue(res, reservations[0].get('performance_day'), reservations[0].get('payment_no'));
-            yield chevre_domain_1.Models.EmailQueue.create(emailQueue);
+            yield ttts_domain_1.Models.EmailQueue.create(emailQueue);
         }
         catch (error) {
             console.error(error);
@@ -93,7 +93,7 @@ exports.result = result;
  */
 function createEmailQueue(res, performanceDay, paymentNo) {
     return __awaiter(this, void 0, void 0, function* () {
-        const reservations = yield chevre_domain_1.Models.Reservation.find({
+        const reservations = yield ttts_domain_1.Models.Reservation.find({
             performance_day: performanceDay,
             payment_no: paymentNo
         }).exec();
@@ -106,8 +106,8 @@ function createEmailQueue(res, performanceDay, paymentNo) {
         if (to.length === 0) {
             throw new Error('email to unknown');
         }
-        const titleJa = 'CHEVRE_EVENT_NAMEチケット 仮予約完了のお知らせ';
-        const titleEn = 'Notice of Completion of Tentative Reservation for CHEVRE Tickets';
+        const titleJa = 'TTTS_EVENT_NAMEチケット 仮予約完了のお知らせ';
+        const titleEn = 'Notice of Completion of Tentative Reservation for TTTS Tickets';
         debug('rendering template...');
         return new Promise((resolve, reject) => {
             res.render('email/reserve/waitingSettlement', {
@@ -119,7 +119,7 @@ function createEmailQueue(res, performanceDay, paymentNo) {
                 numeral: numeral,
                 conf: conf,
                 GMOUtil: GMO.Util,
-                ReservationUtil: chevre_domain_1.ReservationUtil
+                ReservationUtil: ttts_domain_1.ReservationUtil
             }, (renderErr, text) => __awaiter(this, void 0, void 0, function* () {
                 debug('email template rendered.', renderErr);
                 if (renderErr instanceof Error) {
@@ -140,7 +140,7 @@ function createEmailQueue(res, performanceDay, paymentNo) {
                         mimetype: 'text/plain',
                         text: text
                     },
-                    status: chevre_domain_1.EmailQueueUtil.STATUS_UNSENT
+                    status: ttts_domain_1.EmailQueueUtil.STATUS_UNSENT
                 };
                 resolve(emailQueue);
             }));

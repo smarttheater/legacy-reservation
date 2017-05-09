@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const gmo_service_1 = require("@motionpicture/gmo-service");
 const conf = require("config");
 const moment = require("moment");
@@ -89,11 +89,11 @@ class ReserveSessionModel {
         }
         // MX4D分加算
         if (this.performance.film.is_mx4d) {
-            charge += chevre_domain_1.ReservationUtil.CHARGE_MX4D;
+            charge += ttts_domain_1.ReservationUtil.CHARGE_MX4D;
         }
         // コンビニ手数料加算
         if (this.paymentMethod === gmo_service_1.Util.PAY_TYPE_CVS) {
-            charge += chevre_domain_1.ReservationUtil.CHARGE_CVS;
+            charge += ttts_domain_1.ReservationUtil.CHARGE_CVS;
         }
         return charge;
     }
@@ -163,5 +163,5 @@ class ReserveSessionModel {
         };
     }
 }
-ReserveSessionModel.SESSION_KEY = 'chevre-reserve-session';
+ReserveSessionModel.SESSION_KEY = 'ttts-reserve-session';
 exports.default = ReserveSessionModel;

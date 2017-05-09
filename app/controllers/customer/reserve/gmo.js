@@ -14,7 +14,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const gmo_service_1 = require("@motionpicture/gmo-service");
 const createDebug = require("debug");
 const moment = require("moment");
@@ -24,7 +24,7 @@ const util = require("util");
 const result_1 = require("../../../models/gmo/result");
 const session_1 = require("../../../models/reserve/session");
 const gmoReserveCvsController = require("./gmo/cvs");
-const debug = createDebug('chevre-frontend:controller:gmoReserve');
+const debug = createDebug('ttts-frontend:controller:gmoReserve');
 /**
  * マルチバイト文字列対応String.substr
  *
@@ -69,7 +69,7 @@ function start(req, res, next) {
             session_1.default.REMOVE(req);
             // GMOへ遷移画面
             // 作品名から、特定文字以外を取り除く
-            const filmNameFullWidth = chevre_domain_1.CommonUtil.toFullWidth(reservationModel.performance.film.name.ja);
+            const filmNameFullWidth = ttts_domain_1.CommonUtil.toFullWidth(reservationModel.performance.film.name.ja);
             const filmNameFullWidthLength = filmNameFullWidth.length;
             let registerDisp1 = '';
             // todo 文字列のループはこの書き方は本来よろしくないので、暇があったら直す
@@ -86,12 +86,12 @@ function start(req, res, next) {
             }
             // tslint:disable-next-line:no-magic-numbers
             res.locals.registerDisp1 = registerDisp1.mbSubstr(0, 32);
-            res.locals.registerDisp2 = chevre_domain_1.CommonUtil.toFullWidth(util.format('%s／%s／%s', reservationModel.performance.day.substr(0, 4), // tslint:disable-line:no-magic-numbers
+            res.locals.registerDisp2 = ttts_domain_1.CommonUtil.toFullWidth(util.format('%s／%s／%s', reservationModel.performance.day.substr(0, 4), // tslint:disable-line:no-magic-numbers
             reservationModel.performance.day.substr(4, 2), // tslint:disable-line:no-magic-numbers
             reservationModel.performance.day.substr(6) // tslint:disable-line:no-magic-numbers
             ));
-            res.locals.registerDisp3 = chevre_domain_1.CommonUtil.toFullWidth(reservationModel.performance.theater.name.ja);
-            res.locals.registerDisp4 = chevre_domain_1.CommonUtil.toFullWidth(util.format('開場%s:%s　開演%s:%s', reservationModel.performance.open_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
+            res.locals.registerDisp3 = ttts_domain_1.CommonUtil.toFullWidth(reservationModel.performance.theater.name.ja);
+            res.locals.registerDisp4 = ttts_domain_1.CommonUtil.toFullWidth(util.format('開場%s:%s　開演%s:%s', reservationModel.performance.open_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
             reservationModel.performance.open_time.substr(2), // tslint:disable-line:no-magic-numbers
             reservationModel.performance.start_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
             reservationModel.performance.start_time.substr(2) // tslint:disable-line:no-magic-numbers
@@ -135,7 +135,7 @@ function result(req, res, next) {
         if (!_.isEmpty(gmoResultModel.ErrCode)) {
             try {
                 debug('finding reservations...');
-                const reservations = yield chevre_domain_1.Models.Reservation.find({
+                const reservations = yield ttts_domain_1.Models.Reservation.find({
                     gmo_order_id: gmoResultModel.OrderID
                 }, 'purchased_at').exec();
                 debug('reservations found.', reservations.length);
@@ -173,9 +173,9 @@ function cancel(req, res, next) {
         debug('start process GMOReserveController.cancel.');
         try {
             debug('finding reservations...', req.params.orderId);
-            const reservations = yield chevre_domain_1.Models.Reservation.find({
+            const reservations = yield ttts_domain_1.Models.Reservation.find({
                 gmo_order_id: req.params.orderId,
-                status: chevre_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
+                status: ttts_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
             }).exec();
             debug('reservations found.', reservations);
             if (reservations.length === 0) {

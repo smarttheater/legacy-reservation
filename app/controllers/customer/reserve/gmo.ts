@@ -5,7 +5,7 @@
  * @namespace controller/customer/reserve/gmo
  */
 
-import { CommonUtil, Models, ReservationUtil } from '@motionpicture/chevre-domain';
+import { CommonUtil, Models, ReservationUtil } from '@motionpicture/ttts-domain';
 import { Util as GMOUtil } from '@motionpicture/gmo-service';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
@@ -18,7 +18,7 @@ import GMOResultModel from '../../../models/gmo/result';
 import ReservationModel from '../../../models/reserve/session';
 import * as gmoReserveCvsController from './gmo/cvs';
 
-const debug = createDebug('chevre-frontend:controller:gmoReserve');
+const debug = createDebug('ttts-frontend:controller:gmoReserve');
 
 /**
  * マルチバイト文字列対応String.substr
