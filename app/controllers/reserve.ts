@@ -58,21 +58,11 @@ export async function getSeatProperties(req: Request, res: Response, __: NextFun
         reservations.forEach((reservation) => {
             const seatCode = reservation.get('seat_code');
             let avalilable = false;
-            let baloonContent = seatCode;
+            const baloonContent = seatCode;
 
             if (reservationModel.seatCodes.indexOf(seatCode) >= 0) {
                 // 仮押さえ中
                 avalilable = true;
-            }
-
-            // 内部関係者用
-            if (reservationModel.purchaserGroup === ReservationUtil.PURCHASER_GROUP_STAFF) {
-                baloonContent = reservation.get('baloon_content4staff');
-
-                // 内部関係者はCHEVRE確保も予約できる
-                if (reservation.get('status') === ReservationUtil.STATUS_KEPT_BY_CHEVRE) {
-                    avalilable = true;
-                }
             }
 
             propertiesBySeatCode[seatCode] = {

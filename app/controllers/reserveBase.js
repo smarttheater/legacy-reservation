@@ -94,14 +94,6 @@ function processFixProfile(reservationModel, req, res) {
             gender: req.body.gender
         };
         reservationModel.paymentMethod = req.body.paymentMethod;
-        // 主体によっては、決済方法を強制的に固定で
-        switch (reservationModel.purchaserGroup) {
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
-                reservationModel.paymentMethod = '';
-                break;
-            default:
-                break;
-        }
         // セッションに購入者情報格納
         req.session.purchaser = {
             lastName: req.body.lastName,
@@ -158,42 +150,9 @@ function initializePayment(reservationModel, req) {
         address: '',
         gender: '1'
     };
-    reservationModel.paymentMethodChoices = [];
-    switch (reservationModel.purchaserGroup) {
-        case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-            if (purchaserFromSession !== undefined) {
-                reservationModel.purchaser = purchaserFromSession;
-            }
-            reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT, GMO.Util.PAY_TYPE_CVS];
-            break;
-        case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
-            if (req.staffUser === undefined) {
-                throw new Error(req.__('Message.UnexpectedError'));
-            }
-            reservationModel.purchaser = {
-                lastName: 'ナイブ',
-                firstName: 'カンケイシャ',
-                tel: '0362263025',
-                email: req.staffUser.get('email'),
-                age: '00',
-                address: '',
-                gender: '1'
-            };
-            break;
-        case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
-            reservationModel.purchaser = {
-                lastName: 'マドグチ',
-                firstName: 'タントウシャ',
-                tel: '0362263025',
-                email: 'chevre@localhost.net',
-                age: '00',
-                address: '',
-                gender: '1'
-            };
-            reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT, GMO.Util.PAY_TYPE_CASH];
-            break;
-        default:
-            break;
+    reservationModel.paymentMethodChoices = [GMO.Util.PAY_TYPE_CREDIT, GMO.Util.PAY_TYPE_CVS];
+    if (purchaserFromSession !== undefined) {
+        reservationModel.purchaser = purchaserFromSession;
     }
 }
 /**
@@ -238,27 +197,14 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         if (performance.get('canceled') === true) {
             throw new Error(req.__('Message.OutOfTerm'));
         }
-        // 内部と当日以外は、上映日当日まで購入可能
-        if (reservationModel.purchaserGroup !== chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW &&
-            reservationModel.purchaserGroup !== chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF) {
-            if (parseInt(performance.get('day'), DEFAULT_RADIX) < parseInt(moment().format('YYYYMMDD'), DEFAULT_RADIX)) {
-                throw new Error('You cannot reserve this performance.');
-            }
+        // 上映日当日まで購入可能
+        if (parseInt(performance.get('day'), DEFAULT_RADIX) < parseInt(moment().format('YYYYMMDD'), DEFAULT_RADIX)) {
+            throw new Error('You cannot reserve this performance.');
         }
         // 券種取得
         const ticketTypeGroup = yield chevre_domain_1.Models.TicketTypeGroup.findOne({ _id: performance.get('ticket_type_group') }).populate('ticket_types').exec();
+        reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');
         reservationModel.seatCodes = [];
-        // 券種リストは、予約する主体によって異なる
-        // 内部関係者の場合
-        switch (reservationModel.purchaserGroup) {
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
-                reservationModel.ticketTypes = chevre_domain_1.TicketTypeGroupUtil.getOne4staff();
-                break;
-            default:
-                // 一般、当日窓口の場合
-                reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');
-                break;
-        }
         // パフォーマンス情報を保管
         reservationModel.performance = {
             _id: performance.get('_id'),
@@ -324,26 +270,13 @@ function processFixSeats(reservationModel, seatCodes, req) {
             if (seatInfo === undefined) {
                 throw new Error(req.__('Message.InvalidSeatCode'));
             }
-            const newReservation = {
+            // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
+            const reservation = yield chevre_domain_1.Models.Reservation.create({
                 performance: reservationModel.performance._id,
                 seat_code: seatCode,
                 status: chevre_domain_1.ReservationUtil.STATUS_TEMPORARY,
-                expired_at: reservationModel.expiredAt,
-                staff: undefined,
-                window: undefined
-            };
-            switch (reservationModel.purchaserGroup) {
-                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
-                    newReservation.staff = req.staffUser.get('_id');
-                    break;
-                case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
-                    newReservation.window = req.windowUser.get('_id');
-                    break;
-                default:
-                    break;
-            }
-            // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
-            const reservation = yield chevre_domain_1.Models.Reservation.create(newReservation);
+                expired_at: reservationModel.expiredAt
+            });
             // ステータス更新に成功したらセッションに保管
             reservationModel.seatCodes.push(seatCode);
             reservationModel.setReservation(seatCode, {
@@ -373,50 +306,19 @@ exports.processFixSeats = processFixSeats;
 function processAllExceptConfirm(reservationModel, req) {
     return __awaiter(this, void 0, void 0, function* () {
         const commonUpdate = {};
-        switch (reservationModel.purchaserGroup) {
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-                // クレジット決済
-                if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
-                    commonUpdate.gmo_shop_id = process.env.GMO_SHOP_ID;
-                    commonUpdate.gmo_shop_pass = process.env.GMO_SHOP_PASS;
-                    commonUpdate.gmo_order_id = reservationModel.transactionGMO.orderId;
-                    commonUpdate.gmo_amount = reservationModel.transactionGMO.amount;
-                    commonUpdate.gmo_access_id = reservationModel.transactionGMO.accessId;
-                    commonUpdate.gmo_access_pass = reservationModel.transactionGMO.accessPass;
-                    commonUpdate.gmo_status = GMO.Util.STATUS_CREDIT_AUTH;
-                }
-                else if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CVS) {
-                    // オーダーID保管
-                    commonUpdate.gmo_order_id = reservationModel.transactionGMO.orderId;
-                }
-                break;
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
-                commonUpdate.staff = req.staffUser.get('_id');
-                commonUpdate.staff_user_id = req.staffUser.get('user_id');
-                commonUpdate.staff_name = req.staffUser.get('name');
-                commonUpdate.staff_email = req.staffUser.get('email');
-                commonUpdate.staff_signature = req.staffUser.get('signature');
-                commonUpdate.purchaser_last_name = '';
-                commonUpdate.purchaser_first_name = '';
-                commonUpdate.purchaser_email = '';
-                commonUpdate.purchaser_tel = '';
-                commonUpdate.purchaser_age = '';
-                commonUpdate.purchaser_address = '';
-                commonUpdate.purchaser_gender = '';
-                break;
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
-                commonUpdate.window = req.windowUser.get('_id');
-                commonUpdate.window_user_id = req.windowUser.get('user_id');
-                commonUpdate.purchaser_last_name = '';
-                commonUpdate.purchaser_first_name = '';
-                commonUpdate.purchaser_email = '';
-                commonUpdate.purchaser_tel = '';
-                commonUpdate.purchaser_age = '';
-                commonUpdate.purchaser_address = '';
-                commonUpdate.purchaser_gender = '';
-                break;
-            default:
-                throw new Error(req.__('Message.UnexpectedError'));
+        // クレジット決済
+        if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
+            commonUpdate.gmo_shop_id = process.env.GMO_SHOP_ID;
+            commonUpdate.gmo_shop_pass = process.env.GMO_SHOP_PASS;
+            commonUpdate.gmo_order_id = reservationModel.transactionGMO.orderId;
+            commonUpdate.gmo_amount = reservationModel.transactionGMO.amount;
+            commonUpdate.gmo_access_id = reservationModel.transactionGMO.accessId;
+            commonUpdate.gmo_access_pass = reservationModel.transactionGMO.accessPass;
+            commonUpdate.gmo_status = GMO.Util.STATUS_CREDIT_AUTH;
+        }
+        else if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CVS) {
+            // オーダーID保管
+            commonUpdate.gmo_order_id = reservationModel.transactionGMO.orderId;
         }
         // いったん全情報をDBに保存
         yield Promise.all(reservationModel.seatCodes.map((seatCode, index) => __awaiter(this, void 0, void 0, function* () {
@@ -475,15 +377,7 @@ function createEmailQueue(res, performanceDay, paymentNo) {
         if (reservations.length === 0) {
             throw new Error(`reservations of payment_no ${paymentNo} not found`);
         }
-        let to = '';
-        switch (reservations[0].get('purchaser_group')) {
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
-                to = reservations[0].get('staff_email');
-                break;
-            default:
-                to = reservations[0].get('purchaser_email');
-                break;
-        }
+        const to = reservations[0].get('purchaser_email');
         debug('to is', to);
         if (to.length === 0) {
             throw new Error('email to unknown');

@@ -5,7 +5,6 @@ const gmo_service_1 = require("@motionpicture/gmo-service");
 const conf = require("config");
 const moment = require("moment");
 const MAX_RESERVATION_SEATS_DEFAULT = 4;
-const MAX_RESERVATION_SEATS_STAFFS = 10;
 const MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES = 10;
 /**
  * 予約情報モデル
@@ -48,23 +47,12 @@ class ReserveSessionModel {
      */
     getSeatsLimit() {
         let limit = MAX_RESERVATION_SEATS_DEFAULT;
-        // 主体によっては、決済方法を強制的に固定で
-        switch (this.purchaserGroup) {
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_STAFF:
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW:
-                limit = MAX_RESERVATION_SEATS_STAFFS;
-                break;
-            case chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER:
-                if (this.performance !== undefined) {
-                    // 制限枚数指定のパフォーマンスの場合
-                    const performanceIds4limit2 = conf.get('performanceIds4limit2');
-                    if (performanceIds4limit2.indexOf(this.performance._id) >= 0) {
-                        limit = MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES;
-                    }
-                }
-                break;
-            default:
-                break;
+        if (this.performance !== undefined) {
+            // 制限枚数指定のパフォーマンスの場合
+            const performanceIds4limit2 = conf.get('performanceIds4limit2');
+            if (performanceIds4limit2.indexOf(this.performance._id) >= 0) {
+                limit = MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES;
+            }
         }
         return limit;
     }
@@ -94,21 +82,18 @@ class ReserveSessionModel {
     }
     getChargeExceptTicketTypeBySeatCode(seatCode) {
         let charge = 0;
-        if (this.purchaserGroup === chevre_domain_1.ReservationUtil.PURCHASER_GROUP_CUSTOMER
-            || this.purchaserGroup === chevre_domain_1.ReservationUtil.PURCHASER_GROUP_WINDOW) {
-            const reservation = this.getReservation(seatCode);
-            // 座席グレード分加算
-            if (reservation.seat_grade_additional_charge > 0) {
-                charge += reservation.seat_grade_additional_charge;
-            }
-            // MX4D分加算
-            if (this.performance.film.is_mx4d) {
-                charge += chevre_domain_1.ReservationUtil.CHARGE_MX4D;
-            }
-            // コンビニ手数料加算
-            if (this.paymentMethod === gmo_service_1.Util.PAY_TYPE_CVS) {
-                charge += chevre_domain_1.ReservationUtil.CHARGE_CVS;
-            }
+        const reservation = this.getReservation(seatCode);
+        // 座席グレード分加算
+        if (reservation.seat_grade_additional_charge > 0) {
+            charge += reservation.seat_grade_additional_charge;
+        }
+        // MX4D分加算
+        if (this.performance.film.is_mx4d) {
+            charge += chevre_domain_1.ReservationUtil.CHARGE_MX4D;
+        }
+        // コンビニ手数料加算
+        if (this.paymentMethod === gmo_service_1.Util.PAY_TYPE_CVS) {
+            charge += chevre_domain_1.ReservationUtil.CHARGE_CVS;
         }
         return charge;
     }
