@@ -13,8 +13,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const GMO = require("@motionpicture/gmo-service");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const createDebug = require("debug");
 const fs = require("fs-extra");

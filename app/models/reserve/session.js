@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const gmo_service_1 = require("@motionpicture/gmo-service");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const moment = require("moment");
 const MAX_RESERVATION_SEATS_DEFAULT = 4;

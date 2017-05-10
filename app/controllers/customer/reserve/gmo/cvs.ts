@@ -4,8 +4,8 @@
  * @namespace controller/customer/reserve/gmo/cvs
  */
 
-import { EmailQueueUtil, Models, ReservationUtil } from '@motionpicture/ttts-domain';
 import * as GMO from '@motionpicture/gmo-service';
+import { EmailQueueUtil, Models, ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as crypto from 'crypto';
 import * as createDebug from 'debug';

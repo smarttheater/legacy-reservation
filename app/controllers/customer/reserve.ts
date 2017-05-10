@@ -4,8 +4,8 @@
  * @namespace controller/customer/reserve
  */
 
-import * as TTTS from '@motionpicture/ttts-domain';
 import * as GMO from '@motionpicture/gmo-service';
+import * as TTTS from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';

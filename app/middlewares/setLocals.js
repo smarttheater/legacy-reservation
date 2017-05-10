@@ -5,8 +5,8 @@
  * @module middleware/setLocal
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const GMO = require("@motionpicture/gmo-service");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const moment = require("moment");
 const numeral = require("numeral");

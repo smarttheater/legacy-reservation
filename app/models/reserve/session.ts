@@ -1,5 +1,5 @@
-import { ReservationUtil } from '@motionpicture/ttts-domain';
 import { Util as GMOUtil } from '@motionpicture/gmo-service';
+import { ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import { Request } from 'express';
 import * as moment from 'moment';

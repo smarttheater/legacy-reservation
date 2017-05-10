@@ -5,8 +5,8 @@
  * @namespace controller/customer/reserve/gmo
  */
 
-import { CommonUtil, Models, ReservationUtil } from '@motionpicture/ttts-domain';
 import { Util as GMOUtil } from '@motionpicture/gmo-service';
+import { CommonUtil, Models, ReservationUtil } from '@motionpicture/ttts-domain';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import * as moment from 'moment';

@@ -4,8 +4,8 @@
  * @namespace controller/reserveBase
  */
 
-import { EmailQueueUtil, Models, ReservationUtil, ScreenUtil } from '@motionpicture/ttts-domain';
 import * as GMO from '@motionpicture/gmo-service';
+import { EmailQueueUtil, Models, ReservationUtil, ScreenUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as createDebug from 'debug';
 import { Request, Response } from 'express';
