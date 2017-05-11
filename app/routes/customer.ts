@@ -16,8 +16,10 @@ if (process.env.NODE_ENV !== 'production') {
     router.all('/reserve/performances', customerReserveController.performances);
 }
 router.get('/reserve/start', customerReserveController.start);
-router.all('/reserve/terms', customerReserveController.terms);
-router.all('/reserve/seats', customerReserveController.seats);
+//2017/05/11 座席選択削除
+//router.all('/reserve/terms', customerReserveController.terms);
+//router.all('/reserve/seats', customerReserveController.seats);
+//---
 router.all('/reserve/tickets', customerReserveController.tickets);
 router.all('/reserve/profile', customerReserveController.profile);
 router.all('/reserve/confirm', customerReserveController.confirm);

@@ -86,7 +86,10 @@ function start(req, res, next) {
             const reservationModel = yield reserveBaseController.processStart(PURCHASER_GROUP, req);
             if (reservationModel.performance !== undefined) {
                 reservationModel.save(req);
-                res.redirect('/customer/reserve/terms');
+                //2017/05/11 座席選択削除
+                //res.redirect('/customer/reserve/terms');
+                res.redirect('/customer/reserve/tickets');
+                //---
             }
             else {
                 // 今回は必ずパフォーマンス指定で遷移してくるはず
@@ -103,30 +106,27 @@ function start(req, res, next) {
     });
 }
 exports.start = start;
+//2017/05/11 座席選択削除
 /**
  * 規約
  */
-function terms(req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const reservationModel = session_1.default.FIND(req);
-            if (reservationModel === null) {
-                next(new Error(req.__('Message.Expired')));
-                return;
-            }
-            if (req.method === 'POST') {
-                res.redirect('/customer/reserve/seats');
-            }
-            else {
-                res.render('customer/reserve/terms');
-            }
-        }
-        catch (error) {
-            next(new Error(req.__('Message.UnexpectedError')));
-        }
-    });
-}
-exports.terms = terms;
+// export async function terms(req: Request, res: Response, next: NextFunction): Promise<void> {
+//     try {
+//         const reservationModel = ReservationModel.FIND(req);
+//         if (reservationModel === null) {
+//             next(new Error(req.__('Message.Expired')));
+//             return;
+//         }
+//         if (req.method === 'POST') {
+//             res.redirect('/customer/reserve/seats');
+//         } else {
+//             res.render('customer/reserve/terms');
+//         }
+//     } catch (error) {
+//         next(new Error(req.__('Message.UnexpectedError')));
+//     }
+// }
+//2017/05/11 座席選択削除
 /**
  * 座席選択
  * @method seats

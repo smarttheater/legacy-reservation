@@ -82,7 +82,10 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
 
         if (reservationModel.performance !== undefined) {
             reservationModel.save(req);
-            res.redirect('/customer/reserve/terms');
+            //2017/05/11 座席選択削除
+            //res.redirect('/customer/reserve/terms');
+            res.redirect('/customer/reserve/tickets');
+            //---
         } else {
             // 今回は必ずパフォーマンス指定で遷移してくるはず
             next(new Error(req.__('Message.UnexpectedError')));
@@ -96,28 +99,30 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
     }
 }
 
+//2017/05/11 座席選択削除
 /**
  * 規約
  */
-export async function terms(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-        const reservationModel = ReservationModel.FIND(req);
+// export async function terms(req: Request, res: Response, next: NextFunction): Promise<void> {
+//     try {
+//         const reservationModel = ReservationModel.FIND(req);
 
-        if (reservationModel === null) {
-            next(new Error(req.__('Message.Expired')));
-            return;
-        }
+//         if (reservationModel === null) {
+//             next(new Error(req.__('Message.Expired')));
+//             return;
+//         }
 
-        if (req.method === 'POST') {
-            res.redirect('/customer/reserve/seats');
-        } else {
-            res.render('customer/reserve/terms');
-        }
-    } catch (error) {
-        next(new Error(req.__('Message.UnexpectedError')));
-    }
-}
+//         if (req.method === 'POST') {
+//             res.redirect('/customer/reserve/seats');
+//         } else {
+//             res.render('customer/reserve/terms');
+//         }
+//     } catch (error) {
+//         next(new Error(req.__('Message.UnexpectedError')));
+//     }
+// }
 
+//2017/05/11 座席選択削除
 /**
  * 座席選択
  * @method seats

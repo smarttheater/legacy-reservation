@@ -30,10 +30,10 @@ $(function(){
 
         var total = 0;
         $('.table-tickets tbody tr').each(function(){
-            total += parseInt($('option:selected', this).attr('data-charge'));
-            total += parseInt($(this).attr('data-seat-extra-charge'));
+            var charge = parseInt($(this).attr('data-seat-extra-charge'));
+            var count = parseInt($('option:selected', this).val());
+            total += charge * count;
         });
-
         if (total === 0) return;
 
         // 数字をコンマ区切りに
@@ -41,6 +41,7 @@ $(function(){
         $('.price').text(text);
         $('tfoot').removeClass('hidden');
     }
+
 
     reloadTotalCharge();
 });

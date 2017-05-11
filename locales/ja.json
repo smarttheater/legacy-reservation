@@ -42,6 +42,7 @@
 		"DatetimeAndLocation": "日時/場所",
 		"SeatCode": "座席番号",
 		"TicketType": "券種",
+		"TicketCount": "枚数",
 		"TotalPrice": "合計金額",
 		"Email": "メールアドレス",
 		"FullName": "お名前",

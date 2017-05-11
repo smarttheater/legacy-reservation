@@ -4,31 +4,28 @@
 <p class="guidetext"><%- __('Label.SelectTicketsGuideText') %></p>
 
 <div class="wrapper-2clm">
-
     <div class="clm-left" data-token="">
-
         <table class="table table-tickets">
-
-            <thead><tr><th><%- __('Label.SeatCode') %></th><th><%- __('Label.TicketType') %></th></tr></thead>
-
+            <thead>
+                <tr>
+                    <th style="width:auto;"><%- __('Label.TicketType') %></th>
+                    <th style="width:110px;"><%- __('Label.TicketCount') %></th>
+                </tr>
+            </thead>
             <tbody>
-                <% for (let seatCode of reservationModel.seatCodes) { %>
-                <% let reservation = new Models.Reservation(reservationModel.seatCode2reservationDocument(seatCode)); %>
-                <tr data-seat-code="<%- reservation.seat_code %>" data-seat-extra-charge="<%= reservationModel.getChargeExceptTicketTypeBySeatCode(seatCode) %>">
-
-                    <th><span class="visible-mobile"><%- __('Label.SeatCode') %></span> <%- reservation.get('seat_code') %></th>
+                <% reservationModel.ticketTypes.forEach(function(ticketType) { %>
+                <tr data-seat-code="<%- ticketType._id %>" data-seat-extra-charge="<%= ticketType.charge %>">
+                    <th style="text-align:left;"><span><%- ticketType.name.ja %> \<%= ticketType.charge %></span></th>
                     <td>
                         <select class="form-control">
-                            <% reservationModel.ticketTypes.forEach(function(ticketType) { %>
-                            <option value="<%- ticketType._id %>" data-charge="<%= ticketType.charge %>"<%- (reservation.get('ticket_type') === ticketType._id) ? ' selected="selected"' : '' %>>
-                                <%- reservation.set(`ticket_type_name`, ticketType.name).set('ticket_type_charge', ticketType.charge).get('ticket_type_detail_str')[locale].replace(/\\/g, '&yen;') %>
-                            </option>
-                            <% }) %>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
                         </select>
-
                     </td>
                 </tr>
-                <% } %>
+                <% }); %>
             </tbody>
 
             <tfoot class="hidden">
