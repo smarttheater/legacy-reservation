@@ -7,7 +7,7 @@
 import { Models, ReservationUtil, ScreenUtil } from '@motionpicture/ttts-domain';
 import { NextFunction, Request, Response } from 'express';
 
-import ReservationModel from '../models/reserve/session';
+import ReserveSessionModel from '../models/reserve/session';
 
 /**
  * 座席の状態を取得する
@@ -32,10 +32,11 @@ export async function getUnavailableSeatCodes(req: Request, res: Response, __: N
  */
 export async function getSeatProperties(req: Request, res: Response, __: NextFunction) {
     try {
-        const reservationModel = ReservationModel.FIND(req);
+        const reservationModel = ReserveSessionModel.FIND(req);
 
         if (reservationModel === null) {
             res.json({ propertiesBySeatCode: {} });
+
             return;
         }
 
@@ -106,6 +107,7 @@ export async function print(req: Request, res: Response, next: NextFunction) {
 
         if (reservations.length === 0) {
             next(new Error(req.__('Message.NotFound')));
+
             return;
         }
 

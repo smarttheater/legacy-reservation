@@ -29,7 +29,7 @@ const DEFAULT_RADIX = 10;
 /**
  * 券種FIXプロセス
  *
- * @param {ReservationModel} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  * @returns {Promise<void>}
  */
 function processFixTickets(reservationModel, req) {
@@ -62,7 +62,7 @@ exports.processFixTickets = processFixTickets;
 /**
  * 購入者情報FIXプロセス
  *
- * @param {ReservationModel} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  * @returns {Promise<void>}
  */
 function processFixProfile(reservationModel, req, res) {
@@ -158,7 +158,7 @@ function initializePayment(reservationModel, req) {
 /**
  * 予約フロー中の座席をキャンセルするプロセス
  *
- * @param {ReservationModel} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  */
 function processCancelSeats(reservationModel) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -255,7 +255,7 @@ exports.processFixPerformance = processFixPerformance;
  * 座席をFIXするプロセス
  * 新規仮予約 ここが今回の肝です！！！
  *
- * @param {ReservationModel} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  * @param {Array<string>} seatCodes
  */
 function processFixSeats(reservationModel, seatCodes, req) {

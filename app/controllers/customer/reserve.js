@@ -112,7 +112,7 @@ exports.start = start;
  */
 // export async function terms(req: Request, res: Response, next: NextFunction): Promise<void> {
 //     try {
-//         const reservationModel = ReservationModel.FIND(req);
+//         const reservationModel = ReserveSessionModel.FIND(req);
 //         if (reservationModel === null) {
 //             next(new Error(req.__('Message.Expired')));
 //             return;
@@ -413,7 +413,7 @@ exports.complete = complete;
 /**
  * GMO決済FIXプロセス
  *
- * @param {ReservationModel} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  * @returns {Promise<void>}
  */
 function processFixGMO(reservationModel, req) {

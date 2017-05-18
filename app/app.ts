@@ -53,7 +53,7 @@ app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
-app.use(favicon(__dirname + '/../public/favicon.ico'));
+app.use(favicon(`${__dirname}/../public/favicon.ico`));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -62,13 +62,13 @@ const storage = multer.memoryStorage();
 app.use(multer({ storage: storage }).any());
 
 app.use(cookieParser());
-app.use(express.static(__dirname + '/../public'));
+app.use(express.static(`${__dirname}/../public`));
 
 // i18n を利用する設定
 i18n.configure({
     locales: ['en', 'ja'],
     defaultLocale: 'ja',
-    directory: __dirname + '/../locales',
+    directory: `${__dirname}/../locales`,
     objectNotation: true,
     updateFiles: false // ページのビューで自動的に言語ファイルを更新しない
 });

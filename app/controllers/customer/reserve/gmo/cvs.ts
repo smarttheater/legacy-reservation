@@ -58,6 +58,7 @@ export async function result(gmoResultModel: GMOResultModel, req: Request, res: 
 
     } catch (error) {
         next(new Error(req.__('Message.UnexpectedError')));
+
         return;
     }
 
@@ -82,6 +83,7 @@ export async function result(gmoResultModel: GMOResultModel, req: Request, res: 
         debug('reservations updated.', raw);
     } catch (error) {
         next(new Error(req.__('Message.ReservationNotCompleted')));
+
         return;
     }
 
@@ -150,6 +152,7 @@ async function createEmailQueue(res: Response, performanceDay: string, paymentNo
     const titleEn = 'Notice of Completion of Tentative Reservation for TTTS Tickets';
 
     debug('rendering template...');
+
     return new Promise<IEmailQueue>((resolve, reject) => {
         res.render(
             'email/reserve/waitingSettlement',
@@ -168,6 +171,7 @@ async function createEmailQueue(res: Response, performanceDay: string, paymentNo
                 debug('email template rendered.', renderErr);
                 if (renderErr instanceof Error) {
                     reject(new Error('failed in rendering an email.'));
+
                     return;
                 }
 
