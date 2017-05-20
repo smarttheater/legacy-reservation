@@ -8,17 +8,23 @@ $(function(){
 
     // 次へ
     $(document).on('click', '.btn-next', function(){
+        $('form input[name="choices"]').val('');
         // 座席コードリストを取得
         var choices = [];
         $('.table-tickets tbody tr').each(function(){
-            choices.push({
-                seat_code: $(this).attr('data-seat-code'),
-                ticket_type: $('option:selected', this).val(),
-                watcher_name: $('input', this).val()
-            });
+            var ticketCount = $('option:selected', this).val(); 
+            if (ticketCount > 0) {
+                choices.push({
+                    ticket_type: $(this).attr('data-ticket-code'),
+                    ticket_count: ticketCount,
+                    watcher_name: $('input', this).val()
+                });
+            }
         });
-
-        $('form input[name="choices"]').val(JSON.stringify(choices));
+        if (choices.length > 0){
+            $('form input[name="choices"]').val(JSON.stringify(choices));
+        }
+        $(this).attr('disabled',true);
         $('form').submit();
     });
 
@@ -30,7 +36,7 @@ $(function(){
 
         var total = 0;
         $('.table-tickets tbody tr').each(function(){
-            var charge = parseInt($(this).attr('data-seat-extra-charge'));
+            var charge = parseInt($(this).attr('data-ticket-charge'));
             var count = parseInt($('option:selected', this).val());
             total += charge * count;
         });
@@ -42,6 +48,6 @@ $(function(){
         $('tfoot').removeClass('hidden');
     }
 
-
+    // 合計金額初期表示
     reloadTotalCharge();
 });
