@@ -39,6 +39,7 @@ export async function index(req: Request, res: Response, __: NextFunction): Prom
                 success: false,
                 message: '購入番号または電話番号下4ケタに誤りがあります<br>There are some mistakes in a transaction number or last 4 digits of tel'
             });
+
             return;
         }
         try {
@@ -57,6 +58,7 @@ export async function index(req: Request, res: Response, __: NextFunction): Prom
                     success: false,
                     message: '購入番号または電話番号下4ケタに誤りがあります<br>There are some mistakes in a transaction number or last 4 digits of tel'
                 });
+
                 return;
             }
 
@@ -81,12 +83,14 @@ export async function index(req: Request, res: Response, __: NextFunction): Prom
                     message: null,
                     reservations: results
                 });
+
                 return;
             } catch (error) {
                 res.json({
                     success: false,
                     message: error.message
                 });
+
                 return;
             }
         } catch (error) {
@@ -94,6 +98,7 @@ export async function index(req: Request, res: Response, __: NextFunction): Prom
                 success: false,
                 message: 'A system error has occurred. Please try again later. Sorry for the inconvenience'
             });
+
             return;
         }
     } else {
@@ -101,6 +106,7 @@ export async function index(req: Request, res: Response, __: NextFunction): Prom
         res.locals.last4DigitsOfTel = '';
 
         res.render('customer/cancel');
+
         return;
     }
 }
@@ -115,6 +121,7 @@ export async function executeByPaymentNo(req: Request, res: Response, __: NextFu
             success: false,
             message: 'Out of term'
         });
+
         return;
     }
 
@@ -138,6 +145,7 @@ export async function executeByPaymentNo(req: Request, res: Response, __: NextFu
                 success: false,
                 message: '購入番号または電話番号下4ケタに誤りがあります There are some mistakes in a transaction number or last 4 digits of tel'
             });
+
             return;
         }
 
@@ -148,6 +156,7 @@ export async function executeByPaymentNo(req: Request, res: Response, __: NextFu
                 success: false,
                 message: error.message
             });
+
             return;
         }
 
@@ -243,12 +252,14 @@ async function validate(reservations: mongoose.Document[]): Promise<void> {
         const notEntered = reservations.every((reservation) => (reservation.get('checked_in') !== true));
         if (!notEntered) {
             reject(new Error('キャンセル受付対象外の座席です。<br>The cancel for your tickets is not applicable'));
+
             return;
         }
 
         // 一次販売(15日)許可
         if (moment(reservations[0].get('purchased_at')) < moment('2016-10-16T00:00:00+09:00')) {
             resolve();
+
             return;
         }
 

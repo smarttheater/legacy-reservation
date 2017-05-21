@@ -9,28 +9,28 @@ import * as customerCancelController from '../controllers/customer/cancel';
 import * as customerReserveController from '../controllers/customer/reserve';
 import * as customerReserveGmoController from '../controllers/customer/reserve/gmo';
 
-const router = express.Router();
+const customerRouter = express.Router();
 
 // 本番環境ではhomeは存在しない
 if (process.env.NODE_ENV !== 'production') {
-    router.all('/reserve/performances', customerReserveController.performances);
+    customerRouter.all('/reserve/performances', customerReserveController.performances);
 }
-router.get('/reserve/start', customerReserveController.start);
+customerRouter.get('/reserve/start', customerReserveController.start);
 //2017/05/11 座席選択削除
-//router.all('/reserve/terms', customerReserveController.terms);
-//router.all('/reserve/seats', customerReserveController.seats);
+//customerRouter.all('/reserve/terms', customerReserveController.terms);
+//customerRouter.all('/reserve/seats', customerReserveController.seats);
 //---
-router.all('/reserve/tickets', customerReserveController.tickets);
-router.all('/reserve/profile', customerReserveController.profile);
-router.all('/reserve/confirm', customerReserveController.confirm);
-router.get('/reserve/:performanceDay/:paymentNo/waitingSettlement', customerReserveController.waitingSettlement);
-router.get('/reserve/:performanceDay/:paymentNo/complete', customerReserveController.complete);
+customerRouter.all('/reserve/tickets', customerReserveController.tickets);
+customerRouter.all('/reserve/profile', customerReserveController.profile);
+customerRouter.all('/reserve/confirm', customerReserveController.confirm);
+customerRouter.get('/reserve/:performanceDay/:paymentNo/waitingSettlement', customerReserveController.waitingSettlement);
+customerRouter.get('/reserve/:performanceDay/:paymentNo/complete', customerReserveController.complete);
 
-router.post('/reserve/gmo/start', customerReserveGmoController.start);
-router.post('/reserve/gmo/result', customerReserveGmoController.result);
-router.get('/reserve/gmo/:orderId/cancel', customerReserveGmoController.cancel);
+customerRouter.post('/reserve/gmo/start', customerReserveGmoController.start);
+customerRouter.post('/reserve/gmo/result', customerReserveGmoController.result);
+customerRouter.get('/reserve/gmo/:orderId/cancel', customerReserveGmoController.cancel);
 
-router.all('/cancel', customerCancelController.index);
-router.post('/cancel/executeByPaymentNo', customerCancelController.executeByPaymentNo);
+customerRouter.all('/cancel', customerCancelController.index);
+customerRouter.post('/cancel/executeByPaymentNo', customerCancelController.executeByPaymentNo);
 
-export default router;
+export default customerRouter;

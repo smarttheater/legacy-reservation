@@ -15,7 +15,7 @@ import * as _ from 'underscore';
 import * as util from 'util';
 
 import GMOResultModel from '../../../models/gmo/result';
-import ReservationModel from '../../../models/reserve/session';
+import ReserveSessionModel from '../../../models/reserve/session';
 import * as gmoReserveCvsController from './gmo/cvs';
 
 const debug = createDebug('ttts-frontend:controller:gmoReserve');
@@ -60,15 +60,16 @@ const debug = createDebug('ttts-frontend:controller:gmoReserve');
  */
 export async function start(req: Request, res: Response, next: NextFunction) {
     try {
-        const reservationModel = ReservationModel.FIND(req);
+        const reservationModel = ReserveSessionModel.FIND(req);
 
         if (reservationModel === null) {
             next(new Error(req.__('Message.Expired')));
+
             return;
         }
 
         // 予約情報セッション削除
-        ReservationModel.REMOVE(req);
+        ReserveSessionModel.REMOVE(req);
 
         // GMOへ遷移画面
 
@@ -171,6 +172,7 @@ export async function result(req: Request, res: Response, next: NextFunction): P
 
             if (reservations.length === 0) {
                 next(new Error(req.__('Message.NotFound')));
+
                 return;
             }
 
@@ -211,6 +213,7 @@ export async function cancel(req: Request, res: Response, next: NextFunction): P
 
         if (reservations.length === 0) {
             next(new Error(req.__('Message.NotFound')));
+
             return;
         }
 

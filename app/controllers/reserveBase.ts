@@ -16,7 +16,7 @@ import * as _ from 'underscore';
 
 import reserveProfileForm from '../forms/reserve/reserveProfileForm';
 import reserveTicketForm from '../forms/reserve/reserveTicketForm';
-import ReservationModel from '../models/reserve/session';
+import ReserveSessionModel from '../models/reserve/session';
 
 const debug = createDebug('ttts-frontend:controller:reserveBase');
 const DEFAULT_RADIX = 10;
@@ -24,11 +24,11 @@ const DEFAULT_RADIX = 10;
 /**
  * 座席・券種FIXプロセス
  *
- * @param {ReservationModel} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  * @returns {Promise<void>}
  */
 // tslint:disable-next-line:max-func-body-length
-export async function processFixSeatsAndTickets(reservationModel: ReservationModel, req: Request): Promise<void> {
+export async function processFixSeatsAndTickets(reservationModel: ReserveSessionModel, req: Request): Promise<void> {
     // tslint:disable-next-line:no-console
     // console.log('processFixSeatsAndTickets');
 
@@ -146,7 +146,7 @@ async function checkFixSeatsAndTickets(req: Request) : Promise<any> {
  * @param {number} selectedCount
  * @returns {Promise<void>}
  */
-async function getInfoFixSeatsAndTickets(reservationModel: ReservationModel,
+async function getInfoFixSeatsAndTickets(reservationModel: ReserveSessionModel,
                                          req: Request,
                                          selectedCount: number) : Promise<any> {
     const info : any = {
@@ -193,7 +193,7 @@ async function getInfoFixSeatsAndTickets(reservationModel: ReservationModel,
  * @param {any} result
  * @returns {Promise<void>}
  */
-function saveSessionFixSeatsAndTickets(req: Request, reservationModel: ReservationModel, result: any) : void {
+function saveSessionFixSeatsAndTickets(req: Request, reservationModel: ReserveSessionModel, result: any) : void {
     // チケット情報
     const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === result.ticket_type));
     if (ticketType === undefined) {
@@ -231,7 +231,7 @@ function saveSessionFixSeatsAndTickets(req: Request, reservationModel: Reservati
 // tslint:disable-next-line:max-func-body-length
 async function updateFixSeatsAndTickets(choice: any,
                                         updateKey: any,
-                                        reservationModel: ReservationModel) : Promise<any> {
+                                        reservationModel: ReserveSessionModel) : Promise<any> {
     const updateInfo : any = {
         status: false,
         reservation: null
@@ -267,7 +267,7 @@ async function updateFixSeatsAndTickets(choice: any,
 }
 
 // 未使用
-export async function processFixTickets(reservationModel: ReservationModel, req: Request): Promise<void> {
+export async function processFixTickets(reservationModel: ReserveSessionModel, req: Request): Promise<void> {
     reserveTicketForm(req);
     const validationResult = await req.getValidationResult();
     if (!validationResult.isEmpty()) {
@@ -299,10 +299,10 @@ export async function processFixTickets(reservationModel: ReservationModel, req:
 /**
  * 購入者情報FIXプロセス
  *
- * @param {ReservationModel} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  * @returns {Promise<void>}
  */
-export async function processFixProfile(reservationModel: ReservationModel, req: Request, res: Response): Promise<void> {
+export async function processFixProfile(reservationModel: ReserveSessionModel, req: Request, res: Response): Promise<void> {
     reserveProfileForm(req);
 
     const validationResult = await req.getValidationResult();
@@ -351,7 +351,7 @@ export async function processFixProfile(reservationModel: ReservationModel, req:
  *
  * @param {string} purchaserGroup 購入者区分
  */
-export async function processStart(purchaserGroup: string, req: Request): Promise<ReservationModel> {
+export async function processStart(purchaserGroup: string, req: Request): Promise<ReserveSessionModel> {
     // 言語も指定
     if (!_.isEmpty(req.query.locale)) {
         (<any>req.session).locale = req.query.locale;
@@ -360,7 +360,7 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
     }
 
     // 予約トークンを発行
-    const reservationModel = new ReservationModel();
+    const reservationModel = new ReserveSessionModel();
     reservationModel.purchaserGroup = purchaserGroup;
     initializePayment(reservationModel, req);
 
@@ -375,7 +375,7 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
 /**
  * 購入情報を初期化する
  */
-function initializePayment(reservationModel: ReservationModel, req: Request): void {
+function initializePayment(reservationModel: ReserveSessionModel, req: Request): void {
     if (reservationModel.purchaserGroup === undefined) {
         throw new Error('purchaser group undefined.');
     }
@@ -401,9 +401,9 @@ function initializePayment(reservationModel: ReservationModel, req: Request): vo
 /**
  * 予約フロー中の座席をキャンセルするプロセス
  *
- * @param {ReservationModel} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  */
-export async function processCancelSeats(reservationModel: ReservationModel): Promise<void> {
+export async function processCancelSeats(reservationModel: ReserveSessionModel): Promise<void> {
     const ids = reservationModel.getReservationIds();
     if (ids.length > 0) {
         // セッション中の予約リストを初期化
@@ -444,7 +444,7 @@ export async function processCancelSeats(reservationModel: ReservationModel): Pr
  * パフォーマンスIDから、パフォーマンスを検索し、その後プロセスに必要な情報をreservationModelに追加する
  */
 // tslint:disable-next-line:max-func-body-length
-export async function processFixPerformance(reservationModel: ReservationModel, perfomanceId: string, req: Request): Promise<void> {
+export async function processFixPerformance(reservationModel: ReserveSessionModel, perfomanceId: string, req: Request): Promise<void> {
     // パフォーマンス取得
     const performance = await Models.Performance.findById(
         perfomanceId,
@@ -537,10 +537,10 @@ export async function processFixPerformance(reservationModel: ReservationModel, 
  * 座席をFIXするプロセス
  * 新規仮予約 ここが今回の肝です！！！
  *
- * @param {ReservationModel} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  * @param {Array<string>} seatCodes
  */
-export async function processFixSeats(reservationModel: ReservationModel, seatCodes: string[], req: Request): Promise<void> {
+export async function processFixSeats(reservationModel: ReserveSessionModel, seatCodes: string[], req: Request): Promise<void> {
     // セッション中の予約リストを初期化
     reservationModel.seatCodes = [];
     reservationModel.expiredAt = moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').valueOf();
@@ -588,7 +588,7 @@ export async function processFixSeats(reservationModel: ReservationModel, seatCo
 /**
  * 確定以外の全情報を確定するプロセス
  */
-export async function processAllExceptConfirm(reservationModel: ReservationModel, req: Request): Promise<void> {
+export async function processAllExceptConfirm(reservationModel: ReserveSessionModel, req: Request): Promise<void> {
     const commonUpdate: any = {
     };
 
@@ -716,6 +716,7 @@ async function createEmailQueue(res: Response, performanceDay: string, paymentNo
     const titleEn = 'Notice of Completion of TTTS Ticket Purchase';
 
     debug('rendering template...');
+
     return new Promise<IEmailQueue>((resolve, reject) => {
         res.render(
             'email/reserve/complete',
@@ -734,6 +735,7 @@ async function createEmailQueue(res: Response, performanceDay: string, paymentNo
                 debug('email template rendered.', renderErr);
                 if (renderErr instanceof Error) {
                     reject(new Error('failed in rendering an email.'));
+
                     return;
                 }
 

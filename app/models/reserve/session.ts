@@ -101,6 +101,7 @@ export default class ReserveSessionModel {
         Object.keys(reservationModelInSession).forEach((propertyName) => {
             (<any>reservationModel)[propertyName] = reservationModelInSession[propertyName];
         });
+
         return reservationModel;
     }
 
@@ -215,6 +216,7 @@ export default class ReserveSessionModel {
      */
     public seatCode2reservationDocument(seatCode: string) {
         const reservation = this.getReservation(seatCode);
+
         return {
             _id: reservation._id,
             status: reservation.status,
