@@ -134,12 +134,13 @@ exports.start = start;
  */
 // export async function seats(req: Request, res: Response, next: NextFunction): Promise<void> {
 //     try {
-//         let reservationModel = ReservationModel.FIND(req);
+//         let reservationModel = ReserveSessionModel.FIND(req);
 //         if (reservationModel === null) {
 //             next(new Error(req.__('Message.Expired')));
 //             return;
 //         }
-//         const limit = reservationModel.getSeatsLimit();
+//         //const limit = ReserveSessionModel.getSeatsLimit();
+//         const limit : number = 100; // コンパイルエラーよけ 2017/05/21 kusu
 //         if (req.method === 'POST') {
 //             reserveSeatForm(req);
 //             const validationResult = await req.getValidationResult();
@@ -147,7 +148,7 @@ exports.start = start;
 //                 res.redirect('/customer/reserve/seats');
 //                 return;
 //             }
-//             reservationModel = <ReservationModel>reservationModel;
+//             reservationModel = <ReserveSessionModel>reservationModel;
 //             const seatCodes: string[] = JSON.parse(req.body.seatCodes);
 //             // 追加指定席を合わせて制限枚数を超過した場合
 //             if (seatCodes.length > limit) {
@@ -187,10 +188,11 @@ exports.start = start;
 //         return;
 //     }
 // }
+//2017/05/21 座席選択削除
 /**
- * 券種選択
+ * 券種選択(旧)
  */
-// export async function tickets_org(req: Request, res: Response, next: NextFunction): Promise<void> {
+// export async function tickets(req: Request, res: Response, next: NextFunction): Promise<void> {
 //     try {
 //         const reservationModel = ReservationModel.FIND(req);
 //         if (reservationModel === null) {
@@ -215,10 +217,12 @@ exports.start = start;
 //         next(new Error(req.__('Message.UnexpectedError')));
 //     }
 // }
+/**
+ * 券種選択
+ */
 function tickets(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // 予約情報取得
             const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null) {
                 next(new Error(req.__('Message.Expired')));
@@ -241,11 +245,11 @@ function tickets(req, res, next) {
                     res.redirect('/customer/reserve/profile');
                 }
                 catch (error) {
+                    // "予約可能な席がございません"などのメッセージ表示
                     res.locals.message = error.message;
                     res.render('customer/reserve/tickets', {
                         reservationModel: reservationModel
                     });
-                    //res.redirect('/customer/reserve/tickets');
                 }
             }
             else {
