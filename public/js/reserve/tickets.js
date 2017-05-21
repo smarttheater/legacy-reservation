@@ -7,7 +7,13 @@ $(function(){
     });
 
     // 次へ
+    var submitted = false;
     $(document).on('click', '.btn-next', function(){
+        if (submitted) {
+            alert('already submitted.');
+            return false;
+        }
+        submitted = true;
         $('form input[name="choices"]').val('');
         // 座席コードリストを取得
         var choices = [];
@@ -24,7 +30,6 @@ $(function(){
         if (choices.length > 0){
             $('form input[name="choices"]').val(JSON.stringify(choices));
         }
-        $(this).attr('disabled',true);
         $('form').submit();
     });
 

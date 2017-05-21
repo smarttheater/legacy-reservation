@@ -93,6 +93,8 @@ export async function processFixSeatsAndTickets(reservationModel: ReserveSession
     // 予約枚数が指定枚数に達しなかった時,予約可能に戻す
     if (updateCount < selectedCount) {
         await processCancelSeats(reservationModel);
+        // "予約可能な席がございません"
+        throw new Error(req.__('Message.NoAvailableSeats'));
     }
 }
 /**
