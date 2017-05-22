@@ -28,10 +28,8 @@ const DEFAULT_RADIX = 10;
  * @returns {Promise<void>}
  */
 // tslint:disable-next-line:max-func-body-length
-export async function processFixSeatsAndTickets(reservationModel: ReserveSessionModel, req: Request): Promise<void> {
-    // tslint:disable-next-line:no-console
-    // console.log('processFixSeatsAndTickets');
-
+export async function processFixSeatsAndTickets(reservationModel: ReserveSessionModel,
+                                                req: Request): Promise<void> {
     // 検証(券種が選択されていること)+チケット枚数合計計算
     const checkInfo = await checkFixSeatsAndTickets(req);
     if (checkInfo.status === false) {
@@ -46,50 +44,48 @@ export async function processFixSeatsAndTickets(reservationModel: ReserveSession
         throw new Error(infos.message);
     }
 
+    // チケット情報に枚数セット
+    reservationModel.ticketTypes.forEach((ticketType) => {
+        const choice = checkInfo.choices.find((c: any) => (ticketType._id === c.ticket_type));
+        ticketType.count = (choice !== undefined) ? Number(choice.ticket_count) : 0;
+    });
+
     // セッション中の予約リストを初期化
     reservationModel.seatCodes = [];
     reservationModel.expiredAt = moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').valueOf();
 
     // 予約情報更新(「仮予約:TEMPORARY」にアップデートする処理を枚数分実行)
     let updateCount: number = 0;
-    const updateKeys: any[] = [];
-    const updateResults: any[] = [];
-    // loopを順次実行するためfor使用
-    for (const choice of choices) {
-        // tslint:disable-next-line:no-console
-        // console.log('choise ticketType=' + (<any>choice).ticket_type);
-        let index: number = 0;
-        for (const result of infos.results){
-            // tslint:disable-next-line:no-console
-            // console.log('index=' + index);
-            index = index + 1;
-            if (choice.updated === false && result.used === false) {
-                // 予約情報更新キーセット(パフォーマンス,座席コード,'予約可能')
-                const updateKey = {
-                    performance: result.performance,
-                    seat_code: result.seat_code,
-                    status: ReservationUtil.STATUS_AVAILABLE
-                };
-                const updateInfo: any = await updateFixSeatsAndTickets(choice, updateKey, reservationModel);
-                result.used = true;
-                if (updateInfo.status === true) {
-                    choice.updated = true;
-                    updateCount = updateCount + 1;
-                    // ロールバックorセッションsaveのために更新データを保存
-                    updateKeys.push(updateKey);
-                    updateResults.push(updateInfo.reservation);
-                    // チケット情報+座席情報をセッションにsave
-                    saveSessionFixSeatsAndTickets(req, reservationModel, updateInfo.reservation);
-                    // tslint:disable-next-line:no-console
-                    // console.log('updateCount=' + updateCount);
-                    break;
-                }
-            } else {
-                // tslint:disable-next-line:no-console
-                // console.log('continue');
+    const promises = choices.map(async (choice: any) => {
+        // 予約情報更新キーセット(パフォーマンス,'予約可能')
+        const updateKey = {
+            performance: reservationModel.performance._id,
+            status: ReservationUtil.STATUS_AVAILABLE
+        };
+        // '予約可能'を'仮予約'に変更
+        const reservation = await Models.Reservation.findOneAndUpdate(
+            updateKey,
+            {
+                payment_no: reservationModel.paymentNo,
+                status: ReservationUtil.STATUS_TEMPORARY,
+                ticket_type: (<any>choice).ticket_type,
+                expired_at: reservationModel.expiredAt
+            },
+            {
+                new: true
             }
+        ).exec();
+        // 更新エラー(対象データなし):次のseatへ
+        if (reservation === null) {
+            debug('update error');
+        } else {
+            updateCount = updateCount + 1;
+            // チケット情報+座席情報をセッションにsave
+            saveSessionFixSeatsAndTickets(req, reservationModel, reservation);
         }
-    }
+    });
+    await Promise.all(promises);
+
     // 予約枚数が指定枚数に達しなかった時,予約可能に戻す
     if (updateCount < selectedCount) {
         await processCancelSeats(reservationModel);
@@ -195,7 +191,9 @@ async function getInfoFixSeatsAndTickets(reservationModel: ReserveSessionModel,
  * @param {any} result
  * @returns {Promise<void>}
  */
-function saveSessionFixSeatsAndTickets(req: Request, reservationModel: ReserveSessionModel, result: any) : void {
+function saveSessionFixSeatsAndTickets(req: Request,
+                                       reservationModel: ReserveSessionModel,
+                                       result: any) : void {
     // チケット情報
     const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === result.ticket_type));
     if (ticketType === undefined) {
@@ -222,50 +220,6 @@ function saveSessionFixSeatsAndTickets(req: Request, reservationModel: ReserveSe
     // 座席コードのソート(文字列順に)
     reservationModel.seatCodes.sort(ScreenUtil.sortBySeatCode);
     return;
-}
-/**
- * 座席・券種FIXプロセス/予約情報をセッションにsave
- *
- * @param {ReservationModel} reservationModel
- * @param {Request} req
- * @returns {Promise<void>}
- */
-// tslint:disable-next-line:max-func-body-length
-async function updateFixSeatsAndTickets(choice: any,
-                                        updateKey: any,
-                                        reservationModel: ReserveSessionModel) : Promise<any> {
-    const updateInfo : any = {
-        status: false,
-        reservation: null
-    };
-    // tslint:disable-next-line:no-console
-    // console.log('ticketType=' + (<any>choice).ticket_type);
-    // '予約可能'を'仮予約'に変更
-    const reservation = await Models.Reservation.findOneAndUpdate(
-        updateKey,
-        {
-            payment_no: reservationModel.paymentNo,
-            status: ReservationUtil.STATUS_TEMPORARY,
-            ticket_type: (<any>choice).ticket_type,
-            expired_at: reservationModel.expiredAt
-        },
-        {
-            new: true
-        }
-    ).exec();
-    // 更新エラー(対象データなし):次のseatへ
-    if (reservation === null) {
-        // tslint:disable-next-line:no-console
-        // console.log('update error seat=' + result.seat_code);
-        debug('update error');
-        return updateInfo;
-    } else {
-        updateInfo.status = true;
-        updateInfo.reservation = reservation;
-        // tslint:disable-next-line:no-console
-        // console.log('update ok seat=' + result.seat_code);
-        return updateInfo;
-    }
 }
 
 // 未使用

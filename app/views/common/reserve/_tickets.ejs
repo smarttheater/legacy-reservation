@@ -27,7 +27,7 @@
                         <% /* 枚数選択dropdown */ %>
                         <select class="form-control">
                             <% for (let ticketCount = 0; ticketCount < 11; ticketCount++) { %>
-                                <option value="<%- ticketCount.toString() %>"><%- ticketCount.toString() %></option>
+                                <option value="<%- ticketCount.toString() %>"<% if (ticketCount === ticketType.count) { %> selected="selected"<% } %>><%- ticketCount.toString() %></option>
                             <% } %>
                         </select>
                     </td>

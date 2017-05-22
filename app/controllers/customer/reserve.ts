@@ -240,7 +240,6 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
         const reservationModel = ReserveSessionModel.FIND(req);
         if (reservationModel === null) {
             next(new Error(req.__('Message.Expired')));
-
             return;
         }
         reservationModel.paymentMethod = '';
