@@ -1,3 +1,4 @@
+
 /**
  * 座席予約ベースコントローラー
  *
@@ -56,7 +57,7 @@ export async function processFixSeatsAndTickets(reservationModel: ReserveSession
 
     // 予約情報更新(「仮予約:TEMPORARY」にアップデートする処理を枚数分実行)
     let updateCount: number = 0;
-    const promises = choices.map(async (choice: any) => {
+    const promises = choices.map(async(choice: any) => {
         // 予約情報更新キーセット(パフォーマンス,'予約可能')
         const updateKey = {
             performance: reservationModel.performance._id,
@@ -66,9 +67,11 @@ export async function processFixSeatsAndTickets(reservationModel: ReserveSession
         const reservation = await Models.Reservation.findOneAndUpdate(
             updateKey,
             {
-                payment_no: reservationModel.paymentNo,
                 status: ReservationUtil.STATUS_TEMPORARY,
-                ticket_type: (<any>choice).ticket_type,
+                // 2017/05/23 chevreの"TEMPORARY"データに項目を合わせるため削除
+                //payment_no: reservationModel.paymentNo,
+                //ticket_type: (<any>choice).ticket_type,
+                //---
                 expired_at: reservationModel.expiredAt
             },
             {
@@ -81,7 +84,7 @@ export async function processFixSeatsAndTickets(reservationModel: ReserveSession
         } else {
             updateCount = updateCount + 1;
             // チケット情報+座席情報をセッションにsave
-            saveSessionFixSeatsAndTickets(req, reservationModel, reservation);
+            saveSessionFixSeatsAndTickets(req, reservationModel, reservation, choice);
         }
     });
     await Promise.all(promises);
@@ -193,9 +196,10 @@ async function getInfoFixSeatsAndTickets(reservationModel: ReserveSessionModel,
  */
 function saveSessionFixSeatsAndTickets(req: Request,
                                        reservationModel: ReserveSessionModel,
-                                       result: any) : void {
+                                       result: any,
+                                       choice: any) : void {
     // チケット情報
-    const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === result.ticket_type));
+    const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === choice.ticket_type));
     if (ticketType === undefined) {
         throw new Error(req.__('Message.UnexpectedError'));
     }

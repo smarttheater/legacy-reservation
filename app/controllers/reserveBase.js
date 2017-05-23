@@ -65,9 +65,11 @@ function processFixSeatsAndTickets(reservationModel, req) {
             };
             // '予約可能'を'仮予約'に変更
             const reservation = yield ttts_domain_1.Models.Reservation.findOneAndUpdate(updateKey, {
-                payment_no: reservationModel.paymentNo,
                 status: ttts_domain_1.ReservationUtil.STATUS_TEMPORARY,
-                ticket_type: choice.ticket_type,
+                // 2017/05/23 chevreの"TEMPORARY"データに項目を合わせるため削除
+                //payment_no: reservationModel.paymentNo,
+                //ticket_type: (<any>choice).ticket_type,
+                //---
                 expired_at: reservationModel.expiredAt
             }, {
                 new: true
@@ -79,7 +81,7 @@ function processFixSeatsAndTickets(reservationModel, req) {
             else {
                 updateCount = updateCount + 1;
                 // チケット情報+座席情報をセッションにsave
-                saveSessionFixSeatsAndTickets(req, reservationModel, reservation);
+                saveSessionFixSeatsAndTickets(req, reservationModel, reservation, choice);
             }
         }));
         yield Promise.all(promises);
@@ -192,9 +194,9 @@ function getInfoFixSeatsAndTickets(reservationModel, req, selectedCount) {
  * @param {any} result
  * @returns {Promise<void>}
  */
-function saveSessionFixSeatsAndTickets(req, reservationModel, result) {
+function saveSessionFixSeatsAndTickets(req, reservationModel, result, choice) {
     // チケット情報
-    const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === result.ticket_type));
+    const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === choice.ticket_type));
     if (ticketType === undefined) {
         throw new Error(req.__('Message.UnexpectedError'));
     }
