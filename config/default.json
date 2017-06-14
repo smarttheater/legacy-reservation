@@ -1,4 +1,11 @@
 {
+    "locales": {
+        "ja": "日本語",
+        "en": "ENGLISH",
+        "cs": "中文(简体)",
+        "ct": "中文(繁體)",
+        "kr": "한국어"
+    },
     "official_website_url": "http://motionpicture.jp",
     "meta": {
         "keywords": "TTTS_EVENT_NAME, 2016, TTTS, コンペティション,Competiton,",
@@ -17,5 +24,6 @@
     },
     "temporary_reservation_valid_period_seconds": 900,
     "waiting_settlement_reservatioin_valid_period_hours": 72,
-    "performanceIds4limit2": []
+    "performanceIds4limit2": [],
+    "reservation_maxq": 4
 }

@@ -1,4 +1,6 @@
-<%- include('./_step') %>
+<%- include('./_step', {currentStepName: 'tickets'}) %>
+
+<input type="hidden" id="input_maxq" name="maxq" value="<%= conf.get('reservation_maxq') %>">
 
 <h1 class="pagetitle"><%- __('h1.SelectTickets') %></h1>
 <p class="guidetext"><%- __('Label.SelectTicketsGuideText') %></p>
@@ -6,15 +8,16 @@
 <p class="guidetext" style="color:red;"><%= message %></p>
 <% } %>
 
+<a class="link-guide" href="https://www.tokyotower.co.jp/price/" target="_blank">各券種に関してはこちら</a>
 <div class="wrapper-2clm">
     <div class="clm-left" data-token="">
         <table class="table table-tickets">
             <thead>
                 <tr>
                     <% /* 券種 */ %>
-                    <th style="width:auto;"><%- __('Label.TicketType') %></th>
+                    <th><%- __('Label.TicketType') %></th>
                     <% /* 枚数 */ %>
-                    <th style="width:110px;"><%- __('Label.TicketCount') %></th>
+                    <th><%- __('Label.TicketCount') %></th>
                 </tr>
             </thead>
             <tbody>
@@ -52,5 +55,7 @@
 <form method="post">
     <input type="hidden" name="choices">
 </form>
+
+<p class="alert-ticket alert-ticket-overmax">選択出来る枚数は <%= conf.get('reservation_maxq') %>枚 までとなります。</p>
 
 <script src="/js/reserve/tickets.js"></script>

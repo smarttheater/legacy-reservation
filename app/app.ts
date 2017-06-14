@@ -8,6 +8,7 @@
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
+import * as conf from 'config';
 // tslint:disable-next-line:no-require-imports
 import partials = require('express-partials');
 import * as i18n from 'i18n';
@@ -66,7 +67,7 @@ app.use(express.static(`${__dirname}/../public`));
 
 // i18n を利用する設定
 i18n.configure({
-    locales: ['en', 'ja'],
+    locales: Object.keys(conf.get<any>('locales')),
     defaultLocale: 'ja',
     directory: `${__dirname}/../locales`,
     objectNotation: true,
