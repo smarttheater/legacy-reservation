@@ -1,3 +1,4 @@
+/* global Url */
 'use strict';
 
 // プライベートブラウジング時のsessionStorage.setItemエラー回避用
@@ -16,6 +17,17 @@ $(function() {
     // var CSSBREAKPOINT_TABLET = 800;
     var fn_checkPageWidthIsMobile = function() { return (window.innerWidth <= CSSBREAKPOINT_MOBILE); };
     // var fn_checkPageWidthIsNotPc = function () { return (window.innerWidth >= CSSBREAKPOINT_TABLET); };
+    var domurl = new Url();
+
+    // 言語切替
+    var select_locale = document.getElementById('select_locale');
+    var currentLocale = domurl.query.locale || window.sessionStorage.getItem('locale') || '';
+    if (currentLocale && select_locale.querySelector('option[value=' + currentLocale + ']')) { select_locale.value = currentLocale; }
+    select_locale.onchange = function() {
+        domurl.query.locale = this.value;
+        window.setSessionStorage('locale', this.value);
+        location.replace(domurl.toString());
+    };
 
     /*
     汎用イベント

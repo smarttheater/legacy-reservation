@@ -21,7 +21,8 @@ module.exports = {
         'arrow-body-style': 0,
         'func-names': 0,
         'new-cap': 0,
-        'consistent-return': 0
+        'consistent-return': 0,
+        'valid-jsdoc': 0
     },
     globals: {
         window: true,

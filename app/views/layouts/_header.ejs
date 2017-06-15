@@ -15,7 +15,7 @@ if (req.hasOwnProperty('route')) {
 
         <div class="header-lang">
             <p>Language</p>
-            <select name="lang" id="select_lang">
+            <select name="locale" id="select_locale">
                 <% Object.keys(locales).forEach(function (locale) { %>
                     <option value="<%= locale %>"><%= locales[locale] %></option>
                 <% }); %>
