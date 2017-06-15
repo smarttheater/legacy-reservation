@@ -279,6 +279,11 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
     res.locals.paymentMethod = req.body.paymentMethod;
 
     if (!validationResult.isEmpty()) {
+        const errors = req.validationErrors(true);
+        if (errors) {
+            // tslint:disable-next-line:no-console
+            console.debug(errors);
+        }
         throw new Error(req.__('Message.Invalid'));
     }
 
@@ -292,7 +297,8 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
         address: req.body.address,
         gender: req.body.gender
     };
-    reservationModel.paymentMethod = req.body.paymentMethod;
+    //reservationModel.paymentMethod = req.body.paymentMethod;
+    reservationModel.paymentMethod = GMO.Util.PAY_TYPE_CREDIT;
 
     // セッションに購入者情報格納
     (<any>req.session).purchaser = {

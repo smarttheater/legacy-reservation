@@ -272,6 +272,11 @@ function processFixProfile(reservationModel, req, res) {
         res.locals.gender = req.body.gender;
         res.locals.paymentMethod = req.body.paymentMethod;
         if (!validationResult.isEmpty()) {
+            const errors = req.validationErrors(true);
+            if (errors) {
+                // tslint:disable-next-line:no-console
+                console.debug(errors);
+            }
             throw new Error(req.__('Message.Invalid'));
         }
         // 購入者情報を保存して座席選択へ
@@ -284,7 +289,8 @@ function processFixProfile(reservationModel, req, res) {
             address: req.body.address,
             gender: req.body.gender
         };
-        reservationModel.paymentMethod = req.body.paymentMethod;
+        //reservationModel.paymentMethod = req.body.paymentMethod;
+        reservationModel.paymentMethod = GMO.Util.PAY_TYPE_CREDIT;
         // セッションに購入者情報格納
         req.session.purchaser = {
             lastName: req.body.lastName,

@@ -6,9 +6,9 @@
  */
 
 import * as bodyParser from 'body-parser';
+import * as conf from 'config';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
-import * as conf from 'config';
 // tslint:disable-next-line:no-require-imports
 import partials = require('express-partials');
 import * as i18n from 'i18n';

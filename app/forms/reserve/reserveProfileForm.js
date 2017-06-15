@@ -28,9 +28,12 @@ exports.default = (req) => {
     // address
     // req.checkBody('address', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.address') })).notEmpty();
     // paymentMethod
-    req.checkBody('paymentMethod', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.paymentMethod') })).notEmpty();
+    // req.checkBody(
+    //     'paymentMethod',
+    //     req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.paymentMethod') })
+    // ).notEmpty();
     // age
-    req.checkBody('age', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.age') })).notEmpty();
+    // req.checkBody('age', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.age') })).notEmpty();
     // gender
-    req.checkBody('gender', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.gender') })).notEmpty();
+    // req.checkBody('gender', req.__('Message.required{{fieldName}}', { fieldName: req.__('Form.FieldName.gender') })).notEmpty();
 };

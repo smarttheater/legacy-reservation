@@ -6,9 +6,9 @@
  * @global
  */
 const bodyParser = require("body-parser");
+const conf = require("config");
 const cookieParser = require("cookie-parser");
 const express = require("express");
-const conf = require("config");
 // tslint:disable-next-line:no-require-imports
 const partials = require("express-partials");
 const i18n = require("i18n");
