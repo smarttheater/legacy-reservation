@@ -1,22 +1,5 @@
 // 予約者情報入力ページ
 .page-profile {
-    .wrapper-2clm {
-        .clm-left {
-            padding-left: 260px;
-            margin-left: -260px;
-            width: 100%;
-            @media screen and (max-width: $breakpoint_tablet) {
-                margin:auto;
-                padding: 0;
-            }
-        }
-        .clm-right {
-            width: 240px;
-            @media screen and (max-width: $breakpoint_tablet) {
-                width:100%;
-            }
-        }
-    }
     .table-profile {
         tr,
         th,
@@ -92,6 +75,21 @@
         }
         >span {
             text-align: center;
+        }
+    }
+
+    .wrapper-gender {
+        label {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        input[type=radio] {
+            width: 20px;
+            height: 20px;
+            margin-right: 2px;
+            box-shadow: none;
+            vertical-align: text-bottom;
+            cursor: pointer;
         }
     }
 

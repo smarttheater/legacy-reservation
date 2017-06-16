@@ -24,9 +24,9 @@ $(function() {
     var currentLocale = domurl.query.locale || window.sessionStorage.getItem('locale') || '';
     if (currentLocale && select_locale.querySelector('option[value=' + currentLocale + ']')) { select_locale.value = currentLocale; }
     select_locale.onchange = function() {
-        domurl.query.locale = this.value;
+        domurl.query.locale = null;
         window.setSessionStorage('locale', this.value);
-        location.replace(domurl.toString());
+        location.replace('/language/update/' + this.value + '?cb=' + domurl.toString());
     };
 
     /*
