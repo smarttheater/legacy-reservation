@@ -115,12 +115,14 @@ async function checkFixSeatsAndTickets(req: Request) : Promise<any> {
     const validationResult = await req.getValidationResult();
     if (!validationResult.isEmpty()) {
         checkInfo.message =  req.__('Message.Invalid');
+
         return checkInfo;
     }
     // 画面から座席選択情報が生成できなければエラー
     const choices = JSON.parse(req.body.choices);
     if (!Array.isArray(choices)) {
         checkInfo.message =  req.__('Message.UnexpectedError');
+
         return checkInfo;
     }
     checkInfo.choices = choices;
@@ -137,6 +139,7 @@ async function checkFixSeatsAndTickets(req: Request) : Promise<any> {
         }
     });
     checkInfo.status = true;
+
     return checkInfo;
 }
 /**
@@ -165,6 +168,7 @@ async function getInfoFixSeatsAndTickets(reservationModel: ReserveSessionModel,
     if (count < selectedCount) {
         // "予約可能な席がございません"
         info.message = req.__('Message.NoAvailableSeats');
+
         return info;
     }
     // 予約情報取得
@@ -181,9 +185,11 @@ async function getInfoFixSeatsAndTickets(reservationModel: ReserveSessionModel,
     if (info.results.length < selectedCount) {
         // "予約可能な席がございません"
         info.message = req.__('Message.NoAvailableSeats');
+
         return info;
     }
     info.status = true;
+
     return info;
 }
 /**
@@ -223,6 +229,7 @@ function saveSessionFixSeatsAndTickets(req: Request,
     });
     // 座席コードのソート(文字列順に)
     reservationModel.seatCodes.sort(ScreenUtil.sortBySeatCode);
+
     return;
 }
 
@@ -319,12 +326,13 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
  */
 export async function processStart(purchaserGroup: string, req: Request): Promise<ReserveSessionModel> {
     // 言語も指定
-    if (!_.isEmpty(req.query.locale)) {
-        (<any>req.session).locale = req.query.locale;
-    } else {
-        (<any>req.session).locale = 'ja';
-    }
-
+    // 2017/06/19 upsate node+typesctipt
+    (<any>req.session).locale = (!_.isEmpty(req.query.locale)) ? req.query.locale : 'ja';
+    // if (!_.isEmpty(req.query.locale)) {
+    //     (<any>req.session).locale = req.query.locale;
+    // } else {
+    //     (<any>req.session).locale = 'ja';
+    // }
     // 予約トークンを発行
     const reservationModel = new ReserveSessionModel();
     reservationModel.purchaserGroup = purchaserGroup;
@@ -438,7 +446,12 @@ export async function processFixPerformance(reservationModel: ReserveSessionMode
     const ticketTypeGroup = await Models.TicketTypeGroup.findOne(
         { _id: performance.get('ticket_type_group') }
     ).populate('ticket_types').exec();
-    reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');
+    // 2017/06/19 upsate node+typesctipt
+    if (ticketTypeGroup) {
+        reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');
+    }
+    //reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');
+    //---
 
     reservationModel.seatCodes = [];
 
@@ -575,7 +588,10 @@ export async function processAllExceptConfirm(reservationModel: ReserveSessionMo
     // いったん全情報をDBに保存
     await Promise.all(reservationModel.seatCodes.map(async (seatCode, index) => {
         let update = reservationModel.seatCode2reservationDocument(seatCode);
-        update = Object.assign(update, commonUpdate);
+        // 2017/06/19 upsate node+typesctipt
+        update = {...update, ...commonUpdate};
+        //update = Object.assign(update, commonUpdate);
+        //---
         (<any>update).payment_seat_index = index;
 
         const reservation = await Models.Reservation.findByIdAndUpdate(

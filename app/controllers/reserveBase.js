@@ -312,12 +312,13 @@ exports.processFixProfile = processFixProfile;
 function processStart(purchaserGroup, req) {
     return __awaiter(this, void 0, void 0, function* () {
         // 言語も指定
-        if (!_.isEmpty(req.query.locale)) {
-            req.session.locale = req.query.locale;
-        }
-        else {
-            req.session.locale = 'ja';
-        }
+        // 2017/06/19 upsate node+typesctipt
+        req.session.locale = (!_.isEmpty(req.query.locale)) ? req.query.locale : 'ja';
+        // if (!_.isEmpty(req.query.locale)) {
+        //     (<any>req.session).locale = req.query.locale;
+        // } else {
+        //     (<any>req.session).locale = 'ja';
+        // }
         // 予約トークンを発行
         const reservationModel = new session_1.default();
         reservationModel.purchaserGroup = purchaserGroup;
@@ -417,7 +418,12 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         }
         // 券種取得
         const ticketTypeGroup = yield ttts_domain_1.Models.TicketTypeGroup.findOne({ _id: performance.get('ticket_type_group') }).populate('ticket_types').exec();
-        reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');
+        // 2017/06/19 upsate node+typesctipt
+        if (ticketTypeGroup) {
+            reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');
+        }
+        //reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');
+        //---
         reservationModel.seatCodes = [];
         // パフォーマンス情報を保管
         reservationModel.performance = {
@@ -543,7 +549,10 @@ function processAllExceptConfirm(reservationModel, req) {
         // いったん全情報をDBに保存
         yield Promise.all(reservationModel.seatCodes.map((seatCode, index) => __awaiter(this, void 0, void 0, function* () {
             let update = reservationModel.seatCode2reservationDocument(seatCode);
-            update = Object.assign(update, commonUpdate);
+            // 2017/06/19 upsate node+typesctipt
+            update = Object.assign({}, update, commonUpdate);
+            //update = Object.assign(update, commonUpdate);
+            //---
             update.payment_seat_index = index;
             const reservation = yield ttts_domain_1.Models.Reservation.findByIdAndUpdate(update._id, update, { new: true }).exec();
             // IDの予約ドキュメントが万が一なければ予期せぬエラー(基本的にありえないフローのはず)
