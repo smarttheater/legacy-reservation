@@ -287,7 +287,7 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
 
     if (!validationResult.isEmpty()) {
         const errors = req.validationErrors(true);
-        if (errors) {
+        if (errors !== undefined) {
             // tslint:disable-next-line:no-console
             console.debug(errors);
         }
@@ -447,7 +447,7 @@ export async function processFixPerformance(reservationModel: ReserveSessionMode
         { _id: performance.get('ticket_type_group') }
     ).populate('ticket_types').exec();
     // 2017/06/19 upsate node+typesctipt
-    if (ticketTypeGroup) {
+    if (ticketTypeGroup !== null) {
         reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');
     }
     //reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');

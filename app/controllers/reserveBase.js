@@ -273,7 +273,7 @@ function processFixProfile(reservationModel, req, res) {
         res.locals.paymentMethod = req.body.paymentMethod;
         if (!validationResult.isEmpty()) {
             const errors = req.validationErrors(true);
-            if (errors) {
+            if (errors !== undefined) {
                 // tslint:disable-next-line:no-console
                 console.debug(errors);
             }
@@ -419,7 +419,7 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         // 券種取得
         const ticketTypeGroup = yield ttts_domain_1.Models.TicketTypeGroup.findOne({ _id: performance.get('ticket_type_group') }).populate('ticket_types').exec();
         // 2017/06/19 upsate node+typesctipt
-        if (ticketTypeGroup) {
+        if (ticketTypeGroup !== null) {
             reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');
         }
         //reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');
