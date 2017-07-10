@@ -71,6 +71,10 @@ export default class ReserveSessionModel {
      */
     public seatCodes: string[];
     /**
+     * 予約座席コードリスト(特殊チケット用)
+     */
+    public seatCodesExtra: string[];
+    /**
      * 予約座席コードリスト
      */
     public purchaser: IPurchaser;
@@ -207,6 +211,14 @@ export default class ReserveSessionModel {
      */
     public getReservationIds(): string[] {
         return (this.seatCodes !== undefined) ? this.seatCodes.map((seatCode) => this.getReservation(seatCode)._id) : [];
+    }
+
+    /**
+     * フロー中の予約IDリスト(特殊チケット用)を取得する
+     */
+    public getReservationIdsExtra(): string[] {
+        return (this.seatCodesExtra !== undefined) ?
+            this.seatCodesExtra.map((seatCodesExtra) => this.getReservation(seatCodesExtra)._id) : [];
     }
 
     /**

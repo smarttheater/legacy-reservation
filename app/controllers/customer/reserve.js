@@ -17,12 +17,11 @@ const GMO = require("@motionpicture/gmo-service");
 const TTTS = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const createDebug = require("debug");
-const httpStatus = require("http-status");
+//import * as httpStatus from 'http-status';
 const moment = require("moment");
 const _ = require("underscore");
 const reservePaymentCreditForm_1 = require("../../forms/reserve/reservePaymentCreditForm");
 const reservePerformanceForm_1 = require("../../forms/reserve/reservePerformanceForm");
-//import reserveSeatForm from '../../forms/reserve/reserveSeatForm';
 const session_1 = require("../../models/reserve/session");
 const reserveBaseController = require("../reserveBase");
 const debug = createDebug('ttts-frontend:controller:customerReserve');
@@ -106,117 +105,6 @@ function start(req, res, next) {
     });
 }
 exports.start = start;
-//2017/05/11 座席選択削除
-/**
- * 規約
- */
-// export async function terms(req: Request, res: Response, next: NextFunction): Promise<void> {
-//     try {
-//         const reservationModel = ReserveSessionModel.FIND(req);
-//         if (reservationModel === null) {
-//             next(new Error(req.__('Message.Expired')));
-//             return;
-//         }
-//         if (req.method === 'POST') {
-//             res.redirect('/customer/reserve/seats');
-//         } else {
-//             res.render('customer/reserve/terms');
-//         }
-//     } catch (error) {
-//         next(new Error(req.__('Message.UnexpectedError')));
-//     }
-// }
-//2017/05/11 座席選択削除
-/**
- * 座席選択
- * @method seats
- * @returns {Promise<void>}
- */
-// export async function seats(req: Request, res: Response, next: NextFunction): Promise<void> {
-//     try {
-//         let reservationModel = ReserveSessionModel.FIND(req);
-//         if (reservationModel === null) {
-//             next(new Error(req.__('Message.Expired')));
-//             return;
-//         }
-//         //const limit = ReserveSessionModel.getSeatsLimit();
-//         const limit : number = 100; // コンパイルエラーよけ 2017/05/21 kusu
-//         if (req.method === 'POST') {
-//             reserveSeatForm(req);
-//             const validationResult = await req.getValidationResult();
-//             if (!validationResult.isEmpty()) {
-//                 res.redirect('/customer/reserve/seats');
-//                 return;
-//             }
-//             reservationModel = <ReserveSessionModel>reservationModel;
-//             const seatCodes: string[] = JSON.parse(req.body.seatCodes);
-//             // 追加指定席を合わせて制限枚数を超過した場合
-//             if (seatCodes.length > limit) {
-//                 const message = req.__('Message.seatsLimit{{limit}}', { limit: limit.toString() });
-//                 res.redirect(`/customer/reserve/seats?message=${encodeURIComponent(message)}`);
-//             } else {
-//                 // 仮予約あればキャンセルする
-//                 try {
-//                     await reserveBaseController.processCancelSeats(reservationModel);
-//                 } catch (error) {
-//                     next(error);
-//                     return;
-//                 }
-//                 try {
-//                     // 座席FIX
-//                     await reserveBaseController.processFixSeats(reservationModel, seatCodes, req);
-//                     reservationModel.save(req);
-//                     // 券種選択へ
-//                     res.redirect('/customer/reserve/tickets');
-//                     return;
-//                 } catch (error) {
-//                     reservationModel.save(req);
-//                     const message = req.__('Message.SelectedSeatsUnavailable');
-//                     res.redirect(`/customer/reserve/seats?message=${encodeURIComponent(message)}`);
-//                     return;
-//                 }
-//             }
-//         } else {
-//             res.render('customer/reserve/seats', {
-//                 reservationModel: reservationModel,
-//                 limit: limit
-//             });
-//             return;
-//         }
-//     } catch (error) {
-//         next(new Error(req.__('Message.UnexpectedError')));
-//         return;
-//     }
-// }
-//2017/05/21 座席選択削除
-/**
- * 券種選択(旧)
- */
-// export async function tickets(req: Request, res: Response, next: NextFunction): Promise<void> {
-//     try {
-//         const reservationModel = ReservationModel.FIND(req);
-//         if (reservationModel === null) {
-//             next(new Error(req.__('Message.Expired')));
-//             return;
-//         }
-//         reservationModel.paymentMethod = '';
-//         if (req.method === 'POST') {
-//             try {
-//                 await reserveBaseController.processFixTickets(reservationModel, req);
-//                 reservationModel.save(req);
-//                 res.redirect('/customer/reserve/profile');
-//             } catch (error) {
-//                 res.redirect('/customer/reserve/tickets');
-//             }
-//         } else {
-//             res.render('customer/reserve/tickets', {
-//                 reservationModel: reservationModel
-//             });
-//         }
-//     } catch (error) {
-//         next(new Error(req.__('Message.UnexpectedError')));
-//     }
-// }
 /**
  * 券種選択
  */
@@ -279,6 +167,7 @@ function profile(req, res, next) {
             }
             if (req.method === 'POST') {
                 try {
+                    // 購入者情報FIXプロセス
                     yield reserveBaseController.processFixProfile(reservationModel, req, res);
                     // クレジットカード決済のオーソリ、あるいは、オーダーID発行
                     yield processFixGMO(reservationModel, req);
@@ -340,31 +229,14 @@ function confirm(req, res, next) {
                     if (reservationModel.expiredAt !== undefined && reservationModel.expiredAt < moment().valueOf()) {
                         throw new Error(req.__('Message.Expired'));
                     }
-                    // コンビニ決済の場合
-                    // 決済移行のタイミングで仮予約有効期限を更新 & 決済中ステータスに変更
-                    if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CVS) {
-                        yield TTTS.Models.Reservation.update({
-                            performance_day: reservationModel.performance.day,
-                            payment_no: reservationModel.paymentNo
-                        }, {
-                            status: TTTS.ReservationUtil.STATUS_WAITING_SETTLEMENT,
-                            expired_at: moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').toDate(),
-                            purchased_at: moment().toDate()
-                        }, { multi: true }).exec();
-                    }
-                    if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
-                        yield reserveBaseController.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {}, res);
-                        debug('processFixReservations processed.');
-                        session_1.default.REMOVE(req);
-                        res.redirect(`/customer/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
-                    }
-                    else {
-                        // todo リンク決済に備えて、ステータスを期限を更新する
-                        // httpStatusの型定義不足のためanyにキャスト
-                        // todo 一時的対処なので解決する
-                        reservationModel.save(req);
-                        res.redirect(httpStatus.PERMANENT_REDIRECT, `/customer/reserve/gmo/start?locale=${req.getLocale()}`);
-                    }
+                    // クレジット以外の支払方法がある時はここにIf文が必要
+                    //if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
+                    // 予約確定
+                    yield reserveBaseController.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {}, res);
+                    debug('processFixReservations processed.');
+                    session_1.default.REMOVE(req);
+                    res.redirect(`/customer/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
+                    //}
                 }
                 catch (error) {
                     session_1.default.REMOVE(req);

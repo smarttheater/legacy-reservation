@@ -1,21 +1,19 @@
-<%= titleJa %>
-<%= titleEn %>
+<%- __('Title') %> <%- __('Email.Title') %>
 
-<%= reservations[0].get('purchaser_name').ja %> 様
-Dear <%= reservations[0].get('purchaser_name').en %>,
+<%- __('Email.Head1').replace('$theater_name$', reservations[0].get('theater_name')[locale]) %>
+<%= __('Mr{{name}}', {name: reservations[0].get('purchaser_name')[locale]}) %>
 
 <%- __('Email.Head1').replace('$theater_name$', reservations[0].get('theater_name')[locale]) %>
 <%- __('Email.Head2') %>
 
 <% /* 購入番号 */ %><%- __('Label.PaymentNo') %> : <%- reservations[0].get('payment_no') %>
 <% /* 上映日付、時間 */ %><%- reservations[0].get('performance_start_str')[locale] %>
-<% /* 券種、枚数 */ %><%- __('Label.TicketType') %>
-<%= reservations.map((reservation) => reservation.get('ticket_type_detail_str').ja.replace(/\\/g, '￥')).join('\n') %>
+<% /* 券種、枚数 */ %><%- __('Label.TicketType') %> <%- __('Label.TicketCount') %>
+<% ticketInfoArray.forEach((ticketInfo, index) => { %><%- ticketInfo %>
+<% }) %>
 <% /*合計枚数 */ %><%- __('Email.TotalTicketCount').replace('$reservations_length$',reservations.length) %>
 <% /* 合計金額 */ %><% const totalCharge = reservations.reduce((a, b) => a  + b.get('charge'), 0); %>
-<% if (totalCharge > 0) { %>
-<%- __('Label.TotalPrice') %>
-￥<%- numeral(totalCharge).format('0,0') %><%- __('Email.IncludingTax') %>
+<% if (totalCharge > 0) { %><%- __('Label.TotalPrice') %>￥<%- numeral(totalCharge).format('0,0') %><%- __('Email.IncludingTax') %>
 <% } %>
 <%- __('Email.Notice1') %>
 <%- __('Email.Notice2') %>
