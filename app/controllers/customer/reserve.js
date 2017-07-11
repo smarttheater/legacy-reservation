@@ -232,7 +232,7 @@ function confirm(req, res, next) {
                     // クレジット以外の支払方法がある時はここにIf文が必要
                     //if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
                     // 予約確定
-                    yield reserveBaseController.processFixReservations(reservationModel.performance.day, reservationModel.paymentNo, {}, res);
+                    yield reserveBaseController.processFixReservations(reservationModel, reservationModel.performance.day, reservationModel.paymentNo, {}, res);
                     debug('processFixReservations processed.');
                     session_1.default.REMOVE(req);
                     res.redirect(`/customer/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);

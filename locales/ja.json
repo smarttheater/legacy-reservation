@@ -58,7 +58,7 @@
 		},
 		"PaymentMethod": "お支払い方法",
 		"TotalCharge": "合計金額",
-		"Day": "上映日",
+		"Day": "ご来塔日時",
 		"UpdatedUser": "更新者",
 		"Distribution": "配布先",
 		"Actions": "操作",
@@ -237,7 +237,7 @@
 		}
 	},
 	"Email": {
-		"Title" : "チケット 購入完了のお知らせ",
+		"Title" : "東京タワー TOP DECK チケット購入完了のお知らせ",
 		"Head1" : "この度は、「$theater_name$」のオンライン先売りチケットサービスにてご購入頂き、誠にありがとうございます。",
 		"Head2" : "お客様がご購入されましたチケットの情報は下記の通りです。",
 		"IncludingTax" : "(税込)",

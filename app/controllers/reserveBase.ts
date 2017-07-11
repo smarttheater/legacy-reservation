@@ -516,59 +516,6 @@ export async function processFixPerformance(reservationModel: ReserveSessionMode
     // この時点でトークンに対して購入番号発行(上映日が決まれば購入番号を発行できる)
     reservationModel.paymentNo = await ReservationUtil.publishPaymentNo(reservationModel.performance.day);
 }
-
-// /**
-//  * 座席をFIXするプロセス
-//  * 新規仮予約 ここが今回の肝です！！！
-//  *
-//  * @param {ReserveSessionModel} reservationModel
-//  * @param {Array<string>} seatCodes
-//  */
-// export async function processFixSeats(reservationModel: ReserveSessionModel, seatCodes: string[], req: Request): Promise<void> {
-//     // セッション中の予約リストを初期化
-//     reservationModel.seatCodes = [];
-//     reservationModel.expiredAt = moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').valueOf();
-
-//     // 新たな座席指定と、既に仮予約済みの座席コードについて
-//     const promises = seatCodes.map(async (seatCode) => {
-//         const seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => (seat.code === seatCode));
-
-//         // 万が一、座席が存在しなかったら
-//         if (seatInfo === undefined) {
-//             throw new Error(req.__('Message.InvalidSeatCode'));
-//         }
-
-//         // 予約データを作成(同時作成しようとしたり、既に予約があったとしても、unique indexではじかれる)
-//         const reservation = await Models.Reservation.create({
-//             performance: reservationModel.performance._id,
-//             seat_code: seatCode,
-//             status: ReservationUtil.STATUS_TEMPORARY,
-//             expired_at: reservationModel.expiredAt
-//         });
-
-//         // ステータス更新に成功したらセッションに保管
-//         reservationModel.seatCodes.push(seatCode);
-//         reservationModel.setReservation(seatCode, {
-//             _id: reservation.get('_id'),
-//             status: reservation.get('status'),
-//             seat_code: reservation.get('seat_code'),
-//             seat_grade_name: seatInfo.grade.name,
-//             seat_grade_additional_charge: seatInfo.grade.additional_charge,
-//             ticket_type: '', // この時点では券種未決定
-//             ticket_type_name: {
-//                 ja: '',
-//                 en: ''
-//             },
-//             ticket_type_charge: 0,
-//             watcher_name: ''
-//         });
-//     });
-
-//     await Promise.all(promises);
-//     // 座席コードのソート(文字列順に)
-//     reservationModel.seatCodes.sort(ScreenUtil.sortBySeatCode);
-// }
-
 /**
  * 確定以外の全情報を確定するプロセス
  */
@@ -620,7 +567,11 @@ export async function processAllExceptConfirm(reservationModel: ReserveSessionMo
  * @param {string} paymentNo 購入番号
  * @param {Object} update 追加更新パラメータ
  */
-export async function processFixReservations(performanceDay: string, paymentNo: string, update: any, res: Response): Promise<void> {
+export async function processFixReservations(reservationModel: ReserveSessionModel,
+                                             performanceDay: string,
+                                             paymentNo: string,
+                                             update: any,
+                                             res: Response): Promise<void> {
     (<any>update).purchased_at = moment().valueOf();
     (<any>update).status = ReservationUtil.STATUS_RESERVED;
 
@@ -648,7 +599,7 @@ export async function processFixReservations(performanceDay: string, paymentNo: 
 
     try {
         // 完了メールキュー追加(あれば更新日時を更新するだけ)
-        const emailQueue = await createEmailQueue(res, performanceDay, paymentNo);
+        const emailQueue = await createEmailQueue(reservationModel, res, performanceDay, paymentNo);
         await Models.EmailQueue.create(emailQueue);
     } catch (error) {
         console.error(error);
@@ -697,7 +648,10 @@ interface IEmailQueue {
  *
  * @memberOf ReserveBaseController
  */
-async function createEmailQueue(res: Response, performanceDay: string, paymentNo: string): Promise<IEmailQueue> {
+async function createEmailQueue(reservationModel: ReserveSessionModel,
+                                res: Response,
+                                performanceDay: string,
+                                paymentNo: string): Promise<IEmailQueue> {
     // 2017/07/10 特殊チケット対応(status: ReservationUtil.STATUS_RESERVED追加)
     const reservations: any[] = await Models.Reservation.find({
         status: ReservationUtil.STATUS_RESERVED,
@@ -742,8 +696,9 @@ async function createEmailQueue(res: Response, performanceDay: string, paymentNo
         const ticketInfo = (<any>ticketInfos)[key];
         ticketInfoArray.push(`${ticketInfo.ticket_type_name[res.locale]} ${ticketInfo.count}${leaf}`);
     });
-
-    debug('rendering template...');
+    const day: string = moment(reservations[0].performance_day, 'YYYYMMDD').format('YYYY/MM/DD');
+    // tslint:disable-next-line:no-magic-numbers
+    const time: string = `${reservations[0].performance_start_time.substr(0, 2)}:${reservations[0].performance_start_time.substr(2, 2)}`;
 
     return new Promise<IEmailQueue>((resolve, reject) => {
         res.render(
@@ -756,7 +711,9 @@ async function createEmailQueue(res: Response, performanceDay: string, paymentNo
                 conf: conf,
                 GMOUtil: GMO.Util,
                 ReservationUtil: ReservationUtil,
-                ticketInfoArray: ticketInfoArray
+                ticketInfoArray: ticketInfoArray,
+                totalCharge: reservationModel.getTotalCharge(),
+                dayTime: `${day} ${time}`
             },
             async (renderErr, text) => {
                 debug('email template rendered.', renderErr);

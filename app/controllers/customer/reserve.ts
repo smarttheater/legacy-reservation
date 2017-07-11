@@ -229,7 +229,11 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 //if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
                 // 予約確定
                 await reserveBaseController.processFixReservations(
-                    reservationModel.performance.day, reservationModel.paymentNo, {}, res
+                    reservationModel,
+                    reservationModel.performance.day,
+                    reservationModel.paymentNo,
+                    {},
+                    res
                 );
                 debug('processFixReservations processed.');
                 ReserveSessionModel.REMOVE(req);
