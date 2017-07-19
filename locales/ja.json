@@ -252,7 +252,9 @@
 		"Access1" : "お問い合わせはこちら",
 		"Access2" : "TEL",
 		"TotalTicketCount": "合計枚数 $reservations_length$枚",
-		"Leaf": "枚"		
+		"Leaf": "枚",
+		"inquiry": "QRコードは下記URLの予約照会画面より取得、ご確認いただけます。",
+		"inquiry-url": "https://ttts-authentication-d.azurewebsites.net/inquiry/search"		
 	},
 	"ConfirmNotesText": "・チケットの払い戻し・交換・再発行はいたしません。<br>・東京都青少年の健全な育成に関する条例により18歳未満の方は23時から翌朝4時までの劇場への出入りは禁止となっております。<br>保護者同伴の場合も同様です。<br>・ 携帯電話のドメイン指定受信をされている場合、「@tiff-ticket.net」を追加設定してください。<br>・ au(@ezweb.ne.jp)をご利用の場合、上記に加え「なりすまし規制回避リスト」にも「@tiff-ticket.net」の追加設定をしてください。",
 	"NoticeCredit": "※以下のクレジットカードの使用が可能です。",

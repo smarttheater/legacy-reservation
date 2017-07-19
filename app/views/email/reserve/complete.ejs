@@ -14,6 +14,9 @@
 <% /* 合計金額 */ %><% if (totalCharge != '') { %><%- __('Label.TotalPrice') %>￥<%- numeral(totalCharge).format('0,0') %><%- __('Email.IncludingTax') %><% } %>
 -------------------------------------
 
+<%- __('Email.inquiry') %>
+<%- __('Email.inquiry-url') %>
+
 <%- __('Email.Notice1') %>
 <%- __('Email.Notice2') %>
 <%- __('Email.Notice3') %>
