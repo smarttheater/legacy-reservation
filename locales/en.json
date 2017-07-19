@@ -172,7 +172,7 @@
 		"match{{fieldName}}": "{{fieldName}} does not match.",
 		"EnterInFullWidthKatakana": "Enter in half-width alphabets.",
 		"RetypeToConfirm": "Re-type to confirm.",
-		"SettingForLimitingEmailReception": "*Enter an email address that accepts HTML messages.<br>[If you use an email filter or setting for specified domains.]<br>* If you use a filter to limit messages to specified domains for you mobile phone, additionally set the domain \"@tiff-ticket.net\" <br>*If you use au (@ezweb.ne.jp), in addition to the above setting, additionally set the domain \"@tiff-ticket.net\" under the \"list for exemption from spam.\"",
+		"SettingForLimitingEmailReception": "*Enter an email address that accepts HTML messages.<br>[If you use an email filter or setting for specified domains.]<br>* If you use a filter to limit messages to specified domains for you mobile phone, additionally set the domain \"@tokyotower.co.jp\" <br>*If you use au (@ezweb.ne.jp), in addition to the above setting, additionally set the domain \"@tokyotower.co.jp\" under the \"list for exemption from spam.\"",
 		"UseHalfWidthAlphanumericWithoutHyphens": "Use half-width alphanumeric. Do not use hyphens.",
 		"Sending": "Now sending...",
 		"Sent": "Sent",
@@ -230,7 +230,8 @@
 			"Name": "Front-row reclining seat"
 		}
 	},
-	"ConfirmNotesText": " - We will not refund, exchange, or re-issue tickets.<br> - If you use a filter to limit messages to specified domains for you mobile phone, additionally set the domain \"@tiff-ticket.net\" <br> - If you use au (@ezweb.ne.jp), in addition to the above setting, additionally set the domain \"@tiff-ticket.net\" under the \"list for exemption from spam.\"",
+	"ConfirmNotesText": " - We will not refund, exchange, or re-issue tickets.<br> - If you use a filter to limit messages to specified domains for you mobile phone, additionally set the domain \"@tokyotower.co.jp\" <br> - If you use au (@ezweb.ne.jp), in addition to the above setting, additionally set the domain \"@tokyotower.co.jp\" under the \"list for exemption from spam.\"",
+	"CompleteNotesText": "<When the purchase completion mail does not arrive><br>· Please check whether there is any incompleteness in the mail address or not being rejected for incoming mail.<br>· If you have enabled the filtering function of the mail settings of providers and mobile carrier companies, please check \"deleted folder\" or \"spam folder\". * We will not retransmit the purchase completion mail for automatic transmission. <br>* Please make purchase confirmation on \"Ticket inquiry page\" after refraining \"purchase number\".",
 	"NoticeCredit": "*The following credit cards are available.",
 	"NoticeCVS": "*The time allotted for payment at the convenience store is three (3) days from the date of the completion of your order.<br>*In the case of payment at the convenience store, each seat purchased is subject to a processing fee of 150 yen per seat. This fee is included in the total price.<br>*Payment at a convenience store can be only made at FamilyMart locations in Japan.",
 	"NoticeCVSMember": "コンビニ決済をご希望の方は下記電話番号までお問い合わせください。<br>050-3786-8066"
