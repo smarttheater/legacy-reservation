@@ -35,7 +35,7 @@ for (let reservation of reservationDocuments) {
         <tr>
             <th><%- __('Label.PurchaseContentDate') %> %></th>
             <td>
-                <%= reservationDocuments[0].get(`performance_start_str`)[locale] %>
+                <%= moment(reservationDocuments[0].performance_day).format('Y-MM-DD') %>&nbsp;&nbsp;<%= `${moment(reservationDocuments[0].performance_start_time, 'hmm').format('HH:mm')} - ${moment(reservationDocuments[0].performance_end_time, 'hmm').format('HH:mm')}` %> 
             </td>
         </tr>
         <tr>
@@ -65,7 +65,7 @@ for (let reservation of reservationDocuments) {
         <tr>
             <th><%- __('Label.TotalPrice') %> %></th>
             <td>
-                <span class="price">&yen;<%= reservationDocuments[0].get('charge') %></span>
+                <span class="price">&yen;<%= reservationDocuments[0].get('gmo_amount') %></span>
             </td>
         </tr>
 
@@ -77,7 +77,7 @@ for (let reservation of reservationDocuments) {
 
 
 <p class="mailnotice">
-＜購入完了メールが届かない場合のご確認事項（ｒｙ
+<%- __('ConpleteNotesText') %>
 </p>
 
 <div class="enteringguide">
