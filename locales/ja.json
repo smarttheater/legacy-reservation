@@ -24,6 +24,7 @@
 		"Privacy": "プライバシーポリシー",
 		"Policy": "利用規約",
 		"ActOnSpecifiedCommercialTransactions": "特定商取引法に基づく表示",
+		"ContactUs": "お問合せ",
 		"AdvanceTicketSalesWebsite": "システム事故対象のお客様向け先行販売ページ"
 	},
 	"h2": {
@@ -41,6 +42,7 @@
 		"PerformancePlace": "場所",
 		"DatetimeAndLocation": "日時/場所",
 		"SeatCode": "座席番号",
+		"QRCode": "QRコード",
 		"TicketType": "券種",
 		"TicketCount": "枚数",
 		"TotalPrice": "合計金額",
@@ -72,6 +74,7 @@
 		"ResultsCount": "検索結果数",
 		"ShowSeats": "座席を表示",
 		"PurchaseContent": "ご購入内容",
+		"PurchaseContentDate": "ご来塔ご予約日時",
 		"DepartmentName": "部署名",
 		"Signature": "署名",
 		"ConfirmCancel": "キャンセル確認",
@@ -79,14 +82,14 @@
 		"TermsGuideText": "利用規約をご確認頂き、問題ないようでしたら「利用規約に同意して次へ」ボタンを押してください",
 		"SelectSeatsGuideText": "ご希望の座席を選択して次へボタンを押してください。",
 		"SelectSeatsGuideTextSP": "画面をタッチすると画面がズームしますので<br>座席を選択してください",
-		"SelectTicketsGuideText": "ご希望の券種を選択して次へボタンを押してください。",
-		"EnterProfileGuideText": "必要情報を入力して次へボタンを押してください。",
+		"SelectTicketsGuideText": "ご希望の券種と枚数を選択し「次へ」ボタンを押してください。",
+		"EnterProfileGuideText": "購入者の情報とお支払い情報を入力し「次へ」ボタンを押してください。",
 		"EnterProfileGuideTextWindow": "お支払い方法を選択して次へボタンを押してください。",
-		"ConfirmReservationGuideText": "内容をご確認のうえ、「決済へ進む」ボタンを押してください。",
+		"ConfirmReservationGuideText": "購入内容をご確認頂き「購入確定」ボタンを押してください。",
 		"ConfirmReservationGuideTextNoPayment": "内容をご確認のうえ、「次へ」ボタンを押してください。",
-		"CompleteReservationGuideText": "ご購入ありがとうございました<br><br>!! 注意事項 !!<br>このページを閉じると再表示できません。<br>ご鑑賞当日はご入場の際にQRコードが必要となりますので、必ずご確認頂き、印刷または保存してください。<br>※QRコードは本ページと、ご入力いただいたメールアドレスにもお送りしています。<br>※メールの送信に時間がかかることがございますので予めご了承ください。",
+		"CompleteReservationGuideText": "ご購入ありがとうございました<br>ご入力いただいたメールアドレス宛に、購入完了メールを送信しました。<br>ご入場方法に関してはメールをご確認ください。",
 		"CompleteTemporaryReservationGuideText": "仮予約が完了しました。<br>仮予約内容は「仮予約完了メール」に記載して送信したしました。<br>まだ購入は完了しておりませんので最寄りのファミリーマートよりお支払いください。<br>※メールの送信に時間がかかることがございますので予めご了承ください。",
-		"SelectPerformanceGuideText": "以下より鑑賞作品の上映スケジュールを選択してください。",
+		"SelectPerformanceGuideText": "ご来塔希望日時を選択してください。",
 		"ReleaseSeatsGuideText": "座席開放を行う日付を選択して、開放するボタンを押してください。",
 		"GMOStartGuideText": "GMO決済へ遷移します...",
 		"NotFoundGuideText": "既に存在しないか、もしくはアドレスの入力が間違っている可能性があります。",
@@ -208,7 +211,7 @@
 	"Steps": {
 		"SelectPerformance": "スケジュール選択",
 		"SelectSeats": "座席選択",
-		"SelectTickets": "券種選択",
+		"SelectTickets": "券種/枚数選択",
 		"EditProfile": "購入者情報入力",
 		"Confirm": "購入内容確認",
 		"Complete": "購入完了"
@@ -256,7 +259,7 @@
 		"inquiry": "QRコードは下記URLの予約照会画面より取得、ご確認いただけます。",
 		"inquiry-url": "https://ttts-authentication-d.azurewebsites.net/inquiry/search"		
 	},
-	"ConfirmNotesText": "・チケットの払い戻し・交換・再発行はいたしません。<br>・東京都青少年の健全な育成に関する条例により18歳未満の方は23時から翌朝4時までの劇場への出入りは禁止となっております。<br>保護者同伴の場合も同様です。<br>・ 携帯電話のドメイン指定受信をされている場合、「@tiff-ticket.net」を追加設定してください。<br>・ au(@ezweb.ne.jp)をご利用の場合、上記に加え「なりすまし規制回避リスト」にも「@tiff-ticket.net」の追加設定をしてください。",
+	"ConfirmNotesText": "・チケットの払い戻し・交換・再発行はいたしません。<br>・ 携帯電話のドメイン指定受信をされている場合、「@tiff-ticket.net」を追加設定してください。<br>・ au(@ezweb.ne.jp)をご利用の場合、上記に加え「なりすまし規制回避リスト」にも「@tiff-ticket.net」の追加設定をしてください。",
 	"NoticeCredit": "※以下のクレジットカードの使用が可能です。",
 	"NoticeCVS": "※コンビニ決済の支払期限は、ご注文完了日を含めて3日間です。<br>※コンビニ決済の場合、手数料としてご購入1席につき150円がかかります。<br>手数料はお支払いいただく料金に含まれます。<br>※コンビニ決済が可能なコンビニは全国のファミリーマートのみとなります。",
 	"NoticeCVSMember": "コンビニ決済をご希望の方は下記電話番号までお問い合わせください。<br>050-3786-8066"

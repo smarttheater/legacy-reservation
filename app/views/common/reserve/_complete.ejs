@@ -33,13 +33,13 @@ for (let reservation of reservationDocuments) {
             </td>
         </tr>
         <tr>
-            <th><%- __('Label.PerformanceTime') %> %></th>
+            <th><%- __('Label.PurchaseContentDate') %> %></th>
             <td>
                 <%= reservationDocuments[0].get(`performance_start_str`)[locale] %>
             </td>
         </tr>
         <tr>
-            <th><%- __('Label.SeatCode') %></th>
+            <th><%- __('Label.QRCode') %></th>
             <td>
                 <% reservationDocuments.forEach((reservation, index) => { %>
                 <div class="wrapper-qrcodes">

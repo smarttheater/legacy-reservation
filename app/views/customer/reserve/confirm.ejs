@@ -14,10 +14,10 @@
     <table class="table table-confirm">
         <tbody>
             <tr>
-                <th><%- __('Label.DatetimeAndLocation') %></th>
+                <th><%- __('Label.PurchaseContentDate') %></th>
                 <td>
                     <p>
-                        <%- reservationModel.performance[`start_str`][locale] %>&nbsp;&nbsp;<%- reservationModel.performance[`location_str_${locale}`] %> 
+                        <%= moment(reservationModel.performance.day).format('Y-MM-DD') %>&nbsp;&nbsp;<%= `${moment(reservationModel.performance.start_time, 'hmm').format('HH:mm')} - ${moment(reservationModel.performance.end_time, 'hmm').format('HH:mm')}` %> 
                     </p>
                 </td>
             </tr>
