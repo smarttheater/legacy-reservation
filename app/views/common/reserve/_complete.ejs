@@ -1,10 +1,12 @@
 <%
+const printIds = [];
 let reservationsById = {};
 for (let reservation of reservationDocuments) {
     let _reservation = reservation.toObject();
     _reservation['ticket_type_detail_str'] = reservation.get('ticket_type_detail_str');
     _reservation['qr_str'] = reservation.get('qr_str');
     reservationsById[reservation._id.toString()] = _reservation;
+    printIds.push(`\"${reservation._id.toString()}\"`);
 }
 %>
 <input type="hidden" name="reservationsById" value="<%= JSON.stringify(reservationsById) %>">
@@ -73,8 +75,7 @@ for (let reservation of reservationDocuments) {
 
 </table>
 
-<a class="btn btn-blue" id="btn_print" href="javascript:void(0)"><span><%- __('Label.Print') %></span></a>
-
+<a class="btn btn-blue" id="btn_print_a4" target="_blank" href='/reserve/print/?ids=[<%- printIds.join(',') %>]'><span><%- __('Label.Print') %></span></a>
 
 <p class="mailnotice">
 ＜購入完了メールが届かない場合のご確認事項（ｒｙ
@@ -83,5 +84,5 @@ for (let reservation of reservationDocuments) {
 <div class="enteringguide">
     <h3>ご入場方法について</h3>
     <p>特別展望台への入場方法に関しましては<br>下記の「入場方法について」ボタンを押してご確認ください。</p>
-    <a class="btn btn-blue" href="https://www.tokyotower.co.jp/observatory/index.html"><span>入場方法について</span></a>
+    <a class="btn btn-blue btn-entering" href="https://www.tokyotower.co.jp/observatory/index.html"><span>入場方法について</span></a>
 </div>

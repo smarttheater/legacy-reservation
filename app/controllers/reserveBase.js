@@ -210,11 +210,11 @@ function saveDbFixSeatsAndTickets(reservationModel, req, choices, status) {
             if (reservation === null) {
                 debug('update error');
                 // tslint:disable-next-line:no-console
-                console.debug('update error');
+                console.log('update error');
             }
             else {
                 // tslint:disable-next-line:no-console
-                console.debug(reservation.seat_code);
+                console.log(reservation.seat_code);
                 updateCount = updateCount + 1;
                 // チケット情報+座席情報をセッションにsave
                 saveSessionFixSeatsAndTickets(req, reservationModel, reservation, choice, status);
@@ -290,7 +290,7 @@ function processFixProfile(reservationModel, req, res) {
             const errors = req.validationErrors(true);
             if (errors !== undefined) {
                 // tslint:disable-next-line:no-console
-                console.debug(errors);
+                console.log(errors);
             }
             throw new Error(req.__('Message.Invalid'));
         }

@@ -99,7 +99,25 @@
         color: red;
         letter-spacing: 1px;
     }
+
     #cardNumber {
         margin-bottom: 10px;
+    }
+
+    #cardExpirationMonth {
+        display: inline-block;
+        width: 64px;
+    }
+
+    #cardExpirationYear {
+        display: inline-block;
+        width: 80px;
+    }
+
+    .btn-securitycode {
+        color: #0ca2fe;
+        cursor: pointer;
+        text-decoration: underline;
+        margin-top: 1em;
     }
 }

@@ -229,10 +229,10 @@ async function saveDbFixSeatsAndTickets(reservationModel: ReserveSessionModel,
         if (reservation === null) {
             debug('update error');
             // tslint:disable-next-line:no-console
-            console.debug('update error');
+            console.log('update error');
         } else {
             // tslint:disable-next-line:no-console
-            console.debug((<any>reservation).seat_code);
+            console.log((<any>reservation).seat_code);
             updateCount = updateCount + 1;
             // チケット情報+座席情報をセッションにsave
             saveSessionFixSeatsAndTickets(req, reservationModel, reservation, choice, status);
@@ -316,7 +316,7 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
         const errors = req.validationErrors(true);
         if (errors !== undefined) {
             // tslint:disable-next-line:no-console
-            console.debug(errors);
+            console.log(errors);
         }
         throw new Error(req.__('Message.Invalid'));
     }
