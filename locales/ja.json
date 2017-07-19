@@ -179,7 +179,7 @@
 		"match{{fieldName}}": "{{fieldName}}が一致しません",
 		"EnterInFullWidthKatakana": "全角カタカナでご入力ください",
 		"RetypeToConfirm": "確認の為に、もう一度入力してください",
-		"SettingForLimitingEmailReception": "※HTMLメールが受信できるメールアドレスを入力ください<br>【ドメイン指定受信をご利用の場合について】<br>※ 携帯電話のドメイン指定受信をされている場合、「@tiff-ticket.net」を追加設定してください。<br>※ au(@ezweb.ne.jp)をご利用の場合、上記に加え「なりすまし規制回避リスト」にも「@tiff-ticket.net」の追加設定をしてください。",
+		"SettingForLimitingEmailReception": "※HTMLメールが受信できるメールアドレスを入力ください<br>【ドメイン指定受信をご利用の場合について】<br>※ 携帯電話のドメイン指定受信をされている場合、「@tokyotower.co.jp」を追加設定してください。<br>※ au(@ezweb.ne.jp)をご利用の場合、上記に加え「なりすまし規制回避リスト」にも「@tokyotower.co.jp」の追加設定をしてください。",
 		"UseHalfWidthAlphanumericWithoutHyphens": "半角数字、ハイフン「-」なしで入力して下さい",
 		"Sending": "送信しています...",
 		"Sent": "送信しました",
@@ -259,7 +259,8 @@
 		"inquiry": "QRコードは下記URLの予約照会画面より取得、ご確認いただけます。",
 		"inquiry-url": "https://ttts-authentication-d.azurewebsites.net/inquiry/search"		
 	},
-	"ConfirmNotesText": "・チケットの払い戻し・交換・再発行はいたしません。<br>・ 携帯電話のドメイン指定受信をされている場合、「@tiff-ticket.net」を追加設定してください。<br>・ au(@ezweb.ne.jp)をご利用の場合、上記に加え「なりすまし規制回避リスト」にも「@tiff-ticket.net」の追加設定をしてください。",
+	"ConfirmNotesText": "・チケットの払い戻し・交換・再発行はいたしません。<br>・ 携帯電話のドメイン指定受信をされている場合、「@tokyotower.co.jp」を追加設定してください。<br>・ au(@ezweb.ne.jp)をご利用の場合、上記に加え「なりすまし規制回避リスト」にも「@tokyotower.co.jp」の追加設定をしてください。",
+	"ConpleteNotesText": "<購入完了メールが届かない場合><br>・メールアドレスに不備がないか、メールの着信を拒否されていないかをご確認下さい。<br>・プロバイダー及び、携帯キャリア会社のメール設定のフィルタリング機能を有効にしている方は、「削除フォルダ」または「迷惑メールフォルダ」をご確認下さい。<br>※購入完了メールは自動送信のため再送信は致しません。<br>※購入確認は「購入番号」をお控えの上、チケット照会ページよりお願いします。",
 	"NoticeCredit": "※以下のクレジットカードの使用が可能です。",
 	"NoticeCVS": "※コンビニ決済の支払期限は、ご注文完了日を含めて3日間です。<br>※コンビニ決済の場合、手数料としてご購入1席につき150円がかかります。<br>手数料はお支払いいただく料金に含まれます。<br>※コンビニ決済が可能なコンビニは全国のファミリーマートのみとなります。",
 	"NoticeCVSMember": "コンビニ決済をご希望の方は下記電話番号までお問い合わせください。<br>050-3786-8066"

@@ -24,13 +24,13 @@
 
             <tr>
                 <th>
-                    <%- __('Label.SeatCode') %>/<%- __('Label.TicketType') %>
+                    <%- __('Label.TicketType') %>/<%- __('Label.TicketCount') %>
                 </th>
                 <td>
                     <p>
                         <% reservationModel.seatCodes.forEach((seatCode) => { %>
                             <% let reservation = new Models.Reservation(reservationModel.seatCode2reservationDocument(seatCode)); %>
-                            <%- reservation.get('seat_code') %> / <%- reservation.get(`ticket_type_detail_str`)[locale].replace(/\\/g, '&yen;') %>
+                            <%- reservation.get(`ticket_type_detail_str`)[locale].replace(/\\/g, '&yen;') %>
                             <br>
                         <% }) %>
                     </p>

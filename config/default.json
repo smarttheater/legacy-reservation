@@ -6,7 +6,7 @@
         "ct": "中文(繁體)",
         "kr": "한국어"
     },
-    "official_website_url": "http://motionpicture.jp",
+    "official_website_url": "https://www.tokyotower.co.jp/",
     "official_tel_number": "03-1234-5678",
     "meta": {
         "keywords": "TTTS_EVENT_NAME, 2016, TTTS, コンペティション,Competiton,",
@@ -14,7 +14,7 @@
     },
     "email": {
         "from": "noreply@default.ttts.motionpicture.jp",
-        "fromname": "TTTS_EVENT_NAME Online Ticket [dev]"
+        "fromname": "Tokyo Tower Online Ticket [dev]"
     },
     "gmo_payment_api_link_multi_entry": "https://pt01.mul-pay.jp/link/tshop00026838/Multi/Entry",
     "datetimes": {
