@@ -43,6 +43,9 @@ body {
         max-width: 100%;
         height: auto;
     }
+    .bold {
+        font-weight: bold;        
+    }
     .pr-bg {
         position: relative;
         >.pr-bg-image {
@@ -188,6 +191,7 @@ body {
         }
         .timenotice {
             margin-top:10px;
+            font-size: 14px;
         }
     }
     .pr-seat {

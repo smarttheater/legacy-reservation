@@ -7,7 +7,10 @@
 </head>
 <body>
 
-<% for (let reservation of reservations) { %>
+<%
+moment.locale(locale);
+for (let reservation of reservations) {
+%>
 <div class="printcontent">
 
     <div class="pr-header">
@@ -50,18 +53,13 @@
 
                         <div class="pr-time">
                             <h3>ご来塔ご予約日</h3>
-                            <strong><%- reservation.get('performance_day') %></strong>
+                            <strong><%- moment(reservation.get('performance_day'), 'YYYYMMDD').format('LL (ddd)') %></strong>
                         </div>
 
                         <div class="pr-time">
                             <h3>入塔受付時間</h3>
-                            <strong><%- reservation.get('performance_start_time') %> - <%- reservation.get('performance_end_time') %></strong>
-                        </div>
-
-                        <div class="pr-time">
-                            <h3>入塔口集合目安時間</h3>
-                            <strong>11:40 - 11:55</strong>
-                            <p class="smalltext timenotice">※混雑する場合がございますので、入塔受付時間の15分前には各入塔口にお越し下さい。</p>
+                            <strong><%- moment(reservation.get('performance_start_time'), 'HHmm').format('HH:mm') %> - <%- moment(reservation.get('performance_end_time'), 'HHmm').format('HH:mm') %></strong>
+                            <p class="smalltext timenotice">※混雑する場合がございますので、<span class="bold">入塔受付時間の15分前には各入塔口にお越し下さい。</span></p>
                         </div>
 
                         <div class="pr-ticket">
