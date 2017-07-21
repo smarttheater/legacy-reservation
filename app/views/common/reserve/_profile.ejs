@@ -73,7 +73,7 @@
                 <td>
                     <div class="wrapper-gender form-inline">
                         <label for="radio_gender0" class="form-group payment">
-                            <input type="radio" id="radio_gender0" name="gender" class="form-control" value=""<% if (!gender) { %> checked="checked"<% } %>>非選択
+                            <input type="radio" id="radio_gender0" name="gender" class="form-control" value=""<% if (!gender) { %> checked="checked"<% } %>><%- __('Label.NotSelected') %>
                         </label>
                         <label for="radio_gender1" class="form-group payment">
                             <input type="radio" id="radio_gender1" name="gender" class="form-control" value="1"<% if (gender === '1') { %> checked="checked"<% } %>><%- __('Label.Male') %>

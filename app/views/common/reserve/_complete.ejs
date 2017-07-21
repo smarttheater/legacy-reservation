@@ -31,11 +31,11 @@ for (let reservation of reservationDocuments) {
             <th><%- __('Label.PaymentNo') %></th>
             <td>
                 <span class="rsrvno"><%- reservationDocuments[0].get('payment_no') %></span><br>
-                ※予約の照会に必要な番号となりますので必ず忘れないようにしてください。
+                <%- __('Label.TransactionNumberDescription') %>
             </td>
         </tr>
         <tr>
-            <th><%- __('Label.PurchaseContentDate') %> %></th>
+            <th><%- __('Label.PurchaseContentDate') %></th>
             <td>
                 <%= moment(reservationDocuments[0].performance_day).format('Y-MM-DD') %>&nbsp;&nbsp;<%= `${moment(reservationDocuments[0].performance_start_time, 'hmm').format('HH:mm')} - ${moment(reservationDocuments[0].performance_end_time, 'hmm').format('HH:mm')}` %> 
             </td>
@@ -78,11 +78,11 @@ for (let reservation of reservationDocuments) {
 <a class="btn btn-blue" id="btn_print_a4" target="_blank" href='/reserve/print/?ids=[<%- printIds.join(',') %>]'><span><%- __('Label.Print') %></span></a>
 
 <p class="mailnotice">
-<%- __('ConpleteNotesText') %>
+<%- __('CompleteNotesText') %>
 </p>
 
 <div class="enteringguide">
-    <h3>ご入場方法について</h3>
-    <p>特別展望台への入場方法に関しましては<br>下記の「入場方法について」ボタンを押してご確認ください。</p>
-    <a class="btn btn-blue btn-entering" href="https://www.tokyotower.co.jp/observatory/index.html"><span>入場方法について</span></a>
+    <h3><%- __('label.AboutEnter') %></h3>
+    <p><%- __('message.AboutEntryDescription') %></p>
+    <a class="btn btn-blue btn-entering" href="https://www.tokyotower.co.jp/observatory/index.html"><span><%- __('Button.AboutEntry') %></span></a>
 </div>
