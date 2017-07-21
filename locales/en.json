@@ -117,7 +117,7 @@
 		"NameOfPersonWhoWillSeeFilm": "The name of the person who will see the film",
 		"AboutTicket": "About Ticket",
 		"AboutTOPDECKTicket": "\"TOP DECK TICKET\" can be entered into \"TOP DECK\" and \"Main Observatory\".",
-		"AboutEnter": "About Entry"
+		"AboutEntry": "About Entry"
 	},
 	"Button": {
 		"Send": "Send",
@@ -150,7 +150,7 @@
 		"ReserveTicketsAnotherMovie": "Reserve tickets<br>for another film.",
 		"ReserveMoreSameShow": "Reserve more tickets<br>for the same show.",
 		"ReleaseSeats": "Release cacelled seats",
-		"AboutEnter": "About Entry"
+		"AboutEntry": "About Entry"
 		
 	},
 	"Form": {
