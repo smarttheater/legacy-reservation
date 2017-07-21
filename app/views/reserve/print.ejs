@@ -58,7 +58,7 @@ for (let reservation of reservations) {
 
                         <div class="pr-time">
                             <h3>入塔受付時間</h3>
-                            <strong><%- moment(reservation.get('performance_start_time'), 'HHmm').format('HH:mm') %> - <%- moment(reservation.get('performance_end_time'), 'HHmm').format('HH:mm') %>JST</strong>
+                            <strong><%- moment(reservation.get('performance_start_time'), 'HHmm').format('HH:mm') %> - <%- moment(reservation.get('performance_end_time'), 'HHmm').format('HH:mm') %>(JST)</strong>
                             <p class="smalltext timenotice">※混雑する場合がございますので、<span class="bold">入塔受付時間の15分前には各入塔口にお越し下さい。</span></p>
                         </div>
 
