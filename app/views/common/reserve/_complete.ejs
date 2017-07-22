@@ -23,6 +23,7 @@ for (let reservation of reservationDocuments) {
 
 <h1 class="pagetitle"><%- __('h1.CompleteReservation') %></h1>
 <p class="guidetext"><%- __('Label.CompleteReservationGuideText') %></p>
+<p class="guidetext"><%- __('Label.CompleteReservationCautionText') %></p>
 
 
 <table class="table table-complete">
@@ -51,7 +52,8 @@ for (let reservation of reservationDocuments) {
                         </p>
                         <p>
                             <%- reservation.ticket_type_name[locale] || reservation.ticket_type_name.en %><br>
-                            &yen;<%- reservation.ticket_type_charge %>                          
+                            &yen;<%- reservation.ticket_type_charge %><br>
+                            <%- reservation.seat_code %>
                         </p>
                     </div>
                 </div>

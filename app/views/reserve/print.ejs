@@ -30,8 +30,8 @@ for (let reservation of reservations) {
         <img class="pr-bg-image" src="/images/print/bg_gray.png">
         <div class="pr-bg-content inner">
             <h2>
-                こちらのQRコードを入場口の認証スタッフにご提示してご入場ください。<br>
-                <span class="smalltext">(QR コードは、入塔口と大展望台入塔口もしくはTOP DECK 入塔口の2 箇所でご提示していただきます。)</span>
+                こちらのQRコードをスタッフにご提示ください。<br>
+                <span class="smalltext">(QR コードは、フットタウンもしくはTOP DECK 入口の2 箇所でご提示していただきます。)</span>
             </h2>
             <div class="wrapper-qrimg pr-bg">
                 <img src="//chart.apis.google.com/chart?chs=150x150&cht=qr&chl=<%= reservation.qr_str %>">
@@ -52,19 +52,15 @@ for (let reservation of reservations) {
                         </div>
 
                         <div class="pr-time">
-                            <h3>ご来塔ご予約日</h3>
+                            <h3>ご来塔ご予約日時</h3>
                             <strong><%- moment(reservation.get('performance_day'), 'YYYYMMDD').format('LL (ddd)') %></strong>
-                        </div>
-
-                        <div class="pr-time">
-                            <h3>入塔受付時間</h3>
                             <strong><%- moment(reservation.get('performance_start_time'), 'HHmm').format('HH:mm') %> - <%- moment(reservation.get('performance_end_time'), 'HHmm').format('HH:mm') %>(JST)</strong>
-                            <p class="smalltext timenotice">※混雑する場合がございますので、<span class="bold">入塔受付時間の15分前には各入塔口にお越し下さい。</span></p>
+                            <p class="smalltext timenotice">※混雑する場合がございますので、<br><span class="bold">15分前にお越し下さい。</span></p>
                         </div>
 
                         <div class="pr-ticket">
                             <h3>券種</h3>
-                            <strong><%- reservation.get('ticket_type_name')[locale] %> / &yen;<%- reservation.get('ticket_type_charge') %></strong>
+                            <strong><%- reservation.get('ticket_type_name')[locale] %> / &yen;<%- reservation.get('ticket_type_charge') %>&nbsp;(<%- reservation.seat_code %>)</strong>
                         </div>
 
                         <div class="pr-term">

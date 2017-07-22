@@ -117,7 +117,8 @@
 		"NameOfPersonWhoWillSeeFilm": "鑑賞者氏名",
 		"AboutTicket": "各券種に関してはこちら",
 		"AboutTOPDECKTicket": "TOP DECKチケットは、「大展望台」と「TOP DECK」へご入塔いただけます。",
-		"AboutEntry": "ご入塔方法について"
+		"AboutEntry": "ご入塔方法について",
+		"CompleteReservationCautionText": "※以下のQRコードが入場チケットとなります。保存もしくは印刷の上、御持参ください。"
 	},
 	"Button": {
 		"Send": "送信",
