@@ -71,6 +71,7 @@
             <tr class="tr-id_gender">
                 <th><label for="id_gender"><%- __('Form.FieldName.gender') %></label></th>
                 <td>
+                    <!--
                     <div class="wrapper-gender form-inline">
                         <label for="radio_gender0" class="form-group payment">
                             <input type="radio" id="radio_gender0" name="gender" class="form-control" value=""<% if (!gender) { %> checked="checked"<% } %>><%- __('Label.NotSelected') %>
@@ -82,6 +83,22 @@
                             <input type="radio" id="radio_gender2" name="gender" class="form-control" value="2"<% if (gender === '2') { %> checked="checked"<% } %>><%- __('Label.Female') %>
                         </label>
                     </div>
+                    -->
+
+                    
+                    <%
+                    let genderChoices = [
+                        {code: '', name: {ja: __('Label.NotSelected'), en:__('Label.NotSelected')}},
+                        {code: '1', name: {ja: __('Label.Male'), en: __('Label.Male')}},
+                        {code: '2', name: {ja: __('Label.Female'), en: __('Label.Female')}},
+                    ];
+                    %>
+                    <select class="form-control" name="gender">
+                        <option value="">---</option>
+                        <% for (let choice of genderChoices) { %>
+                        <option value="<%= choice.code %>"<% if (age === choice.code) { %> selected="selected"<% } %>><%- choice.name[locale] || choice.name.en %></option>
+                        <% } %>
+                    </select>
                 </td>
             </tr>
 
