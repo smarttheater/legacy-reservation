@@ -97,8 +97,10 @@ export async function getSeatProperties(req: Request, res: Response, __: NextFun
  */
 export async function print(req: Request, res: Response, next: NextFunction) {
     try {
+        // tslint:disable-next-line:no-console
         console.log('req.query', req.query);
         const ids: string[] = JSON.parse(req.query.ids);
+        // tslint:disable-next-line:no-console
         console.log('ids', ids);
         const reservations = await Models.Reservation.find(
             {

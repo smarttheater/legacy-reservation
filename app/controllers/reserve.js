@@ -89,7 +89,11 @@ exports.getSeatProperties = getSeatProperties;
 function print(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            // tslint:disable-next-line:no-console
+            console.log('req.query', req.query);
             const ids = JSON.parse(req.query.ids);
+            // tslint:disable-next-line:no-console
+            console.log('ids', ids);
             const reservations = yield ttts_domain_1.Models.Reservation.find({
                 _id: { $in: ids },
                 status: ttts_domain_1.ReservationUtil.STATUS_RESERVED
