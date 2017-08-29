@@ -51,7 +51,46 @@ header {
         }
     }
 }
-
+.menu-staff {
+    display: table;
+    height: 78px;
+    float: right;
+    >p, >a {
+        display: table-cell;
+        vertical-align: middle;
+        padding: 0 1em;
+    }
+    >a {
+        font-size: 14px;
+        &::before {
+            display: block;
+            width: 20px;
+            height: 20px;
+            margin: 5px auto;
+        }
+    }
+    .btn-newticket {
+        background-color: #eee;
+        color: #000;
+        &::before {
+            content: url(/images/common/icon-gray-search.svg);
+        }
+    }
+    .btn-mypage {
+        background-color: #eee;
+        color: #000;
+        &::before {
+            content: url(/images/common/icon-gray-search.svg);
+        }
+    }
+    .btn-logout {
+        background-color: #898989;
+        color: #fff;
+        &::before {
+            content: url(/images/common/icon-white-logout.svg);
+        }
+    }
+}
 .page-staff {
     .menu-langs {
         display: none;

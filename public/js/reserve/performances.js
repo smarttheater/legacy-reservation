@@ -1,6 +1,9 @@
+/* global moment, flatpickr */
 $(function() {
+    'use strict';
     var LOCALE = document.documentElement.getAttribute('lang');
     var API_ENDPOINT = document.querySelector('input[name="apiEndpoint"]').value;
+    var API_TOKEN = document.getElementById('input_apiToken').value;
     if (!API_ENDPOINT) { return alert('API_ENDPOINT undefined'); }
 
     // カレンダーを何日先まで表示するか
@@ -11,7 +14,6 @@ $(function() {
         CROWDED: 19,
         LAST: 9
     };
-
 
     // 空席数からCSSクラス名を得る
     var getStatusNameByRemainsNum = function(num) {
@@ -45,9 +47,14 @@ $(function() {
         // 1hごとにまとめる (start_timeの最初2文字を時間とする)
         var hourArray = [];
         var performancesByHour = {};
+        var moment_now = moment();
         performanceArray.forEach(function(performance) {
             try {
                 var hour = performance.attributes.start_time.slice(0, 2);
+                // 現在時刻より前のperformanceは無視
+                if (moment_now.isAfter(moment(performance.attributes.day + '' + performance.attributes.start_time, 'YYYYMMDDHHmm'))) {
+                    return true;
+                }
                 if (!~hourArray.indexOf(hour)) {
                     hourArray.push(hour);
                     performancesByHour[hour] = [];
@@ -102,10 +109,11 @@ $(function() {
     var search = function(condition) {
         $.ajax({
             dataType: 'json',
-            url: API_ENDPOINT + '/' + LOCALE + '/performance/search',
+            url: API_ENDPOINT + 'performances',
             type: 'GET',
             data: condition,
-            beforeSend: function() {
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('Authorization', 'Bearer ' + API_TOKEN);
                 $loading.modal();
             }
         }).done(function(body) {
@@ -123,9 +131,9 @@ $(function() {
 
 
     // 日付選択カレンダー (再読込時のために日付はsessionStorageにキープしておく)
-    window.flatpickr .localize(window.flatpickr.l10ns[LOCALE]);
+    flatpickr.localize(window.flatpickr.l10ns[LOCALE]);
     var $modal_calender = $('.modal-calender');
-    var calendar = new window.flatpickr(document.getElementById('input_performancedate'), {
+    var calendar = new flatpickr(document.getElementById('input_performancedate'), {
         appendTo: $('#calendercontainer').on('click', function(e) { e.stopPropagation(); })[0], // モーダル内コンテナに挿入しつつカレンダークリックでモーダルが閉じるのを防止
         defaultDate: window.sessionStorage.getItem('performance_ymd') || 'today',
         disableMobile: true, // 端末自前の日付選択UIを使わない

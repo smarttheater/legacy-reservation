@@ -59,7 +59,7 @@
             th {
                 text-align: left;
                 font-size: 20px;
-                padding: 0 1em;
+                padding: 0.5em 1em;
                 @media screen and (max-width: $breakpoint_tablet) {
                     padding: 10px 1em 0;
                 }
@@ -70,6 +70,7 @@
             background-color: #eee;
             td {
                 padding: 8px 16px;
+                vertical-align: middle;
             }
         }
         tfoot {

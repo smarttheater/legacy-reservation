@@ -27,27 +27,45 @@ const reserveBaseController = require("../reserveBase");
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 const PURCHASER_GROUP = TTTS.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
 /**
- * スケジュール選択(本番では存在しない、実際はポータル側のページ)
+ * スケジュール選択
  * @method performances
  * @returns {Promise<void>}
  */
-function performances(req, res, __) {
+function performances(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (req.method === 'POST') {
-            reservePerformanceForm_1.default(req);
-            const validationResult = yield req.getValidationResult();
-            if (!validationResult.isEmpty()) {
-                res.render('customer/reserve/performances');
+        try {
+            const reservationModel = session_1.default.FIND(req);
+            if (reservationModel === null) {
+                next(new Error(req.__('Message.Expired')));
                 return;
             }
-            const performaceId = req.body.performanceId;
-            res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}`);
-            return;
+            //const token: string = await getToken();
+            const token = yield TTTS.CommonUtil.getToken(process.env.API_ENDPOINT);
+            // tslint:disable-next-line:no-console
+            // console.log('token=' + JSON.stringify(token));
+            if (req.method === 'POST') {
+                reservePerformanceForm_1.default(req);
+                const validationResult = yield req.getValidationResult();
+                if (!validationResult.isEmpty()) {
+                    res.render('customer/reserve/performances');
+                    return;
+                }
+                const performaceId = req.body.performanceId;
+                res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}`);
+                return;
+            }
+            else {
+                // 仮予約あればキャンセルする
+                yield reserveBaseController.processCancelSeats(reservationModel);
+                reservationModel.save(req);
+                res.render('staff/reserve/performances', {
+                    // FilmUtil: TTTS.FilmUtil,
+                    token: token
+                });
+            }
         }
-        else {
-            res.render('customer/reserve/performances', {
-                FilmUtil: TTTS.FilmUtil
-            });
+        catch (error) {
+            next(new Error(req.__('Message.UnexpectedError')));
         }
     });
 }

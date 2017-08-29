@@ -11,11 +11,7 @@
 <% ticketInfoArray.forEach((ticketInfo, index) => { %><%- ticketInfo %>
 <% }) %>-------------------------------------
 <% /*合計枚数 */ %><%- __('Email.TotalTicketCount').replace('$reservations_length$',reservations.length) %>
-<% /* 合計金額 */ %><% if (totalCharge != '') { %><%- __('Label.TotalPrice') %>￥<%- numeral(totalCharge).format('0,0') %><%- __('Email.IncludingTax') %><% } %>
 -------------------------------------
-
-<%- __('Email.inquiry') %>
-<%- __('Email.inquiry-url') %>
 
 <%- __('Email.Notice1') %>
 <%- __('Email.Notice2') %>

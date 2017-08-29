@@ -21,28 +21,48 @@ import * as reserveBaseController from '../reserveBase';
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 const PURCHASER_GROUP: string = TTTS.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
 
+
 /**
- * スケジュール選択(本番では存在しない、実際はポータル側のページ)
+ * スケジュール選択
  * @method performances
  * @returns {Promise<void>}
  */
-export async function performances(req: Request, res: Response, __: NextFunction): Promise<void> {
-    if (req.method === 'POST') {
-        reservePerformanceForm(req);
-        const validationResult = await req.getValidationResult();
-        if (!validationResult.isEmpty()) {
-            res.render('customer/reserve/performances');
+export async function performances(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        const reservationModel = ReserveSessionModel.FIND(req);
 
+        if (reservationModel === null) {
+            next(new Error(req.__('Message.Expired')));
             return;
         }
-        const performaceId = req.body.performanceId;
-        res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}`);
 
-        return;
-    } else {
-        res.render('customer/reserve/performances', {
-            FilmUtil: TTTS.FilmUtil
-        });
+        //const token: string = await getToken();
+        const token: string = await TTTS.CommonUtil.getToken(process.env.API_ENDPOINT);
+        // tslint:disable-next-line:no-console
+        // console.log('token=' + JSON.stringify(token));
+
+        if (req.method === 'POST') {
+            reservePerformanceForm(req);
+            const validationResult = await req.getValidationResult();
+            if (!validationResult.isEmpty()) {
+                res.render('customer/reserve/performances');
+                return;
+            }
+            const performaceId = req.body.performanceId;
+            res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}`);
+            return;
+        } else {
+            // 仮予約あればキャンセルする
+            await reserveBaseController.processCancelSeats(<ReserveSessionModel>reservationModel);
+            reservationModel.save(req);
+
+            res.render('staff/reserve/performances', {
+                // FilmUtil: TTTS.FilmUtil,
+                token: token
+            });
+        }
+    } catch (error) {
+        next(new Error(req.__('Message.UnexpectedError')));
     }
 }
 

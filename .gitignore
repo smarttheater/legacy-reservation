@@ -12,6 +12,10 @@ docs
 Thumbs.db
 *.bat
 
+app/views/staff/
+public/js/staff/
+public/js/thermalprint/
+
 !.gitignore
 !.gitkeep
 

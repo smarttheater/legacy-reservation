@@ -170,6 +170,7 @@
             }
         }
         .status {
+            color: #5190cc;
             display: table-cell;
             vertical-align: middle;
             text-align: center;
@@ -202,10 +203,10 @@
                 background-color: #c30d23;
             }
             .wrapper-status {
-                color: #c30d23;
                 font-size: 36px;
             }
             .status {
+                color: #c30d23;
                 font-size: 1em;
             }
             .status::before {
@@ -228,5 +229,27 @@
                 background-image: url(/images/common/icon-status-soldout.svg);
             }
         }
+    }
+}
+
+//代理予約パフォーマンス一覧
+.page-performances.page-staff {
+    .performance {
+        .status {
+            font-size: 32px;
+            &::before {
+                content: '残';
+                width: auto;
+                height: auto;
+                margin: 0 8px 8px;
+                vertical-align: middle;
+                color: #000;
+                font-size: 20px;
+                background: none;
+            }
+        }
+    }
+    .icondescription {
+        display: none;
     }
 }

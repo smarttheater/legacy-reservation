@@ -69,17 +69,6 @@ $breakpoint_mobile:481px;
     }
 }
 
-@mixin btn-ocher {
-    background-color: #aa8d47;
-    &:hover,
-    &:active,
-    &:focus,
-    &:active:focus,
-    {
-        background-color: #ba9d57;
-    }
-}
-
 .clearfix {
     @include clearfix;
 }
@@ -89,12 +78,6 @@ body {
     background-color: #fff;
     @media screen and (max-width: $breakpoint_tablet) {
         font-size:14px;
-    }
-    &.page-staff {
-        background-color: #e9fcff;
-    }
-    &.page-sponsor {
-        background-color: #fffee6;
     }
 }
 
@@ -154,22 +137,11 @@ select {
     }
 }
 
-.text-ja,
-.text-en {
+.is-staff-inline,
+.is-staff-block {
     display: none;
 }
 
-.page-ja {
-    .text-ja {
-        display: inline;
-    }
-}
-
-.page-en {
-    .text-en {
-        display: inline;
-    }
-}
 
 .pagetitle {
     font-size: 1.5em;
@@ -292,6 +264,10 @@ select {
     }
 }
 
+.btn-thermalprint {
+    background-color: #e1894f;
+}
+
 .btn-disabled {
     cursor: default;
     pointer-events: none;
@@ -312,52 +288,14 @@ select {
     }
 }
 
-.btn-icon-mail {
-    @include btn-withIconImage;
-    >span {
-        &::after {
-            left: 0;
-            background-image: url(/images/common/icon-btn-mail.png);
-        }
-    }
-}
-
 .btn-login {
-    @include btn-ocher;
+    @include btn-red;
 }
 
 .btn-confirmcancel {
     @include btn-red;
 }
 
-.btn-newticket {
-    @include btn-blue;
-}
-
-.btn-release {
-    background-color: #d02424;
-    &:hover,
-    &:active,
-    &:focus,
-    &:active:focus,
-    {
-        background-color: #e03434;
-    }
-}
-
-.btn-showseat {
-    @include btn-withIconImage;
-    @include btn-blue;
-    width: 200px;
-    height: 50px;
-    >span {
-        &::after {
-            right: 0;
-            background-size: contain;
-            background-image: url(/images/common/icon-window.png);
-        }
-    }
-}
 
 .btns2clm {
     @include clearfix;
