@@ -45,7 +45,7 @@ export async function performances(req: Request, res: Response, next: NextFuncti
             res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}`);
             return;
         } else {
-            res.render('staff/reserve/performances', {
+            res.render('customer/reserve/performances', {
                 // FilmUtil: TTTS.FilmUtil,
                 token: token
             });

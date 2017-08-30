@@ -50,7 +50,7 @@ function performances(req, res, next) {
                 return;
             }
             else {
-                res.render('staff/reserve/performances', {
+                res.render('customer/reserve/performances', {
                     // FilmUtil: TTTS.FilmUtil,
                     token: token
                 });
