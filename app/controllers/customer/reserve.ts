@@ -23,19 +23,12 @@ const PURCHASER_GROUP: string = TTTS.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
 
 
 /**
- * スケジュール選択
+ * スケジュール選択(本番では存在しない、実際はポータル側のページ)
  * @method performances
  * @returns {Promise<void>}
  */
 export async function performances(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const reservationModel = ReserveSessionModel.FIND(req);
-
-        if (reservationModel === null) {
-            next(new Error(req.__('Message.Expired')));
-            return;
-        }
-
         //const token: string = await getToken();
         const token: string = await TTTS.CommonUtil.getToken(process.env.API_ENDPOINT);
         // tslint:disable-next-line:no-console
@@ -52,10 +45,6 @@ export async function performances(req: Request, res: Response, next: NextFuncti
             res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}`);
             return;
         } else {
-            // 仮予約あればキャンセルする
-            await reserveBaseController.processCancelSeats(<ReserveSessionModel>reservationModel);
-            reservationModel.save(req);
-
             res.render('staff/reserve/performances', {
                 // FilmUtil: TTTS.FilmUtil,
                 token: token
