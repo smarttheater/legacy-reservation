@@ -21,7 +21,6 @@ import * as reserveBaseController from '../reserveBase';
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 const PURCHASER_GROUP: string = TTTS.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
 
-
 /**
  * スケジュール選択(本番では存在しない、実際はポータル側のページ)
  * @method performances
@@ -39,10 +38,12 @@ export async function performances(req: Request, res: Response, next: NextFuncti
             const validationResult = await req.getValidationResult();
             if (!validationResult.isEmpty()) {
                 res.render('customer/reserve/performances');
+
                 return;
             }
             const performaceId = req.body.performanceId;
             res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}`);
+
             return;
         } else {
             res.render('customer/reserve/performances', {
