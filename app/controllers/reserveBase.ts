@@ -19,7 +19,7 @@ import reserveProfileForm from '../forms/reserve/reserveProfileForm';
 import reserveTicketForm from '../forms/reserve/reserveTicketForm';
 import ReserveSessionModel from '../models/reserve/session';
 
-const extraSeatNum: any = conf.get<any>('extra_seat_num');
+//const extraSeatNum: any = conf.get<any>('extra_seat_num');
 const debug = createDebug('ttts-frontend:controller:reserveBase');
 const DEFAULT_RADIX = 10;
 
@@ -33,7 +33,7 @@ const DEFAULT_RADIX = 10;
 export async function processFixSeatsAndTickets(reservationModel: ReserveSessionModel,
                                                 req: Request): Promise<void> {
     // 検証(券種が選択されていること)+チケット枚数合計計算
-    const checkInfo = await checkFixSeatsAndTickets(req);
+    const checkInfo = await checkFixSeatsAndTickets(reservationModel, req);
     if (checkInfo.status === false) {
         throw new Error(checkInfo.message);
     }
@@ -82,10 +82,12 @@ export async function processFixSeatsAndTickets(reservationModel: ReserveSession
 /**
  * 座席・券種FIXプロセス/検証処理
  *
+ * @param {ReservationModel} reservationModel
  * @param {Request} req
  * @returns {Promise<void>}
  */
-async function checkFixSeatsAndTickets(req: Request) : Promise<any> {
+async function checkFixSeatsAndTickets(reservationModel: ReserveSessionModel,
+                                       req: Request) : Promise<any> {
     const checkInfo : any = {
         status: false,
         choices: null,
@@ -111,6 +113,15 @@ async function checkFixSeatsAndTickets(req: Request) : Promise<any> {
         return checkInfo;
     }
     checkInfo.choices = choices;
+
+    // 特殊チケット情報
+    const extraSeatNum: any = {};
+    reservationModel.ticketTypes.forEach((ticketTypeInArray) => {
+        if (ticketTypeInArray.ttts_extension.category !== '0') {
+            extraSeatNum[ticketTypeInArray._id] = ticketTypeInArray.ttts_extension.required_seat_num;
+        }
+    });
+
     // チケット枚数合計計算
     choices.forEach((choice: any) => {
         // チケットセット(選択枚数分)
@@ -403,6 +414,8 @@ function initializePayment(reservationModel: ReserveSessionModel, req: Request):
  */
 export async function processCancelSeats(reservationModel: ReserveSessionModel): Promise<void> {
     const ids = reservationModel.getReservationIds();
+    const idsExtra = reservationModel.getReservationIdsExtra();
+    Array.prototype.push.apply(ids, idsExtra);
     if (ids.length > 0) {
         // セッション中の予約リストを初期化
         reservationModel.seatCodes = [];
