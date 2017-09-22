@@ -11,6 +11,7 @@ docs
 .DS_Store
 Thumbs.db
 *.bat
+temp*.json
 
 app/views/staff/
 public/js/staff/
