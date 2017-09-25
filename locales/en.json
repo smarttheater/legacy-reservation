@@ -235,8 +235,10 @@
 		"AboutEntryDescription": "Regarding how to enter the special observation platform <br> please confirm by clicking \"About the entry method\" button below.",
 		"CreditAvailable": "You can use VISA, Master, JCB, AMEX, DINERS.",
 		"TicketInfoMsg": "Thank you for your purchase. Please present the QR code of the ticket to the staff at the entrance on the day of reservation.",
+		"TicketQRAuthInfo": "(Please present QR code at 2 places of Foottown 1F's Preferred Lane and TOP DECK TOUR entrance of 2 Observatory 2F.)",
 		"TicketNotesContents": "* Ticket cancellation is possible until 23:59 3 days before coming tower day. * For cancellation of tickets, a cancellation fee of 400 yen will be charged. <br> * You can not change the date and time after purchase. Please purchase again after cancellation. * If you can not come to the tower at the appointment date and time, you may not be able to attend the tour. <br> * We will not change tickets, cancel or refund on the day. <br> * Resale of purchased tickets is strictly prohibited. We assume no responsibility for any disadvantage or damage between customers caused by resale.",
-		"FootTownInfo": "The guide staff is on standby before the entrance to the priority lane of Foot Town 1F."
+		"FootTownInfo": "The guide staff is on standby before the entrance to the priority lane of Foot Town 1F.",
+		"EntryFootTown": "Please accept reception at <span class = \"bold\"> Foottown 1F priority lane during the following hours.</span>"
 	},
 	"{{price}} yen": "{{price}} yen",
 	"Mr{{name}}": "Mr./Ms. {{name}}",

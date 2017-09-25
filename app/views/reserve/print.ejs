@@ -75,7 +75,12 @@ body {
                             <div class="pr-time">
                                 <h3><%- __('Label.PurchaseEntryTime') %></h3>
                                 <strong><%- moment(reservation.get('performance_start_time'), 'HHmm').format('HH:mm') %> - <%- moment(reservation.get('performance_end_time'), 'HHmm').format('HH:mm') %>(JST)</strong>
-                                <p class="smalltext timenotice">※●時●分～●時●分の間に、<span class="bold">フットタウン１Ｆ優先レーンで受付をすませてください。</span><br></p>
+                                <%
+                                var time = moment(reservation.get('performance_start_time'), 'HHmm').format('HH:mm');
+                                var timeEarly = moment(reservation.get('performance_start_time'), 'HHmm').add(-30, 'minutes').format('HH:mm');
+                                if (moment(reservation.get('performance_start_time'), 'HHmm').format('HH:mm') !== "09:00") { %>
+                                    <p class="smalltext timenotice">※<%- __('Message.TicketQRAuthInfo') %><br><%- timeEarly %>～<%- time %></p>
+                                <% } %>
                             </div>
     
                             <div class="pr-ticket">
