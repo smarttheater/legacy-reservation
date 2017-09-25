@@ -83,6 +83,9 @@
 		"ShowSeats": "座席を表示",
 		"PurchaseContent": "ご購入内容",
 		"PurchaseContentDate": "TOP DECK TOUR ご予約日時",
+		"PurchaseContentDay": "ツアーご予約日",
+		"PurchaseContentTime": "ツアー受付時間",
+		"PurchaseEntryTime": "フットタウン1階優先レーン受付時間",
 		"DepartmentName": "部署名",
 		"Signature": "署名",
 		"ConfirmCancel": "キャンセル確認",
@@ -105,6 +108,7 @@
 		"AdvanceTicketSalesWebsiteGuideText2": "IDとパスワードを入力して利用規約を確認の上「利用規約に同意してログイン」ボタンを押してください。",
 		"Required": "必須項目",
 		"ConfirmNotes": "注意事項(重要)",
+		"ImportantNotes": "注意事項",
 		"RedirectToThirdPartyWebsite": "外部サイトへ移動します",
 		"RequireCustomerNumberAndConfirmationNumber": "お支払いの際は以下の「お客様番号」と「確認番号」が必要となります。",
 		"CustomerNumber": "お客様番号",
@@ -118,7 +122,13 @@
 		"AboutTicket": "各券種に関してはこちら",
 		"AboutTOPDECKTicket": "TOP DECKチケットは、「大展望台」と「TOP DECK」へご入塔いただけます。",
 		"AboutEntry": "ご入塔方法について",
-		"CompleteReservationCautionText": "※以下のQRコードが入場チケットとなります。保存もしくは印刷のうえ、ご持参ください。"
+		"CompleteReservationCautionText": "※以下のQRコードが入場チケットとなります。保存もしくは印刷のうえ、ご持参ください。",
+		"TicketAndReceipt":"チケット兼領収書",
+		"ContactUsForTickets": "チケットに関するお問い合わせ",
+		"OfficialSite": "オフィシャルサイト",
+		"ContactAvailableDay": "年中無休",
+		"StaffPosition": "ご案内スタッフ待機位置",
+		"FootTown": "フットタウン 1F"
 	},
 	"Button": {
 		"Send": "送信",
@@ -221,7 +231,12 @@
 		"securitycode": "セキュリティーコードについて",
 		"TransactionNumberDescription": "※予約の照会に必要な番号となりますので必ず忘れないようにしてください。",
 		"AboutEntryDescription": "特別展望台への入場方法に関しましては<br>下記の「入場方法について」ボタンを押してご確認ください。",
-		"CreditAvailable": "VISA、Master、JCB、AMEX、DINERS をご利用いただけます。"
+		"CreditAvailable": "VISA、Master、JCB、AMEX、DINERS をご利用いただけます。",
+		"TicketInfoMsg": "ご購入ありがとうございます。ご予約当日はチケットのQRコードを、入場口のスタッフにご提示願います。",
+		"TicketQRInfo": "こちらのQRコードを、入場口のスタッフにご提示ください。",
+		"TicketQRAuthInfo": "（QRコードは、フットタウン１Ｆの優先レーンと大展望台２ＦのTOP DECK TOUR入場口の2か所でご提示願います。）",
+		"TicketNotesContents": "※チケットのキャンセルは来塔日3日前の23:59まで可能です。<br>※チケットのキャンセルについては、400円のキャンセル手数料がかかります。<br>※ご購入後の日付、時間の変更はできません。キャンセル後に再度ご購入ください。<br>※予約日時に来塔できなかった場合はツアーにご参加いただけないことがあります。<br>※当日のチケット変更およびキャンセル・払い戻しはいたしません。<br>※購入したチケットの転売は固く禁止しております。転売が原因となるお客様間の不利益や損害などに対して、一切の責任を負わないものとします。",
+		"FootTownInfo": "フットタウン1Fの優先レーン入口前に、ご案内スタッフが待機しております。"
 	},
 	"{{price}} yen": "{{price}} 円",
 	"Mr{{name}}": "{{name}} 様",

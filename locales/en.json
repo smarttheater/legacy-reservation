@@ -83,6 +83,9 @@
 		"ShowSeats": "View seats",
 		"PurchaseContent": "Ticket purchase details",
 		"PurchaseContentDate": "Visit reservation date and time",
+		"PurchaseContentDay": "Tour reservation date",
+		"PurchaseContentTime": "Tour reception hours",
+		"PurchaseEntryTime": "Foottown 1st floor priority lane reception time",
 		"DepartmentName": "Department",
 		"Signature": "Signature",
 		"ConfirmCancel": "Confirm cancellation",
@@ -105,6 +108,7 @@
 		"AdvanceTicketSalesWebsiteGuideText2": "Please read the terms and conditions above carefully and press the button to log in. Enter your ID and password.",
 		"Required": "Required",
 		"ConfirmNotes": "Notes",
+		"ImportantNotes": "Notes",
 		"RedirectToThirdPartyWebsite": "You will be redirected<br>to a third-party website.",
 		"RequireCustomerNumberAndConfirmationNumber": "Your customer number and the confirmation number below are required at the time of payment.",
 		"CustomerNumber": "Customer number",
@@ -117,7 +121,12 @@
 		"NameOfPersonWhoWillSeeFilm": "The name of the person who will see the film",
 		"AboutTicket": "About Ticket",
 		"AboutTOPDECKTicket": "\"TOP DECK TICKET\" can be entered into \"TOP DECK\" and \"Main Observatory\".",
-		"AboutEntry": "About Entry"
+		"AboutEntry": "About Entry",
+		"ContactUsForTickets": "Inquiries about tickets",
+		"OfficialSite": "OfficialSite",
+		"ContactAvailableDay": "7 days a week",
+		"StaffPosition": "Guide staff Waiting position",
+		"FootTown": "FootTown 1F"
 	},
 	"Button": {
 		"Send": "Send",
@@ -151,8 +160,10 @@
 		"ReserveMoreSameShow": "Reserve more tickets<br>for the same show.",
 		"ReleaseSeats": "Release cacelled seats",
 		"AboutEntry": "About Entry",
-		"CompleteReservationCautionText": "* The following QR code will be an entry ticket. Please save or print and bring it."
-		
+		"CompleteReservationCautionText": "* The following QR code will be an entry ticket. Please save or print and bring it.",
+		"TicketAndReceipt":"Ticket and receipt",
+		"TicketQRInfo": "Please present this QR code to staff at entrance.",
+		"TicketQRAuthInfo": "(Please present QR code at 2 places of Foottown 1F's Preferred Lane and TOP DECK TOUR entrance of 2 Observatory 2F.)"
 	},
 	"Form": {
 		"FieldName": {
@@ -222,7 +233,10 @@
 		"securitycode": "About Security Code",
 		"TransactionNumberDescription": "※Please be sure to remember as it will be the number required for inquiries of reservation.",
 		"AboutEntryDescription": "Regarding how to enter the special observation platform <br> please confirm by clicking \"About the entry method\" button below.",
-		"CreditAvailable": "You can use VISA, Master, JCB, AMEX, DINERS."
+		"CreditAvailable": "You can use VISA, Master, JCB, AMEX, DINERS.",
+		"TicketInfoMsg": "Thank you for your purchase. Please present the QR code of the ticket to the staff at the entrance on the day of reservation.",
+		"TicketNotesContents": "* Ticket cancellation is possible until 23:59 3 days before coming tower day. * For cancellation of tickets, a cancellation fee of 400 yen will be charged. <br> * You can not change the date and time after purchase. Please purchase again after cancellation. * If you can not come to the tower at the appointment date and time, you may not be able to attend the tour. <br> * We will not change tickets, cancel or refund on the day. <br> * Resale of purchased tickets is strictly prohibited. We assume no responsibility for any disadvantage or damage between customers caused by resale.",
+		"FootTownInfo": "The guide staff is on standby before the entrance to the priority lane of Foot Town 1F."
 	},
 	"{{price}} yen": "{{price}} yen",
 	"Mr{{name}}": "Mr./Ms. {{name}}",
