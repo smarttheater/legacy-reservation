@@ -173,12 +173,50 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
             try {
                 // 購入者情報FIXプロセス
                 await reserveBaseController.processFixProfile(reservationModel, req, res);
+                try {
+                        
+                    // クレジットカード決済のオーソリ、あるいは、オーダーID発行
+                    await processFixGMO(reservationModel, req);
 
-                // クレジットカード決済のオーソリ、あるいは、オーダーID発行
-                await processFixGMO(reservationModel, req);
-
-                // 予約情報確定
-                await reserveBaseController.processAllExceptConfirm(reservationModel, req);
+                    // 予約情報確定
+                    await reserveBaseController.processAllExceptConfirm(reservationModel, req);
+                } catch (e) {
+                    console.log(e);
+                    if (e.errors) {
+                        let errMsg;
+                        // errMsg = e.errors[0].userMessage
+                        switch (e.errors[0].code) {
+                            case 'E92':
+                                errMsg = '只今、大変込み合っていますので、しばらく時間をあけて再度決済を行ってください。';
+                                break;
+                            case 'G02':
+                                errMsg = 'カード残高が不足しているために、決済を完了する事が出来ませんでした。';
+                                break;
+                            case 'G03':
+                                errMsg = 'カード限度額を超えているために、決済を完了する事が出来ませんでした。';
+                                break;
+                            case 'G04':
+                                errMsg = 'カード残高が不足しているために、決済を完了する事が出来ませんでした。';
+                                break;
+                            case 'G05':
+                                errMsg = 'カード限度額を超えているために、決済を完了する事が出来ませんでした。';
+                                break;
+                            default:
+                                errMsg = 'このカードでは取引をする事が出来ません。';
+                                break;
+                        }
+                        res.render('customer/reserve/profile', {
+                            reservationModel: reservationModel,
+                            GMO_ENDPOINT: conf.get<string>('gmo_payment_endpoint'),
+                            GMO_SHOP_ID: conf.get<string>('gmo_payment_shop_id'),
+                            GMOERROR: errMsg
+                        });
+                        return
+                    } else {
+                        //GMO以外のエラーはガチエラー
+                        return next(new Error(req.__('Message.UnexpectedError')));
+                    }
+                }                    
 
                 reservationModel.save(req);
                 res.redirect('/customer/reserve/confirm');

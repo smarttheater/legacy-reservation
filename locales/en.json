@@ -150,7 +150,8 @@
 		"ReserveTicketsAnotherMovie": "Reserve tickets<br>for another film.",
 		"ReserveMoreSameShow": "Reserve more tickets<br>for the same show.",
 		"ReleaseSeats": "Release cacelled seats",
-		"AboutEntry": "About Entry"
+		"AboutEntry": "About Entry",
+		"CompleteReservationCautionText": "* The following QR code will be an entry ticket. Please save or print and bring it."
 		
 	},
 	"Form": {
@@ -183,6 +184,7 @@
 	},
 	"Message": {
 		"Searching": "Searching...",
+		"NoSchedule": "There are no cards that can be scheduled in the selected year / month.",
 		"PleaseSelectSeat": "Please select seats.",
 		"RequiredAgree": "Please check 'Agree'.",
 		"required{{fieldName}}": "Please enter {{fieldName}}.",
@@ -219,7 +221,8 @@
 		"cardNumber": "※Please enter without half-width numeric characters, hyphen \"-\"",
 		"securitycode": "About Security Code",
 		"TransactionNumberDescription": "※Please be sure to remember as it will be the number required for inquiries of reservation.",
-		"AboutEntryDescription": "Regarding how to enter the special observation platform <br> please confirm by clicking \"About the entry method\" button below."
+		"AboutEntryDescription": "Regarding how to enter the special observation platform <br> please confirm by clicking \"About the entry method\" button below.",
+		"CreditAvailable": "You can use VISA, Master, JCB, AMEX, DINERS."
 	},
 	"{{price}} yen": "{{price}} yen",
 	"Mr{{name}}": "Mr./Ms. {{name}}",
