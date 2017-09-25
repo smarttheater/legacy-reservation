@@ -79,7 +79,7 @@ body {
                                 var time = moment(reservation.get('performance_start_time'), 'HHmm').format('HH:mm');
                                 var timeEarly = moment(reservation.get('performance_start_time'), 'HHmm').add(-30, 'minutes').format('HH:mm');
                                 if (moment(reservation.get('performance_start_time'), 'HHmm').format('HH:mm') !== "09:00") { %>
-                                    <p class="smalltext timenotice">※<%- __('Message.TicketQRAuthInfo') %><br><%- timeEarly %>～<%- time %></p>
+                                    <p class="smalltext timenotice">※<%- __('Message.EntryFootTown') %><br><%- timeEarly %>～<%- time %></p>
                                 <% } %>
                             </div>
     
