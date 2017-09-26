@@ -14,7 +14,7 @@
     },
     "email": {
         "from": "noreply@default.ttts.motionpicture.jp",
-        "fromname": "Tokyo Tower Online Ticket [dev]"
+        "fromname": "Tokyo Tower Online Ticket"
     },
     "gmo_payment_api_link_multi_entry": "https://pt01.mul-pay.jp/link/tshop00026838/Multi/Entry",
     "datetimes": {
