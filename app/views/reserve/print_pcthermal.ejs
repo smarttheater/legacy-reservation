@@ -3,17 +3,18 @@
 <head>
 <meta charset="utf-8">
 <title>Tokyo Tower PRINT TICKET</title>
+<link href="/css/print.css" rel="stylesheet">
 <style>
 @page {
-    size: 50.8mm auto;
+    size: 48mm auto;
     margin: 0;
 }
 html,
 body {
-    width: 50.8mm;
+    width: 48mm;
+    margin: 0 auto;
 }
 </style>
-<link href="/css/print.css" rel="stylesheet">
 </head>
 <body>
 
@@ -25,14 +26,10 @@ for (let reservation of reservations) {
 
     <p class="pr-header">
         <img src="/images/common/logo.png"><br>
-        チケット兼領収書<br>
-        Ticket and receipt
+        チケット兼領収書
     </p>
 
-    <p class="pr-guide">こちらのQRコードを、入場口のスタッフにご提示ください。<br>
-        Please present this QR code to staff at entrance.
-    </p>
-    
+    <p class="pr-guide">QRコードを入場時にかざしてください</p>
 
     <p class="pr-qrcode">
         <img src="//chart.apis.google.com/chart?chs=150x150&cht=qr&chl=<%= reservation.qr_str %>">
@@ -44,7 +41,7 @@ for (let reservation of reservations) {
     </div>
 
     <div class="pr-date">
-        <h3>ツアーご予約日<br>-DATE-</h3>
+        <h3>ご来塔ご予約日時<br>-DATE-</h3>
         <p>
             <%- moment(reservation.performance_day, 'YYYYMMDD').format('YYYY/MM/DD') %><br>
             <%- moment(reservation.performance_start_time, 'HHmm').format('HH:mm') + '-' + moment(reservation.performance_end_time, 'HHmm').format('HH:mm') %>
@@ -53,7 +50,7 @@ for (let reservation of reservations) {
 
     <p class="pr-notice">
         ※混雑する場合がございますので、15分前にお越し下さい。<br>
-        please come 15 min before\nto avoid the crowds.
+        please come 15 min before to avoid the crowds.
     </p>
                        
     <div class="pr-ticket">
