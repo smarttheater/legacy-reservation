@@ -159,6 +159,7 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
 /**
  * 購入者情報
  */
+
 export async function profile(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
@@ -174,13 +175,14 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
                 // 購入者情報FIXプロセス
                 await reserveBaseController.processFixProfile(reservationModel, req, res);
                 try {
-                        
+
                     // クレジットカード決済のオーソリ、あるいは、オーダーID発行
                     await processFixGMO(reservationModel, req);
 
                     // 予約情報確定
                     await reserveBaseController.processAllExceptConfirm(reservationModel, req);
                 } catch (e) {
+                    // tslint:disable-next-line:no-console
                     console.log(e);
                     if (e.errors) {
                         let errMsg;
@@ -211,13 +213,16 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
                             GMO_SHOP_ID: conf.get<string>('gmo_payment_shop_id'),
                             GMOERROR: errMsg
                         });
-                        return
+
+                        return;
                     } else {
                         //GMO以外のエラーはガチエラー
-                        return next(new Error(req.__('Message.UnexpectedError')));
-                    }
-                }                    
+                        //return next(new Error(req.__('Message.UnexpectedError')));
+                        next(new Error(req.__('Message.UnexpectedError')));
 
+                        return;
+                    }
+                }
                 reservationModel.save(req);
                 res.redirect('/customer/reserve/confirm');
             } catch (error) {
