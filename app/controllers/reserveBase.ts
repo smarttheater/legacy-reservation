@@ -22,6 +22,7 @@ import ReserveSessionModel from '../models/reserve/session';
 //const extraSeatNum: any = conf.get<any>('extra_seat_num');
 const debug = createDebug('ttts-frontend:controller:reserveBase');
 const DEFAULT_RADIX = 10;
+const LENGTH_HOUR: number = 2;
 
 /**
  * 座席・券種FIXプロセス
@@ -230,6 +231,7 @@ async function saveDbFixSeatsAndTickets(reservationModel: ReserveSessionModel,
                                               '',
                                               ticketType);
     if (reservation === null) {
+
         return 0;
     }
     // 座席番号取得＆Save
@@ -240,8 +242,21 @@ async function saveDbFixSeatsAndTickets(reservationModel: ReserveSessionModel,
         { new: true }
     ).exec();
     if (reservation === null) {
+
         return 0;
     }
+
+    // 2017/11 時間ごとの予約情報更新
+    if (ticketType.ttts_extension.category !== TicketTypeGroupUtil.TICKET_TYPE_CATEGORY_NORMAL) {
+        if (!(await updateReservationPerHour(reservation._id.toString(),
+                                             reservationModel.expiredAt,
+                                             ticketType,
+                                             reservationModel.performance))) {
+
+            return 0;
+        }
+    }
+
     // チケット情報+座席情報をセッションにsave
     saveSessionFixSeatsAndTickets(req,
                                   reservationModel,
@@ -276,9 +291,59 @@ async function saveDbFixSeatsAndTickets(reservationModel: ReserveSessionModel,
 /**
  * 座席・券種FIXプロセス/予約情報をDBにsave(仮予約)
  *
+ * @param {string} reservationId
+ * @param {any} expiredAt
+ * @param {string} ticketType
+ * @param {string} performance
+ * @returns {Promise<boolean>}
+ */
+async function updateReservationPerHour (reservationId: string,
+                                         expiredAt: any,
+                                         ticketType: any,
+                                         performance: any): Promise<boolean> {
+    // 更新キー(入塔日＋時間帯)
+    const updateKey = {
+        performance_day: performance.day,
+        performance_hour: performance.start_time.slice(0, LENGTH_HOUR),
+        ticket_category: ticketType.ttts_extension.category,
+        status: ReservationUtil.STATUS_AVAILABLE
+    };
+
+    // 更新内容セット
+    const updateData: any = {
+        status: ReservationUtil.STATUS_TEMPORARY,
+        expired_at: expiredAt,
+        reservation_id: reservationId
+    };
+
+    // '予約可能'を'仮予約'に変更
+    const reservation = await Models.ReservationPerHour.findOneAndUpdate(
+        updateKey,
+        updateData,
+        {
+            new: true
+        }
+    ).exec();
+    // 更新エラー(対象データなし):既に予約済
+    if (reservation === null) {
+        debug('update hour error');
+        // tslint:disable-next-line:no-console
+        console.log('update hour error');
+    } else {
+        // tslint:disable-next-line:no-console
+        console.log((<any>reservation)._id);
+    }
+
+    return reservation !== null;
+}
+/**
+ * 座席・券種FIXプロセス/予約情報をDBにsave(仮予約)
+ *
  * @param {any} updateKey
  * @param {string} status
  * @param {any} expiredAt
+ * @param {string} seatCodeBase
+ * @param {string} ticketType
  * @returns {Promise<void>}
  */
 async function updateReservation (updateKey: any,
@@ -286,6 +351,7 @@ async function updateReservation (updateKey: any,
                                   expiredAt: any,
                                   seatCodeBase: string,
                                   ticketType: any): Promise<any> {
+
     // 更新内容セット
     const updateData: any = {
         status: status,
@@ -295,12 +361,6 @@ async function updateReservation (updateKey: any,
             seat_code_base : seatCodeBase
         }
     };
-    // // 本体分の座席番号セット
-    // if (seatCodeBase !== '' ) {
-    //     updateData.reservation_ttts_extension = {
-    //         seat_code_base : seatCodeBase
-    //     };
-    // }
     // '予約可能'を'仮予約'に変更
     const reservation = await Models.Reservation.findOneAndUpdate(
         updateKey,
@@ -309,6 +369,7 @@ async function updateReservation (updateKey: any,
             new: true
         }
     ).exec();
+
     // 更新エラー(対象データなし):次のseatへ
     if (reservation === null) {
         debug('update error');
@@ -502,6 +563,26 @@ export async function processCancelSeats(reservationModel: ReserveSessionModel):
             }
         });
         await Promise.all(promises);
+        // 2017/11 時間ごとの予約レコードのSTATUS初期化
+        const promisesHour = ids.map(async (id: any) => {
+            if (idsExtra.indexOf(id) < 0) {
+                try {
+                    await Models.ReservationPerHour.findOneAndUpdate(
+                        { reservation_id: id },
+                        {
+                             $set: { status: ReservationUtil.STATUS_AVAILABLE },
+                             $unset: { expired_at: 1, reservation_id: 1}
+                        },
+                        {
+                            new: true
+                        }
+                    ).exec();
+                } catch (error) {
+                    //失敗したとしても時間経過で消るので放置
+                }
+            }
+        });
+        await Promise.all(promisesHour);
     }
 }
 
@@ -621,12 +702,33 @@ export async function processAllExceptConfirm(reservationModel: ReserveSessionMo
     //await Promise.all(reservationModel.seatCodes.map(async (seatCode, index) => {
     await Promise.all(seatCodesAll.map(async (seatCode, index) => {
         let update = reservationModel.seatCode2reservationDocument(seatCode);
+
+        // 2017/11 本体チケットかつ特殊(車椅子)チケットの時
+        if (reservationModel.seatCodes.indexOf(seatCode) >= 0 &&
+            update.ticket_ttts_extension.category !== TicketTypeGroupUtil.TICKET_TYPE_CATEGORY_NORMAL) {
+            // 時間ごとの予約情報更新('仮予約'を'予約'に変更)
+            const reservationHour = await Models.ReservationPerHour.findOneAndUpdate(
+                {
+                    performance_day: update.performance_day,
+                    performance_hour: update.performance_start_time.slice(0, LENGTH_HOUR),
+                    ticket_category: update.ticket_ttts_extension.category,
+                    status: ReservationUtil.STATUS_TEMPORARY
+                },
+                { status: ReservationUtil.STATUS_RESERVED },
+                { new: true }
+            ).exec();
+            // 更新エラー
+            if (reservationHour === null) {
+                throw new Error(req.__('Message.UnexpectedError'));
+            }
+        }
+
         // 2017/06/19 upsate node+typesctipt
         update = {...update, ...commonUpdate};
         //update = Object.assign(update, commonUpdate);
         //---
         (<any>update).payment_seat_index = index;
-
+        // 予約情報更新
         const reservation = await Models.Reservation.findByIdAndUpdate(
             update._id,
             update,

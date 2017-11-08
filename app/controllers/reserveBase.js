@@ -27,6 +27,7 @@ const session_1 = require("../models/reserve/session");
 //const extraSeatNum: any = conf.get<any>('extra_seat_num');
 const debug = createDebug('ttts-frontend:controller:reserveBase');
 const DEFAULT_RADIX = 10;
+const LENGTH_HOUR = 2;
 /**
  * 座席・券種FIXプロセス
  *
@@ -221,6 +222,12 @@ function saveDbFixSeatsAndTickets(reservationModel, req, choiceInfo) {
         if (reservation === null) {
             return 0;
         }
+        // 2017/11 時間ごとの予約情報更新
+        if (ticketType.ttts_extension.category !== ttts_domain_1.TicketTypeGroupUtil.TICKET_TYPE_CATEGORY_NORMAL) {
+            if (!(yield updateReservationPerHour(reservation._id.toString(), reservationModel.expiredAt, ticketType, reservationModel.performance))) {
+                return 0;
+            }
+        }
         // チケット情報+座席情報をセッションにsave
         saveSessionFixSeatsAndTickets(req, reservationModel, reservation, ticketType, ttts_domain_1.ReservationUtil.STATUS_TEMPORARY);
         updateCount += 1;
@@ -242,9 +249,52 @@ function saveDbFixSeatsAndTickets(reservationModel, req, choiceInfo) {
 /**
  * 座席・券種FIXプロセス/予約情報をDBにsave(仮予約)
  *
+ * @param {string} reservationId
+ * @param {any} expiredAt
+ * @param {string} ticketType
+ * @param {string} performance
+ * @returns {Promise<boolean>}
+ */
+function updateReservationPerHour(reservationId, expiredAt, ticketType, performance) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // 更新キー(入塔日＋時間帯)
+        const updateKey = {
+            performance_day: performance.day,
+            performance_hour: performance.start_time.slice(0, LENGTH_HOUR),
+            ticket_category: ticketType.ttts_extension.category,
+            status: ttts_domain_1.ReservationUtil.STATUS_AVAILABLE
+        };
+        // 更新内容セット
+        const updateData = {
+            status: ttts_domain_1.ReservationUtil.STATUS_TEMPORARY,
+            expired_at: expiredAt,
+            reservation_id: reservationId
+        };
+        // '予約可能'を'仮予約'に変更
+        const reservation = yield ttts_domain_1.Models.ReservationPerHour.findOneAndUpdate(updateKey, updateData, {
+            new: true
+        }).exec();
+        // 更新エラー(対象データなし):既に予約済
+        if (reservation === null) {
+            debug('update hour error');
+            // tslint:disable-next-line:no-console
+            console.log('update hour error');
+        }
+        else {
+            // tslint:disable-next-line:no-console
+            console.log(reservation._id);
+        }
+        return reservation !== null;
+    });
+}
+/**
+ * 座席・券種FIXプロセス/予約情報をDBにsave(仮予約)
+ *
  * @param {any} updateKey
  * @param {string} status
  * @param {any} expiredAt
+ * @param {string} seatCodeBase
+ * @param {string} ticketType
  * @returns {Promise<void>}
  */
 function updateReservation(updateKey, status, expiredAt, seatCodeBase, ticketType) {
@@ -258,12 +308,6 @@ function updateReservation(updateKey, status, expiredAt, seatCodeBase, ticketTyp
                 seat_code_base: seatCodeBase
             }
         };
-        // // 本体分の座席番号セット
-        // if (seatCodeBase !== '' ) {
-        //     updateData.reservation_ttts_extension = {
-        //         seat_code_base : seatCodeBase
-        //     };
-        // }
         // '予約可能'を'仮予約'に変更
         const reservation = yield ttts_domain_1.Models.Reservation.findOneAndUpdate(updateKey, updateData, {
             new: true
@@ -446,6 +490,23 @@ function processCancelSeats(reservationModel) {
                 }
             }));
             yield Promise.all(promises);
+            // 2017/11 時間ごとの予約レコードのSTATUS初期化
+            const promisesHour = ids.map((id) => __awaiter(this, void 0, void 0, function* () {
+                if (idsExtra.indexOf(id) < 0) {
+                    try {
+                        yield ttts_domain_1.Models.ReservationPerHour.findOneAndUpdate({ reservation_id: id }, {
+                            $set: { status: ttts_domain_1.ReservationUtil.STATUS_AVAILABLE },
+                            $unset: { expired_at: 1, reservation_id: 1 }
+                        }, {
+                            new: true
+                        }).exec();
+                    }
+                    catch (error) {
+                        //失敗したとしても時間経過で消るので放置
+                    }
+                }
+            }));
+            yield Promise.all(promisesHour);
         }
     });
 }
@@ -555,11 +616,27 @@ function processAllExceptConfirm(reservationModel, req) {
         //await Promise.all(reservationModel.seatCodes.map(async (seatCode, index) => {
         yield Promise.all(seatCodesAll.map((seatCode, index) => __awaiter(this, void 0, void 0, function* () {
             let update = reservationModel.seatCode2reservationDocument(seatCode);
+            // 2017/11 本体チケットかつ特殊(車椅子)チケットの時
+            if (reservationModel.seatCodes.indexOf(seatCode) >= 0 &&
+                update.ticket_ttts_extension.category !== ttts_domain_1.TicketTypeGroupUtil.TICKET_TYPE_CATEGORY_NORMAL) {
+                // 時間ごとの予約情報更新('仮予約'を'予約'に変更)
+                const reservationHour = yield ttts_domain_1.Models.ReservationPerHour.findOneAndUpdate({
+                    performance_day: update.performance_day,
+                    performance_hour: update.performance_start_time.slice(0, LENGTH_HOUR),
+                    ticket_category: update.ticket_ttts_extension.category,
+                    status: ttts_domain_1.ReservationUtil.STATUS_TEMPORARY
+                }, { status: ttts_domain_1.ReservationUtil.STATUS_RESERVED }, { new: true }).exec();
+                // 更新エラー
+                if (reservationHour === null) {
+                    throw new Error(req.__('Message.UnexpectedError'));
+                }
+            }
             // 2017/06/19 upsate node+typesctipt
             update = Object.assign({}, update, commonUpdate);
             //update = Object.assign(update, commonUpdate);
             //---
             update.payment_seat_index = index;
+            // 予約情報更新
             const reservation = yield ttts_domain_1.Models.Reservation.findByIdAndUpdate(update._id, update, { new: true }).exec();
             // IDの予約ドキュメントが万が一なければ予期せぬエラー(基本的にありえないフローのはず)
             if (reservation === null) {
