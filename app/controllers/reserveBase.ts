@@ -252,6 +252,13 @@ async function saveDbFixSeatsAndTickets(reservationModel: ReserveSessionModel,
                                              reservationModel.expiredAt,
                                              ticketType,
                                              reservationModel.performance))) {
+            // 更新済の予約データクリア
+            await Models.Reservation.findByIdAndUpdate(
+                { _id: reservation._id },
+                { $set: { status: ReservationUtil.STATUS_AVAILABLE },
+                  $unset: { payment_no: 1, ticket_type: 1, expired_at: 1, ticket_ttts_extension: 1, reservation_ttts_extension: 1}},
+                { new: true }
+            ).exec();
 
             return 0;
         }
