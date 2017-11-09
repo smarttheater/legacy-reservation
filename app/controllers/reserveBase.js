@@ -616,21 +616,6 @@ function processAllExceptConfirm(reservationModel, req) {
         //await Promise.all(reservationModel.seatCodes.map(async (seatCode, index) => {
         yield Promise.all(seatCodesAll.map((seatCode, index) => __awaiter(this, void 0, void 0, function* () {
             let update = reservationModel.seatCode2reservationDocument(seatCode);
-            // 2017/11 本体チケットかつ特殊(車椅子)チケットの時
-            if (reservationModel.seatCodes.indexOf(seatCode) >= 0 &&
-                update.ticket_ttts_extension.category !== ttts_domain_1.TicketTypeGroupUtil.TICKET_TYPE_CATEGORY_NORMAL) {
-                // 時間ごとの予約情報更新('仮予約'を'予約'に変更)
-                const reservationHour = yield ttts_domain_1.Models.ReservationPerHour.findOneAndUpdate({
-                    performance_day: update.performance_day,
-                    performance_hour: update.performance_start_time.slice(0, LENGTH_HOUR),
-                    ticket_category: update.ticket_ttts_extension.category,
-                    status: ttts_domain_1.ReservationUtil.STATUS_TEMPORARY
-                }, { status: ttts_domain_1.ReservationUtil.STATUS_RESERVED }, { new: true }).exec();
-                // 更新エラー
-                if (reservationHour === null) {
-                    throw new Error(req.__('Message.UnexpectedError'));
-                }
-            }
             // 2017/06/19 upsate node+typesctipt
             update = Object.assign({}, update, commonUpdate);
             //update = Object.assign(update, commonUpdate);
@@ -669,6 +654,15 @@ function processFixReservations(reservationModel, performanceDay, paymentNo, upd
         conditions.status = ttts_domain_1.ReservationUtil.STATUS_TEMPORARY_FOR_SECURE_EXTRA;
         update.status = ttts_domain_1.ReservationUtil.STATUS_ON_KEPT_FOR_SECURE_EXTRA;
         yield ttts_domain_1.Models.Reservation.update(conditions, update, { multi: true }).exec();
+        // 2017/11 本体チケット予約情報取得
+        const reservations = getReservations(reservationModel);
+        yield Promise.all(reservations.map((reservation) => __awaiter(this, void 0, void 0, function* () {
+            // 2017/11 本体チケットかつ特殊(車椅子)チケットの時
+            if (reservation.ticket_ttts_extension.category !== ttts_domain_1.TicketTypeGroupUtil.TICKET_TYPE_CATEGORY_NORMAL) {
+                // 時間ごとの予約情報更新('仮予約'を'予約'に変更)
+                yield ttts_domain_1.Models.ReservationPerHour.findOneAndUpdate({ reservation_id: reservation._id.toString() }, { status: ttts_domain_1.ReservationUtil.STATUS_RESERVED }, { new: true }).exec();
+            }
+        })));
         try {
             // 完了メールキュー追加(あれば更新日時を更新するだけ)
             const emailQueue = yield createEmailQueue(reservationModel, res, performanceDay, paymentNo);
@@ -772,3 +766,17 @@ function createEmailQueue(reservationModel, res, performanceDay, paymentNo) {
         });
     });
 }
+/**
+ * 予約情報取得(reservationModelから)
+ *
+ * @param {ReserveSessionModel} reservationModel
+ * @returns {any[]}
+ */
+function getReservations(reservationModel) {
+    const reservations = [];
+    reservationModel.seatCodes.forEach((seatCode) => {
+        reservations.push(new ttts_domain_1.Models.Reservation(reservationModel.seatCode2reservationDocument(seatCode)));
+    });
+    return reservations;
+}
+exports.getReservations = getReservations;
