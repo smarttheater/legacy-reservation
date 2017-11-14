@@ -20,6 +20,7 @@ import * as reserveBaseController from '../reserveBase';
 
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 const PURCHASER_GROUP: string = TTTS.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
+const reserveMaxDateInfo: any = conf.get<any>('reserve_max_date');
 
 /**
  * スケジュール選択(本番では存在しない、実際はポータル側のページ)
@@ -28,10 +29,9 @@ const PURCHASER_GROUP: string = TTTS.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
  */
 export async function performances(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        //const token: string = await getToken();
         const token: string = await TTTS.CommonUtil.getToken(process.env.API_ENDPOINT);
-        // tslint:disable-next-line:no-console
-        // console.log('token=' + JSON.stringify(token));
+        // tslint:disable-next-line:no-magic-numbers
+        const reserveMaxDate: string = moment().add(reserveMaxDateInfo.type, reserveMaxDateInfo.value).format('YYYY/MM/DD');
 
         if (req.method === 'POST') {
             reservePerformanceForm(req);
@@ -48,7 +48,8 @@ export async function performances(req: Request, res: Response, next: NextFuncti
         } else {
             res.render('customer/reserve/performances', {
                 // FilmUtil: TTTS.FilmUtil,
-                token: token
+                token: token,
+                reserveMaxDate: reserveMaxDate
             });
         }
     } catch (error) {
