@@ -28,14 +28,13 @@ $(function() {
  */
 function someCallbackFunction(response) {
     // カード情報は念のため値を除去
-    var date = new Date();
     $('input[name=cardNumber]').val('');
-    $('select[name=cardExpirationYear]').val((String(date.getFullYear())));
-    $('select[name=cardExpirationMonth]').val((date.getMonth() + 1 < 10) ? '0' + String(date.getMonth() + 1) : String(date.getMonth() + 1));
+    $('select[name=cardExpirationYear]').val('');
+    $('select[name=cardExpirationMonth]').val('');
     $('input[name=securitycode]').val('');
     $('input[name=holdername]').val('');
     if (response.resultCode !== '000') {
-        alert('トークン取得エラー');
+        alert('Credit Card Error');
     } else {
         // 予め購入フォームに用意した token フィールドに、値を設定
         $('input[name=gmoTokenObject]').val(JSON.stringify(response.tokenObject));

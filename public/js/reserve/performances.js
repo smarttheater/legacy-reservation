@@ -7,7 +7,7 @@ $(function() {
     if (!API_ENDPOINT) { return alert('API_ENDPOINT undefined'); }
 
     // カレンダーを何日先まで表示するか
-    var CALENDER_DAYRANGE = 364;
+    var CALENDER_MAXDATE = document.querySelector('input[name="reserveMaxDate"]').value;
 
     // 空き状況表示切り替え閾値 (以下)
     var STATUS_THRESHOLD = {
@@ -139,7 +139,7 @@ $(function() {
         disableMobile: true, // 端末自前の日付選択UIを使わない
         locale: LOCALE,
         minDate: 'today',
-        maxDate: new Date().fp_incr(CALENDER_DAYRANGE),
+        maxDate: CALENDER_MAXDATE || new Date().fp_incr(60),
         onOpen: function() {
             $modal_calender.fadeIn(200);
         },

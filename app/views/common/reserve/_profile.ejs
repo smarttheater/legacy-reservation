@@ -110,15 +110,15 @@
                 <td>
                     <%
                     let genderChoices = [
-                        {code: '', name: {ja: __('Label.NotSelected'), en:__('Label.NotSelected')}},
-                        {code: '1', name: {ja: __('Label.Male'), en: __('Label.Male')}},
-                        {code: '2', name: {ja: __('Label.Female'), en: __('Label.Female')}},
+                        {code: '', name: 'Label.NotSelected'},
+                        {code: '1', name: 'Label.Male'},
+                        {code: '2', name: 'Label.Female'},
                     ];
                     %>
                     <select class="form-control" name="gender">
                         <option value="">---</option>
                         <% for (let choice of genderChoices) { %>
-                        <option value="<%= choice.code %>"<% if (age === choice.code) { %> selected="selected"<% } %>><%- choice.name[locale] || choice.name.en %></option>
+                        <option value="<%= choice.code %>"<% if (age === choice.code) { %> selected="selected"<% } %>><%- __(choice.name) %></option>
                         <% } %>
                     </select>
                 </td>
@@ -200,6 +200,7 @@
                 <th><label for="expire"><%- __('Form.FieldName.expire') %></label><span class="required">*</span></th>
                 <td>
                     <select name="cardExpirationMonth" id="cardExpirationMonth" class="form-control">
+                        <option value="">--</option>
                         <%
                         for (let i = 0; i < 12; i++) {
                             let num = i + 1;
@@ -209,6 +210,7 @@
                         <% } %>
                     </select> <%- __('Form.FieldName.cardExpirationMonth') %> 
                     <select name="cardExpirationYear" id="cardExpirationYear" class="form-control">
+                        <option value="">--</option>
                         <%
                         let choices = {};
                         let year2digits = moment().format('YY');
