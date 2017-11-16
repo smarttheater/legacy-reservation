@@ -37,7 +37,12 @@ function performances(req, res, next) {
         try {
             const token = yield TTTS.CommonUtil.getToken(process.env.API_ENDPOINT);
             // tslint:disable-next-line:no-magic-numbers
-            const reserveMaxDate = moment().add(reserveMaxDateInfo.type, reserveMaxDateInfo.value).format('YYYY/MM/DD');
+            //const reserveMaxDate: string = moment().add(reserveMaxDateInfo.type, reserveMaxDateInfo.value).format('YYYY/MM/DD');
+            const maxDate = moment();
+            Object.keys(reserveMaxDateInfo).forEach((key) => {
+                maxDate.add(key, reserveMaxDateInfo[key]);
+            });
+            const reserveMaxDate = maxDate.format('YYYY/MM/DD');
             if (req.method === 'POST') {
                 reservePerformanceForm_1.default(req);
                 const validationResult = yield req.getValidationResult();
