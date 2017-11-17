@@ -238,7 +238,7 @@ async function saveDbFixSeatsAndTickets(reservationModel: ReserveSessionModel,
     const seatCodeBase: string = reservation.seat_code;
     reservation = await Models.Reservation.findByIdAndUpdate(
         { _id : reservation._id },
-        { $set: {reservation_ttts_extension: {seat_code_base : seatCodeBase}}},
+        { $set: { reservation_ttts_extension: getReservationExtension(seatCodeBase) }},
         { new: true }
     ).exec();
     if (reservation === null) {
@@ -295,6 +295,20 @@ async function saveDbFixSeatsAndTickets(reservationModel: ReserveSessionModel,
     await Promise.all(promises);
 
     return updateCount;
+}
+/**
+ * 予約拡張情報の更新情報取得
+ *
+ * @param {string} seatCodeBase
+ * @returns {any}
+ */
+function getReservationExtension (seatCodeBase: string): any {
+
+    return {
+        seat_code_base : seatCodeBase,
+        refund_status: ReservationUtil.REFUND_STATUS.NONE,
+        refund_update_user: ''
+    };
 }
 /**
  * 座席・券種FIXプロセス/予約情報をDBにsave(仮予約)
@@ -365,9 +379,7 @@ async function updateReservation (updateKey: any,
         status: status,
         expired_at: expiredAt,
         ticket_ttts_extension: ticketType.ttts_extension,
-        reservation_ttts_extension: {
-            seat_code_base : seatCodeBase
-        }
+        reservation_ttts_extension: getReservationExtension(seatCodeBase)
     };
     // '予約可能'を'仮予約'に変更
     const reservation = await Models.Reservation.findOneAndUpdate(
