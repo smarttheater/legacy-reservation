@@ -30,7 +30,10 @@ interface ISection {
  */
 export default class ReserveSessionModel {
     private static SESSION_KEY: string = 'ttts-reserve-session';
-
+    /**
+     * 予約対象カテゴリ("0":一般,"1":車椅子)
+     */
+    public category: string;
     /**
      * 購入管理番号
      */

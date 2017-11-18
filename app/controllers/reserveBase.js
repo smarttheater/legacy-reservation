@@ -445,6 +445,7 @@ function processStart(purchaserGroup, req) {
         // 予約トークンを発行
         const reservationModel = new session_1.default();
         reservationModel.purchaserGroup = purchaserGroup;
+        reservationModel.category = req.query.category;
         initializePayment(reservationModel, req);
         if (!_.isEmpty(req.query.performance)) {
             // パフォーマンス指定遷移の場合 パフォーマンスFIX

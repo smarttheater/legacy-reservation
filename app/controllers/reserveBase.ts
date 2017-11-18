@@ -517,6 +517,7 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
     // 予約トークンを発行
     const reservationModel = new ReserveSessionModel();
     reservationModel.purchaserGroup = purchaserGroup;
+    reservationModel.category = req.query.category;
     initializePayment(reservationModel, req);
 
     if (!_.isEmpty(req.query.performance)) {

@@ -13,7 +13,8 @@ const customerRouter = express.Router();
 
 // 本番環境ではhomeは存在しない
 if (process.env.NODE_ENV !== 'production') {
-    customerRouter.all('/reserve/performances', customerReserveController.performances);
+    customerRouter.all('/reserve/performances/:category', customerReserveController.performances);
+    //customerRouter.post('/reserve/performances/:category', customerReserveController.performances);
 }
 customerRouter.get('/reserve/start', customerReserveController.start);
 //2017/05/11 座席選択削除

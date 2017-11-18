@@ -47,14 +47,17 @@ export async function performances(req: Request, res: Response, next: NextFuncti
                 return;
             }
             const performaceId = req.body.performanceId;
-            res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}`);
+            const category = req.body.category;
+            res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}&category=${category}`);
 
             return;
         } else {
+            const category: string = req.params.category;
             res.render('customer/reserve/performances', {
                 // FilmUtil: TTTS.FilmUtil,
                 token: token,
-                reserveMaxDate: reserveMaxDate
+                reserveMaxDate: reserveMaxDate,
+                category: category
             });
         }
     } catch (error) {

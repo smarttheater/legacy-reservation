@@ -1,11 +1,16 @@
 <%- include('./_step', {currentStepName: 'tickets'}) %>
 
 <input type="hidden" id="input_maxq" name="maxq" value="<%= conf.get('reservation_maxq') %>">
+<input type="hidden" name="category" value="<%= reservationModel.category %>">
 
 <h1 class="pagetitle"><%- __('h1.SelectTickets') %></h1>
 <p class="guidetext"><%- __('Label.SelectTicketsGuideText') %></p>
 <% if (message) { %>
 <p class="guidetext" style="color:red;"><%= message %></p>
+<% } %>
+
+<% if (reservationModel.category == "1") { %>
+<p class="guidetext" style="color:red">〇〇〇車椅子〇〇〇</p>
 <% } %>
 
 <a class="link-guide" href="https://www.tokyotower.co.jp/price/" target="_blank"><%- __('Label.AboutTicket') %></a>
