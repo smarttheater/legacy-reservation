@@ -7,7 +7,8 @@ $(function() {
     if (!API_ENDPOINT) { return alert('API_ENDPOINT undefined'); }
 
     // カレンダーを何日先まで表示するか
-    var CALENDER_MAXDATE = document.querySelector('input[name="reserveMaxDate"]').value;
+    var CALENDER_MAXDATE = document.querySelector('input[name="reserveMaxDate"]') || {};
+    CALENDER_MAXDATE = CALENDER_MAXDATE.value;
 
     // 空き状況表示切り替え閾値 (以下)
     var STATUS_THRESHOLD = {

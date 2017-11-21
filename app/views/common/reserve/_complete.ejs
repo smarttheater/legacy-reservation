@@ -34,6 +34,14 @@ for (let reservation of reservationDocuments) {
                 <%= moment(reservationDocuments[0].performance_day).format('Y-MM-DD') %>&nbsp;&nbsp;<%= `${moment(reservationDocuments[0].performance_start_time, 'hmm').format('HH:mm')} - ${moment(reservationDocuments[0].performance_end_time, 'hmm').format('HH:mm')}` %> 
             </td>
         </tr>
+        <tr class="tr-tourno">
+            <th>ツアーナンバー</th>
+            <td>
+                <p>
+                    <%- reservationDocuments[0].performance_ttts_extension.tour_number %> 
+                </p>
+            </td>
+        </tr>
         <tr class="tr-qr">
             <th><%- __('Label.QRCode') %></th>
             <td>

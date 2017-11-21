@@ -10,9 +10,9 @@
     request "^2.81.0"
     request-promise-native "^1.0.4"
 
-"@motionpicture/ttts-domain@11.7.0":
-  version "11.7.0"
-  resolved "https://registry.npmjs.org/@motionpicture/ttts-domain/-/ttts-domain-11.7.0.tgz#b12257d781d2e463d0d98e548aec11ebcc955e02"
+"@motionpicture/ttts-domain@11.8.1":
+  version "11.8.1"
+  resolved "https://registry.yarnpkg.com/@motionpicture/ttts-domain/-/ttts-domain-11.8.1.tgz#95f84ecfab4e21b65f655511583955900d416f03"
   dependencies:
     "@types/mongoose" "^4.7.18"
     "@types/request" "^2.0.3"

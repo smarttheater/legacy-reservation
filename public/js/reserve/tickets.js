@@ -47,11 +47,17 @@ $(function() {
     // 次へ
     var submitted = false;
     $(document).on('click', '.btn-next', function() {
-        if (submitted) {
-            alert('already submitted.');
+        // 予約メモ欄を無視して買おうとしている券があったらアラート
+        if (!Array.prototype.every.call(document.querySelectorAll('input[name="watcherName"]'), function(input_watcherName) {
+            var qselect = document.getElementById('select_ticketq_' + input_watcherName.getAttribute('data-ticket-code'));
+            return ((parseInt(qselect.value, 10) > 0) && input_watcherName.value);
+        })) {
+            alert('購入するチケットの予約メモは必ず入力してください');
             return false;
         }
-        submitted = true;
+        if (submitted) {
+            return false;
+        }
         $('form input[name="choices"]').val('');
         // 座席コードリストを取得
         var choices = [];
@@ -68,6 +74,7 @@ $(function() {
         if (choices.length > 0) {
             $('form input[name="choices"]').val(JSON.stringify(choices));
         }
+        submitted = true;        
         return $('form').submit();
     });
 });
