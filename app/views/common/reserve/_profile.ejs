@@ -1,6 +1,5 @@
 <%- include('./_step', {currentStepName: 'profile'}) %>
 
-<% console.log(reservationModel); %>
 
 <h1 class="pagetitle"><%- __('h1.EnterProfile') %></h1>
 
@@ -12,7 +11,7 @@
     // 代理予約
 %>
 
-    <table class="table table-profile">
+    <table class="table table-profile table-profile-staff">
         <tbody>
             <% /*ご利用金額*/ %>
             <tr class="tr-price">
@@ -48,14 +47,21 @@
       (ここでのサーバ側のバリデーターは app/forms/reserve/reserveProfileForm )
       TTTSの仕様としてそれとは別に画面側でもバリデーションを行う。
       →翻訳がサーバーでしかできない仕様なので置換用の文字列を埋め込んでおいて使いまわす。
-    */ 
+    */
+
+    // 言語に合わせて国選択の表示順位を変更
+    let preferred_countries = conf.get('preferred_countries_by_locale') || {};
+    preferred_countries = (preferred_countries[locale]) ? JSON.stringify(preferred_countries[locale]) : '';
 %>
     <input type="hidden" id="locale_errmsg_empty" value="<%-__('Message.required{{fieldName}}', { fieldName: '{{fieldName}}' }) %>">
     <input type="hidden" id="locale_errmsg_invalid" value="<%-__('Message.invalid{{fieldName}}', { fieldName: '{{fieldName}}' }) %>">
     <input type="hidden" id="locale_errmsg_maxLength" value="<%-__('Message.maxLength{{fieldName}}{{max}}', { fieldName: '{{fieldName}}', max: '{{max}}' }) %>">
     <input type="hidden" id="locale_errmsg_cardtoken" value="<%- __('Message.cardTokenError') %>">
+    <input type="hidden" id="preferred_countries" value='<%- preferred_countries %>'>
+    <input type="hidden" id="local_address" value='<%- address %>'>
+    <input type="hidden" id="local_tel" value='<%- tel %>'>
 
-    <table class="table table-profile">
+    <table class="table table-profile table-profile-customer">
         <tbody>
             <tr class="tr-name">
                 <th><%- __('Form.FieldName.name') %><span class="required">*</span></th>
@@ -100,7 +106,15 @@
             <tr class="tr-tel <% (validation && validation.tel ? 'has-error' : '') %>">
                 <th><label for="id_tel"><%- __('Form.FieldName.tel') %></label><span class="required">*</span></th>
                 <td>
-                    <input type="text" name="tel" id="id_tel" class="form-control input-required" minlength="7" maxlength="18" data-pattern="^[0-9]{7,18}$" data-fieldname="<%- __('Form.FieldName.tel') %>" value="<%= tel %>">
+                    <input type="text" name="tel" id="id_tel" class="form-control input-required" minlength="6" maxlength="15" data-pattern="^[0-9]{6,15}$" data-fieldname="<%- __('Form.FieldName.tel') %>" value="<%= tel %>">
+                    <label for="checkbox_otherregion">
+                        <input type="checkbox" id="checkbox_otherregion">Other Area
+                    </label>
+                    <div id="wrapper_tel_otherregion">
+                        <p>Enter your telephone number start with calling code (without "+" and "-")</p>
+                        <input type="text" name="tel" id="input_tel_otherregion" class="form-control" minlength="4" maxlength="15" data-pattern="^[0-9]{4,15}$" data-fieldname="<%- __('Form.FieldName.tel') %>" value="<%= tel %>" disabled="disabled">
+                    </div>
+                    <input type="hidden" name="address" id="input_country" value="<%- address %>">
                     <p class="notice">※<%- __('Message.UseHalfWidthAlphanumericWithoutHyphens') %></p>
                     <p class="errmsg errmsg-tel"><%- (validation && validation.tel ? validation.tel.msg : '') %></p>
                 </td>
@@ -153,16 +167,6 @@
                         <% for (let choice of ageChoices) { %>
                         <option value="<%= choice.code %>"<% if (age === choice.code) { %> selected="selected"<% } %>><%- choice.name %></option>
                         <% } %>
-                    </select>
-                </td>
-            </tr>
-
-            <tr class="tr-id_address">
-                <th><label for="id_address"><%- __('Form.FieldName.address') %></label></th>
-                <td>
-                    <select class="form-control" name="address">
-                        <option value="">---</option>
-                        <%- include('./_countrySelectOptions.ejs', {selected: address || ''}) %>
                     </select>
                 </td>
             </tr>
@@ -238,6 +242,7 @@
     </table>
     <input type="hidden" name="gmoTokenObject" value="">
     <input style="display:none;" type="radio" name="paymentMethod" value="0" checked="checked">
+    <script src="/js/lib/intl-tel-input/intlTelInput.min.js">
 <% } %>
 </form>
 
