@@ -104,7 +104,7 @@ $(function() {
             var regex = elm.getAttribute('data-pattern') || '';
             regex = (regex) ? new RegExp(regex) : '';
             // 電話番号についてはintlTelInputに投げる
-            if (elm.id === 'id_tel' && (!$('#id_tel').intlTelInput('isValidNumber'))) {
+            if (elm.id === 'id_tel' && (!$input_tel.intlTelInput('isValidNumber'))) {
                 error = 'invalid';
             } else if (!elm.value) {
                 error = 'empty';

@@ -1,3 +1,9 @@
+@media print {
+    .noprint {
+        display: none !important;
+    }
+}
+
 $breakpoint_tablet:801px;
 $breakpoint_mobile:481px;
 @mixin clearfix {
