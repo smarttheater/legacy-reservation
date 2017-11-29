@@ -1,8 +1,10 @@
 /* global Url */
 'use strict';
+window.ttts = {};
+window.ttts.mode = (location.href.indexOf('staff') === -1) ? 'customer' : 'staff';
 
 // プライベートブラウジング時のsessionStorage.setItemエラー回避用
-window.setSessionStorage = function(key, value) {
+window.ttts.setSessionStorage = function(key, value) {
     if (!window.sessionStorage) return;
     try {
         window.sessionStorage.setItem(key, value);
@@ -26,7 +28,7 @@ $(function() {
         if (currentLocale && select_locale.querySelector('option[value=' + currentLocale + ']')) { select_locale.value = currentLocale; }
         select_locale.onchange = function() {
             domurl.query.locale = null;
-            window.setSessionStorage('locale', this.value);
+            window.ttts.setSessionStorage('locale', this.value);
             location.replace('/language/update/' + this.value + '?cb=' + domurl.toString());
         };
     }

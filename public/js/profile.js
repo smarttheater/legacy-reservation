@@ -1,28 +1,41 @@
 /* global Multipayment */
-$(function() {
-    var is_customer = !!document.querySelector('table-profile-customer');
+window.ttts.profileformsubmitting = false;
+window.ttts.dom_input_tel = {};
+window.ttts.dom_input_tel_otherregion = {};
 
+$(function() {
     // セッションに入ってた入力値
     var local_address = document.getElementById('local_address').value || '';
     var local_tel = document.getElementById('local_tel').value || '';
 
     // 国選択兼電話番号入力欄 ( https://github.com/jackocnr/intl-tel-input )
     var $input_tel = $('#id_tel');
+    window.ttts.dom_input_tel = $input_tel[0];
     var $input_tel_otherregion = $('#input_tel_otherregion');
+    window.ttts.dom_input_tel_otherregion = $input_tel_otherregion[0];
+    
     var setCountry = function(val) {
         document.getElementById('input_country').value = (val || $input_tel.intlTelInput('getSelectedCountryData').iso2 || local_address || '').toUpperCase();
     };
     // Staffでは国選択不要なのでロードしない
     if ($.fn.intlTelInput) {
-        $.fn.intlTelInput.loadUtils('/js/lib/intl-tel-input/utils.js');
         // 言語別ごとで表示順位を上げる国を設定する
         var preferredCountries = document.getElementById('preferred_countries').value || '';
         preferredCountries = (preferredCountries) ? JSON.parse(preferredCountries) : ['jp', 'tw', 'cn', 'kr', 'us', 'fr', 'de', 'it', 'es', 'vn', 'id', 'th', 'ru'];
+
         $input_tel.intlTelInput({
             preferredCountries: preferredCountries,
-            // 数字のみで入力してもらうのでデフォルトのプレースホルダを書き換え
-            customPlaceholder: function(selectedCountryPlaceholder) {
-                return selectedCountryPlaceholder.replace(/[^0-9]/g, '');
+            utilsScript: '/js/lib/intl-tel-input/utils.js'
+        }).done(function() {
+            // セッションの値があったら適用する
+            if (local_address && local_address !== 'XX') {
+                $input_tel.intlTelInput('setCountry', local_address.toLowerCase());
+            }
+            if (local_tel) {
+                if (local_address !== 'XX') {
+                    $input_tel.intlTelInput('setNumber', local_tel);
+                }
+                $('#checkbox_otherregion').prop('checked', (local_address === 'XX')).trigger('change');
             }
         });
 
@@ -44,18 +57,9 @@ $(function() {
                 $input_tel_otherregion.removeClass('input-required');
                 setCountry();
             }
-            $input_tel[0].value = ($input_tel[0].value || '').replace(/\-\+/g, '');
-            $input_tel_otherregion[0].value = ($input_tel_otherregion[0].value || '').replace(/\-\+/g, '');
         });
 
-        // セッションの値があったら適用する
-        if (local_address && local_address !== 'XX') {
-            $input_tel.intlTelInput('setCountry', local_address.toLowerCase());
-        }
-        if (local_tel) {
-            $('#checkbox_otherregion').prop('checked', (local_address === 'XX')).trigger('change');
-        }
-    } else if (!is_customer) {
+    } else if (!window.ttts.mode === 'customer') {
         alert('failed to load intl-tel-input');
     }
 
@@ -104,8 +108,10 @@ $(function() {
             var regex = elm.getAttribute('data-pattern') || '';
             regex = (regex) ? new RegExp(regex) : '';
             // 電話番号についてはintlTelInputに投げる
-            if (elm.id === 'id_tel' && (!$input_tel.intlTelInput('isValidNumber'))) {
-                error = 'invalid';
+            if (elm.id === 'id_tel') {
+                if (!$input_tel.intlTelInput('isValidNumber')) {
+                    error = 'invalid';
+                }
             } else if (!elm.value) {
                 error = 'empty';
             } else if (maxLength && !elm.value.length > maxLength) {
@@ -128,6 +134,7 @@ $(function() {
 
     // 送信
     $('.btn-next').on('click', function() {
+        if (window.ttts.profileformsubmitting) { return false; }
         var paymentMethod = $('input[name=paymentMethod]:checked').val();
         if (paymentMethod === '0') {
             setEmailConfirm();
@@ -136,8 +143,15 @@ $(function() {
             if (!validateCreditCardInputs()) {
                 return document.querySelector('.has-error').scrollIntoView();
             }
+            window.ttts.profileformsubmitting = true;
+            $('.btn-next').addClass('btn-disabled').find('span').text(window.ttts.commonlocales.Sending);
             getToken();
         } else {
+            // 電話番号は数字だけ保存する
+            window.ttts.dom_input_tel.value = (window.ttts.dom_input_tel.value || '').replace(/\-|\+/g, '');
+            window.ttts.dom_input_tel_otherregion.value = (window.ttts.dom_input_tel_otherregion.value || '').replace(/\-|\+/g, '');
+            window.ttts.profileformsubmitting = true;
+            $('.btn-next').addClass('btn-disabled').find('span').text(window.ttts.commonlocales.Sending);
             $('form').submit();
         }
     });
@@ -152,21 +166,25 @@ $(function() {
  * @returns {void}
  */
 function someCallbackFunction(response) {
+    if (response.resultCode !== '000') {
+        var errormsgByLocale = document.getElementById('locale_errmsg_cardtoken').value;
+        $('.btn-next').removeClass('btn-disabled').find('span').text(window.ttts.commonlocales.Next);
+        window.ttts.profileformsubmitting = false;        
+        return alert(errormsgByLocale || 'Credit Card Error.');
+    }
     // カード情報は念のため値を除去
     $('input[name=cardNumber]').val('');
     $('select[name=cardExpirationYear]').val('');
     $('select[name=cardExpirationMonth]').val('');
     $('input[name=securitycode]').val('');
     $('input[name=holdername]').val('');
-    if (response.resultCode !== '000') {
-        var errormsgByLocale = document.getElementById('locale_errmsg_cardtoken').value;
-        alert(errormsgByLocale || 'Credit Card Error.');
-    } else {
-        // 予め購入フォームに用意した token フィールドに、値を設定
-        $('input[name=gmoTokenObject]').val(JSON.stringify(response.tokenObject));
-        // スクリプトからフォームを submit
-        $('form').submit();
-    }
+    // 予め購入フォームに用意した token フィールドに、値を設定
+    $('input[name=gmoTokenObject]').val(JSON.stringify(response.tokenObject));
+    // 電話番号は数字だけ保存する
+    window.ttts.dom_input_tel.value = (window.ttts.dom_input_tel.value || '').replace(/\-|\+/g, '');
+    window.ttts.dom_input_tel_otherregion.value = (window.ttts.dom_input_tel_otherregion.value || '').replace(/\-|\+/g, '');
+    // スクリプトからフォームを submit
+    $('form').submit();
 }
 
 /**

@@ -127,6 +127,7 @@
 
 <script>
 $(function() {
+    var comfirmed = false;
     var btn_next = document.getElementById('btn_next');
 
     document.getElementById('checkbox_agreed').onchange = function() {
@@ -139,7 +140,10 @@ $(function() {
     };
 
     btn_next.onclick = function() {
-        if (~this.className.indexOf('disabled')) { return false; }
+        if (~this.className.indexOf('disabled') || comfirmed) { return false; }
+        comfirmed = true;
+        btn_next.querySelector('span').innerText = window.ttts.commonlocales.Sending;
+        btn_next.classList.add('btn-disabled');
         $('<form/>', {'method': 'post'}).appendTo(document.body).submit(); // location.hrefにpostする
     };
 });
