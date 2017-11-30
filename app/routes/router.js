@@ -14,5 +14,4 @@ const router = express.Router();
 router.get('/language/update/:locale', languageController.update);
 router.get('/reserve/getSeatProperties', reserveController.getSeatProperties);
 router.get('/reserve/:performanceId/unavailableSeatCodes', reserveController.getUnavailableSeatCodes);
-router.get('/reserve/print', reserveController.print);
 exports.default = router;
