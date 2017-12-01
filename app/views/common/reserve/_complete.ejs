@@ -77,11 +77,11 @@ for (let reservation of reservationDocuments) {
 </table>
 
 
-<a class="btn btn-blue" id="btn_print_a4" target="_blank" href='<%- process.env.INQUIRY_SITE_URL %>/print/print?ids=[<%- printIds.join(',') %>]'><span><%- __('Label.Print') %></span></a>
+<a class="btn btn-blue" id="btn_print_a4" target="_blank" href='<%- process.env.INQUIRY_SITE_URL %>print/print?ids=[<%- printIds.join(',') %>]'><span><%- __('Label.Print') %></span></a>
 
 <% if (reservationDocuments[0].purchaser_group === ReservationUtil.PURCHASER_GROUP_STAFF) { %>
 <div class="thermalprint">
-    <a class="btn btn-big btn-thermalprint" id="btn_thermalprint" target="_blank" href='<%- process.env.INQUIRY_SITE_URL %>/print/print_pcthermal/?ids=[<%- printIds.join(',') %>]'><span>サーマル印刷</span></a>
+    <a class="btn btn-big btn-thermalprint" id="btn_thermalprint" target="_blank" href='<%- process.env.INQUIRY_SITE_URL %>print/print_pcthermal/?ids=[<%- printIds.join(',') %>]'><span>サーマル印刷</span></a>
 </div>
 <% } %>
 

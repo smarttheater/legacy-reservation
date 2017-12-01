@@ -71,9 +71,9 @@ $(function() {
     // 次へ
     $(document).on('click', '.btn-next', function(e) {
         // 予約メモ欄を無視して買おうとしている券があったらアラート
-        if (!Array.prototype.every.call(document.querySelectorAll('input[name="watcherName"]'), function(input_watcherName) {
+        if (Array.prototype.some.call(document.querySelectorAll('input[name="watcherName"]'), function(input_watcherName) {
             var qselect = document.getElementById('select_ticketq_' + input_watcherName.getAttribute('data-ticket-code'));
-            return ((parseInt(qselect.value, 10) > 0) && input_watcherName.value);
+            return ((parseInt(qselect.value, 10) > 0) && !input_watcherName.value);
         })) {
             alert('購入するチケットの予約メモは必ず入力してください');
             return false;

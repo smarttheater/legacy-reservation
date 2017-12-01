@@ -76,9 +76,9 @@ function start(req, res, next) {
             // tslint:disable-next-line:no-increment-decrement
             for (let i = 0; i < filmNameFullWidthLength; i++) {
                 const letter = filmNameFullWidth[i];
-                if (/[Ａ-Ｚａ-ｚ０-９]/.test(letter) ||
-                    /[\u3040-\u309F]/.test(letter) ||
-                    /[\u30A0-\u30FF]/.test(letter) ||
+                if (/[Ａ-Ｚａ-ｚ０-９]/.test(letter) || // 全角英数字
+                    /[\u3040-\u309F]/.test(letter) || // ひらがな
+                    /[\u30A0-\u30FF]/.test(letter) || // カタカナ
                     /[一-龠]/.test(letter) // 漢字
                 ) {
                     registerDisp1 += letter;

@@ -13,10 +13,6 @@ Thumbs.db
 *.bat
 temp*.json
 
-app/views/staff/
-public/js/staff/
-public/js/thermalprint/
-
 !.gitignore
 !.gitkeep
 

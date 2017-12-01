@@ -8,13 +8,15 @@
 	"On that day": "当日",
 	"h1": {
 		"Terms": "利用規約",
-		"SelectPerformance": "日時指定",
+		"SelectPerformance": "スケジュール選択",
 		"SelectSeats": "座席選択",
 		"SelectTickets": "券種選択",
 		"EnterProfile": "購入者情報入力",
 		"ConfirmReservation": "購入内容確認",
 		"CompleteReservation": "購入完了",
 		"CompleteTemporaryReservation": "仮予約完了",
+		"TicketInquiry": "チケット照会",
+		"TicketResult": "チケット内容確認",
 		"MyPage": "マイページ",
 		"AdmissionConfirm": "入場確認",
 		"Login": "ログイン",
@@ -24,7 +26,7 @@
 		"Privacy": "プライバシーポリシー",
 		"Policy": "利用規約",
 		"ActOnSpecifiedCommercialTransactions": "特定商取引法に基づく表示",
-		"ContactUs": "お問い合わせ",
+		"ContactUs": "お問合せ",
 		"AdvanceTicketSalesWebsite": "システム事故対象のお客様向け先行販売ページ"
 	},
 	"h2": {
@@ -53,6 +55,7 @@
 		"QRCode": "QRコード",
 		"TicketType": "券種",
 		"TicketCount": "枚数",
+		"WatcherName": "メモ",
 		"TotalPrice": "合計金額",
 		"Email": "メールアドレス",
 		"FullName": "お名前",
@@ -62,13 +65,19 @@
 		"AllDay": "すべての上映日",
 		"Tel": "電話番号",
 		"PaymentMethodName": {
-			"CREDIT": "クレジットカード",
-			"CVS": "コンビニ決済",
-			"CASH": "現金"
+			"0": "クレジットカード",
+			"CP": "CP支払い",
+			"I": "売掛（納品書・請求書支払い）",
+			"O": "団体予約",
+			"C": "貸切予約",
+			"F": "無料招待券"
 		},
 		"PaymentMethod": "お支払い方法",
 		"TotalCharge": "合計金額",
 		"Day": "ご来塔日時",
+		"Hour": "時",
+		"Minute": "分",
+		"FromTo": "～",
 		"UpdatedUser": "更新者",
 		"Distribution": "配布先",
 		"Actions": "操作",
@@ -115,6 +124,7 @@
 		"ConfirmationNumber": "確認番号",
 		"DateDue": "お支払い期限",
 		"HowToPay": "お支払い方法",
+		"HowToPayStaff": "決算手段",
 		"NumberOfTicketsAvailable": "取得可能残り",
 		"Male": "男性",
 		"Female": "女性",
@@ -128,7 +138,9 @@
 		"OfficialSite": "オフィシャルサイト",
 		"ContactAvailableDay": "年中無休",
 		"StaffPosition": "ご案内スタッフ待機位置",
-		"FootTown": "フットタウン 1F"
+		"FootTown": "フットタウン 1F",
+		"Leaf": "枚",
+		"QrCode":"QRコード"
 	},
 	"Button": {
 		"Send": "送信",
@@ -237,7 +249,8 @@
 		"TicketQRAuthInfo": "（QRコードは、フットタウン１Ｆの優先レーンと大展望台２ＦのTOP DECK TOUR入場口の2か所でご提示願います。）",
 		"TicketNotesContents": "※チケットのキャンセルは来塔日3日前の23:59まで可能です。<br>※チケットのキャンセルについては、400円のキャンセル手数料がかかります。<br>※ご購入後の日付、時間の変更はできません。キャンセル後に再度ご購入ください。<br>※予約日時に来塔できなかった場合はツアーにご参加いただけないことがあります。<br>※当日のチケット変更およびキャンセル・払い戻しはいたしません。<br>※購入したチケットの転売は固く禁止しております。転売が原因となるお客様間の不利益や損害などに対して、一切の責任を負わないものとします。",
 		"FootTownInfo": "フットタウン1Fの優先レーン入口前に、ご案内スタッフが待機しております。",
-		"EntryFootTown": "下記の時間の間に、<span class=\"bold\">フットタウン１Ｆ優先レーンで受付をすませてください。</span>"
+		"EntryFootTown": "下記の時間の間に、<span class=\"bold\">フットタウン１Ｆ優先レーンで受付をすませてください。</span>",
+		"ReservationNotFound": "ご指定の予約データは見つかりませんでした"		
 	},
 	"{{price}} yen": "{{price}} 円",
 	"Mr{{name}}": "{{name}} 様",
@@ -249,33 +262,12 @@
 		"Confirm": "お支払い情報確認",
 		"Complete": "購入完了"
 	},
-	"SeatsGuide": {
-		"Avalilable": {
-			"Name": "空席",
-			"Caption": "クリックで座席を選択します"
-		},
-		"Selected": {
-			"Name": "選択した席",
-			"Caption": "クリックで座席を解除します"
-		},
-		"Disabled": {
-			"Name": "購入済みの席",
-			"Caption": "既に他の方が購入済みの席です"
-		},
-		"PremiereLuxury": {
-			"Name": "プレミアラグジュアリーシート"
-		},
-		"PremiereBox": {
-			"Name": "プレミアボックスシート"
-		},
-		"FrontReclining": {
-			"Name": "フロントリクライニングシート"
-		}
-	},
 	"Email": {
 		"Title" : "東京タワー TOP DECK チケット購入完了のお知らせ",
+		"TitleCan" : "東京タワー TOP DECK チケットキャンセル完了のお知らせ",		
 		"Head1" : "この度は、「$theater_name$」のオンライン先売りチケットサービスにてご購入頂き、誠にありがとうございます。",
 		"Head2" : "お客様がご購入されましたチケットの情報は下記の通りです。",
+		"Head2Can" : "お客様がキャンセルされましたチケットの情報は下記の通りです。",		
 		"IncludingTax" : "(税込)",
 		"Notice1" : "[ご注意事項]",
 		"Notice2" : "・ご購入されたチケットの変更、キャンセル、払い戻しはいかなる場合でも致しかねます。",
@@ -285,12 +277,14 @@
 		"Foot1" : "なお、このメールは、「$theater_name$」の予約システムでチケットをご購入頂いた方にお送りしておりますが、チケット購入に覚えのない方に届いております場合は、下記お問い合わせ先までご連絡ください。",
 		"Foot2" : "※尚、このメールアドレスは送信専用となっておりますでので、ご返信頂けません。",
 		"Foot3" : "ご不明※な点がございましたら、下記番号までお問合わせください。",
+		"Foot1Can" : "なお、このメールは、「$theater_name$」の予約システムでチケットをキャンセルされた方にお送りしておりますが、チケット購入に覚えのない方に届いております場合は、下記お問い合わせ先までご連絡ください。",		
 		"Access1" : "お問い合わせはこちら",
 		"Access2" : "TEL",
 		"TotalTicketCount": "合計枚数 $reservations_length$枚",
+		"CancellationFee": "キャンセル料 \\$cancellationFee$",
 		"Leaf": "枚",
 		"inquiry": "QRコードは下記URLの予約照会画面より取得、ご確認いただけます。",
-		"inquiry-url": "https://ttts-authentication-d.azurewebsites.net/inquiry/search"		
+		"inquiry-url": "https://ttts-authentication-d.azurewebsites.net/inquiry/search"
 	},
 	"ConfirmNotesText": "（１）チケットのキャンセルはご来塔日の3日前の23:59まで可能です。<br>（２）チケットのキャンセルについては400円のキャンセル手数料が必要となります。<br>（３）入場受付時間を過ぎた場合はツアーにご参加いただけないことがあります。",
 	"CompleteNotesText": "<購入完了メールが届かない場合><br>・メールアドレスに不備がないか、メールの着信を拒否されていないかをご確認ください。<br>・プロバイダー及び、携帯キャリア会社のメール設定のフィルタリング機能を有効にしている方は、「削除フォルダ」または「迷惑メールフォルダ」をご確認ください。<br>※購入完了メールは自動送信のため再送信はいたしません。<br>※購入確認は「購入番号」をお控えのうえ、チケット照会ページよりお願いいたします。",

@@ -25,16 +25,13 @@
                 <th><%- __('Form.FieldName.paymentMethod') %><span class="required">*</span></th>
                 <td>
                     <div class="wrapper-payment form-inline">
-                        <label for="radio_payment_method0" class="form-group payment">
-                            <input type="radio" id="radio_payment_method0" name="paymentMethod" class="form-control" value="F"<% if (!paymentMethod !== 'I') { %> checked="checked"<% } %>>
-                            <%- __('Label.PaymentMethodName.FREE') %>
-                            <div class="checkedbg"></div>
-                        </label>
-                        <label for="radio_payment_method1" class="form-group payment">
-                            <input type="radio" id="radio_payment_method1" name="paymentMethod" class="form-control" value="I"<% if (!paymentMethod === 'I') { %> checked="checked"<% } %>>
-                            <%- __('Label.PaymentMethodName.INVOICE') %>
-                            <div class="checkedbg"></div>
-                        </label>
+                        <% Object.keys(conf.get('paymentMethodsForStaff')).forEach((methodCode) => { %>
+                            <label for="radio_payment_method<%- methodCode %>" class="form-group payment">
+                                <input type="radio" id="radio_payment_method<%- methodCode %>" name="paymentMethod" class="form-control" value="<%- methodCode %>"<% if (paymentMethod === methodCode ) { %> checked="checked"<% } %>>
+                                <%- __(`Label.PaymentMethodName.${methodCode}`) %>
+                                <div class="checkedbg"></div>
+                            </label>
+                        <% }) %>
                     </div>
                 </td>
             </tr>
