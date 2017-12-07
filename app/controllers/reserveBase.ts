@@ -6,7 +6,7 @@
  */
 
 import * as GMO from '@motionpicture/gmo-service';
-import { EmailQueueUtil, Models, ReservationUtil, ScreenUtil, TicketTypeGroupUtil } from '@motionpicture/ttts-domain';
+import { EmailQueueUtil, Models, PerformanceUtil, ReservationUtil, ScreenUtil, TicketTypeGroupUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as createDebug from 'debug';
 import { Request, Response } from 'express';
@@ -679,8 +679,8 @@ export async function processFixPerformance(reservationModel: ReserveSessionMode
         },
         ttts_extension: {
             tour_number: tttsExtension.tour_number,
-            refund_update_user : tttsExtension.refund_update_user,
-            refund_status : tttsExtension.refund_status
+            refund_update_user : '',
+            refund_status : PerformanceUtil.REFUND_STATUS.NONE
         }
     };
 

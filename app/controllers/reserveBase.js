@@ -588,8 +588,8 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
             },
             ttts_extension: {
                 tour_number: tttsExtension.tour_number,
-                refund_update_user: tttsExtension.refund_update_user,
-                refund_status: tttsExtension.refund_status
+                refund_update_user: '',
+                refund_status: ttts_domain_1.PerformanceUtil.REFUND_STATUS.NONE
             }
         };
         // 座席グレードリスト抽出
