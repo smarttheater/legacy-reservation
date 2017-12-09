@@ -5,12 +5,11 @@
  */
 
 import { Util as GMOUtil } from '@motionpicture/gmo-service';
-import { Models, ReservationUtil } from '@motionpicture/ttts-domain';
+import { Models, mongoose, ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import * as moment from 'moment';
-import * as mongoose from 'mongoose';
 import * as numeral from 'numeral';
 import * as sendgrid from 'sendgrid';
 import * as util from 'util';
@@ -286,7 +285,7 @@ async function sendEmail(to: string, text: string): Promise<void> {
         new sendgrid.mail.Content('text/plain', text)
     );
 
-    const sg = sendgrid(process.env.SENDGRID_API_KEY);
+    const sg = sendgrid(<string>process.env.SENDGRID_API_KEY);
     const request = sg.emptyRequest({
         host: 'api.sendgrid.com',
         method: 'POST',

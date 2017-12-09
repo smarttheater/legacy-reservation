@@ -77,8 +77,10 @@ exports.performances = performances;
 function start(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         // MPのIPは許可
-        // tslint:disable-next-line:no-empty
-        if (req.headers['x-forwarded-for'] !== undefined && /^124\.155\.113\.9$/.test(req.headers['x-forwarded-for'])) {
+        const ip = req.headers['x-forwarded-for'];
+        const regex = /^124\.155\.113\.9$/;
+        if (ip !== undefined && regex.test(ip)) {
+            // no op
         }
         else {
             // 期限指定

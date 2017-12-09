@@ -31,8 +31,10 @@ const LENGTH_HOUR: number = 2;
  * @returns {Promise<void>}
  */
 // tslint:disable-next-line:max-func-body-length
-export async function processFixSeatsAndTickets(reservationModel: ReserveSessionModel,
-                                                req: Request): Promise<void> {
+export async function processFixSeatsAndTickets(
+    reservationModel: ReserveSessionModel,
+    req: Request
+): Promise<void> {
     // 検証(券種が選択されていること)+チケット枚数合計計算
     const checkInfo = await checkFixSeatsAndTickets(reservationModel, req);
     if (checkInfo.status === false) {
@@ -58,7 +60,7 @@ export async function processFixSeatsAndTickets(reservationModel: ReserveSession
 
     // 予約情報更新(「仮予約:TEMPORARY」にアップデートする処理を枚数分実行)
     let updateCountTotal: number = 0;
-    const promises = checkInfo.choicesAll.map(async(choiceInfo: any) => {
+    const promises = checkInfo.choicesAll.map(async (choiceInfo: any) => {
         const updateCount = await saveDbFixSeatsAndTickets(
             reservationModel,
             req,
@@ -81,9 +83,11 @@ export async function processFixSeatsAndTickets(reservationModel: ReserveSession
  * @param {Request} req
  * @returns {Promise<void>}
  */
-async function checkFixSeatsAndTickets(reservationModel: ReserveSessionModel,
-                                       req: Request) : Promise<any> {
-    const checkInfo : any = {
+async function checkFixSeatsAndTickets(
+    reservationModel: ReserveSessionModel,
+    req: Request
+): Promise<any> {
+    const checkInfo: any = {
         status: false,
         choices: null,
         choicesAll: [],
@@ -95,14 +99,14 @@ async function checkFixSeatsAndTickets(reservationModel: ReserveSessionModel,
     reserveTicketForm(req);
     const validationResult = await req.getValidationResult();
     if (!validationResult.isEmpty()) {
-        checkInfo.message =  req.__('Message.Invalid');
+        checkInfo.message = req.__('Message.Invalid');
 
         return checkInfo;
     }
     // 画面から座席選択情報が生成できなければエラー
     const choices = JSON.parse(req.body.choices);
     if (!Array.isArray(choices)) {
-        checkInfo.message =  req.__('Message.UnexpectedError');
+        checkInfo.message = req.__('Message.UnexpectedError');
 
         return checkInfo;
     }
@@ -122,7 +126,7 @@ async function checkFixSeatsAndTickets(reservationModel: ReserveSessionModel,
         checkInfo.selectedCount += Number(choice.ticket_count);
         for (let index = 0; index < Number(choice.ticket_count); index += 1) {
             const choiceInfo: any = {
-                ticket_type : (<any>choice).ticket_type,
+                ticket_type: (<any>choice).ticket_type,
                 ticketCount: 1,
                 choicesExtra: [],
                 updated: false
@@ -132,7 +136,7 @@ async function checkFixSeatsAndTickets(reservationModel: ReserveSessionModel,
                 const extraCount: number = Number(extraSeatNum[(<any>choice).ticket_type]) - 1;
                 for (let indexExtra = 0; indexExtra < extraCount; indexExtra += 1) {
                     choiceInfo.choicesExtra.push({
-                        ticket_type : (<any>choice).ticket_type,
+                        ticket_type: (<any>choice).ticket_type,
                         ticketCount: 1,
                         updated: false
                     });
@@ -155,10 +159,12 @@ async function checkFixSeatsAndTickets(reservationModel: ReserveSessionModel,
  * @param {number} selectedCount
  * @returns {Promise<void>}
  */
-async function getInfoFixSeatsAndTickets(reservationModel: ReserveSessionModel,
-                                         req: Request,
-                                         selectedCount: number) : Promise<any> {
-    const info : any = {
+async function getInfoFixSeatsAndTickets(
+    reservationModel: ReserveSessionModel,
+    req: Request,
+    selectedCount: number
+): Promise<any> {
+    const info: any = {
         status: false,
         results: null,
         message: ''
@@ -166,7 +172,7 @@ async function getInfoFixSeatsAndTickets(reservationModel: ReserveSessionModel,
     // 予約可能件数取得
     const conditions: any = {
         performance: reservationModel.performance._id,
-        status : ReservationUtil.STATUS_AVAILABLE
+        status: ReservationUtil.STATUS_AVAILABLE
     };
     const count = await Models.Reservation.count(conditions).exec();
     // チケット枚数より少ない場合は、購入不可としてリターン
@@ -207,9 +213,11 @@ async function getInfoFixSeatsAndTickets(reservationModel: ReserveSessionModel,
  * @param {string} status
  * @returns {Promise<number>}
  */
-async function saveDbFixSeatsAndTickets(reservationModel: ReserveSessionModel,
-                                        req: Request,
-                                        choiceInfo: any): Promise<number> {
+async function saveDbFixSeatsAndTickets(
+    reservationModel: ReserveSessionModel,
+    req: Request,
+    choiceInfo: any
+): Promise<number> {
     // チケット情報
     // tslint:disable-next-line:max-line-length
     const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === choiceInfo.ticket_type));
@@ -225,11 +233,13 @@ async function saveDbFixSeatsAndTickets(reservationModel: ReserveSessionModel,
     let updateCount: number = 0;
 
     // 本体分の予約更新('予約可能'を'仮予約'に変更)
-    let reservation = await updateReservation(updateKey,
-                                              ReservationUtil.STATUS_TEMPORARY,
-                                              reservationModel.expiredAt,
-                                              '',
-                                              ticketType);
+    let reservation = await updateReservation(
+        updateKey,
+        ReservationUtil.STATUS_TEMPORARY,
+        reservationModel.expiredAt,
+        '',
+        ticketType
+    );
     if (reservation === null) {
 
         return 0;
@@ -237,8 +247,8 @@ async function saveDbFixSeatsAndTickets(reservationModel: ReserveSessionModel,
     // 座席番号取得＆Save
     const seatCodeBase: string = reservation.seat_code;
     reservation = await Models.Reservation.findByIdAndUpdate(
-        { _id : reservation._id },
-        { $set: { reservation_ttts_extension: getReservationExtension(seatCodeBase) }},
+        { _id: reservation._id },
+        { $set: { reservation_ttts_extension: getReservationExtension(seatCodeBase) } },
         { new: true }
     ).exec();
     if (reservation === null) {
@@ -248,15 +258,19 @@ async function saveDbFixSeatsAndTickets(reservationModel: ReserveSessionModel,
 
     // 2017/11 時間ごとの予約情報更新
     if (ticketType.ttts_extension.category !== TicketTypeGroupUtil.TICKET_TYPE_CATEGORY_NORMAL) {
-        if (!(await updateReservationPerHour(reservation._id.toString(),
-                                             reservationModel.expiredAt,
-                                             ticketType,
-                                             reservationModel.performance))) {
+        if (!(await updateReservationPerHour(
+            reservation._id.toString(),
+            reservationModel.expiredAt,
+            ticketType,
+            reservationModel.performance
+        ))) {
             // 更新済の予約データクリア
             await Models.Reservation.findByIdAndUpdate(
                 { _id: reservation._id },
-                { $set: { status: ReservationUtil.STATUS_AVAILABLE },
-                  $unset: { payment_no: 1, ticket_type: 1, expired_at: 1, ticket_ttts_extension: 1, reservation_ttts_extension: 1}},
+                {
+                    $set: { status: ReservationUtil.STATUS_AVAILABLE },
+                    $unset: { payment_no: 1, ticket_type: 1, expired_at: 1, ticket_ttts_extension: 1, reservation_ttts_extension: 1 }
+                },
                 { new: true }
             ).exec();
 
@@ -265,31 +279,37 @@ async function saveDbFixSeatsAndTickets(reservationModel: ReserveSessionModel,
     }
 
     // チケット情報+座席情報をセッションにsave
-    saveSessionFixSeatsAndTickets(req,
-                                  reservationModel,
-                                  reservation,
-                                  ticketType,
-                                  ReservationUtil.STATUS_TEMPORARY);
+    saveSessionFixSeatsAndTickets(
+        req,
+        reservationModel,
+        reservation,
+        ticketType,
+        ReservationUtil.STATUS_TEMPORARY
+    );
     updateCount += 1;
 
     // 余分確保分の予約更新
-    const promises = choiceInfo.choicesExtra.map(async() => {
+    const promises = choiceInfo.choicesExtra.map(async () => {
         // '予約可能'を'仮予約'に変更('予約可能'を'仮予約'に変更)
-        const reservationExtra = await updateReservation(updateKey,
-                                                         ReservationUtil.STATUS_TEMPORARY_FOR_SECURE_EXTRA,
-                                                         reservationModel.expiredAt,
-                                                         seatCodeBase,
-                                                         ticketType);
+        const reservationExtra = await updateReservation(
+            updateKey,
+            ReservationUtil.STATUS_TEMPORARY_FOR_SECURE_EXTRA,
+            reservationModel.expiredAt,
+            seatCodeBase,
+            ticketType
+        );
 
         // 更新エラー(対象データなし):次のseatへ
         if (reservationExtra !== null) {
             updateCount = updateCount + 1;
             // チケット情報+座席情報をセッションにsave
-            saveSessionFixSeatsAndTickets(req,
-                                          reservationModel,
-                                          reservationExtra,
-                                          ticketType,
-                                          ReservationUtil.STATUS_TEMPORARY_FOR_SECURE_EXTRA);
+            saveSessionFixSeatsAndTickets(
+                req,
+                reservationModel,
+                reservationExtra,
+                ticketType,
+                ReservationUtil.STATUS_TEMPORARY_FOR_SECURE_EXTRA
+            );
         }
     });
     await Promise.all(promises);
@@ -302,10 +322,10 @@ async function saveDbFixSeatsAndTickets(reservationModel: ReserveSessionModel,
  * @param {string} seatCodeBase
  * @returns {any}
  */
-function getReservationExtension (seatCodeBase: string): any {
+function getReservationExtension(seatCodeBase: string): any {
 
     return {
-        seat_code_base : seatCodeBase //,
+        seat_code_base: seatCodeBase //,
         // refund_status: PerformanceUtil.REFUND_STATUS.NONE,
         // refund_update_user: ''
     };
@@ -319,10 +339,12 @@ function getReservationExtension (seatCodeBase: string): any {
  * @param {string} performance
  * @returns {Promise<boolean>}
  */
-async function updateReservationPerHour (reservationId: string,
-                                         expiredAt: any,
-                                         ticketType: any,
-                                         performance: any): Promise<boolean> {
+async function updateReservationPerHour(
+    reservationId: string,
+    expiredAt: any,
+    ticketType: any,
+    performance: any
+): Promise<boolean> {
     // 更新キー(入塔日＋時間帯)
     const updateKey = {
         performance_day: performance.day,
@@ -368,17 +390,19 @@ async function updateReservationPerHour (reservationId: string,
  * @param {string} ticketType
  * @returns {Promise<void>}
  */
-async function updateReservation (updateKey: any,
-                                  status: string,
-                                  expiredAt: any,
-                                  seatCodeBase: string,
-                                  ticketType: any): Promise<any> {
+async function updateReservation(
+    updateKey: any,
+    status: string,
+    expiredAt: any,
+    seatCodeBase: string,
+    ticketType: any
+): Promise<any> {
 
     // 更新内容セット
     const updateData: any = {
         status: status,
         expired_at: expiredAt,
-        ticket_ttts_extension: ticketType.ttts_extension ,
+        ticket_ttts_extension: ticketType.ttts_extension,
         reservation_ttts_extension: getReservationExtension(seatCodeBase)
     };
     // '予約可能'を'仮予約'に変更
@@ -413,11 +437,13 @@ async function updateReservation (updateKey: any,
  * @param {string} status
  * @returns {Promise<void>}
  */
-function saveSessionFixSeatsAndTickets(req: Request,
-                                       reservationModel: ReserveSessionModel,
-                                       result: any,
-                                       ticketType: any,
-                                       status: string) : void {
+function saveSessionFixSeatsAndTickets(
+    req: Request,
+    reservationModel: ReserveSessionModel,
+    result: any,
+    ticketType: any,
+    status: string
+): void {
     // 座席情報
     const seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => (seat.code === result.seat_code));
     if (seatInfo === undefined) {
@@ -430,14 +456,14 @@ function saveSessionFixSeatsAndTickets(req: Request,
         reservationModel.seatCodesExtra.push(result.seat_code);
 
     reservationModel.setReservation(result.seat_code, {
-        _id : result._id,
-        status : result.status,
-        seat_code : result.seat_code,
-        seat_grade_name : seatInfo.grade.name,
-        seat_grade_additional_charge : seatInfo.grade.additional_charge,
-        ticket_type : ticketType._id,
-        ticket_type_name : ticketType.name,
-        ticket_type_charge : ticketType.charge,
+        _id: result._id,
+        status: result.status,
+        seat_code: result.seat_code,
+        seat_grade_name: seatInfo.grade.name,
+        seat_grade_additional_charge: seatInfo.grade.additional_charge,
+        ticket_type: ticketType._id,
+        ticket_type_name: ticketType.name,
+        ticket_type_charge: ticketType.charge,
         watcher_name: '',
         ticket_cancel_charge: ticketType.cancel_charge,
         ticket_ttts_extension: ticketType.ttts_extension,
@@ -573,8 +599,8 @@ export async function processCancelSeats(reservationModel: ReserveSessionModel):
                 await Models.Reservation.findByIdAndUpdate(
                     { _id: id },
                     {
-                         $set: { status: ReservationUtil.STATUS_AVAILABLE },
-                         $unset: { payment_no: 1, ticket_type: 1, expired_at: 1, ticket_ttts_extension: 1, reservation_ttts_extension: 1}
+                        $set: { status: ReservationUtil.STATUS_AVAILABLE },
+                        $unset: { payment_no: 1, ticket_type: 1, expired_at: 1, ticket_ttts_extension: 1, reservation_ttts_extension: 1 }
                     },
                     {
                         new: true
@@ -592,8 +618,8 @@ export async function processCancelSeats(reservationModel: ReserveSessionModel):
                     await Models.ReservationPerHour.findOneAndUpdate(
                         { reservation_id: id },
                         {
-                             $set: { status: ReservationUtil.STATUS_AVAILABLE },
-                             $unset: { expired_at: 1, reservation_id: 1}
+                            $set: { status: ReservationUtil.STATUS_AVAILABLE },
+                            $unset: { expired_at: 1, reservation_id: 1 }
                         },
                         {
                             new: true
@@ -614,11 +640,12 @@ export async function processCancelSeats(reservationModel: ReserveSessionModel):
  */
 // tslint:disable-next-line:max-func-body-length
 export async function processFixPerformance(reservationModel: ReserveSessionModel, perfomanceId: string, req: Request): Promise<void> {
+    debug('fixing performance...', perfomanceId);
     // パフォーマンス取得
     const performance = await Models.Performance.findById(
         perfomanceId,
         'day open_time start_time end_time canceled film screen screen_name theater theater_name ticket_type_group ttts_extension'
-        )
+    )
         .populate('film', 'name is_mx4d copyright') // 必要な項目だけ指定すること
         .populate('screen', 'name sections') // 必要な項目だけ指定すること
         .populate('theater', 'name address') // 必要な項目だけ指定すること
@@ -679,8 +706,8 @@ export async function processFixPerformance(reservationModel: ReserveSessionMode
         },
         ttts_extension: {
             tour_number: tttsExtension.tour_number,
-            refund_update_user : '',
-            refund_status : PerformanceUtil.REFUND_STATUS.NONE
+            refund_update_user: '',
+            refund_status: PerformanceUtil.REFUND_STATUS.NONE
         }
     };
 
@@ -731,7 +758,7 @@ export async function processAllExceptConfirm(reservationModel: ReserveSessionMo
     await Promise.all(seatCodesAll.map(async (seatCode, index) => {
         let update = reservationModel.seatCode2reservationDocument(seatCode);
         // 2017/06/19 upsate node+typesctipt
-        update = {...update, ...commonUpdate};
+        update = { ...update, ...commonUpdate };
         //update = Object.assign(update, commonUpdate);
         //---
         (<any>update).payment_seat_index = index;
@@ -755,11 +782,13 @@ export async function processAllExceptConfirm(reservationModel: ReserveSessionMo
  * @param {string} paymentNo 購入番号
  * @param {Object} update 追加更新パラメータ
  */
-export async function processFixReservations(reservationModel: ReserveSessionModel,
-                                             performanceDay: string,
-                                             paymentNo: string,
-                                             update: any,
-                                             res: Response): Promise<void> {
+export async function processFixReservations(
+    reservationModel: ReserveSessionModel,
+    performanceDay: string,
+    paymentNo: string,
+    update: any,
+    res: Response
+): Promise<void> {
     (<any>update).purchased_at = moment().valueOf();
     (<any>update).status = ReservationUtil.STATUS_RESERVED;
 
@@ -850,10 +879,12 @@ interface IEmailQueue {
  *
  * @memberOf ReserveBaseController
  */
-async function createEmailQueue(reservationModel: ReserveSessionModel,
-                                res: Response,
-                                performanceDay: string,
-                                paymentNo: string): Promise<IEmailQueue> {
+async function createEmailQueue(
+    reservationModel: ReserveSessionModel,
+    res: Response,
+    performanceDay: string,
+    paymentNo: string
+): Promise<IEmailQueue> {
     // 2017/07/10 特殊チケット対応(status: ReservationUtil.STATUS_RESERVED追加)
     const reservations: any[] = await Models.Reservation.find({
         status: ReservationUtil.STATUS_RESERVED,
@@ -877,7 +908,7 @@ async function createEmailQueue(reservationModel: ReserveSessionModel,
     // 券種ごとに合計枚数算出
     const keyName: string = 'ticket_type';
     const ticketInfos: {} = {};
-    for ( const reservation of reservations) {
+    for (const reservation of reservations) {
         // チケットタイプセット
         const dataValue = reservation[keyName];
         // チケットタイプごとにチケット情報セット
@@ -951,7 +982,7 @@ async function createEmailQueue(reservationModel: ReserveSessionModel,
  * @param {ReserveSessionModel} reservationModel
  * @returns {any[]}
  */
-export  function getReservations(reservationModel: ReserveSessionModel): any[] {
+export function getReservations(reservationModel: ReserveSessionModel): any[] {
     const reservations: any[] = [];
     reservationModel.seatCodes.forEach((seatCode) => {
         reservations.push(new Models.Reservation(reservationModel.seatCode2reservationDocument(seatCode)));

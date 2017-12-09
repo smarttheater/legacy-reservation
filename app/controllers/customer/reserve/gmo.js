@@ -25,34 +25,39 @@ const result_1 = require("../../../models/gmo/result");
 const session_1 = require("../../../models/reserve/session");
 const gmoReserveCvsController = require("./gmo/cvs");
 const debug = createDebug('ttts-frontend:controller:gmoReserve');
+const SHOP_ID = process.env.GMO_SHOP_ID;
+const SHOP_PASS = process.env.GMO_SHOP_PASS;
+if (SHOP_ID === undefined || SHOP_PASS === undefined) {
+    throw new Error('Environment variables GMO_SHOP_ID, GMO_SHOP_PASS are required for connecting to GMO. Please set them.');
+}
 /**
  * マルチバイト文字列対応String.substr
  *
  * @params {number} start
  * @params {number} length
  */
-String.prototype.mbSubstr = function (start, length) {
+String.prototype.mbSubstr = function (startPosition, length) {
     // tslint:disable-next-line:no-invalid-this
     const letters = this.split('');
     const textLength = letters.length;
     let count = 0;
-    let result = '';
+    let slicedString = '';
     // todo 文字列のループはこの書き方は本来よろしくないので、暇があったら直す
     // tslint:disable-next-line:no-increment-decrement
     for (let i = 0; i < textLength; i++) {
-        if (i + start > textLength - 1) {
+        if (i + startPosition > textLength - 1) {
             break;
         }
         // マルチバイト文字列かどうか
-        const letter = letters[i + start];
+        const letter = letters[i + startPosition];
         // tslint:disable-next-line:no-magic-numbers
         count += (querystring.escape(letter).length < 4) ? 1 : 2;
         if (count > length) {
             break;
         }
-        result += letter;
+        slicedString += letter;
     }
-    return result;
+    return slicedString;
 };
 /**
  * GMO決済を開始する
@@ -104,8 +109,8 @@ function start(req, res, next) {
             res.locals.useCredit = (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CREDIT) ? '1' : '0';
             res.locals.useCvs = (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CVS) ? '1' : '0';
             res.locals.shopPassString = gmo_service_1.Util.createShopPassString({
-                shopId: process.env.GMO_SHOP_ID,
-                shopPass: process.env.GMO_SHOP_PASS,
+                shopId: SHOP_ID,
+                shopPass: SHOP_PASS,
                 orderId: res.locals.orderID,
                 amount: reservationModel.getTotalCharge(),
                 dateTime: res.locals.dateTime

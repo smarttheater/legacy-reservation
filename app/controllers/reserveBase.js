@@ -226,8 +226,10 @@ function saveDbFixSeatsAndTickets(reservationModel, req, choiceInfo) {
         if (ticketType.ttts_extension.category !== ttts_domain_1.TicketTypeGroupUtil.TICKET_TYPE_CATEGORY_NORMAL) {
             if (!(yield updateReservationPerHour(reservation._id.toString(), reservationModel.expiredAt, ticketType, reservationModel.performance))) {
                 // 更新済の予約データクリア
-                yield ttts_domain_1.Models.Reservation.findByIdAndUpdate({ _id: reservation._id }, { $set: { status: ttts_domain_1.ReservationUtil.STATUS_AVAILABLE },
-                    $unset: { payment_no: 1, ticket_type: 1, expired_at: 1, ticket_ttts_extension: 1, reservation_ttts_extension: 1 } }, { new: true }).exec();
+                yield ttts_domain_1.Models.Reservation.findByIdAndUpdate({ _id: reservation._id }, {
+                    $set: { status: ttts_domain_1.ReservationUtil.STATUS_AVAILABLE },
+                    $unset: { payment_no: 1, ticket_type: 1, expired_at: 1, ticket_ttts_extension: 1, reservation_ttts_extension: 1 }
+                }, { new: true }).exec();
                 return 0;
             }
         }
@@ -534,6 +536,7 @@ exports.processCancelSeats = processCancelSeats;
 // tslint:disable-next-line:max-func-body-length
 function processFixPerformance(reservationModel, perfomanceId, req) {
     return __awaiter(this, void 0, void 0, function* () {
+        debug('fixing performance...', perfomanceId);
         // パフォーマンス取得
         const performance = yield ttts_domain_1.Models.Performance.findById(perfomanceId, 'day open_time start_time end_time canceled film screen screen_name theater theater_name ticket_type_group ttts_extension')
             .populate('film', 'name is_mx4d copyright') // 必要な項目だけ指定すること

@@ -29,7 +29,7 @@ const reserveMaxDateInfo: any = conf.get<any>('reserve_max_date');
  */
 export async function performances(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const token: string = await TTTS.CommonUtil.getToken(process.env.API_ENDPOINT);
+        const token: string = await TTTS.CommonUtil.getToken(<string>process.env.API_ENDPOINT);
         // tslint:disable-next-line:no-magic-numbers
         //const reserveMaxDate: string = moment().add(reserveMaxDateInfo.type, reserveMaxDateInfo.value).format('YYYY/MM/DD');
         const maxDate = moment();
@@ -70,8 +70,10 @@ export async function performances(req: Request, res: Response, next: NextFuncti
  */
 export async function start(req: Request, res: Response, next: NextFunction): Promise<void> {
     // MPのIPは許可
-    // tslint:disable-next-line:no-empty
-    if (req.headers['x-forwarded-for'] !== undefined && /^124\.155\.113\.9$/.test(req.headers['x-forwarded-for'])) {
+    const ip = <string | undefined>req.headers['x-forwarded-for'];
+    const regex = /^124\.155\.113\.9$/;
+    if (ip !== undefined && regex.test(ip)) {
+        // no op
     } else {
         // 期限指定
         if (moment() < moment(conf.get<string>('datetimes.reservation_start_customers_first'))) {
@@ -421,8 +423,8 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
             if (reservationModel.transactionGMO.status === GMO.Util.STATUS_CREDIT_AUTH) {
                 //GMOオーソリ取消
                 const alterTranIn = {
-                    shopId: process.env.GMO_SHOP_ID,
-                    shopPass: process.env.GMO_SHOP_PASS,
+                    shopId: <string>process.env.GMO_SHOP_ID,
+                    shopPass: <string>process.env.GMO_SHOP_PASS,
                     accessId: reservationModel.transactionGMO.accessId,
                     accessPass: reservationModel.transactionGMO.accessPass,
                     jobCd: GMO.Util.JOB_CD_VOID
@@ -437,8 +439,8 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
             debug('orderId:', orderId);
             const amount = reservationModel.getTotalCharge();
             const entryTranIn = {
-                shopId: process.env.GMO_SHOP_ID,
-                shopPass: process.env.GMO_SHOP_PASS,
+                shopId: <string>process.env.GMO_SHOP_ID,
+                shopPass: <string>process.env.GMO_SHOP_PASS,
                 orderId: orderId,
                 jobCd: GMO.Util.JOB_CD_AUTH,
                 amount: amount

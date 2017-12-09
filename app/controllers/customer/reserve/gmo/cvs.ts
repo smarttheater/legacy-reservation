@@ -5,13 +5,12 @@
  */
 
 import * as GMO from '@motionpicture/gmo-service';
-import { EmailQueueUtil, Models, ReservationUtil } from '@motionpicture/ttts-domain';
+import { EmailQueueUtil, Models, mongoose, ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as crypto from 'crypto';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import * as moment from 'moment';
-import * as mongoose from 'mongoose';
 import * as numeral from 'numeral';
 import * as util from 'util';
 

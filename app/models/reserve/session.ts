@@ -272,7 +272,7 @@ export default class ReserveSessionModel {
             purchaser_gender: (this.purchaser !== undefined) ? this.purchaser.gender : '',
             payment_method: (this.paymentMethod !== undefined) ? this.paymentMethod : '',
 
-            watcher_name: (reservation.watcher_name !== undefined ) ? reservation.watcher_name : '',
+            watcher_name: (reservation.watcher_name !== undefined) ? reservation.watcher_name : '',
             watcher_name_updated_at: (reservation.watcher_name !== undefined && reservation.watcher_name !== '') ? moment().valueOf() : '',
 
             purchased_at: this.purchasedAt
@@ -379,8 +379,8 @@ interface IExtensionTiket {
  */
 interface IExtensionPerformance {
     tour_number: string;
-    refund_update_user : string;
-    refund_status : string;
+    refund_update_user: string;
+    refund_status: string;
 }
 /**
  * 多言語情報インターフェース
