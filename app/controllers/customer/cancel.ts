@@ -4,8 +4,7 @@
  * @namespace controller/customer/cancel
  */
 
-import { Util as GMOUtil } from '@motionpicture/gmo-service';
-import { Models, mongoose, ReservationUtil } from '@motionpicture/ttts-domain';
+import { GMO, Models, mongoose, ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
@@ -159,7 +158,7 @@ export async function executeByPaymentNo(req: Request, res: Response, __: NextFu
             return;
         }
 
-        if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CREDIT) {
+        if (reservations[0].get('payment_method') === GMO.utils.util.PayType.Credit) {
             debug('removing reservations by customer... payment_no:', paymentNo);
             await Models.Reservation.remove(
                 {
@@ -195,7 +194,7 @@ export async function executeByPaymentNo(req: Request, res: Response, __: NextFu
                     moment: moment,
                     numeral: numeral,
                     conf: conf,
-                    GMOUtil: GMOUtil,
+                    GMOUtil: GMO.utils.util,
                     ReservationUtil: ReservationUtil
                 },
                 async (renderErr, text) => {
@@ -220,7 +219,7 @@ export async function executeByPaymentNo(req: Request, res: Response, __: NextFu
                     }
                 }
             );
-        } else if (reservations[0].get('payment_method') === GMOUtil.PAY_TYPE_CVS) {
+        } else if (reservations[0].get('payment_method') === GMO.utils.util.PayType.Cvs) {
             // コンビニ決済の場合
             res.json({
                 success: false,

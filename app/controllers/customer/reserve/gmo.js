@@ -14,7 +14,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const gmo_service_1 = require("@motionpicture/gmo-service");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const createDebug = require("debug");
 const moment = require("moment");
@@ -106,9 +105,9 @@ function start(req, res, next) {
             res.locals.reserveNo = reservationModel.paymentNo;
             res.locals.amount = reservationModel.getTotalCharge().toString();
             res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
-            res.locals.useCredit = (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CREDIT) ? '1' : '0';
-            res.locals.useCvs = (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CVS) ? '1' : '0';
-            res.locals.shopPassString = gmo_service_1.Util.createShopPassString({
+            res.locals.useCredit = (reservationModel.paymentMethod === ttts_domain_1.GMO.utils.util.PayType.Credit) ? '1' : '0';
+            res.locals.useCvs = (reservationModel.paymentMethod === ttts_domain_1.GMO.utils.util.PayType.Cvs) ? '1' : '0';
+            res.locals.shopPassString = ttts_domain_1.GMO.utils.util.createShopPassString({
                 shopId: SHOP_ID,
                 shopPass: SHOP_PASS,
                 orderId: res.locals.orderID,
@@ -158,7 +157,7 @@ function result(req, res, next) {
         else {
             // 決済方法によって振り分け
             switch (gmoResultModel.PayType) {
-                case gmo_service_1.Util.PAY_TYPE_CVS:
+                case ttts_domain_1.GMO.utils.util.PayType.Cvs:
                     debug('starting GMOReserveCsvController.result...');
                     yield gmoReserveCvsController.result(gmoResultModel, req, res, next);
                     break;

@@ -19,7 +19,7 @@ import * as favicon from 'serve-favicon';
 import * as _ from 'underscore';
 
 import basicAuth from './middlewares/basicAuth';
-import benchmarks from './middlewares/benchmarks';
+// import benchmarks from './middlewares/benchmarks';
 import errorHandler from './middlewares/errorHandler';
 import notFoundHandler from './middlewares/notFoundHandler';
 import session from './middlewares/session';
@@ -34,7 +34,7 @@ const app = express();
 
 app.use(partials()); // レイアウト&パーシャルサポート
 
-app.use(benchmarks); // ベンチマーク的な
+// app.use(benchmarks); // ベンチマーク的な
 app.use(session); // セッション
 app.use(basicAuth); // ベーシック認証
 

@@ -18,7 +18,7 @@ const multer = require("multer");
 const favicon = require("serve-favicon");
 const _ = require("underscore");
 const basicAuth_1 = require("./middlewares/basicAuth");
-const benchmarks_1 = require("./middlewares/benchmarks");
+// import benchmarks from './middlewares/benchmarks';
 const errorHandler_1 = require("./middlewares/errorHandler");
 const notFoundHandler_1 = require("./middlewares/notFoundHandler");
 const session_1 = require("./middlewares/session");
@@ -28,7 +28,7 @@ const router_1 = require("./routes/router");
 const mongooseConnectionOptions_1 = require("../mongooseConnectionOptions");
 const app = express();
 app.use(partials()); // レイアウト&パーシャルサポート
-app.use(benchmarks_1.default); // ベンチマーク的な
+// app.use(benchmarks); // ベンチマーク的な
 app.use(session_1.default); // セッション
 app.use(basicAuth_1.default); // ベーシック認証
 if (process.env.NODE_ENV !== 'production') {

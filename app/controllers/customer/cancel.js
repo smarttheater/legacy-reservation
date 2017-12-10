@@ -13,7 +13,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const gmo_service_1 = require("@motionpicture/gmo-service");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const createDebug = require("debug");
@@ -147,7 +146,7 @@ function executeByPaymentNo(req, res, __) {
                 });
                 return;
             }
-            if (reservations[0].get('payment_method') === gmo_service_1.Util.PAY_TYPE_CREDIT) {
+            if (reservations[0].get('payment_method') === ttts_domain_1.GMO.utils.util.PayType.Credit) {
                 debug('removing reservations by customer... payment_no:', paymentNo);
                 yield ttts_domain_1.Models.Reservation.remove({
                     payment_no: paymentNo,
@@ -174,7 +173,7 @@ function executeByPaymentNo(req, res, __) {
                     moment: moment,
                     numeral: numeral,
                     conf: conf,
-                    GMOUtil: gmo_service_1.Util,
+                    GMOUtil: ttts_domain_1.GMO.utils.util,
                     ReservationUtil: ttts_domain_1.ReservationUtil
                 }, (renderErr, text) => __awaiter(this, void 0, void 0, function* () {
                     debug('email rendered. text:', renderErr, text);
@@ -198,7 +197,7 @@ function executeByPaymentNo(req, res, __) {
                     }
                 }));
             }
-            else if (reservations[0].get('payment_method') === gmo_service_1.Util.PAY_TYPE_CVS) {
+            else if (reservations[0].get('payment_method') === ttts_domain_1.GMO.utils.util.PayType.Cvs) {
                 // コンビニ決済の場合
                 res.json({
                     success: false,

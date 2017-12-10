@@ -13,7 +13,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const GMO = require("@motionpicture/gmo-service");
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const crypto = require("crypto");
@@ -118,7 +117,7 @@ function createEmailQueue(res, performanceDay, paymentNo) {
                 moment: moment,
                 numeral: numeral,
                 conf: conf,
-                GMOUtil: GMO.Util,
+                GMOUtil: ttts_domain_1.GMO.utils.util,
                 ReservationUtil: ttts_domain_1.ReservationUtil
             }, (renderErr, text) => __awaiter(this, void 0, void 0, function* () {
                 debug('email template rendered.', renderErr);

@@ -4,8 +4,7 @@
  * @namespace controller/customer/reserve/gmo/cvs
  */
 
-import * as GMO from '@motionpicture/gmo-service';
-import { EmailQueueUtil, Models, mongoose, ReservationUtil } from '@motionpicture/ttts-domain';
+import { EmailQueueUtil, GMO, Models, mongoose, ReservationUtil } from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as crypto from 'crypto';
 import * as createDebug from 'debug';
@@ -163,7 +162,7 @@ async function createEmailQueue(res: Response, performanceDay: string, paymentNo
                 moment: moment,
                 numeral: numeral,
                 conf: conf,
-                GMOUtil: GMO.Util,
+                GMOUtil: GMO.utils.util,
                 ReservationUtil: ReservationUtil
             },
             async (renderErr, text) => {

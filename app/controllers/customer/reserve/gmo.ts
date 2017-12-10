@@ -5,8 +5,7 @@
  * @namespace controller/customer/reserve/gmo
  */
 
-import { Util as GMOUtil } from '@motionpicture/gmo-service';
-import { CommonUtil, Models, ReservationUtil } from '@motionpicture/ttts-domain';
+import { CommonUtil, GMO, Models, ReservationUtil } from '@motionpicture/ttts-domain';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import * as moment from 'moment';
@@ -124,9 +123,9 @@ export async function start(req: Request, res: Response, next: NextFunction) {
         res.locals.reserveNo = reservationModel.paymentNo;
         res.locals.amount = reservationModel.getTotalCharge().toString();
         res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
-        res.locals.useCredit = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CREDIT) ? '1' : '0';
-        res.locals.useCvs = (reservationModel.paymentMethod === GMOUtil.PAY_TYPE_CVS) ? '1' : '0';
-        res.locals.shopPassString = GMOUtil.createShopPassString({
+        res.locals.useCredit = (reservationModel.paymentMethod === GMO.utils.util.PayType.Credit) ? '1' : '0';
+        res.locals.useCvs = (reservationModel.paymentMethod === GMO.utils.util.PayType.Cvs) ? '1' : '0';
+        res.locals.shopPassString = GMO.utils.util.createShopPassString({
             shopId: <string>SHOP_ID,
             shopPass: <string>SHOP_PASS,
             orderId: res.locals.orderID,
@@ -190,7 +189,7 @@ export async function result(req: Request, res: Response, next: NextFunction): P
     } else {
         // 決済方法によって振り分け
         switch (gmoResultModel.PayType) {
-            case GMOUtil.PAY_TYPE_CVS:
+            case GMO.utils.util.PayType.Cvs:
                 debug('starting GMOReserveCsvController.result...');
                 await gmoReserveCvsController.result(gmoResultModel, req, res, next);
                 break;

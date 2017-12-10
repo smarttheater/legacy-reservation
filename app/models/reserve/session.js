@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const gmo_service_1 = require("@motionpicture/gmo-service");
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const moment = require("moment");
 const MAX_RESERVATION_SEATS_DEFAULT = 4;
@@ -13,18 +12,18 @@ const MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES = 10;
  * この情報をセッションで引き継くことで、予約プロセスを管理しています
  *
  * @export
- * @class ReserveSessionModel
+ * @class PlaceOrderTransactionSession
  */
-class ReserveSessionModel {
+class PlaceOrderTransactionSession {
     /**
      * プロセス中の購入情報をセッションから取得する
      */
     static FIND(req) {
-        const reservationModelInSession = req.session[ReserveSessionModel.SESSION_KEY];
+        const reservationModelInSession = req.session[PlaceOrderTransactionSession.SESSION_KEY];
         if (reservationModelInSession === undefined) {
             return null;
         }
-        const reservationModel = new ReserveSessionModel();
+        const reservationModel = new PlaceOrderTransactionSession();
         Object.keys(reservationModelInSession).forEach((propertyName) => {
             reservationModel[propertyName] = reservationModelInSession[propertyName];
         });
@@ -34,13 +33,13 @@ class ReserveSessionModel {
      * プロセス中の購入情報をセッションから削除する
      */
     static REMOVE(req) {
-        delete req.session[ReserveSessionModel.SESSION_KEY];
+        delete req.session[PlaceOrderTransactionSession.SESSION_KEY];
     }
     /**
      * プロセス中の購入情報をセッションに保存する
      */
     save(req) {
-        req.session[ReserveSessionModel.SESSION_KEY] = this;
+        req.session[PlaceOrderTransactionSession.SESSION_KEY] = this;
     }
     /**
      * 一度の購入で予約できる座席数を取得する
@@ -89,11 +88,11 @@ class ReserveSessionModel {
         }
         // MX4D分加算
         if (this.performance.film.is_mx4d) {
-            charge += ttts_domain_1.ReservationUtil.CHARGE_MX4D;
+            charge += ttts.ReservationUtil.CHARGE_MX4D;
         }
         // コンビニ手数料加算
-        if (this.paymentMethod === gmo_service_1.Util.PAY_TYPE_CVS) {
-            charge += ttts_domain_1.ReservationUtil.CHARGE_CVS;
+        if (this.paymentMethod === ttts.GMO.utils.util.PayType.Cvs) {
+            charge += ttts.ReservationUtil.CHARGE_CVS;
         }
         return charge;
     }
@@ -173,5 +172,5 @@ class ReserveSessionModel {
         };
     }
 }
-ReserveSessionModel.SESSION_KEY = 'ttts-reserve-session';
-exports.default = ReserveSessionModel;
+PlaceOrderTransactionSession.SESSION_KEY = 'ttts-reserve-session';
+exports.default = PlaceOrderTransactionSession;
