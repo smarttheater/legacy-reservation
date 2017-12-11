@@ -2,23 +2,23 @@
 
 <input type="hidden" name="category" value="<%= reservationModel.category %>">
 
-<h1 class="pagetitle"><%- __('h1.SelectTickets') %></h1>
-<p class="guidetext"><%- __('Label.SelectTicketsGuideText') %></p>
+<h1 class="pagetitle"><%- __('SelectTickets') %></h1>
+<p class="guidetext"><%- __('SelectTicketsGuideText') %></p>
 <% if (message) { %>
 <p class="guidetext" style="color:red;"><%= message %></p>
 <% } %>
 
-<a class="link-guide" href="/ticketinfo" target="_blank"><%- __('Label.AboutTicket') %></a>
-<!--<p class="guidetext"><%- __('Label.AboutTOPDECKTicket') %></p>-->
+<a class="link-guide" href="/ticketinfo" target="_blank"><%- __('AboutTicket') %></a>
+
 <div class="wrapper-2clm">
     <div class="clm-left" data-token="">
         <table class="table table-tickets">
             <thead>
                 <tr>
                     <% /* 券種 */ %>
-                    <th><%- __('Label.TicketType') %></th>
+                    <th><%- __('TicketType') %></th>
                     <% /* 枚数 */ %>
-                    <th><%- __('Label.TicketCount') %></th>
+                    <th><%- __('TicketCount') %></th>
                 </tr>
             </thead>
             <tbody>
@@ -68,7 +68,7 @@
             <% /* 合計金額 */ %>
             <tfoot class="hidden">
                 <tr><td colspan="2">
-                    <%- __('Label.TotalCharge') %><span class="price"></span>
+                    <%- __('TotalPrice') %><span class="price"></span>
                 </td></tr>
             </tfoot>
         </table>

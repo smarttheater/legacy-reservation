@@ -63,7 +63,7 @@ export async function start(req: Request, res: Response, next: NextFunction) {
         const reservationModel = ReserveSessionModel.FIND(req);
 
         if (reservationModel === null) {
-            next(new Error(req.__('Message.Expired')));
+            next(new Error(req.__('Expired')));
 
             return;
         }
@@ -146,7 +146,7 @@ export async function start(req: Request, res: Response, next: NextFunction) {
         // GMOへの送信データをログに残すために、一度htmlを取得してからrender
         res.render('customer/reserve/gmo/start');
     } catch (error) {
-        next(new Error(req.__('Message.UnexpectedError')));
+        next(new Error(req.__('UnexpectedError')));
     }
 }
 
@@ -171,7 +171,7 @@ export async function result(req: Request, res: Response, next: NextFunction): P
             debug('reservations found.', reservations.length);
 
             if (reservations.length === 0) {
-                next(new Error(req.__('Message.NotFound')));
+                next(new Error(req.__('NotFound')));
 
                 return;
             }
@@ -179,7 +179,7 @@ export async function result(req: Request, res: Response, next: NextFunction): P
             // 特に何もしない
             res.render('customer/reserve/gmo/cancel');
         } catch (error) {
-            next(new Error(req.__('Message.UnexpectedError')));
+            next(new Error(req.__('UnexpectedError')));
         }
     } else {
         // 決済方法によって振り分け
@@ -190,7 +190,7 @@ export async function result(req: Request, res: Response, next: NextFunction): P
                 break;
 
             default:
-                next(new Error(req.__('Message.UnexpectedError')));
+                next(new Error(req.__('UnexpectedError')));
                 break;
         }
     }
@@ -212,7 +212,7 @@ export async function cancel(req: Request, res: Response, next: NextFunction): P
         debug('reservations found.', reservations);
 
         if (reservations.length === 0) {
-            next(new Error(req.__('Message.NotFound')));
+            next(new Error(req.__('NotFound')));
 
             return;
         }
@@ -221,6 +221,6 @@ export async function cancel(req: Request, res: Response, next: NextFunction): P
         res.render('customer/reserve/gmo/cancel');
     } catch (error) {
         console.error(error);
-        next(new Error(req.__('Message.UnexpectedError')));
+        next(new Error(req.__('UnexpectedError')));
     }
 }

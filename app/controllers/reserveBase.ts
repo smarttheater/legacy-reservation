@@ -71,7 +71,7 @@ export async function processFixSeatsAndTickets(reservationModel: ReserveSession
     if (updateCountTotal < Number(checkInfo.selectedCount) + Number(checkInfo.extraCount)) {
         await processCancelSeats(reservationModel);
         // "予約可能な席がございません"
-        throw new Error(req.__('Message.NoAvailableSeats'));
+        throw new Error(req.__('NoAvailableSeats'));
     }
 }
 /**
@@ -95,14 +95,14 @@ async function checkFixSeatsAndTickets(reservationModel: ReserveSessionModel,
     reserveTicketForm(req);
     const validationResult = await req.getValidationResult();
     if (!validationResult.isEmpty()) {
-        checkInfo.message =  req.__('Message.Invalid');
+        checkInfo.message =  req.__('Invalid"');
 
         return checkInfo;
     }
     // 画面から座席選択情報が生成できなければエラー
     const choices = JSON.parse(req.body.choices);
     if (!Array.isArray(choices)) {
-        checkInfo.message =  req.__('Message.UnexpectedError');
+        checkInfo.message =  req.__('UnexpectedError');
 
         return checkInfo;
     }
@@ -172,7 +172,7 @@ async function getInfoFixSeatsAndTickets(reservationModel: ReserveSessionModel,
     // チケット枚数より少ない場合は、購入不可としてリターン
     if (count < selectedCount) {
         // "予約可能な席がございません"
-        info.message = req.__('Message.NoAvailableSeats');
+        info.message = req.__('NoAvailableSeats');
 
         return info;
     }
@@ -189,7 +189,7 @@ async function getInfoFixSeatsAndTickets(reservationModel: ReserveSessionModel,
     // チケット枚数より少ない場合は、購入不可としてリターン
     if (info.results.length < selectedCount) {
         // "予約可能な席がございません"
-        info.message = req.__('Message.NoAvailableSeats');
+        info.message = req.__('NoAvailableSeats');
 
         return info;
     }
@@ -214,7 +214,7 @@ async function saveDbFixSeatsAndTickets(reservationModel: ReserveSessionModel,
     // tslint:disable-next-line:max-line-length
     const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === choiceInfo.ticket_type));
     if (ticketType === undefined) {
-        throw new Error(req.__('Message.UnexpectedError'));
+        throw new Error(req.__('UnexpectedError'));
     }
 
     // 予約情報更新キーセット(パフォーマンス,'予約可能')
@@ -421,7 +421,7 @@ function saveSessionFixSeatsAndTickets(req: Request,
     // 座席情報
     const seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => (seat.code === result.seat_code));
     if (seatInfo === undefined) {
-        throw new Error(req.__('Message.InvalidSeatCode'));
+        throw new Error(req.__('Invalid"SeatCode'));
     }
     // セッションに保管
     // 2017/07/08 特殊チケット対応
@@ -477,7 +477,7 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
             // tslint:disable-next-line:no-console
             console.log(errors);
         }
-        throw new Error(req.__('Message.Invalid'));
+        throw new Error(req.__('Invalid"'));
     }
 
     // 購入者情報を保存して座席選択へ
@@ -625,7 +625,7 @@ export async function processFixPerformance(reservationModel: ReserveSessionMode
         .exec();
 
     if (performance === null) {
-        throw new Error(req.__('Message.NotFound'));
+        throw new Error(req.__('NotFound'));
     }
 
     if (performance.get('canceled') === true) { // 万が一上映中止だった場合
@@ -744,7 +744,7 @@ export async function processAllExceptConfirm(reservationModel: ReserveSessionMo
 
         // IDの予約ドキュメントが万が一なければ予期せぬエラー(基本的にありえないフローのはず)
         if (reservation === null) {
-            throw new Error(req.__('Message.UnexpectedError'));
+            throw new Error(req.__('UnexpectedError'));
         }
     }));
 }

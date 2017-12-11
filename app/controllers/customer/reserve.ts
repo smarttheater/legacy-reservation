@@ -61,7 +61,7 @@ export async function performances(req: Request, res: Response, next: NextFuncti
             });
         }
     } catch (error) {
-        next(new Error(req.__('Message.UnexpectedError')));
+        next(new Error(req.__('UnexpectedError')));
     }
 }
 
@@ -110,14 +110,14 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
             //---
         } else {
             // 今回は必ずパフォーマンス指定で遷移してくるはず
-            next(new Error(req.__('Message.UnexpectedError')));
+            next(new Error(req.__('UnexpectedError')));
             // reservationModel.save(() => {
             //     res.redirect('/customer/reserve/performances');
             // });
         }
     } catch (error) {
         console.error(error);
-        next(new Error(req.__('Message.UnexpectedError')));
+        next(new Error(req.__('UnexpectedError')));
     }
 }
 /**
@@ -127,7 +127,7 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
         if (reservationModel === null) {
-            next(new Error(req.__('Message.Expired')));
+            next(new Error(req.__('Expired')));
 
             return;
         }
@@ -161,7 +161,7 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
             });
         }
     } catch (error) {
-        next(new Error(req.__('Message.UnexpectedError')));
+        next(new Error(req.__('UnexpectedError')));
     }
 }
 
@@ -174,7 +174,7 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
         const reservationModel = ReserveSessionModel.FIND(req);
 
         if (reservationModel === null) {
-            next(new Error(req.__('Message.Expired')));
+            next(new Error(req.__('Expired')));
 
             return;
         }
@@ -226,8 +226,8 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
                         return;
                     } else {
                         //GMO以外のエラーはガチエラー
-                        //return next(new Error(req.__('Message.UnexpectedError')));
-                        next(new Error(req.__('Message.UnexpectedError')));
+                        //return next(new Error(req.__('UnexpectedError')));
+                        next(new Error(req.__('UnexpectedError')));
 
                         return;
                     }
@@ -264,7 +264,7 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
             });
         }
     } catch (error) {
-        next(new Error(req.__('Message.UnexpectedError')));
+        next(new Error(req.__('UnexpectedError')));
     }
 }
 
@@ -276,7 +276,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
         const reservationModel = ReserveSessionModel.FIND(req);
 
         if (reservationModel === null) {
-            next(new Error(req.__('Message.Expired')));
+            next(new Error(req.__('Expired')));
 
             return;
         }
@@ -285,7 +285,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
             try {
                 // 仮押さえ有効期限チェック
                 if (reservationModel.expiredAt !== undefined && reservationModel.expiredAt < moment().valueOf()) {
-                    throw new Error(req.__('Message.Expired'));
+                    throw new Error(req.__('Expired'));
                 }
                 // クレジット以外の支払方法がある時はここにIf文が必要
                 //if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
@@ -311,7 +311,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
             });
         }
     } catch (error) {
-        next(new Error(req.__('Message.UnexpectedError')));
+        next(new Error(req.__('UnexpectedError')));
     }
 }
 
@@ -333,7 +333,7 @@ export async function waitingSettlement(req: Request, res: Response, next: NextF
         ).exec();
 
         if (reservations.length === 0) {
-            next(new Error(req.__('Message.NotFound')));
+            next(new Error(req.__('NotFound')));
 
             return;
         }
@@ -346,7 +346,7 @@ export async function waitingSettlement(req: Request, res: Response, next: NextF
             reservationDocuments: reservations
         });
     } catch (error) {
-        next(new Error(req.__('Message.UnexpectedError')));
+        next(new Error(req.__('UnexpectedError')));
     }
 }
 
@@ -368,7 +368,7 @@ export async function complete(req: Request, res: Response, next: NextFunction):
         ).exec();
 
         if (reservations.length === 0) {
-            next(new Error(req.__('Message.NotFound')));
+            next(new Error(req.__('NotFound')));
 
             return;
         }
@@ -381,7 +381,7 @@ export async function complete(req: Request, res: Response, next: NextFunction):
             reservationDocuments: reservations
         });
     } catch (error) {
-        next(new Error(req.__('Message.UnexpectedError')));
+        next(new Error(req.__('UnexpectedError')));
     }
 }
 
@@ -415,7 +415,7 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
             reservePaymentCreditForm(req);
             const validationResult = await req.getValidationResult();
             if (!validationResult.isEmpty()) {
-                throw new Error(req.__('Message.Invalid'));
+                throw new Error(req.__('Invalid"'));
             }
 
             if (reservationModel.transactionGMO.status === GMO.Util.STATUS_CREDIT_AUTH) {

@@ -36,7 +36,7 @@ export async function result(gmoResultModel: GMOResultModel, req: Request, res: 
         debug('reservations found.', reservations.length);
 
         if (reservations.length === 0) {
-            throw new Error(req.__('Message.UnexpectedError'));
+            throw new Error(req.__('UnexpectedError'));
         }
         // チェック文字列
         // 8 ＋ 23 ＋ 24 ＋ 25 ＋ 39 + 14 ＋ショップパスワード
@@ -53,11 +53,11 @@ export async function result(gmoResultModel: GMOResultModel, req: Request, res: 
         const checkString = crypto.createHash('md5').update(data2cipher, 'utf8').digest('hex');
         debug('CheckString must be ', checkString);
         if (checkString !== gmoResultModel.CheckString) {
-            throw new Error(req.__('Message.UnexpectedError'));
+            throw new Error(req.__('UnexpectedError'));
         }
 
     } catch (error) {
-        next(new Error(req.__('Message.UnexpectedError')));
+        next(new Error(req.__('UnexpectedError')));
 
         return;
     }

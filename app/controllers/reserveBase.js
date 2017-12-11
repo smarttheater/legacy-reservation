@@ -67,7 +67,7 @@ function processFixSeatsAndTickets(reservationModel, req) {
         if (updateCountTotal < Number(checkInfo.selectedCount) + Number(checkInfo.extraCount)) {
             yield processCancelSeats(reservationModel);
             // "予約可能な席がございません"
-            throw new Error(req.__('Message.NoAvailableSeats'));
+            throw new Error(req.__('NoAvailableSeats'));
         }
     });
 }
@@ -93,13 +93,13 @@ function checkFixSeatsAndTickets(reservationModel, req) {
         reserveTicketForm_1.default(req);
         const validationResult = yield req.getValidationResult();
         if (!validationResult.isEmpty()) {
-            checkInfo.message = req.__('Message.Invalid');
+            checkInfo.message = req.__('Invalid"');
             return checkInfo;
         }
         // 画面から座席選択情報が生成できなければエラー
         const choices = JSON.parse(req.body.choices);
         if (!Array.isArray(choices)) {
-            checkInfo.message = req.__('Message.UnexpectedError');
+            checkInfo.message = req.__('UnexpectedError');
             return checkInfo;
         }
         checkInfo.choices = choices;
@@ -165,7 +165,7 @@ function getInfoFixSeatsAndTickets(reservationModel, req, selectedCount) {
         // チケット枚数より少ない場合は、購入不可としてリターン
         if (count < selectedCount) {
             // "予約可能な席がございません"
-            info.message = req.__('Message.NoAvailableSeats');
+            info.message = req.__('NoAvailableSeats');
             return info;
         }
         // 予約情報取得
@@ -181,7 +181,7 @@ function getInfoFixSeatsAndTickets(reservationModel, req, selectedCount) {
         // チケット枚数より少ない場合は、購入不可としてリターン
         if (info.results.length < selectedCount) {
             // "予約可能な席がございません"
-            info.message = req.__('Message.NoAvailableSeats');
+            info.message = req.__('NoAvailableSeats');
             return info;
         }
         info.status = true;
@@ -203,7 +203,7 @@ function saveDbFixSeatsAndTickets(reservationModel, req, choiceInfo) {
         // tslint:disable-next-line:max-line-length
         const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === choiceInfo.ticket_type));
         if (ticketType === undefined) {
-            throw new Error(req.__('Message.UnexpectedError'));
+            throw new Error(req.__('UnexpectedError'));
         }
         // 予約情報更新キーセット(パフォーマンス,'予約可能')
         const updateKey = {
@@ -353,7 +353,7 @@ function saveSessionFixSeatsAndTickets(req, reservationModel, result, ticketType
     // 座席情報
     const seatInfo = reservationModel.performance.screen.sections[0].seats.find((seat) => (seat.code === result.seat_code));
     if (seatInfo === undefined) {
-        throw new Error(req.__('Message.InvalidSeatCode'));
+        throw new Error(req.__('Invalid"SeatCode'));
     }
     // セッションに保管
     // 2017/07/08 特殊チケット対応
@@ -405,7 +405,7 @@ function processFixProfile(reservationModel, req, res) {
                 // tslint:disable-next-line:no-console
                 console.log(errors);
             }
-            throw new Error(req.__('Message.Invalid'));
+            throw new Error(req.__('Invalid"'));
         }
         // 購入者情報を保存して座席選択へ
         reservationModel.purchaser = {
@@ -541,7 +541,7 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
             .populate('theater', 'name address') // 必要な項目だけ指定すること
             .exec();
         if (performance === null) {
-            throw new Error(req.__('Message.NotFound'));
+            throw new Error(req.__('NotFound'));
         }
         if (performance.get('canceled') === true) {
             throw new Error(req.__('Message.OutOfTerm'));
@@ -646,7 +646,7 @@ function processAllExceptConfirm(reservationModel, req) {
             const reservation = yield ttts_domain_1.Models.Reservation.findByIdAndUpdate(update._id, update, { new: true }).exec();
             // IDの予約ドキュメントが万が一なければ予期せぬエラー(基本的にありえないフローのはず)
             if (reservation === null) {
-                throw new Error(req.__('Message.UnexpectedError'));
+                throw new Error(req.__('UnexpectedError'));
             }
         })));
     });

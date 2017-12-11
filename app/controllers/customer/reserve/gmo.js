@@ -62,7 +62,7 @@ function start(req, res, next) {
         try {
             const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null) {
-                next(new Error(req.__('Message.Expired')));
+                next(new Error(req.__('Expired')));
                 return;
             }
             // 予約情報セッション削除
@@ -118,7 +118,7 @@ function start(req, res, next) {
             res.render('customer/reserve/gmo/start');
         }
         catch (error) {
-            next(new Error(req.__('Message.UnexpectedError')));
+            next(new Error(req.__('UnexpectedError')));
         }
     });
 }
@@ -140,14 +140,14 @@ function result(req, res, next) {
                 }, 'purchased_at').exec();
                 debug('reservations found.', reservations.length);
                 if (reservations.length === 0) {
-                    next(new Error(req.__('Message.NotFound')));
+                    next(new Error(req.__('NotFound')));
                     return;
                 }
                 // 特に何もしない
                 res.render('customer/reserve/gmo/cancel');
             }
             catch (error) {
-                next(new Error(req.__('Message.UnexpectedError')));
+                next(new Error(req.__('UnexpectedError')));
             }
         }
         else {
@@ -158,7 +158,7 @@ function result(req, res, next) {
                     yield gmoReserveCvsController.result(gmoResultModel, req, res, next);
                     break;
                 default:
-                    next(new Error(req.__('Message.UnexpectedError')));
+                    next(new Error(req.__('UnexpectedError')));
                     break;
             }
         }
@@ -179,7 +179,7 @@ function cancel(req, res, next) {
             }).exec();
             debug('reservations found.', reservations);
             if (reservations.length === 0) {
-                next(new Error(req.__('Message.NotFound')));
+                next(new Error(req.__('NotFound')));
                 return;
             }
             // 特に何もしない
@@ -187,7 +187,7 @@ function cancel(req, res, next) {
         }
         catch (error) {
             console.error(error);
-            next(new Error(req.__('Message.UnexpectedError')));
+            next(new Error(req.__('UnexpectedError')));
         }
     });
 }
