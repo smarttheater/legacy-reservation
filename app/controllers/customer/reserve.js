@@ -1,7 +1,6 @@
 "use strict";
 /**
  * 一般座席予約コントローラー
- *
  * @namespace controller/customer/reserve
  */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -328,13 +327,12 @@ exports.confirm = confirm;
 function complete(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // 取引スキーマがない場合はこちら
             const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
             const transaction = yield transactionRepo.transactionModel.findOne({
                 'result.eventReservations.performance_day': req.params.performanceDay,
                 'result.eventReservations.payment_no': req.params.paymentNo,
                 'result.eventReservations.purchaser_group': PURCHASER_GROUP,
-                'result.eventReservations.status': ttts.ReservationUtil.STATUS_RESERVED,
+                'result.eventReservations.status': ttts.factory.reservationStatusType.ReservationConfirmed,
                 'result.eventReservations.purchased_at': {
                     $gt: moment().add(-30, 'minutes').toDate() // tslint:disable-line:no-magic-numbers
                 }
@@ -346,7 +344,7 @@ function complete(req, res, next) {
             }
             let reservations = transaction.get('result').get('eventReservations');
             debug('reservations:', reservations);
-            reservations = reservations.filter((reservation) => reservation.get('status') === ttts.ReservationUtil.STATUS_RESERVED);
+            reservations = reservations.filter((reservation) => reservation.get('status') === ttts.factory.reservationStatusType.ReservationConfirmed);
             // 取引スキーマがない場合はこちら
             // const reservations = await ttts.Models.Reservation.find(
             //     {
@@ -399,7 +397,7 @@ function processFixGMO(reservationModel, req) {
         reservationModel.transactionGMO.count += 1;
         reservationModel.save(req);
         switch (reservationModel.paymentMethod) {
-            case ttts.GMO.utils.util.PayType.Credit:
+            case ttts.factory.paymentMethodType.CreditCard:
                 reservePaymentCreditForm_1.default(req);
                 const validationResult = yield req.getValidationResult();
                 if (!validationResult.isEmpty()) {

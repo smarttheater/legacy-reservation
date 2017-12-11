@@ -1,21 +1,17 @@
 /**
  * GMO関連予約コントローラー
  * 座席予約フローのうちGMOと連携するアクションを実装しています。
- *
  * @namespace controller/customer/reserve/gmo
  */
 
-import { CommonUtil, GMO, Models, ReservationUtil } from '@motionpicture/ttts-domain';
+import * as ttts from '@motionpicture/ttts-domain';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import * as moment from 'moment';
 import * as querystring from 'querystring';
-import * as _ from 'underscore';
 import * as util from 'util';
 
-import GMOResultModel from '../../../models/gmo/result';
 import ReserveSessionModel from '../../../models/reserve/session';
-import * as gmoReserveCvsController from './gmo/cvs';
 
 const debug = createDebug('ttts-frontend:controller:gmoReserve');
 
@@ -79,7 +75,7 @@ export async function start(req: Request, res: Response, next: NextFunction) {
         // GMOへ遷移画面
 
         // 作品名から、特定文字以外を取り除く
-        const filmNameFullWidth = CommonUtil.toFullWidth(reservationModel.performance.film.name.ja);
+        const filmNameFullWidth = ttts.CommonUtil.toFullWidth(reservationModel.performance.film.name.ja);
         const filmNameFullWidthLength = filmNameFullWidth.length;
         let registerDisp1 = '';
         // todo 文字列のループはこの書き方は本来よろしくないので、暇があったら直す
@@ -99,7 +95,7 @@ export async function start(req: Request, res: Response, next: NextFunction) {
         // tslint:disable-next-line:no-magic-numbers
         res.locals.registerDisp1 = (<any>registerDisp1).mbSubstr(0, 32);
 
-        res.locals.registerDisp2 = CommonUtil.toFullWidth(
+        res.locals.registerDisp2 = ttts.CommonUtil.toFullWidth(
             util.format(
                 '%s／%s／%s',
                 reservationModel.performance.day.substr(0, 4), // tslint:disable-line:no-magic-numbers
@@ -107,8 +103,8 @@ export async function start(req: Request, res: Response, next: NextFunction) {
                 reservationModel.performance.day.substr(6) // tslint:disable-line:no-magic-numbers
             )
         );
-        res.locals.registerDisp3 = CommonUtil.toFullWidth(reservationModel.performance.theater.name.ja);
-        res.locals.registerDisp4 = CommonUtil.toFullWidth(
+        res.locals.registerDisp3 = ttts.CommonUtil.toFullWidth(reservationModel.performance.theater.name.ja);
+        res.locals.registerDisp4 = ttts.CommonUtil.toFullWidth(
             util.format(
                 '開場%s:%s　開演%s:%s',
                 reservationModel.performance.open_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
@@ -123,9 +119,9 @@ export async function start(req: Request, res: Response, next: NextFunction) {
         res.locals.reserveNo = reservationModel.paymentNo;
         res.locals.amount = reservationModel.getTotalCharge().toString();
         res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
-        res.locals.useCredit = (reservationModel.paymentMethod === GMO.utils.util.PayType.Credit) ? '1' : '0';
-        res.locals.useCvs = (reservationModel.paymentMethod === GMO.utils.util.PayType.Cvs) ? '1' : '0';
-        res.locals.shopPassString = GMO.utils.util.createShopPassString({
+        res.locals.useCredit = (reservationModel.paymentMethod === ttts.factory.paymentMethodType.CreditCard) ? '1' : '0';
+        res.locals.useCvs = (reservationModel.paymentMethod === ttts.factory.paymentMethodType.Cvs) ? '1' : '0';
+        res.locals.shopPassString = ttts.GMO.utils.util.createShopPassString({
             shopId: <string>SHOP_ID,
             shopPass: <string>SHOP_PASS,
             orderId: res.locals.orderID,
@@ -151,81 +147,6 @@ export async function start(req: Request, res: Response, next: NextFunction) {
         // GMOへの送信データをログに残すために、一度htmlを取得してからrender
         res.render('customer/reserve/gmo/start');
     } catch (error) {
-        next(new Error(req.__('Message.UnexpectedError')));
-    }
-}
-
-/**
- * GMOからの結果受信
- * GMOで何かしらエラーが発生して「決済をやめる」ボタンから遷移してくることもある
- */
-export async function result(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const gmoResultModel = GMOResultModel.parse(req.body);
-    debug('gmoResultModel:', gmoResultModel);
-
-    // エラー結果の場合
-    if (!_.isEmpty(gmoResultModel.ErrCode)) {
-        try {
-            debug('finding reservations...');
-            const reservations = await Models.Reservation.find(
-                {
-                    gmo_order_id: gmoResultModel.OrderID
-                },
-                'purchased_at'
-            ).exec();
-            debug('reservations found.', reservations.length);
-
-            if (reservations.length === 0) {
-                next(new Error(req.__('Message.NotFound')));
-
-                return;
-            }
-
-            // 特に何もしない
-            res.render('customer/reserve/gmo/cancel');
-        } catch (error) {
-            next(new Error(req.__('Message.UnexpectedError')));
-        }
-    } else {
-        // 決済方法によって振り分け
-        switch (gmoResultModel.PayType) {
-            case GMO.utils.util.PayType.Cvs:
-                debug('starting GMOReserveCsvController.result...');
-                await gmoReserveCvsController.result(gmoResultModel, req, res, next);
-                break;
-
-            default:
-                next(new Error(req.__('Message.UnexpectedError')));
-                break;
-        }
-    }
-}
-
-/**
- * 決済キャンセル時に遷移
- */
-export async function cancel(req: Request, res: Response, next: NextFunction): Promise<void> {
-    debug('start process GMOReserveController.cancel.');
-    try {
-        debug('finding reservations...', req.params.orderId);
-        const reservations = await Models.Reservation.find(
-            {
-                gmo_order_id: req.params.orderId,
-                status: ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
-            }
-        ).exec();
-        debug('reservations found.', reservations);
-
-        if (reservations.length === 0) {
-            next(new Error(req.__('Message.NotFound')));
-
-            return;
-        }
-
-        // 特に何もしない
-        res.render('customer/reserve/gmo/cancel');
-    } catch (error) {
-        console.error(error);
         next(new Error(req.__('Message.UnexpectedError')));
     }
 }

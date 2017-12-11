@@ -1,6 +1,5 @@
 /**
  * 一般座席予約コントローラー
- *
  * @namespace controller/customer/reserve
  */
 
@@ -132,7 +131,7 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
 
             return;
         }
-        reservationModel.paymentMethod = '';
+        reservationModel.paymentMethod = <any>'';
         if (req.method === 'POST') {
             // 仮予約あればキャンセルする
             try {
@@ -321,14 +320,13 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
  */
 export async function complete(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        // 取引スキーマがない場合はこちら
         const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
         const transaction = await transactionRepo.transactionModel.findOne(
             {
                 'result.eventReservations.performance_day': req.params.performanceDay,
                 'result.eventReservations.payment_no': req.params.paymentNo,
                 'result.eventReservations.purchaser_group': PURCHASER_GROUP,
-                'result.eventReservations.status': ttts.ReservationUtil.STATUS_RESERVED,
+                'result.eventReservations.status': ttts.factory.reservationStatusType.ReservationConfirmed,
                 'result.eventReservations.purchased_at': { // 購入確定から30分有効
                     $gt: moment().add(-30, 'minutes').toDate() // tslint:disable-line:no-magic-numbers
                 }
@@ -343,7 +341,9 @@ export async function complete(req: Request, res: Response, next: NextFunction):
 
         let reservations: ttts.mongoose.Document[] = transaction.get('result').get('eventReservations');
         debug('reservations:', reservations);
-        reservations = reservations.filter((reservation) => reservation.get('status') === ttts.ReservationUtil.STATUS_RESERVED);
+        reservations = reservations.filter(
+            (reservation) => reservation.get('status') === ttts.factory.reservationStatusType.ReservationConfirmed
+        );
 
         // 取引スキーマがない場合はこちら
         // const reservations = await ttts.Models.Reservation.find(
@@ -401,7 +401,7 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
     reservationModel.save(req);
 
     switch (reservationModel.paymentMethod) {
-        case ttts.GMO.utils.util.PayType.Credit:
+        case ttts.factory.paymentMethodType.CreditCard:
             reservePaymentCreditForm(req);
             const validationResult = await req.getValidationResult();
             if (!validationResult.isEmpty()) {
