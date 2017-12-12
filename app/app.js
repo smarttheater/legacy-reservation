@@ -5,30 +5,30 @@
  * @module app
  * @global
  */
+const ttts = require("@motionpicture/ttts-domain");
 const bodyParser = require("body-parser");
 const conf = require("config");
 const cookieParser = require("cookie-parser");
 const express = require("express");
 // tslint:disable-next-line:no-require-imports
 const partials = require("express-partials");
+const expressValidator = require("express-validator");
 const i18n = require("i18n");
-const mongoose = require("mongoose");
 const multer = require("multer");
 const favicon = require("serve-favicon");
 const _ = require("underscore");
-// tslint:disable-next-line:no-require-imports
-const expressValidator = require("express-validator");
 const basicAuth_1 = require("./middlewares/basicAuth");
-const benchmarks_1 = require("./middlewares/benchmarks");
+// import benchmarks from './middlewares/benchmarks';
 const errorHandler_1 = require("./middlewares/errorHandler");
 const notFoundHandler_1 = require("./middlewares/notFoundHandler");
 const session_1 = require("./middlewares/session");
 const setLocals_1 = require("./middlewares/setLocals");
 const customer_1 = require("./routes/customer");
 const router_1 = require("./routes/router");
+const mongooseConnectionOptions_1 = require("../mongooseConnectionOptions");
 const app = express();
 app.use(partials()); // レイアウト&パーシャルサポート
-app.use(benchmarks_1.default); // ベンチマーク的な
+// app.use(benchmarks); // ベンチマーク的な
 app.use(session_1.default); // セッション
 app.use(basicAuth_1.default); // ベーシック認証
 if (process.env.NODE_ENV !== 'production') {
@@ -91,10 +91,8 @@ app.use(errorHandler_1.default);
  * plenty of time in most operating environments.
  */
 const MONGOLAB_URI = process.env.MONGOLAB_URI;
-// Use native promises
-mongoose.Promise = global.Promise;
-mongoose.connect(MONGOLAB_URI, {
-    server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
-    replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }
-});
+if (MONGOLAB_URI === undefined) {
+    throw new Error('Environment variable MONGOLAB_URI is required for connecting MongoDB. Please set it.');
+}
+ttts.mongoose.connect(MONGOLAB_URI, mongooseConnectionOptions_1.default);
 module.exports = app;

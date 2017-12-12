@@ -1,17 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const gmo_service_1 = require("@motionpicture/gmo-service");
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const moment = require("moment");
 const MAX_RESERVATION_SEATS_DEFAULT = 4;
 const MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES = 10;
 /**
- * 予約情報モデル
- *
+ * 予約セッション
  * 予約プロセス中の情報を全て管理するためのモデルです
  * この情報をセッションで引き継くことで、予約プロセスを管理しています
- *
  * @export
  * @class ReserveSessionModel
  */
@@ -87,14 +84,6 @@ class ReserveSessionModel {
         if (reservation.seat_grade_additional_charge > 0) {
             charge += reservation.seat_grade_additional_charge;
         }
-        // MX4D分加算
-        if (this.performance.film.is_mx4d) {
-            charge += ttts_domain_1.ReservationUtil.CHARGE_MX4D;
-        }
-        // コンビニ手数料加算
-        if (this.paymentMethod === gmo_service_1.Util.PAY_TYPE_CVS) {
-            charge += ttts_domain_1.ReservationUtil.CHARGE_CVS;
-        }
         return charge;
     }
     /**
@@ -110,28 +99,14 @@ class ReserveSessionModel {
         this[`reservation_${seatCode}`] = reservation;
     }
     /**
-     * フロー中の予約IDリストを取得する
-     */
-    getReservationIds() {
-        return (this.seatCodes !== undefined) ? this.seatCodes.map((seatCode) => this.getReservation(seatCode)._id) : [];
-    }
-    /**
-     * フロー中の予約IDリスト(特殊チケット用)を取得する
-     */
-    getReservationIdsExtra() {
-        return (this.seatCodesExtra !== undefined) ?
-            this.seatCodesExtra.map((seatCodesExtra) => this.getReservation(seatCodesExtra)._id) : [];
-    }
-    /**
      * 座席コードから予約(確定)ドキュメントを作成する
-     *
      * @param {string} seatCode 座席コード
      */
     seatCode2reservationDocument(seatCode) {
+        const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
         const reservation = this.getReservation(seatCode);
-        return {
-            _id: reservation._id,
-            status: reservation.status,
+        const doc = {
+            status: reservation.status_after,
             seat_code: seatCode,
             seat_grade_name: reservation.seat_grade_name,
             seat_grade_additional_charge: reservation.seat_grade_additional_charge,
@@ -171,6 +146,7 @@ class ReserveSessionModel {
             watcher_name_updated_at: (reservation.watcher_name !== undefined && reservation.watcher_name !== '') ? moment().valueOf() : '',
             purchased_at: this.purchasedAt
         };
+        return new reservationRepo.reservationModel(doc);
     }
 }
 ReserveSessionModel.SESSION_KEY = 'ttts-reserve-session';

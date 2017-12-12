@@ -5,22 +5,21 @@
  * @global
  */
 
+import * as ttts from '@motionpicture/ttts-domain';
 import * as bodyParser from 'body-parser';
 import * as conf from 'config';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 // tslint:disable-next-line:no-require-imports
 import partials = require('express-partials');
+import * as expressValidator from 'express-validator';
 import * as i18n from 'i18n';
-import * as mongoose from 'mongoose';
 import * as multer from 'multer';
 import * as favicon from 'serve-favicon';
 import * as _ from 'underscore';
-// tslint:disable-next-line:no-require-imports
-import expressValidator = require('express-validator');
 
 import basicAuth from './middlewares/basicAuth';
-import benchmarks from './middlewares/benchmarks';
+// import benchmarks from './middlewares/benchmarks';
 import errorHandler from './middlewares/errorHandler';
 import notFoundHandler from './middlewares/notFoundHandler';
 import session from './middlewares/session';
@@ -29,11 +28,13 @@ import setLocals from './middlewares/setLocals';
 import customerRouter from './routes/customer';
 import router from './routes/router';
 
+import mongooseConnectionOptions from '../mongooseConnectionOptions';
+
 const app = express();
 
 app.use(partials()); // レイアウト&パーシャルサポート
 
-app.use(benchmarks); // ベンチマーク的な
+// app.use(benchmarks); // ベンチマーク的な
 app.use(session); // セッション
 app.use(basicAuth); // ベーシック認証
 
@@ -112,14 +113,9 @@ app.use(errorHandler);
  * plenty of time in most operating environments.
  */
 const MONGOLAB_URI = process.env.MONGOLAB_URI;
-// Use native promises
-(<any>mongoose).Promise = global.Promise;
-mongoose.connect(
-    MONGOLAB_URI,
-    {
-        server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
-        replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }
-    }
-);
+if (MONGOLAB_URI === undefined) {
+    throw new Error('Environment variable MONGOLAB_URI is required for connecting MongoDB. Please set it.');
+}
+ttts.mongoose.connect(MONGOLAB_URI, mongooseConnectionOptions);
 
 export = app;
