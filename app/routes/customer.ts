@@ -4,7 +4,6 @@
  * @ignore
  */
 import { Router } from 'express';
-import * as customerCancelController from '../controllers/customer/cancel';
 import * as customerReserveController from '../controllers/customer/reserve';
 import * as customerReserveGmoController from '../controllers/customer/reserve/gmo';
 
@@ -23,14 +22,8 @@ customerRouter.get('/reserve/start', customerReserveController.start);
 customerRouter.all('/reserve/tickets', customerReserveController.tickets);
 customerRouter.all('/reserve/profile', customerReserveController.profile);
 customerRouter.all('/reserve/confirm', customerReserveController.confirm);
-customerRouter.get('/reserve/:performanceDay/:paymentNo/waitingSettlement', customerReserveController.waitingSettlement);
 customerRouter.get('/reserve/:performanceDay/:paymentNo/complete', customerReserveController.complete);
 
 customerRouter.post('/reserve/gmo/start', customerReserveGmoController.start);
-customerRouter.post('/reserve/gmo/result', customerReserveGmoController.result);
-customerRouter.get('/reserve/gmo/:orderId/cancel', customerReserveGmoController.cancel);
-
-customerRouter.all('/cancel', customerCancelController.index);
-customerRouter.post('/cancel/executeByPaymentNo', customerCancelController.executeByPaymentNo);
 
 export default customerRouter;

@@ -2,7 +2,6 @@
 /**
  * GMO関連予約コントローラー
  * 座席予約フローのうちGMOと連携するアクションを実装しています。
- *
  * @namespace controller/customer/reserve/gmo
  */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -14,45 +13,46 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const gmo_service_1 = require("@motionpicture/gmo-service");
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts = require("@motionpicture/ttts-domain");
 const createDebug = require("debug");
 const moment = require("moment");
 const querystring = require("querystring");
-const _ = require("underscore");
 const util = require("util");
-const result_1 = require("../../../models/gmo/result");
 const session_1 = require("../../../models/reserve/session");
-const gmoReserveCvsController = require("./gmo/cvs");
 const debug = createDebug('ttts-frontend:controller:gmoReserve');
+const SHOP_ID = process.env.GMO_SHOP_ID;
+const SHOP_PASS = process.env.GMO_SHOP_PASS;
+if (SHOP_ID === undefined || SHOP_PASS === undefined) {
+    throw new Error('Environment variables GMO_SHOP_ID, GMO_SHOP_PASS are required for connecting to GMO. Please set them.');
+}
 /**
  * マルチバイト文字列対応String.substr
  *
  * @params {number} start
  * @params {number} length
  */
-String.prototype.mbSubstr = function (start, length) {
+String.prototype.mbSubstr = function (startPosition, length) {
     // tslint:disable-next-line:no-invalid-this
     const letters = this.split('');
     const textLength = letters.length;
     let count = 0;
-    let result = '';
+    let slicedString = '';
     // todo 文字列のループはこの書き方は本来よろしくないので、暇があったら直す
     // tslint:disable-next-line:no-increment-decrement
     for (let i = 0; i < textLength; i++) {
-        if (i + start > textLength - 1) {
+        if (i + startPosition > textLength - 1) {
             break;
         }
         // マルチバイト文字列かどうか
-        const letter = letters[i + start];
+        const letter = letters[i + startPosition];
         // tslint:disable-next-line:no-magic-numbers
         count += (querystring.escape(letter).length < 4) ? 1 : 2;
         if (count > length) {
             break;
         }
-        result += letter;
+        slicedString += letter;
     }
-    return result;
+    return slicedString;
 };
 /**
  * GMO決済を開始する
@@ -69,7 +69,7 @@ function start(req, res, next) {
             session_1.default.REMOVE(req);
             // GMOへ遷移画面
             // 作品名から、特定文字以外を取り除く
-            const filmNameFullWidth = ttts_domain_1.CommonUtil.toFullWidth(reservationModel.performance.film.name.ja);
+            const filmNameFullWidth = ttts.CommonUtil.toFullWidth(reservationModel.performance.film.name.ja);
             const filmNameFullWidthLength = filmNameFullWidth.length;
             let registerDisp1 = '';
             // todo 文字列のループはこの書き方は本来よろしくないので、暇があったら直す
@@ -86,12 +86,12 @@ function start(req, res, next) {
             }
             // tslint:disable-next-line:no-magic-numbers
             res.locals.registerDisp1 = registerDisp1.mbSubstr(0, 32);
-            res.locals.registerDisp2 = ttts_domain_1.CommonUtil.toFullWidth(util.format('%s／%s／%s', reservationModel.performance.day.substr(0, 4), // tslint:disable-line:no-magic-numbers
+            res.locals.registerDisp2 = ttts.CommonUtil.toFullWidth(util.format('%s／%s／%s', reservationModel.performance.day.substr(0, 4), // tslint:disable-line:no-magic-numbers
             reservationModel.performance.day.substr(4, 2), // tslint:disable-line:no-magic-numbers
             reservationModel.performance.day.substr(6) // tslint:disable-line:no-magic-numbers
             ));
-            res.locals.registerDisp3 = ttts_domain_1.CommonUtil.toFullWidth(reservationModel.performance.theater.name.ja);
-            res.locals.registerDisp4 = ttts_domain_1.CommonUtil.toFullWidth(util.format('開場%s:%s　開演%s:%s', reservationModel.performance.open_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
+            res.locals.registerDisp3 = ttts.CommonUtil.toFullWidth(reservationModel.performance.theater.name.ja);
+            res.locals.registerDisp4 = ttts.CommonUtil.toFullWidth(util.format('開場%s:%s　開演%s:%s', reservationModel.performance.open_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
             reservationModel.performance.open_time.substr(2), // tslint:disable-line:no-magic-numbers
             reservationModel.performance.start_time.substr(0, 2), // tslint:disable-line:no-magic-numbers
             reservationModel.performance.start_time.substr(2) // tslint:disable-line:no-magic-numbers
@@ -101,11 +101,11 @@ function start(req, res, next) {
             res.locals.reserveNo = reservationModel.paymentNo;
             res.locals.amount = reservationModel.getTotalCharge().toString();
             res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
-            res.locals.useCredit = (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CREDIT) ? '1' : '0';
-            res.locals.useCvs = (reservationModel.paymentMethod === gmo_service_1.Util.PAY_TYPE_CVS) ? '1' : '0';
-            res.locals.shopPassString = gmo_service_1.Util.createShopPassString({
-                shopId: process.env.GMO_SHOP_ID,
-                shopPass: process.env.GMO_SHOP_PASS,
+            res.locals.useCredit = (reservationModel.paymentMethod === ttts.factory.paymentMethodType.CreditCard) ? '1' : '0';
+            res.locals.useCvs = (reservationModel.paymentMethod === ttts.factory.paymentMethodType.Cvs) ? '1' : '0';
+            res.locals.shopPassString = ttts.GMO.utils.util.createShopPassString({
+                shopId: SHOP_ID,
+                shopPass: SHOP_PASS,
                 orderId: res.locals.orderID,
                 amount: reservationModel.getTotalCharge(),
                 dateTime: res.locals.dateTime
@@ -123,72 +123,3 @@ function start(req, res, next) {
     });
 }
 exports.start = start;
-/**
- * GMOからの結果受信
- * GMOで何かしらエラーが発生して「決済をやめる」ボタンから遷移してくることもある
- */
-function result(req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const gmoResultModel = result_1.default.parse(req.body);
-        debug('gmoResultModel:', gmoResultModel);
-        // エラー結果の場合
-        if (!_.isEmpty(gmoResultModel.ErrCode)) {
-            try {
-                debug('finding reservations...');
-                const reservations = yield ttts_domain_1.Models.Reservation.find({
-                    gmo_order_id: gmoResultModel.OrderID
-                }, 'purchased_at').exec();
-                debug('reservations found.', reservations.length);
-                if (reservations.length === 0) {
-                    next(new Error(req.__('NotFound')));
-                    return;
-                }
-                // 特に何もしない
-                res.render('customer/reserve/gmo/cancel');
-            }
-            catch (error) {
-                next(new Error(req.__('UnexpectedError')));
-            }
-        }
-        else {
-            // 決済方法によって振り分け
-            switch (gmoResultModel.PayType) {
-                case gmo_service_1.Util.PAY_TYPE_CVS:
-                    debug('starting GMOReserveCsvController.result...');
-                    yield gmoReserveCvsController.result(gmoResultModel, req, res, next);
-                    break;
-                default:
-                    next(new Error(req.__('UnexpectedError')));
-                    break;
-            }
-        }
-    });
-}
-exports.result = result;
-/**
- * 決済キャンセル時に遷移
- */
-function cancel(req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        debug('start process GMOReserveController.cancel.');
-        try {
-            debug('finding reservations...', req.params.orderId);
-            const reservations = yield ttts_domain_1.Models.Reservation.find({
-                gmo_order_id: req.params.orderId,
-                status: ttts_domain_1.ReservationUtil.STATUS_WAITING_SETTLEMENT // GMO決済離脱組の処理なので、必ず決済中ステータスになっている
-            }).exec();
-            debug('reservations found.', reservations);
-            if (reservations.length === 0) {
-                next(new Error(req.__('NotFound')));
-                return;
-            }
-            // 特に何もしない
-            res.render('customer/reserve/gmo/cancel');
-        }
-        catch (error) {
-            console.error(error);
-            next(new Error(req.__('UnexpectedError')));
-        }
-    });
-}
-exports.cancel = cancel;

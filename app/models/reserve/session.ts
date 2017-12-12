@@ -1,5 +1,4 @@
-import { Util as GMOUtil } from '@motionpicture/gmo-service';
-import { ReservationUtil } from '@motionpicture/ttts-domain';
+import * as ttts from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import { Request } from 'express';
 import * as moment from 'moment';
@@ -7,29 +6,29 @@ import * as moment from 'moment';
 const MAX_RESERVATION_SEATS_DEFAULT = 4;
 const MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES = 10;
 
-interface ISeat {
-    code: string; // 座席コード
-    grade: {
-        code: string;
-        name: IMultilingualString;
-        additional_charge: number; // 追加料金
-    };
-}
-interface ISection {
-    seats: ISeat[];
-}
-
 /**
- * 予約情報モデル
- *
+ * 予約セッション
  * 予約プロセス中の情報を全て管理するためのモデルです
  * この情報をセッションで引き継くことで、予約プロセスを管理しています
- *
  * @export
  * @class ReserveSessionModel
  */
 export default class ReserveSessionModel {
     private static SESSION_KEY: string = 'ttts-reserve-session';
+    /**
+     * 取引ID(MongoDBで発行される)
+     */
+    public id: string;
+    /**
+     * 取引主体ID
+     */
+    public agentId: string;
+    /**
+     * 販売者ID
+     */
+    public sellerId: string;
+    public seatReservationAuthorizeActionId: string;
+    public creditCardAuthorizeActionId: string;
     /**
      * 予約対象カテゴリ("0":一般,"1":車椅子)
      */
@@ -78,11 +77,10 @@ export default class ReserveSessionModel {
      * 予約座席コードリスト
      */
     public purchaser: IPurchaser;
-
     /**
      * 決済方法
      */
-    public paymentMethod: string;
+    public paymentMethod: ttts.factory.paymentMethodType;
     /**
      * 購入者区分
      */
@@ -179,16 +177,6 @@ export default class ReserveSessionModel {
             charge += reservation.seat_grade_additional_charge;
         }
 
-        // MX4D分加算
-        if (this.performance.film.is_mx4d) {
-            charge += ReservationUtil.CHARGE_MX4D;
-        }
-
-        // コンビニ手数料加算
-        if (this.paymentMethod === GMOUtil.PAY_TYPE_CVS) {
-            charge += ReservationUtil.CHARGE_CVS;
-        }
-
         return charge;
     }
 
@@ -207,31 +195,14 @@ export default class ReserveSessionModel {
     }
 
     /**
-     * フロー中の予約IDリストを取得する
-     */
-    public getReservationIds(): string[] {
-        return (this.seatCodes !== undefined) ? this.seatCodes.map((seatCode) => this.getReservation(seatCode)._id) : [];
-    }
-
-    /**
-     * フロー中の予約IDリスト(特殊チケット用)を取得する
-     */
-    public getReservationIdsExtra(): string[] {
-        return (this.seatCodesExtra !== undefined) ?
-            this.seatCodesExtra.map((seatCodesExtra) => this.getReservation(seatCodesExtra)._id) : [];
-    }
-
-    /**
      * 座席コードから予約(確定)ドキュメントを作成する
-     *
      * @param {string} seatCode 座席コード
      */
-    public seatCode2reservationDocument(seatCode: string) {
+    public seatCode2reservationDocument(seatCode: string): ttts.mongoose.Document {
+        const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
         const reservation = this.getReservation(seatCode);
-
-        return {
-            _id: reservation._id,
-            status: reservation.status,
+        const doc = {
+            status: reservation.status_after,
             seat_code: seatCode,
             seat_grade_name: reservation.seat_grade_name,
             seat_grade_additional_charge: reservation.seat_grade_additional_charge,
@@ -272,43 +243,24 @@ export default class ReserveSessionModel {
             purchaser_gender: (this.purchaser !== undefined) ? this.purchaser.gender : '',
             payment_method: (this.paymentMethod !== undefined) ? this.paymentMethod : '',
 
-            watcher_name: (reservation.watcher_name !== undefined ) ? reservation.watcher_name : '',
+            watcher_name: (reservation.watcher_name !== undefined) ? reservation.watcher_name : '',
             watcher_name_updated_at: (reservation.watcher_name !== undefined && reservation.watcher_name !== '') ? moment().valueOf() : '',
 
             purchased_at: this.purchasedAt
         };
+
+        return new reservationRepo.reservationModel(doc);
     }
 }
 /**
  * パフォーマンス情報インターフェース
  */
-interface IPerformance {
-    _id: string;
-    day: string;
-    open_time: string;
-    start_time: string;
-    end_time: string;
-    start_str: IMultilingualString;
-    location_str: IMultilingualString;
-    theater: {
-        _id: string,
-        name: IMultilingualString,
-        address: IMultilingualString
-    };
-    screen: {
-        _id: string,
-        name: IMultilingualString,
-        sections: ISection[]
-    };
+type IPerformance = ttts.factory.performance.IPerformanceWithDetails & {
     film: {
-        _id: string,
-        name: IMultilingualString,
-        image: string,
-        is_mx4d: boolean,
-        copyright: string
-    };
-    ttts_extension: IExtensionPerformance;
-}
+        image: string;
+    }
+};
+
 /**
  * チケット情報インターフェース
  */
@@ -317,26 +269,13 @@ interface ITicketType {
     name: IMultilingualString;
     charge: number; // 料金
     count: number;  // 枚数
-    cancel_charge: [ICancelCharge];
+    cancel_charge: ICancelCharge[];
     ttts_extension: IExtensionTiket;
 }
 /**
  * 予約情報インターフェース
  */
-interface IReservation {
-    _id: string;
-    status: string;
-    seat_code: string;
-    seat_grade_name: IMultilingualString;
-    seat_grade_additional_charge: number;
-    ticket_type: string;
-    ticket_type_name: IMultilingualString;
-    ticket_type_charge: number;
-    watcher_name: string;
-    ticket_cancel_charge: [ICancelCharge];
-    ticket_ttts_extension: IExtensionTiket;
-    performance_ttts_extension: IExtensionPerformance; //2017/11/16
-}
+type IReservation = ttts.factory.action.authorize.seatReservation.ITmpReservation;
 
 /**
  * 購入者情報インターフェース
@@ -374,14 +313,7 @@ interface IExtensionTiket {
     required_seat_num: number;
     csv_code: string;
 }
-/**
- * パフォーマンス拡張情報インターフェース
- */
-interface IExtensionPerformance {
-    tour_number: string;
-    refund_update_user : string;
-    refund_status : string;
-}
+
 /**
  * 多言語情報インターフェース
  */
