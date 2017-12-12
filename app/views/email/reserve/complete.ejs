@@ -1,4 +1,4 @@
-<%- __('Email.Title') %>
+<%- __('EmailTitle') %>
 
 <%= __('Mr{{name}}', {name: reservations[0].get('purchaser_name')[locale]}) %>
 
@@ -6,7 +6,7 @@
 <%- __('EmailHead2') %>
 
 <% /* 購入番号 */ %><%- __('PaymentNo') %> : <%- reservations[0].get('payment_no') %>
-<% /* ご来塔日時 */ %><%- __('Label.Day') %> : <%- dayTime %>
+<% /* ご来塔日時 */ %><%- __('EmailReserveDate') %> : <%- dayTime %>
 <% /* 券種、枚数 */ %><%- __('TicketType') %> <%- __('TicketCount') %>
 <% ticketInfoArray.forEach((ticketInfo, index) => { %><%- ticketInfo %>
 <% }) %>-------------------------------------

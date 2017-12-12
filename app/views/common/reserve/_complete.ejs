@@ -28,18 +28,18 @@ for (let reservation of reservationDocuments) {
                 <p class="numbernotice"><%- __('TransactionNumberNotice') %></p>
             </td>
         </tr>
-        <tr class="tr-date">
-            <th><%- __('PurchaseContentDate') %></th>
-            <td>
-                <%= moment(reservationDocuments[0].performance_day).format('Y-MM-DD') %>&nbsp;&nbsp;<%= `${moment(reservationDocuments[0].performance_start_time, 'hmm').format('HH:mm')} - ${moment(reservationDocuments[0].performance_end_time, 'hmm').format('HH:mm')}` %> 
-            </td>
-        </tr>
         <tr class="tr-tourno">
             <th><%- __('TourNumber') %></th>
             <td>
                 <p>
                     <%- reservationDocuments[0].performance_ttts_extension.tour_number %> 
                 </p>
+            </td>
+        </tr>
+        <tr class="tr-date">
+            <th><%- __('PurchaseContentDate') %></th>
+            <td>
+                <%= moment(reservationDocuments[0].performance_day).format('Y-MM-DD') %>&nbsp;&nbsp;<%= `${moment(reservationDocuments[0].performance_start_time, 'hmm').format('HH:mm')} - ${moment(reservationDocuments[0].performance_end_time, 'hmm').format('HH:mm')}` %> 
             </td>
         </tr>
         <tr class="tr-qr">
@@ -62,7 +62,7 @@ for (let reservation of reservationDocuments) {
             </td>
         </tr>
         <tr class="tr-email">
-            <th><%- __('Email') %></th>
+            <th><%= __('Email') %></th>
             <td>
                 <%= reservationDocuments[0].get('purchaser_email') %>
             </td>
@@ -91,5 +91,5 @@ for (let reservation of reservationDocuments) {
 <div class="enteringguide">
     <h3><%- __('HowToEnter') %></h3>
     <p><%- __('AboutEntryDescription') %></p>
-    <a class="btn btn-blue btn-entering" href="/aboutenter" target="_blank"><span><%- __('HowToEnter') %></span></a>
+    <a class="btn btn-blue btn-entering" href="/aboutenter" target="_blank"><span><%- __('AboutHowToEnter') %></span></a>
 </div>

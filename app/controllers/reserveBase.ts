@@ -667,7 +667,7 @@ async function createEmailQueue(
     }
 
     const title = res.__('Title');
-    const titleEmail = res.__('Email.Title');
+    const titleEmail = res.__('EmailTitle');
 
     // 券種ごとに合計枚数算出
     // const keyName: string = 'ticket_type';
@@ -687,7 +687,7 @@ async function createEmailQueue(
         }
     }
     // 券種ごとの表示情報編集
-    const leaf: string = res.__('Email.Leaf');
+    const leaf: string = res.__('EmailLeaf');
     const ticketInfoArray: string[] = [];
     Object.keys(ticketInfos).forEach((key) => {
         const ticketInfo = (<any>ticketInfos)[key];
