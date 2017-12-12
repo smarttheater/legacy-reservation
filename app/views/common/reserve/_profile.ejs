@@ -22,7 +22,7 @@
             </tr>
             <% /*決済手段*/ %>
             <tr class="tr-payment">
-                <th><%- __('Form.FieldName.paymentMethod') %><span class="required">*<%- __('Required') %></span></th>
+                <th><%- __('Form.FieldName.paymentMethod') %><span class="required">*</span></th>
                 <td>
                     <div class="wrapper-payment form-inline">
                         <%
@@ -67,10 +67,11 @@
         window.ttts.preferred_countries = '<%- preferred_countries %>';
     </script>
 
+    <p class="description-required"><span class="required">*</span><%- __('Required') %></p>
     <table class="table table-profile table-profile-customer">
         <tbody>
             <tr class="tr-name">
-                <th><%- __('NameInSpecifiedLetters') %><span class="required">*<%- __('Required') %></span></th>
+                <th><%- __('NameInSpecifiedLetters') %><span class="required">*</span></th>
                 <td>
                     <div class="wrapper-names">
                         <div class="wrapper-nameinput wrapper-nameinput-lastname">
@@ -89,7 +90,7 @@
             </tr>
 
             <tr class="tr-email">
-                <th><%- __('Email') %><span class="required">*<%- __('Required') %></span></th>
+                <th><%- __('Email') %><span class="required">*</span></th>
                 <td>
                     <div class="wrapper-emailinput">
                         <input type="text" name="email" id="id_email" class="form-control input-required" data-pattern="^[a-zA-Z0-9@\.!#$%&'*+/=?^_`{|}~-]*@[a-zA-Z0-9@\.!#$%&'*+/=?^_`{|}~-]*$" data-parentSelector=".wrapper-emailinput" data-fieldname="<%- __('Email') %>" value="<%= email %>">
@@ -110,7 +111,7 @@
             </tr>
 
             <tr class="tr-tel <% (validation && validation.tel ? 'has-error' : '') %>">
-                <th><label for="id_tel"><%- __('Tel') %></label><span class="required">*<%- __('Required') %></span></th>
+                <th><label for="id_tel"><%- __('Tel') %></label><span class="required">*</span></th>
                 <td>
                     <input type="text" name="tel" id="id_tel" class="form-control input-required" minlength="6" maxlength="15" data-pattern="^[0-9]{6,15}$" data-fieldname="<%- __('Tel') %>" value="<%= tel %>">
                     <label for="checkbox_otherregion">
@@ -185,7 +186,7 @@
             </tr>
 
             <tr class="tr-cardNumber <% (validation && validation.cardNumber ? 'has-error' : '') %>">
-                <th><label for="cardNumber"><%- __('CardNumber') %></label><span class="required">*<%- __('Required') %></span></th>
+                <th><label for="cardNumber"><%- __('CardNumber') %></label><span class="required">*</span></th>
                 <td>
                     <input type="text" name="cardNumber" id="cardNumber" class="form-control input-required" value="" maxlength="16" data-pattern="^[0-9]+$" data-fieldname="<%- __('CardNumber') %>" required>
                     <p class="errmsg errmsg-cardNumber"><% (validation && validation.cardNumber ? validation.cardNumber.msg : '') %></p>
@@ -196,7 +197,7 @@
             </tr>
 
             <tr class="tr-holdername <% (validation && validation.holdername ? 'has-error' : '') %>">
-                <th><label for="holdername"><%- __('CardHoldername') %></label><span class="required">*<%- __('Required') %></span></th>
+                <th><label for="holdername"><%- __('CardHoldername') %></label><span class="required">*</span></th>
                 <td>
                     <input type="text" name="holdername" id="holdername" class="form-control input-required" value="" data-fieldname="<%- __('CardHoldername') %>" required>
                     <p class="errmsg errmsg-holdername"><% (validation && validation.holdername ? validation.holdername.msg : '') %></p>
@@ -204,7 +205,7 @@
             </tr>
 
             <tr class="tr-expire <% (validation && validation.expire ? 'has-error' : '') %>">
-                <th><label for="expire"><%- __('CardExpire') %></label><span class="required">*<%- __('Required') %></span></th>
+                <th><label for="expire"><%- __('CardExpire') %></label><span class="required">*</span></th>
                 <td>
                     <select name="cardExpirationMonth" id="cardExpirationMonth" class="form-control select-cardexpire" required>
                         <option value="">--</option>
@@ -236,7 +237,7 @@
             </tr>
 
             <tr class="tr-securitycode <% (validation && validation.securitycode ? 'has-error' : '') %>">
-                <th><label for="securitycode"><%- __('Securitycode') %></label><span class="required">*<%- __('Required') %></span></th>
+                <th><label for="securitycode"><%- __('Securitycode') %></label><span class="required">*</span></th>
                 <td>
                     <input type="text" name="securitycode" id="securitycode" class="form-control input-required" value="" maxlength="4" data-pattern="^[0-9]+$" data-fieldname="<%- __('Securitycode') %>" required>
                     <p class="errmsg errmsg-securitycode"><% (validation && validation.securitycode ? validation.securitycode.msg : '') %></p>

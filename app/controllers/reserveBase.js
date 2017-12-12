@@ -719,7 +719,7 @@ function createEmailQueue(reservationModel, res, performanceDay, paymentNo) {
             throw new Error('email to unknown');
         }
         const title = res.__('Title');
-        const titleEmail = res.__('Email.Title');
+        const titleEmail = res.__('EmailTitle');
         // 券種ごとに合計枚数算出
         const keyName = 'ticket_type';
         const ticketInfos = {};
@@ -739,7 +739,7 @@ function createEmailQueue(reservationModel, res, performanceDay, paymentNo) {
             }
         }
         // 券種ごとの表示情報編集
-        const leaf = res.__('Email.Leaf');
+        const leaf = res.__('EmailLeaf');
         const ticketInfoArray = [];
         Object.keys(ticketInfos).forEach((key) => {
             const ticketInfo = ticketInfos[key];
