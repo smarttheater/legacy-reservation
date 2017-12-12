@@ -365,7 +365,7 @@ export async function complete(req: Request, res: Response, next: NextFunction):
         }
 
         reservations.sort((a, b) => {
-            return ttts.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+            return ttts.factory.place.screen.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
         });
 
         res.render('customer/reserve/complete', {

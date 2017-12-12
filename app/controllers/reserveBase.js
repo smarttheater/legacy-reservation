@@ -27,7 +27,7 @@ const DEFAULT_RADIX = 10;
 /**
  * 座席・券種FIXプロセス
  *
- * @param {PlaceOrderTransactionSession} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  * @returns {Promise<void>}
  */
 // tslint:disable-next-line:max-func-body-length
@@ -85,7 +85,7 @@ function processFixSeatsAndTickets(reservationModel, req) {
             reservationModel.setReservation(tmpReservation.seat_code, tmpReservation);
         });
         // 座席コードのソート(文字列順に)
-        reservationModel.seatCodes.sort(ttts.ScreenUtil.sortBySeatCode);
+        reservationModel.seatCodes.sort(ttts.factory.place.screen.sortBySeatCode);
         /*
         // 予約情報更新(「仮予約:TEMPORARY」にアップデートする処理を枚数分実行)
         let updateCountTotal: number = 0;
@@ -228,7 +228,7 @@ function getInfoFixSeatsAndTickets(reservationModel, req, selectedCount) {
 /**
  * 購入者情報FIXプロセス
  *
- * @param {PlaceOrderTransactionSession} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  * @returns {Promise<void>}
  */
 function processFixProfile(reservationModel, req, res) {
@@ -347,7 +347,7 @@ function initializePayment(reservationModel, req) {
 /**
  * 予約フロー中の座席をキャンセルするプロセス
  *
- * @param {PlaceOrderTransactionSession} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  */
 function processCancelSeats(reservationModel) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -614,7 +614,7 @@ function createEmailQueue(reservations, reservationModel, res) {
 }
 /**
  * 予約情報取得(reservationModelから)
- * @param {PlaceOrderTransactionSession} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  * @returns {ttts.mongoose.Document[]}
  */
 function getReservations(reservationModel) {

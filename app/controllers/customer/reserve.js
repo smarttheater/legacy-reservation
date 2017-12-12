@@ -362,7 +362,7 @@ function complete(req, res, next) {
                 return;
             }
             reservations.sort((a, b) => {
-                return ttts.ScreenUtil.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
+                return ttts.factory.place.screen.sortBySeatCode(a.get('seat_code'), b.get('seat_code'));
             });
             res.render('customer/reserve/complete', {
                 reservationDocuments: reservations

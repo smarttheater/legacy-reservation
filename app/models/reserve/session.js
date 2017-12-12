@@ -6,24 +6,22 @@ const moment = require("moment");
 const MAX_RESERVATION_SEATS_DEFAULT = 4;
 const MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES = 10;
 /**
- * 予約情報モデル
- *
+ * 予約セッション
  * 予約プロセス中の情報を全て管理するためのモデルです
  * この情報をセッションで引き継くことで、予約プロセスを管理しています
- *
  * @export
- * @class PlaceOrderTransactionSession
+ * @class ReserveSessionModel
  */
-class PlaceOrderTransactionSession {
+class ReserveSessionModel {
     /**
      * プロセス中の購入情報をセッションから取得する
      */
     static FIND(req) {
-        const reservationModelInSession = req.session[PlaceOrderTransactionSession.SESSION_KEY];
+        const reservationModelInSession = req.session[ReserveSessionModel.SESSION_KEY];
         if (reservationModelInSession === undefined) {
             return null;
         }
-        const reservationModel = new PlaceOrderTransactionSession();
+        const reservationModel = new ReserveSessionModel();
         Object.keys(reservationModelInSession).forEach((propertyName) => {
             reservationModel[propertyName] = reservationModelInSession[propertyName];
         });
@@ -33,13 +31,13 @@ class PlaceOrderTransactionSession {
      * プロセス中の購入情報をセッションから削除する
      */
     static REMOVE(req) {
-        delete req.session[PlaceOrderTransactionSession.SESSION_KEY];
+        delete req.session[ReserveSessionModel.SESSION_KEY];
     }
     /**
      * プロセス中の購入情報をセッションに保存する
      */
     save(req) {
-        req.session[PlaceOrderTransactionSession.SESSION_KEY] = this;
+        req.session[ReserveSessionModel.SESSION_KEY] = this;
     }
     /**
      * 一度の購入で予約できる座席数を取得する
@@ -151,5 +149,5 @@ class PlaceOrderTransactionSession {
         return new reservationRepo.reservationModel(doc);
     }
 }
-PlaceOrderTransactionSession.SESSION_KEY = 'ttts-reserve-session';
-exports.default = PlaceOrderTransactionSession;
+ReserveSessionModel.SESSION_KEY = 'ttts-reserve-session';
+exports.default = ReserveSessionModel;

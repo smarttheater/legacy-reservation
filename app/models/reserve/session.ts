@@ -7,15 +7,13 @@ const MAX_RESERVATION_SEATS_DEFAULT = 4;
 const MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES = 10;
 
 /**
- * 予約情報モデル
- *
+ * 予約セッション
  * 予約プロセス中の情報を全て管理するためのモデルです
  * この情報をセッションで引き継くことで、予約プロセスを管理しています
- *
  * @export
- * @class PlaceOrderTransactionSession
+ * @class ReserveSessionModel
  */
-export default class PlaceOrderTransactionSession {
+export default class ReserveSessionModel {
     private static SESSION_KEY: string = 'ttts-reserve-session';
     /**
      * 取引ID(MongoDBで発行される)
@@ -95,13 +93,13 @@ export default class PlaceOrderTransactionSession {
     /**
      * プロセス中の購入情報をセッションから取得する
      */
-    public static FIND(req: Request): PlaceOrderTransactionSession | null {
-        const reservationModelInSession = (<any>req.session)[PlaceOrderTransactionSession.SESSION_KEY];
+    public static FIND(req: Request): ReserveSessionModel | null {
+        const reservationModelInSession = (<any>req.session)[ReserveSessionModel.SESSION_KEY];
         if (reservationModelInSession === undefined) {
             return null;
         }
 
-        const reservationModel = new PlaceOrderTransactionSession();
+        const reservationModel = new ReserveSessionModel();
         Object.keys(reservationModelInSession).forEach((propertyName) => {
             (<any>reservationModel)[propertyName] = reservationModelInSession[propertyName];
         });
@@ -113,14 +111,14 @@ export default class PlaceOrderTransactionSession {
      * プロセス中の購入情報をセッションから削除する
      */
     public static REMOVE(req: Request): void {
-        delete (<any>req.session)[PlaceOrderTransactionSession.SESSION_KEY];
+        delete (<any>req.session)[ReserveSessionModel.SESSION_KEY];
     }
 
     /**
      * プロセス中の購入情報をセッションに保存する
      */
     public save(req: Request): void {
-        (<any>req.session)[PlaceOrderTransactionSession.SESSION_KEY] = this;
+        (<any>req.session)[ReserveSessionModel.SESSION_KEY] = this;
     }
 
     /**

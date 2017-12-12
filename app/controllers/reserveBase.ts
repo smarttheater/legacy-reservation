@@ -14,7 +14,7 @@ import * as _ from 'underscore';
 
 import reserveProfileForm from '../forms/reserve/reserveProfileForm';
 import reserveTicketForm from '../forms/reserve/reserveTicketForm';
-import PlaceOrderTransactionSession from '../models/reserve/session';
+import ReserveSessionModel from '../models/reserve/session';
 
 //const extraSeatNum: any = conf.get<any>('extra_seat_num');
 const debug = createDebug('ttts-frontend:controller:reserveBase');
@@ -23,12 +23,12 @@ const DEFAULT_RADIX = 10;
 /**
  * 座席・券種FIXプロセス
  *
- * @param {PlaceOrderTransactionSession} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  * @returns {Promise<void>}
  */
 // tslint:disable-next-line:max-func-body-length
 export async function processFixSeatsAndTickets(
-    reservationModel: PlaceOrderTransactionSession,
+    reservationModel: ReserveSessionModel,
     req: Request
 ): Promise<void> {
     // 検証(券種が選択されていること)+チケット枚数合計計算
@@ -97,7 +97,7 @@ export async function processFixSeatsAndTickets(
         reservationModel.setReservation(tmpReservation.seat_code, tmpReservation);
     });
     // 座席コードのソート(文字列順に)
-    reservationModel.seatCodes.sort(ttts.ScreenUtil.sortBySeatCode);
+    reservationModel.seatCodes.sort(ttts.factory.place.screen.sortBySeatCode);
 
     /*
     // 予約情報更新(「仮予約:TEMPORARY」にアップデートする処理を枚数分実行)
@@ -152,7 +152,7 @@ export interface IChoiceInfo {
  * @param {Request} req
  * @returns {Promise<void>}
  */
-async function checkFixSeatsAndTickets(reservationModel: PlaceOrderTransactionSession, req: Request): Promise<ICheckInfo> {
+async function checkFixSeatsAndTickets(reservationModel: ReserveSessionModel, req: Request): Promise<ICheckInfo> {
     const checkInfo: ICheckInfo = {
         status: false,
         choices: [],
@@ -228,7 +228,7 @@ async function checkFixSeatsAndTickets(reservationModel: PlaceOrderTransactionSe
  * @returns {Promise<void>}
  */
 async function getInfoFixSeatsAndTickets(
-    reservationModel: PlaceOrderTransactionSession,
+    reservationModel: ReserveSessionModel,
     req: Request,
     selectedCount: number
 ): Promise<any> {
@@ -277,10 +277,10 @@ async function getInfoFixSeatsAndTickets(
 /**
  * 購入者情報FIXプロセス
  *
- * @param {PlaceOrderTransactionSession} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  * @returns {Promise<void>}
  */
-export async function processFixProfile(reservationModel: PlaceOrderTransactionSession, req: Request, res: Response): Promise<void> {
+export async function processFixProfile(reservationModel: ReserveSessionModel, req: Request, res: Response): Promise<void> {
     reserveProfileForm(req);
 
     const validationResult = await req.getValidationResult();
@@ -350,12 +350,12 @@ export async function processFixProfile(reservationModel: PlaceOrderTransactionS
  *
  * @param {string} purchaserGroup 購入者区分
  */
-export async function processStart(purchaserGroup: string, req: Request): Promise<PlaceOrderTransactionSession> {
+export async function processStart(purchaserGroup: string, req: Request): Promise<ReserveSessionModel> {
     // 言語も指定
     // 2017/06/19 upsate node+typesctipt
     (<any>req.session).locale = (!_.isEmpty(req.query.locale)) ? req.query.locale : 'ja';
     // 予約トークンを発行
-    const reservationModel = new PlaceOrderTransactionSession();
+    const reservationModel = new ReserveSessionModel();
     reservationModel.purchaserGroup = purchaserGroup;
     reservationModel.category = req.query.category;
     initializePayment(reservationModel, req);
@@ -384,7 +384,7 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
 /**
  * 購入情報を初期化する
  */
-function initializePayment(reservationModel: PlaceOrderTransactionSession, req: Request): void {
+function initializePayment(reservationModel: ReserveSessionModel, req: Request): void {
     if (reservationModel.purchaserGroup === undefined) {
         throw new Error('purchaser group undefined.');
     }
@@ -410,9 +410,9 @@ function initializePayment(reservationModel: PlaceOrderTransactionSession, req: 
 /**
  * 予約フロー中の座席をキャンセルするプロセス
  *
- * @param {PlaceOrderTransactionSession} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  */
-export async function processCancelSeats(reservationModel: PlaceOrderTransactionSession): Promise<void> {
+export async function processCancelSeats(reservationModel: ReserveSessionModel): Promise<void> {
     // セッション中の予約リストを初期化
     reservationModel.seatCodes = [];
 
@@ -432,7 +432,7 @@ export async function processCancelSeats(reservationModel: PlaceOrderTransaction
  */
 // tslint:disable-next-line:max-func-body-length
 export async function processFixPerformance(
-    reservationModel: PlaceOrderTransactionSession, perfomanceId: string, req: Request
+    reservationModel: ReserveSessionModel, perfomanceId: string, req: Request
 ): Promise<void> {
     debug('fixing performance...', perfomanceId);
     // パフォーマンス取得
@@ -489,7 +489,7 @@ export async function processFixPerformance(
 /**
  * 確定以外の全情報を確定するプロセスprocessAllExceptConfirm
  */
-export async function processAllExceptConfirm(__1: PlaceOrderTransactionSession, __2: Request): Promise<void> {
+export async function processAllExceptConfirm(__1: ReserveSessionModel, __2: Request): Promise<void> {
     /*
     const commonUpdate: any = {
     };
@@ -544,7 +544,7 @@ export async function processAllExceptConfirm(__1: PlaceOrderTransactionSession,
  * @param {string} paymentNo 購入番号
  * @param {Object} update 追加更新パラメータ
  */
-export async function processFixReservations(reservationModel: PlaceOrderTransactionSession, res: Response): Promise<void> {
+export async function processFixReservations(reservationModel: ReserveSessionModel, res: Response): Promise<void> {
     const transaction = await ttts.service.transaction.placeOrderInProgress.confirm({
         agentId: reservationModel.agentId,
         transactionId: reservationModel.id,
@@ -647,7 +647,7 @@ interface IEmailQueue {
  */
 async function createEmailQueue(
     reservations: ttts.factory.reservation.event.IReservation[],
-    reservationModel: PlaceOrderTransactionSession,
+    reservationModel: ReserveSessionModel,
     res: Response
 ): Promise<IEmailQueue> {
     const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
@@ -740,9 +740,9 @@ async function createEmailQueue(
 
 /**
  * 予約情報取得(reservationModelから)
- * @param {PlaceOrderTransactionSession} reservationModel
+ * @param {ReserveSessionModel} reservationModel
  * @returns {ttts.mongoose.Document[]}
  */
-export function getReservations(reservationModel: PlaceOrderTransactionSession): ttts.mongoose.Document[] {
+export function getReservations(reservationModel: ReserveSessionModel): ttts.mongoose.Document[] {
     return reservationModel.seatCodes.map((seatCode) => reservationModel.seatCode2reservationDocument(seatCode));
 }
