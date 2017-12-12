@@ -64,7 +64,7 @@ function performances(req, res, next) {
             }
         }
         catch (error) {
-            next(new Error(req.__('Message.UnexpectedError')));
+            next(new Error(req.__('UnexpectedError')));
         }
     });
 }
@@ -111,7 +111,7 @@ function start(req, res, next) {
             }
             else {
                 // 今回は必ずパフォーマンス指定で遷移してくるはず
-                next(new Error(req.__('Message.UnexpectedError')));
+                next(new Error(req.__('UnexpectedError')));
                 // reservationModel.save(() => {
                 //     res.redirect('/customer/reserve/performances');
                 // });
@@ -119,7 +119,7 @@ function start(req, res, next) {
         }
         catch (error) {
             console.error(error);
-            next(new Error(req.__('Message.UnexpectedError')));
+            next(new Error(req.__('UnexpectedError')));
         }
     });
 }
@@ -132,7 +132,7 @@ function tickets(req, res, next) {
         try {
             const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null) {
-                next(new Error(req.__('Message.Expired')));
+                next(new Error(req.__('Expired')));
                 return;
             }
             reservationModel.paymentMethod = '';
@@ -168,7 +168,7 @@ function tickets(req, res, next) {
             }
         }
         catch (error) {
-            next(new Error(req.__('Message.UnexpectedError')));
+            next(new Error(req.__('UnexpectedError')));
         }
     });
 }
@@ -181,7 +181,7 @@ function profile(req, res, next) {
         try {
             const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null) {
-                next(new Error(req.__('Message.Expired')));
+                next(new Error(req.__('Expired')));
                 return;
             }
             if (req.method === 'POST') {
@@ -230,8 +230,8 @@ function profile(req, res, next) {
                         }
                         else {
                             //GMO以外のエラーはガチエラー
-                            //return next(new Error(req.__('Message.UnexpectedError')));
-                            next(new Error(req.__('Message.UnexpectedError')));
+                            //return next(new Error(req.__('UnexpectedError')));
+                            next(new Error(req.__('UnexpectedError')));
                             return;
                         }
                     }
@@ -269,7 +269,7 @@ function profile(req, res, next) {
             }
         }
         catch (error) {
-            next(new Error(req.__('Message.UnexpectedError')));
+            next(new Error(req.__('UnexpectedError')));
         }
     });
 }
@@ -282,14 +282,14 @@ function confirm(req, res, next) {
         try {
             const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null) {
-                next(new Error(req.__('Message.Expired')));
+                next(new Error(req.__('Expired')));
                 return;
             }
             if (req.method === 'POST') {
                 try {
                     // 仮押さえ有効期限チェック
                     if (reservationModel.expiredAt !== undefined && reservationModel.expiredAt < moment().valueOf()) {
-                        throw new Error(req.__('Message.Expired'));
+                        throw new Error(req.__('Expired'));
                     }
                     // クレジット以外の支払方法がある時はここにIf文が必要
                     //if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
@@ -316,7 +316,7 @@ function confirm(req, res, next) {
             }
         }
         catch (error) {
-            next(new Error(req.__('Message.UnexpectedError')));
+            next(new Error(req.__('UnexpectedError')));
         }
     });
 }
@@ -339,26 +339,14 @@ function complete(req, res, next) {
             }).exec();
             debug('confirmed transaction:', transaction);
             if (transaction === null) {
-                next(new Error(req.__('Message.NotFound')));
+                next(new Error(req.__('NotFound')));
                 return;
             }
             let reservations = transaction.get('result').get('eventReservations');
             debug('reservations:', reservations);
             reservations = reservations.filter((reservation) => reservation.get('status') === ttts.factory.reservationStatusType.ReservationConfirmed);
-            // 取引スキーマがない場合はこちら
-            // const reservations = await ttts.Models.Reservation.find(
-            //     {
-            //         performance_day: req.params.performanceDay,
-            //         payment_no: req.params.paymentNo,
-            //         purchaser_group: PURCHASER_GROUP,
-            //         status: ttts.ReservationUtil.STATUS_RESERVED,
-            //         purchased_at: { // 購入確定から30分有効
-            //             $gt: moment().add(-30, 'minutes').toISOString() // tslint:disable-line:no-magic-numbers
-            //         }
-            //     }
-            // ).exec();
             if (reservations.length === 0) {
-                next(new Error(req.__('Message.NotFound')));
+                next(new Error(req.__('NotFound')));
                 return;
             }
             reservations.sort((a, b) => {
@@ -369,7 +357,7 @@ function complete(req, res, next) {
             });
         }
         catch (error) {
-            next(new Error(req.__('Message.UnexpectedError')));
+            next(new Error(req.__('UnexpectedError')));
         }
     });
 }
@@ -401,7 +389,7 @@ function processFixGMO(reservationModel, req) {
                 reservePaymentCreditForm_1.default(req);
                 const validationResult = yield req.getValidationResult();
                 if (!validationResult.isEmpty()) {
-                    throw new Error(req.__('Message.Invalid'));
+                    throw new Error(req.__('Invalid"'));
                 }
                 // クレジットカードオーソリ取得済であれば取消
                 if (reservationModel.creditCardAuthorizeActionId !== undefined) {

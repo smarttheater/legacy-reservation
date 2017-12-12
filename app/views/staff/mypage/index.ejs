@@ -86,7 +86,7 @@
         <h3>購入情報から検索</h3>
         <div class="wrapper-inputs form-inline">
             <div class="form-group">
-                <label><%- __('Label.PaymentNo') %></label>
+                <label><%- __('PaymentNo') %></label>
                 <input type="text" class="form-control" name="payment_no">
             </div>
             <div class="form-group">
@@ -168,7 +168,7 @@
         <thead>
             <tr>
                 <th><input type="checkbox" class="check-all"></th>
-                <th><%- __('Label.PaymentNo') %></th>
+                <th><%- __('PaymentNo') %></th>
                 <th>氏名</th>
                 <th>メモ</th>
                 <th><%- __('Label.SeatCode') %></th>
@@ -276,7 +276,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <div class="text-center"><%- __('Message.Searching') %></div>
+                <div class="text-center"><%- __('Processing') %></div>
             </div>
         </div>
     </div>
@@ -286,8 +286,8 @@
 <input type="hidden" name="username" value="<%- req.staffUser.name.ja %>">
 <input type="hidden" name="urlCancel" value="/staff/cancel/execute">
 <input type="hidden" name="urlUpdateWatcherName" value="/staff/mypage/updateWatcherName">
-<input type="hidden" name="messageAreYouSureCancel" value="<%- __('Message.AreYouSureCancel') %>">
-<input type="hidden" name="messageConfirmCancelSelectedTickets" value="<%- __('Message.ConfirmCancelSelectedTickets') %>">
+<input type="hidden" name="messageAreYouSureCancel" value="<%- __('AreYouSureCancel') %>">
+<input type="hidden" name="messageConfirmCancelSelectedTickets" value="<%- __('ConfirmCancelSelectedTickets') %>">
 <input type="hidden" id="INQUIRY_SITE_URL" value="<%- process.env.INQUIRY_SITE_URL %>">
 
 <script src="/js/thermalprint/StarWebPrintTrader.js"></script>

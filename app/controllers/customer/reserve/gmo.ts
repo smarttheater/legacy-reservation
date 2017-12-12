@@ -64,7 +64,7 @@ export async function start(req: Request, res: Response, next: NextFunction) {
         const reservationModel = ReserveSessionModel.FIND(req);
 
         if (reservationModel === null) {
-            next(new Error(req.__('Message.Expired')));
+            next(new Error(req.__('Expired')));
 
             return;
         }
@@ -147,6 +147,6 @@ export async function start(req: Request, res: Response, next: NextFunction) {
         // GMOへの送信データをログに残すために、一度htmlを取得してからrender
         res.render('customer/reserve/gmo/start');
     } catch (error) {
-        next(new Error(req.__('Message.UnexpectedError')));
+        next(new Error(req.__('UnexpectedError')));
     }
 }

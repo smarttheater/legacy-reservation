@@ -115,7 +115,7 @@ export async function processFixSeatsAndTickets(
     if (updateCountTotal < Number(checkInfo.selectedCount) + Number(checkInfo.extraCount)) {
         await processCancelSeats(reservationModel);
         // "予約可能な席がございません"
-        throw new Error(req.__('Message.NoAvailableSeats'));
+        throw new Error(req.__('NoAvailableSeats'));
     }
     */
 }
@@ -165,14 +165,14 @@ async function checkFixSeatsAndTickets(reservationModel: ReserveSessionModel, re
     reserveTicketForm(req);
     const validationResult = await req.getValidationResult();
     if (!validationResult.isEmpty()) {
-        checkInfo.message = req.__('Message.Invalid');
+        checkInfo.message = req.__('Invalid"');
 
         return checkInfo;
     }
     // 画面から座席選択情報が生成できなければエラー
     const choices: IChoice[] = JSON.parse(req.body.choices);
     if (!Array.isArray(choices)) {
-        checkInfo.message = req.__('Message.UnexpectedError');
+        checkInfo.message = req.__('UnexpectedError');
 
         return checkInfo;
     }
@@ -248,7 +248,7 @@ async function getInfoFixSeatsAndTickets(
     // チケット枚数より少ない場合は、購入不可としてリターン
     if (count < selectedCount) {
         // "予約可能な席がございません"
-        info.message = req.__('Message.NoAvailableSeats');
+        info.message = req.__('NoAvailableSeats');
 
         return info;
     }
@@ -265,7 +265,7 @@ async function getInfoFixSeatsAndTickets(
     // チケット枚数より少ない場合は、購入不可としてリターン
     if (info.results.length < selectedCount) {
         // "予約可能な席がございません"
-        info.message = req.__('Message.NoAvailableSeats');
+        info.message = req.__('NoAvailableSeats');
 
         return info;
     }
@@ -302,7 +302,7 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
             // tslint:disable-next-line:no-console
             console.log(errors);
         }
-        throw new Error(req.__('Message.Invalid'));
+        throw new Error(req.__('Invalid"'));
     }
 
     // 購入者情報を保存して座席選択へ
@@ -438,6 +438,9 @@ export async function processFixPerformance(
     // パフォーマンス取得
     const performanceRepo = new ttts.repository.Performance(ttts.mongoose.connection);
     const performance = await performanceRepo.findById(perfomanceId);
+    if (performance === null) {
+        throw new Error(req.__('NotFound'));
+    }
 
     if (performance.canceled === true) { // 万が一上映中止だった場合
         throw new Error(req.__('Message.OutOfTerm'));
@@ -532,7 +535,7 @@ export async function processAllExceptConfirm(__1: ReserveSessionModel, __2: Req
 
         // IDの予約ドキュメントが万が一なければ予期せぬエラー(基本的にありえないフローのはず)
         if (reservation === null) {
-            throw new Error(req.__('Message.UnexpectedError'));
+            throw new Error(req.__('UnexpectedError'));
         }
     }));
     */

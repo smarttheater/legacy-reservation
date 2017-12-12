@@ -62,7 +62,7 @@ function start(req, res, next) {
         try {
             const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null) {
-                next(new Error(req.__('Message.Expired')));
+                next(new Error(req.__('Expired')));
                 return;
             }
             // 予約情報セッション削除
@@ -118,7 +118,7 @@ function start(req, res, next) {
             res.render('customer/reserve/gmo/start');
         }
         catch (error) {
-            next(new Error(req.__('Message.UnexpectedError')));
+            next(new Error(req.__('UnexpectedError')));
         }
     });
 }

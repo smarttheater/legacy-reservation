@@ -102,7 +102,7 @@ function processFixSeatsAndTickets(reservationModel, req) {
         if (updateCountTotal < Number(checkInfo.selectedCount) + Number(checkInfo.extraCount)) {
             await processCancelSeats(reservationModel);
             // "予約可能な席がございません"
-            throw new Error(req.__('Message.NoAvailableSeats'));
+            throw new Error(req.__('NoAvailableSeats'));
         }
         */
     });
@@ -129,13 +129,13 @@ function checkFixSeatsAndTickets(reservationModel, req) {
         reserveTicketForm_1.default(req);
         const validationResult = yield req.getValidationResult();
         if (!validationResult.isEmpty()) {
-            checkInfo.message = req.__('Message.Invalid');
+            checkInfo.message = req.__('Invalid"');
             return checkInfo;
         }
         // 画面から座席選択情報が生成できなければエラー
         const choices = JSON.parse(req.body.choices);
         if (!Array.isArray(choices)) {
-            checkInfo.message = req.__('Message.UnexpectedError');
+            checkInfo.message = req.__('UnexpectedError');
             return checkInfo;
         }
         checkInfo.choices = choices;
@@ -202,7 +202,7 @@ function getInfoFixSeatsAndTickets(reservationModel, req, selectedCount) {
         // チケット枚数より少ない場合は、購入不可としてリターン
         if (count < selectedCount) {
             // "予約可能な席がございません"
-            info.message = req.__('Message.NoAvailableSeats');
+            info.message = req.__('NoAvailableSeats');
             return info;
         }
         // 予約情報取得
@@ -218,7 +218,7 @@ function getInfoFixSeatsAndTickets(reservationModel, req, selectedCount) {
         // チケット枚数より少ない場合は、購入不可としてリターン
         if (info.results.length < selectedCount) {
             // "予約可能な席がございません"
-            info.message = req.__('Message.NoAvailableSeats');
+            info.message = req.__('NoAvailableSeats');
             return info;
         }
         info.status = true;
@@ -252,7 +252,7 @@ function processFixProfile(reservationModel, req, res) {
                 // tslint:disable-next-line:no-console
                 console.log(errors);
             }
-            throw new Error(req.__('Message.Invalid'));
+            throw new Error(req.__('Invalid"'));
         }
         // 購入者情報を保存して座席選択へ
         reservationModel.purchaser = {
@@ -371,6 +371,9 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         // パフォーマンス取得
         const performanceRepo = new ttts.repository.Performance(ttts.mongoose.connection);
         const performance = yield performanceRepo.findById(perfomanceId);
+        if (performance === null) {
+            throw new Error(req.__('NotFound'));
+        }
         if (performance.canceled === true) {
             throw new Error(req.__('Message.OutOfTerm'));
         }
@@ -453,7 +456,7 @@ function processAllExceptConfirm(__1, __2) {
     
             // IDの予約ドキュメントが万が一なければ予期せぬエラー(基本的にありえないフローのはず)
             if (reservation === null) {
-                throw new Error(req.__('Message.UnexpectedError'));
+                throw new Error(req.__('UnexpectedError'));
             }
         }));
         */

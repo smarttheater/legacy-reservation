@@ -1,20 +1,20 @@
 <%- include('../../common/reserve/_step', {currentStepName: 'confirm'}) %>
 
-<h1 class="pagetitle"><%- __('h1.ConfirmReservation') %></h1>
-<p class="guidetext"><%- __('Label.ConfirmReservationGuideText') %></p>
+<h1 class="pagetitle"><%- __('ConfirmPurchase') %></h1>
+<p class="guidetext"><%- __('ConfirmReservationGuideText') %></p>
 
 <div class="wrapper-confirm">
 
     <h2>
-        <span>予約内容確認</span>
+        <span><%- __('ConfirmPurchase') %></span>
         <a class="btn btn-default btn-change btn-icon-back" href="/customer/reserve/performances">
-            <span><%- __('Button.Change') %></span>
+            <span><%- __('Change') %></span>
         </a>
     </h2>
     <table class="table table-confirm">
         <tbody>
             <tr>
-                <th><%- __('Label.PurchaseContentDate') %></th>
+                <th><%- __('PurchaseContentDate') %></th>
                 <td>
                     <p>
                         <%= moment(reservationModel.performance.day).format('Y-MM-DD') %>&nbsp;&nbsp;<%= `${moment(reservationModel.performance.start_time, 'hmm').format('HH:mm')} - ${moment(reservationModel.performance.end_time, 'hmm').format('HH:mm')}` %> 
@@ -23,7 +23,7 @@
             </tr>
 
             <tr>
-                <th>ツアーナンバー</th>
+                <th><%- __('TourNumber') %></th>
                 <td>
                     <p>
                         <%- reservationModel.performance.ttts_extension.tour_number %> 
@@ -33,7 +33,7 @@
 
             <tr>
                 <th>
-                    <%- __('Label.TicketType') %>/<%- __('Label.TicketCount') %>
+                    <%- __('TicketType') %>/<%- __('TicketCount') %>
                 </th>
                 <td>
                     <p>
@@ -51,16 +51,16 @@
 
 
     <h2>
-        <span><%- __('h2.Profile') %></span>
+        <span><%- __('Profile') %></span>
         <a class="btn btn-default btn-change btn-icon-back" href="/customer/reserve/profile">
-            <span><%- __('Button.Change') %></span>
+            <span><%- __('Change') %></span>
         </a>
     </h2>
     <table class="table table-confirm">
         <tbody>
 
             <tr>
-                <th><%- __('Label.FullName') %></th>
+                <th><%- __('FullName') %></th>
                 <td>
                     <p><%= reservationModel.purchaser.lastName %> <%= reservationModel.purchaser.firstName %></p>
                 </td>
@@ -68,14 +68,14 @@
 
 
             <tr>
-                <th><%- __('Label.Email') %></th>
+                <th><%- __('Email') %></th>
                 <td>
                     <p><%= reservationModel.purchaser.email %></p>
                 </td>
             </tr>
 
             <tr>
-                <th><%- __('Label.Tel') %></th>
+                <th><%- __('Tel') %></th>
                 <td>
                     <p><%= reservationModel.purchaser.tel %></p>
                 </td>
@@ -84,7 +84,7 @@
             <% if (reservationModel.getTotalCharge() > 0) { %>
             <tr>
                 <th>
-                    <%- __('Label.TotalPrice') %>
+                    <%- __('TotalPrice') %>
                 </th>
                 <td>
                     <p>
@@ -95,7 +95,7 @@
             <% } %>
 
             <tr>
-                <th><%- __('Label.PaymentMethod') %></th>
+                <th><%- __('PaymentMethod') %></th>
                 <td>
                     <p>
                     <% if (reservationModel.paymentMethod === GMOUtil.PayType.Credit) { %>
@@ -112,17 +112,17 @@
 </div>
 
 <div class="wrapper-notice">
-    <h2><%- __('Label.ConfirmNotes') %></h2>
-    <p><%- __('ConfirmNotesText') %></p>
+    <h2><%- __('ConfirmNotes') %></h2>
+    <p><%- __('LinkContainedConfirmNotesText') %></p>
 </div>
 
 <div class="wrapper-agreement">
-    <label for="checkbox_agreed"><input id="checkbox_agreed" type="checkbox"> <span><%- __('Label.Agree') %></span></label>
+    <label for="checkbox_agreed"><input id="checkbox_agreed" type="checkbox"> <span><%- __('AgreeAbove') %></span></label>
 </div>
 
 <div class="natbtns">
-    <a class="btn btn-next btn-disabled" id="btn_next" href="javascript:void(0);"><span><%- __('Button.GoToPayment') %></span></a>
-    <a class="btn-back" href="/customer/reserve/profile"><span><%- __('Button.Back') %></span></a>
+    <a class="btn btn-next btn-disabled" id="btn_next" href="javascript:void(0);"><span><%- __('GoToPayment') %></span></a>
+    <a class="btn-back" href="/customer/reserve/profile"><span><%- __('Back') %></span></a>
 </div>
 
 <script>
