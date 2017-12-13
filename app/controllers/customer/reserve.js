@@ -33,7 +33,15 @@ const reserveMaxDateInfo = conf.get('reserve_max_date');
 function performances(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = yield ttts.CommonUtil.getToken(process.env.API_ENDPOINT);
+            const token = yield ttts.CommonUtil.getToken({
+                authorizeServerDomain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
+                clientId: process.env.API_CLIENT_ID,
+                clientSecret: process.env.API_CLIENT_SECRET,
+                scopes: [
+                    `${process.env.API_RESOURECE_SERVER_IDENTIFIER}/performances.read-only`
+                ],
+                state: ''
+            });
             // tslint:disable-next-line:no-magic-numbers
             //const reserveMaxDate: string = moment().add(reserveMaxDateInfo.type, reserveMaxDateInfo.value).format('YYYY/MM/DD');
             const maxDate = moment();
