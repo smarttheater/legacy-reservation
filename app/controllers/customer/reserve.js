@@ -191,8 +191,6 @@ function profile(req, res, next) {
                     try {
                         // クレジットカード決済のオーソリ、あるいは、オーダーID発行
                         yield processFixGMO(reservationModel, req);
-                        // 予約情報確定
-                        yield reserveBaseController.processAllExceptConfirm(reservationModel, req);
                     }
                     catch (e) {
                         // tslint:disable-next-line:no-console
