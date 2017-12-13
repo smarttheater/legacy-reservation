@@ -21,7 +21,6 @@ const _ = require("underscore");
 const reserveProfileForm_1 = require("../forms/reserve/reserveProfileForm");
 const reserveTicketForm_1 = require("../forms/reserve/reserveTicketForm");
 const session_1 = require("../models/reserve/session");
-//const extraSeatNum: any = conf.get<any>('extra_seat_num');
 const debug = createDebug('ttts-frontend:controller:reserveBase');
 const DEFAULT_RADIX = 10;
 /**
@@ -86,25 +85,6 @@ function processFixSeatsAndTickets(reservationModel, req) {
         });
         // 座席コードのソート(文字列順に)
         reservationModel.seatCodes.sort(ttts.factory.place.screen.sortBySeatCode);
-        /*
-        // 予約情報更新(「仮予約:TEMPORARY」にアップデートする処理を枚数分実行)
-        let updateCountTotal: number = 0;
-        const promises = checkInfo.choicesAll.map(async (choiceInfo: any) => {
-            const updateCount = await saveDbFixSeatsAndTickets(
-                reservationModel,
-                req,
-                choiceInfo);
-            updateCountTotal += updateCount;
-        });
-        await Promise.all(promises);
-    
-        // 予約枚数が指定枚数に達しなかった時,予約可能に戻す
-        if (updateCountTotal < Number(checkInfo.selectedCount) + Number(checkInfo.extraCount)) {
-            await processCancelSeats(reservationModel);
-            // "予約可能な席がございません"
-            throw new Error(req.__('NoAvailableSeats'));
-        }
-        */
     });
 }
 exports.processFixSeatsAndTickets = processFixSeatsAndTickets;
@@ -411,59 +391,6 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
 }
 exports.processFixPerformance = processFixPerformance;
 /**
- * 確定以外の全情報を確定するプロセスprocessAllExceptConfirm
- */
-function processAllExceptConfirm(__1, __2) {
-    return __awaiter(this, void 0, void 0, function* () {
-        /*
-        const commonUpdate: any = {
-        };
-    
-        // クレジット決済
-        if (reservationModel.paymentMethod === ttts.GMO.utils.util.PayType.Credit) {
-            commonUpdate.gmo_shop_id = process.env.GMO_SHOP_ID;
-            commonUpdate.gmo_shop_pass = process.env.GMO_SHOP_PASS;
-            commonUpdate.gmo_order_id = reservationModel.transactionGMO.orderId;
-            commonUpdate.gmo_amount = reservationModel.transactionGMO.amount;
-            commonUpdate.gmo_access_id = reservationModel.transactionGMO.accessId;
-            commonUpdate.gmo_access_pass = reservationModel.transactionGMO.accessPass;
-            commonUpdate.gmo_status = ttts.GMO.utils.util.Status.Auth;
-        } else if (reservationModel.paymentMethod === ttts.GMO.utils.util.PayType.Cvs) {
-            // オーダーID保管
-            commonUpdate.gmo_order_id = reservationModel.transactionGMO.orderId;
-        }
-        */
-        // 取引成立後に、非同期でreservationsを作成するので、ここで在庫を更新する必要はない
-        /*
-        // 2017/07/08 特殊チケット対応
-        const seatCodesAll: string[] = Array.prototype.concat(reservationModel.seatCodes, reservationModel.seatCodesExtra);
-        // いったん全情報をDBに保存
-        //await Promise.all(reservationModel.seatCodes.map(async (seatCode, index) => {
-        await Promise.all(seatCodesAll.map(async (seatCode, index) => {
-            let update = reservationModel.seatCode2reservationDocument(seatCode);
-            // 2017/06/19 upsate node+typesctipt
-            update = { ...update, ...commonUpdate };
-            //update = Object.assign(update, commonUpdate);
-            //---
-            (<any>update).payment_seat_index = index;
-            // 予約情報更新
-            const reservation = await ttts.Models.Reservation.findByIdAndUpdate(
-                update._id,
-                update,
-                { new: true }
-            ).exec();
-            debug('reservation almost fixed.', reservation);
-    
-            // IDの予約ドキュメントが万が一なければ予期せぬエラー(基本的にありえないフローのはず)
-            if (reservation === null) {
-                throw new Error(req.__('UnexpectedError'));
-            }
-        }));
-        */
-    });
-}
-exports.processAllExceptConfirm = processAllExceptConfirm;
-/**
  * 購入番号から全ての予約を完了にする
  *
  * @param {string} paymentNo 購入番号
@@ -476,47 +403,6 @@ function processFixReservations(reservationModel, res) {
             transactionId: reservationModel.id,
             paymentMethod: reservationModel.paymentMethod
         });
-        // reservationsは非同期で作成される
-        /*
-        (<any>update).purchased_at = moment().valueOf();
-        (<any>update).status = ttts.ReservationUtil.STATUS_RESERVED;
-    
-        const conditions: any = {
-            performance_day: performanceDay,
-            payment_no: paymentNo,
-            status: ttts.ReservationUtil.STATUS_TEMPORARY
-        };
-        // 予約完了ステータスへ変更
-        await ttts.Models.Reservation.update(
-            conditions,
-            update,
-            { multi: true } // 必須！複数予約ドキュメントを一度に更新するため
-        ).exec();
-    
-        // 2017/07/08 特殊チケット対応
-        // 特殊チケット一時予約を特殊チケット予約完了ステータスへ変更
-        conditions.status = ttts.ReservationUtil.STATUS_TEMPORARY_FOR_SECURE_EXTRA;
-        (<any>update).status = ttts.ReservationUtil.STATUS_ON_KEPT_FOR_SECURE_EXTRA;
-        await ttts.Models.Reservation.update(
-            conditions,
-            update,
-            { multi: true }
-        ).exec();
-    
-        // 2017/11 本体チケット予約情報取得
-        const reservations = getReservations(reservationModel);
-        await Promise.all(reservations.map(async (reservation) => {
-            // 2017/11 本体チケットかつ特殊(車椅子)チケットの時
-            if (reservation.ticket_ttts_extension.category !== ttts.TicketTypeGroupUtil.TICKET_TYPE_CATEGORY_NORMAL) {
-                // 時間ごとの予約情報更新('仮予約'を'予約'に変更)
-                await ttts.Models.ReservationPerHour.findOneAndUpdate(
-                    { reservation_id: reservation._id.toString() },
-                    { status: ttts.ReservationUtil.STATUS_RESERVED },
-                    { new: true }
-                ).exec();
-            }
-        }));
-        */
         try {
             const result = transaction.result;
             // 完了メールキュー追加(あれば更新日時を更新するだけ)
