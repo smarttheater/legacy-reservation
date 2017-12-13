@@ -27,7 +27,15 @@ const reserveMaxDateInfo: any = conf.get<any>('reserve_max_date');
  */
 export async function performances(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const token: string = await ttts.CommonUtil.getToken(<string>process.env.API_ENDPOINT);
+        const token = await ttts.CommonUtil.getToken({
+            authorizeServerDomain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
+            clientId: <string>process.env.API_CLIENT_ID,
+            clientSecret: <string>process.env.API_CLIENT_SECRET,
+            scopes: [
+                `${<string>process.env.API_RESOURECE_SERVER_IDENTIFIER}/performances.read-only`
+            ],
+            state: ''
+        });
         // tslint:disable-next-line:no-magic-numbers
         //const reserveMaxDate: string = moment().add(reserveMaxDateInfo.type, reserveMaxDateInfo.value).format('YYYY/MM/DD');
         const maxDate = moment();
