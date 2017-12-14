@@ -1,11 +1,11 @@
 $(function() {
-    var isSubmitting = false;    
+    var isSubmitting = false;
 
     var isAgreed = function() {
         if (window.ttts.mode !== 'customer') {
             return true;
         }
-        return document.getElementById('checkbox_agreed').checked;        
+        return document.getElementById('checkbox_agreed').checked;
     };
 
     // 合計金額の更新
