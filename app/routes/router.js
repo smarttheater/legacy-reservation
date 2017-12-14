@@ -13,7 +13,7 @@ const topUrlByLocale = conf.get('official_url_top_by_locale');
 const ticketInfoUrlByLocale = conf.get('official_url_ticketinfo_by_locale');
 // 本体サイトの入場案内ページの言語別URL
 const aboutEnteringUrlByLocale = conf.get('official_url_aboutentering_by_locale');
-// 本体サイトの入場案内ページの言語別URL
+// 本体サイトの車椅子詳細案内ページの言語別URL
 const wheelchairInfoUrlByLocale = conf.get('official_url_wheelchairinfo_by_locale');
 // 本体サイトのプライバシーポリシーページの言語別URL
 const privacyPolicyUrlByLocale = conf.get('official_url_privacypolicy_by_locale');

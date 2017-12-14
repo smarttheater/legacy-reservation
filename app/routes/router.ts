@@ -15,7 +15,7 @@ const ticketInfoUrlByLocale = conf.get<any>('official_url_ticketinfo_by_locale')
 // 本体サイトの入場案内ページの言語別URL
 const aboutEnteringUrlByLocale = conf.get<any>('official_url_aboutentering_by_locale');
 
-// 本体サイトの入場案内ページの言語別URL
+// 本体サイトの車椅子詳細案内ページの言語別URL
 const wheelchairInfoUrlByLocale = conf.get<any>('official_url_wheelchairinfo_by_locale');
 
 // 本体サイトのプライバシーポリシーページの言語別URL
