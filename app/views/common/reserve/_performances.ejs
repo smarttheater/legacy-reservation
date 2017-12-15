@@ -1,11 +1,14 @@
 <%
     const cate = (typeof category === 'string') ? category : 'general';
+    const isStaff = /staff/.test(req.baseUrl);
+    const isWheelchair = (cate === 'wheelchair');
 %>
 <script>
     window.ttts.API_TOKEN = {
         VALUE: '<%= token.access_token %>',
-        EXPIRES_IN: '<%= token.expires_in %>'
+        EXPIRES_IN: <%= token.expires_in %>
     };
+    window.ttts.isWheelchairReservation = <%= isWheelchair %>;
     window.ttts.reservableMaxDate = '<%= reserveMaxDate %>';
 </script>
 <script src="/js/flatpickr/flatpickr.min.js"></script>
@@ -14,17 +17,15 @@
 
 <%- include('./_step', {currentStepName: 'performances'}) %>
 
-<h1 class="pagetitle"><%- __('SelectPerformance') %></h1>
+<h1 class="pagetitle"><%- (isWheelchair) ? `<span class="is-wheelchair">${__('ForWCReserveTitle')}</span>` : '' %><%- __('SelectPerformance') %></h1>
+
 <p class="guidetext is-customer"><%- __('SelectPerformanceGuideText') %></p>
-<p class="guidetext is-staff-block">代理予約を行う日時を指定してください</p>
 
-<%  if (cate == "wheelchair") { %>
-    <p class="guidetext is-customer" style="color:red"><%- __('ForWCMessage') %></p>
-<%  } %>
+<% if (isStaff) { %><p class="guidetext is-staff-block">代理予約を行う日時を指定してください</p><% } %>
 
-<p class="guidetext guidetext-topdeck"><%- __('AboutTour') %></p>
+<% if (!isStaff && !isWheelchair) { %><p class="guidetext guidetext-topdeck"><%- __('AboutTour') %></p><% } %>
 
-<p class="guidetext guidetext-reservation"><%- __('LinkContainedPerformanceMessage') %></p>
+<p class="guidetext guidetext-reservation is-customer"><%- (isWheelchair) ? __('LinkContainedWheelChairGuideMessage') : __('LinkContainedPerformanceMessage') %></p>
 
 <h3><span class="redcircle">1</span><%- __('PreferredDateSelect') %><span class="daynotice"><%- __('ReservableMaxDate', {ymd: reserveMaxDate}) %></span></h3>
 <div class="performancesearchform">

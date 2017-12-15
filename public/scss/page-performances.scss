@@ -1,5 +1,11 @@
 // パフォーマンス検索ページ
 .page-performances {
+    .pagetitle {
+        .is-wheelchair {
+            display: block;
+            margin-bottom: 10px;
+        }
+    }
     .guidetext-reservation {
         text-align: left;
         font-size: 0.8em;

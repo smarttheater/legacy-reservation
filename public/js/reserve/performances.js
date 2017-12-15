@@ -3,9 +3,9 @@ $(function() {
     'use strict';
     if (!window.ttts.API_ENDPOINT) { return alert('API_ENDPOINT undefined'); }
     if (!window.ttts.API_TOKEN.VALUE) { return alert('API_TOKEN undefined'); }
-    
+
     // カレンダーを何日先まで表示するか
-    var CALENDER_MAXDATE = window.ttts.reservableMaxDate || 60;
+    var CALENDER_MAXDATE = window.ttts.reservableMaxDate || '';
 
     // 空き状況表示切り替え閾値 (以下)
     var STATUS_THRESHOLD = {
@@ -17,6 +17,9 @@ $(function() {
     var getItemClassNameByPerformance = function(performance) {
         if (performance.online_sales_status !== '0') {
             return 'item-unavailable'; // 「-」
+        }
+        if (window.ttts.isWheelchairReservation && !performance.wheelchair_available) {
+            return 'item-soldout';
         }
         var num = parseInt(performance.seat_status, 10);
         if (num > STATUS_THRESHOLD.CROWDED) {
@@ -43,7 +46,7 @@ $(function() {
                 if (moment_now.isAfter(moment(performance.attributes.day + '' + performance.attributes.start_time, 'YYYYMMDDHHmm'))) {
                     return true;
                 }
-                if (!~hourArray.indexOf(hour)) {
+                if (hourArray.indexOf(hour) === -1) {
                     hourArray.push(hour);
                     performancesByHour[hour] = [];
                 }
@@ -52,7 +55,8 @@ $(function() {
                     start_time: performance.attributes.start_time,
                     end_time: performance.attributes.end_time,
                     seat_status: performance.attributes.seat_status,
-                    online_sales_status: performance.attributes.online_sales_status
+                    online_sales_status: performance.attributes.online_sales_status,
+                    wheelchair_available: performance.attributes.wheelchair_available
                 });
             } catch (e) {
                 console.log(e);
@@ -96,6 +100,9 @@ $(function() {
     // 検索
     var $loading = $('.loading');
     var search = function(condition) {
+        if (window.ttts.isWheelchairReservation) {
+            condition.wheelchair = true;
+        }
         $.ajax({
             dataType: 'json',
             url: window.ttts.API_ENDPOINT + 'performances',
