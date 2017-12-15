@@ -57,7 +57,7 @@ function processFixSeatsAndTickets(reservationModel, req) {
             // tslint:disable-next-line:max-line-length
             const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === choice.ticket_type));
             if (ticketType === undefined) {
-                throw new Error(req.__('Message.UnexpectedError'));
+                throw new Error(req.__('UnexpectedError'));
             }
             return {
                 extra: choice.choicesExtra,
@@ -453,7 +453,7 @@ function createEmailQueue(reservations, reservationModel, res) {
             }
         }
         // 券種ごとの表示情報編集
-        const leaf = res.__('EmailLeaf');
+        const leaf = res.__('{{n}}Leaf');
         const ticketInfoArray = [];
         Object.keys(ticketInfos).forEach((key) => {
             const ticketInfo = ticketInfos[key];

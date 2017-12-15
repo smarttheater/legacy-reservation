@@ -70,7 +70,7 @@ for (let reservation of reservationDocuments) {
         <tr class="tr-price">
             <th><%- __('TotalPrice') %></th>
             <td>
-                <span class="price">&yen;<%= reservationDocuments[0].get('gmo_amount') %></span>
+                <span class="price"><span class="is-ja">&yen;</span><%= reservationDocuments[0].get('gmo_amount') %><span class="is-not-ja">JPY</span></span>
             </td>
         </tr>
     </tbody>

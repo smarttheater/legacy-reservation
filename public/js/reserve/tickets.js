@@ -36,7 +36,7 @@ $(function() {
         isValidTicketsSelected = true;
 
         // 数字をコンマ区切りに
-        var text = total.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,') + ((window.ttts.currentLocale === 'ja') ? '円' : 'JPY');
+        var text = total.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,') + ((window.ttts.currentLocale === 'ja') ? '円' : ' JPY');
         dom_price.innerText = text;
         dom_tfoot.classList.remove('hidden');
         if (isAgreed()) {

@@ -23,7 +23,7 @@ export default (req: Request) => {
     req.checkBody(
         'last4DigitsOfTel',
         req.__(
-            'RegexTelRange{{fieldName}}{{min}}{{max}}',
+            'InputRange{{fieldName}}{{min}}{{max}}',
             { fieldName: req.__('Form.FieldName.last4DigitsOfTel'), min: String(TEL_MIN_LENGTH), max: String(TEL_MAX_LENGTH) }
         )
     ).matches(/^[0-9]{4}$/);

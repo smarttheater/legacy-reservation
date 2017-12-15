@@ -39,7 +39,7 @@
                     <p>
                         <% reservationModel.seatCodes.forEach((seatCode) => { %>
                             <% let reservation = reservationModel.seatCode2reservationDocument(seatCode); %>
-                            <%- reservation.get(`ticket_type_detail_str`)[locale].replace(/\\/g, '&yen;') %>
+                            <%- reservation.ticket_type_detail_str[locale] %>
                             <br>
                         <% }) %>
                     </p>
