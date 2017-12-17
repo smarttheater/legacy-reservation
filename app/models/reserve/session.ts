@@ -129,7 +129,7 @@ export default class ReserveSessionModel {
         if (this.performance !== undefined) {
             // 制限枚数指定のパフォーマンスの場合
             const performanceIds4limit2 = conf.get<string[]>('performanceIds4limit2');
-            if (performanceIds4limit2.indexOf(this.performance._id) >= 0) {
+            if (performanceIds4limit2.indexOf(this.performance.id) >= 0) {
                 limit = MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES;
             }
         }
@@ -215,7 +215,7 @@ export default class ReserveSessionModel {
             payment_no: this.paymentNo,
             purchaser_group: this.purchaserGroup,
 
-            performance: this.performance._id,
+            performance: this.performance.id,
             performance_day: this.performance.day,
             performance_open_time: this.performance.open_time,
             performance_start_time: this.performance.start_time,
@@ -317,10 +317,4 @@ interface IExtensionTiket {
 /**
  * 多言語情報インターフェース
  */
-interface IMultilingualString {
-    ja: string;
-    en: string;
-    kr: string;
-    tc: string;
-    sc: string;
-}
+type IMultilingualString = ttts.factory.multilingualString;

@@ -71,7 +71,7 @@ function processFixSeatsAndTickets(reservationModel, req) {
             };
         });
         debug('creating seatReservation authorizeAction... offers:', offers);
-        const action = yield ttts.service.transaction.placeOrderInProgress.action.authorize.seatReservation.create(reservationModel.agentId, reservationModel.id, reservationModel.performance._id, offers);
+        const action = yield ttts.service.transaction.placeOrderInProgress.action.authorize.seatReservation.create(reservationModel.agentId, reservationModel.id, reservationModel.performance.id, offers);
         reservationModel.seatReservationAuthorizeActionId = action.id;
         // この時点で購入番号が発行される
         reservationModel.paymentNo = action.result.tmpReservations[0].payment_no;
@@ -175,7 +175,7 @@ function getInfoFixSeatsAndTickets(reservationModel, req, selectedCount) {
         };
         // 予約可能件数取得
         const conditions = {
-            performance: reservationModel.performance._id,
+            performance: reservationModel.performance.id,
             availability: ttts.factory.itemAvailability.InStock
         };
         const count = yield stockRepo.stockModel.count(conditions).exec();

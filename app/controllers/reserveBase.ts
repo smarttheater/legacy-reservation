@@ -77,7 +77,7 @@ export async function processFixSeatsAndTickets(
     const action = await ttts.service.transaction.placeOrderInProgress.action.authorize.seatReservation.create(
         reservationModel.agentId,
         reservationModel.id,
-        reservationModel.performance._id,
+        reservationModel.performance.id,
         offers
     );
     reservationModel.seatReservationAuthorizeActionId = action.id;
@@ -220,7 +220,7 @@ async function getInfoFixSeatsAndTickets(
     };
     // 予約可能件数取得
     const conditions: any = {
-        performance: reservationModel.performance._id,
+        performance: reservationModel.performance.id,
         availability: ttts.factory.itemAvailability.InStock
     };
     const count = await stockRepo.stockModel.count(conditions).exec();
