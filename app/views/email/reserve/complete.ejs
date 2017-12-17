@@ -10,7 +10,7 @@
 <% /* 券種、枚数 */ %><%- __('TicketType') %> <%- __('TicketCount') %>
 <% ticketInfoArray.forEach((ticketInfo, index) => { %><%- ticketInfo %>
 <% }) %>-------------------------------------
-<% /*合計枚数 */ %><%- __('EmailTotalTicketCount').replace('$reservations_length$',reservations.length) %>
+<% /*合計枚数 */ %><%- __('EmailTotalTicketCount{{n}}', {n: reservations.length}) %>
 -------------------------------------
 
 <%- __('EmailNotice1') %>

@@ -406,7 +406,7 @@ function processFixGMO(reservationModel, req) {
                 // GMO取引作成
                 const count = `00${reservationModel.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
                 // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
-                orderId = ttts.ReservationUtil.createGMOOrderId(reservationModel.performance.day, reservationModel.paymentNo, count);
+                orderId = `${moment().format('YYMMDD')}${reservationModel.performance.day}${reservationModel.paymentNo}${count}`;
                 debug('orderId:', orderId);
                 const gmoTokenObject = JSON.parse(req.body.gmoTokenObject);
                 const amount = reservationModel.getTotalCharge();

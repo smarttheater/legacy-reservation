@@ -59,7 +59,7 @@ export async function processFixSeatsAndTickets(
         // tslint:disable-next-line:max-line-length
         const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === choice.ticket_type));
         if (ticketType === undefined) {
-            throw new Error(req.__('Message.UnexpectedError'));
+            throw new Error(req.__('UnexpectedError'));
         }
 
         return {
@@ -77,7 +77,7 @@ export async function processFixSeatsAndTickets(
     const action = await ttts.service.transaction.placeOrderInProgress.action.authorize.seatReservation.create(
         reservationModel.agentId,
         reservationModel.id,
-        reservationModel.performance._id,
+        reservationModel.performance.id,
         offers
     );
     reservationModel.seatReservationAuthorizeActionId = action.id;
@@ -220,7 +220,7 @@ async function getInfoFixSeatsAndTickets(
     };
     // 予約可能件数取得
     const conditions: any = {
-        performance: reservationModel.performance._id,
+        performance: reservationModel.performance.id,
         availability: ttts.factory.itemAvailability.InStock
     };
     const count = await stockRepo.stockModel.count(conditions).exec();
@@ -573,7 +573,7 @@ async function createEmailQueue(
         }
     }
     // 券種ごとの表示情報編集
-    const leaf: string = res.__('EmailLeaf');
+    const leaf: string = res.__('{{n}}Leaf');
     const ticketInfoArray: string[] = [];
     Object.keys(ticketInfos).forEach((key) => {
         const ticketInfo = (<any>ticketInfos)[key];

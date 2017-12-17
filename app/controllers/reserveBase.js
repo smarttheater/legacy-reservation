@@ -57,7 +57,7 @@ function processFixSeatsAndTickets(reservationModel, req) {
             // tslint:disable-next-line:max-line-length
             const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === choice.ticket_type));
             if (ticketType === undefined) {
-                throw new Error(req.__('Message.UnexpectedError'));
+                throw new Error(req.__('UnexpectedError'));
             }
             return {
                 extra: choice.choicesExtra,
@@ -71,7 +71,7 @@ function processFixSeatsAndTickets(reservationModel, req) {
             };
         });
         debug('creating seatReservation authorizeAction... offers:', offers);
-        const action = yield ttts.service.transaction.placeOrderInProgress.action.authorize.seatReservation.create(reservationModel.agentId, reservationModel.id, reservationModel.performance._id, offers);
+        const action = yield ttts.service.transaction.placeOrderInProgress.action.authorize.seatReservation.create(reservationModel.agentId, reservationModel.id, reservationModel.performance.id, offers);
         reservationModel.seatReservationAuthorizeActionId = action.id;
         // この時点で購入番号が発行される
         reservationModel.paymentNo = action.result.tmpReservations[0].payment_no;
@@ -175,7 +175,7 @@ function getInfoFixSeatsAndTickets(reservationModel, req, selectedCount) {
         };
         // 予約可能件数取得
         const conditions = {
-            performance: reservationModel.performance._id,
+            performance: reservationModel.performance.id,
             availability: ttts.factory.itemAvailability.InStock
         };
         const count = yield stockRepo.stockModel.count(conditions).exec();
@@ -453,7 +453,7 @@ function createEmailQueue(reservations, reservationModel, res) {
             }
         }
         // 券種ごとの表示情報編集
-        const leaf = res.__('EmailLeaf');
+        const leaf = res.__('{{n}}Leaf');
         const ticketInfoArray = [];
         Object.keys(ticketInfos).forEach((key) => {
             const ticketInfo = ticketInfos[key];
