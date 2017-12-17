@@ -52,7 +52,7 @@ export async function processFixSeatsAndTickets(
 
     // チケット情報に枚数セット(画面で選択された枚数<画面再表示用)
     reservationModel.ticketTypes.forEach((ticketType) => {
-        const choice = checkInfo.choices.find((c) => (ticketType._id === c.ticket_type));
+        const choice = checkInfo.choices.find((c) => ticketType.id === c.ticket_type);
         ticketType.count = (choice !== undefined) ? Number(choice.ticket_count) : 0;
     });
 
@@ -64,13 +64,13 @@ export async function processFixSeatsAndTickets(
     // 座席承認アクション
     const offers = checkInfo.choicesAll.map((choice) => {
         // チケット情報
-        const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === choice.ticket_type));
+        const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray.id === choice.ticket_type));
         if (ticketType === undefined) {
             throw new Error(req.__('UnexpectedError'));
         }
 
         return {
-            ticket_type: ticketType._id,
+            ticket_type: ticketType.id,
             watcher_name: ''
         };
     });
@@ -169,8 +169,8 @@ async function checkFixSeatsAndTickets(reservationModel: ReserveSessionModel, re
         [key: string]: number
     } = {};
     reservationModel.ticketTypes.forEach((ticketTypeInArray) => {
-        if (ticketTypeInArray.ttts_extension.category !== ttts.TicketTypeGroupUtil.TICKET_TYPE_CATEGORY_NORMAL) {
-            extraSeatNum[ticketTypeInArray._id] = ticketTypeInArray.ttts_extension.required_seat_num;
+        if (ticketTypeInArray.ttts_extension.category !== ttts.factory.ticketTypeCategory.Normal) {
+            extraSeatNum[ticketTypeInArray.id] = ticketTypeInArray.ttts_extension.required_seat_num;
         }
     });
 
@@ -242,7 +242,7 @@ async function getInfoFixSeatsAndTickets(
     const stocks = await stockRepo.stockModel.find(conditions).exec();
     info.results = stocks.map((stock) => {
         return {
-            _id: stock._id,
+            id: stock.id,
             performance: (<any>stock).performance,
             seat_code: (<any>stock).seat_code,
             used: false
@@ -442,11 +442,10 @@ export async function processFixPerformance(
         throw new Error('You cannot reserve this performance.');
     }
 
-    // 券種取得
-    const ticketTypeGroup = await ttts.Models.TicketTypeGroup.findById(performance.ticket_type_group).populate('ticket_types').exec();
-    if (ticketTypeGroup !== null) {
-        reservationModel.ticketTypes = ticketTypeGroup.get('ticket_types');
-    }
+    // 券種セット
+    reservationModel.ticketTypes = performance.ticket_type_group.ticket_types.map((t) => {
+        return { ...t, ...{ count: 0 } };
+    });
 
     reservationModel.seatCodes = [];
 
