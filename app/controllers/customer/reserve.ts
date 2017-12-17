@@ -17,7 +17,7 @@ import ReserveSessionModel from '../../models/reserve/session';
 import * as reserveBaseController from '../reserveBase';
 
 const debug = createDebug('ttts-frontend:controller:customerReserve');
-const PURCHASER_GROUP: string = ttts.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
+const PURCHASER_GROUP: string = ttts.factory.person.Group.Customer;
 const reserveMaxDateInfo: any = conf.get<any>('reserve_max_date');
 
 /**

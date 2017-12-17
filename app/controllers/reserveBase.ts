@@ -64,21 +64,14 @@ export async function processFixSeatsAndTickets(
     // 座席承認アクション
     const offers = checkInfo.choicesAll.map((choice) => {
         // チケット情報
-        // tslint:disable-next-line:max-line-length
         const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === choice.ticket_type));
         if (ticketType === undefined) {
             throw new Error(req.__('UnexpectedError'));
         }
 
         return {
-            extra: choice.choicesExtra, // 車いすの場合
             ticket_type: ticketType._id,
-            ticket_type_name: ticketType.name,
-            ticket_type_charge: ticketType.charge,
-            watcher_name: '',
-            ticket_cancel_charge: ticketType.cancel_charge,
-            ticket_ttts_extension: ticketType.ttts_extension,
-            performance_ttts_extension: reservationModel.performance.ttts_extension
+            watcher_name: ''
         };
     });
     debug(`creating seatReservation authorizeAction on ${offers.length} offers...`);
@@ -464,7 +457,7 @@ export async function processFixPerformance(
             film: {
                 ...performance.film,
                 ...{
-                    image: `${req.protocol}://${req.hostname}/images/film/${performance.film._id}.jpg`
+                    image: `${req.protocol}://${req.hostname}/images/film/${performance.film.id}.jpg`
                 }
             }
         }
@@ -613,7 +606,6 @@ async function createEmailQueue(
                 numeral: numeral,
                 conf: conf,
                 GMOUtil: ttts.GMO.utils.util,
-                ReservationUtil: ttts.ReservationUtil,
                 ticketInfoArray: ticketInfoArray,
                 totalCharge: reservationModel.getTotalCharge(),
                 dayTime: `${day} ${time}`

@@ -61,20 +61,13 @@ function processFixSeatsAndTickets(reservationModel, req) {
         // 座席承認アクション
         const offers = checkInfo.choicesAll.map((choice) => {
             // チケット情報
-            // tslint:disable-next-line:max-line-length
             const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray._id === choice.ticket_type));
             if (ticketType === undefined) {
                 throw new Error(req.__('UnexpectedError'));
             }
             return {
-                extra: choice.choicesExtra,
                 ticket_type: ticketType._id,
-                ticket_type_name: ticketType.name,
-                ticket_type_charge: ticketType.charge,
-                watcher_name: '',
-                ticket_cancel_charge: ticketType.cancel_charge,
-                ticket_ttts_extension: ticketType.ttts_extension,
-                performance_ttts_extension: reservationModel.performance.ttts_extension
+                watcher_name: ''
             };
         });
         debug(`creating seatReservation authorizeAction on ${offers.length} offers...`);
@@ -378,7 +371,7 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         // パフォーマンス情報を保管
         reservationModel.performance = Object.assign({}, performance, {
             film: Object.assign({}, performance.film, {
-                image: `${req.protocol}://${req.hostname}/images/film/${performance.film._id}.jpg`
+                image: `${req.protocol}://${req.hostname}/images/film/${performance.film.id}.jpg`
             })
         });
         // 座席グレードリスト抽出
@@ -479,7 +472,6 @@ function createEmailQueue(reservations, reservationModel, res) {
                 numeral: numeral,
                 conf: conf,
                 GMOUtil: ttts.GMO.utils.util,
-                ReservationUtil: ttts.ReservationUtil,
                 ticketInfoArray: ticketInfoArray,
                 totalCharge: reservationModel.getTotalCharge(),
                 dayTime: `${day} ${time}`

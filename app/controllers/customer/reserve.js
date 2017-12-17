@@ -23,7 +23,7 @@ const reservePerformanceForm_1 = require("../../forms/reserve/reservePerformance
 const session_1 = require("../../models/reserve/session");
 const reserveBaseController = require("../reserveBase");
 const debug = createDebug('ttts-frontend:controller:customerReserve');
-const PURCHASER_GROUP = ttts.ReservationUtil.PURCHASER_GROUP_CUSTOMER;
+const PURCHASER_GROUP = ttts.factory.person.Group.Customer;
 const reserveMaxDateInfo = conf.get('reserve_max_date');
 /**
  * スケジュール選択(本番では存在しない、実際はポータル側のページ)
