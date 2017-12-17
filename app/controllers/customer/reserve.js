@@ -343,13 +343,13 @@ function complete(req, res, next) {
                     $gt: moment().add(-30, 'minutes').toDate() // tslint:disable-line:no-magic-numbers
                 }
             }).exec();
-            debug('confirmed transaction:', transaction);
             if (transaction === null) {
                 next(new Error(req.__('NotFound')));
                 return;
             }
+            debug('confirmed transaction:', transaction.get('id'));
             let reservations = transaction.get('result').get('eventReservations');
-            debug('reservations:', reservations);
+            debug(reservations.length, 'reservation(s) found.');
             reservations = reservations.filter((reservation) => reservation.get('status') === ttts.factory.reservationStatusType.ReservationConfirmed);
             if (reservations.length === 0) {
                 next(new Error(req.__('NotFound')));
@@ -414,7 +414,7 @@ function processFixGMO(reservationModel, req) {
                 debug('creating credit card authorizeAction...', orderId);
                 const action = yield ttts.service.transaction.placeOrderInProgress.action.authorize.creditCard.create(reservationModel.agentId, reservationModel.id, orderId, amount, ttts.GMO.utils.util.Method.Lump, // 支払い方法は一括
                 gmoTokenObject, process.env.GMO_SHOP_ID, process.env.GMO_SHOP_PASS);
-                debug('credit card authorizeAction created.', action);
+                debug('credit card authorizeAction created.', action.id);
                 reservationModel.creditCardAuthorizeActionId = action.id;
                 const authorizeActionResult = action.result;
                 reservationModel.transactionGMO.accessId = authorizeActionResult.execTranArgs.accessId; // セッションに持つ必要ある？

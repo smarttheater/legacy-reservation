@@ -17,7 +17,15 @@ import reserveTicketForm from '../forms/reserve/reserveTicketForm';
 import ReserveSessionModel from '../models/reserve/session';
 
 const debug = createDebug('ttts-frontend:controller:reserveBase');
-const DEFAULT_RADIX = 10;
+
+// 車椅子レート制限のためのRedis接続クライアント
+const redisClient = ttts.redis.createClient({
+    host: <string>process.env.REDIS_HOST,
+    // tslint:disable-next-line:no-magic-numbers
+    port: parseInt(<string>process.env.REDIS_PORT, 10),
+    password: <string>process.env.REDIS_KEY,
+    tls: { servername: <string>process.env.REDIS_HOST }
+});
 
 /**
  * 座席・券種FIXプロセス
@@ -73,13 +81,19 @@ export async function processFixSeatsAndTickets(
             performance_ttts_extension: reservationModel.performance.ttts_extension
         };
     });
-    debug('creating seatReservation authorizeAction... offers:', offers);
+    debug(`creating seatReservation authorizeAction on ${offers.length} offers...`);
     const action = await ttts.service.transaction.placeOrderInProgress.action.authorize.seatReservation.create(
         reservationModel.agentId,
         reservationModel.id,
         reservationModel.performance.id,
         offers
-    );
+    )(
+        new ttts.repository.Transaction(ttts.mongoose.connection),
+        new ttts.repository.Performance(ttts.mongoose.connection),
+        new ttts.repository.action.authorize.SeatReservation(ttts.mongoose.connection),
+        new ttts.repository.PaymentNo(ttts.mongoose.connection),
+        new ttts.repository.WheelchairReservationCount(redisClient)
+        );
     reservationModel.seatReservationAuthorizeActionId = action.id;
     // この時点で購入番号が発行される
     reservationModel.paymentNo = (<ttts.factory.action.authorize.seatReservation.IResult>action.result).tmpReservations[0].payment_no;
@@ -351,7 +365,7 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
         sellerId: 'TokyoTower',
         purchaserGroup: purchaserGroup
     });
-    debug('transaction started.', transaction);
+    debug('transaction started.', transaction.id);
 
     reservationModel.id = transaction.id;
     reservationModel.agentId = transaction.agent.id;
@@ -401,7 +415,11 @@ export async function processCancelSeats(reservationModel: ReserveSessionModel):
             reservationModel.agentId,
             reservationModel.id,
             reservationModel.seatReservationAuthorizeActionId
-        );
+        )(
+            new ttts.repository.Transaction(ttts.mongoose.connection),
+            new ttts.repository.action.authorize.SeatReservation(ttts.mongoose.connection),
+            new ttts.repository.WheelchairReservationCount(redisClient)
+            );
     }
 }
 
@@ -426,7 +444,8 @@ export async function processFixPerformance(
     }
 
     // 上映日当日まで購入可能
-    if (parseInt(performance.day, DEFAULT_RADIX) < parseInt(moment().format('YYYYMMDD'), DEFAULT_RADIX)) {
+    // tslint:disable-next-line:no-magic-numbers
+    if (parseInt(performance.day, 10) < parseInt(moment().format('YYYYMMDD'), 10)) {
         throw new Error('You cannot reserve this performance.');
     }
 
@@ -458,8 +477,9 @@ export async function processFixPerformance(
 
     // コンビニ決済はパフォーマンス上映の5日前まで
     // tslint:disable-next-line:no-magic-numbers
-    const day5DaysAgo = parseInt(moment().add(5, 'days').format('YYYYMMDD'), DEFAULT_RADIX);
-    if (parseInt(reservationModel.performance.day, DEFAULT_RADIX) < day5DaysAgo) {
+    const day5DaysAgo = parseInt(moment().add(5, 'days').format('YYYYMMDD'), 10);
+    // tslint:disable-next-line:no-magic-numbers
+    if (parseInt(reservationModel.performance.day, 10) < day5DaysAgo) {
         if (reservationModel.paymentMethodChoices.indexOf(ttts.GMO.utils.util.PayType.Cvs) >= 0) {
             reservationModel.paymentMethodChoices.splice(reservationModel.paymentMethodChoices.indexOf(ttts.GMO.utils.util.PayType.Cvs), 1);
         }

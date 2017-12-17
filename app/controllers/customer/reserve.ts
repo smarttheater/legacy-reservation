@@ -336,15 +336,15 @@ export async function complete(req: Request, res: Response, next: NextFunction):
                 }
             }
         ).exec();
-        debug('confirmed transaction:', transaction);
         if (transaction === null) {
             next(new Error(req.__('NotFound')));
 
             return;
         }
 
+        debug('confirmed transaction:', transaction.get('id'));
         let reservations: ttts.mongoose.Document[] = transaction.get('result').get('eventReservations');
-        debug('reservations:', reservations);
+        debug(reservations.length, 'reservation(s) found.');
         reservations = reservations.filter(
             (reservation) => reservation.get('status') === ttts.factory.reservationStatusType.ReservationConfirmed
         );
@@ -431,7 +431,7 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
                 <string>process.env.GMO_SHOP_ID,
                 <string>process.env.GMO_SHOP_PASS
             );
-            debug('credit card authorizeAction created.', action);
+            debug('credit card authorizeAction created.', action.id);
             reservationModel.creditCardAuthorizeActionId = action.id;
 
             const authorizeActionResult = <ttts.factory.action.authorize.creditCard.IResult>action.result;
