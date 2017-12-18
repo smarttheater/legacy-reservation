@@ -61,7 +61,7 @@
 	"Securitycode": "セキュリティコード",
 	"AboutSecuritycode": "セキュリティコードについて",
 	"NoInput{{fieldName}}": "{{fieldName}}が入力されていません。",
-	"Required{{fieldName}}": "必須項目です。",
+	"Required{{fieldName}}": "{{fieldName}}は入力必須項目です。",
 	"MaxLength{{fieldName}}{{max}}": "{{fieldName}}は{{max}}文字以内で入力してください。",
 	"Invalid{{fieldName}}": "{{fieldName}}にまちがいがあります。",
 	"InputRange{{fieldName}}{{min}}{{max}}": "{{fieldName}}は{{min}}桁以上{{max}}桁以内で入力してください。",
