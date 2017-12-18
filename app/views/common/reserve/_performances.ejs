@@ -1,6 +1,5 @@
 <%
     const cate = (typeof category === 'string') ? category : 'general';
-    const isStaff = /staff/.test(req.baseUrl);
     const isWheelchair = (cate === 'wheelchair');
 %>
 <script>
@@ -21,9 +20,7 @@
 
 <p class="guidetext is-customer"><%- __('SelectPerformanceGuideText') %></p>
 
-<% if (isStaff) { %><p class="guidetext is-staff-block">代理予約を行う日時を指定してください</p><% } %>
-
-<% if (!isStaff && !isWheelchair) { %><p class="guidetext guidetext-topdeck"><%- __('AboutTour') %></p><% } %>
+<% if (!isWheelchair) { %><p class="guidetext guidetext-topdeck"><%- __('AboutTour') %></p><% } %>
 
 <p class="guidetext guidetext-reservation is-customer"><%- (isWheelchair) ? __('LinkContainedWheelChairGuideMessage') : __('LinkContainedPerformanceMessage') %></p>
 

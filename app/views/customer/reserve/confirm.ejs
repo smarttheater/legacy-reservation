@@ -98,10 +98,8 @@
                 <th><%- __('PaymentMethod') %></th>
                 <td>
                     <p>
-                    <% if (reservationModel.paymentMethod === GMOUtil.PayType.Credit) { %>
+                    <% if (reservationModel.paymentMethod === '0') { %>
                     <%- __('PaymentMethodName0') %>
-                    <% } else if (reservationModel.paymentMethod === GMOUtil.PayType.Cvs) {%>
-                    <%- __('PaymentMethodNameCVS') %>
                     <% } %>
                     </p>
                 </td>
