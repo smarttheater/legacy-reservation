@@ -7,8 +7,40 @@
 
 <form id="form_profile" method="post">
 
+<% if (reservationModel.purchaserGroup === 'Staff') {
+    // 代理予約
+%>
 
-<%
+    <table class="table table-profile table-profile-staff">
+        <tbody>
+            <% /*ご利用金額*/ %>
+            <tr class="tr-price">
+                <th><label><%- __('TotalPrice') %></label></th>
+                <td>
+                    <p><span class="price">&yen;<%- numeral(reservationModel.getTotalCharge()).format('0,0') %></span></p>
+                </td>
+            </tr>
+            <% /*決済手段*/ %>
+            <tr class="tr-payment">
+                <th><%- __('Form.FieldName.paymentMethod') %><span class="required">*</span></th>
+                <td>
+                    <div class="wrapper-payment form-inline">
+                        <%
+                            const paymentMethods = conf.get('paymentMethodsForStaff');
+                            Object.keys(paymentMethods).forEach((methodCode) => { %>
+                            <label for="radio_payment_method<%- methodCode %>" class="form-group payment">
+                                <input type="radio" id="radio_payment_method<%- methodCode %>" name="paymentMethod" class="form-control" value="<%- methodCode %>"<% if (paymentMethod === methodCode ) { %> checked="checked"<% } %>>
+                                <%- paymentMethods[methodCode] %>
+                                <div class="checkedbg"></div>
+                            </label>
+                        <% }) %>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+<% } else {
     /* 一般予約
       CHEVREの仕様 = submit時にコントローラがバリデーションを行い、エラーがあったら翻訳済みエラーメッセージが validation に入って返ってくる
       (ここでのサーバ側のバリデーターは app/forms/reserve/reserveProfileForm )
@@ -218,6 +250,7 @@
     <input type="hidden" name="gmoTokenObject" value="">
     <input style="display:none;" type="radio" name="paymentMethod" value="0" checked="checked">
     <script src="/js/lib/intl-tel-input/intlTelInput.min.js"></script>
+<% } %>
 </form>
 
 <div class="modal fade" id="modal_cardsecurirycode" tabindex="-1">

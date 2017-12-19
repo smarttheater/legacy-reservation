@@ -10,6 +10,9 @@ const printIds = reservationDocuments.map((doc)=>`"${doc.get('id')}"`);
 <h1 class="pagetitle"><%- __('ReservationCompleted') %></h1>
 <p class="guidetext guidetext-customer"><%- __('CompleteReservationGuideText') %></p>
 <p class="rednotice qrnotice"><%- __('CompleteReservationNoticeText') %></p>
+<% if (reservationDocuments[0].purchaser_group === 'Staff') { %>
+<p class="guidetext">代理予約が完了いたしました。<br>「印刷」ボタンを押してチケットを発見してください。</p>
+<% } %>
 
 <table class="table table-complete">
     <tbody>
@@ -69,7 +72,15 @@ const printIds = reservationDocuments.map((doc)=>`"${doc.get('id')}"`);
     </tbody>
 </table>
 
+
 <a class="btn btn-blue visible-pc" id="btn_print_a4" target="_blank" href='<%- process.env.INQUIRY_SITE_URL %>print/print?ids=[<%- printIds.join(',') %>]'><span><%- __('PrintTicket') %></span></a>
+
+<% if (reservationDocuments[0].purchaser_group === 'Staff') { %>
+<div class="thermalprint">
+    <a class="btn btn-big btn-thermalprint" id="btn_thermalprint" target="_blank" href='<%- process.env.INQUIRY_SITE_URL %>print/print_pcthermal/?ids=[<%- printIds.join(',') %>]'><span>サーマル印刷</span></a>
+</div>
+<% } %>
+
 
 <p class="mailnotice"><%- __('CompleteNotesText') %></p>
 
