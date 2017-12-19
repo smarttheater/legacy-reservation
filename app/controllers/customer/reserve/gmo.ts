@@ -120,7 +120,6 @@ export async function start(req: Request, res: Response, next: NextFunction) {
         res.locals.amount = reservationModel.getTotalCharge().toString();
         res.locals.dateTime = moment(reservationModel.purchasedAt).format('YYYYMMDDHHmmss');
         res.locals.useCredit = (reservationModel.paymentMethod === ttts.factory.paymentMethodType.CreditCard) ? '1' : '0';
-        res.locals.useCvs = (reservationModel.paymentMethod === ttts.factory.paymentMethodType.Cvs) ? '1' : '0';
         res.locals.shopPassString = ttts.GMO.utils.util.createShopPassString({
             shopId: <string>SHOP_ID,
             shopPass: <string>SHOP_PASS,

@@ -254,7 +254,7 @@ function processFixProfile(reservationModel, req, res) {
             age: req.body.age,
             address: req.body.address,
             gender: req.body.gender
-        });
+        })(new ttts.repository.Transaction(ttts.mongoose.connection));
         // セッションに購入者情報格納
         req.session.purchaser = {
             lastName: req.body.lastName,
@@ -290,10 +290,10 @@ function processStart(purchaserGroup, req) {
         const transaction = yield ttts.service.transaction.placeOrderInProgress.start({
             // tslint:disable-next-line:no-magic-numbers
             expires: moment().add(30, 'minutes').toDate(),
-            agentId: '',
+            agentId: process.env.API_CLIENT_ID,
             sellerId: 'TokyoTower',
             purchaserGroup: purchaserGroup
-        });
+        })(new ttts.repository.Transaction(ttts.mongoose.connection), new ttts.repository.Owner(ttts.mongoose.connection));
         debug('transaction started.', transaction.id);
         reservationModel.id = transaction.id;
         reservationModel.agentId = transaction.agent.id;
@@ -399,15 +399,14 @@ exports.processFixPerformance = processFixPerformance;
  */
 function processFixReservations(reservationModel, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const transaction = yield ttts.service.transaction.placeOrderInProgress.confirm({
+        const transactionResult = yield ttts.service.transaction.placeOrderInProgress.confirm({
             agentId: reservationModel.agentId,
             transactionId: reservationModel.id,
             paymentMethod: reservationModel.paymentMethod
-        });
+        })(new ttts.repository.Transaction(ttts.mongoose.connection), new ttts.repository.action.authorize.CreditCard(ttts.mongoose.connection), new ttts.repository.action.authorize.SeatReservation(ttts.mongoose.connection));
         try {
-            const result = transaction.result;
             // 完了メールキュー追加(あれば更新日時を更新するだけ)
-            const emailQueue = yield createEmailQueue(result.eventReservations, reservationModel, res);
+            const emailQueue = yield createEmailQueue(transactionResult.eventReservations, reservationModel, res);
             yield ttts.Models.EmailQueue.create(emailQueue);
             debug('email queue created.');
         }
