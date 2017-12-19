@@ -154,6 +154,13 @@ function tickets(req, res, next) {
                     return;
                 }
                 try {
+                    // 現在時刻が開始時刻を過ぎている時
+                    const now = moment().format('YYYYMMDD HHmm');
+                    const dayTime = `${reservationModel.performance.day} ${reservationModel.performance.start_time}`;
+                    if (now > dayTime) {
+                        //「ご希望の枚数が用意できないため予約できません。」
+                        throw new Error(req.__('NoAvailableSeats'));
+                    }
                     // 予約処理
                     yield reserveBaseController.processFixSeatsAndTickets(reservationModel, req);
                     reservationModel.save(req);
