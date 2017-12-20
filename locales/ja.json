@@ -1,9 +1,16 @@
 {
-	"Title": "東京タワー TOP DECK Ticket",	
-	"{{price}} yen": "{{price}} 円",	
-	"ConfirmCancelSelectedTickets": "選択したチケットをキャンセルします",		
+	"Title": "東京タワー TOP DECK Ticket",
+	"{{price}} yen": "{{price}} 円",
+	"ConfirmCancelSelectedTickets": "選択したチケットをキャンセルします",
 	"AreYouSureCancel": "本当にキャンセルしますか？",
-
+	"PaymentMethodName": {
+		"Cash": "現金",
+		"CP": "CP支払い",
+		"Invoice": "売掛（納品書・請求書支払い）",
+		"GroupReservation": "団体予約",
+		"Charter": "貸切予約",
+		"Invitation": "無料招待券"
+	},
 	"Terms": "利用規約",
 	"AboutPrivacy": "個人情報の取り扱いについて",
 	"ContactUs": "お問い合わせ",
@@ -46,7 +53,7 @@
 	"RetypeToConfirm": "確認のためもう一度入力してください。",
 	"SettingForLimitingEmailReception": "※【ドメイン指定受信をご利用の場合について】<br>※ 携帯電話のドメイン指定受信をされている場合、「@xxxx.xx」を追加設定してください。<br>※ au(@ezweb.ne.jp)をご利用の場合、上記に加え「なりすまし規制回避リスト」にも「@xxxx.xx」の追加設定をしてください。",
 	"Tel": "電話番号",
-	"UseHalfWidthAlphanumericWithoutHyphens": "国番号を選択し半角数字、ハイフン「-」なしで入力して下さい。国番号が存在しない場合、「Other Area」を選択し番号を入力してください。",
+	"UseHalfWidthAlphanumericWithoutHyphens": "国番号を選択し半角数字、ハイフン「-」なしで入力してください。国番号が存在しない場合、「Other Area」を選択し番号を入力してください。",
 	"Gender": "性別",
 	"NotSelected": "選択しない",
 	"Male": "男性",
@@ -61,7 +68,7 @@
 	"Securitycode": "セキュリティコード",
 	"AboutSecuritycode": "セキュリティコードについて",
 	"NoInput{{fieldName}}": "{{fieldName}}が入力されていません。",
-	"Required{{fieldName}}": "必須項目です。",
+	"Required{{fieldName}}": "{{fieldName}}は入力必須項目です。",
 	"MaxLength{{fieldName}}{{max}}": "{{fieldName}}は{{max}}文字以内で入力してください。",
 	"Invalid{{fieldName}}": "{{fieldName}}にまちがいがあります。",
 	"InputRange{{fieldName}}{{min}}{{max}}": "{{fieldName}}は{{min}}桁以上{{max}}桁以内で入力してください。",
@@ -85,7 +92,7 @@
 	"Profile": "購入者情報",
 	"FullName": "お名前",
 	"PaymentMethod": "お支払い方法",
-	"PaymentMethodName0": "クレジットカード",	
+	"PaymentMethodName0": "クレジットカード",
 	"Change": "変更",
 	"ConfirmNotes": "注意事項（重要）",
 	"ConfirmAgreementGuideText": "下記項目の内容をご確認のうえ、「同意する」にチェックを入れて「購入確定」ボタンを押してください。",
@@ -190,9 +197,10 @@
 	"MaintenanceMessage": "大変申し訳ございませんが、メンテナンス終了までお待ちください。",
 	"MaintenancePeriod": "メンテナンス期間：〇月〇日 〇〇時〇〇分～〇〇時〇〇分",
 	"AboutTour": "東京タワーの高さ250ｍに位置する「トップデッキ」へ真心を込めた演出で、待ち時間なくご案内するツアー。<br>多言語対応音声ガイドに、ドリンクサービスでおもてなし。<br>タワーとともに東京の過去から現在、そして未来を共有できるツアーです。",
-    "CardNumberMessage":"※半角数字、ハイフン「-」なしで入力してください",
-	"Close": "閉じる",	
-	"{{n}}Leaf":"〇枚",
-    "InquiryResultCan":"キャンセルを行う場合は「チケットをキャンセルする」ボタンを押してください。",
-    "NotFoundGuideText":"既に存在しないか、もしくはアドレスの入力が間違っている可能性があります。"
+	"CardNumberMessage": "※半角数字、ハイフン「-」なしで入力してください",
+	"Close": "閉じる",
+	"{{n}}Leaf": "{{n}}枚",
+	"InquiryResultCan": "キャンセルを行う場合は「チケットをキャンセルする」ボタンを押してください。",
+	"NotFoundGuideText": "既に存在しないか、もしくはアドレスの入力が間違っている可能性があります。",
+	"EmailDestinationName{{name}}": "{{name}} 様"
 }
