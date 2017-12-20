@@ -44,7 +44,7 @@ export default class ReserveSessionModel {
     /**
      * 座席仮予約有効期限タイムスタンプ
      */
-    public expiredAt: number;
+    public expires: Date;
     /**
      * パフォーマンス
      */

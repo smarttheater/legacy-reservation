@@ -294,21 +294,35 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
 
         if (req.method === 'POST') {
             try {
-                // 仮押さえ有効期限チェック
-                if (reservationModel.expiredAt !== undefined && reservationModel.expiredAt < moment().valueOf()) {
+                // 取引期限チェック
+                if (reservationModel.expires <= moment().toDate()) {
                     throw new Error(req.__('Expired'));
                 }
-                // クレジット以外の支払方法がある時はここにIf文が必要
-                //if (reservationModel.paymentMethod === GMO.Util.PAY_TYPE_CREDIT) {
+
                 // 予約確定
-                await reserveBaseController.processFixReservations(
-                    reservationModel,
-                    // reservationModel.performance.day,
-                    // reservationModel.paymentNo,
-                    // {},
-                    res
-                );
-                debug('processFixReservations processed.');
+                const transactionResult = await ttts.service.transaction.placeOrderInProgress.confirm({
+                    agentId: reservationModel.agentId,
+                    transactionId: reservationModel.id,
+                    paymentMethod: reservationModel.paymentMethod
+                })(
+                    new ttts.repository.Transaction(ttts.mongoose.connection),
+                    new ttts.repository.action.authorize.CreditCard(ttts.mongoose.connection),
+                    new ttts.repository.action.authorize.SeatReservation(ttts.mongoose.connection)
+                    );
+                debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
+
+                try {
+                    // 完了メールキュー追加(あれば更新日時を更新するだけ)
+                    const emailQueue = await reserveBaseController.createEmailQueue(
+                        transactionResult.eventReservations, reservationModel, res
+                    );
+                    await ttts.Models.EmailQueue.create(emailQueue);
+                    debug('email queue created.');
+                } catch (error) {
+                    console.error(error);
+                    // 失敗してもスルー(ログと運用でなんとかする)
+                }
+
                 ReserveSessionModel.REMOVE(req);
                 res.redirect(`/customer/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
                 //}
