@@ -25,6 +25,13 @@ const reserveBaseController = require("../reserveBase");
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 const PURCHASER_GROUP = ttts.factory.person.Group.Customer;
 const reserveMaxDateInfo = conf.get('reserve_max_date');
+const redisClient = ttts.redis.createClient({
+    host: process.env.REDIS_HOST,
+    // tslint:disable-next-line:no-magic-numbers
+    port: parseInt(process.env.REDIS_PORT, 10),
+    password: process.env.REDIS_KEY,
+    tls: { servername: process.env.REDIS_HOST }
+});
 /**
  * スケジュール選択(本番では存在しない、実際はポータル側のページ)
  * @method performances
@@ -372,8 +379,13 @@ function complete(req, res, next) {
                 return;
             }
             reservations.sort((a, b) => ttts.factory.place.screen.sortBySeatCode(a.seat_code, b.seat_code));
+            // 印刷トークン発行
+            const tokenRepo = new ttts.repository.Token(redisClient);
+            const printToken = yield tokenRepo.createPrintToken(reservations.map((r) => r.id));
+            debug('printToken created.', printToken);
             res.render('customer/reserve/complete', {
-                reservations: reservations
+                reservations: reservations,
+                printToken: printToken
             });
         }
         catch (error) {
