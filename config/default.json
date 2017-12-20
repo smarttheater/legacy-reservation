@@ -77,6 +77,13 @@
         "zh-hant": "https://www.tokyotower.co.jp/privacypolicy/zh.html",
         "ko": "https://www.tokyotower.co.jp/privacypolicy/kr.html"
     },
+    "official_url_inquiry_by_locale": {
+        "ja": "https://www.tokyotower.co.jp/",
+        "en": "https://www.tokyotower.co.jp/en.html",
+        "zh-hans": "https://www.tokyotower.co.jp/cn.html",
+        "zh-hant": "https://www.tokyotower.co.jp/zh.html",
+        "ko": "https://www.tokyotower.co.jp/kr.html"
+    },
     "official_url_contact_by_locale": {
         "ja": "https://www.tokyotower.co.jp/contact/",
         "en": "https://www.tokyotower.co.jp/contact/en.html"
