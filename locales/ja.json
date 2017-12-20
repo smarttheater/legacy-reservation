@@ -53,7 +53,7 @@
 	"RetypeToConfirm": "確認のためもう一度入力してください。",
 	"SettingForLimitingEmailReception": "※【ドメイン指定受信をご利用の場合について】<br>※ 携帯電話のドメイン指定受信をされている場合、「@xxxx.xx」を追加設定してください。<br>※ au(@ezweb.ne.jp)をご利用の場合、上記に加え「なりすまし規制回避リスト」にも「@xxxx.xx」の追加設定をしてください。",
 	"Tel": "電話番号",
-	"UseHalfWidthAlphanumericWithoutHyphens": "国番号を選択し半角数字、ハイフン「-」なしで入力して下さい。国番号が存在しない場合、「Other Area」を選択し番号を入力してください。",
+	"UseHalfWidthAlphanumericWithoutHyphens": "国番号を選択し半角数字、ハイフン「-」なしで入力してください。国番号が存在しない場合、「Other Area」を選択し番号を入力してください。",
 	"Gender": "性別",
 	"NotSelected": "選択しない",
 	"Male": "男性",
