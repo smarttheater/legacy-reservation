@@ -187,5 +187,6 @@
 	"Close": "",
 	"{{n}}Leaf": "",
 	"InquiryResultCan": "",
-	"NotFoundGuideText": ""
+	"NotFoundGuideText": "",
+	"EmailDestinationName{{name}}": "Уважаемый/-мая {{name}}"
 }

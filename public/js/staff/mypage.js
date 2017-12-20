@@ -10,7 +10,7 @@ $(function () {
     // サーマル印刷実行ボタン
     $(document).on('click', '.btn-thermalprint', function (e) {
         var id = e.currentTarget.getAttribute('data-targetid');
-        window.open(INQUIRY_SITE_URL + 'print/print_pcthermal?ids=' + JSON.stringify([id]));
+        window.open(INQUIRY_SITE_URL + 'print_pcthermal?ids=' + JSON.stringify([id]));
     });
 
     // 日付選択カレンダー (再読込時のために日付はsessionStorageにキープしておく)
@@ -242,7 +242,7 @@ $(function () {
     // A4印刷
     $(document).on('click', '.btn-print', function (e) {
         var id = e.currentTarget.getAttribute('data-targetid');
-        window.open(INQUIRY_SITE_URL + 'print/print?ids=' + JSON.stringify([id]));
+        window.open(INQUIRY_SITE_URL + 'print?ids=' + JSON.stringify([id]));
     });
 
     // 予約詳細モーダル呼び出し
