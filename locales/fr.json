@@ -62,7 +62,7 @@
 	"Required{{fieldName}}": "Champ obligatoire.",
 	"MaxLength{{fieldName}}{{max}}": "Le champ {{fieldName}} ne doit pas dépasser {{max}} caractères.",
 	"Invalid{{fieldName}}": "Le champ {{fieldName}} entré est incorrect.",
-	"InputRange{{fieldName}}{{min}}{{max}}": "Le champ {{fieldName}} doit contenir au moins {{min}} caractères.",
+	"InputRange{{fieldName}}{{min}}{{max}}": "La longueur du champ {{fieldName}} doit être entre {{min}} et {{max}} caractères.",
 	"Match{{fieldName}}": "Le champ {{fieldName}} ne correspond pas.",
 	"EnterInFullWidthKatakana": "Veuillez saisir votre nom complet.",
 	"{{fieldName}}Check": "Vérifiez le champ {{fieldName}}.",

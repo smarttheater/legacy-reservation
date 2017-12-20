@@ -62,7 +62,7 @@
 	"Required{{fieldName}}": "Questo campo è obbligatorio.",
 	"MaxLength{{fieldName}}{{max}}": "Il campo {{fieldName}} non deve superare {{max}} caratteri.",
 	"Invalid{{fieldName}}": "Il campo {{fieldName}} inserito non è corretto.",
-	"InputRange{{fieldName}}{{min}}{{max}}": "Il campo {{fieldName}} deve contenere almeno (numero di caratteri) caratteri.",
+	"InputRange{{fieldName}}{{min}}{{max}}": "Il campo {{fieldName}} deve essere compresto tra {{min}} e {{max}} caratteri.",
 	"Match{{fieldName}}": "Il campo {{fieldName}} inserito non corrisponde.",
 	"EnterInFullWidthKatakana": "Inserire cognome e nome.",
 	"{{fieldName}}Check": "Controllare il campo {{fieldName}}",
