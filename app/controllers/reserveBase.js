@@ -291,9 +291,9 @@ function processStart(purchaserGroup, req) {
             // tslint:disable-next-line:no-magic-numbers
             expires: moment().add(30, 'minutes').toDate(),
             agentId: process.env.API_CLIENT_ID,
-            sellerId: 'TokyoTower',
+            sellerIdentifier: 'TokyoTower',
             purchaserGroup: purchaserGroup
-        })(new ttts.repository.Transaction(ttts.mongoose.connection), new ttts.repository.Owner(ttts.mongoose.connection));
+        })(new ttts.repository.Transaction(ttts.mongoose.connection), new ttts.repository.Organization(ttts.mongoose.connection), new ttts.repository.Owner(ttts.mongoose.connection));
         debug('transaction started.', transaction.id);
         reservationModel.id = transaction.id;
         reservationModel.agentId = transaction.agent.id;
