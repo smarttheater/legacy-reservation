@@ -54,7 +54,7 @@
                     <tr data-ticket-code="<%- ticketType._id %>" data-ticket-charge="<%= ticketType.charge %>">
                         <% /* 券種名+値段 */ %>
                         <th>
-                            <span><%- ticketType.name[locale] %> \<%= ticketType.charge %></span>
+                            <span><%- ticketType.name[locale] %> <span class="is-ja">&yen;</span><%= ticketType.charge %><span class="is-not-ja"> JPY</span></span>
                             <%
                                 /* スタッフ予約時 => 予約メモ欄を表示 */
                                 if (isStaff) {
