@@ -7,22 +7,20 @@
 
 <form id="form_profile" method="post">
 
-<% if (reservationModel.transactionInProgress.purchaserGroup === 'Staff') {
+<% if (reservationModel.purchaserGroup === 'Staff') {
     // 代理予約
 %>
 
     <table class="table table-profile table-profile-staff">
         <tbody>
-            <% /*ご利用金額*/ %>
             <tr class="tr-price">
                 <th><label><%- __('TotalPrice') %></label></th>
                 <td>
                     <p><span class="price">&yen;<%- numeral(reservationModel.getTotalCharge()).format('0,0') %></span></p>
                 </td>
             </tr>
-            <% /*決済手段*/ %>
             <tr class="tr-payment">
-                <th><%- __('Form.FieldName.paymentMethod') %><span class="required">*</span></th>
+                <th>お支払い方法<span class="required">*</span></th>
                 <td>
                     <div class="wrapper-payment form-inline">
                         <%
