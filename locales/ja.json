@@ -202,5 +202,8 @@
 	"{{n}}Leaf": "{{n}}枚",
 	"InquiryResultCan": "キャンセルを行う場合は「チケットをキャンセルする」ボタンを押してください。",
 	"NotFoundGuideText": "既に存在しないか、もしくはアドレスの入力が間違っている可能性があります。",
-	"EmailDestinationName{{name}}": "{{name}} 様"
+	"EmailDestinationName{{name}}": "{{name}} 様",
+	"EmailConfirm": "メールアドレス(確認入力)",
+	"EmailConfirmDomain": "メールアドレス(確認入力)のドメイン",
+	"EmailConfirmInvalid": "入力されたメールアドレスが確認入力と一致しません"
 }
