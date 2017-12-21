@@ -400,6 +400,16 @@ function createEmailQueue(reservations, reservationModel, res) {
         const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
         // 特殊チケットは除外
         reservations = reservations.filter((reservation) => reservation.status === ttts.factory.reservationStatusType.ReservationConfirmed);
+        // チケットコード順にソート
+        reservations.sort((a, b) => {
+            if (a.ticket_type < b.ticket_type) {
+                return -1;
+            }
+            if (a.ticket_type > b.ticket_type) {
+                return 1;
+            }
+            return 0;
+        });
         const reservationDocs = reservations.map((reservation) => new reservationRepo.reservationModel(reservation));
         const to = reservations[0].purchaser_email;
         debug('to is', to);
@@ -409,7 +419,6 @@ function createEmailQueue(reservations, reservationModel, res) {
         const title = res.__('Title');
         const titleEmail = res.__('EmailTitle');
         // 券種ごとに合計枚数算出
-        // const keyName: string = 'ticket_type';
         const ticketInfos = {};
         for (const reservation of reservations) {
             // チケットタイプセット
@@ -426,12 +435,12 @@ function createEmailQueue(reservations, reservationModel, res) {
                 ticketInfos[dataValue].count += 1;
             }
         }
-        // 券種ごとの表示情報編集
+        // 券種ごとの表示情報編集 (sort順を変えないよう同期Loop:"for of")
         const ticketInfoArray = [];
-        Object.keys(ticketInfos).forEach((key) => {
+        for (const key of Object.keys(ticketInfos)) {
             const ticketInfo = ticketInfos[key];
             ticketInfoArray.push(`${ticketInfo.ticket_type_name[res.locale]} ${res.__('{{n}}Leaf', { n: ticketInfo.count })}`);
-        });
+        }
         const day = moment(reservations[0].performance_day, 'YYYYMMDD').format('YYYY/MM/DD');
         // tslint:disable-next-line:no-magic-numbers
         const time = `${reservations[0].performance_start_time.substr(0, 2)}:${reservations[0].performance_start_time.substr(2, 2)}`;

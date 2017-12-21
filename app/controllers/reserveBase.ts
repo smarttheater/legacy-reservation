@@ -534,6 +534,17 @@ export async function createEmailQueue(
 
     // 特殊チケットは除外
     reservations = reservations.filter((reservation) => reservation.status === ttts.factory.reservationStatusType.ReservationConfirmed);
+    // チケットコード順にソート
+    reservations.sort((a, b) => {
+        if (a.ticket_type < b.ticket_type) {
+            return -1;
+        }
+        if (a.ticket_type > b.ticket_type) {
+            return 1;
+        }
+
+        return 0;
+    });
 
     const reservationDocs = reservations.map((reservation) => new reservationRepo.reservationModel(reservation));
 
@@ -547,7 +558,6 @@ export async function createEmailQueue(
     const titleEmail = res.__('EmailTitle');
 
     // 券種ごとに合計枚数算出
-    // const keyName: string = 'ticket_type';
     const ticketInfos: {} = {};
     for (const reservation of reservations) {
         // チケットタイプセット
@@ -563,12 +573,12 @@ export async function createEmailQueue(
             (<any>ticketInfos)[dataValue].count += 1;
         }
     }
-    // 券種ごとの表示情報編集
+    // 券種ごとの表示情報編集 (sort順を変えないよう同期Loop:"for of")
     const ticketInfoArray: string[] = [];
-    Object.keys(ticketInfos).forEach((key) => {
+    for (const key of Object.keys(ticketInfos)) {
         const ticketInfo = (<any>ticketInfos)[key];
         ticketInfoArray.push(`${ticketInfo.ticket_type_name[res.locale]} ${res.__('{{n}}Leaf', { n: ticketInfo.count })}`);
-    });
+    }
     const day: string = moment(reservations[0].performance_day, 'YYYYMMDD').format('YYYY/MM/DD');
     // tslint:disable-next-line:no-magic-numbers
     const time: string = `${reservations[0].performance_start_time.substr(0, 2)}:${reservations[0].performance_start_time.substr(2, 2)}`;
