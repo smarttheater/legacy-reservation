@@ -40,9 +40,9 @@ class ReserveSessionModel {
      */
     getTotalCharge() {
         let total = 0;
-        if (Array.isArray(this.transactionInProgress.seatCodes)) {
-            this.transactionInProgress.seatCodes.forEach((seatCode) => {
-                total += this.getChargeBySeatCode(seatCode);
+        if (Array.isArray(this.transactionInProgress.reservations)) {
+            this.transactionInProgress.reservations.forEach((reservation) => {
+                total += this.getChargeBySeatCode(reservation.seat_code);
             });
         }
         return total;

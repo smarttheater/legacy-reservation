@@ -55,8 +55,7 @@ function processFixSeatsAndTickets(reservationModel, req) {
             ticketType.count = (choice !== undefined) ? Number(choice.ticket_count) : 0;
         });
         // セッション中の予約リストを初期化
-        reservationModel.transactionInProgress.seatCodes = [];
-        reservationModel.transactionInProgress.seatCodesExtra = [];
+        reservationModel.transactionInProgress.reservations = [];
         // 座席承認アクション
         const offers = checkInfo.choicesAll.map((choice) => {
             // チケット情報
@@ -77,12 +76,10 @@ function processFixSeatsAndTickets(reservationModel, req) {
             action.result.tmpReservations[0].payment_no;
         const tmpReservations = action.result.tmpReservations;
         // セッションに保管
-        reservationModel.transactionInProgress.seatCodes =
-            tmpReservations.filter((r) => r.status_after === ttts.factory.reservationStatusType.ReservationConfirmed)
-                .map((r) => r.seat_code);
-        reservationModel.transactionInProgress.seatCodesExtra = tmpReservations.filter((r) => r.status_after !== ttts.factory.reservationStatusType.ReservationConfirmed).map((r) => r.seat_code);
-        reservationModel.transactionInProgress.reservations = tmpReservations;
-        reservationModel.transactionInProgress.seatCodes.sort(ttts.factory.place.screen.sortBySeatCode);
+        reservationModel.transactionInProgress.reservations = tmpReservations.filter((r) => r.status_after === ttts.factory.reservationStatusType.ReservationConfirmed);
+        // tslint:disable-next-line:no-suspicious-comment
+        // TODO ソート
+        // reservationModel.transactionInProgress.reservations.sort(ttts.factory.place.screen.sortBySeatCode);
     });
 }
 exports.processFixSeatsAndTickets = processFixSeatsAndTickets;
@@ -353,7 +350,7 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         reservationModel.transactionInProgress.ticketTypes = performance.ticket_type_group.ticket_types.map((t) => {
             return Object.assign({}, t, { count: 0 });
         });
-        reservationModel.transactionInProgress.seatCodes = [];
+        reservationModel.transactionInProgress.reservations = [];
         // パフォーマンス情報を保管
         reservationModel.transactionInProgress.performance = Object.assign({}, performance, {
             film: Object.assign({}, performance.film, {

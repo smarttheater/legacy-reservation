@@ -155,7 +155,7 @@ function tickets(req, res, next) {
                 // 仮予約あればキャンセルする
                 try {
                     // セッション中の予約リストを初期化
-                    reservationModel.transactionInProgress.seatCodes = [];
+                    reservationModel.transactionInProgress.reservations = [];
                     // 座席仮予約があればキャンセル
                     if (reservationModel.transactionInProgress.seatReservationAuthorizeActionId !== undefined) {
                         yield ttts.service.transaction.placeOrderInProgress.action.authorize.seatReservation.cancel(reservationModel.transactionInProgress.agentId, reservationModel.transactionInProgress.id, reservationModel.transactionInProgress.seatReservationAuthorizeActionId)(new ttts.repository.Transaction(ttts.mongoose.connection), new ttts.repository.action.authorize.SeatReservation(ttts.mongoose.connection), new ttts.repository.rateLimit.TicketTypeCategory(redisClient));

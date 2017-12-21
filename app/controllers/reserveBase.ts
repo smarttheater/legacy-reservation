@@ -57,8 +57,7 @@ export async function processFixSeatsAndTickets(
     });
 
     // セッション中の予約リストを初期化
-    reservationModel.transactionInProgress.seatCodes = [];
-    reservationModel.transactionInProgress.seatCodesExtra = [];
+    reservationModel.transactionInProgress.reservations = [];
 
     // 座席承認アクション
     const offers = checkInfo.choicesAll.map((choice) => {
@@ -93,15 +92,12 @@ export async function processFixSeatsAndTickets(
     const tmpReservations = (<ttts.factory.action.authorize.seatReservation.IResult>action.result).tmpReservations;
 
     // セッションに保管
-    reservationModel.transactionInProgress.seatCodes =
-        tmpReservations.filter((r) => r.status_after === ttts.factory.reservationStatusType.ReservationConfirmed)
-            .map((r) => r.seat_code);
-    reservationModel.transactionInProgress.seatCodesExtra = tmpReservations.filter(
-        (r) => r.status_after !== ttts.factory.reservationStatusType.ReservationConfirmed
-    ).map((r) => r.seat_code);
+    reservationModel.transactionInProgress.reservations = tmpReservations.filter(
+        (r) => r.status_after === ttts.factory.reservationStatusType.ReservationConfirmed);
 
-    reservationModel.transactionInProgress.reservations = tmpReservations;
-    reservationModel.transactionInProgress.seatCodes.sort(ttts.factory.place.screen.sortBySeatCode);
+    // tslint:disable-next-line:no-suspicious-comment
+    // TODO ソート
+    // reservationModel.transactionInProgress.reservations.sort(ttts.factory.place.screen.sortBySeatCode);
 }
 
 export interface ICheckInfo {
@@ -433,7 +429,7 @@ export async function processFixPerformance(
         return { ...t, ...{ count: 0 } };
     });
 
-    reservationModel.transactionInProgress.seatCodes = [];
+    reservationModel.transactionInProgress.reservations = [];
 
     // パフォーマンス情報を保管
     reservationModel.transactionInProgress.performance = {

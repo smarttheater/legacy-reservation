@@ -35,8 +35,7 @@
                 <% /* スタッフ予約時 => 券種ごとの予約メモを回収 */
                     const memosByTicketType = {};
                     if (isStaff) {
-                        reservationModel.transactionInProgress.seatCodes.forEach((seatCode) => {
-                            let reservation = reservationModel[`reservation_${seatCode}`]
+                        reservationModel.transactionInProgress.reservations.forEach((reservation) => {
                             let ticketId = reservation.ticket_type;
                             if (typeof memosByTicketType[ticketId] !== 'string') {
                                 memosByTicketType[ticketId] = reservation.watcher_name;

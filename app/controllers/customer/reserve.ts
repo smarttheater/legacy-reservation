@@ -152,7 +152,7 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
             // 仮予約あればキャンセルする
             try {
                 // セッション中の予約リストを初期化
-                reservationModel.transactionInProgress.seatCodes = [];
+                reservationModel.transactionInProgress.reservations = [];
 
                 // 座席仮予約があればキャンセル
                 if (reservationModel.transactionInProgress.seatReservationAuthorizeActionId !== undefined) {

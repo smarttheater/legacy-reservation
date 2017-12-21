@@ -61,14 +61,6 @@ declare global {
             /**
              * 予約座席コードリスト
              */
-            seatCodes: string[];
-            /**
-             * 予約座席コードリスト(特殊チケット用)
-             */
-            seatCodesExtra: string[];
-            /**
-             * 予約座席コードリスト
-             */
             purchaser: IPurchaser;
             /**
              * 決済方法
