@@ -21,6 +21,6 @@ customerRouter.get('/reserve/start', customerReserveController.start);
 customerRouter.all('/reserve/tickets', customerReserveController.tickets);
 customerRouter.all('/reserve/profile', customerReserveController.profile);
 customerRouter.all('/reserve/confirm', customerReserveController.confirm);
-customerRouter.get('/reserve/:performanceDay/:paymentNo/complete', customerReserveController.complete);
+customerRouter.get('/reserve/complete', customerReserveController.complete);
 
 export default customerRouter;
