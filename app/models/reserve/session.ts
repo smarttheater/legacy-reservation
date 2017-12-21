@@ -26,6 +26,10 @@ export default class ReserveSessionModel {
     /**
      * 販売者ID
      */
+    public seller: ttts.factory.organization.corporation.IOrganization;
+    /**
+     * 販売者ID
+     */
     public sellerId: string;
     public seatReservationAuthorizeActionId: string;
     public creditCardAuthorizeActionId: string;

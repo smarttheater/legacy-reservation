@@ -350,6 +350,9 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
         await processFixPerformance(reservationModel, req.query.performance, req);
     }
 
+    const organizationRepo = new ttts.repository.Organization(ttts.mongoose.connection);
+    const seller = await organizationRepo.findCorporationByIdentifier('TokyoTower');
+
     reservationModel.expires = moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').toDate();
     const transaction = await ttts.service.transaction.placeOrderInProgress.start({
         // tslint:disable-next-line:no-magic-numbers
@@ -367,6 +370,7 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
     reservationModel.id = transaction.id;
     reservationModel.agentId = transaction.agent.id;
     reservationModel.sellerId = transaction.seller.id;
+    reservationModel.seller = seller;
 
     return reservationModel;
 }

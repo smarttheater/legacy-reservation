@@ -238,14 +238,13 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
                         res.render('customer/reserve/profile', {
                             reservationModel: reservationModel,
                             GMO_ENDPOINT: conf.get<string>('gmo_payment_endpoint'),
-                            GMO_SHOP_ID: conf.get<string>('gmo_payment_shop_id'),
+                            GMO_SHOP_ID: reservationModel.seller.gmoInfo.shopId,
                             GMOERROR: errMsg
                         });
 
                         return;
                     } else {
-                        //GMO以外のエラーはガチエラー
-                        //return next(new Error(req.__('UnexpectedError')));
+                        // GMO以外のエラーはガチエラー
                         next(new Error(req.__('UnexpectedError')));
 
                         return;
@@ -254,11 +253,10 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
                 reservationModel.save(req);
                 res.redirect('/customer/reserve/confirm');
             } catch (error) {
-                console.error(error);
                 res.render('customer/reserve/profile', {
                     reservationModel: reservationModel,
                     GMO_ENDPOINT: process.env.GMO_ENDPOINT,
-                    GMO_SHOP_ID: process.env.GMO_SHOP_ID
+                    GMO_SHOP_ID: reservationModel.seller.gmoInfo.shopId
                 });
             }
         } else {
@@ -279,7 +277,7 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
             res.render('customer/reserve/profile', {
                 reservationModel: reservationModel,
                 GMO_ENDPOINT: process.env.GMO_ENDPOINT,
-                GMO_SHOP_ID: process.env.GMO_SHOP_ID
+                GMO_SHOP_ID: reservationModel.seller.gmoInfo.shopId
             });
         }
     } catch (error) {

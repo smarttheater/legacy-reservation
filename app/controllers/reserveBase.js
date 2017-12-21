@@ -286,6 +286,8 @@ function processStart(purchaserGroup, req) {
             // パフォーマンス指定遷移の場合 パフォーマンスFIX
             yield processFixPerformance(reservationModel, req.query.performance, req);
         }
+        const organizationRepo = new ttts.repository.Organization(ttts.mongoose.connection);
+        const seller = yield organizationRepo.findCorporationByIdentifier('TokyoTower');
         reservationModel.expires = moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').toDate();
         const transaction = yield ttts.service.transaction.placeOrderInProgress.start({
             // tslint:disable-next-line:no-magic-numbers
@@ -298,6 +300,7 @@ function processStart(purchaserGroup, req) {
         reservationModel.id = transaction.id;
         reservationModel.agentId = transaction.agent.id;
         reservationModel.sellerId = transaction.seller.id;
+        reservationModel.seller = seller;
         return reservationModel;
     });
 }
