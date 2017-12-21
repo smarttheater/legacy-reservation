@@ -51,19 +51,19 @@ export async function processFixSeatsAndTickets(
     }
 
     // チケット情報に枚数セット(画面で選択された枚数<画面再表示用)
-    reservationModel.ticketTypes.forEach((ticketType) => {
+    reservationModel.transactionInProgress.ticketTypes.forEach((ticketType) => {
         const choice = checkInfo.choices.find((c) => ticketType.id === c.ticket_type);
         ticketType.count = (choice !== undefined) ? Number(choice.ticket_count) : 0;
     });
 
     // セッション中の予約リストを初期化
-    reservationModel.seatCodes = [];
-    reservationModel.seatCodesExtra = [];
+    reservationModel.transactionInProgress.seatCodes = [];
+    reservationModel.transactionInProgress.seatCodesExtra = [];
 
     // 座席承認アクション
     const offers = checkInfo.choicesAll.map((choice) => {
         // チケット情報
-        const ticketType = reservationModel.ticketTypes.find((ticketTypeInArray) => (ticketTypeInArray.id === choice.ticket_type));
+        const ticketType = reservationModel.transactionInProgress.ticketTypes.find((t) => (t.id === choice.ticket_type));
         if (ticketType === undefined) {
             throw new Error(req.__('UnexpectedError'));
         }
@@ -75,9 +75,9 @@ export async function processFixSeatsAndTickets(
     });
     debug(`creating seatReservation authorizeAction on ${offers.length} offers...`);
     const action = await ttts.service.transaction.placeOrderInProgress.action.authorize.seatReservation.create(
-        reservationModel.agentId,
-        reservationModel.id,
-        reservationModel.performance.id,
+        reservationModel.transactionInProgress.agentId,
+        reservationModel.transactionInProgress.id,
+        reservationModel.transactionInProgress.performance.id,
         offers
     )(
         new ttts.repository.Transaction(ttts.mongoose.connection),
@@ -86,15 +86,17 @@ export async function processFixSeatsAndTickets(
         new ttts.repository.PaymentNo(ttts.mongoose.connection),
         new ttts.repository.rateLimit.TicketTypeCategory(redisClient)
         );
-    reservationModel.seatReservationAuthorizeActionId = action.id;
+    reservationModel.transactionInProgress.seatReservationAuthorizeActionId = action.id;
     // この時点で購入番号が発行される
-    reservationModel.paymentNo = (<ttts.factory.action.authorize.seatReservation.IResult>action.result).tmpReservations[0].payment_no;
+    reservationModel.transactionInProgress.paymentNo =
+        (<ttts.factory.action.authorize.seatReservation.IResult>action.result).tmpReservations[0].payment_no;
     const tmpReservations = (<ttts.factory.action.authorize.seatReservation.IResult>action.result).tmpReservations;
 
     // セッションに保管
-    reservationModel.seatCodes = tmpReservations.filter((r) => r.status_after === ttts.factory.reservationStatusType.ReservationConfirmed)
-        .map((r) => r.seat_code);
-    reservationModel.seatCodesExtra = tmpReservations.filter(
+    reservationModel.transactionInProgress.seatCodes =
+        tmpReservations.filter((r) => r.status_after === ttts.factory.reservationStatusType.ReservationConfirmed)
+            .map((r) => r.seat_code);
+    reservationModel.transactionInProgress.seatCodesExtra = tmpReservations.filter(
         (r) => r.status_after !== ttts.factory.reservationStatusType.ReservationConfirmed
     ).map((r) => r.seat_code);
 
@@ -102,7 +104,7 @@ export async function processFixSeatsAndTickets(
         reservationModel.setReservation(tmpReservation.seat_code, tmpReservation);
     });
     // 座席コードのソート(文字列順に)
-    reservationModel.seatCodes.sort(ttts.factory.place.screen.sortBySeatCode);
+    reservationModel.transactionInProgress.seatCodes.sort(ttts.factory.place.screen.sortBySeatCode);
 }
 
 export interface ICheckInfo {
@@ -167,7 +169,7 @@ async function checkFixSeatsAndTickets(reservationModel: ReserveSessionModel, re
     const extraSeatNum: {
         [key: string]: number
     } = {};
-    reservationModel.ticketTypes.forEach((ticketTypeInArray) => {
+    reservationModel.transactionInProgress.ticketTypes.forEach((ticketTypeInArray) => {
         if (ticketTypeInArray.ttts_extension.category !== ttts.factory.ticketTypeCategory.Normal) {
             extraSeatNum[ticketTypeInArray.id] = ticketTypeInArray.ttts_extension.required_seat_num;
         }
@@ -226,7 +228,7 @@ async function getInfoFixSeatsAndTickets(
     };
     // 予約可能件数取得
     const conditions: any = {
-        performance: reservationModel.performance.id,
+        performance: reservationModel.transactionInProgress.performance.id,
         availability: ttts.factory.itemAvailability.InStock
     };
     const count = await stockRepo.stockModel.count(conditions).exec();
@@ -291,7 +293,7 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
     }
 
     // 購入者情報を保存して座席選択へ
-    reservationModel.purchaser = {
+    reservationModel.transactionInProgress.purchaser = {
         lastName: req.body.lastName,
         firstName: req.body.firstName,
         tel: req.body.tel,
@@ -302,11 +304,11 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
     };
 
     // 決済方法はクレジットカード一択
-    reservationModel.paymentMethod = ttts.factory.paymentMethodType.CreditCard;
+    reservationModel.transactionInProgress.paymentMethod = ttts.factory.paymentMethodType.CreditCard;
 
     await ttts.service.transaction.placeOrderInProgress.setCustomerContact(
-        reservationModel.agentId,
-        reservationModel.id,
+        reservationModel.transactionInProgress.agentId,
+        reservationModel.transactionInProgress.id,
         {
             last_name: req.body.lastName,
             first_name: req.body.firstName,
@@ -338,11 +340,12 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
 export async function processStart(purchaserGroup: string, req: Request): Promise<ReserveSessionModel> {
     // 言語も指定
     // 2017/06/19 upsate node+typesctipt
-    (<any>req.session).locale = (!_.isEmpty(req.query.locale)) ? req.query.locale : 'ja';
+    (<Express.Session>req.session).locale = (!_.isEmpty(req.query.locale)) ? req.query.locale : 'ja';
+
     // 予約トークンを発行
-    const reservationModel = new ReserveSessionModel();
-    reservationModel.purchaserGroup = purchaserGroup;
-    reservationModel.category = req.query.category;
+    const reservationModel = new ReserveSessionModel(<any>{});
+    reservationModel.transactionInProgress.purchaserGroup = purchaserGroup;
+    reservationModel.transactionInProgress.category = req.query.category;
     initializePayment(reservationModel, req);
 
     if (!_.isEmpty(req.query.performance)) {
@@ -353,10 +356,11 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
     const organizationRepo = new ttts.repository.Organization(ttts.mongoose.connection);
     const seller = await organizationRepo.findCorporationByIdentifier('TokyoTower');
 
-    reservationModel.expires = moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').toDate();
+    reservationModel.transactionInProgress.expires =
+        moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').toDate();
     const transaction = await ttts.service.transaction.placeOrderInProgress.start({
         // tslint:disable-next-line:no-magic-numbers
-        expires: reservationModel.expires,
+        expires: reservationModel.transactionInProgress.expires,
         agentId: <string>process.env.API_CLIENT_ID,
         sellerIdentifier: 'TokyoTower', // 電波塔さんの組織識別子(現時点で固定)
         purchaserGroup: purchaserGroup
@@ -367,10 +371,10 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
         );
     debug('transaction started.', transaction.id);
 
-    reservationModel.id = transaction.id;
-    reservationModel.agentId = transaction.agent.id;
-    reservationModel.sellerId = transaction.seller.id;
-    reservationModel.seller = seller;
+    reservationModel.transactionInProgress.id = transaction.id;
+    reservationModel.transactionInProgress.agentId = transaction.agent.id;
+    reservationModel.transactionInProgress.sellerId = transaction.seller.id;
+    reservationModel.transactionInProgress.seller = seller;
 
     return reservationModel;
 }
@@ -379,13 +383,13 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
  * 購入情報を初期化する
  */
 function initializePayment(reservationModel: ReserveSessionModel, req: Request): void {
-    if (reservationModel.purchaserGroup === undefined) {
+    if (reservationModel.transactionInProgress.purchaserGroup === undefined) {
         throw new Error('purchaser group undefined.');
     }
 
     const purchaserFromSession = <IPurchaser | undefined>(<any>req.session).purchaser;
 
-    reservationModel.purchaser = {
+    reservationModel.transactionInProgress.purchaser = {
         lastName: '',
         firstName: '',
         tel: '',
@@ -394,33 +398,10 @@ function initializePayment(reservationModel: ReserveSessionModel, req: Request):
         address: '',
         gender: '1'
     };
-    reservationModel.paymentMethodChoices = [ttts.GMO.utils.util.PayType.Credit, ttts.GMO.utils.util.PayType.Cvs];
+    reservationModel.transactionInProgress.paymentMethodChoices = [ttts.GMO.utils.util.PayType.Credit, ttts.GMO.utils.util.PayType.Cvs];
 
     if (purchaserFromSession !== undefined) {
-        reservationModel.purchaser = purchaserFromSession;
-    }
-}
-
-/**
- * 予約フロー中の座席をキャンセルするプロセス
- *
- * @param {ReserveSessionModel} reservationModel
- */
-export async function processCancelSeats(reservationModel: ReserveSessionModel): Promise<void> {
-    // セッション中の予約リストを初期化
-    reservationModel.seatCodes = [];
-
-    // 座席仮予約があればキャンセル
-    if (reservationModel.seatReservationAuthorizeActionId !== undefined) {
-        await ttts.service.transaction.placeOrderInProgress.action.authorize.seatReservation.cancel(
-            reservationModel.agentId,
-            reservationModel.id,
-            reservationModel.seatReservationAuthorizeActionId
-        )(
-            new ttts.repository.Transaction(ttts.mongoose.connection),
-            new ttts.repository.action.authorize.SeatReservation(ttts.mongoose.connection),
-            new ttts.repository.rateLimit.TicketTypeCategory(redisClient)
-            );
+        reservationModel.transactionInProgress.purchaser = purchaserFromSession;
     }
 }
 
@@ -451,14 +432,14 @@ export async function processFixPerformance(
     }
 
     // 券種セット
-    reservationModel.ticketTypes = performance.ticket_type_group.ticket_types.map((t) => {
+    reservationModel.transactionInProgress.ticketTypes = performance.ticket_type_group.ticket_types.map((t) => {
         return { ...t, ...{ count: 0 } };
     });
 
-    reservationModel.seatCodes = [];
+    reservationModel.transactionInProgress.seatCodes = [];
 
     // パフォーマンス情報を保管
-    reservationModel.performance = {
+    reservationModel.transactionInProgress.performance = {
         ...performance,
         ...{
             film: {
@@ -471,22 +452,13 @@ export async function processFixPerformance(
     };
 
     // 座席グレードリスト抽出
-    reservationModel.seatGradeCodesInScreen = reservationModel.performance.screen.sections[0].seats
-        .map((seat) => seat.grade.code)
-        .filter((seatCode, index, seatCodes) => seatCodes.indexOf(seatCode) === index);
-
-    // コンビニ決済はパフォーマンス上映の5日前まで
-    // tslint:disable-next-line:no-magic-numbers
-    const day5DaysAgo = parseInt(moment().add(5, 'days').format('YYYYMMDD'), 10);
-    // tslint:disable-next-line:no-magic-numbers
-    if (parseInt(reservationModel.performance.day, 10) < day5DaysAgo) {
-        if (reservationModel.paymentMethodChoices.indexOf(ttts.GMO.utils.util.PayType.Cvs) >= 0) {
-            reservationModel.paymentMethodChoices.splice(reservationModel.paymentMethodChoices.indexOf(ttts.GMO.utils.util.PayType.Cvs), 1);
-        }
-    }
+    reservationModel.transactionInProgress.seatGradeCodesInScreen =
+        reservationModel.transactionInProgress.performance.screen.sections[0].seats
+            .map((seat) => seat.grade.code)
+            .filter((seatCode, index, seatCodes) => seatCodes.indexOf(seatCode) === index);
 
     // スクリーン座席表HTMLを保管(TTTS未使用)
-    reservationModel.screenHtml = '';
+    reservationModel.transactionInProgress.screenHtml = '';
 }
 
 /**
@@ -628,13 +600,4 @@ export async function createEmailQueue(
                 resolve(emailQueue);
             });
     });
-}
-
-/**
- * 予約情報取得(reservationModelから)
- * @param {ReserveSessionModel} reservationModel
- * @returns {ttts.mongoose.Document[]}
- */
-export function getReservations(reservationModel: ReserveSessionModel): ttts.mongoose.Document[] {
-    return reservationModel.seatCodes.map((seatCode) => reservationModel.seatCode2reservationDocument(seatCode));
 }

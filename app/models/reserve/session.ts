@@ -1,10 +1,6 @@
 import * as ttts from '@motionpicture/ttts-domain';
-import * as conf from 'config';
 import { Request } from 'express';
 import * as moment from 'moment';
-
-const MAX_RESERVATION_SEATS_DEFAULT = 4;
-const MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES = 10;
 
 /**
  * 予約セッション
@@ -14,131 +10,36 @@ const MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES = 10;
  * @class ReserveSessionModel
  */
 export default class ReserveSessionModel {
-    private static SESSION_KEY: string = 'ttts-reserve-session';
-    /**
-     * 取引ID(MongoDBで発行される)
-     */
-    public id: string;
-    /**
-     * 取引主体ID
-     */
-    public agentId: string;
-    /**
-     * 販売者ID
-     */
-    public seller: ttts.factory.organization.corporation.IOrganization;
-    /**
-     * 販売者ID
-     */
-    public sellerId: string;
-    public seatReservationAuthorizeActionId: string;
-    public creditCardAuthorizeActionId: string;
-    /**
-     * 予約対象カテゴリ("0":一般,"1":車椅子)
-     */
-    public category: string;
-    /**
-     * 購入管理番号
-     */
-    public paymentNo: string;
-    /**
-     * 購入確定日時タイムスタンプ
-     */
-    public purchasedAt: number;
-    /**
-     * 座席仮予約有効期限タイムスタンプ
-     */
-    public expires: Date;
-    /**
-     * パフォーマンス
-     */
-    public performance: IPerformance;
-    /**
-     * 決済方法選択肢
-     */
-    public paymentMethodChoices: string[];
-    /**
-     * 券種リスト
-     */
-    public ticketTypes: ITicketType[];
-    /**
-     * スクリーン内の座席グレードリスト
-     */
-    public seatGradeCodesInScreen: string[];
-    /**
-     * スクリーンの座席表HTML
-     */
-    public screenHtml: string;
-    /**
-     * 予約座席コードリスト
-     */
-    public seatCodes: string[];
-    /**
-     * 予約座席コードリスト(特殊チケット用)
-     */
-    public seatCodesExtra: string[];
-    /**
-     * 予約座席コードリスト
-     */
-    public purchaser: IPurchaser;
-    /**
-     * 決済方法
-     */
-    public paymentMethod: ttts.factory.paymentMethodType;
-    /**
-     * 購入者区分
-     */
-    public purchaserGroup: string;
-    /**
-     * GMO取引
-     */
-    public transactionGMO: ITransactionGMO;
+    public transactionInProgress: Express.ITransactionInProgress;
+
+    constructor(transactionInProgress: Express.ITransactionInProgress) {
+        this.transactionInProgress = transactionInProgress;
+    }
 
     /**
      * プロセス中の購入情報をセッションから取得する
      */
     public static FIND(req: Request): ReserveSessionModel | null {
-        const reservationModelInSession = (<any>req.session)[ReserveSessionModel.SESSION_KEY];
-        if (reservationModelInSession === undefined) {
+        const transactionInProgress = (<Express.Session>req.session).transactionInProgress;
+        if (transactionInProgress === undefined) {
             return null;
         }
 
-        const reservationModel = new ReserveSessionModel();
-        Object.keys(reservationModelInSession).forEach((propertyName) => {
-            (<any>reservationModel)[propertyName] = reservationModelInSession[propertyName];
-        });
-
-        return reservationModel;
+        return new ReserveSessionModel(transactionInProgress);
     }
 
     /**
      * プロセス中の購入情報をセッションから削除する
      */
     public static REMOVE(req: Request): void {
-        delete (<any>req.session)[ReserveSessionModel.SESSION_KEY];
+        delete (<Express.Session>req.session).transactionInProgress;
     }
 
     /**
      * プロセス中の購入情報をセッションに保存する
      */
     public save(req: Request): void {
-        (<any>req.session)[ReserveSessionModel.SESSION_KEY] = this;
-    }
-
-    /**
-     * 一度の購入で予約できる座席数を取得する
-     */
-    public getSeatsLimit(): number {
-        let limit = MAX_RESERVATION_SEATS_DEFAULT;
-        if (this.performance !== undefined) {
-            // 制限枚数指定のパフォーマンスの場合
-            const performanceIds4limit2 = conf.get<string[]>('performanceIds4limit2');
-            if (performanceIds4limit2.indexOf(this.performance.id) >= 0) {
-                limit = MAX_RESERVATION_SEATS_LIMITED_PERFORMANCES;
-            }
-        }
-
-        return limit;
+        (<Express.Session>req.session).transactionInProgress = this.transactionInProgress;
     }
 
     /**
@@ -147,8 +48,8 @@ export default class ReserveSessionModel {
     public getTotalCharge(): number {
         let total = 0;
 
-        if (Array.isArray(this.seatCodes)) {
-            this.seatCodes.forEach((seatCode) => {
+        if (Array.isArray(this.transactionInProgress.seatCodes)) {
+            this.transactionInProgress.seatCodes.forEach((seatCode) => {
                 total += this.getChargeBySeatCode(seatCode);
             });
         }
@@ -163,7 +64,7 @@ export default class ReserveSessionModel {
         let charge = 0;
 
         const reservation = this.getReservation(seatCode);
-        if (reservation.ticket_type_charge !== undefined) {
+        if (reservation !== null && reservation.ticket_type_charge !== undefined) {
             charge += reservation.ticket_type_charge;
             charge += this.getChargeExceptTicketTypeBySeatCode(seatCode);
         }
@@ -177,8 +78,10 @@ export default class ReserveSessionModel {
         const reservation = this.getReservation(seatCode);
 
         // 座席グレード分加算
-        if (reservation.seat_grade_additional_charge > 0) {
-            charge += reservation.seat_grade_additional_charge;
+        if (reservation !== null) {
+            if (reservation.seat_grade_additional_charge > 0) {
+                charge += reservation.seat_grade_additional_charge;
+            }
         }
 
         return charge;
@@ -187,15 +90,22 @@ export default class ReserveSessionModel {
     /**
      * 座席コードから予約情報を取得する
      */
-    public getReservation(seatCode: string): IReservation {
-        return ((<any>this)[`reservation_${seatCode}`] !== undefined) ? (<any>this)[`reservation_${seatCode}`] : null;
+    public getReservation(seatCode: string): Express.IReservation | null {
+        return (this.transactionInProgress.reservationsBySeatCode !== undefined
+            && this.transactionInProgress.reservationsBySeatCode[seatCode] !== undefined)
+            ? this.transactionInProgress.reservationsBySeatCode[seatCode]
+            : null;
     }
 
     /**
      * 座席コードの予約情報をセットする
      */
-    public setReservation(seatCode: string, reservation: IReservation): void {
-        (<any>this)[`reservation_${seatCode}`] = reservation;
+    public setReservation(seatCode: string, reservation: Express.IReservation): void {
+        if (this.transactionInProgress.reservationsBySeatCode === undefined) {
+            this.transactionInProgress.reservationsBySeatCode = {};
+        }
+
+        this.transactionInProgress.reservationsBySeatCode[seatCode] = reservation;
     }
 
     /**
@@ -204,7 +114,7 @@ export default class ReserveSessionModel {
      */
     public seatCode2reservationDocument(seatCode: string): ttts.mongoose.Document {
         const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
-        const reservation = this.getReservation(seatCode);
+        const reservation = <Express.IReservation>this.getReservation(seatCode);
         const doc = {
             status: reservation.status_after,
             seat_code: seatCode,
@@ -216,83 +126,44 @@ export default class ReserveSessionModel {
             ticket_cancel_charge: reservation.ticket_cancel_charge,
             ticket_ttts_extension: reservation.ticket_ttts_extension,
             charge: this.getChargeBySeatCode(seatCode),
-            payment_no: this.paymentNo,
-            purchaser_group: this.purchaserGroup,
+            payment_no: this.transactionInProgress.paymentNo,
+            purchaser_group: this.transactionInProgress.purchaserGroup,
 
-            performance: this.performance.id,
-            performance_day: this.performance.day,
-            performance_open_time: this.performance.open_time,
-            performance_start_time: this.performance.start_time,
-            performance_end_time: this.performance.end_time,
-            performance_ttts_extension: this.performance.ttts_extension, //2017/11/16
-            theater: this.performance.theater.id,
-            theater_name: this.performance.theater.name,
-            theater_address: this.performance.theater.address,
+            performance: this.transactionInProgress.performance.id,
+            performance_day: this.transactionInProgress.performance.day,
+            performance_open_time: this.transactionInProgress.performance.open_time,
+            performance_start_time: this.transactionInProgress.performance.start_time,
+            performance_end_time: this.transactionInProgress.performance.end_time,
+            performance_ttts_extension: this.transactionInProgress.performance.ttts_extension, //2017/11/16
+            theater: this.transactionInProgress.performance.theater.id,
+            theater_name: this.transactionInProgress.performance.theater.name,
+            theater_address: this.transactionInProgress.performance.theater.address,
 
-            screen: this.performance.screen.id,
-            screen_name: this.performance.screen.name,
+            screen: this.transactionInProgress.performance.screen.id,
+            screen_name: this.transactionInProgress.performance.screen.name,
 
-            film: this.performance.film.id,
-            film_name: this.performance.film.name,
-            film_image: this.performance.film.image,
-            film_is_mx4d: this.performance.film.is_mx4d,
-            film_copyright: this.performance.film.copyright,
+            film: this.transactionInProgress.performance.film.id,
+            film_name: this.transactionInProgress.performance.film.name,
+            film_image: this.transactionInProgress.performance.film.image,
+            film_is_mx4d: this.transactionInProgress.performance.film.is_mx4d,
+            film_copyright: this.transactionInProgress.performance.film.copyright,
 
-            purchaser_last_name: (this.purchaser !== undefined) ? this.purchaser.lastName : '',
-            purchaser_first_name: (this.purchaser !== undefined) ? this.purchaser.firstName : '',
-            purchaser_email: (this.purchaser !== undefined) ? this.purchaser.email : '',
-            purchaser_tel: (this.purchaser !== undefined) ? this.purchaser.tel : '',
-            purchaser_age: (this.purchaser !== undefined) ? this.purchaser.age : '',
-            purchaser_address: (this.purchaser !== undefined) ? this.purchaser.address : '',
-            purchaser_gender: (this.purchaser !== undefined) ? this.purchaser.gender : '',
-            payment_method: (this.paymentMethod !== undefined) ? this.paymentMethod : '',
+            purchaser_last_name: (this.transactionInProgress.purchaser !== undefined) ? this.transactionInProgress.purchaser.lastName : '',
+            purchaser_first_name:
+                (this.transactionInProgress.purchaser !== undefined) ? this.transactionInProgress.purchaser.firstName : '',
+            purchaser_email: (this.transactionInProgress.purchaser !== undefined) ? this.transactionInProgress.purchaser.email : '',
+            purchaser_tel: (this.transactionInProgress.purchaser !== undefined) ? this.transactionInProgress.purchaser.tel : '',
+            purchaser_age: (this.transactionInProgress.purchaser !== undefined) ? this.transactionInProgress.purchaser.age : '',
+            purchaser_address: (this.transactionInProgress.purchaser !== undefined) ? this.transactionInProgress.purchaser.address : '',
+            purchaser_gender: (this.transactionInProgress.purchaser !== undefined) ? this.transactionInProgress.purchaser.gender : '',
+            payment_method: (this.transactionInProgress.paymentMethod !== undefined) ? this.transactionInProgress.paymentMethod : '',
 
             watcher_name: (reservation.watcher_name !== undefined) ? reservation.watcher_name : '',
             watcher_name_updated_at: (reservation.watcher_name !== undefined && reservation.watcher_name !== '') ? moment().valueOf() : '',
 
-            purchased_at: this.purchasedAt
+            purchased_at: this.transactionInProgress.purchasedAt
         };
 
         return new reservationRepo.reservationModel(doc);
     }
-}
-/**
- * パフォーマンス情報インターフェース
- */
-type IPerformance = ttts.factory.performance.IPerformanceWithDetails & {
-    film: {
-        image: string;
-    }
-};
-
-/**
- * チケット情報インターフェース
- */
-type ITicketType = ttts.factory.performance.ITicketType & {
-    count: number;
-};
-
-/**
- * 予約情報インターフェース
- */
-type IReservation = ttts.factory.action.authorize.seatReservation.ITmpReservation;
-
-/**
- * 購入者情報インターフェース
- */
-interface IPurchaser {
-    lastName: string;
-    firstName: string;
-    tel: string;
-    email: string;
-    age: string;
-    address: string;
-    gender: string;
-}
-
-interface ITransactionGMO {
-    orderId: string;
-    amount: number;
-    count: number;
-    status: string;
 }
