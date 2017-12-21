@@ -317,6 +317,9 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                     );
                 debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
 
+                // 購入結果セッション作成
+                (<Express.Session>req.session).transactionResult = transactionResult;
+
                 try {
                     // 完了メールキュー追加(あれば更新日時を更新するだけ)
                     const emailQueue = await reserveBaseController.createEmailQueue(
@@ -331,10 +334,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 //　購入フローセッションは削除
                 ReserveSessionModel.REMOVE(req);
 
-                // 購入結果セッション作成
-                (<Express.Session>req.session).transactionResult = transactionResult;
-
-                res.redirect(`/customer/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
+                res.redirect('/customer/reserve/complete');
 
                 return;
             } catch (error) {

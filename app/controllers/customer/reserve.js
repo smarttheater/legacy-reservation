@@ -316,6 +316,8 @@ function confirm(req, res, next) {
                         paymentMethod: reservationModel.paymentMethod
                     })(new ttts.repository.Transaction(ttts.mongoose.connection), new ttts.repository.action.authorize.CreditCard(ttts.mongoose.connection), new ttts.repository.action.authorize.SeatReservation(ttts.mongoose.connection));
                     debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
+                    // 購入結果セッション作成
+                    req.session.transactionResult = transactionResult;
                     try {
                         // 完了メールキュー追加(あれば更新日時を更新するだけ)
                         const emailQueue = yield reserveBaseController.createEmailQueue(transactionResult.eventReservations, reservationModel, res);
@@ -327,9 +329,7 @@ function confirm(req, res, next) {
                     }
                     //　購入フローセッションは削除
                     session_1.default.REMOVE(req);
-                    // 購入結果セッション作成
-                    req.session.transactionResult = transactionResult;
-                    res.redirect(`/customer/reserve/${reservationModel.performance.day}/${reservationModel.paymentNo}/complete`);
+                    res.redirect('/customer/reserve/complete');
                     return;
                 }
                 catch (error) {
