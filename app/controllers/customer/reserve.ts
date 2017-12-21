@@ -413,8 +413,6 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
     if (reservationModel.transactionGMO === undefined) {
         reservationModel.transactionGMO = {
             orderId: '',
-            accessId: '',
-            accessPass: '',
             amount: 0,
             count: 0,
             status: ttts.GMO.utils.util.Status.Unprocessed
@@ -435,13 +433,18 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
 
             // クレジットカードオーソリ取得済であれば取消
             if (reservationModel.creditCardAuthorizeActionId !== undefined) {
+                debug('canceling credit card authorization...', reservationModel.creditCardAuthorizeActionId);
                 const actionId = reservationModel.creditCardAuthorizeActionId;
                 delete reservationModel.creditCardAuthorizeActionId;
                 await ttts.service.transaction.placeOrderInProgress.action.authorize.creditCard.cancel(
                     reservationModel.agentId,
                     reservationModel.id,
                     actionId
-                );
+                )(
+                    new ttts.repository.action.authorize.CreditCard(ttts.mongoose.connection),
+                    new ttts.repository.Transaction(ttts.mongoose.connection)
+                    );
+                debug('credit card authorization canceled.');
             }
 
             // GMO取引作成
@@ -461,16 +464,15 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
                 orderId,
                 amount,
                 ttts.GMO.utils.util.Method.Lump, // 支払い方法は一括
-                gmoTokenObject,
-                <string>process.env.GMO_SHOP_ID,
-                <string>process.env.GMO_SHOP_PASS
-            );
+                gmoTokenObject
+            )(
+                new ttts.repository.action.authorize.CreditCard(ttts.mongoose.connection),
+                new ttts.repository.Organization(ttts.mongoose.connection),
+                new ttts.repository.Transaction(ttts.mongoose.connection)
+                );
             debug('credit card authorizeAction created.', action.id);
             reservationModel.creditCardAuthorizeActionId = action.id;
 
-            const authorizeActionResult = <ttts.factory.action.authorize.creditCard.IResult>action.result;
-            reservationModel.transactionGMO.accessId = authorizeActionResult.execTranArgs.accessId; // セッションに持つ必要ある？
-            reservationModel.transactionGMO.accessPass = authorizeActionResult.execTranArgs.accessPass; // セッションに持つ必要ある？
             reservationModel.transactionGMO.orderId = orderId;
             reservationModel.transactionGMO.amount = amount;
             reservationModel.transactionGMO.status = ttts.GMO.utils.util.Status.Auth;

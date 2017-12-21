@@ -288,8 +288,6 @@ interface IPurchaser {
 
 interface ITransactionGMO {
     orderId: string;
-    accessId: string;
-    accessPass: string;
     amount: number;
     count: number;
     status: string;

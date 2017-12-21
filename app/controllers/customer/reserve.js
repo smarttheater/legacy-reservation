@@ -406,8 +406,6 @@ function processFixGMO(reservationModel, req) {
         if (reservationModel.transactionGMO === undefined) {
             reservationModel.transactionGMO = {
                 orderId: '',
-                accessId: '',
-                accessPass: '',
                 amount: 0,
                 count: 0,
                 status: ttts.GMO.utils.util.Status.Unprocessed
@@ -425,9 +423,11 @@ function processFixGMO(reservationModel, req) {
                 }
                 // クレジットカードオーソリ取得済であれば取消
                 if (reservationModel.creditCardAuthorizeActionId !== undefined) {
+                    debug('canceling credit card authorization...', reservationModel.creditCardAuthorizeActionId);
                     const actionId = reservationModel.creditCardAuthorizeActionId;
                     delete reservationModel.creditCardAuthorizeActionId;
-                    yield ttts.service.transaction.placeOrderInProgress.action.authorize.creditCard.cancel(reservationModel.agentId, reservationModel.id, actionId);
+                    yield ttts.service.transaction.placeOrderInProgress.action.authorize.creditCard.cancel(reservationModel.agentId, reservationModel.id, actionId)(new ttts.repository.action.authorize.CreditCard(ttts.mongoose.connection), new ttts.repository.Transaction(ttts.mongoose.connection));
+                    debug('credit card authorization canceled.');
                 }
                 // GMO取引作成
                 const count = `00${reservationModel.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
@@ -439,12 +439,9 @@ function processFixGMO(reservationModel, req) {
                 // クレジットカードオーソリ取得
                 debug('creating credit card authorizeAction...', orderId);
                 const action = yield ttts.service.transaction.placeOrderInProgress.action.authorize.creditCard.create(reservationModel.agentId, reservationModel.id, orderId, amount, ttts.GMO.utils.util.Method.Lump, // 支払い方法は一括
-                gmoTokenObject, process.env.GMO_SHOP_ID, process.env.GMO_SHOP_PASS);
+                gmoTokenObject)(new ttts.repository.action.authorize.CreditCard(ttts.mongoose.connection), new ttts.repository.Organization(ttts.mongoose.connection), new ttts.repository.Transaction(ttts.mongoose.connection));
                 debug('credit card authorizeAction created.', action.id);
                 reservationModel.creditCardAuthorizeActionId = action.id;
-                const authorizeActionResult = action.result;
-                reservationModel.transactionGMO.accessId = authorizeActionResult.execTranArgs.accessId; // セッションに持つ必要ある？
-                reservationModel.transactionGMO.accessPass = authorizeActionResult.execTranArgs.accessPass; // セッションに持つ必要ある？
                 reservationModel.transactionGMO.orderId = orderId;
                 reservationModel.transactionGMO.amount = amount;
                 reservationModel.transactionGMO.status = ttts.GMO.utils.util.Status.Auth;
