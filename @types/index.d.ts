@@ -31,10 +31,6 @@ declare global {
              */
             paymentNo: string;
             /**
-             * 購入確定日時タイムスタンプ
-             */
-            purchasedAt: number;
-            /**
              * 座席仮予約有効期限タイムスタンプ
              */
             expires: Date;
@@ -123,6 +119,7 @@ declare global {
 
         // tslint:disable-next-line:interface-name
         export interface Session {
+            purchaser?: IPurchaser;
             transactionInProgress?: ITransactionInProgress;
             transactionResult?: ttts.factory.transaction.placeOrder.IResult;
             printToken?: string;

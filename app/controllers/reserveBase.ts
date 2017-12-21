@@ -237,8 +237,8 @@ async function getInfoFixSeatsAndTickets(
     info.results = stocks.map((stock) => {
         return {
             id: stock.id,
-            performance: (<any>stock).performance,
-            seat_code: (<any>stock).seat_code,
+            performance: stock.get('performance'),
+            seat_code: stock.get('seat_code'),
             used: false
         };
     });
@@ -314,7 +314,7 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
     )(new ttts.repository.Transaction(ttts.mongoose.connection));
 
     // セッションに購入者情報格納
-    (<any>req.session).purchaser = {
+    (<Express.Session>req.session).purchaser = {
         lastName: req.body.lastName,
         firstName: req.body.firstName,
         tel: req.body.tel,
@@ -380,7 +380,7 @@ function initializePayment(reservationModel: ReserveSessionModel, req: Request):
         throw new Error('purchaser group undefined.');
     }
 
-    const purchaserFromSession = <IPurchaser | undefined>(<any>req.session).purchaser;
+    const purchaserFromSession = (<Express.Session>req.session).purchaser;
 
     reservationModel.transactionInProgress.purchaser = {
         lastName: '',
@@ -452,19 +452,6 @@ export async function processFixPerformance(
 
     // スクリーン座席表HTMLを保管(TTTS未使用)
     reservationModel.transactionInProgress.screenHtml = '';
-}
-
-/**
- * 購入者情報インターフェース
- */
-interface IPurchaser {
-    lastName: string;
-    firstName: string;
-    tel: string;
-    email: string;
-    age: string;
-    address: string;
-    gender: string;
 }
 
 /**

@@ -185,8 +185,8 @@ function getInfoFixSeatsAndTickets(reservationModel, req, selectedCount) {
         info.results = stocks.map((stock) => {
             return {
                 id: stock.id,
-                performance: stock.performance,
-                seat_code: stock.seat_code,
+                performance: stock.get('performance'),
+                seat_code: stock.get('seat_code'),
                 used: false
             };
         });
