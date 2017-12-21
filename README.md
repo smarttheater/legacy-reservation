@@ -68,7 +68,7 @@ npm run css
 | `GMO_SHOP_ID`                     | true     |                 | GMO サイトID                             |
 | `GMO_SHOP_ID`                     | true     |                 | GMO ショップID                            |
 | `GMO_SHOP_PASS`                   | true     |                 | GMO ショップパスワード                         |
-| `INQUIRY_SITE_URL`                | true     |                 | 照会サイトエンドポイント                        |
+| `RESERVATIONS_PRINT_URL`          | true     |                 | 予約印刷URL                           |
 | `TTTS_TOKEN_SECRET`               | true     |                 | TTTSトークンシークレット                        |
 
 
