@@ -7,7 +7,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const express_1 = require("express");
 const customerReserveController = require("../controllers/customer/reserve");
-const customerReserveGmoController = require("../controllers/customer/reserve/gmo");
 const customerRouter = express_1.Router();
 // 本番環境ではhomeは存在しない
 if (process.env.NODE_ENV !== 'production') {
@@ -23,5 +22,4 @@ customerRouter.all('/reserve/tickets', customerReserveController.tickets);
 customerRouter.all('/reserve/profile', customerReserveController.profile);
 customerRouter.all('/reserve/confirm', customerReserveController.confirm);
 customerRouter.get('/reserve/:performanceDay/:paymentNo/complete', customerReserveController.complete);
-customerRouter.post('/reserve/gmo/start', customerReserveGmoController.start);
 exports.default = customerRouter;
