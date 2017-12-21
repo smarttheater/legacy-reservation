@@ -81,10 +81,7 @@ function processFixSeatsAndTickets(reservationModel, req) {
             tmpReservations.filter((r) => r.status_after === ttts.factory.reservationStatusType.ReservationConfirmed)
                 .map((r) => r.seat_code);
         reservationModel.transactionInProgress.seatCodesExtra = tmpReservations.filter((r) => r.status_after !== ttts.factory.reservationStatusType.ReservationConfirmed).map((r) => r.seat_code);
-        tmpReservations.forEach((tmpReservation) => {
-            reservationModel.setReservation(tmpReservation.seat_code, tmpReservation);
-        });
-        // 座席コードのソート(文字列順に)
+        reservationModel.transactionInProgress.reservations = tmpReservations;
         reservationModel.transactionInProgress.seatCodes.sort(ttts.factory.place.screen.sortBySeatCode);
     });
 }

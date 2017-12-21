@@ -84,7 +84,8 @@ declare global {
             transactionGMO: ITransactionGMO;
             reservationsBySeatCode: {
                 [seatCode: string]: IReservation;
-            }
+            };
+            reservations: IReservation[];
         }
 
         /**

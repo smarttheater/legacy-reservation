@@ -52,8 +52,8 @@ class ReserveSessionModel {
      */
     getChargeBySeatCode(seatCode) {
         let charge = 0;
-        const reservation = this.getReservation(seatCode);
-        if (reservation !== null && reservation.ticket_type_charge !== undefined) {
+        const reservation = this.transactionInProgress.reservations.find((r) => r.seat_code === seatCode);
+        if (reservation !== undefined && reservation.ticket_type_charge !== undefined) {
             charge += reservation.ticket_type_charge;
             charge += this.getChargeExceptTicketTypeBySeatCode(seatCode);
         }
@@ -61,9 +61,9 @@ class ReserveSessionModel {
     }
     getChargeExceptTicketTypeBySeatCode(seatCode) {
         let charge = 0;
-        const reservation = this.getReservation(seatCode);
+        const reservation = this.transactionInProgress.reservations.find((r) => r.seat_code === seatCode);
         // 座席グレード分加算
-        if (reservation !== null) {
+        if (reservation !== undefined) {
             if (reservation.seat_grade_additional_charge > 0) {
                 charge += reservation.seat_grade_additional_charge;
             }
@@ -71,30 +71,15 @@ class ReserveSessionModel {
         return charge;
     }
     /**
-     * 座席コードから予約情報を取得する
-     */
-    getReservation(seatCode) {
-        return (this.transactionInProgress.reservationsBySeatCode !== undefined
-            && this.transactionInProgress.reservationsBySeatCode[seatCode] !== undefined)
-            ? this.transactionInProgress.reservationsBySeatCode[seatCode]
-            : null;
-    }
-    /**
-     * 座席コードの予約情報をセットする
-     */
-    setReservation(seatCode, reservation) {
-        if (this.transactionInProgress.reservationsBySeatCode === undefined) {
-            this.transactionInProgress.reservationsBySeatCode = {};
-        }
-        this.transactionInProgress.reservationsBySeatCode[seatCode] = reservation;
-    }
-    /**
      * 座席コードから予約(確定)ドキュメントを作成する
      * @param {string} seatCode 座席コード
      */
     seatCode2reservationDocument(seatCode) {
         const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
-        const reservation = this.getReservation(seatCode);
+        const reservation = this.transactionInProgress.reservations.find((r) => r.seat_code === seatCode);
+        if (reservation === undefined) {
+            return new reservationRepo.reservationModel();
+        }
         const doc = {
             status: reservation.status_after,
             seat_code: seatCode,
