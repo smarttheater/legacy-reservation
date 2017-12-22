@@ -103,7 +103,6 @@ class ReserveSessionModel {
                 screen_name: this.transactionInProgress.performance.screen.name,
                 film: this.transactionInProgress.performance.film.id,
                 film_name: this.transactionInProgress.performance.film.name,
-                film_image: this.transactionInProgress.performance.film.image,
                 film_is_mx4d: this.transactionInProgress.performance.film.is_mx4d,
                 film_copyright: this.transactionInProgress.performance.film.copyright,
                 purchaser_last_name: (this.transactionInProgress.purchaser !== undefined) ? this.transactionInProgress.purchaser.lastName : '',

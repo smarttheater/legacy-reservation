@@ -358,6 +358,8 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
             } catch (error) {
                 ReserveSessionModel.REMOVE(req);
                 next(error);
+
+                return;
             }
         }
 

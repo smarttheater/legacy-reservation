@@ -343,6 +343,7 @@ function confirm(req, res, next) {
                 catch (error) {
                     session_1.default.REMOVE(req);
                     next(error);
+                    return;
                 }
             }
             res.render('customer/reserve/confirm', {
