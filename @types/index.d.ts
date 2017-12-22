@@ -79,11 +79,7 @@ declare global {
         /**
          * パフォーマンス情報インターフェース
          */
-        type IPerformance = ttts.factory.performance.IPerformanceWithDetails & {
-            film: {
-                image: string;
-            }
-        };
+        type IPerformance = ttts.factory.performance.IPerformanceWithDetails;
 
         /**
          * チケット情報インターフェース
