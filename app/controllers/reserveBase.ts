@@ -349,11 +349,8 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
     const organizationRepo = new ttts.repository.Organization(ttts.mongoose.connection);
     const seller = await organizationRepo.findCorporationByIdentifier('TokyoTower');
 
-    reservationModel.transactionInProgress.expires =
-        moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').toDate();
     const transaction = await ttts.service.transaction.placeOrderInProgress.start({
-        // tslint:disable-next-line:no-magic-numbers
-        expires: reservationModel.transactionInProgress.expires,
+        expires: moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').toDate(),
         agentId: <string>process.env.API_CLIENT_ID,
         sellerIdentifier: 'TokyoTower', // 電波塔さんの組織識別子(現時点で固定)
         purchaserGroup: purchaserGroup
@@ -364,6 +361,7 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
         );
     debug('transaction started.', transaction.id);
 
+    reservationModel.transactionInProgress.expires = transaction.expires.toISOString();
     reservationModel.transactionInProgress.id = transaction.id;
     reservationModel.transactionInProgress.agentId = transaction.agent.id;
     reservationModel.transactionInProgress.sellerId = transaction.seller.id;
@@ -432,17 +430,7 @@ export async function processFixPerformance(
     reservationModel.transactionInProgress.reservations = [];
 
     // パフォーマンス情報を保管
-    reservationModel.transactionInProgress.performance = {
-        ...performance,
-        ...{
-            film: {
-                ...performance.film,
-                ...{
-                    image: `${req.protocol}://${req.hostname}/images/film/${performance.film.id}.jpg`
-                }
-            }
-        }
-    };
+    reservationModel.transactionInProgress.performance = performance;
 
     // 座席グレードリスト抽出
     reservationModel.transactionInProgress.seatGradeCodesInScreen =
