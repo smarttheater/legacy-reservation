@@ -38,6 +38,49 @@
         "ko": [
             "kr",
             "kp"
+        ],
+        "th": [
+            "th"
+        ],
+        "id": [
+            "id"
+        ],
+        "vi": [
+            "vi",
+            "kh",
+            "la"
+        ],
+        "fr": [
+            "fr",
+            "cd",
+            "ca",
+            "be",
+            "ch",
+            "mc"
+        ],
+        "de": [
+            "de",
+            "at",
+            "be",
+            "ch"
+        ],
+        "it": [
+            "it",
+            "ch"
+        ],
+        "es": [
+            "es",
+            "mx",
+            "co",
+            "ar",
+            "pe",
+            "ve",
+            "cl"
+        ],
+        "ru": [
+            "ru",
+            "kz",
+            "by"
         ]
     },
     "official_website_url": "https://www.tokyotower.co.jp/",
