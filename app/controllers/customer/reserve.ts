@@ -44,8 +44,7 @@ export async function performances(req: Request, res: Response, next: NextFuncti
             ],
             state: ''
         });
-        // tslint:disable-next-line:no-magic-numbers
-        //const reserveMaxDate: string = moment().add(reserveMaxDateInfo.type, reserveMaxDateInfo.value).format('YYYY/MM/DD');
+
         const maxDate = moment();
         Object.keys(reserveMaxDateInfo).forEach((key: any) => {
             maxDate.add(key, reserveMaxDateInfo[key]);
@@ -68,7 +67,6 @@ export async function performances(req: Request, res: Response, next: NextFuncti
         } else {
             const category: string = req.params.category;
             res.render('customer/reserve/performances', {
-                // FilmUtil: ttts.FilmUtil,
                 token: token,
                 reserveMaxDate: reserveMaxDate,
                 category: category
@@ -136,18 +134,24 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
         next(new Error(req.__('UnexpectedError')));
     }
 }
+
 /**
  * 券種選択
  */
 export async function tickets(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
-        if (reservationModel === null) {
+        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
             next(new Error(req.__('Expired')));
 
             return;
         }
-        reservationModel.transactionInProgress.paymentMethod = <any>'';
+        debug(reservationModel.transactionInProgress.expires, moment().toDate());
+        debug(typeof reservationModel.transactionInProgress.expires);
+        debug(typeof moment().toDate());
+
+        reservationModel.transactionInProgress.paymentMethod = ttts.factory.paymentMethodType.CreditCard;
+
         if (req.method === 'POST') {
             // 仮予約あればキャンセルする
             try {
@@ -211,8 +215,7 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
 export async function profile(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
-
-        if (reservationModel === null) {
+        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
             next(new Error(req.__('Expired')));
 
             return;
@@ -309,8 +312,7 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
 export async function confirm(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
-
-        if (reservationModel === null) {
+        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
             next(new Error(req.__('Expired')));
 
             return;
@@ -318,11 +320,6 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
 
         if (req.method === 'POST') {
             try {
-                // 取引期限チェック
-                if (reservationModel.transactionInProgress.expires <= moment().toDate()) {
-                    throw new Error(req.__('Expired'));
-                }
-
                 // 予約確定
                 const transactionResult = await ttts.service.transaction.placeOrderInProgress.confirm({
                     agentId: reservationModel.transactionInProgress.agentId,

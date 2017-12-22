@@ -284,16 +284,14 @@ function processStart(purchaserGroup, req) {
         }
         const organizationRepo = new ttts.repository.Organization(ttts.mongoose.connection);
         const seller = yield organizationRepo.findCorporationByIdentifier('TokyoTower');
-        reservationModel.transactionInProgress.expires =
-            moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').toDate();
         const transaction = yield ttts.service.transaction.placeOrderInProgress.start({
-            // tslint:disable-next-line:no-magic-numbers
-            expires: reservationModel.transactionInProgress.expires,
+            expires: moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').toDate(),
             agentId: process.env.API_CLIENT_ID,
             sellerIdentifier: 'TokyoTower',
             purchaserGroup: purchaserGroup
         })(new ttts.repository.Transaction(ttts.mongoose.connection), new ttts.repository.Organization(ttts.mongoose.connection), new ttts.repository.Owner(ttts.mongoose.connection));
         debug('transaction started.', transaction.id);
+        reservationModel.transactionInProgress.expires = transaction.expires.toISOString();
         reservationModel.transactionInProgress.id = transaction.id;
         reservationModel.transactionInProgress.agentId = transaction.agent.id;
         reservationModel.transactionInProgress.sellerId = transaction.seller.id;
@@ -352,11 +350,7 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         });
         reservationModel.transactionInProgress.reservations = [];
         // パフォーマンス情報を保管
-        reservationModel.transactionInProgress.performance = Object.assign({}, performance, {
-            film: Object.assign({}, performance.film, {
-                image: `${req.protocol}://${req.hostname}/images/film/${performance.film.id}.jpg`
-            })
-        });
+        reservationModel.transactionInProgress.performance = performance;
         // 座席グレードリスト抽出
         reservationModel.transactionInProgress.seatGradeCodesInScreen =
             reservationModel.transactionInProgress.performance.screen.sections[0].seats

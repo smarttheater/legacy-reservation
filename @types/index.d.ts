@@ -31,9 +31,9 @@ declare global {
              */
             paymentNo: string;
             /**
-             * 座席仮予約有効期限タイムスタンプ
+             * 座席仮予約有効期限ISO8601フォーマット
              */
-            expires: Date;
+            expires: string;
             /**
              * パフォーマンス
              */
