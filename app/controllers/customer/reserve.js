@@ -225,25 +225,30 @@ function profile(req, res, next) {
                         console.log(e);
                         if (e.errors) {
                             let errMsg;
-                            // errMsg = e.errors[0].userMessage
                             switch (e.errors[0].code) {
                                 case 'E92':
-                                    errMsg = '只今、大変込み合っていますので、しばらく時間をあけて再度決済を行ってください。';
+                                    // "只今、大変込み合っていますので、しばらく時間をあけて再度決済を行ってください。"
+                                    errMsg = req.__('TransactionBusy');
                                     break;
                                 case 'G02':
-                                    errMsg = 'カード残高が不足しているために、決済を完了する事が出来ませんでした。';
+                                    // "カード残高が不足しているために、決済を完了する事が出来ませんでした。"
+                                    errMsg = req.__('InsufficientCard');
                                     break;
                                 case 'G03':
-                                    errMsg = 'カード限度額を超えているために、決済を完了する事が出来ませんでした。';
+                                    // "カード限度額を超えているために、決済を完了する事が出来ませんでした。"
+                                    errMsg = req.__('MaxedCard');
                                     break;
                                 case 'G04':
-                                    errMsg = 'カード残高が不足しているために、決済を完了する事が出来ませんでした。';
+                                    // "カード残高が不足しているために、決済を完了する事が出来ませんでした。"
+                                    errMsg = req.__('InsufficientCard');
                                     break;
                                 case 'G05':
-                                    errMsg = 'カード限度額を超えているために、決済を完了する事が出来ませんでした。';
+                                    // "カード限度額を超えているために、決済を完了する事が出来ませんでした。"
+                                    errMsg = req.__('MaxedCard');
                                     break;
                                 default:
-                                    errMsg = 'このカードでは取引をする事が出来ません。';
+                                    // "このカードでは取引をする事が出来ません。"
+                                    errMsg = req.__('BadCard');
                                     break;
                             }
                             res.render('customer/reserve/profile', {
