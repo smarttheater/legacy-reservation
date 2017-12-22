@@ -125,7 +125,7 @@
     "TicketInfoMsg":"Herzlichen Dank für Ihren Einkauf. Zeigen Sie am Tag Ihrer Buchung diesen QR-Code beim Einlass unseren Mitarbeitern vor.",
     "SpanContainedTicketQRInfo":"Diesen QR-Code bitte beim Einlass unseren Mitarbeitern vorzeigen.<br>(QR-Codes können bei der Top Deck Lane im 1F (EG) des Tokyo Tower Foot Town und am Top Deck Gate im 2F (1.OG) des Main Deck gescannt werden.)",
     "PurchaseContentDay":"Gebuchtes Datum Ihrer Tour",
-    "PurchaseContentTime":"Gebuchte Uhrzeit Ihrer Tour (an der Top Deck Lane im 1F (EG) des Tokyo Tower Foot Town)",
+    "PurchaseContentTime":"Gebuchte Uhrzeit Ihrer Tour (Foot Town 1F (EG))",
     "PurchaseEntryTime":"Einlass am Top Deck Gate (im 2F (1.OG) des Main Deck)",
     "TourNumber":"Tour-Nummer",
     "RailWay":"Metro, JR",
