@@ -182,6 +182,10 @@ function tickets(req, res, next) {
                 catch (error) {
                     // "予約可能な席がございません"などのメッセージ表示
                     res.locals.message = error.message;
+                    // 車椅子レート制限を超過した場合
+                    if (error instanceof ttts.factory.errors.RateLimitExceeded) {
+                        res.locals.message = req.__('NoAvailableSeats');
+                    }
                     res.render('customer/reserve/tickets', {
                         reservationModel: reservationModel
                     });
