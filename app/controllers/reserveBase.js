@@ -365,9 +365,8 @@ exports.processFixPerformance = processFixPerformance;
  * 予約完了メールを作成する
  * @memberof controller/reserveBase
  */
-function createEmailQueue(reservations, reservationModel, res) {
+function createEmailAttributes(reservations, totalCharge, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
         // 特殊チケットは除外
         reservations = reservations.filter((reservation) => reservation.status === ttts.factory.reservationStatusType.ReservationConfirmed);
         // チケットコード順にソート
@@ -380,7 +379,6 @@ function createEmailQueue(reservations, reservationModel, res) {
             }
             return 0;
         });
-        const reservationDocs = reservations.map((reservation) => new reservationRepo.reservationModel(reservation));
         const to = reservations[0].purchaser_email;
         debug('to is', to);
         if (to.length === 0) {
@@ -417,13 +415,13 @@ function createEmailQueue(reservations, reservationModel, res) {
         return new Promise((resolve, reject) => {
             res.render('email/reserve/complete', {
                 layout: false,
-                reservations: reservationDocs,
+                reservations: reservations,
                 moment: moment,
                 numeral: numeral,
                 conf: conf,
                 GMOUtil: ttts.GMO.utils.util,
                 ticketInfoArray: ticketInfoArray,
-                totalCharge: reservationModel.getTotalCharge(),
+                totalCharge: totalCharge,
                 dayTime: `${day} ${time}`
             }, (renderErr, text) => __awaiter(this, void 0, void 0, function* () {
                 debug('email template rendered.', renderErr);
@@ -431,25 +429,21 @@ function createEmailQueue(reservations, reservationModel, res) {
                     reject(new Error('failed in rendering an email.'));
                     return;
                 }
-                const emailQueue = {
-                    from: {
-                        address: conf.get('email.from'),
-                        name: conf.get('email.fromname')
+                resolve({
+                    sender: {
+                        name: conf.get('email.fromname'),
+                        email: conf.get('email.from')
                     },
-                    to: {
-                        address: to
-                        // name: 'testto'
+                    toRecipient: {
+                        // tslint:disable-next-line:max-line-length
+                        name: reservations[0].purchaser_name,
+                        email: to
                     },
-                    subject: `${title} ${titleEmail}`,
-                    content: {
-                        mimetype: 'text/plain',
-                        text: text
-                    },
-                    status: ttts.EmailQueueUtil.STATUS_UNSENT
-                };
-                resolve(emailQueue);
+                    about: `${title} ${titleEmail}`,
+                    text: text
+                });
             }));
         });
     });
 }
-exports.createEmailQueue = createEmailQueue;
+exports.createEmailAttributes = createEmailAttributes;

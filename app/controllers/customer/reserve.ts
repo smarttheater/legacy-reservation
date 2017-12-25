@@ -331,16 +331,17 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
 
         if (req.method === 'POST') {
             try {
+                const taskRepo = new ttts.repository.Task(ttts.mongoose.connection);
+                const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
+                const creditCardAuthorizeActionRepo = new ttts.repository.action.authorize.CreditCard(ttts.mongoose.connection);
+                const seatReservationAuthorizeActionRepo = new ttts.repository.action.authorize.SeatReservation(ttts.mongoose.connection);
+
                 // 予約確定
                 const transactionResult = await ttts.service.transaction.placeOrderInProgress.confirm({
                     agentId: reservationModel.transactionInProgress.agentId,
                     transactionId: reservationModel.transactionInProgress.id,
                     paymentMethod: reservationModel.transactionInProgress.paymentMethod
-                })(
-                    new ttts.repository.Transaction(ttts.mongoose.connection),
-                    new ttts.repository.action.authorize.CreditCard(ttts.mongoose.connection),
-                    new ttts.repository.action.authorize.SeatReservation(ttts.mongoose.connection)
-                    );
+                })(transactionRepo, creditCardAuthorizeActionRepo, seatReservationAuthorizeActionRepo);
                 debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
 
                 // 購入結果セッション作成
@@ -348,11 +349,15 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
 
                 try {
                     // 完了メールキュー追加(あれば更新日時を更新するだけ)
-                    const emailQueue = await reserveBaseController.createEmailQueue(
-                        transactionResult.eventReservations, reservationModel, res
+                    const emailAttributes = await reserveBaseController.createEmailAttributes(
+                        transactionResult.eventReservations, reservationModel.getTotalCharge(), res
                     );
-                    await ttts.Models.EmailQueue.create(emailQueue);
-                    debug('email queue created.');
+
+                    await ttts.service.transaction.placeOrder.sendEmail(
+                        reservationModel.transactionInProgress.id,
+                        emailAttributes
+                    )(taskRepo, transactionRepo);
+                    debug('email sent.');
                 } catch (error) {
                     // 失敗してもスルー
                 }

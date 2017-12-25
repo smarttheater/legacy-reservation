@@ -443,39 +443,14 @@ export async function processFixPerformance(
 }
 
 /**
- * 完了メールキューインタフェース
- *
- * @interface IEmailQueue
- */
-interface IEmailQueue {
-    // tslint:disable-next-line:no-reserved-keywords
-    from: { // 送信者
-        address: string;
-        name: string;
-    };
-    to: { // 送信先
-        address: string;
-        name?: string;
-    };
-    subject: string;
-    content: { // 本文
-        mimetype: string;
-        text: string;
-    };
-    status: string;
-}
-
-/**
  * 予約完了メールを作成する
  * @memberof controller/reserveBase
  */
-export async function createEmailQueue(
+export async function createEmailAttributes(
     reservations: ttts.factory.reservation.event.IReservation[],
-    reservationModel: ReserveSessionModel,
+    totalCharge: number,
     res: Response
-): Promise<IEmailQueue> {
-    const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
-
+): Promise<ttts.factory.creativeWork.message.email.IAttributes> {
     // 特殊チケットは除外
     reservations = reservations.filter((reservation) => reservation.status === ttts.factory.reservationStatusType.ReservationConfirmed);
     // チケットコード順にソート
@@ -489,8 +464,6 @@ export async function createEmailQueue(
 
         return 0;
     });
-
-    const reservationDocs = reservations.map((reservation) => new reservationRepo.reservationModel(reservation));
 
     const to = reservations[0].purchaser_email;
     debug('to is', to);
@@ -527,18 +500,18 @@ export async function createEmailQueue(
     // tslint:disable-next-line:no-magic-numbers
     const time: string = `${reservations[0].performance_start_time.substr(0, 2)}:${reservations[0].performance_start_time.substr(2, 2)}`;
 
-    return new Promise<IEmailQueue>((resolve, reject) => {
+    return new Promise<ttts.factory.creativeWork.message.email.IAttributes>((resolve, reject) => {
         res.render(
             'email/reserve/complete',
             {
                 layout: false,
-                reservations: reservationDocs,
+                reservations: reservations,
                 moment: moment,
                 numeral: numeral,
                 conf: conf,
                 GMOUtil: ttts.GMO.utils.util,
                 ticketInfoArray: ticketInfoArray,
-                totalCharge: reservationModel.getTotalCharge(),
+                totalCharge: totalCharge,
                 dayTime: `${day} ${time}`
             },
             async (renderErr, text) => {
@@ -549,23 +522,19 @@ export async function createEmailQueue(
                     return;
                 }
 
-                const emailQueue = {
-                    from: { // 送信者
-                        address: conf.get<string>('email.from'),
-                        name: conf.get<string>('email.fromname')
+                resolve({
+                    sender: {
+                        name: conf.get<string>('email.fromname'),
+                        email: conf.get<string>('email.from')
                     },
-                    to: { // 送信先
-                        address: to
-                        // name: 'testto'
+                    toRecipient: {
+                        // tslint:disable-next-line:max-line-length
+                        name: reservations[0].purchaser_name,
+                        email: to
                     },
-                    subject: `${title} ${titleEmail}`,
-                    content: { // 本文
-                        mimetype: 'text/plain',
-                        text: text
-                    },
-                    status: ttts.EmailQueueUtil.STATUS_UNSENT
-                };
-                resolve(emailQueue);
+                    about: `${title} ${titleEmail}`,
+                    text: text
+                });
             });
     });
 }
