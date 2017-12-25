@@ -35,7 +35,7 @@
 	"SeatsLimit{{limit}}": "The maximum number of tickets that can be reserved at one time is {{limit}}",
 	"EditProfile": "Purchaser Information Entry",
 	"EnterProfileGuideText": "Enter the purchaser information and credit card details, and then press the [Next] button.",
-	"Required": "Fields marked with a * are mandatory entry fields.",
+	"SpanContainedRequired": "Fields marked with a <span class='requiredmark'></span> are mandatory entry fields.",
 	"NameInSpecifiedLetters": "Name (Kana or English)",
 	"LastName": "Surname",
 	"FirstName": "First Name",
