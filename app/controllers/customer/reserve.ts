@@ -400,7 +400,7 @@ export async function complete(req: Request, res: Response, next: NextFunction):
         let reservations = (<ttts.factory.transaction.placeOrder.IResult>transactionResult).eventReservations;
         debug(reservations.length, 'reservation(s) found.');
         reservations = reservations.filter((r) => r.status === ttts.factory.reservationStatusType.ReservationConfirmed);
-        reservations.sort((a, b) => ttts.factory.place.screen.sortBySeatCode(a.seat_code, b.seat_code));
+        reservations.sort((a, b) => ttts.factory.place.movieTheater.sortBySeatCode(a.seat_code, b.seat_code));
 
         // 初めてのアクセスであれば印刷トークン発行
         if ((<Express.Session>req.session).printToken === undefined) {

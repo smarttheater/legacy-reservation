@@ -380,7 +380,7 @@ function complete(req, res, next) {
             let reservations = transactionResult.eventReservations;
             debug(reservations.length, 'reservation(s) found.');
             reservations = reservations.filter((r) => r.status === ttts.factory.reservationStatusType.ReservationConfirmed);
-            reservations.sort((a, b) => ttts.factory.place.screen.sortBySeatCode(a.seat_code, b.seat_code));
+            reservations.sort((a, b) => ttts.factory.place.movieTheater.sortBySeatCode(a.seat_code, b.seat_code));
             // 初めてのアクセスであれば印刷トークン発行
             if (req.session.printToken === undefined) {
                 const tokenRepo = new ttts.repository.Token(redisClient);

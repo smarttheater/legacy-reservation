@@ -84,7 +84,7 @@ declare global {
         /**
          * チケット情報インターフェース
          */
-        type ITicketType = ttts.factory.performance.ITicketType & {
+        type ITicketType = ttts.factory.offer.seatReservation.ITicketType & {
             count: number;
         };
 
