@@ -20,7 +20,7 @@
     "@motionpicture/ttts-domain": "^12.0.0-alpha.56",
     "basic-auth": "^1.1.0",
     "body-parser": "^1.18.2",
-    "config": "^1.28.1",
+    "config": "^1.29.0",
     "connect-redis": "^3.3.2",
     "cookie-parser": "^1.4.3",
     "debug": "^3.1.0",

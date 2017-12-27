@@ -105,7 +105,7 @@ $(function() {
         }
         $.ajax({
             dataType: 'json',
-            url: window.ttts.API_ENDPOINT + 'performances',
+            url: window.ttts.API_ENDPOINT + '/performances',
             type: 'GET',
             data: condition,
             beforeSend: function(xhr) {
