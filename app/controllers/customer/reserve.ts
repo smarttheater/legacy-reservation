@@ -114,6 +114,10 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
     }
 
     try {
+        // 購入結果セッション初期化
+        delete (<Express.Session>req.session).transactionResult;
+        delete (<Express.Session>req.session).printToken;
+
         const reservationModel = await reserveBaseController.processStart(PURCHASER_GROUP, req);
 
         if (reservationModel.transactionInProgress.performance !== undefined) {

@@ -113,6 +113,9 @@ function start(req, res, next) {
             }
         }
         try {
+            // 購入結果セッション初期化
+            delete req.session.transactionResult;
+            delete req.session.printToken;
             const reservationModel = yield reserveBaseController.processStart(PURCHASER_GROUP, req);
             if (reservationModel.transactionInProgress.performance !== undefined) {
                 reservationModel.save(req);
