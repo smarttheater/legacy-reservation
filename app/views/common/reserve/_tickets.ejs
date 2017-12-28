@@ -101,6 +101,6 @@
     <input type="hidden" name="choices">
 </form>
 
-<p class="alert-ticket alert-ticket-overmax">選択出来る枚数は <%= conf.get('reservation_maxq') %>枚 までとなります。</p>
+<p class="alert-ticket alert-ticket-overmax"><%- __('SeatsLimit{{limit}}', { limit: conf.get('reservation_maxq') } ) %></p>
 
 <script src="/js/reserve/tickets.js"></script>
