@@ -139,7 +139,7 @@
                     <select class="form-control" name="gender">
                         <option value="">---</option>
                         <% for (let choice of genderChoices) { %>
-                        <option value="<%= choice.code %>"<% if (age === choice.code) { %> selected="selected"<% } %>><%- __(choice.name) %></option>
+                        <option value="<%= choice.code %>"<% if (gender === choice.code) { %> selected="selected"<% } %>><%- __(choice.name) %></option>
                         <% } %>
                     </select>
                 </td>
