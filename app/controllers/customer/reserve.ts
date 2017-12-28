@@ -379,7 +379,8 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 return;
             }
         }
-
+        // チケットをticket_type(id)でソート
+        sortReservationstByTicketType(reservationModel.transactionInProgress.reservations);
         res.render('customer/reserve/confirm', {
             reservationModel: reservationModel
         });
@@ -404,7 +405,8 @@ export async function complete(req: Request, res: Response, next: NextFunction):
         let reservations = (<ttts.factory.transaction.placeOrder.IResult>transactionResult).eventReservations;
         debug(reservations.length, 'reservation(s) found.');
         reservations = reservations.filter((r) => r.status === ttts.factory.reservationStatusType.ReservationConfirmed);
-        reservations.sort((a, b) => ttts.factory.place.movieTheater.sortBySeatCode(a.seat_code, b.seat_code));
+        // チケットをticket_type(id)でソート
+        sortReservationstByTicketType(reservations);
 
         // 初めてのアクセスであれば印刷トークン発行
         if ((<Express.Session>req.session).printToken === undefined) {
@@ -505,4 +507,22 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
         default:
             break;
     }
+}
+/**
+ * チケットをticket_type(id)でソートする
+ * @method sortReservationstByTicketType
+ */
+function sortReservationstByTicketType(reservations: any[]): void {
+    // チケットをticket_type(id)でソート
+    reservations.sort((a: any, b: any) => {
+        // 入塔日
+        if (a.ticket_type > b.ticket_type) {
+            return 1;
+        }
+        if (a.ticket_type < b.ticket_type) {
+            return -1;
+        }
+
+        return 0;
+    });
 }

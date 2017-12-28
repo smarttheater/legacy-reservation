@@ -149,7 +149,7 @@
 	"EmailHead1": "Terima kasih Anda telah melakukan pembelian reservasi tiket WEB “Tokyo Tower Top Deck Tour”.",
 	"EmailHead2": "Berikut kami sampaikan informasi tiket yang telah Anda beli.",
 	"EmailReserveDate": "Waktu kunjungan",
-	"EmailTotalTicketCount{{n}}": "Total tiket] {{n}}",
+	"EmailTotalTicketCount{{n}}": "Total tiket: {{n}}",
 	"EmailAboutQR": "*Kode QR akan menjadi tiket masuk saat Anda akan masuk ke lokasi. Silakan lakukan pencocokan tiket berikut ini lalu ambil gambar layar kode QR atau cetak kode QR dan bawalah beserta Anda.",
 	"EmailInquiryUrl": "●Untuk pencocokan tiket, silakan periksa di sini.",
 	"EmailEnterURL": "●Untuk cara masuk ke lokasi, silakan periksa di sini.",

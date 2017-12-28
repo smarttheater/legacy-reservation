@@ -149,7 +149,7 @@
 	"EmailHead1": "非常感謝您利用「Tokyo Tower Top Deck Tour」的網頁入場券預約售票系統。",
 	"EmailHead2": "您所購買的入場券資訊如下：",
 	"EmailReserveDate": "預約日期",
-	"EmailTotalTicketCount{{n}}": "總張數: {{n}",
+	"EmailTotalTicketCount{{n}}": "總張數: {{n}}",
 	"EmailAboutQR": "※QR code即為入場時的入場券。您可透過以下的入場券查詢，將QR code以螢幕快照拍攝，或列印後攜至現場。",
 	"EmailInquiryUrl": "●入場券查詢請由此確認",
 	"EmailEnterURL": "●入場方式請由此確認",
