@@ -20,8 +20,8 @@ declare global {
              * 販売者ID
              */
             sellerId: string;
-            seatReservationAuthorizeActionId: string;
-            creditCardAuthorizeActionId: string;
+            seatReservationAuthorizeActionId?: string;
+            creditCardAuthorizeActionId?: string;
             /**
              * 予約対象カテゴリ("0":一般,"1":車椅子)
              */
@@ -29,7 +29,7 @@ declare global {
             /**
              * 購入管理番号
              */
-            paymentNo: string;
+            paymentNo?: string;
             /**
              * 座席仮予約有効期限ISO8601フォーマット
              */
@@ -37,7 +37,7 @@ declare global {
             /**
              * パフォーマンス
              */
-            performance: IPerformance;
+            performance?: ttts.factory.performance.IPerformanceWithDetails;
             /**
              * 決済方法選択肢
              */
@@ -50,10 +50,6 @@ declare global {
              * スクリーン内の座席グレードリスト
              */
             seatGradeCodesInScreen: string[];
-            /**
-             * スクリーンの座席表HTML
-             */
-            screenHtml: string;
             /**
              * 予約座席コードリスト
              */
@@ -70,16 +66,11 @@ declare global {
              * GMO取引
              */
             transactionGMO: ITransactionGMO;
-            reservationsBySeatCode: {
-                [seatCode: string]: IReservation;
-            };
-            reservations: IReservation[];
+            /**
+             * 仮予約リスト
+             */
+            reservations: ttts.factory.action.authorize.seatReservation.ITmpReservation[];
         }
-
-        /**
-         * パフォーマンス情報インターフェース
-         */
-        type IPerformance = ttts.factory.performance.IPerformanceWithDetails;
 
         /**
          * チケット情報インターフェース
@@ -87,11 +78,6 @@ declare global {
         type ITicketType = ttts.factory.offer.seatReservation.ITicketType & {
             count: number;
         };
-
-        /**
-         * 予約情報インターフェース
-         */
-        type IReservation = ttts.factory.action.authorize.seatReservation.ITmpReservation;
 
         /**
          * 購入者情報インターフェース
@@ -110,14 +96,25 @@ declare global {
             orderId: string;
             amount: number;
             count: number;
-            status: string;
         }
 
         // tslint:disable-next-line:interface-name
         export interface Session {
+            /**
+             * 購入者情報(一度入力するとセッションが保持)
+             */
             purchaser?: IPurchaser;
+            /**
+             * 進行中の取引
+             */
             transactionInProgress?: ITransactionInProgress;
+            /**
+             * 成立した取引結果
+             */
             transactionResult?: ttts.factory.transaction.placeOrder.IResult;
+            /**
+             * 成立した取引の予約印刷トークン
+             */
             printToken?: string;
         }
     }
