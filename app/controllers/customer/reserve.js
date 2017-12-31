@@ -1,7 +1,7 @@
 "use strict";
 /**
  * 一般座席予約コントローラー
- * @namespace controller/customer/reserve
+ * @namespace controller.customer.reserve
  */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -12,6 +12,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const ttts = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const createDebug = require("debug");
@@ -32,6 +33,20 @@ const redisClient = ttts.redis.createClient({
     password: process.env.REDIS_KEY,
     tls: { servername: process.env.REDIS_HOST }
 });
+const authClient = new tttsapi.auth.ClientCredentials({
+    domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
+    clientId: process.env.API_CLIENT_ID,
+    clientSecret: process.env.API_CLIENT_SECRET,
+    scopes: [
+        `${process.env.API_RESOURECE_SERVER_IDENTIFIER}/performances.read-only`,
+        `${process.env.API_RESOURECE_SERVER_IDENTIFIER}/transactions`
+    ],
+    state: ''
+});
+const placeOrderTransactionService = new tttsapi.service.transaction.PlaceOrder({
+    endpoint: process.env.API_ENDPOINT,
+    auth: authClient
+});
 /**
  * スケジュール選択(本番では存在しない、実際はポータル側のページ)
  * @method performances
@@ -40,15 +55,9 @@ const redisClient = ttts.redis.createClient({
 function performances(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = yield ttts.CommonUtil.getToken({
-                authorizeServerDomain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
-                clientId: process.env.API_CLIENT_ID,
-                clientSecret: process.env.API_CLIENT_SECRET,
-                scopes: [
-                    `${process.env.API_RESOURECE_SERVER_IDENTIFIER}/performances.read-only`
-                ],
-                state: ''
-            });
+            yield authClient.refreshAccessToken();
+            const token = authClient.credentials;
+            debug('tttsapi access token published.');
             const maxDate = moment();
             Object.keys(reserveMaxDateInfo).forEach((key) => {
                 maxDate.add(key, reserveMaxDateInfo[key]);
@@ -150,9 +159,10 @@ function tickets(req, res, next) {
                 next(new Error(req.__('Expired')));
                 return;
             }
-            debug(reservationModel.transactionInProgress.expires, moment().toDate());
-            debug(typeof reservationModel.transactionInProgress.expires);
-            debug(typeof moment().toDate());
+            // パフォーマンスは指定済みのはず
+            if (reservationModel.transactionInProgress.performance === undefined) {
+                throw new Error(req.__('UnexpectedError'));
+            }
             reservationModel.transactionInProgress.paymentMethod = ttts.factory.paymentMethodType.CreditCard;
             if (req.method === 'POST') {
                 // 仮予約あればキャンセルする
@@ -161,7 +171,14 @@ function tickets(req, res, next) {
                     reservationModel.transactionInProgress.reservations = [];
                     // 座席仮予約があればキャンセル
                     if (reservationModel.transactionInProgress.seatReservationAuthorizeActionId !== undefined) {
-                        yield ttts.service.transaction.placeOrderInProgress.action.authorize.seatReservation.cancel(reservationModel.transactionInProgress.agentId, reservationModel.transactionInProgress.id, reservationModel.transactionInProgress.seatReservationAuthorizeActionId)(new ttts.repository.Transaction(ttts.mongoose.connection), new ttts.repository.action.authorize.SeatReservation(ttts.mongoose.connection), new ttts.repository.rateLimit.TicketTypeCategory(redisClient));
+                        debug('canceling seat reservation authorize action...');
+                        const actionId = reservationModel.transactionInProgress.seatReservationAuthorizeActionId;
+                        delete reservationModel.transactionInProgress.seatReservationAuthorizeActionId;
+                        yield placeOrderTransactionService.cancelSeatReservationAuthorization({
+                            transactionId: reservationModel.transactionInProgress.id,
+                            actionId: actionId
+                        });
+                        debug('seat reservation authorize action canceled.');
                     }
                 }
                 catch (error) {
@@ -170,10 +187,7 @@ function tickets(req, res, next) {
                 }
                 try {
                     // 現在時刻が開始時刻を過ぎている時
-                    const now = moment().format('YYYYMMDD HHmm');
-                    // tslint:disable-next-line:max-line-length
-                    const dayTime = `${reservationModel.transactionInProgress.performance.day} ${reservationModel.transactionInProgress.performance.start_time}`;
-                    if (now > dayTime) {
+                    if (moment(reservationModel.transactionInProgress.performance.start_date).toDate() < moment().toDate()) {
                         //「ご希望の枚数が用意できないため予約できません。」
                         throw new Error(req.__('NoAvailableSeats'));
                     }
@@ -186,7 +200,8 @@ function tickets(req, res, next) {
                     // "予約可能な席がございません"などのメッセージ表示
                     res.locals.message = error.message;
                     // 車椅子レート制限を超過した場合
-                    if (error instanceof ttts.factory.errors.RateLimitExceeded) {
+                    if (error instanceof ttts.factory.errors.RateLimitExceeded ||
+                        error instanceof ttts.factory.errors.AlreadyInUse) {
                         res.locals.message = req.__('NoAvailableSeats');
                     }
                     res.render('customer/reserve/tickets', {
@@ -325,23 +340,21 @@ function confirm(req, res, next) {
             }
             if (req.method === 'POST') {
                 try {
-                    const taskRepo = new ttts.repository.Task(ttts.mongoose.connection);
-                    const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
-                    const creditCardAuthorizeActionRepo = new ttts.repository.action.authorize.CreditCard(ttts.mongoose.connection);
-                    const seatReservationAuthorizeActionRepo = new ttts.repository.action.authorize.SeatReservation(ttts.mongoose.connection);
                     // 予約確定
-                    const transactionResult = yield ttts.service.transaction.placeOrderInProgress.confirm({
-                        agentId: reservationModel.transactionInProgress.agentId,
+                    const transactionResult = yield placeOrderTransactionService.confirm({
                         transactionId: reservationModel.transactionInProgress.id,
                         paymentMethod: reservationModel.transactionInProgress.paymentMethod
-                    })(transactionRepo, creditCardAuthorizeActionRepo, seatReservationAuthorizeActionRepo);
+                    });
                     debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
                     // 購入結果セッション作成
                     req.session.transactionResult = transactionResult;
                     try {
                         // 完了メールキュー追加(あれば更新日時を更新するだけ)
                         const emailAttributes = yield reserveBaseController.createEmailAttributes(transactionResult.eventReservations, reservationModel.getTotalCharge(), res);
-                        yield ttts.service.transaction.placeOrder.sendEmail(reservationModel.transactionInProgress.id, emailAttributes)(taskRepo, transactionRepo);
+                        yield placeOrderTransactionService.sendEmailNotification({
+                            transactionId: reservationModel.transactionInProgress.id,
+                            emailMessageAttributes: emailAttributes
+                        });
                         debug('email sent.');
                     }
                     catch (error) {
@@ -414,13 +427,9 @@ function processFixGMO(reservationModel, req) {
     return __awaiter(this, void 0, void 0, function* () {
         const DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID = -2;
         let orderId;
-        if (reservationModel.transactionInProgress.transactionGMO === undefined) {
-            reservationModel.transactionInProgress.transactionGMO = {
-                orderId: '',
-                amount: 0,
-                count: 0,
-                status: ttts.GMO.utils.util.Status.Unprocessed
-            };
+        // パフォーマンスは指定済みのはず
+        if (reservationModel.transactionInProgress.performance === undefined) {
+            throw new Error(req.__('UnexpectedError'));
         }
         // GMOリクエスト前にカウントアップ
         reservationModel.transactionInProgress.transactionGMO.count += 1;
@@ -430,14 +439,17 @@ function processFixGMO(reservationModel, req) {
                 reservePaymentCreditForm_1.default(req);
                 const validationResult = yield req.getValidationResult();
                 if (!validationResult.isEmpty()) {
-                    throw new Error(req.__('Invalid"'));
+                    throw new Error(req.__('Invalid'));
                 }
                 // クレジットカードオーソリ取得済であれば取消
                 if (reservationModel.transactionInProgress.creditCardAuthorizeActionId !== undefined) {
                     debug('canceling credit card authorization...', reservationModel.transactionInProgress.creditCardAuthorizeActionId);
                     const actionId = reservationModel.transactionInProgress.creditCardAuthorizeActionId;
                     delete reservationModel.transactionInProgress.creditCardAuthorizeActionId;
-                    yield ttts.service.transaction.placeOrderInProgress.action.authorize.creditCard.cancel(reservationModel.transactionInProgress.agentId, reservationModel.transactionInProgress.id, actionId)(new ttts.repository.action.authorize.CreditCard(ttts.mongoose.connection), new ttts.repository.Transaction(ttts.mongoose.connection));
+                    yield placeOrderTransactionService.cancelCreditCardAuthorization({
+                        transactionId: reservationModel.transactionInProgress.id,
+                        actionId: actionId
+                    });
                     debug('credit card authorization canceled.');
                 }
                 // GMO取引作成
@@ -450,13 +462,17 @@ function processFixGMO(reservationModel, req) {
                 const amount = reservationModel.getTotalCharge();
                 // クレジットカードオーソリ取得
                 debug('creating credit card authorizeAction...', orderId);
-                const action = yield ttts.service.transaction.placeOrderInProgress.action.authorize.creditCard.create(reservationModel.transactionInProgress.agentId, reservationModel.transactionInProgress.id, orderId, amount, ttts.GMO.utils.util.Method.Lump, // 支払い方法は一括
-                gmoTokenObject)(new ttts.repository.action.authorize.CreditCard(ttts.mongoose.connection), new ttts.repository.Organization(ttts.mongoose.connection), new ttts.repository.Transaction(ttts.mongoose.connection));
+                const action = yield placeOrderTransactionService.createCreditCardAuthorization({
+                    transactionId: reservationModel.transactionInProgress.id,
+                    orderId: orderId,
+                    amount: amount,
+                    method: ttts.GMO.utils.util.Method.Lump,
+                    creditCard: gmoTokenObject
+                });
                 debug('credit card authorizeAction created.', action.id);
                 reservationModel.transactionInProgress.creditCardAuthorizeActionId = action.id;
                 reservationModel.transactionInProgress.transactionGMO.orderId = orderId;
                 reservationModel.transactionInProgress.transactionGMO.amount = amount;
-                reservationModel.transactionInProgress.transactionGMO.status = ttts.GMO.utils.util.Status.Auth;
                 break;
             default:
                 break;
