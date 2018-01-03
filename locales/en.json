@@ -165,7 +165,7 @@
 	"EmailFoot2": "* The e-mail address is for transmission purposes only, and cannot be replied to.",
 	"EmailFoot3": "Contact the following number if you have any inquiries.",
 	"EmailAccess1": "Inquiries:",
-	"EmailAccess2": "Tokyo Tower Tel: 03-3433-5111 / 09:00 to 17:99 (365 days a year)",
+	"EmailAccess2": "Tokyo Tower Tel: 03-3433-5111 / 09:00 to 17:00 (365 days a year)",
 	"EmailTitleCan": "Cancellation Complete Message for Tokyo Tower Top Deck Tour Tickets",
 	"EmailHead2Can": "Details regarding the tickets you cancelled are listed below.",
 	"EmailTotalTicketCount{{n}}": "Total Number of Tickets: {{n}}",
