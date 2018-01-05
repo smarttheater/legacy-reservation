@@ -36,6 +36,72 @@ const placeOrderTransactionService = new tttsapi.service.transaction.PlaceOrder(
 });
 
 /**
+ * 購入開始プロセス
+ * @param {string} purchaserGroup 購入者区分
+ */
+export async function processStart(purchaserGroup: string, req: Request): Promise<ReserveSessionModel> {
+    // 言語も指定
+    (<Express.Session>req.session).locale = (!_.isEmpty(req.query.locale)) ? req.query.locale : 'ja';
+
+    const sellerIdentifier = 'TokyoTower';
+    const organizationRepo = new ttts.repository.Organization(ttts.mongoose.connection);
+    const seller = await organizationRepo.findCorporationByIdentifier(sellerIdentifier);
+
+    const expires = moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').toDate();
+    const transaction = await placeOrderTransactionService.start({
+        expires: expires,
+        sellerIdentifier: sellerIdentifier, // 電波塔さんの組織識別子(現時点で固定)
+        purchaserGroup: <any>purchaserGroup
+    });
+    debug('transaction started.', transaction.id);
+
+    // 取引セッションを初期化
+    const transactionInProgress: Express.ITransactionInProgress = {
+        id: transaction.id,
+        agentId: transaction.agent.id,
+        seller: seller,
+        sellerId: transaction.seller.id,
+        category: req.query.category,
+        expires: expires.toISOString(),
+        paymentMethodChoices: [ttts.GMO.utils.util.PayType.Credit, ttts.GMO.utils.util.PayType.Cvs],
+        ticketTypes: [],
+        seatGradeCodesInScreen: [],
+        purchaser: {
+            lastName: '',
+            firstName: '',
+            tel: '',
+            email: '',
+            age: '',
+            address: '',
+            gender: '1'
+        },
+        paymentMethod: ttts.factory.paymentMethodType.CreditCard,
+        purchaserGroup: purchaserGroup,
+        transactionGMO: {
+            orderId: '',
+            amount: 0,
+            count: 0
+        },
+        reservations: []
+    };
+
+    const reservationModel = new ReserveSessionModel(transactionInProgress);
+
+    // セッションに購入者情報があれば初期値セット
+    const purchaserFromSession = (<Express.Session>req.session).purchaser;
+    if (purchaserFromSession !== undefined) {
+        reservationModel.transactionInProgress.purchaser = purchaserFromSession;
+    }
+
+    if (!_.isEmpty(req.query.performance)) {
+        // パフォーマンス指定遷移の場合 パフォーマンスFIX
+        await processFixPerformance(reservationModel, req.query.performance, req);
+    }
+
+    return reservationModel;
+}
+
+/**
  * 座席・券種FIXプロセス
  * @param {ReserveSessionModel} reservationModel
  * @returns {Promise<void>}
@@ -245,72 +311,6 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
 }
 
 /**
- * 購入開始プロセス
- * @param {string} purchaserGroup 購入者区分
- */
-export async function processStart(purchaserGroup: string, req: Request): Promise<ReserveSessionModel> {
-    // 言語も指定
-    (<Express.Session>req.session).locale = (!_.isEmpty(req.query.locale)) ? req.query.locale : 'ja';
-
-    const sellerIdentifier = 'TokyoTower';
-    const organizationRepo = new ttts.repository.Organization(ttts.mongoose.connection);
-    const seller = await organizationRepo.findCorporationByIdentifier(sellerIdentifier);
-
-    const expires = moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').toDate();
-    const transaction = await placeOrderTransactionService.start({
-        expires: expires,
-        sellerIdentifier: sellerIdentifier, // 電波塔さんの組織識別子(現時点で固定)
-        purchaserGroup: <any>purchaserGroup
-    });
-    debug('transaction started.', transaction.id);
-
-    // 取引セッションを初期化
-    const transactionInProgress: Express.ITransactionInProgress = {
-        id: transaction.id,
-        agentId: transaction.agent.id,
-        seller: seller,
-        sellerId: transaction.seller.id,
-        category: req.query.category,
-        expires: expires.toISOString(),
-        paymentMethodChoices: [ttts.GMO.utils.util.PayType.Credit, ttts.GMO.utils.util.PayType.Cvs],
-        ticketTypes: [],
-        seatGradeCodesInScreen: [],
-        purchaser: {
-            lastName: '',
-            firstName: '',
-            tel: '',
-            email: '',
-            age: '',
-            address: '',
-            gender: '1'
-        },
-        paymentMethod: ttts.factory.paymentMethodType.CreditCard,
-        purchaserGroup: purchaserGroup,
-        transactionGMO: {
-            orderId: '',
-            amount: 0,
-            count: 0
-        },
-        reservations: []
-    };
-
-    const reservationModel = new ReserveSessionModel(transactionInProgress);
-
-    // セッションに購入者情報があれば初期値セット
-    const purchaserFromSession = (<Express.Session>req.session).purchaser;
-    if (purchaserFromSession !== undefined) {
-        reservationModel.transactionInProgress.purchaser = purchaserFromSession;
-    }
-
-    if (!_.isEmpty(req.query.performance)) {
-        // パフォーマンス指定遷移の場合 パフォーマンスFIX
-        await processFixPerformance(reservationModel, req.query.performance, req);
-    }
-
-    return reservationModel;
-}
-
-/**
  * パフォーマンスをFIXするプロセス
  * パフォーマンスIDから、パフォーマンスを検索し、その後プロセスに必要な情報をreservationModelに追加する
  */
@@ -344,10 +344,9 @@ export async function processFixPerformance(
     reservationModel.transactionInProgress.performance = performance;
 
     // 座席グレードリスト抽出
-    reservationModel.transactionInProgress.seatGradeCodesInScreen =
-        reservationModel.transactionInProgress.performance.screen.sections[0].seats
-            .map((seat) => seat.grade.code)
-            .filter((seatCode, index, seatCodes) => seatCodes.indexOf(seatCode) === index);
+    reservationModel.transactionInProgress.seatGradeCodesInScreen = performance.screen.sections[0].seats
+        .map((seat) => seat.grade.code)
+        .filter((seatCode, index, seatCodes) => seatCodes.indexOf(seatCode) === index);
 }
 
 /**

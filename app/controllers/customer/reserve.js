@@ -60,7 +60,7 @@ function performances(req, res, next) {
             debug('tttsapi access token published.');
             const maxDate = moment();
             Object.keys(reserveMaxDateInfo).forEach((key) => {
-                maxDate.add(key, reserveMaxDateInfo[key]);
+                maxDate.add(reserveMaxDateInfo[key], key);
             });
             const reserveMaxDate = maxDate.format('YYYY/MM/DD');
             if (req.method === 'POST') {
@@ -142,7 +142,6 @@ function start(req, res, next) {
             }
         }
         catch (error) {
-            console.error(error);
             next(new Error(req.__('UnexpectedError')));
         }
     });

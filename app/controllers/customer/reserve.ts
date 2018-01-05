@@ -19,7 +19,7 @@ import * as reserveBaseController from '../reserveBase';
 
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 const PURCHASER_GROUP: string = ttts.factory.person.Group.Customer;
-const reserveMaxDateInfo: any = conf.get<any>('reserve_max_date');
+const reserveMaxDateInfo = conf.get<{ [period: string]: number }>('reserve_max_date');
 
 const redisClient = ttts.redis.createClient({
     host: <string>process.env.REDIS_HOST,
@@ -57,8 +57,8 @@ export async function performances(req: Request, res: Response, next: NextFuncti
         debug('tttsapi access token published.');
 
         const maxDate = moment();
-        Object.keys(reserveMaxDateInfo).forEach((key: any) => {
-            maxDate.add(key, reserveMaxDateInfo[key]);
+        Object.keys(reserveMaxDateInfo).forEach((key: moment.unitOfTime.DurationConstructor) => {
+            maxDate.add(reserveMaxDateInfo[key], key);
         });
         const reserveMaxDate: string = maxDate.format('YYYY/MM/DD');
 
@@ -145,7 +145,6 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
             // });
         }
     } catch (error) {
-        console.error(error);
         next(new Error(req.__('UnexpectedError')));
     }
 }
@@ -232,7 +231,6 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
 /**
  * 購入者情報
  */
-
 export async function profile(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
