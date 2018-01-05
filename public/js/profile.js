@@ -174,7 +174,8 @@ $(function() {
                     error = 'invalid';
                 }
                 if (error) {
-                    window.navigator.vibrate(200);
+                    // IEではエラーになるため一旦コメントアウト
+                    // window.navigator.vibrate(200);
                     elm_parent.classList.add('has-error');
                     elm_errmsg.innerText = window.ttts.errmsgLocales[error].replace('{{fieldName}}', filedname).replace('{{max}}', maxLength);
                     bool_valid = false;
