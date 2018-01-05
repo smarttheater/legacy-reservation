@@ -352,6 +352,10 @@ function createEmailAttributes(reservations, totalCharge, res) {
         const day = moment(reservations[0].performance_day, 'YYYYMMDD').format('YYYY/MM/DD');
         // tslint:disable-next-line:no-magic-numbers
         const time = `${reservations[0].performance_start_time.substr(0, 2)}:${reservations[0].performance_start_time.substr(2, 2)}`;
+        // 日本語の時は"姓名"他は"名姓"
+        const purchaserName = (res.locale === 'ja') ?
+            `${reservations[0].purchaser_last_name} ${reservations[0].purchaser_first_name}` :
+            `${reservations[0].purchaser_first_name} ${reservations[0].purchaser_last_name}`;
         return new Promise((resolve, reject) => {
             res.render('email/reserve/complete', {
                 layout: false,
@@ -361,7 +365,8 @@ function createEmailAttributes(reservations, totalCharge, res) {
                 conf: conf,
                 ticketInfoArray: ticketInfoArray,
                 totalCharge: totalCharge,
-                dayTime: `${day} ${time}`
+                dayTime: `${day} ${time}`,
+                purchaserName: purchaserName
             }, (renderErr, text) => __awaiter(this, void 0, void 0, function* () {
                 debug('email template rendered.', renderErr);
                 if (renderErr instanceof Error) {

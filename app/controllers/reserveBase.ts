@@ -407,6 +407,11 @@ export async function createEmailAttributes(
     // tslint:disable-next-line:no-magic-numbers
     const time: string = `${reservations[0].performance_start_time.substr(0, 2)}:${reservations[0].performance_start_time.substr(2, 2)}`;
 
+    // 日本語の時は"姓名"他は"名姓"
+    const purchaserName = (res.locale === 'ja') ?
+        `${reservations[0].purchaser_last_name} ${reservations[0].purchaser_first_name}` :
+        `${reservations[0].purchaser_first_name} ${reservations[0].purchaser_last_name}`;
+
     return new Promise<ttts.factory.creativeWork.message.email.IAttributes>((resolve, reject) => {
         res.render(
             'email/reserve/complete',
@@ -418,7 +423,8 @@ export async function createEmailAttributes(
                 conf: conf,
                 ticketInfoArray: ticketInfoArray,
                 totalCharge: totalCharge,
-                dayTime: `${day} ${time}`
+                dayTime: `${day} ${time}`,
+                purchaserName: purchaserName
             },
             async (renderErr, text) => {
                 debug('email template rendered.', renderErr);
