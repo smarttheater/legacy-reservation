@@ -90,35 +90,75 @@
         "en": "https://www.tokyotower.co.jp/en.html",
         "zh-hans": "https://www.tokyotower.co.jp/cn.html",
         "zh-hant": "https://www.tokyotower.co.jp/zh.html",
-        "ko": "https://www.tokyotower.co.jp/kr.html"
+        "ko": "https://www.tokyotower.co.jp/kr.html",
+        "th": "https://www.tokyotower.co.jp/en.html",
+        "id": "https://www.tokyotower.co.jp/en.html",
+        "vi": "https://www.tokyotower.co.jp/en.html",
+        "fr": "https://www.tokyotower.co.jp/en.html",
+        "de": "https://www.tokyotower.co.jp/en.html",
+        "it": "https://www.tokyotower.co.jp/en.html",
+        "es": "https://www.tokyotower.co.jp/en.html",
+        "ru": "https://www.tokyotower.co.jp/en.html"
     },
     "official_url_ticketinfo_by_locale": {
         "ja": "https://www.tokyotower.co.jp/price/index.html",
         "en": "https://www.tokyotower.co.jp/price/en.html",
         "zh-hans": "https://www.tokyotower.co.jp/price/cn.html",
         "zh-hant": "https://www.tokyotower.co.jp/price/zh.html",
-        "ko": "https://www.tokyotower.co.jp/price/kr.html"
+        "ko": "https://www.tokyotower.co.jp/price/kr.html",
+        "th": "https://www.tokyotower.co.jp/price/en.html",
+        "id": "https://www.tokyotower.co.jp/price/en.html",
+        "vi": "https://www.tokyotower.co.jp/price/en.html",
+        "fr": "https://www.tokyotower.co.jp/price/en.html",
+        "de": "https://www.tokyotower.co.jp/price/en.html",
+        "it": "https://www.tokyotower.co.jp/price/en.html",
+        "es": "https://www.tokyotower.co.jp/price/en.html",
+        "ru": "https://www.tokyotower.co.jp/price/en.html"
     },
     "official_url_wheelchairinfo_by_locale": {
         "ja": "https://www.tokyotower.co.jp/barrierfree/index.html",
         "en": "https://www.tokyotower.co.jp/barrierfree/en.html",
         "zh-hans": "https://www.tokyotower.co.jp/barrierfree/cn.html",
         "zh-hant": "https://www.tokyotower.co.jp/barrierfree/zh.html",
-        "ko": "https://www.tokyotower.co.jp/barrierfree/kr.html"
+        "ko": "https://www.tokyotower.co.jp/barrierfree/kr.html",
+        "th": "https://www.tokyotower.co.jp/barrierfree/en.html",
+        "id": "https://www.tokyotower.co.jp/barrierfree/en.html",
+        "vi": "https://www.tokyotower.co.jp/barrierfree/en.html",
+        "fr": "https://www.tokyotower.co.jp/barrierfree/en.html",
+        "de": "https://www.tokyotower.co.jp/barrierfree/en.html",
+        "it": "https://www.tokyotower.co.jp/barrierfree/en.html",
+        "es": "https://www.tokyotower.co.jp/barrierfree/en.html",
+        "ru": "https://www.tokyotower.co.jp/barrierfree/en.html"
     },
     "official_url_aboutentering_by_locale": {
         "ja": "https://www.tokyotower.co.jp/observatory/index.html",
         "en": "https://www.tokyotower.co.jp/observatory/en.html",
         "zh-hans": "https://www.tokyotower.co.jp/observatory/cn.html",
         "zh-hant": "https://www.tokyotower.co.jp/observatory/zh.html",
-        "ko": "https://www.tokyotower.co.jp/observatory/kr.html"
+        "ko": "https://www.tokyotower.co.jp/observatory/kr.html",
+        "th": "https://www.tokyotower.co.jp/observatory/en.html",
+        "id": "https://www.tokyotower.co.jp/observatory/en.html",
+        "vi": "https://www.tokyotower.co.jp/observatory/en.html",
+        "fr": "https://www.tokyotower.co.jp/observatory/en.html",
+        "de": "https://www.tokyotower.co.jp/observatory/en.html",
+        "it": "https://www.tokyotower.co.jp/observatory/en.html",
+        "es": "https://www.tokyotower.co.jp/observatory/en.html",
+        "ru": "https://www.tokyotower.co.jp/observatory/en.html"
     },
     "official_url_privacypolicy_by_locale": {
         "ja": "https://www.tokyotower.co.jp/privacypolicy/index.html",
         "en": "https://www.tokyotower.co.jp/privacypolicy/en.html",
         "zh-hans": "https://www.tokyotower.co.jp/privacypolicy/cn.html",
         "zh-hant": "https://www.tokyotower.co.jp/privacypolicy/zh.html",
-        "ko": "https://www.tokyotower.co.jp/privacypolicy/kr.html"
+        "ko": "https://www.tokyotower.co.jp/privacypolicy/kr.html",
+        "th": "https://www.tokyotower.co.jp/privacypolicy/en.html",
+        "id": "https://www.tokyotower.co.jp/privacypolicy/en.html",
+        "vi": "https://www.tokyotower.co.jp/privacypolicy/en.html",
+        "fr": "https://www.tokyotower.co.jp/privacypolicy/en.html",
+        "de": "https://www.tokyotower.co.jp/privacypolicy/en.html",
+        "it": "https://www.tokyotower.co.jp/privacypolicy/en.html",
+        "es": "https://www.tokyotower.co.jp/privacypolicy/en.html",
+        "ru": "https://www.tokyotower.co.jp/privacypolicy/en.html"
     },
     "official_url_inquiry_by_locale": {
         "ja": "https://ttts-authentication-test.azurewebsites.net/inquiry/search/?locale=ja",
@@ -137,7 +177,18 @@
     },
     "official_url_contact_by_locale": {
         "ja": "https://www.tokyotower.co.jp/contact/",
-        "en": "https://www.tokyotower.co.jp/contact/en.html"
+        "en": "https://www.tokyotower.co.jp/contact/en.html",
+        "zh-hant": "https://www.tokyotower.co.jp/contact/en.html",
+        "zh-hans": "https://www.tokyotower.co.jp/contact/en.html",
+        "ko": "https://www.tokyotower.co.jp/contact/en.html",
+        "th": "https://www.tokyotower.co.jp/contact/en.html",
+        "id": "https://www.tokyotower.co.jp/contact/en.html",
+        "vi": "https://www.tokyotower.co.jp/contact/en.html",
+        "fr": "https://www.tokyotower.co.jp/contact/en.html",
+        "de": "https://www.tokyotower.co.jp/contact/en.html",
+        "it": "https://www.tokyotower.co.jp/contact/en.html",
+        "es": "https://www.tokyotower.co.jp/contact/en.html",
+        "ru": "https://www.tokyotower.co.jp/contact/en.html"
     },
     "meta": {
         "keywords": "TOKYO TOWER TOP DECK TOUR",
