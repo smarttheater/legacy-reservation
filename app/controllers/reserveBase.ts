@@ -5,7 +5,6 @@
  */
 
 import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
-import * as ttts from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as createDebug from 'debug';
 import { Request, Response } from 'express';
@@ -24,6 +23,7 @@ const authClient = new tttsapi.auth.ClientCredentials({
     clientId: <string>process.env.API_CLIENT_ID,
     clientSecret: <string>process.env.API_CLIENT_SECRET,
     scopes: [
+        `${<string>process.env.API_RESOURECE_SERVER_IDENTIFIER}/organizations.read-only`,
         `${<string>process.env.API_RESOURECE_SERVER_IDENTIFIER}/performances.read-only`,
         `${<string>process.env.API_RESOURECE_SERVER_IDENTIFIER}/transactions`
     ],
@@ -31,6 +31,11 @@ const authClient = new tttsapi.auth.ClientCredentials({
 });
 
 const placeOrderTransactionService = new tttsapi.service.transaction.PlaceOrder({
+    endpoint: <string>process.env.API_ENDPOINT,
+    auth: authClient
+});
+
+const organizationService = new tttsapi.service.Organization({
     endpoint: <string>process.env.API_ENDPOINT,
     auth: authClient
 });
@@ -44,8 +49,7 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
     (<Express.Session>req.session).locale = (!_.isEmpty(req.query.locale)) ? req.query.locale : 'ja';
 
     const sellerIdentifier = 'TokyoTower';
-    const organizationRepo = new ttts.repository.Organization(ttts.mongoose.connection);
-    const seller = await organizationRepo.findCorporationByIdentifier(sellerIdentifier);
+    const seller = await organizationService.findCorporationByIdentifier({ identifier: sellerIdentifier });
 
     const expires = moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').toDate();
     const transaction = await placeOrderTransactionService.start({
@@ -63,7 +67,7 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
         sellerId: transaction.seller.id,
         category: req.query.category,
         expires: expires.toISOString(),
-        paymentMethodChoices: [ttts.GMO.utils.util.PayType.Credit, ttts.GMO.utils.util.PayType.Cvs],
+        paymentMethodChoices: [tttsapi.factory.paymentMethodType.CreditCard],
         ticketTypes: [],
         seatGradeCodesInScreen: [],
         purchaser: {
@@ -75,7 +79,7 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
             address: '',
             gender: '1'
         },
-        paymentMethod: ttts.factory.paymentMethodType.CreditCard,
+        paymentMethod: tttsapi.factory.paymentMethodType.CreditCard,
         purchaserGroup: purchaserGroup,
         transactionGMO: {
             orderId: '',
@@ -143,12 +147,12 @@ export async function processFixSeatsAndTickets(reservationModel: ReserveSession
     reservationModel.transactionInProgress.seatReservationAuthorizeActionId = action.id;
     // この時点で購入番号が発行される
     reservationModel.transactionInProgress.paymentNo =
-        (<ttts.factory.action.authorize.seatReservation.IResult>action.result).tmpReservations[0].payment_no;
-    const tmpReservations = (<ttts.factory.action.authorize.seatReservation.IResult>action.result).tmpReservations;
+        (<tttsapi.factory.action.authorize.seatReservation.IResult>action.result).tmpReservations[0].payment_no;
+    const tmpReservations = (<tttsapi.factory.action.authorize.seatReservation.IResult>action.result).tmpReservations;
 
     // セッションに保管
     reservationModel.transactionInProgress.reservations = tmpReservations.filter(
-        (r) => r.status_after === ttts.factory.reservationStatusType.ReservationConfirmed
+        (r) => r.status_after === tttsapi.factory.reservationStatusType.ReservationConfirmed
     );
 }
 
@@ -214,7 +218,7 @@ async function checkFixSeatsAndTickets(ticketTypes: Express.ITicketType[], req: 
         [key: string]: number
     } = {};
     ticketTypes.forEach((ticketTypeInArray) => {
-        if (ticketTypeInArray.ttts_extension.category !== ttts.factory.ticketTypeCategory.Normal) {
+        if (ticketTypeInArray.ttts_extension.category !== tttsapi.factory.ticketTypeCategory.Normal) {
             extraSeatNum[ticketTypeInArray.id] = ticketTypeInArray.ttts_extension.required_seat_num;
         }
     });
@@ -290,7 +294,7 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
     reservationModel.transactionInProgress.purchaser = contact;
 
     // 決済方法はクレジットカード一択
-    reservationModel.transactionInProgress.paymentMethod = ttts.factory.paymentMethodType.CreditCard;
+    reservationModel.transactionInProgress.paymentMethod = tttsapi.factory.paymentMethodType.CreditCard;
 
     const customerContact = await placeOrderTransactionService.setCustomerContact({
         transactionId: reservationModel.transactionInProgress.id,
@@ -319,8 +323,12 @@ export async function processFixPerformance(
 ): Promise<void> {
     debug('fixing performance...', perfomanceId);
     // パフォーマンス取得
-    const performanceRepo = new ttts.repository.Performance(ttts.mongoose.connection);
-    const performance = await performanceRepo.findById(perfomanceId);
+
+    const eventService = new tttsapi.service.Event({
+        endpoint: <string>process.env.API_ENDPOINT,
+        auth: authClient
+    });
+    const performance = await eventService.findPerofrmanceById({ id: perfomanceId });
     if (performance === null) {
         throw new Error(req.__('NotFound'));
     }
@@ -354,12 +362,12 @@ export async function processFixPerformance(
  * @memberof controller.reserveBase
  */
 export async function createEmailAttributes(
-    reservations: ttts.factory.reservation.event.IReservation[],
+    reservations: tttsapi.factory.reservation.event.IReservation[],
     totalCharge: number,
     res: Response
-): Promise<ttts.factory.creativeWork.message.email.IAttributes> {
+): Promise<tttsapi.factory.creativeWork.message.email.IAttributes> {
     // 特殊チケットは除外
-    reservations = reservations.filter((r) => r.status === ttts.factory.reservationStatusType.ReservationConfirmed);
+    reservations = reservations.filter((r) => r.status === tttsapi.factory.reservationStatusType.ReservationConfirmed);
     // チケットコード順にソート
     reservations.sort((a, b) => {
         if (a.ticket_type < b.ticket_type) {
@@ -412,7 +420,7 @@ export async function createEmailAttributes(
         `${reservations[0].purchaser_last_name} ${reservations[0].purchaser_first_name}` :
         `${reservations[0].purchaser_first_name} ${reservations[0].purchaser_last_name}`;
 
-    return new Promise<ttts.factory.creativeWork.message.email.IAttributes>((resolve, reject) => {
+    return new Promise<tttsapi.factory.creativeWork.message.email.IAttributes>((resolve, reject) => {
         res.render(
             'email/reserve/complete',
             {

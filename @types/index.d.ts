@@ -1,4 +1,4 @@
-import * as ttts from '@motionpicture/ttts-domain';
+import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as express from 'express';
 
 declare global {
@@ -15,7 +15,7 @@ declare global {
             /**
              * 販売者ID
              */
-            seller: ttts.factory.organization.corporation.IOrganization;
+            seller: tttsapi.factory.organization.corporation.IOrganization;
             /**
              * 販売者ID
              */
@@ -37,7 +37,7 @@ declare global {
             /**
              * パフォーマンス
              */
-            performance?: ttts.factory.performance.IPerformanceWithDetails;
+            performance?: tttsapi.factory.performance.IPerformanceWithDetails;
             /**
              * 決済方法選択肢
              */
@@ -57,7 +57,7 @@ declare global {
             /**
              * 決済方法
              */
-            paymentMethod: ttts.factory.paymentMethodType;
+            paymentMethod: tttsapi.factory.paymentMethodType;
             /**
              * 購入者区分
              */
@@ -69,13 +69,13 @@ declare global {
             /**
              * 仮予約リスト
              */
-            reservations: ttts.factory.action.authorize.seatReservation.ITmpReservation[];
+            reservations: tttsapi.factory.action.authorize.seatReservation.ITmpReservation[];
         }
 
         /**
          * チケット情報インターフェース
          */
-        type ITicketType = ttts.factory.offer.seatReservation.ITicketType & {
+        type ITicketType = tttsapi.factory.offer.seatReservation.ITicketType & {
             count: number;
         };
 
@@ -111,7 +111,7 @@ declare global {
             /**
              * 成立した取引結果
              */
-            transactionResult?: ttts.factory.transaction.placeOrder.IResult;
+            transactionResult?: tttsapi.factory.transaction.placeOrder.IResult;
             /**
              * 成立した取引の予約印刷トークン
              */

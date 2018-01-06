@@ -13,7 +13,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
-const ttts = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const createDebug = require("debug");
 const moment = require("moment");
@@ -28,12 +27,17 @@ const authClient = new tttsapi.auth.ClientCredentials({
     clientId: process.env.API_CLIENT_ID,
     clientSecret: process.env.API_CLIENT_SECRET,
     scopes: [
+        `${process.env.API_RESOURECE_SERVER_IDENTIFIER}/organizations.read-only`,
         `${process.env.API_RESOURECE_SERVER_IDENTIFIER}/performances.read-only`,
         `${process.env.API_RESOURECE_SERVER_IDENTIFIER}/transactions`
     ],
     state: ''
 });
 const placeOrderTransactionService = new tttsapi.service.transaction.PlaceOrder({
+    endpoint: process.env.API_ENDPOINT,
+    auth: authClient
+});
+const organizationService = new tttsapi.service.Organization({
     endpoint: process.env.API_ENDPOINT,
     auth: authClient
 });
@@ -46,8 +50,7 @@ function processStart(purchaserGroup, req) {
         // 言語も指定
         req.session.locale = (!_.isEmpty(req.query.locale)) ? req.query.locale : 'ja';
         const sellerIdentifier = 'TokyoTower';
-        const organizationRepo = new ttts.repository.Organization(ttts.mongoose.connection);
-        const seller = yield organizationRepo.findCorporationByIdentifier(sellerIdentifier);
+        const seller = yield organizationService.findCorporationByIdentifier({ identifier: sellerIdentifier });
         const expires = moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').toDate();
         const transaction = yield placeOrderTransactionService.start({
             expires: expires,
@@ -63,7 +66,7 @@ function processStart(purchaserGroup, req) {
             sellerId: transaction.seller.id,
             category: req.query.category,
             expires: expires.toISOString(),
-            paymentMethodChoices: [ttts.GMO.utils.util.PayType.Credit, ttts.GMO.utils.util.PayType.Cvs],
+            paymentMethodChoices: [tttsapi.factory.paymentMethodType.CreditCard],
             ticketTypes: [],
             seatGradeCodesInScreen: [],
             purchaser: {
@@ -75,7 +78,7 @@ function processStart(purchaserGroup, req) {
                 address: '',
                 gender: '1'
             },
-            paymentMethod: ttts.factory.paymentMethodType.CreditCard,
+            paymentMethod: tttsapi.factory.paymentMethodType.CreditCard,
             purchaserGroup: purchaserGroup,
             transactionGMO: {
                 orderId: '',
@@ -140,7 +143,7 @@ function processFixSeatsAndTickets(reservationModel, req) {
             action.result.tmpReservations[0].payment_no;
         const tmpReservations = action.result.tmpReservations;
         // セッションに保管
-        reservationModel.transactionInProgress.reservations = tmpReservations.filter((r) => r.status_after === ttts.factory.reservationStatusType.ReservationConfirmed);
+        reservationModel.transactionInProgress.reservations = tmpReservations.filter((r) => r.status_after === tttsapi.factory.reservationStatusType.ReservationConfirmed);
     });
 }
 exports.processFixSeatsAndTickets = processFixSeatsAndTickets;
@@ -177,7 +180,7 @@ function checkFixSeatsAndTickets(ticketTypes, req) {
         // 特殊チケット情報
         const extraSeatNum = {};
         ticketTypes.forEach((ticketTypeInArray) => {
-            if (ticketTypeInArray.ttts_extension.category !== ttts.factory.ticketTypeCategory.Normal) {
+            if (ticketTypeInArray.ttts_extension.category !== tttsapi.factory.ticketTypeCategory.Normal) {
                 extraSeatNum[ticketTypeInArray.id] = ticketTypeInArray.ttts_extension.required_seat_num;
             }
         });
@@ -248,7 +251,7 @@ function processFixProfile(reservationModel, req, res) {
         };
         reservationModel.transactionInProgress.purchaser = contact;
         // 決済方法はクレジットカード一択
-        reservationModel.transactionInProgress.paymentMethod = ttts.factory.paymentMethodType.CreditCard;
+        reservationModel.transactionInProgress.paymentMethod = tttsapi.factory.paymentMethodType.CreditCard;
         const customerContact = yield placeOrderTransactionService.setCustomerContact({
             transactionId: reservationModel.transactionInProgress.id,
             contact: {
@@ -275,8 +278,11 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
     return __awaiter(this, void 0, void 0, function* () {
         debug('fixing performance...', perfomanceId);
         // パフォーマンス取得
-        const performanceRepo = new ttts.repository.Performance(ttts.mongoose.connection);
-        const performance = yield performanceRepo.findById(perfomanceId);
+        const eventService = new tttsapi.service.Event({
+            endpoint: process.env.API_ENDPOINT,
+            auth: authClient
+        });
+        const performance = yield eventService.findPerofrmanceById({ id: perfomanceId });
         if (performance === null) {
             throw new Error(req.__('NotFound'));
         }
@@ -308,7 +314,7 @@ exports.processFixPerformance = processFixPerformance;
 function createEmailAttributes(reservations, totalCharge, res) {
     return __awaiter(this, void 0, void 0, function* () {
         // 特殊チケットは除外
-        reservations = reservations.filter((r) => r.status === ttts.factory.reservationStatusType.ReservationConfirmed);
+        reservations = reservations.filter((r) => r.status === tttsapi.factory.reservationStatusType.ReservationConfirmed);
         // チケットコード順にソート
         reservations.sort((a, b) => {
             if (a.ticket_type < b.ticket_type) {

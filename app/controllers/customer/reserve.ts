@@ -4,7 +4,6 @@
  */
 
 import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
-import * as ttts from '@motionpicture/ttts-domain';
 import * as conf from 'config';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
@@ -18,16 +17,8 @@ import ReserveSessionModel from '../../models/reserve/session';
 import * as reserveBaseController from '../reserveBase';
 
 const debug = createDebug('ttts-frontend:controller:customerReserve');
-const PURCHASER_GROUP: string = ttts.factory.person.Group.Customer;
+const PURCHASER_GROUP: string = tttsapi.factory.person.Group.Customer;
 const reserveMaxDateInfo = conf.get<{ [period: string]: number }>('reserve_max_date');
-
-const redisClient = ttts.redis.createClient({
-    host: <string>process.env.REDIS_HOST,
-    // tslint:disable-next-line:no-magic-numbers
-    port: parseInt(<string>process.env.REDIS_PORT, 10),
-    password: <string>process.env.REDIS_KEY,
-    tls: { servername: <string>process.env.REDIS_HOST }
-});
 
 const authClient = new tttsapi.auth.ClientCredentials({
     domain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
@@ -166,7 +157,7 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
             throw new Error(req.__('UnexpectedError'));
         }
 
-        reservationModel.transactionInProgress.paymentMethod = ttts.factory.paymentMethodType.CreditCard;
+        reservationModel.transactionInProgress.paymentMethod = tttsapi.factory.paymentMethodType.CreditCard;
 
         if (req.method === 'POST') {
             // 仮予約あればキャンセルする
@@ -207,8 +198,8 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
                 res.locals.message = error.message;
 
                 // 車椅子レート制限を超過した場合
-                if (error instanceof ttts.factory.errors.RateLimitExceeded ||
-                    error instanceof ttts.factory.errors.AlreadyInUse) {
+                if (error instanceof tttsapi.factory.errors.RateLimitExceeded ||
+                    error instanceof tttsapi.factory.errors.AlreadyInUse) {
                     res.locals.message = req.__('NoAvailableSeats');
                 }
 
@@ -317,7 +308,7 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
             res.locals.paymentMethod =
                 (!_.isEmpty(reservationModel.transactionInProgress.paymentMethod))
                     ? reservationModel.transactionInProgress.paymentMethod
-                    : ttts.GMO.utils.util.PayType.Credit;
+                    : tttsapi.factory.paymentMethodType.CreditCard;
 
             res.render('customer/reserve/profile', {
                 reservationModel: reservationModel,
@@ -405,23 +396,15 @@ export async function complete(req: Request, res: Response, next: NextFunction):
             return;
         }
 
-        let reservations = (<ttts.factory.transaction.placeOrder.IResult>transactionResult).eventReservations;
+        let reservations = transactionResult.eventReservations;
         debug(reservations.length, 'reservation(s) found.');
-        reservations = reservations.filter((r) => r.status === ttts.factory.reservationStatusType.ReservationConfirmed);
+        reservations = reservations.filter((r) => r.status === tttsapi.factory.reservationStatusType.ReservationConfirmed);
         // チケットをticket_type(id)でソート
         sortReservationstByTicketType(reservations);
 
-        // 初めてのアクセスであれば印刷トークン発行
-        if ((<Express.Session>req.session).printToken === undefined) {
-            const tokenRepo = new ttts.repository.Token(redisClient);
-            const printToken = await tokenRepo.createPrintToken(reservations.map((r) => r.id));
-            debug('printToken created.', printToken);
-            (<Express.Session>req.session).printToken = printToken;
-        }
-
         res.render('customer/reserve/complete', {
             reservations: reservations,
-            printToken: (<Express.Session>req.session).printToken
+            printToken: transactionResult.printToken
         });
     } catch (error) {
         next(new Error(req.__('UnexpectedError')));
@@ -447,7 +430,7 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
     reservationModel.save(req);
 
     switch (reservationModel.transactionInProgress.paymentMethod) {
-        case ttts.factory.paymentMethodType.CreditCard:
+        case tttsapi.factory.paymentMethodType.CreditCard:
             reservePaymentCreditForm(req);
             const validationResult = await req.getValidationResult();
             if (!validationResult.isEmpty()) {
@@ -482,7 +465,9 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
                 transactionId: reservationModel.transactionInProgress.id,
                 orderId: orderId,
                 amount: amount,
-                method: ttts.GMO.utils.util.Method.Lump, // 支払い方法は一括
+                // tslint:disable-next-line:no-suspicious-comment
+                method: '1', // TODO 定数化
+                // method: ttts.GMO.utils.util.Method.Lump, // 支払い方法は一括
                 creditCard: gmoTokenObject
             });
             debug('credit card authorizeAction created.', action.id);

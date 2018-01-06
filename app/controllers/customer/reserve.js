@@ -13,7 +13,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
-const ttts = require("@motionpicture/ttts-domain");
 const conf = require("config");
 const createDebug = require("debug");
 //import * as httpStatus from 'http-status';
@@ -24,15 +23,8 @@ const reservePerformanceForm_1 = require("../../forms/reserve/reservePerformance
 const session_1 = require("../../models/reserve/session");
 const reserveBaseController = require("../reserveBase");
 const debug = createDebug('ttts-frontend:controller:customerReserve');
-const PURCHASER_GROUP = ttts.factory.person.Group.Customer;
+const PURCHASER_GROUP = tttsapi.factory.person.Group.Customer;
 const reserveMaxDateInfo = conf.get('reserve_max_date');
-const redisClient = ttts.redis.createClient({
-    host: process.env.REDIS_HOST,
-    // tslint:disable-next-line:no-magic-numbers
-    port: parseInt(process.env.REDIS_PORT, 10),
-    password: process.env.REDIS_KEY,
-    tls: { servername: process.env.REDIS_HOST }
-});
 const authClient = new tttsapi.auth.ClientCredentials({
     domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
     clientId: process.env.API_CLIENT_ID,
@@ -162,7 +154,7 @@ function tickets(req, res, next) {
             if (reservationModel.transactionInProgress.performance === undefined) {
                 throw new Error(req.__('UnexpectedError'));
             }
-            reservationModel.transactionInProgress.paymentMethod = ttts.factory.paymentMethodType.CreditCard;
+            reservationModel.transactionInProgress.paymentMethod = tttsapi.factory.paymentMethodType.CreditCard;
             if (req.method === 'POST') {
                 // 仮予約あればキャンセルする
                 try {
@@ -199,8 +191,8 @@ function tickets(req, res, next) {
                     // "予約可能な席がございません"などのメッセージ表示
                     res.locals.message = error.message;
                     // 車椅子レート制限を超過した場合
-                    if (error instanceof ttts.factory.errors.RateLimitExceeded ||
-                        error instanceof ttts.factory.errors.AlreadyInUse) {
+                    if (error instanceof tttsapi.factory.errors.RateLimitExceeded ||
+                        error instanceof tttsapi.factory.errors.AlreadyInUse) {
                         res.locals.message = req.__('NoAvailableSeats');
                     }
                     res.render('customer/reserve/tickets', {
@@ -312,7 +304,7 @@ function profile(req, res, next) {
                 res.locals.paymentMethod =
                     (!_.isEmpty(reservationModel.transactionInProgress.paymentMethod))
                         ? reservationModel.transactionInProgress.paymentMethod
-                        : ttts.GMO.utils.util.PayType.Credit;
+                        : tttsapi.factory.paymentMethodType.CreditCard;
                 res.render('customer/reserve/profile', {
                     reservationModel: reservationModel,
                     GMO_ENDPOINT: process.env.GMO_ENDPOINT,
@@ -396,19 +388,12 @@ function complete(req, res, next) {
             }
             let reservations = transactionResult.eventReservations;
             debug(reservations.length, 'reservation(s) found.');
-            reservations = reservations.filter((r) => r.status === ttts.factory.reservationStatusType.ReservationConfirmed);
+            reservations = reservations.filter((r) => r.status === tttsapi.factory.reservationStatusType.ReservationConfirmed);
             // チケットをticket_type(id)でソート
             sortReservationstByTicketType(reservations);
-            // 初めてのアクセスであれば印刷トークン発行
-            if (req.session.printToken === undefined) {
-                const tokenRepo = new ttts.repository.Token(redisClient);
-                const printToken = yield tokenRepo.createPrintToken(reservations.map((r) => r.id));
-                debug('printToken created.', printToken);
-                req.session.printToken = printToken;
-            }
             res.render('customer/reserve/complete', {
                 reservations: reservations,
-                printToken: req.session.printToken
+                printToken: transactionResult.printToken
             });
         }
         catch (error) {
@@ -434,7 +419,7 @@ function processFixGMO(reservationModel, req) {
         reservationModel.transactionInProgress.transactionGMO.count += 1;
         reservationModel.save(req);
         switch (reservationModel.transactionInProgress.paymentMethod) {
-            case ttts.factory.paymentMethodType.CreditCard:
+            case tttsapi.factory.paymentMethodType.CreditCard:
                 reservePaymentCreditForm_1.default(req);
                 const validationResult = yield req.getValidationResult();
                 if (!validationResult.isEmpty()) {
@@ -465,7 +450,9 @@ function processFixGMO(reservationModel, req) {
                     transactionId: reservationModel.transactionInProgress.id,
                     orderId: orderId,
                     amount: amount,
-                    method: ttts.GMO.utils.util.Method.Lump,
+                    // tslint:disable-next-line:no-suspicious-comment
+                    method: '1',
+                    // method: ttts.GMO.utils.util.Method.Lump, // 支払い方法は一括
                     creditCard: gmoTokenObject
                 });
                 debug('credit card authorizeAction created.', action.id);
