@@ -218,6 +218,7 @@
     "reserve_max_date": {
         "days": 60
     },
+    "reserve_start_date": "2018/03/03 00:00:00",
     "paymentMethodsForCustomer": {
         "CreditCard": "クレジットカード"
     },

@@ -25,6 +25,7 @@ const reserveBaseController = require("../reserveBase");
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 const PURCHASER_GROUP = tttsapi.factory.person.Group.Customer;
 const reserveMaxDateInfo = conf.get('reserve_max_date');
+const reserveStartDate = conf.get('reserve_start_date');
 const authClient = new tttsapi.auth.ClientCredentials({
     domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
     clientId: process.env.API_CLIENT_ID,
@@ -72,6 +73,7 @@ function performances(req, res, next) {
                 res.render('customer/reserve/performances', {
                     token: token,
                     reserveMaxDate: reserveMaxDate,
+                    reserveStartDate: reserveStartDate,
                     category: category
                 });
             }
