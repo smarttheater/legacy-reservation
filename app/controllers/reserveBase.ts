@@ -77,7 +77,7 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
             email: '',
             age: '',
             address: '',
-            gender: '1'
+            gender: '0'
         },
         paymentMethod: tttsapi.factory.paymentMethodType.CreditCard,
         purchaserGroup: purchaserGroup,

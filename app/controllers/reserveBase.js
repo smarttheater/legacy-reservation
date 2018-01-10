@@ -76,7 +76,7 @@ function processStart(purchaserGroup, req) {
                 email: '',
                 age: '',
                 address: '',
-                gender: '1'
+                gender: '0'
             },
             paymentMethod: tttsapi.factory.paymentMethodType.CreditCard,
             purchaserGroup: purchaserGroup,
