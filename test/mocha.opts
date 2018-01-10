@@ -1,4 +1,3 @@
 --no-timeouts
 --recursive
 --reporter spec
---no-verify

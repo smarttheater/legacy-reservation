@@ -1,23 +1,17 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * customerルーティング
- *
- * @ignore
+ * @namespace routes.customer
  */
+Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const customerReserveController = require("../controllers/customer/reserve");
 const customerRouter = express_1.Router();
-// 本番環境ではhomeは存在しない
-if (process.env.NODE_ENV !== 'production') {
-    customerRouter.all('/reserve/performances/:category', customerReserveController.performances);
-    //customerRouter.post('/reserve/performances/:category', customerReserveController.performances);
-}
+customerRouter.all('/reserve/performances/:category', customerReserveController.performances);
 customerRouter.get('/reserve/start', customerReserveController.start);
-//2017/05/11 座席選択削除
-//customerRouter.all('/reserve/terms', customerReserveController.terms);
-//customerRouter.all('/reserve/seats', customerReserveController.seats);
-//---
+// 東京タワーではなし
+// customerRouter.all('/reserve/terms', customerReserveController.terms);
+// customerRouter.all('/reserve/seats', customerReserveController.seats);
 customerRouter.all('/reserve/tickets', customerReserveController.tickets);
 customerRouter.all('/reserve/profile', customerReserveController.profile);
 customerRouter.all('/reserve/confirm', customerReserveController.confirm);
