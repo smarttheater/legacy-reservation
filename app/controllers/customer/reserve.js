@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const conf = require("config");
 const createDebug = require("debug");
-//import * as httpStatus from 'http-status';
+const http_status_1 = require("http-status");
 const moment = require("moment");
 const _ = require("underscore");
 const reservePaymentCreditForm_1 = require("../../forms/reserve/reservePaymentCreditForm");
@@ -192,9 +192,8 @@ function tickets(req, res, next) {
                 catch (error) {
                     // "予約可能な席がございません"などのメッセージ表示
                     res.locals.message = error.message;
-                    // 車椅子レート制限を超過した場合
-                    if (error instanceof tttsapi.factory.errors.RateLimitExceeded ||
-                        error instanceof tttsapi.factory.errors.AlreadyInUse) {
+                    // 残席数不足、あるいは車椅子レート制限を超過の場合
+                    if (error.code === http_status_1.CONFLICT || error.code === http_status_1.TOO_MANY_REQUESTS) {
                         res.locals.message = req.__('NoAvailableSeats');
                     }
                     res.render('customer/reserve/tickets', {
