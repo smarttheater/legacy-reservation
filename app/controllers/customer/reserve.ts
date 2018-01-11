@@ -49,33 +49,31 @@ export async function performances(req: Request, res: Response, next: NextFuncti
         debug('tttsapi access token published.');
 
         const maxDate = moment();
-        Object.keys(reserveMaxDateInfo).forEach((key: moment.unitOfTime.DurationConstructor) => {
-            maxDate.add(reserveMaxDateInfo[key], key);
+        Object.keys(reserveMaxDateInfo).forEach((key) => {
+            maxDate.add(reserveMaxDateInfo[key], <moment.unitOfTime.DurationConstructor>key);
         });
         const reserveMaxDate: string = maxDate.format('YYYY/MM/DD');
+
+        let category: string = req.params.category;
 
         if (req.method === 'POST') {
             reservePerformanceForm(req);
             const validationResult = await req.getValidationResult();
-            if (!validationResult.isEmpty()) {
-                res.render('customer/reserve/performances');
+            if (validationResult.isEmpty()) {
+                const performaceId = req.body.performanceId;
+                category = req.body.category;
+                res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}&category=${category}`);
 
                 return;
             }
-            const performaceId = req.body.performanceId;
-            const category = req.body.category;
-            res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}&category=${category}`);
-
-            return;
-        } else {
-            const category: string = req.params.category;
-            res.render('customer/reserve/performances', {
-                token: token,
-                reserveMaxDate: reserveMaxDate,
-                reserveStartDate: reserveStartDate,
-                category: category
-            });
         }
+
+        res.render('customer/reserve/performances', {
+            token: token,
+            reserveMaxDate: reserveMaxDate,
+            reserveStartDate: reserveStartDate,
+            category: category
+        });
     } catch (error) {
         next(new Error(req.__('UnexpectedError')));
     }
@@ -160,6 +158,7 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
         }
 
         reservationModel.transactionInProgress.paymentMethod = tttsapi.factory.paymentMethodType.CreditCard;
+        res.locals.message = '';
 
         if (req.method === 'POST') {
             // 仮予約あればキャンセルする
@@ -195,6 +194,8 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
                 await reserveBaseController.processFixSeatsAndTickets(reservationModel, req);
                 reservationModel.save(req);
                 res.redirect('/customer/reserve/profile');
+
+                return;
             } catch (error) {
                 // "予約可能な席がございません"などのメッセージ表示
                 res.locals.message = error.message;
@@ -203,18 +204,13 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
                 if (error.code === CONFLICT || error.code === TOO_MANY_REQUESTS) {
                     res.locals.message = req.__('NoAvailableSeats');
                 }
-
-                res.render('customer/reserve/tickets', {
-                    reservationModel: reservationModel
-                });
             }
-        } else {
-            // 券種選択画面へ遷移
-            res.locals.message = '';
-            res.render('customer/reserve/tickets', {
-                reservationModel: reservationModel
-            });
         }
+
+        // 券種選択画面へ遷移
+        res.render('customer/reserve/tickets', {
+            reservationModel: reservationModel
+        });
     } catch (error) {
         next(new Error(req.__('UnexpectedError')));
     }
@@ -232,9 +228,9 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
             return;
         }
 
-        if (req.method === 'POST') {
-            let gmoError: string = '';
+        let gmoError: string = '';
 
+        if (req.method === 'POST') {
             try {
                 // 購入者情報FIXプロセス
                 await reserveBaseController.processFixProfile(reservationModel, req, res);
@@ -245,7 +241,7 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
                 } catch (error) {
                     debug('failed in fixing GMO.', error.code, error);
                     if (error.code === BAD_REQUEST) {
-                        gmoError = req.__('BadCard');
+                        throw new Error(req.__('BadCard'));
 
                         // いったん保留
                         // switch (e.errors[0].code) {
@@ -281,13 +277,10 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
 
                 reservationModel.save(req);
                 res.redirect('/customer/reserve/confirm');
+
+                return;
             } catch (error) {
-                res.render('customer/reserve/profile', {
-                    reservationModel: reservationModel,
-                    GMO_ENDPOINT: process.env.GMO_ENDPOINT,
-                    GMO_SHOP_ID: reservationModel.transactionInProgress.seller.gmoInfo.shopId,
-                    gmoError: gmoError
-                });
+                gmoError = error.message;
             }
         } else {
             // セッションに情報があれば、フォーム初期値設定
@@ -305,13 +298,14 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
                 (!_.isEmpty(reservationModel.transactionInProgress.paymentMethod))
                     ? reservationModel.transactionInProgress.paymentMethod
                     : tttsapi.factory.paymentMethodType.CreditCard;
-
-            res.render('customer/reserve/profile', {
-                reservationModel: reservationModel,
-                GMO_ENDPOINT: process.env.GMO_ENDPOINT,
-                GMO_SHOP_ID: reservationModel.transactionInProgress.seller.gmoInfo.shopId
-            });
         }
+
+        res.render('customer/reserve/profile', {
+            reservationModel: reservationModel,
+            GMO_ENDPOINT: process.env.GMO_ENDPOINT,
+            GMO_SHOP_ID: reservationModel.transactionInProgress.seller.gmoInfo.shopId,
+            gmoError: gmoError
+        });
     } catch (error) {
         next(new Error(req.__('UnexpectedError')));
     }
@@ -369,6 +363,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 return;
             }
         }
+
         // チケットをticket_type(id)でソート
         sortReservationstByTicketType(reservationModel.transactionInProgress.reservations);
         res.render('customer/reserve/confirm', {
@@ -478,13 +473,17 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
             break;
     }
 }
+
+type IReservation = tttsapi.factory.action.authorize.seatReservation.ITmpReservation |
+    tttsapi.factory.reservation.event.IReservation;
+
 /**
  * チケットをticket_type(id)でソートする
- * @method sortReservationstByTicketType
+ * @function
  */
-function sortReservationstByTicketType(reservations: any[]): void {
+function sortReservationstByTicketType(reservations: IReservation[]): void {
     // チケットをticket_type(id)でソート
-    reservations.sort((a: any, b: any) => {
+    reservations.sort((a, b) => {
         // 入塔日
         if (a.ticket_type > b.ticket_type) {
             return 1;

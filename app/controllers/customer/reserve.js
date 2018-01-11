@@ -56,27 +56,23 @@ function performances(req, res, next) {
                 maxDate.add(reserveMaxDateInfo[key], key);
             });
             const reserveMaxDate = maxDate.format('YYYY/MM/DD');
+            let category = req.params.category;
             if (req.method === 'POST') {
                 reservePerformanceForm_1.default(req);
                 const validationResult = yield req.getValidationResult();
-                if (!validationResult.isEmpty()) {
-                    res.render('customer/reserve/performances');
+                if (validationResult.isEmpty()) {
+                    const performaceId = req.body.performanceId;
+                    category = req.body.category;
+                    res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}&category=${category}`);
                     return;
                 }
-                const performaceId = req.body.performanceId;
-                const category = req.body.category;
-                res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}&category=${category}`);
-                return;
             }
-            else {
-                const category = req.params.category;
-                res.render('customer/reserve/performances', {
-                    token: token,
-                    reserveMaxDate: reserveMaxDate,
-                    reserveStartDate: reserveStartDate,
-                    category: category
-                });
-            }
+            res.render('customer/reserve/performances', {
+                token: token,
+                reserveMaxDate: reserveMaxDate,
+                reserveStartDate: reserveStartDate,
+                category: category
+            });
         }
         catch (error) {
             next(new Error(req.__('UnexpectedError')));
@@ -157,6 +153,7 @@ function tickets(req, res, next) {
                 throw new Error(req.__('UnexpectedError'));
             }
             reservationModel.transactionInProgress.paymentMethod = tttsapi.factory.paymentMethodType.CreditCard;
+            res.locals.message = '';
             if (req.method === 'POST') {
                 // 仮予約あればキャンセルする
                 try {
@@ -188,6 +185,7 @@ function tickets(req, res, next) {
                     yield reserveBaseController.processFixSeatsAndTickets(reservationModel, req);
                     reservationModel.save(req);
                     res.redirect('/customer/reserve/profile');
+                    return;
                 }
                 catch (error) {
                     // "予約可能な席がございません"などのメッセージ表示
@@ -196,18 +194,12 @@ function tickets(req, res, next) {
                     if (error.code === http_status_1.CONFLICT || error.code === http_status_1.TOO_MANY_REQUESTS) {
                         res.locals.message = req.__('NoAvailableSeats');
                     }
-                    res.render('customer/reserve/tickets', {
-                        reservationModel: reservationModel
-                    });
                 }
             }
-            else {
-                // 券種選択画面へ遷移
-                res.locals.message = '';
-                res.render('customer/reserve/tickets', {
-                    reservationModel: reservationModel
-                });
-            }
+            // 券種選択画面へ遷移
+            res.render('customer/reserve/tickets', {
+                reservationModel: reservationModel
+            });
         }
         catch (error) {
             next(new Error(req.__('UnexpectedError')));
@@ -226,8 +218,8 @@ function profile(req, res, next) {
                 next(new Error(req.__('Expired')));
                 return;
             }
+            let gmoError = '';
             if (req.method === 'POST') {
-                let gmoError = '';
                 try {
                     // 購入者情報FIXプロセス
                     yield reserveBaseController.processFixProfile(reservationModel, req, res);
@@ -238,7 +230,7 @@ function profile(req, res, next) {
                     catch (error) {
                         debug('failed in fixing GMO.', error.code, error);
                         if (error.code === http_status_1.BAD_REQUEST) {
-                            gmoError = req.__('BadCard');
+                            throw new Error(req.__('BadCard'));
                             // いったん保留
                             // switch (e.errors[0].code) {
                             //     case 'E92':
@@ -271,14 +263,10 @@ function profile(req, res, next) {
                     }
                     reservationModel.save(req);
                     res.redirect('/customer/reserve/confirm');
+                    return;
                 }
                 catch (error) {
-                    res.render('customer/reserve/profile', {
-                        reservationModel: reservationModel,
-                        GMO_ENDPOINT: process.env.GMO_ENDPOINT,
-                        GMO_SHOP_ID: reservationModel.transactionInProgress.seller.gmoInfo.shopId,
-                        gmoError: gmoError
-                    });
+                    gmoError = error.message;
                 }
             }
             else {
@@ -297,12 +285,13 @@ function profile(req, res, next) {
                     (!_.isEmpty(reservationModel.transactionInProgress.paymentMethod))
                         ? reservationModel.transactionInProgress.paymentMethod
                         : tttsapi.factory.paymentMethodType.CreditCard;
-                res.render('customer/reserve/profile', {
-                    reservationModel: reservationModel,
-                    GMO_ENDPOINT: process.env.GMO_ENDPOINT,
-                    GMO_SHOP_ID: reservationModel.transactionInProgress.seller.gmoInfo.shopId
-                });
             }
+            res.render('customer/reserve/profile', {
+                reservationModel: reservationModel,
+                GMO_ENDPOINT: process.env.GMO_ENDPOINT,
+                GMO_SHOP_ID: reservationModel.transactionInProgress.seller.gmoInfo.shopId,
+                gmoError: gmoError
+            });
         }
         catch (error) {
             next(new Error(req.__('UnexpectedError')));
@@ -459,7 +448,7 @@ function processFixGMO(reservationModel, req) {
 }
 /**
  * チケットをticket_type(id)でソートする
- * @method sortReservationstByTicketType
+ * @function
  */
 function sortReservationstByTicketType(reservations) {
     // チケットをticket_type(id)でソート
