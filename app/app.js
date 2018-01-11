@@ -3,6 +3,7 @@
  * expressアプリケーション
  * @module app
  */
+const middlewares = require("@motionpicture/express-middleware");
 const bodyParser = require("body-parser");
 const conf = require("config");
 const cookieParser = require("cookie-parser");
@@ -21,6 +22,10 @@ const setLocals_1 = require("./middlewares/setLocals");
 const customer_1 = require("./routes/customer");
 const router_1 = require("./routes/router");
 const app = express();
+app.use(middlewares.basicAuth({
+    name: process.env.BASIC_AUTH_NAME,
+    pass: process.env.BASIC_AUTH_PASS
+}));
 app.use(partials()); // レイアウト&パーシャルサポート
 app.use(session_1.default); // セッション
 if (process.env.NODE_ENV !== 'production') {
