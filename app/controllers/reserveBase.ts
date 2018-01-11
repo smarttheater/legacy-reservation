@@ -411,6 +411,8 @@ export async function createEmailAttributes(
         const ticketInfo = (<any>ticketInfos)[key];
         ticketInfoArray.push(`${ticketInfo.ticket_type_name[res.locale]} ${res.__('{{n}}Leaf', { n: ticketInfo.count })}`);
     }
+    const ticketInfoStr = ticketInfoArray.join('\n');
+
     const day: string = moment(reservations[0].performance_day, 'YYYYMMDD').format('YYYY/MM/DD');
     // tslint:disable-next-line:no-magic-numbers
     const time: string = `${reservations[0].performance_start_time.substr(0, 2)}:${reservations[0].performance_start_time.substr(2, 2)}`;
@@ -429,7 +431,7 @@ export async function createEmailAttributes(
                 moment: moment,
                 numeral: numeral,
                 conf: conf,
-                ticketInfoArray: ticketInfoArray,
+                ticketInfoStr: ticketInfoStr,
                 totalCharge: totalCharge,
                 dayTime: `${day} ${time}`,
                 purchaserName: purchaserName
