@@ -411,6 +411,7 @@ function getMailText(res, totalCharge, reservations) {
     mail.push('');
     // [ご注意事項]
     mail.push(res.__('EmailNotice1'));
+    mail.push(res.__('EmailNotice9'));
     mail.push(res.__('EmailNotice2'));
     mail.push(res.__('EmailNotice3'));
     mail.push(res.__('EmailNotice4'));
