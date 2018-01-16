@@ -78,6 +78,7 @@ $(function() {
                 + '<td class="td-seat">' + reservation.seat_code + '</td>'
                 + '<td class="td-ticket">' + reservation.ticket_type_name.ja + '</td>'
                 + '<td class="td-route">' + purchaseRoute[reservation.purchaser_group] + '</td>'
+                + '<td class="td-route">' + reservation.payment_method_name + '</td>'
                 + '<td class="td-checkin">' + ((reservation.checkins.length) ? '<span class="entered">入場済み</span>' : '<span class="unentered">未入場</span>') + '</td>'
                 + '<td class="td-actions">';
             if (reservation.payment_no && !reservation.performance_canceled) {
@@ -134,6 +135,21 @@ $(function() {
         formDatas.forEach(function(formData) {
             conditions[formData.name] = formData.value;
         });
+        // hourだけ選択されていたら00分にする && minuteだけ選択されていたら00時にする
+        if (conditions.start_hour1 && !conditions.start_minute1) {
+            conditions.start_minute1 = '00';
+            document.querySelector('[name=start_minute1]').value = '00';
+        } else if (!conditions.start_hour1 && conditions.start_minute1) {
+            conditions.start_hour1 = '00';
+            document.querySelector('[name=start_hour1]').value = '00';
+        }
+        if (conditions.start_hour2 && !conditions.start_minute2) {
+            conditions.start_minute2 = '00';
+            document.querySelector('[name=start_minute2]').value = '00';
+        } else if (!conditions.start_hour2 && conditions.start_minute2) {
+            conditions.start_hour2 = '00';
+            document.querySelector('[name=start_hour2]').value = '00';
+        }
     }
     function showConditions() {
         var formDatas = $('.search-form').serializeArray();
@@ -147,6 +163,7 @@ $(function() {
         });
     }
 
+    var dom_searchmsg = document.getElementById('echo_searchmsg');
     function search() {
         conditions.day = conditions.day.replace(/\-/g, '');
         conditions.searched_at = Date.now(); // ブラウザキャッシュ対策
@@ -155,7 +172,6 @@ $(function() {
         $.ajax({
             dataType: 'json',
             url: $('.search-form').attr('action'),
-            // url: '/temp_mypagersrvs.json',
             type: 'GET',
             data: conditions,
             beforeSend: function() {
@@ -164,13 +180,24 @@ $(function() {
             }
         }).done(function(data) {
             // データ表示
+            var message = (typeof data.message === 'string' && data.message.length) ? data.message : '';
+            if (!Array.isArray(data.results)) {
+                message = '検索APIが異常なレスポンスを返しました (data.resultsが配列でない)';
+            }
+            dom_searchmsg.innerText = message;
+            dom_searchmsg.style.display = (message) ? 'block' : 'none';
+            dom_totalcount.innerHTML = data.count + '件';
+
+            if (!data.results) {
+                return false;
+            }
+
             data.results.forEach(function(reservation) {
                 reservationsById[reservation.id] = reservation;
             });
             showReservations(data.results);
             showPager(parseInt(data.count, 10));
             showConditions();
-            dom_totalcount.innerHTML = data.count + '件';
         }).fail(function(jqxhr, textStatus, error) {
             // エラーメッセージ表示
             try {

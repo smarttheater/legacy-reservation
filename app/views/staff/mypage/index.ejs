@@ -132,7 +132,6 @@
                                 <%- paymentMethodsForStaff[methodCode] %>
                             </option>
                             <%  }); %>
-                                <option value="-">POS</option>
                 </select>
             </div>
         </div>
@@ -175,6 +174,7 @@
     </form>
 </div>
 
+<p id="echo_searchmsg"></p>
 <p id="echo_totalcount"></p>
 
 <div class="wrapper-reservations">
@@ -194,6 +194,7 @@
                 </th>
                 <th>券種</th>
                 <th>予約方法</th>
+                <th>決済方法</th>
                 <th>入場状況</th>
                 <th></th>
             </tr>
