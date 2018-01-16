@@ -389,11 +389,139 @@ export async function createEmailAttributes(
     const title = res.__('Title');
     const titleEmail = res.__('EmailTitle');
 
+    // メール本文取得
+    const text: string = getMailText(res, totalCharge, reservations);
+
+    // メール情報セット
+    return new Promise<tttsapi.factory.creativeWork.message.email.IAttributes>((resolve) => {
+        resolve({
+            sender: {
+                name: conf.get<string>('email.fromname'),
+                email: conf.get<string>('email.from')
+            },
+            toRecipient: {
+                name: reservations[0].purchaser_name,
+                email: to
+            },
+            about: `${title} ${titleEmail}`,
+            text: text
+        });
+    });
+}
+/**
+ * メール本文取得
+ * @function getMailText
+ * @param {Response} res
+ * @param {number} totalCharge
+ * @param {tttsapi.factory.reservation.event.IReservation[]}reservations
+ * @returns {string}
+ */
+function getMailText(res: Response,
+                     totalCharge: number,
+                     reservations: tttsapi.factory.reservation.event.IReservation[]): string {
+    const mail: string[] = [];
+    const locale: string = res.locale;
+
+    // 東京タワー トップデッキツアー　チケット購入完了のお知らせ
+    mail.push(res.__('EmailTitle'));
+    mail.push('');
+
+    // 姓名編集: 日本語の時は"姓名"他は"名姓"
+    const purchaserName = (locale === 'ja') ?
+        `${reservations[0].purchaser_last_name} ${reservations[0].purchaser_first_name}` :
+        `${reservations[0].purchaser_first_name} ${reservations[0].purchaser_last_name}`;
+    // XXXX XXXX 様
+    mail.push(res.__('EmailDestinationName{{name}}', { name: purchaserName }));
+    mail.push('');
+
+    // この度は、「東京タワー トップデッキツアー」のWEBチケット予約販売をご利用頂き、誠にありがとうございます。
+    mail.push(res.__('EmailHead1').replace(
+        '$theater_name$', (<any>reservations[0]).theater_name[locale]
+    ));
+    // お客様がご購入されましたチケットの情報は下記の通りです。
+    mail.push(res.__('EmailHead2'));
+    mail.push('');
+
+    // 購入番号
+    mail.push(`${res.__('PaymentNo')} : ${reservations[0].payment_no}`);
+
+    // ご来塔日時
+    const day: string = moment(reservations[0].performance_day, 'YYYYMMDD').format('YYYY/MM/DD');
+    // tslint:disable-next-line:no-magic-numbers
+    const time: string = `${reservations[0].performance_start_time.substr(0, 2)}:${reservations[0].performance_start_time.substr(2, 2)}`;
+    mail.push(`${res.__('EmailReserveDate')} : ${day} ${time}`);
+
+    // 券種、枚数
+    mail.push(`${res.__('TicketType')} ${res.__('TicketCount')}`);
+
     // 券種ごとに合計枚数算出
+    const ticketInfos = editTicketInfos(res, getTicketInfos(reservations));
+    Object.keys(ticketInfos).forEach((key: string) => {
+        mail.push(ticketInfos[key].info);
+    });
+    mail.push('-------------------------------------');
+    // 合計枚数
+    mail.push(res.__('EmailTotalTicketCount{{n}}', { n: reservations.length.toString() }));
+    // 合計金額
+    mail.push(`${res.__('TotalPrice')} ${res.__('{{price}} yen', { price: numeral(totalCharge).format('0,0') })}`);
+    mail.push('-------------------------------------');
+    // ※ご入場の際はQRコードが入場チケットとなります。下記のチケット照会より、QRコードを画面撮影もしくは印刷の上、ご持参ください。
+    mail.push(res.__('EmailAboutQR'));
+    mail.push('');
+
+    // ●チケット照会はこちら
+    mail.push(res.__('EmailInquiryUrl'));
+    mail.push((<any>conf.get('official_url_inquiry_by_locale'))[locale]);
+    mail.push('');
+
+    // ●ご入場方法はこちら
+    mail.push(res.__('EmailEnterURL'));
+    mail.push((<any>conf.get('official_url_aboutentering_by_locale'))[locale]);
+    mail.push('');
+
+    // [ご注意事項]
+    mail.push(res.__('EmailNotice1'));
+    mail.push(res.__('EmailNotice2'));
+    mail.push(res.__('EmailNotice3'));
+    mail.push(res.__('EmailNotice4'));
+    mail.push(res.__('EmailNotice5'));
+    mail.push(res.__('EmailNotice6'));
+    mail.push(res.__('EmailNotice7'));
+    mail.push(res.__('EmailNotice8'));
+    mail.push('');
+
+    // ※よくあるご質問（ＦＡＱ）はこちら
+    mail.push(res.__('EmailFAQURL'));
+    mail.push((<any>conf.get('official_url_top_by_locale'))[locale]);
+    mail.push('');
+
+    // なお、このメールは、「東京タワー トップデッキツアー」の予約システムでチケットをご購入頂いた方にお送りしておりますが、チケット購入に覚えのない方に届いております場合は、下記お問い合わせ先までご連絡ください。
+    mail.push(res.__('EmailFoot1').replace('$theater_name$', (<any>reservations[0]).theater_name[locale]));
+    // ※尚、このメールアドレスは送信専用となっておりますでので、ご返信頂けません。
+    mail.push(res.__('EmailFoot2'));
+    // ご不明な点がございましたら、下記番号までお問合わせください。
+    mail.push(res.__('EmailFoot3'));
+    mail.push('');
+
+    // お問い合わせはこちら
+    mail.push(res.__('EmailAccess1'));
+    // 東京タワー　TEL : 03-3433-5111　/　9：00am～17：00pm（年中無休）
+    mail.push(res.__('EmailAccess2'));
+
+    return (mail.join('\n'));
+}
+/**
+ * 券種ごとに合計枚数算出
+ * @param {any} reservations
+ * @returns {any>}
+ */
+function getTicketInfos(reservations: any[]): any {
+    // 券種ごとに合計枚数算出
+    const keyName: string = 'ticket_type';
     const ticketInfos: {} = {};
     for (const reservation of reservations) {
         // チケットタイプセット
-        const dataValue = reservation.ticket_type;
+        const dataValue = reservation[keyName];
         // チケットタイプごとにチケット情報セット
         if (!ticketInfos.hasOwnProperty(dataValue)) {
             (<any>ticketInfos)[dataValue] = {
@@ -405,57 +533,23 @@ export async function createEmailAttributes(
             (<any>ticketInfos)[dataValue].count += 1;
         }
     }
-    // 券種ごとの表示情報編集 (sort順を変えないよう同期Loop:"for of")
-    const ticketInfoArray: string[] = [];
-    for (const key of Object.keys(ticketInfos)) {
+
+    return ticketInfos;
+}
+/**
+ * 券種ごとの表示情報編集
+ * @param {Response} res
+ * @param {any} ticketInfos
+ * @returns {any>}
+ */
+function editTicketInfos(res: Response, ticketInfos: any[]): any {
+    const locale = res.locale;
+    // 券種ごとの表示情報編集
+    Object.keys(ticketInfos).forEach((key) => {
         const ticketInfo = (<any>ticketInfos)[key];
-        ticketInfoArray.push(`${ticketInfo.ticket_type_name[res.locale]} ${res.__('{{n}}Leaf', { n: ticketInfo.count })}`);
-    }
-    const ticketInfoStr = ticketInfoArray.join('\n');
-
-    const day: string = moment(reservations[0].performance_day, 'YYYYMMDD').format('YYYY/MM/DD');
-    // tslint:disable-next-line:no-magic-numbers
-    const time: string = `${reservations[0].performance_start_time.substr(0, 2)}:${reservations[0].performance_start_time.substr(2, 2)}`;
-
-    // 日本語の時は"姓名"他は"名姓"
-    const purchaserName = (res.locale === 'ja') ?
-        `${reservations[0].purchaser_last_name} ${reservations[0].purchaser_first_name}` :
-        `${reservations[0].purchaser_first_name} ${reservations[0].purchaser_last_name}`;
-
-    return new Promise<tttsapi.factory.creativeWork.message.email.IAttributes>((resolve, reject) => {
-        res.render(
-            'email/reserve/complete',
-            {
-                layout: false,
-                reservations: reservations,
-                moment: moment,
-                numeral: numeral,
-                conf: conf,
-                ticketInfoStr: ticketInfoStr,
-                totalCharge: totalCharge,
-                dayTime: `${day} ${time}`,
-                purchaserName: purchaserName
-            },
-            async (renderErr, text) => {
-                debug('email template rendered.', renderErr);
-                if (renderErr instanceof Error) {
-                    reject(new Error('failed in rendering an email.'));
-
-                    return;
-                }
-
-                resolve({
-                    sender: {
-                        name: conf.get<string>('email.fromname'),
-                        email: conf.get<string>('email.from')
-                    },
-                    toRecipient: {
-                        name: reservations[0].purchaser_name,
-                        email: to
-                    },
-                    about: `${title} ${titleEmail}`,
-                    text: text
-                });
-            });
+        const ticketCountEdit = res.__('{{n}}Leaf', { n: ticketInfo.count.toString() });
+        (<any>ticketInfos)[key].info = `${ticketInfo.ticket_type_name[locale]} ${ticketInfo.charge} × ${ticketCountEdit}`;
     });
+
+    return ticketInfos;
 }
