@@ -422,7 +422,7 @@ function getMailText(res, totalCharge, reservations) {
     mail.push('');
     // ※よくあるご質問（ＦＡＱ）はこちら
     mail.push(res.__('EmailFAQURL'));
-    mail.push(conf.get('official_url_top_by_locale')[locale]);
+    mail.push(conf.get('official_url_faq_by_locale')[locale]);
     mail.push('');
     // なお、このメールは、「東京タワー トップデッキツアー」の予約システムでチケットをご購入頂いた方にお送りしておりますが、チケット購入に覚えのない方に届いております場合は、下記お問い合わせ先までご連絡ください。
     mail.push(res.__('EmailFoot1').replace('$theater_name$', reservations[0].theater_name[locale]));
