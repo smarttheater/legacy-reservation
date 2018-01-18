@@ -55,7 +55,8 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
     const transaction = await placeOrderTransactionService.start({
         expires: expires,
         sellerIdentifier: sellerIdentifier, // 電波塔さんの組織識別子(現時点で固定)
-        purchaserGroup: <any>purchaserGroup
+        purchaserGroup: <any>purchaserGroup,
+        passportToken: req.query.passportToken
     });
     debug('transaction started.', transaction.id);
 
@@ -65,7 +66,7 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
         agentId: transaction.agent.id,
         seller: seller,
         sellerId: transaction.seller.id,
-        category: req.query.category,
+        category: (req.query.wc === '1') ? 'wheelchair' : 'general',
         expires: expires.toISOString(),
         paymentMethodChoices: [tttsapi.factory.paymentMethodType.CreditCard],
         ticketTypes: [],
@@ -95,11 +96,6 @@ export async function processStart(purchaserGroup: string, req: Request): Promis
     const purchaserFromSession = (<Express.Session>req.session).purchaser;
     if (purchaserFromSession !== undefined) {
         reservationModel.transactionInProgress.purchaser = purchaserFromSession;
-    }
-
-    if (!_.isEmpty(req.query.performance)) {
-        // パフォーマンス指定遷移の場合 パフォーマンスFIX
-        await processFixPerformance(reservationModel, req.query.performance, req);
     }
 
     return reservationModel;
@@ -416,9 +412,11 @@ export async function createEmailAttributes(
  * @param {tttsapi.factory.reservation.event.IReservation[]}reservations
  * @returns {string}
  */
-function getMailText(res: Response,
-                     totalCharge: number,
-                     reservations: tttsapi.factory.reservation.event.IReservation[]): string {
+function getMailText(
+    res: Response,
+    totalCharge: number,
+    reservations: tttsapi.factory.reservation.event.IReservation[]
+): string {
     const mail: string[] = [];
     const locale: string = res.locale;
 
