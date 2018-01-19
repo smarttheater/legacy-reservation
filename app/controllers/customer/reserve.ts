@@ -7,7 +7,7 @@ import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as conf from 'config';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
-import { BAD_REQUEST, CONFLICT, TOO_MANY_REQUESTS } from 'http-status';
+import { BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS } from 'http-status';
 import * as moment from 'moment';
 import * as _ from 'underscore';
 
@@ -19,7 +19,7 @@ import * as reserveBaseController from '../reserveBase';
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 const PURCHASER_GROUP: string = tttsapi.factory.person.Group.Customer;
 const reserveMaxDateInfo = conf.get<{ [period: string]: number }>('reserve_max_date');
-const reserveStartDate = conf.get<string>('reserve_start_date');
+const reservableEventStartFrom = moment(<string>process.env.RESERVABLE_EVENT_START_FROM).toDate();
 
 const authClient = new tttsapi.auth.ClientCredentials({
     domain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
@@ -38,51 +38,18 @@ const placeOrderTransactionService = new tttsapi.service.transaction.PlaceOrder(
 });
 
 /**
- * スケジュール選択(本番では存在しない、実際はポータル側のページ)
- * @method performances
- * @returns {Promise<void>}
- */
-export async function performances(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-        await authClient.refreshAccessToken();
-        const token = authClient.credentials;
-        debug('tttsapi access token published.');
-
-        const maxDate = moment();
-        Object.keys(reserveMaxDateInfo).forEach((key) => {
-            maxDate.add(reserveMaxDateInfo[key], <moment.unitOfTime.DurationConstructor>key);
-        });
-        const reserveMaxDate: string = maxDate.format('YYYY/MM/DD');
-
-        let category: string = req.params.category;
-
-        if (req.method === 'POST') {
-            reservePerformanceForm(req);
-            const validationResult = await req.getValidationResult();
-            if (validationResult.isEmpty()) {
-                const performaceId = req.body.performanceId;
-                category = req.body.category;
-                res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}&category=${category}`);
-
-                return;
-            }
-        }
-
-        res.render('customer/reserve/performances', {
-            token: token,
-            reserveMaxDate: reserveMaxDate,
-            reserveStartDate: reserveStartDate,
-            category: category
-        });
-    } catch (error) {
-        next(new Error(req.__('UnexpectedError')));
-    }
-}
-
-/**
- * ポータルからパフォーマンスと言語指定で遷移してくる
+ * 取引開始
+ * waiter許可証を持って遷移してくる
  */
 export async function start(req: Request, res: Response, next: NextFunction): Promise<void> {
+    // 必ずこれらのパラメータを持って遷移してくる
+    if (_.isEmpty(req.query.wc) || _.isEmpty(req.query.locale) || _.isEmpty(req.query.passportToken)) {
+        res.status(BAD_REQUEST).end('Bad Request');
+
+        return;
+    }
+
+    debug('starting reserve...', req.query);
     // MPのIPは許可
     const ip = <string | undefined>req.headers['x-forwarded-for'];
     const regex = /^124\.155\.113\.9$/;
@@ -95,6 +62,7 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
                 req.setLocale(req.query.locale);
             }
 
+            res.status(BAD_REQUEST);
             next(new Error(req.__('Message.OutOfTerm')));
 
             return;
@@ -109,6 +77,7 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
                 req.setLocale(req.query.locale);
             }
 
+            res.status(BAD_REQUEST);
             next(new Error(req.__('Message.OutOfTerm')));
 
             return;
@@ -122,19 +91,71 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
 
         const reservationModel = await reserveBaseController.processStart(PURCHASER_GROUP, req);
 
-        if (reservationModel.transactionInProgress.performance !== undefined) {
-            reservationModel.save(req);
-            //2017/05/11 座席選択削除
-            //res.redirect('/customer/reserve/terms');
-            res.redirect('/customer/reserve/tickets');
-            //---
-        } else {
-            // 今回は必ずパフォーマンス指定で遷移してくるはず
-            next(new Error(req.__('UnexpectedError')));
-            // reservationModel.save(() => {
-            //     res.redirect('/customer/reserve/performances');
-            // });
+        reservationModel.save(req);
+
+        // パフォーマンス選択へ遷移
+        res.redirect('/customer/reserve/performances');
+    } catch (error) {
+        debug('processStart failed.', error);
+        if (Number.isInteger(error.code)) {
+            if (error.code >= INTERNAL_SERVER_ERROR) {
+                // no op
+            } else if (error.code >= BAD_REQUEST) {
+                res.status(BAD_REQUEST).end('Bad Request');
+
+                return;
+            }
         }
+
+        next(new Error(req.__('UnexpectedError')));
+    }
+}
+
+/**
+ * スケジュール選択
+ * @method performances
+ * @returns {Promise<void>}
+ */
+export async function performances(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        const reservationModel = ReserveSessionModel.FIND(req);
+        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+            res.status(BAD_REQUEST);
+            next(new Error(req.__('Expired')));
+
+            return;
+        }
+
+        // クライアントサイドで、パフォーマンス検索にapiのトークンを使用するので
+        await authClient.refreshAccessToken();
+        const token = authClient.credentials;
+        debug('tttsapi access token published.');
+
+        const maxDate = moment();
+        Object.keys(reserveMaxDateInfo).forEach((key) => {
+            maxDate.add(reserveMaxDateInfo[key], <moment.unitOfTime.DurationConstructor>key);
+        });
+        const reserveMaxDate: string = maxDate.format('YYYY/MM/DD');
+
+        if (req.method === 'POST') {
+            reservePerformanceForm(req);
+            const validationResult = await req.getValidationResult();
+            if (validationResult.isEmpty()) {
+                // パフォーマンスfixして券種選択へ遷移
+                await reserveBaseController.processFixPerformance(reservationModel, req.body.performanceId, req);
+                reservationModel.save(req);
+                res.redirect('/customer/reserve/tickets');
+
+                return;
+            }
+        }
+
+        res.render('customer/reserve/performances', {
+            token: token,
+            reserveMaxDate: reserveMaxDate,
+            reservableEventStartFrom: moment(reservableEventStartFrom).toISOString(),
+            category: reservationModel.transactionInProgress.category
+        });
     } catch (error) {
         next(new Error(req.__('UnexpectedError')));
     }
@@ -147,6 +168,7 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
         if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+            res.status(BAD_REQUEST);
             next(new Error(req.__('Expired')));
 
             return;
@@ -223,6 +245,7 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
         if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+            res.status(BAD_REQUEST);
             next(new Error(req.__('Expired')));
 
             return;
@@ -318,6 +341,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
         if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+            res.status(BAD_REQUEST);
             next(new Error(req.__('Expired')));
 
             return;
@@ -382,6 +406,7 @@ export async function complete(req: Request, res: Response, next: NextFunction):
         // セッションに取引結果があるはず
         const transactionResult = (<Express.Session>req.session).transactionResult;
         if (transactionResult === undefined) {
+            res.status(NOT_FOUND);
             next(new Error(req.__('NotFound')));
 
             return;

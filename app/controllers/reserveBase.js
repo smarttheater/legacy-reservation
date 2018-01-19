@@ -55,7 +55,8 @@ function processStart(purchaserGroup, req) {
         const transaction = yield placeOrderTransactionService.start({
             expires: expires,
             sellerIdentifier: sellerIdentifier,
-            purchaserGroup: purchaserGroup
+            purchaserGroup: purchaserGroup,
+            passportToken: req.query.passportToken
         });
         debug('transaction started.', transaction.id);
         // 取引セッションを初期化
@@ -64,7 +65,7 @@ function processStart(purchaserGroup, req) {
             agentId: transaction.agent.id,
             seller: seller,
             sellerId: transaction.seller.id,
-            category: req.query.category,
+            category: (req.query.wc === '1') ? 'wheelchair' : 'general',
             expires: expires.toISOString(),
             paymentMethodChoices: [tttsapi.factory.paymentMethodType.CreditCard],
             ticketTypes: [],
@@ -92,10 +93,6 @@ function processStart(purchaserGroup, req) {
         const purchaserFromSession = req.session.purchaser;
         if (purchaserFromSession !== undefined) {
             reservationModel.transactionInProgress.purchaser = purchaserFromSession;
-        }
-        if (!_.isEmpty(req.query.performance)) {
-            // パフォーマンス指定遷移の場合 パフォーマンスFIX
-            yield processFixPerformance(reservationModel, req.query.performance, req);
         }
         return reservationModel;
     });

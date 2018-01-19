@@ -25,7 +25,7 @@ const reserveBaseController = require("../reserveBase");
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 const PURCHASER_GROUP = tttsapi.factory.person.Group.Customer;
 const reserveMaxDateInfo = conf.get('reserve_max_date');
-const reserveStartDate = conf.get('reserve_start_date');
+const reservableEventStartFrom = moment(process.env.RESERVABLE_EVENT_START_FROM).toDate();
 const authClient = new tttsapi.auth.ClientCredentials({
     domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
     clientId: process.env.API_CLIENT_ID,
@@ -41,50 +41,17 @@ const placeOrderTransactionService = new tttsapi.service.transaction.PlaceOrder(
     auth: authClient
 });
 /**
- * スケジュール選択(本番では存在しない、実際はポータル側のページ)
- * @method performances
- * @returns {Promise<void>}
- */
-function performances(req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield authClient.refreshAccessToken();
-            const token = authClient.credentials;
-            debug('tttsapi access token published.');
-            const maxDate = moment();
-            Object.keys(reserveMaxDateInfo).forEach((key) => {
-                maxDate.add(reserveMaxDateInfo[key], key);
-            });
-            const reserveMaxDate = maxDate.format('YYYY/MM/DD');
-            let category = req.params.category;
-            if (req.method === 'POST') {
-                reservePerformanceForm_1.default(req);
-                const validationResult = yield req.getValidationResult();
-                if (validationResult.isEmpty()) {
-                    const performaceId = req.body.performanceId;
-                    category = req.body.category;
-                    res.redirect(`/customer/reserve/start?performance=${performaceId}&locale=${req.getLocale()}&category=${category}`);
-                    return;
-                }
-            }
-            res.render('customer/reserve/performances', {
-                token: token,
-                reserveMaxDate: reserveMaxDate,
-                reserveStartDate: reserveStartDate,
-                category: category
-            });
-        }
-        catch (error) {
-            next(new Error(req.__('UnexpectedError')));
-        }
-    });
-}
-exports.performances = performances;
-/**
- * ポータルからパフォーマンスと言語指定で遷移してくる
+ * 取引開始
+ * waiter許可証を持って遷移してくる
  */
 function start(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
+        // 必ずこれらのパラメータを持って遷移してくる
+        if (_.isEmpty(req.query.wc) || _.isEmpty(req.query.locale) || _.isEmpty(req.query.passportToken)) {
+            res.status(http_status_1.BAD_REQUEST).end('Bad Request');
+            return;
+        }
+        debug('starting reserve...', req.query);
         // MPのIPは許可
         const ip = req.headers['x-forwarded-for'];
         const regex = /^124\.155\.113\.9$/;
@@ -97,6 +64,7 @@ function start(req, res, next) {
                 if (!_.isEmpty(req.query.locale)) {
                     req.setLocale(req.query.locale);
                 }
+                res.status(http_status_1.BAD_REQUEST);
                 next(new Error(req.__('Message.OutOfTerm')));
                 return;
             }
@@ -107,6 +75,7 @@ function start(req, res, next) {
                 if (!_.isEmpty(req.query.locale)) {
                     req.setLocale(req.query.locale);
                 }
+                res.status(http_status_1.BAD_REQUEST);
                 next(new Error(req.__('Message.OutOfTerm')));
                 return;
             }
@@ -116,27 +85,73 @@ function start(req, res, next) {
             delete req.session.transactionResult;
             delete req.session.printToken;
             const reservationModel = yield reserveBaseController.processStart(PURCHASER_GROUP, req);
-            if (reservationModel.transactionInProgress.performance !== undefined) {
-                reservationModel.save(req);
-                //2017/05/11 座席選択削除
-                //res.redirect('/customer/reserve/terms');
-                res.redirect('/customer/reserve/tickets');
-                //---
+            reservationModel.save(req);
+            // パフォーマンス選択へ遷移
+            res.redirect('/customer/reserve/performances');
+        }
+        catch (error) {
+            debug('processStart failed.', error);
+            if (Number.isInteger(error.code)) {
+                if (error.code >= http_status_1.INTERNAL_SERVER_ERROR) {
+                    // no op
+                }
+                else if (error.code >= http_status_1.BAD_REQUEST) {
+                    res.status(http_status_1.BAD_REQUEST).end('Bad Request');
+                    return;
+                }
             }
-            else {
-                // 今回は必ずパフォーマンス指定で遷移してくるはず
-                next(new Error(req.__('UnexpectedError')));
-                // reservationModel.save(() => {
-                //     res.redirect('/customer/reserve/performances');
-                // });
+            next(new Error(req.__('UnexpectedError')));
+        }
+    });
+}
+exports.start = start;
+/**
+ * スケジュール選択
+ * @method performances
+ * @returns {Promise<void>}
+ */
+function performances(req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const reservationModel = session_1.default.FIND(req);
+            if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+                res.status(http_status_1.BAD_REQUEST);
+                next(new Error(req.__('Expired')));
+                return;
             }
+            // クライアントサイドで、パフォーマンス検索にapiのトークンを使用するので
+            yield authClient.refreshAccessToken();
+            const token = authClient.credentials;
+            debug('tttsapi access token published.');
+            const maxDate = moment();
+            Object.keys(reserveMaxDateInfo).forEach((key) => {
+                maxDate.add(reserveMaxDateInfo[key], key);
+            });
+            const reserveMaxDate = maxDate.format('YYYY/MM/DD');
+            if (req.method === 'POST') {
+                reservePerformanceForm_1.default(req);
+                const validationResult = yield req.getValidationResult();
+                if (validationResult.isEmpty()) {
+                    // パフォーマンスfixして券種選択へ遷移
+                    yield reserveBaseController.processFixPerformance(reservationModel, req.body.performanceId, req);
+                    reservationModel.save(req);
+                    res.redirect('/customer/reserve/tickets');
+                    return;
+                }
+            }
+            res.render('customer/reserve/performances', {
+                token: token,
+                reserveMaxDate: reserveMaxDate,
+                reservableEventStartFrom: moment(reservableEventStartFrom).toISOString(),
+                category: reservationModel.transactionInProgress.category
+            });
         }
         catch (error) {
             next(new Error(req.__('UnexpectedError')));
         }
     });
 }
-exports.start = start;
+exports.performances = performances;
 /**
  * 券種選択
  */
@@ -145,6 +160,7 @@ function tickets(req, res, next) {
         try {
             const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+                res.status(http_status_1.BAD_REQUEST);
                 next(new Error(req.__('Expired')));
                 return;
             }
@@ -215,6 +231,7 @@ function profile(req, res, next) {
         try {
             const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+                res.status(http_status_1.BAD_REQUEST);
                 next(new Error(req.__('Expired')));
                 return;
             }
@@ -307,6 +324,7 @@ function confirm(req, res, next) {
         try {
             const reservationModel = session_1.default.FIND(req);
             if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+                res.status(http_status_1.BAD_REQUEST);
                 next(new Error(req.__('Expired')));
                 return;
             }
@@ -364,6 +382,7 @@ function complete(req, res, next) {
             // セッションに取引結果があるはず
             const transactionResult = req.session.transactionResult;
             if (transactionResult === undefined) {
+                res.status(http_status_1.NOT_FOUND);
                 next(new Error(req.__('NotFound')));
                 return;
             }
