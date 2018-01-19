@@ -213,7 +213,6 @@
         "from": "noreply@tokyotower.co.jp",
         "fromname": "Tokyo Tower TOP DECK TOUR Online Ticket"
     },
-    "gmo_payment_api_link_multi_entry": "https://pt01.mul-pay.jp/link/tshop00026838/Multi/Entry",
     "datetimes": {
         "reservation_start_staffs": "2016-09-28T00:00:00+09:00",
         "reservation_start_sponsors": "2016-09-28T00:00:00+09:00",
@@ -227,13 +226,10 @@
         "event_end": "2017-12-31T23:59:59+09:00"
     },
     "temporary_reservation_valid_period_seconds": 900,
-    "waiting_settlement_reservatioin_valid_period_hours": 72,
-    "performanceIds4limit2": [],
     "reservation_maxq": 10,
     "reserve_max_date": {
         "days": 60
     },
-    "reserve_start_date": "2018/03/03 00:00:00",
     "paymentMethodsForCustomer": {
         "CreditCard": "クレジットカード"
     },

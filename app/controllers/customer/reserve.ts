@@ -19,7 +19,7 @@ import * as reserveBaseController from '../reserveBase';
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 const PURCHASER_GROUP: string = tttsapi.factory.person.Group.Customer;
 const reserveMaxDateInfo = conf.get<{ [period: string]: number }>('reserve_max_date');
-const reserveStartDate = conf.get<string>('reserve_start_date');
+const reservableEventStartFrom = moment(<string>process.env.RESERVABLE_EVENT_START_FROM).toDate();
 
 const authClient = new tttsapi.auth.ClientCredentials({
     domain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
@@ -153,7 +153,7 @@ export async function performances(req: Request, res: Response, next: NextFuncti
         res.render('customer/reserve/performances', {
             token: token,
             reserveMaxDate: reserveMaxDate,
-            reserveStartDate: reserveStartDate,
+            reservableEventStartFrom: moment(reservableEventStartFrom).toISOString(),
             category: reservationModel.transactionInProgress.category
         });
     } catch (error) {
