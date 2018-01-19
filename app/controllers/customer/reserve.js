@@ -106,6 +106,35 @@ function start(req, res, next) {
 }
 exports.start = start;
 /**
+ * 取引カテゴリーを変更する
+ */
+function changeCategory(req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const reservationModel = session_1.default.FIND(req);
+            if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+                res.status(http_status_1.BAD_REQUEST);
+                next(new Error(req.__('Expired')));
+                return;
+            }
+            const category = req.params.category;
+            if (category !== 'general' && category !== 'wheelchair') {
+                res.status(http_status_1.BAD_REQUEST);
+                next(new Error(req.__('UnexpectedError')));
+                return;
+            }
+            // カテゴリーを変更してパフォーマンス選択へ遷移
+            reservationModel.transactionInProgress.category = category;
+            reservationModel.save(req);
+            res.redirect('/customer/reserve/performances');
+        }
+        catch (error) {
+            next(new Error(req.__('UnexpectedError')));
+        }
+    });
+}
+exports.changeCategory = changeCategory;
+/**
  * スケジュール選択
  * @method performances
  * @returns {Promise<void>}

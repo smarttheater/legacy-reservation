@@ -112,6 +112,36 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
 }
 
 /**
+ * 取引カテゴリーを変更する
+ */
+export async function changeCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        const reservationModel = ReserveSessionModel.FIND(req);
+        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+            res.status(BAD_REQUEST);
+            next(new Error(req.__('Expired')));
+
+            return;
+        }
+
+        const category = req.params.category;
+        if (category !== 'general' && category !== 'wheelchair') {
+            res.status(BAD_REQUEST);
+            next(new Error(req.__('UnexpectedError')));
+
+            return;
+        }
+
+        // カテゴリーを変更してパフォーマンス選択へ遷移
+        reservationModel.transactionInProgress.category = category;
+        reservationModel.save(req);
+        res.redirect('/customer/reserve/performances');
+    } catch (error) {
+        next(new Error(req.__('UnexpectedError')));
+    }
+}
+
+/**
  * スケジュール選択
  * @method performances
  * @returns {Promise<void>}

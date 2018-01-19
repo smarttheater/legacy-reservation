@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Removed
 
 ### Fixed
+- 車椅子ページへの遷移ができないバグ対応。
 
 ### Security
 

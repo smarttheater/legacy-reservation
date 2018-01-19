@@ -3,6 +3,12 @@ import * as express from 'express';
 
 declare global {
     namespace Express {
+        /**
+         * 取引カテゴリー
+         * 車椅子 or 一般
+         */
+        type ITransactionCategory = 'wheelchair' | 'general';
+
         interface ITransactionInProgress {
             /**
              * 取引ID(MongoDBで発行される)
@@ -23,9 +29,9 @@ declare global {
             seatReservationAuthorizeActionId?: string;
             creditCardAuthorizeActionId?: string;
             /**
-             * 予約対象カテゴリ("0":一般,"1":車椅子)
+             * 予約対象カテゴリ
              */
-            category: string;
+            category: ITransactionCategory;
             /**
              * 購入管理番号
              */

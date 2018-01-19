@@ -13,6 +13,7 @@ customerRouter.get('/reserve/start', customerReserveController.start);
 // 東京タワーではなし
 // customerRouter.all('/reserve/terms', customerReserveController.terms);
 // customerRouter.all('/reserve/seats', customerReserveController.seats);
+customerRouter.all('/reserve/changeCategory/:category', customerReserveController.changeCategory);
 customerRouter.all('/reserve/performances', customerReserveController.performances);
 customerRouter.all('/reserve/tickets', customerReserveController.tickets);
 customerRouter.all('/reserve/profile', customerReserveController.profile);
