@@ -7,9 +7,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Added
 
 ### Changed
-- 注文取引開始時のWAITER許可証を必須化。
-- 購入フロー中のエラー時HTTPステータスコードを調整。
-- Googleタグマネージャー用のスクリプト調整。
 
 ### Deprecated
 
@@ -19,6 +16,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+
+## v7.0.0 - 2018-01-19
+### Changed
+- 注文取引開始時のWAITER許可証を必須化。
+- 購入フロー中のエラー時HTTPステータスコードを調整。
+- Googleタグマネージャー用のスクリプト調整。
+
+### Fixed
+- 車椅子ページへの遷移ができないバグ対応。
 
 ## v6.0.2 - 2017-12-13
 ### Changed
