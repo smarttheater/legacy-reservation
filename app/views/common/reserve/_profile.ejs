@@ -106,8 +106,8 @@
                     <div class="wrapper-emailconfirm">
                         <input type="text" name="emailConfirm" id="id_emailConfirm" class="form-control input-required input-emailconfirm" value="<%= emailConfirm %>" data-pattern="^[a-zA-Z0-9@\.!#$%&'*+/=?^_`{|}~-]*$" data-parentSelector=".wrapper-emailconfirm" data-fieldname="<%- __('EmailConfirm') %>">
                         <span>@</span>
-                        <input type="text" name="emailConfirmDomain" id="id_emailConfirmDomain" class="form-control input-required input-emailconfirm" value="<%= emailConfirmDomain %>" data-pattern="^[a-zA-Z0-9@\.!#$%&'*+/=?^_`{|}~-]*$" data-parentSelector=".wrapper-emailconfirm" style="ime-mode:inactive" data-fieldname="<%- __('EmailConfirmDomain') %>">
-                        <input type="hidden" id="input_emailconfirmconcat" class="input-required" name="emailconfirmconcat" data-parentSelector=".wrapper-emailconfirm" style="ime-mode:inactive" data-fieldname="<%- __('EmailConfirmInvalid') %>">
+                        <input type="text" name="emailConfirmDomain" id="id_emailConfirmDomain" class="form-control input-required input-emailconfirm" value="<%= emailConfirmDomain %>" data-pattern="^[a-zA-Z0-9@\.!#$%&'*+/=?^_`{|}~-]*$" data-parentSelector=".wrapper-emailconfirm" data-fieldname="<%- __('EmailConfirmDomain') %>">
+                        <input type="hidden" id="input_emailconfirmconcat" class="input-required" name="emailconfirmconcat" data-parentSelector=".wrapper-emailconfirm" data-fieldname="<%- __('EmailConfirmInvalid') %>">
                     </div>
                     <p class="errmsg errmsg-email"><%- (validation && validation.email ? validation.email.msg : '') %></p>
                     <p class="errmsg errmsg-emailConfirm"><%- (validation && validation.emailConfirm ? validation.emailConfirm.msg : '') %></p>
