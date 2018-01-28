@@ -20,6 +20,7 @@ const notFoundHandler_1 = require("./middlewares/notFoundHandler");
 const session_1 = require("./middlewares/session");
 const setLocals_1 = require("./middlewares/setLocals");
 const customer_1 = require("./routes/customer");
+const entrance_1 = require("./routes/entrance");
 const router_1 = require("./routes/router");
 const app = express();
 app.use(middlewares.basicAuth({
@@ -76,6 +77,7 @@ app.use(expressValidator()); // バリデーション
 app.use(setLocals_1.default); // ローカル変数セット
 // ルーティング登録の順序に注意！
 app.use('/customer', customer_1.default);
+app.use('/entrance', entrance_1.default);
 app.use('/', router_1.default);
 // 404
 app.use(notFoundHandler_1.default);
