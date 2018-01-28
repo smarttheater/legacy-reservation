@@ -1,38 +1,37 @@
 # TTTSチケット予約ウェブアプリケーション
 
-# Features
+node.jsでGMOサービスを使うためのパッケージです。
 
-# Getting Started
 
-## インフラ
-基本的にnode.jsのウェブアプリケーションです。
-ウェブサーバーとしては、AzureのWebAppsあるいはGCPのAppEngineを想定しており、両方で動くように開発していくことが望ましい。
+## Table of contents
 
-## 言語
-実態としては、linuxあるいはwindows上でnode.jsは動くわけですが、プログラミング言語としては、alternative javascriptのひとつであるTypeScriptを採用しています。
+* [Usage](#usage)
+* [Example](#code-samples)
+* [Jsdoc](#jsdoc)
+* [License](#license)
 
-* TypeScript(https://www.typescriptlang.org/)
 
-## 開発方法
-npmでパッケージをインストールします。npmはnode.jsでスタンダードなパッケージ管理ツールです。パッケージ管理にとどまらず、開発やサーバー起動においても活躍します。
+## Usage
+npmでパッケージをインストールします。
+* [npm](https://www.npmjs.com/)
 
 ```shell
 npm install
 ```
-* npm(https://www.npmjs.com/)
 
-typescriptをjavascriptにコンパイルします。wオプションでファイル変更監視できます。
+typescriptをコンパイルします。wオプションでファイル変更監視。
 
 ```shell
 npm run build -- -w
 ```
 
-npmでローカルサーバーを立ち上げることができます。
+npmでローカルサーバー起動。
 
 ```shell
 npm start
 ```
-(http://localhost:8080)にアクセスすると、ローカルでウェブアプリを確認できます。
+
+[注文入場ページ](http://localhost:8080/entrance/index.html?wc=0&locale=ja)にアクセスすると、ローカルでウェブアプリを確認できます。
 
 ビルドファイルクリーン
 
@@ -48,34 +47,35 @@ npm run css
 
 ### Environment variables
 
-| Name                              | Required | Value           | Purpose                                  |
-| --------------------------------- | -------- | --------------- | ---------------------------------------- |
-| `DEBUG`                           | false    | ttts-frontend:* | Debug                                    |
-| `NPM_TOKEN`                       | true     |                 | NPM auth token                           |
-| `NODE_ENV`                        | true     |                 | 環境名(development,test,productionなど)    |
-| `SENDGRID_API_KEY`                | true     |                 | GMOリンク決済からの戻り先エンドポイント                |
-| `API_ENDPOINT`                    | true     |                 | frontと連携するttts apiのエンドポイント             |
-| `API_CLIENT_ID`                   | true     |                 | APIクライアントID                              |
-| `API_CLIENT_SECRET`               | true     |                 | APIクライアントシークレット                          |
-| `API_AUTHORIZE_SERVER_DOMAIN`     | true     |                 | API認可サーバードメイン                          |
-| `API_RESOURECE_SERVER_IDENTIFIER` | true     |                 | APIリソースサーバー識別子                        |
-| `REDIS_HOST`                      | true     |                 | redis host                               |
-| `REDIS_PORT`                      | true     |                 | redis port                               |
-| `REDIS_KEY`                       | true     |                 | redis key                                |
-| `GMO_ENDPOINT`                    | true     |                 | GMO apiのエンドポイント                          |
-| `GMO_SITE_ID`                     | true     |                 | GMO サイトID                                |
-| `RESERVATIONS_PRINT_URL`          | true     |                 | 予約印刷URL                              |
-| `RESERVABLE_EVENT_START_FROM`     | true     |                 | 予約可能なイベント開始日時from(ISO8601フォーマット) |
+| Name                              | Required | Value                     | Purpose                                  |
+| --------------------------------- | -------- | ------------------------- | ---------------------------------------- |
+| `DEBUG`                           | false    | ttts-frontend:*           | Debug                                    |
+| `NPM_TOKEN`                       | true     |                           | NPM auth token                           |
+| `NODE_ENV`                        | true     |                           | 環境名(development,test,productionなど)    |
+| `SENDGRID_API_KEY`                | true     |                           | GMOリンク決済からの戻り先エンドポイント                |
+| `API_ENDPOINT`                    | true     |                           | frontと連携するttts apiのエンドポイント             |
+| `API_CLIENT_ID`                   | true     |                           | APIクライアントID                              |
+| `API_CLIENT_SECRET`               | true     |                           | APIクライアントシークレット                          |
+| `API_AUTHORIZE_SERVER_DOMAIN`     | true     |                           | API認可サーバードメイン                          |
+| `API_RESOURECE_SERVER_IDENTIFIER` | true     |                           | APIリソースサーバー識別子                        |
+| `REDIS_HOST`                      | true     |                           | redis host                               |
+| `REDIS_PORT`                      | true     |                           | redis port                               |
+| `REDIS_KEY`                       | true     |                           | redis key                                |
+| `GMO_ENDPOINT`                    | true     |                           | GMO apiのエンドポイント                          |
+| `GMO_SITE_ID`                     | true     |                           | GMO サイトID                                |
+| `RESERVATIONS_PRINT_URL`          | true     |                           | 予約印刷URL                              |
+| `RESERVABLE_EVENT_START_FROM`     | true     | 2018-02-20T00:00:00+09:00 | 予約可能なイベント開始日時from(ISO8601フォーマット) |
 
 
-# tslint
+## Code Samples
 
-コード品質チェックをtslintで行っています。lintパッケージとして以下を仕様。
-* [tslint](https://github.com/palantir/tslint)
-* [tslint-microsoft-contrib](https://github.com/Microsoft/tslint-microsoft-contrib)
-`npm run check`でチェック実行。改修の際には、必ずチェックすること。
+コードサンプルは [example](https://github.com/motionpicture/gmo-service/tree/master/example) にあります。
 
-# test
-mochaフレームワークでテスト実行。
-* [mocha](https://www.npmjs.com/package/mocha)
-`npm test`でテスト実行。だが、現状テストコードなし。テストコードを増やしていくことが望ましい。
+
+## Jsdoc
+
+`npm run doc`でjsdocを作成できます。./docに出力されます。
+
+## License
+
+UNLICENSED

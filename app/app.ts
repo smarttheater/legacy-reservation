@@ -22,6 +22,7 @@ import session from './middlewares/session';
 import setLocals from './middlewares/setLocals';
 
 import customerRouter from './routes/customer';
+import entranceRouter from './routes/entrance';
 import router from './routes/router';
 
 const app = express();
@@ -94,6 +95,7 @@ app.use(setLocals); // ローカル変数セット
 
 // ルーティング登録の順序に注意！
 app.use('/customer', customerRouter);
+app.use('/entrance', entranceRouter);
 app.use('/', router);
 
 // 404
