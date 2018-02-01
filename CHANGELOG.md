@@ -5,7 +5,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
 ### Added
-- 開発用に入場ページを設置。
 
 ### Changed
 
@@ -17,6 +16,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+
+## v7.0.1 - 2018-02-01
+### Added
+- 開発用に入場ページを設置。
+
+### Fixed
+- 購入者情報登録のリクエストから国コードが除外されるバグを修正。
 
 ## v7.0.0 - 2018-01-19
 ### Changed
