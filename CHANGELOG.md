@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Removed
 
 ### Fixed
+- 購入者情報登録のリクエストから国コードが除外されるバグを修正。
 
 ### Security
 
