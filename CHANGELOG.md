@@ -17,6 +17,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Security
 
 
+## v7.0.2 - 2018-02-02
+# TTTS-322
+### Fixed
+- 購入者情報登録のリクエストから国コードが除外されるバグを修正。
+
 ## v7.0.1 - 2018-02-01
 ### Added
 - 開発用に入場ページを設置。
