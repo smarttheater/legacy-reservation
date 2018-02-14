@@ -13,10 +13,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Removed
 
 ### Fixed
-- 注文取引確定時の注文番号重複エラーをシステムエラーとしてハンドリング。
 
 ### Security
 
+
+## v7.0.3 - 2018-02-14
+### Fixed
+- 注文取引確定時の注文番号重複エラーをシステムエラーとしてハンドリング。
 
 ## v7.0.2 - 2018-02-02
 # TTTS-322
