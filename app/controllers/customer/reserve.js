@@ -386,7 +386,13 @@ function confirm(req, res, next) {
                 }
                 catch (error) {
                     session_1.default.REMOVE(req);
-                    next(error);
+                    // 万が一注文番号が重複すると、ステータスコードCONFLICTが返却される
+                    if (error.code === http_status_1.CONFLICT) {
+                        next(new Error(req.__('UnexpectedError')));
+                    }
+                    else {
+                        next(error);
+                    }
                     return;
                 }
             }

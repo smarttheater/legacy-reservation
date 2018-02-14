@@ -412,7 +412,13 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 return;
             } catch (error) {
                 ReserveSessionModel.REMOVE(req);
-                next(error);
+
+                // 万が一注文番号が重複すると、ステータスコードCONFLICTが返却される
+                if (error.code === CONFLICT) {
+                    next(new Error(req.__('UnexpectedError')));
+                } else {
+                    next(error);
+                }
 
                 return;
             }
