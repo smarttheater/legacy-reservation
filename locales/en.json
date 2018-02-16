@@ -200,5 +200,6 @@
 	"EmailConfirmDomain": "E-mail Address (for confirmation purposes) Domain",
 	"EmailConfirmInvalid": "The e-mail address entered is not the same as the one entered for confirmation purposes",
 	"QrCheckpoint": "QR code scanning station",
-	"CommercialNotice": "Displayed in conformance with the Act on Specified Commercial Transactions."
+	"CommercialNotice": "Displayed in conformance with the Act on Specified Commercial Transactions.",
+	"CouldNotReserve":"Sorry, we could not finish your reservation process. Please try again after a few minutes.We apologize for the inconvenience."
 }

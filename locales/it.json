@@ -195,5 +195,6 @@
 	"EmailConfirmDomain": "Dominio indirizzo e-mail (a scopo di conferma)",
 	"EmailConfirmInvalid": "L’indirizzo e-mail immesso non è uguale a quello immesso a scopo di conferma",
 	"QrCheckpoint": "Luogo di verifica dei codici QR",
-	"CommercialNotice": "Visualizzato in conformità con la Legge sulle transazioni commerciali specificate."
+	"CommercialNotice": "Visualizzato in conformità con la Legge sulle transazioni commerciali specificate.",
+	"CouldNotReserve":"Sorry, we could not finish your reservation process. Please try again after a few minutes.We apologize for the inconvenience."
 }

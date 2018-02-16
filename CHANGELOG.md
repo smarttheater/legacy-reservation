@@ -13,6 +13,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Removed
 
 ### Fixed
+- 注文取引確定時の注文番号重複エラーをシステムエラーとしてハンドリング。
+- 注文取引確定時の注文番号重複エラーメッセージを追加
 
 ### Security
 

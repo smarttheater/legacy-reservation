@@ -195,5 +195,6 @@
 	"EmailConfirmDomain": "โดเมนของอีเมลแอดเดรส (ป้อนข้อมูลเพื่อยืนยัน)",
 	"EmailConfirmInvalid": "อีเมลแอดเดรสที่ป้อนไม่ตรงกับการป้อนข้อมูลเพื่อยืนยัน",
 	"QrCheckpoint": "จุดตรวจสอบ QR",
-	"CommercialNotice": "แสดงตามกฎหมายว่าด้วยการค้าพิเศษ"
+	"CommercialNotice": "แสดงตามกฎหมายว่าด้วยการค้าพิเศษ",
+	"CouldNotReserve":"Sorry, we could not finish your reservation process. Please try again after a few minutes.We apologize for the inconvenience."
 }
