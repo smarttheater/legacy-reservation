@@ -195,5 +195,6 @@
 	"EmailConfirmDomain": "메일 주소(확인 입력)의 도메인",
 	"EmailConfirmInvalid": "입력하신 메일 주소가 확인 입력한 것과 일치하지 않습니다.",
 	"QrCheckpoint": "QR코드 인증 장소",
-	"CommercialNotice": "특정상거래법에 근거한 표시"
+	"CommercialNotice": "특정상거래법에 근거한 표시",
+	"CouldNotReserve":"Sorry, we could not finish your reservation process. Please try again after a few minutes.We apologize for the inconvenience."
 }

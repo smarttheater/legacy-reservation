@@ -195,5 +195,6 @@
 	"EmailConfirmDomain": "Domain của địa chỉ Email ( Nhập thông tin để đối chiếu xác nhận)",
 	"EmailConfirmInvalid": "Địa chỉ Email đăng nhập không trùng khớp với thông tin để đối chiếu xác nhận",
 	"QrCheckpoint": "Địa điểm có đầu đọc mã QR",
-	"CommercialNotice": "Hiển thị theo “Luật giao dịch thương mại đặc biệt”"
+	"CommercialNotice": "Hiển thị theo “Luật giao dịch thương mại đặc biệt”",
+	"CouldNotReserve":"Sorry, we could not finish your reservation process. Please try again after a few minutes.We apologize for the inconvenience."
 }

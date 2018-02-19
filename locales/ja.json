@@ -211,5 +211,6 @@
 	"EmailConfirmDomain": "メールアドレス(確認入力)のドメイン",
 	"EmailConfirmInvalid": "入力されたメールアドレスが確認入力と一致しません",
 	"QrCheckpoint": "QR認証場所",
-	"CommercialNotice": "特定商取引法に基づく表記"
+	"CommercialNotice": "特定商取引法に基づく表記",
+	"CouldNotReserve":"申し訳ございませんが、予約完了できませんでした。時間を空けて再度ご予約下さい。"
 }

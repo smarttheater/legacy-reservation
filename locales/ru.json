@@ -195,5 +195,6 @@
 	"EmailConfirmDomain": "Домен адреса электронной почты (ввод для подтверждения)",
 	"EmailConfirmInvalid": "Введенный адрес не совпадает с адресом, введенным для подтверждения",
 	"QrCheckpoint": "Место аутентификации QR-кода",
-	"CommercialNotice": "Пояснительная запись в соответствии с Законом об установленных коммерческих сделках."
+	"CommercialNotice": "Пояснительная запись в соответствии с Законом об установленных коммерческих сделках.",
+	"CouldNotReserve":"Sorry, we could not finish your reservation process. Please try again after a few minutes.We apologize for the inconvenience."
 }

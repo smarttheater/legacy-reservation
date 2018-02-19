@@ -195,5 +195,6 @@
 	"EmailConfirmDomain": "Domain der E-Mail-Adresse (erneute Eingabe)",
 	"EmailConfirmInvalid": "Die beiden Eingaben Ihrer E-Mail-Adresse stimmen nicht überein.",
 	"QrCheckpoint": "QR-Codelesung",
-	"CommercialNotice": "Angaben gemäß dem japanischen Specified Commercial Transaction Act"
+	"CommercialNotice": "Angaben gemäß dem japanischen Specified Commercial Transaction Act",
+	"CouldNotReserve":"Sorry, we could not finish your reservation process. Please try again after a few minutes.We apologize for the inconvenience."
 }

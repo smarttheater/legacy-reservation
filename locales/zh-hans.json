@@ -195,5 +195,6 @@
 	"EmailConfirmDomain": "邮箱地址(确认输入)的域名",
 	"EmailConfirmInvalid": "输入的邮箱地址与确认输入的内容不一致。",
 	"QrCheckpoint": "QR认证地点",
-	"CommercialNotice": "基于日本特定商业交易法的表述"
+	"CommercialNotice": "基于日本特定商业交易法的表述",
+	"CouldNotReserve":"Sorry, we could not finish your reservation process. Please try again after a few minutes.We apologize for the inconvenience."
 }
