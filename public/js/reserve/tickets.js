@@ -16,22 +16,29 @@ $(function() {
     var dom_price = document.getElementById('echo_total');
     var dom_btnnext = document.querySelector('.btn-next');
     var $alertTicketOvermax = $('.alert-ticket-overmax');
+    var $alertTicketOvermaxWheelchair = $('.alert-ticket-overmax-wheelchair');
     var $alertsTicket = $('.alert-ticket');
     var reloadTotalCharge = function() {
         dom_tfoot.classList.add('hidden');
         $alertsTicket.hide();
         var total = 0;
         var count = 0;
+        var count_wheelchair = 0;
         [].forEach.call(dom_tickets_tr, function(tr) {
             var dom_select = tr.querySelector('select');
             if (!dom_select) { return true; }
             var q = parseInt(dom_select.value, 10);
             total += parseInt(tr.getAttribute('data-ticket-charge'), 10) * q;
+            if (/wheelchair/.test(dom_select.className)) {
+                count_wheelchair += q;
+            }
             count += q;
         });
-        if (isNaN(total) || !count || count > window.ttts.reservation_maxq) {
+        if (isNaN(total) || !count || count > window.ttts.reservation_maxq || count_wheelchair > window.ttts.reservation_maxq_wheelchair) {
             if (count > window.ttts.reservation_maxq) {
                 $alertTicketOvermax.show();
+            } else if (count_wheelchair > window.ttts.reservation_maxq_wheelchair) {
+                $alertTicketOvermaxWheelchair.show();
             }
             isValidTicketsSelected = false;
             return dom_btnnext.classList.add('btn-disabled');

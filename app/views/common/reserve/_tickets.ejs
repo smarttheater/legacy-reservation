@@ -8,9 +8,11 @@
         watcherName = tempReservationModel_reservations[0].watcher_name;
     }
     const ticketCountMax = isStaff ? 41 : 10;
+    const ticketCountMax_wheelchair = conf.get('reservation_maxq_wheelchair');
 %>
 <script>
     window.ttts.isStaff = <%- isStaff %>;
+    window.ttts.isWheelchair = <%- isWheelchair %>;
 </script>
 
 <%- include('./_step', {currentStepName: 'tickets'}) %>
@@ -60,15 +62,18 @@
                         if (tempReservationModel.category === 'general' && ticketType.ttts_extension.category !== 'Normal') {
                             return true;
                         }
+                        const isWheelchairTicket = (ticketType.ttts_extension.category === 'Wheelchair');
                 %>
                     <tr data-ticket-code="<%- ticketType._id %>" data-ticket-charge="<%= ticketType.charge %>">
                         <th>
                             <span><%- ticketType.name[locale] %> <%- __('{{price}} yen', { price: ticketType.charge } ) %></span>
                         </th>
                         <td>
-                            <select id="select_ticketq_<%- ticketType._id %>" class="form-control">
-                                <% for (let ticketCount = 0; ticketCount <= ticketCountMax; ticketCount++) { %>
-                                    <option value="<%- ticketCount.toString() %>"<% if (ticketCount === ticketType.count) { %> selected="selected"<% } %>><%- ticketCount.toString() %></option>
+                            <select id="select_ticketq_<%- ticketType._id %>" class="form-control <%- (isWheelchairTicket) ? 'select-wheelchair' : '' %>">
+                                <%  let countMax = (isWheelchairTicket) ? ticketCountMax_wheelchair : ticketCountMax;
+                                    for (let ticketCount = 0; ticketCount <= countMax; ticketCount++) {
+                                %>
+                                        <option value="<%- ticketCount.toString() %>"<% if (ticketCount === ticketType.count) { %> selected="selected"<% } %>><%- ticketCount.toString() %></option>
                                 <% } %>
                             </select>
                         </td>
@@ -105,5 +110,6 @@
 </form>
 
 <p class="alert-ticket alert-ticket-overmax"><%- (isStaff) ? `選択出来る枚数は ${conf.get('reservation_maxq')} 枚までとなります。` : __('SeatsLimit{{limit}}', { limit: conf.get('reservation_maxq') } ) %></p>
+<p class="alert-ticket alert-ticket-overmax-wheelchair"><%- __('NoAvailableSeats') %></p>
 
 <script src="/js/reserve/tickets.js"></script>

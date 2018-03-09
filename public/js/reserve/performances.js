@@ -62,7 +62,7 @@ $(function () {
                     id: performance.id,
                     start_time: performance.attributes.start_time,
                     end_time: performance.attributes.end_time,
-                    seat_status: performance.attributes.seat_status,
+                    seat_status: performance.attributes.seat_status || 0,
                     online_sales_status: performance.attributes.online_sales_status,
                     wheelchair_available: performance.attributes.wheelchair_available
                 });
