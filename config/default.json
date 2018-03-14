@@ -227,6 +227,7 @@
     },
     "temporary_reservation_valid_period_seconds": 900,
     "reservation_maxq": 10,
+    "reservation_maxq_wheelchair": 1,
     "reserve_max_date": {
         "days": 60
     },

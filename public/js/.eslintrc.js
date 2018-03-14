@@ -22,7 +22,8 @@ module.exports = {
         'func-names': 0,
         'new-cap': 0,
         'consistent-return': 0,
-        'valid-jsdoc': 0
+        'valid-jsdoc': 0,
+        'space-before-function-paren': 0,
     },
     globals: {
         window: true,
