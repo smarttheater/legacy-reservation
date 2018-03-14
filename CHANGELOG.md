@@ -1,9 +1,11 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+
 ### Added
 
 ### Changed
@@ -16,6 +18,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.0.5 - 2018-03-14
+
+### Added
+
+- 券種選択画面で車椅子券を conf.get('reservation_maxq_wheelchair') 枚以上選択した時に NoAvailableSeats メッセージを表示
+
+### Fixed
+
+- 注文入場画面CSS修正
+- パフォーマンス選択で seat_status が null だった時そのまま表示されてしまっていたので 0 として扱うように修正
+- ドメイン指定受信のメッセージのデグレを修正
 
 ## v7.0.4 - 2018-02-19
 ### Fixed
