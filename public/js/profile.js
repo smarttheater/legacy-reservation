@@ -116,19 +116,20 @@ $(function() {
         }
 
 
-        // メールアドレスの確認欄2つを結合してhiddenのinputに保存
+        // メールアドレス確認の値を分割して送信用のhiddenなinputに入れる
         var input_email = document.getElementById('id_email');
         var input_emailconfirmconcat = document.getElementById('input_emailconfirmconcat');
         var input_emailConfirm = document.getElementById('id_emailConfirm');
         var input_emailConfirmDomain = document.getElementById('id_emailConfirmDomain');
-        var setEmailConfirm = function() {
-            if (!input_email || !input_emailconfirmconcat) { return false; }
-            var val = input_emailConfirm.value + '@' + input_emailConfirmDomain.value;
-            if (input_email.value) {
-                input_emailconfirmconcat.value = (input_email.value === val) ? val : '!';
-            } else {
-                input_emailconfirmconcat.value = '';
+        var setEmailConfirmSplitValues = function() {
+            if (!input_emailconfirmconcat || !input_emailconfirmconcat.value) {
+                input_emailConfirm.value = '';
+                input_emailConfirmDomain.value = '';
+                return false;
             }
+            var vals = input_emailconfirmconcat.value.split('@');
+            input_emailConfirm.value = vals[0];
+            input_emailConfirmDomain.value = vals[1];
         };
 
         // カード有効期限のYYYYとMMのセレクト要素の値を結合してhiddenのinputに保存
@@ -163,9 +164,8 @@ $(function() {
                     if (!$input_tel.intlTelInput('isValidNumber')) {
                         error = 'invalid';
                     }
-                // 確認メールアドレスは一致してなかった場合値が '!' になっている
-                } else if (elm.id === 'input_emailconfirmconcat') {
-                    error = (elm.value === '!') ? 'EmailConfirmInvalid' : null;
+                } else if (elm.id === 'input_emailconfirmconcat' && (input_emailconfirmconcat.value !== input_email.value)) {
+                    error = 'EmailConfirmInvalid';
                 } else if (!elm.value) {
                     error = 'empty';
                 } else if (maxLength && !elm.value.length > maxLength) {
@@ -197,10 +197,10 @@ $(function() {
         if (paymentMethod === '0') {
             setCountry();
             setExpiredate();
-            setEmailConfirm();
             if (!validateCreditCardInputs()) {
                 return document.querySelector('.has-error').scrollIntoView();
             }
+            setEmailConfirmSplitValues();
             window.ttts.profileformsubmitting = true;
             $('.btn-next').addClass('btn-disabled').find('span').text(window.ttts.commonlocales.Sending);
             getToken();
