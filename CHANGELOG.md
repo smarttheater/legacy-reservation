@@ -18,6 +18,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.0.6- 2018-03-22
+
+### Changed
+
+- メールアドレス確認入力欄が「@」で分割されていたのを統合(フロントのみで処理してサーバとの通信内容は変えず)
+- メールアドレス確認入力欄のコピペ入力を禁止
+
 ## v7.0.5 - 2018-03-14
 
 ### Added
