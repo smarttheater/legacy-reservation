@@ -266,53 +266,58 @@ function profile(req, res, next) {
             }
             let gmoError = '';
             if (req.method === 'POST') {
-                try {
-                    // 購入者情報FIXプロセス
-                    yield reserveBaseController.processFixProfile(reservationModel, req, res);
+                //Form入力値チェック
+                const isValid = yield reserveBaseController.isValidProfile(req, res);
+                //GMO処理
+                if (isValid) {
                     try {
-                        // クレジットカード決済のオーソリ、あるいは、オーダーID発行
-                        yield processFixGMO(reservationModel, req);
+                        // 購入者情報FIXプロセス
+                        yield reserveBaseController.processFixProfile(reservationModel, req);
+                        try {
+                            // クレジットカード決済のオーソリ、あるいは、オーダーID発行
+                            yield processFixGMO(reservationModel, req);
+                        }
+                        catch (error) {
+                            debug('failed in fixing GMO.', error.code, error);
+                            if (error.code === http_status_1.BAD_REQUEST) {
+                                throw new Error(req.__('BadCard'));
+                                // いったん保留
+                                // switch (e.errors[0].code) {
+                                //     case 'E92':
+                                //         // "只今、大変込み合っていますので、しばらく時間をあけて再度決済を行ってください。"
+                                //         errMsg = req.__('TransactionBusy');
+                                //         break;
+                                //     case 'G02':
+                                //         // "カード残高が不足しているために、決済を完了する事が出来ませんでした。"
+                                //         errMsg = req.__('InsufficientCard');
+                                //         break;
+                                //     case 'G03':
+                                //         // "カード限度額を超えているために、決済を完了する事が出来ませんでした。"
+                                //         errMsg = req.__('MaxedCard');
+                                //         break;
+                                //     case 'G04':
+                                //         // "カード残高が不足しているために、決済を完了する事が出来ませんでした。"
+                                //         errMsg = req.__('InsufficientCard');
+                                //         break;
+                                //     case 'G05':
+                                //         // "カード限度額を超えているために、決済を完了する事が出来ませんでした。"
+                                //         errMsg = req.__('MaxedCard');
+                                //         break;
+                                //     default:
+                                //         // "このカードでは取引をする事が出来ません。"
+                                //         errMsg = req.__('BadCard');
+                                //         break;
+                                // }
+                            }
+                            throw new Error(req.__('UnexpectedError'));
+                        }
+                        reservationModel.save(req);
+                        res.redirect('/customer/reserve/confirm');
+                        return;
                     }
                     catch (error) {
-                        debug('failed in fixing GMO.', error.code, error);
-                        if (error.code === http_status_1.BAD_REQUEST) {
-                            throw new Error(req.__('BadCard'));
-                            // いったん保留
-                            // switch (e.errors[0].code) {
-                            //     case 'E92':
-                            //         // "只今、大変込み合っていますので、しばらく時間をあけて再度決済を行ってください。"
-                            //         errMsg = req.__('TransactionBusy');
-                            //         break;
-                            //     case 'G02':
-                            //         // "カード残高が不足しているために、決済を完了する事が出来ませんでした。"
-                            //         errMsg = req.__('InsufficientCard');
-                            //         break;
-                            //     case 'G03':
-                            //         // "カード限度額を超えているために、決済を完了する事が出来ませんでした。"
-                            //         errMsg = req.__('MaxedCard');
-                            //         break;
-                            //     case 'G04':
-                            //         // "カード残高が不足しているために、決済を完了する事が出来ませんでした。"
-                            //         errMsg = req.__('InsufficientCard');
-                            //         break;
-                            //     case 'G05':
-                            //         // "カード限度額を超えているために、決済を完了する事が出来ませんでした。"
-                            //         errMsg = req.__('MaxedCard');
-                            //         break;
-                            //     default:
-                            //         // "このカードでは取引をする事が出来ません。"
-                            //         errMsg = req.__('BadCard');
-                            //         break;
-                            // }
-                        }
-                        throw new Error(req.__('UnexpectedError'));
+                        gmoError = error.message;
                     }
-                    reservationModel.save(req);
-                    res.redirect('/customer/reserve/confirm');
-                    return;
-                }
-                catch (error) {
-                    gmoError = error.message;
                 }
             }
             else {

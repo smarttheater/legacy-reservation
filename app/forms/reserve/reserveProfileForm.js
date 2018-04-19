@@ -16,7 +16,7 @@ exports.default = (req) => {
     req.checkBody('firstName', req.__('Invalid{{fieldName}}', { fieldName: req.__('FirstName') })).matches(/^[ァ-ロワヲンーa-zA-Z]*$/);
     // tel
     req.checkBody('tel', req.__('NoInput{{fieldName}}', { fieldName: req.__('Tel') })).notEmpty();
-    req.checkBody('tel', req.__('Message.regexTel')).matches(/^[0-9]{7,13}$/);
+    req.checkBody('tel', req.__('Invalid{{fieldName}}', { fieldName: req.__('Tel') })).matches(/^[0-9]{7,13}$/);
     // email
     req.checkBody('email', req.__('NoInput{{fieldName}}', { fieldName: req.__('Email') })).notEmpty();
     req.checkBody('email', req.__('Invalid{{fieldName}}', { fieldName: req.__('Email') })).isEmail();

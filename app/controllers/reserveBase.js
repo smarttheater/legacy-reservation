@@ -212,12 +212,7 @@ function checkFixSeatsAndTickets(ticketTypes, req) {
         return checkInfo;
     });
 }
-/**
- * 購入者情報FIXプロセス
- * @param {ReserveSessionModel} reservationModel
- * @returns {Promise<void>}
- */
-function processFixProfile(reservationModel, req, res) {
+function isValidProfile(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         reserveProfileForm_1.default(req);
         const validationResult = yield req.getValidationResult();
@@ -232,10 +227,17 @@ function processFixProfile(reservationModel, req, res) {
         res.locals.address = req.body.address;
         res.locals.gender = req.body.gender;
         res.locals.paymentMethod = req.body.paymentMethod;
-        if (!validationResult.isEmpty()) {
-            // const errors = req.validationErrors(true);
-            throw new Error(req.__('Invalid'));
-        }
+        return validationResult.isEmpty();
+    });
+}
+exports.isValidProfile = isValidProfile;
+/**
+ * 購入者情報FIXプロセス
+ * @param {ReserveSessionModel} reservationModel
+ * @returns {Promise<void>}
+ */
+function processFixProfile(reservationModel, req) {
+    return __awaiter(this, void 0, void 0, function* () {
         // 購入者情報を保存して座席選択へ
         const contact = {
             lastName: (req.body.lastName !== undefined) ? req.body.lastName : '',
