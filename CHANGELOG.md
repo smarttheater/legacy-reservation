@@ -18,6 +18,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.0.7- 2018-05-10
+
+### Fixed
+- 電話番号入力エラー時に関係ないクレカエラーが表示されるため、ハンドリングの順序を調整
+
 ## v7.0.6- 2018-03-22
 
 ### Changed

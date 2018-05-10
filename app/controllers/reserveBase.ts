@@ -251,12 +251,7 @@ async function checkFixSeatsAndTickets(ticketTypes: Express.ITicketType[], req: 
     return checkInfo;
 }
 
-/**
- * 購入者情報FIXプロセス
- * @param {ReserveSessionModel} reservationModel
- * @returns {Promise<void>}
- */
-export async function processFixProfile(reservationModel: ReserveSessionModel, req: Request, res: Response): Promise<void> {
+export async function isValidProfile(req: Request, res: Response): Promise<boolean> {
     reserveProfileForm(req);
 
     const validationResult = await req.getValidationResult();
@@ -272,10 +267,15 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
     res.locals.gender = req.body.gender;
     res.locals.paymentMethod = req.body.paymentMethod;
 
-    if (!validationResult.isEmpty()) {
-        // const errors = req.validationErrors(true);
-        throw new Error(req.__('Invalid'));
-    }
+    return validationResult.isEmpty();
+}
+
+/**
+ * 購入者情報FIXプロセス
+ * @param {ReserveSessionModel} reservationModel
+ * @returns {Promise<void>}
+ */
+export async function processFixProfile(reservationModel: ReserveSessionModel, req: Request): Promise<void> {
 
     // 購入者情報を保存して座席選択へ
     const contact: Express.IPurchaser = {
