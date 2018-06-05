@@ -100,10 +100,9 @@
     "start": "node ./index.js",
     "test": "npm run check && npm run mocha",
     "tslint": "tslint --project tsconfig.json -c tslint.json index.ts app/**/*.ts",
-    "precommit": "npm test",
     "preversion": "npm run clean && npm run build && npm test",
     "version": "git add -A",
     "postversion": "git push origin --tags"
   },
-  "version": "7.0.7"
+  "version": "7.0.8"
 }

@@ -207,6 +207,7 @@
                 <td>
                     <input type="text" name="holdername" id="holdername" class="form-control input-required" value="" data-fieldname="<%- __('CardHoldername') %>" required>
                     <p class="errmsg errmsg-holdername"><% (validation && validation.holdername ? validation.holdername.msg : '') %></p>
+                    <% if (locale == 'ja'){ %><p class="notice"><%- __('EnterInHalfWidthKatakana') %></p><% } %>
                 </td>
             </tr>
 
