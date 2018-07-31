@@ -18,6 +18,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.1.0- 2018-08-01
+- トップ画面文言修正
+
 ## v7.0.9- 2018-07-11
 - bootstrapファイルをローカルに変更
 
