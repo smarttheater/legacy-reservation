@@ -18,6 +18,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.1.3- 2018-10-30
+- トップ画面文言修正
+
 ## v7.1.2- 2018-10-12
 - トップ画面文言修正
 
