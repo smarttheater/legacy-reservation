@@ -17,7 +17,7 @@
 	"ContactUs": "お問い合わせ",
 	"SelectPerformance": "トップデッキツアー 日時選択",
 	"SelectPerformanceGuideText": "ご希望の日時を選択してください。",
-	"LinkContainedPerformanceMessage": "※トップデッキツアーチケットでメインデッキ、トップデッキへご入場いただけます。<br>詳しいトップデッキツアー入場方法は<a href='/aboutenter' target='_blank'>こちら</a>。<br>※トップデッキツアーのお客様は、メインデッキ行き階段でのご入場はできませんのでご了承ください。<br><span class='red'>※トップデッキツアーへ車いすでご入場されるお客様は<a href='/customer/reserve/changeCategory/wheelchair'>こちら</a>からご予約ください。</span><br>※お支払い方法はクレジットカードのみとなります。現金でのお支払いをご希望のお客様は、東京タワーフットタウン1Fチケットカウンターにてご予約・ご購入ください。<br>※大きなお荷物・ベビーカー等は、フットタウン1Fツアーオフィスでお預かりいたします。<br><span class='red'>※東京タワーでは定期塔体塗装工事を実施中です。これにより只今（2018年10月～12月頃までの予定）、<br>トップデッキ（250m）に防護ネットが張られており、それらが眺望に入り込む状態となっております。詳しくは<a href='https://www.tokyotower.co.jp/notification/painting/index.html' target='_blank'>こちら</a>をご覧ください。</span>",
+	"LinkContainedPerformanceMessage": "※トップデッキツアーチケットでメインデッキ、トップデッキへご入場いただけます。<br>詳しいトップデッキツアー入場方法は<a href='/aboutenter' target='_blank'>こちら</a>。<br>※トップデッキツアーのお客様は、メインデッキ行き階段でのご入場はできませんのでご了承ください。<br><span class='red'>※トップデッキツアーへ車いすでご入場されるお客様は<a href='/customer/reserve/changeCategory/wheelchair'>こちら</a>からご予約ください。</span><br>※お支払い方法はクレジットカードのみとなります。現金でのお支払いをご希望のお客様は、東京タワーフットタウン1Fチケットカウンターにてご予約・ご購入ください。<br>※大きなお荷物・ベビーカー等は、フットタウン1Fツアーオフィスでお預かりいたします。",
 	"PreferredDateSelect": "希望日選択",
 	"ReservableMaxDate{{ymd}}": "{{ymd}}まで予約可能です。（60日後まで）",
 	"ReservableMaxDateStaff{{ymd}}": "{{ymd}}まで予約可能です。（90日後まで）",
