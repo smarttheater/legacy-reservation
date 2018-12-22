@@ -18,6 +18,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.1.5- 2018-12-22
+- 社名変更に伴うロゴ、文言の変更
+
 ## v7.1.4- 2018-12-19
 - 工事文言削除
 
