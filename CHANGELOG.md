@@ -18,6 +18,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.1.7- 2019-03-19
+- QRサービスの変更
+
 ## v7.1.6- 2018-12-23
 - 社名変更に伴うロゴ、文言の変更 特商法責任者の英語修正
 
