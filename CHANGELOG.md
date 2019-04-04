@@ -18,6 +18,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.1.8- 2019-04-04
+- QRをjsで生成
+
 ## v7.1.7- 2019-03-19
 - QRサービスの変更
 
