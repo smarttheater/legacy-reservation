@@ -18,6 +18,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.1.9- 2019-05-16
+- 予約が4名入ったら△にする
+
 ## v7.1.8- 2019-04-04
 - QRをjsで生成
 
