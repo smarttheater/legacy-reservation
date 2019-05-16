@@ -16,7 +16,7 @@ $(function () {
 
     // 空き状況表示切り替え閾値
     var STATUS_THRESHOLD = {
-        CROWDED: 19,
+        CROWDED: 37,
         LAST: 9,
         WHEELCHAIR_SOLDOUT: 6
     };
