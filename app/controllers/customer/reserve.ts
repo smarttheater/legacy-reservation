@@ -412,7 +412,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                     // 失敗してもスルー
                 }
 
-                //　購入フローセッションは削除
+                // 購入フローセッションは削除
                 ReserveSessionModel.REMOVE(req);
 
                 res.redirect('/customer/reserve/complete');
@@ -539,7 +539,6 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
             break;
 
         default:
-            break;
     }
 }
 

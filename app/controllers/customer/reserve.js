@@ -384,7 +384,7 @@ function confirm(req, res, next) {
                     catch (error) {
                         // 失敗してもスルー
                     }
-                    //　購入フローセッションは削除
+                    // 購入フローセッションは削除
                     session_1.default.REMOVE(req);
                     res.redirect('/customer/reserve/complete');
                     return;
@@ -501,7 +501,6 @@ function processFixGMO(reservationModel, req) {
                 reservationModel.transactionInProgress.transactionGMO.amount = amount;
                 break;
             default:
-                break;
         }
     });
 }

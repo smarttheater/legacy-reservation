@@ -25,11 +25,11 @@ function getToken() {
         showAccessError();
         return;
     }
-    var endPoint = 'https://ttts-waiter-development.appspot.com'
+    var endPoint = 'https://waiter-development.appspot.com'
     var scope = 'placeOrderTransaction.TokyoTower';
     var option = {
         dataType: 'json',
-        url: endPoint + '/passports',
+        url: endPoint + '/projects/ttts-development/passports',
         type: 'POST',
         timeout: 10000,
         data: {

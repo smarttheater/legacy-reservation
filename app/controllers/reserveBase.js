@@ -69,7 +69,7 @@ function processStart(purchaserGroup, req) {
             expires: expires.toISOString(),
             paymentMethodChoices: [tttsapi.factory.paymentMethodType.CreditCard],
             ticketTypes: [],
-            seatGradeCodesInScreen: [],
+            // seatGradeCodesInScreen: [],
             purchaser: {
                 lastName: '',
                 firstName: '',
@@ -99,9 +99,7 @@ function processStart(purchaserGroup, req) {
 }
 exports.processStart = processStart;
 /**
- * 座席・券種FIXプロセス
- * @param {ReserveSessionModel} reservationModel
- * @returns {Promise<void>}
+ * 座席・券種確定プロセス
  */
 function processFixSeatsAndTickets(reservationModel, req) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -145,10 +143,7 @@ function processFixSeatsAndTickets(reservationModel, req) {
 }
 exports.processFixSeatsAndTickets = processFixSeatsAndTickets;
 /**
- * 座席・券種FIXプロセス/検証処理
- * @param {Express.ITicketType[]} ticketTypes
- * @param {Request} req
- * @returns {Promise<void>}
+ * 座席・券種確定プロセス/検証処理
  */
 function checkFixSeatsAndTickets(ticketTypes, req) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -232,7 +227,7 @@ function isValidProfile(req, res) {
 }
 exports.isValidProfile = isValidProfile;
 /**
- * 購入者情報FIXプロセス
+ * 購入者情報確定プロセス
  * @param {ReserveSessionModel} reservationModel
  * @returns {Promise<void>}
  */
@@ -285,9 +280,6 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         if (performance === null) {
             throw new Error(req.__('NotFound'));
         }
-        if (performance.canceled === true) {
-            throw new Error(req.__('Message.OutOfTerm'));
-        }
         // 上映日当日まで購入可能
         // tslint:disable-next-line:no-magic-numbers
         if (parseInt(moment(performance.start_date).format('YYYYMMDD'), 10) < parseInt(moment().format('YYYYMMDD'), 10)) {
@@ -300,9 +292,9 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         // パフォーマンス情報を保管
         reservationModel.transactionInProgress.performance = performance;
         // 座席グレードリスト抽出
-        reservationModel.transactionInProgress.seatGradeCodesInScreen = performance.screen.sections[0].seats
-            .map((seat) => seat.grade.code)
-            .filter((seatCode, index, seatCodes) => seatCodes.indexOf(seatCode) === index);
+        // reservationModel.transactionInProgress.seatGradeCodesInScreen = performance.screen.sections[0].seats
+        //     .map((seat) => seat.grade.code)
+        //     .filter((seatCode, index, seatCodes) => seatCodes.indexOf(seatCode) === index);
     });
 }
 exports.processFixPerformance = processFixPerformance;
@@ -310,10 +302,10 @@ exports.processFixPerformance = processFixPerformance;
  * 予約完了メールを作成する
  * @memberof controller.reserveBase
  */
-function createEmailAttributes(reservations, totalCharge, res) {
+function createEmailAttributes(reservationParams, totalCharge, res) {
     return __awaiter(this, void 0, void 0, function* () {
         // 特殊チケットは除外
-        reservations = reservations.filter((r) => r.status === tttsapi.factory.reservationStatusType.ReservationConfirmed);
+        const reservations = reservationParams.filter((r) => r.status === tttsapi.factory.reservationStatusType.ReservationConfirmed);
         // チケットコード順にソート
         reservations.sort((a, b) => {
             if (a.ticket_type < b.ticket_type) {
@@ -362,7 +354,7 @@ exports.createEmailAttributes = createEmailAttributes;
 function getMailText(res, totalCharge, reservations) {
     const mail = [];
     const locale = res.locale;
-    // 東京タワー トップデッキツアー　チケット購入完了のお知らせ
+    // 東京タワートップデッキツアーチケット購入完了のお知らせ
     mail.push(res.__('EmailTitle'));
     mail.push('');
     // 姓名編集: 日本語の時は"姓名"他は"名姓"
@@ -402,11 +394,11 @@ function getMailText(res, totalCharge, reservations) {
     mail.push('');
     // ●チケット照会はこちら
     mail.push(res.__('EmailInquiryUrl'));
-    mail.push(conf.get('official_url_inquiry_by_locale')[locale]);
+    mail.push((conf.get('official_url_inquiry_by_locale'))[locale]);
     mail.push('');
     // ●ご入場方法はこちら
     mail.push(res.__('EmailEnterURL'));
-    mail.push(conf.get('official_url_aboutentering_by_locale')[locale]);
+    mail.push((conf.get('official_url_aboutentering_by_locale'))[locale]);
     mail.push('');
     // [ご注意事項]
     mail.push(res.__('EmailNotice1'));
@@ -421,7 +413,7 @@ function getMailText(res, totalCharge, reservations) {
     mail.push('');
     // ※よくあるご質問（ＦＡＱ）はこちら
     mail.push(res.__('EmailFAQURL'));
-    mail.push(conf.get('official_url_faq_by_locale')[locale]);
+    mail.push((conf.get('official_url_faq_by_locale'))[locale]);
     mail.push('');
     // なお、このメールは、「東京タワー トップデッキツアー」の予約システムでチケットをご購入頂いた方にお送りしておりますが、チケット購入に覚えのない方に届いております場合は、下記お問い合わせ先までご連絡ください。
     mail.push(res.__('EmailFoot1').replace('$theater_name$', reservations[0].theater_name[locale]));
@@ -432,7 +424,7 @@ function getMailText(res, totalCharge, reservations) {
     mail.push('');
     // お問い合わせはこちら
     mail.push(res.__('EmailAccess1'));
-    // 東京タワー　TEL : 03-3433-5111　/　9：00am～17：00pm（年中無休）
+    // 東京タワー TEL : 03-3433-5111 / 9：00am～17：00pm（年中無休）
     mail.push(res.__('EmailAccess2'));
     return (mail.join('\n'));
 }
