@@ -55,7 +55,7 @@ declare global {
             /**
              * スクリーン内の座席グレードリスト
              */
-            seatGradeCodesInScreen: string[];
+            // seatGradeCodesInScreen: string[];
             /**
              * 予約座席コードリスト
              */
