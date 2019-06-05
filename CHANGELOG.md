@@ -10,9 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- 開発環境用入場ページのWaiter設定調整
-- update ttts-api-nodejs-client
-
 ### Deprecated
 
 ### Removed
@@ -20,6 +17,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v7.1.10- 2019-06-05
+
+### Changed
+
+- 開発環境用入場ページのWaiter設定調整
+- update ttts-api-nodejs-client
 
 ## v7.1.9- 2019-05-16
 - 予約が4名入ったら△にする
