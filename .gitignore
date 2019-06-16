@@ -1,9 +1,6 @@
 iisnode.yml
-lock/
-logs/
 node_modules/
 npm-debug.log*
-typings/
 iisnode/
 doc
 .env*

@@ -83,8 +83,6 @@
             "by"
         ]
     },
-    "official_website_url": "https://www.tokyotower.co.jp/",
-    "official_tel_number": "03-1234-5678",
     "official_url_top_by_locale": {
         "ja": "https://www.tokyotower.co.jp/",
         "en": "https://www.tokyotower.co.jp/en.html",
@@ -213,32 +211,10 @@
         "from": "noreply@tokyotower.co.jp",
         "fromname": "Tokyo Tower TOP DECK TOUR Online Ticket"
     },
-    "datetimes": {
-        "reservation_start_staffs": "2016-09-28T00:00:00+09:00",
-        "reservation_start_sponsors": "2016-09-28T00:00:00+09:00",
-        "reservation_start_members": "2016-10-19T12:00:00+09:00",
-        "reservation_end_members": "2017-12-31T23:59:59+09:00",
-        "reservation_start_customers_first": "2016-09-28T00:00:00+09:00",
-        "reservation_start_customers_second": "2016-10-22T10:30:00+09:00",
-        "reservation_start_pre_customers": "2016-09-28T00:00:00+09:00",
-        "reservation_end_pre_customers": "2017-12-31T23:59:59+09:00",
-        "event_start": "2016-10-25T00:00:00+09:00",
-        "event_end": "2017-12-31T23:59:59+09:00"
-    },
     "temporary_reservation_valid_period_seconds": 900,
     "reservation_maxq": 10,
     "reservation_maxq_wheelchair": 1,
     "reserve_max_date": {
         "days": 60
-    },
-    "paymentMethodsForCustomer": {
-        "CreditCard": "クレジットカード"
-    },
-    "paymentMethodsForStaff": {
-        "CP": "CP支払い",
-        "Invoice": "売掛（納品書・請求書支払い）",
-        "GroupReservation": "団体予約",
-        "Charter": "貸切予約",
-        "Invitation": "無料招待券"
     }
 }
