@@ -52,7 +52,7 @@ function getToken() {
     Multipayment.getToken(sendParam, someCallbackFunction);
 }
 
-$(function() {
+$(function () {
     if (window.ttts.mode === 'customer') {
         // セッションに入ってた入力値
         var local_address = window.ttts.local.address || '';
@@ -64,10 +64,10 @@ $(function() {
         var $input_tel_otherregion = $('#input_tel_otherregion');
         window.ttts.dom_input_tel_otherregion = $input_tel_otherregion[0];
 
-        var setCountry = function(val) {
+        var setCountry = function (val) {
             document.getElementById('input_country').value = (val || $input_tel.intlTelInput('getSelectedCountryData').iso2 || local_address || '').toUpperCase();
         };
-        // Staffでは国選択不要なのでロードしない
+
         if ($.fn.intlTelInput) {
             // 言語別ごとで表示順位を上げる国を設定する
             var preferredCountries = window.ttts.preferred_countries || '';
@@ -76,10 +76,10 @@ $(function() {
             $input_tel.intlTelInput({
                 utilsScript: '/js/lib/intl-tel-input/utils.js',
                 preferredCountries: preferredCountries,
-                customPlaceholder: function(selectedCountryPlaceholder) {
+                customPlaceholder: function (selectedCountryPlaceholder) {
                     return selectedCountryPlaceholder.replace(/-/g, '');
                 }
-            }).done(function() {
+            }).done(function () {
                 // セッションの値があったら適用する
                 if (local_address && local_address !== 'XX') {
                     $input_tel.intlTelInput('setCountry', local_address.toLowerCase());
@@ -93,7 +93,7 @@ $(function() {
             });
 
             // intl-TelInputのサポート外地域(チベットなど)をカバー
-            $('#checkbox_otherregion').on('change', function(e) {
+            $('#checkbox_otherregion').on('change', function (e) {
                 // "Other Area"にチェックが入ったら使うinput[name=tel]を入れ替える
                 if (e.target.checked) {
                     $input_tel[0].disabled = true;
@@ -121,7 +121,7 @@ $(function() {
         var input_emailconfirmconcat = document.getElementById('input_emailconfirmconcat');
         var input_emailConfirm = document.getElementById('id_emailConfirm');
         var input_emailConfirmDomain = document.getElementById('id_emailConfirmDomain');
-        var setEmailConfirmSplitValues = function() {
+        var setEmailConfirmSplitValues = function () {
             if (!input_emailconfirmconcat || !input_emailconfirmconcat.value) {
                 input_emailConfirm.value = '';
                 input_emailConfirmDomain.value = '';
@@ -136,7 +136,7 @@ $(function() {
         var input_expire = document.getElementById('expire');
         var select_cardExpirationYear = document.getElementById('cardExpirationYear');
         var select_cardExpirationMonth = document.getElementById('cardExpirationMonth');
-        var setExpiredate = function() {
+        var setExpiredate = function () {
             if (!input_expire || !select_cardExpirationYear || !select_cardExpirationMonth) { return false; }
             var val = select_cardExpirationYear.value + select_cardExpirationMonth.value;
             input_expire.value = (val.length === 'YYYYMM'.length) ? val : '';
@@ -148,9 +148,9 @@ $(function() {
         */
         // 置換用エラー文言
         // トークン取得前にバリデーション
-        var validateCreditCardInputs = function() {
+        var validateCreditCardInputs = function () {
             var bool_valid = true;
-            Array.prototype.forEach.call(document.getElementsByClassName('input-required'), function(elm) {
+            Array.prototype.forEach.call(document.getElementsByClassName('input-required'), function (elm) {
                 var error = null;
                 var parentSelector = elm.getAttribute('data-parentSelector') || '.tr-' + elm.name;
                 var elm_parent = document.querySelector(parentSelector);
@@ -191,7 +191,7 @@ $(function() {
 
 
     // 送信
-    $('.btn-next').on('click', function() {
+    $('.btn-next').on('click', function () {
         if (window.ttts.profileformsubmitting) { return false; }
         var paymentMethod = $('input[name=paymentMethod]:checked').val();
         if (paymentMethod === '0') {

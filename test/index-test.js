@@ -1,8 +1,6 @@
 /**
  * indexテスト
- * @ignore
  */
-
 const assert = require('assert');
 
 before(async () => {

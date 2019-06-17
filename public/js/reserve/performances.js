@@ -6,10 +6,8 @@ $(function () {
 
     // カレンダーを何月何日から表示するか
     var CALENDER_MINDATE = 'today';
-    if (window.ttts.mode !== 'staff') {
-        // 一般購入の場合、予約可能なイベント開始日時と、現在日時の、大きい方
-        CALENDER_MINDATE = moment.max([moment(window.ttts.reservableEventStartFrom), moment()]).format('YYYY-MM-DD');
-    }
+    // 一般購入の場合、予約可能なイベント開始日時と、現在日時の、大きい方
+    CALENDER_MINDATE = moment.max([moment(window.ttts.reservableEventStartFrom), moment()]).format('YYYY-MM-DD');
 
     // カレンダーを何日先まで表示するか
     var CALENDER_MAXDATE = window.ttts.reservableMaxDate || '';
@@ -51,7 +49,7 @@ $(function () {
             try {
                 var hour = performance.attributes.start_time.slice(0, 2);
                 // 時刻を見て無視 (一般: → 開始時刻 ／ 代理: 終了時刻)
-                if (moment_now.isAfter(moment(performance.attributes.day + '' + ((window.ttts.mode === 'staff') ? performance.attributes.end_time : performance.attributes.start_time), 'YYYYMMDDHHmm'))) {
+                if (moment_now.isAfter(moment(performance.attributes.day + '' + performance.attributes.start_time, 'YYYYMMDDHHmm'))) {
                     return true;
                 }
                 if (hourArray.indexOf(hour) === -1) {
