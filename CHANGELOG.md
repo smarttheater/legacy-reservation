@@ -10,18 +10,24 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- 新しい予約インターフェース(Chevre)で再構築
-
 ### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## v7.1.11- 2019-06-17
+
+### Changed
+
+- 新しい予約インターフェース(Chevre)で再構築
 
 ### Removed
 
 - 代理予約向けの不要なソースを削除
 - jsdoc削除
-
-### Fixed
-
-### Security
 
 ## v7.1.10- 2019-06-05
 
