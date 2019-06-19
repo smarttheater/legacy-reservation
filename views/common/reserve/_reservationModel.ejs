@@ -4,11 +4,21 @@
         <p class="reservationstatus-title"><%- __('PurchaseContentDate') %></p>
         <div class="reservationstatus-info">
             <%= moment(tempReservationModel.performance.day).format('LL') %><br>
-            <%= `${moment(tempReservationModel.performance.start_time, 'hmm').format('HH:mm')} - ${moment(tempReservationModel.performance.end_time, 'hmm').format('HH:mm')}` %> <span class="is-not-ja">(JST)</span>
+            <%= `${moment(tempReservationModel.performance.start_time, 'hmm').format('HH:mm')} - ${moment(tempReservationModel.performance.end_time, 'hmm').format('HH:mm')}` %>
+            <span class="is-not-ja">(JST)</span>
         </div>
         <p class="reservationstatus-title"><%- __('TourNumber') %></p>
         <div class="reservationstatus-info">
-            <%- tempReservationModel.performance.ttts_extension.tour_number %>
+            <%
+            let tourNumber = '';
+            if (Array.isArray(tempReservationModel.performance.additionalProperty)) {
+                const tourNumberProperty = tempReservationModel.performance.additionalProperty.find((p)=>p.name==='tourNumber');
+                if (tourNumberProperty !== undefined) {
+                    tourNumber = tourNumberProperty.value;
+                }    
+            }
+            %>
+            <%- tourNumber %>
         </div>
     </div>
 </div>
