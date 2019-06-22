@@ -18,6 +18,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.1.12 - 2019-06-22
+
+### Changed
+
+- ツアーナンバーのChevreインターフェース対応
+
+### Removed
+
+- 券種からキャンセルチャージ属性を削除
+
 ## v7.1.11- 2019-06-17
 
 ### Changed
