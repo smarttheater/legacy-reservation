@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.1.13 - 2019-06-26
+
+### Removed
+
+- 予約インターフェースから不要な属性を削除
+
 ## v7.1.12 - 2019-06-22
 
 ### Changed
