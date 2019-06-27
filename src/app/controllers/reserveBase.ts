@@ -314,7 +314,7 @@ export async function createEmailAttributes(
     res: Response
 ): Promise<tttsapi.factory.creativeWork.message.email.IAttributes> {
     // 特殊チケットは除外
-    const reservations = reservationParams.filter((r) => r.status === tttsapi.factory.reservationStatusType.ReservationConfirmed);
+    const reservations = reservationParams;
     // チケットコード順にソート
     reservations.sort((a, b) => {
         if (a.reservedTicket.ticketType.identifier < b.reservedTicket.ticketType.identifier) {
