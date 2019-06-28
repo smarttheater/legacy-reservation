@@ -272,7 +272,7 @@ exports.processFixPerformance = processFixPerformance;
 function createEmailAttributes(reservationParams, totalCharge, res) {
     return __awaiter(this, void 0, void 0, function* () {
         // 特殊チケットは除外
-        const reservations = reservationParams.filter((r) => r.status === tttsapi.factory.reservationStatusType.ReservationConfirmed);
+        const reservations = reservationParams;
         // チケットコード順にソート
         reservations.sort((a, b) => {
             if (a.reservedTicket.ticketType.identifier < b.reservedTicket.ticketType.identifier) {
