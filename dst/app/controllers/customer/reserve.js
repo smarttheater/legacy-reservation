@@ -340,7 +340,8 @@ function confirm(req, res, next) {
                     req.session.transactionResult = transactionResult;
                     try {
                         // 完了メールキュー追加(あれば更新日時を更新するだけ)
-                        const emailAttributes = yield reserveBaseController.createEmailAttributes(transactionResult.eventReservations, reservationModel.getTotalCharge(), res);
+                        const reservations = transactionResult.order.acceptedOffers.map((o) => o.itemOffered);
+                        const emailAttributes = yield reserveBaseController.createEmailAttributes(reservations, reservationModel.getTotalCharge(), res);
                         yield placeOrderTransactionService.sendEmailNotification({
                             transactionId: reservationModel.transactionInProgress.id,
                             emailMessageAttributes: emailAttributes
@@ -392,7 +393,7 @@ function complete(req, res, next) {
                 next(new Error(req.__('NotFound')));
                 return;
             }
-            const reservations = transactionResult.eventReservations;
+            const reservations = transactionResult.order.acceptedOffers.map((o) => o.itemOffered);
             debug(reservations.length, 'reservation(s) found.');
             // チケットを券種コードでソート
             sortReservationstByTicketType(reservations);
