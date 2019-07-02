@@ -359,8 +359,9 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
 
                 try {
                     // 完了メールキュー追加(あれば更新日時を更新するだけ)
+                    const reservations = transactionResult.order.acceptedOffers.map((o) => o.itemOffered);
                     const emailAttributes = await reserveBaseController.createEmailAttributes(
-                        transactionResult.eventReservations, reservationModel.getTotalCharge(), res
+                        reservations, reservationModel.getTotalCharge(), res
                     );
 
                     await placeOrderTransactionService.sendEmailNotification({
@@ -416,7 +417,7 @@ export async function complete(req: Request, res: Response, next: NextFunction):
             return;
         }
 
-        const reservations = transactionResult.eventReservations;
+        const reservations = transactionResult.order.acceptedOffers.map((o) => o.itemOffered);
         debug(reservations.length, 'reservation(s) found.');
         // チケットを券種コードでソート
         sortReservationstByTicketType(reservations);
