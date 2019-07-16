@@ -341,7 +341,7 @@ function confirm(req, res, next) {
                     try {
                         // 完了メールキュー追加(あれば更新日時を更新するだけ)
                         const reservations = transactionResult.order.acceptedOffers.map((o) => o.itemOffered);
-                        const emailAttributes = yield reserveBaseController.createEmailAttributes(reservations, reservationModel.getTotalCharge(), res);
+                        const emailAttributes = yield reserveBaseController.createEmailAttributes(transactionResult.order, reservations, reservationModel.getTotalCharge(), res);
                         yield placeOrderTransactionService.sendEmailNotification({
                             transactionId: reservationModel.transactionInProgress.id,
                             emailMessageAttributes: emailAttributes
@@ -398,6 +398,7 @@ function complete(req, res, next) {
             // チケットを券種コードでソート
             sortReservationstByTicketType(reservations);
             res.render('customer/reserve/complete', {
+                order: transactionResult.order,
                 reservations: reservations,
                 printToken: transactionResult.printToken
             });
@@ -442,9 +443,11 @@ function processFixGMO(reservationModel, req) {
                 }
                 // GMO取引作成
                 const count = `00${reservationModel.transactionInProgress.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
-                // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
+                // オーダーID 予約日 + オーソリカウント(2桁)
                 // tslint:disable-next-line:max-line-length
-                orderId = util_1.format('%s%s%s%s', moment().format('YYMMDD'), moment(reservationModel.transactionInProgress.performance.startDate).tz('Asia/Tokyo').format('YYYYMMDD'), reservationModel.transactionInProgress.paymentNo, count);
+                orderId = util_1.format('%s%s%s', moment().format('YYMMDDhhmmssSSS'), 
+                // tslint:disable-next-line:no-magic-numbers
+                reservationModel.transactionInProgress.id.slice(-6), count);
                 debug('orderId:', orderId);
                 const gmoTokenObject = JSON.parse(req.body.gmoTokenObject);
                 const amount = reservationModel.getTotalCharge();

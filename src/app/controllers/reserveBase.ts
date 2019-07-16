@@ -131,9 +131,6 @@ export async function processFixSeatsAndTickets(reservationModel: ReserveSession
         offers: offers
     });
     reservationModel.transactionInProgress.seatReservationAuthorizeActionId = action.id;
-    // この時点で購入番号が発行される
-    reservationModel.transactionInProgress.paymentNo =
-        (<tttsapi.factory.action.authorize.seatReservation.IResult>action.result).tmpReservations[0].reservationNumber;
     const tmpReservations = (<tttsapi.factory.action.authorize.seatReservation.IResult>action.result).tmpReservations;
 
     // セッションに保管
@@ -309,6 +306,7 @@ export async function processFixPerformance(
  * 予約完了メールを作成する
  */
 export async function createEmailAttributes(
+    order: tttsapi.factory.order.IOrder,
     reservationParams: tttsapi.factory.reservation.event.IReservation[],
     totalCharge: number,
     res: Response
@@ -340,7 +338,7 @@ export async function createEmailAttributes(
     const titleEmail = res.__('EmailTitle');
 
     // メール本文取得
-    const text: string = getMailText(res, totalCharge, reservations);
+    const text: string = getMailText(order, res, totalCharge, reservations);
 
     // メール情報セット
     return new Promise<tttsapi.factory.creativeWork.message.email.IAttributes>((resolve) => {
@@ -365,6 +363,7 @@ export async function createEmailAttributes(
  * メール本文取得
  */
 function getMailText(
+    order: tttsapi.factory.order.IOrder,
     res: Response,
     totalCharge: number,
     reservations: tttsapi.factory.reservation.event.IReservation[]
@@ -397,7 +396,8 @@ function getMailText(
     mail.push('');
 
     // 購入番号
-    mail.push(`${res.__('PaymentNo')} : ${reservations[0].reservationNumber}`);
+    // tslint:disable-next-line:no-magic-numbers
+    mail.push(`${res.__('PaymentNo')} : ${order.confirmationNumber.slice(-6)}`);
 
     // ご来塔日時
     const day: string = moment(event.startDate).tz('Asia/Tokyo').format('YYYY/MM/DD');
