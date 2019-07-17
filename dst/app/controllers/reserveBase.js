@@ -126,9 +126,6 @@ function processFixSeatsAndTickets(reservationModel, req) {
             offers: offers
         });
         reservationModel.transactionInProgress.seatReservationAuthorizeActionId = action.id;
-        // この時点で購入番号が発行される
-        reservationModel.transactionInProgress.paymentNo =
-            action.result.tmpReservations[0].reservationNumber;
         const tmpReservations = action.result.tmpReservations;
         // セッションに保管
         reservationModel.transactionInProgress.reservations = tmpReservations;
@@ -269,7 +266,7 @@ exports.processFixPerformance = processFixPerformance;
 /**
  * 予約完了メールを作成する
  */
-function createEmailAttributes(reservationParams, totalCharge, res) {
+function createEmailAttributes(order, reservationParams, totalCharge, res) {
     return __awaiter(this, void 0, void 0, function* () {
         // 特殊チケットは除外
         const reservations = reservationParams;
@@ -294,7 +291,7 @@ function createEmailAttributes(reservationParams, totalCharge, res) {
         const title = res.__('Title');
         const titleEmail = res.__('EmailTitle');
         // メール本文取得
-        const text = getMailText(res, totalCharge, reservations);
+        const text = getMailText(order, res, totalCharge, reservations);
         // メール情報セット
         return new Promise((resolve) => {
             resolve({
@@ -318,7 +315,7 @@ exports.createEmailAttributes = createEmailAttributes;
 /**
  * メール本文取得
  */
-function getMailText(res, totalCharge, reservations) {
+function getMailText(order, res, totalCharge, reservations) {
     const mail = [];
     const locale = res.locale;
     const event = reservations[0].reservationFor;
@@ -340,7 +337,8 @@ function getMailText(res, totalCharge, reservations) {
     mail.push(res.__('EmailHead2'));
     mail.push('');
     // 購入番号
-    mail.push(`${res.__('PaymentNo')} : ${reservations[0].reservationNumber}`);
+    // tslint:disable-next-line:no-magic-numbers
+    mail.push(`${res.__('PaymentNo')} : ${order.confirmationNumber.slice(-6)}`);
     // ご来塔日時
     const day = moment(event.startDate).tz('Asia/Tokyo').format('YYYY/MM/DD');
     const time = moment(event.startDate).tz('Asia/Tokyo').format('HH:mm');

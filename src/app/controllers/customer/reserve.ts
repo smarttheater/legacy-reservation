@@ -361,7 +361,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                     // 完了メールキュー追加(あれば更新日時を更新するだけ)
                     const reservations = transactionResult.order.acceptedOffers.map((o) => o.itemOffered);
                     const emailAttributes = await reserveBaseController.createEmailAttributes(
-                        reservations, reservationModel.getTotalCharge(), res
+                        transactionResult.order, reservations, reservationModel.getTotalCharge(), res
                     );
 
                     await placeOrderTransactionService.sendEmailNotification({
@@ -423,6 +423,7 @@ export async function complete(req: Request, res: Response, next: NextFunction):
         sortReservationstByTicketType(reservations);
 
         res.render('customer/reserve/complete', {
+            order: transactionResult.order,
             reservations: reservations,
             printToken: transactionResult.printToken
         });
@@ -469,13 +470,13 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
 
             // GMO取引作成
             const count = `00${reservationModel.transactionInProgress.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
-            // オーダーID 予約日 + 上映日 + 購入番号 + オーソリカウント(2桁)
+            // オーダーID 予約日 + オーソリカウント(2桁)
             // tslint:disable-next-line:max-line-length
             orderId = format(
-                '%s%s%s%s',
-                moment().format('YYMMDD'),
-                moment(reservationModel.transactionInProgress.performance.startDate).tz('Asia/Tokyo').format('YYYYMMDD'),
-                reservationModel.transactionInProgress.paymentNo,
+                '%s%s%s',
+                moment().format('YYMMDDhhmmssSSS'),
+                // tslint:disable-next-line:no-magic-numbers
+                reservationModel.transactionInProgress.id.slice(-6),
                 count
             );
             debug('orderId:', orderId);
