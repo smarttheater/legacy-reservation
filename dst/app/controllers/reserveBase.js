@@ -256,7 +256,7 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         }
         // 券種セット
         reservationModel.transactionInProgress.ticketTypes = performance.ticket_type_group.ticket_types.map((t) => {
-            return Object.assign({}, t, { count: 0 });
+            return Object.assign({}, t, { count: 0 }, { id: t.identifier });
         });
         // パフォーマンス情報を保管
         reservationModel.transactionInProgress.performance = performance;

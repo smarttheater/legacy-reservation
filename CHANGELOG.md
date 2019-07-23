@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.3.2 - 2019-07-23
+
+### Changed
+
+- 券種IDと券種コードの分離対応
+
 ## v7.3.1 - 2019-07-17
 
 ### Changed
