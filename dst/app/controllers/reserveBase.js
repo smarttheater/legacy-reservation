@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- * 座席予約ベースコントローラー
+ * 予約ベースコントローラー
  */
 const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const conf = require("config");
@@ -75,7 +75,6 @@ function processStart(req) {
             paymentMethod: tttsapi.factory.paymentMethodType.CreditCard,
             purchaserGroup: transaction.object.purchaser_group,
             transactionGMO: {
-                orderId: '',
                 amount: 0,
                 count: 0
             },
@@ -295,6 +294,7 @@ function createEmailAttributes(order, reservationParams, totalCharge, res) {
         // メール情報セット
         return new Promise((resolve) => {
             resolve({
+                typeOf: tttsapi.factory.creativeWorkType.EmailMessage,
                 sender: {
                     name: conf.get('email.fromname'),
                     email: conf.get('email.from')
