@@ -1,6 +1,6 @@
 
 /**
- * 座席予約ベースコントローラー
+ * 予約ベースコントローラー
  */
 import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as conf from 'config';
@@ -75,7 +75,6 @@ export async function processStart(req: Request): Promise<ReserveSessionModel> {
         paymentMethod: tttsapi.factory.paymentMethodType.CreditCard,
         purchaserGroup: transaction.object.purchaser_group,
         transactionGMO: {
-            orderId: '',
             amount: 0,
             count: 0
         },
@@ -307,7 +306,7 @@ export async function processFixPerformance(
  */
 export async function createEmailAttributes(
     order: tttsapi.factory.order.IOrder,
-    reservationParams: tttsapi.factory.reservation.event.IReservation[],
+    reservationParams: tttsapi.factory.order.IItemOffered[],
     totalCharge: number,
     res: Response
 ): Promise<tttsapi.factory.creativeWork.message.email.IAttributes> {
@@ -343,6 +342,7 @@ export async function createEmailAttributes(
     // メール情報セット
     return new Promise<tttsapi.factory.creativeWork.message.email.IAttributes>((resolve) => {
         resolve({
+            typeOf: tttsapi.factory.creativeWorkType.EmailMessage,
             sender: {
                 name: conf.get<string>('email.fromname'),
                 email: conf.get<string>('email.from')
@@ -366,7 +366,7 @@ function getMailText(
     order: tttsapi.factory.order.IOrder,
     res: Response,
     totalCharge: number,
-    reservations: tttsapi.factory.reservation.event.IReservation[]
+    reservations: tttsapi.factory.order.IItemOffered[]
 ): string {
     const mail: string[] = [];
     const locale: string = res.locale;
@@ -468,7 +468,7 @@ function getMailText(
 /**
  * 券種ごとに合計枚数算出
  */
-function getTicketInfos(reservations: tttsapi.factory.reservation.event.IReservation[]): any {
+function getTicketInfos(reservations: tttsapi.factory.order.IItemOffered[]): any {
     // 券種ごとに合計枚数算出
     const ticketInfos: {} = {};
     for (const reservation of reservations) {

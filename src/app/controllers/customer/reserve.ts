@@ -1,5 +1,5 @@
 /**
- * 一般座席予約コントローラー
+ * 予約コントローラー
  */
 import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as conf from 'config';
@@ -8,7 +8,6 @@ import { NextFunction, Request, Response } from 'express';
 import { BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS } from 'http-status';
 import * as moment from 'moment';
 import * as _ from 'underscore';
-import { format } from 'util';
 
 import reservePaymentCreditForm from '../../forms/reserve/reservePaymentCreditForm';
 import reservePerformanceForm from '../../forms/reserve/reservePerformanceForm';
@@ -231,6 +230,7 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
 /**
  * 購入者情報
  */
+// tslint:disable-next-line:max-func-body-length
 export async function profile(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
@@ -321,10 +321,21 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
                     : tttsapi.factory.paymentMethodType.CreditCard;
         }
 
+        let gmoShopId: string = '';
+        // 販売者情報からクレジットカード情報を取り出す
+        const paymentAccepted = reservationModel.transactionInProgress.seller.paymentAccepted;
+        if (paymentAccepted !== undefined) {
+            const creditCardPaymentAccepted = <tttsapi.factory.seller.ICreditCardPaymentAccepted>
+                paymentAccepted.find((p) => p.paymentMethodType === tttsapi.factory.paymentMethodType.CreditCard);
+            if (creditCardPaymentAccepted !== undefined) {
+                gmoShopId = creditCardPaymentAccepted.gmoInfo.shopId;
+            }
+        }
+
         res.render('customer/reserve/profile', {
             reservationModel: reservationModel,
             GMO_ENDPOINT: process.env.GMO_ENDPOINT,
-            GMO_SHOP_ID: reservationModel.transactionInProgress.seller.gmoInfo.shopId,
+            GMO_SHOP_ID: gmoShopId,
             gmoError: gmoError
         });
     } catch (error) {
@@ -436,9 +447,6 @@ export async function complete(req: Request, res: Response, next: NextFunction):
  * GMO決済FIXプロセス
  */
 async function processFixGMO(reservationModel: ReserveSessionModel, req: Request): Promise<void> {
-    const DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID = -2;
-    let orderId: string;
-
     // パフォーマンスは指定済みのはず
     if (reservationModel.transactionInProgress.performance === undefined) {
         throw new Error(req.__('UnexpectedError'));
@@ -468,37 +476,21 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
                 debug('credit card authorization canceled.');
             }
 
-            // GMO取引作成
-            const count = `00${reservationModel.transactionInProgress.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
-            // オーダーID 予約日 + オーソリカウント(2桁)
-            // tslint:disable-next-line:max-line-length
-            orderId = format(
-                '%s%s%s',
-                moment().format('YYMMDDhhmmssSSS'),
-                // tslint:disable-next-line:no-magic-numbers
-                reservationModel.transactionInProgress.id.slice(-6),
-                count
-            );
-            debug('orderId:', orderId);
-
             const gmoTokenObject = JSON.parse(req.body.gmoTokenObject);
             const amount = reservationModel.getTotalCharge();
 
             // クレジットカードオーソリ取得
-            debug('creating credit card authorizeAction...', orderId);
+            debug('creating credit card authorizeAction...');
             const action = await placeOrderTransactionService.createCreditCardAuthorization({
                 transactionId: reservationModel.transactionInProgress.id,
-                orderId: orderId,
                 amount: amount,
                 // tslint:disable-next-line:no-suspicious-comment
                 method: '1', // TODO 定数化
-                // method: ttts.GMO.utils.util.Method.Lump, // 支払い方法は一括
                 creditCard: gmoTokenObject
             });
             debug('credit card authorizeAction created.', action.id);
             reservationModel.transactionInProgress.creditCardAuthorizeActionId = action.id;
 
-            reservationModel.transactionInProgress.transactionGMO.orderId = orderId;
             reservationModel.transactionInProgress.transactionGMO.amount = amount;
 
             break;
@@ -507,8 +499,7 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
     }
 }
 
-type IReservation = tttsapi.factory.action.authorize.seatReservation.ITmpReservation |
-    tttsapi.factory.reservation.event.IReservation;
+type IReservation = tttsapi.factory.action.authorize.seatReservation.ITmpReservation | tttsapi.factory.order.IItemOffered;
 
 /**
  * チケットを券種コードでソートする

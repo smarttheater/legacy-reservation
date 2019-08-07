@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.3.3 - 2019-08-07
+
+### Changed
+
+- クレジットカード決済のオーダーIDをAPIに発行させるように変更
+
 ## v7.3.2 - 2019-07-23
 
 ### Changed

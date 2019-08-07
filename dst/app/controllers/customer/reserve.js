@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- * 一般座席予約コントローラー
+ * 予約コントローラー
  */
 const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const conf = require("config");
@@ -17,7 +17,6 @@ const createDebug = require("debug");
 const http_status_1 = require("http-status");
 const moment = require("moment");
 const _ = require("underscore");
-const util_1 = require("util");
 const reservePaymentCreditForm_1 = require("../../forms/reserve/reservePaymentCreditForm");
 const reservePerformanceForm_1 = require("../../forms/reserve/reservePerformanceForm");
 const session_1 = require("../../models/reserve/session");
@@ -221,6 +220,7 @@ exports.tickets = tickets;
 /**
  * 購入者情報
  */
+// tslint:disable-next-line:max-func-body-length
 function profile(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -303,10 +303,19 @@ function profile(req, res, next) {
                         ? reservationModel.transactionInProgress.paymentMethod
                         : tttsapi.factory.paymentMethodType.CreditCard;
             }
+            let gmoShopId = '';
+            // 販売者情報からクレジットカード情報を取り出す
+            const paymentAccepted = reservationModel.transactionInProgress.seller.paymentAccepted;
+            if (paymentAccepted !== undefined) {
+                const creditCardPaymentAccepted = paymentAccepted.find((p) => p.paymentMethodType === tttsapi.factory.paymentMethodType.CreditCard);
+                if (creditCardPaymentAccepted !== undefined) {
+                    gmoShopId = creditCardPaymentAccepted.gmoInfo.shopId;
+                }
+            }
             res.render('customer/reserve/profile', {
                 reservationModel: reservationModel,
                 GMO_ENDPOINT: process.env.GMO_ENDPOINT,
-                GMO_SHOP_ID: reservationModel.transactionInProgress.seller.gmoInfo.shopId,
+                GMO_SHOP_ID: gmoShopId,
                 gmoError: gmoError
             });
         }
@@ -414,8 +423,6 @@ exports.complete = complete;
  */
 function processFixGMO(reservationModel, req) {
     return __awaiter(this, void 0, void 0, function* () {
-        const DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID = -2;
-        let orderId;
         // パフォーマンスは指定済みのはず
         if (reservationModel.transactionInProgress.performance === undefined) {
             throw new Error(req.__('UnexpectedError'));
@@ -441,30 +448,19 @@ function processFixGMO(reservationModel, req) {
                     });
                     debug('credit card authorization canceled.');
                 }
-                // GMO取引作成
-                const count = `00${reservationModel.transactionInProgress.transactionGMO.count}`.slice(DIGIT_OF_SERIAL_NUMBER_IN_ORDER_ID);
-                // オーダーID 予約日 + オーソリカウント(2桁)
-                // tslint:disable-next-line:max-line-length
-                orderId = util_1.format('%s%s%s', moment().format('YYMMDDhhmmssSSS'), 
-                // tslint:disable-next-line:no-magic-numbers
-                reservationModel.transactionInProgress.id.slice(-6), count);
-                debug('orderId:', orderId);
                 const gmoTokenObject = JSON.parse(req.body.gmoTokenObject);
                 const amount = reservationModel.getTotalCharge();
                 // クレジットカードオーソリ取得
-                debug('creating credit card authorizeAction...', orderId);
+                debug('creating credit card authorizeAction...');
                 const action = yield placeOrderTransactionService.createCreditCardAuthorization({
                     transactionId: reservationModel.transactionInProgress.id,
-                    orderId: orderId,
                     amount: amount,
                     // tslint:disable-next-line:no-suspicious-comment
                     method: '1',
-                    // method: ttts.GMO.utils.util.Method.Lump, // 支払い方法は一括
                     creditCard: gmoTokenObject
                 });
                 debug('credit card authorizeAction created.', action.id);
                 reservationModel.transactionInProgress.creditCardAuthorizeActionId = action.id;
-                reservationModel.transactionInProgress.transactionGMO.orderId = orderId;
                 reservationModel.transactionInProgress.transactionGMO.amount = amount;
                 break;
             default:
