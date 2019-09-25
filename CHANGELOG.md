@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- 注文のacceptedOffersに含まれる予約情報に依存しないように調整
-
 ### Deprecated
 
 ### Removed
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v7.4.0 - 2019-09-25
+
+### Changed
+
+- 注文のacceptedOffersに含まれる予約情報に依存しないように調整
 
 ## v7.3.3 - 2019-08-07
 
