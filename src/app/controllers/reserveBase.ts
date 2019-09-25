@@ -324,9 +324,12 @@ export async function createEmailAttributes(
         return 0;
     });
 
-    const underName = reservations[0].underName;
-    const to = (underName !== undefined && underName.email !== undefined)
-        ? underName.email
+    // const underName = reservations[0].underName;
+    // const to = (underName !== undefined && underName.email !== undefined)
+    //     ? underName.email
+    //     : '';
+    const to = (order !== undefined && order.customer.email !== undefined)
+        ? order.customer.email
         : '';
     debug('to is', to);
     if (to.length === 0) {
@@ -348,8 +351,8 @@ export async function createEmailAttributes(
                 email: conf.get<string>('email.from')
             },
             toRecipient: {
-                name: (underName !== undefined && underName.name !== undefined)
-                    ? underName.name
+                name: (order !== undefined && order.customer.name !== undefined)
+                    ? order.customer.name
                     : '',
                 email: to
             },
@@ -378,10 +381,10 @@ function getMailText(
     mail.push('');
 
     // 姓名編集: 日本語の時は"姓名"他は"名姓"
-    const purchaserName = (reservations[0].underName !== undefined)
+    const purchaserName = (order.customer !== undefined)
         ? (locale === 'ja') ?
-            `${reservations[0].underName.familyName} ${reservations[0].underName.givenName}` :
-            `${reservations[0].underName.givenName} ${reservations[0].underName.familyName}`
+            `${order.customer.familyName} ${order.customer.givenName}` :
+            `${order.customer.givenName} ${order.customer.familyName}`
         : '';
     // XXXX XXXX 様
     mail.push(res.__('EmailDestinationName{{name}}', { name: purchaserName }));
