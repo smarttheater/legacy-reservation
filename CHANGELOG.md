@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.4.1 - 2019-10-01
+
+### Changed
+
+- 商号変更のため、規約と特商法の変更
+
 ## v7.4.0 - 2019-09-25
 
 ### Changed
