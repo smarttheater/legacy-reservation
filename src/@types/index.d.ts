@@ -9,6 +9,22 @@ declare global {
          */
         type ITransactionCategory = 'wheelchair' | 'general';
 
+        /**
+         * 進行中の仮予約インターフェース
+         */
+        interface ITmpReservation {
+            reservedTicket: {
+                /**
+                 * 券種
+                 */
+                ticketType: tttsapi.factory.chevre.ticketType.ITicketType;
+            };
+            /**
+             * 単価
+             */
+            unitPrice: number;
+        }
+
         interface ITransactionInProgress {
             /**
              * 取引ID(MongoDBで発行される)
@@ -71,7 +87,7 @@ declare global {
             /**
              * 仮予約リスト
              */
-            reservations: tttsapi.factory.action.authorize.seatReservation.ITmpReservation[];
+            reservations: ITmpReservation[];
         }
 
         /**
