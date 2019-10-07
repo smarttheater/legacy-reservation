@@ -349,8 +349,7 @@ function confirm(req, res, next) {
                     req.session.transactionResult = transactionResult;
                     try {
                         // 完了メールキュー追加(あれば更新日時を更新するだけ)
-                        const reservations = transactionResult.order.acceptedOffers.map((o) => o.itemOffered);
-                        const emailAttributes = yield reserveBaseController.createEmailAttributes(transactionResult.order, reservations, reservationModel.getTotalCharge(), res);
+                        const emailAttributes = yield reserveBaseController.createEmailAttributes(transactionResult.order, res);
                         yield placeOrderTransactionService.sendEmailNotification({
                             transactionId: reservationModel.transactionInProgress.id,
                             emailMessageAttributes: emailAttributes
@@ -402,8 +401,10 @@ function complete(req, res, next) {
                 next(new Error(req.__('NotFound')));
                 return;
             }
-            const reservations = transactionResult.order.acceptedOffers.map((o) => o.itemOffered);
-            debug(reservations.length, 'reservation(s) found.');
+            const reservations = transactionResult.order.acceptedOffers.map((o) => {
+                const unitPrice = reserveBaseController.getUnitPriceByAcceptedOffer(o);
+                return Object.assign({}, o.itemOffered, { unitPrice: unitPrice });
+            });
             // チケットを券種コードでソート
             sortReservationstByTicketType(reservations);
             res.render('customer/reserve/complete', {
@@ -467,6 +468,7 @@ function processFixGMO(reservationModel, req) {
         }
     });
 }
+// type IReservation = tttsapi.factory.action.authorize.seatReservation.ITmpReservation | tttsapi.factory.order.IItemOffered;
 /**
  * チケットを券種コードでソートする
  */

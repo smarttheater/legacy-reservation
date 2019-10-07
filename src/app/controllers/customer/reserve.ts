@@ -370,9 +370,8 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
 
                 try {
                     // 完了メールキュー追加(あれば更新日時を更新するだけ)
-                    const reservations = transactionResult.order.acceptedOffers.map((o) => o.itemOffered);
                     const emailAttributes = await reserveBaseController.createEmailAttributes(
-                        transactionResult.order, reservations, reservationModel.getTotalCharge(), res
+                        transactionResult.order, res
                     );
 
                     await placeOrderTransactionService.sendEmailNotification({
@@ -428,8 +427,15 @@ export async function complete(req: Request, res: Response, next: NextFunction):
             return;
         }
 
-        const reservations = transactionResult.order.acceptedOffers.map((o) => o.itemOffered);
-        debug(reservations.length, 'reservation(s) found.');
+        const reservations = transactionResult.order.acceptedOffers.map((o) => {
+            const unitPrice = reserveBaseController.getUnitPriceByAcceptedOffer(o);
+
+            return {
+                ...o.itemOffered,
+                unitPrice: unitPrice
+            };
+        });
+
         // チケットを券種コードでソート
         sortReservationstByTicketType(reservations);
 
@@ -499,12 +505,12 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
     }
 }
 
-type IReservation = tttsapi.factory.action.authorize.seatReservation.ITmpReservation | tttsapi.factory.order.IItemOffered;
+// type IReservation = tttsapi.factory.action.authorize.seatReservation.ITmpReservation | tttsapi.factory.order.IItemOffered;
 
 /**
  * チケットを券種コードでソートする
  */
-function sortReservationstByTicketType(reservations: IReservation[]): void {
+function sortReservationstByTicketType(reservations: Express.ITmpReservation[]): void {
     reservations.sort((a, b) => {
         // 入塔日
         if (a.reservedTicket.ticketType.identifier > b.reservedTicket.ticketType.identifier) {

@@ -130,10 +130,19 @@ export async function processFixSeatsAndTickets(reservationModel: ReserveSession
         offers: offers
     });
     reservationModel.transactionInProgress.seatReservationAuthorizeActionId = action.id;
-    const tmpReservations = (<tttsapi.factory.action.authorize.seatReservation.IResult>action.result).tmpReservations;
 
     // セッションに保管
-    reservationModel.transactionInProgress.reservations = tmpReservations;
+    reservationModel.transactionInProgress.reservations = offers.map((o) => {
+        const ticketType = reservationModel.transactionInProgress.ticketTypes.find((t) => t.id === o.ticket_type);
+        if (ticketType === undefined) {
+            throw new Error(`Unknown Ticket Type ${o.ticket_type}`);
+        }
+
+        return {
+            reservedTicket: { ticketType: ticketType },
+            unitPrice: (ticketType.priceSpecification !== undefined) ? ticketType.priceSpecification.price : 0
+        };
+    });
 }
 
 export interface ICheckInfo {
@@ -306,32 +315,11 @@ export async function processFixPerformance(
  */
 export async function createEmailAttributes(
     order: tttsapi.factory.order.IOrder,
-    reservationParams: tttsapi.factory.order.IItemOffered[],
-    totalCharge: number,
     res: Response
 ): Promise<tttsapi.factory.creativeWork.message.email.IAttributes> {
-    // 特殊チケットは除外
-    const reservations = reservationParams;
-    // チケットコード順にソート
-    reservations.sort((a, b) => {
-        if (a.reservedTicket.ticketType.identifier < b.reservedTicket.ticketType.identifier) {
-            return -1;
-        }
-        if (a.reservedTicket.ticketType.identifier > b.reservedTicket.ticketType.identifier) {
-            return 1;
-        }
-
-        return 0;
-    });
-
-    // const underName = reservations[0].underName;
-    // const to = (underName !== undefined && underName.email !== undefined)
-    //     ? underName.email
-    //     : '';
     const to = (order !== undefined && order.customer.email !== undefined)
         ? order.customer.email
         : '';
-    debug('to is', to);
     if (to.length === 0) {
         throw new Error('email to unknown');
     }
@@ -340,7 +328,7 @@ export async function createEmailAttributes(
     const titleEmail = res.__('EmailTitle');
 
     // メール本文取得
-    const text: string = getMailText(order, res, totalCharge, reservations);
+    const text: string = getMailText(order, res);
 
     // メール情報セット
     return new Promise<tttsapi.factory.creativeWork.message.email.IAttributes>((resolve) => {
@@ -362,19 +350,37 @@ export async function createEmailAttributes(
     });
 }
 
+export type ICompoundPriceSpecification = tttsapi.factory.chevre.compoundPriceSpecification.IPriceSpecification<any>;
+
+export function getUnitPriceByAcceptedOffer(offer: tttsapi.factory.order.IAcceptedOffer<any>) {
+    let unitPrice: number = 0;
+
+    if (offer.priceSpecification !== undefined) {
+        const priceSpecification = <ICompoundPriceSpecification>offer.priceSpecification;
+        if (Array.isArray(priceSpecification.priceComponent)) {
+            const unitPriceSpec = priceSpecification.priceComponent.find(
+                (c) => c.typeOf === tttsapi.factory.chevre.priceSpecificationType.UnitPriceSpecification
+            );
+            if (unitPriceSpec !== undefined && unitPriceSpec.price !== undefined && Number.isInteger(unitPriceSpec.price)) {
+                unitPrice = unitPriceSpec.price;
+            }
+        }
+    }
+
+    return unitPrice;
+}
+
 /**
  * メール本文取得
  */
 function getMailText(
     order: tttsapi.factory.order.IOrder,
-    res: Response,
-    totalCharge: number,
-    reservations: tttsapi.factory.order.IItemOffered[]
+    res: Response
 ): string {
     const mail: string[] = [];
     const locale: string = res.locale;
 
-    const event = reservations[0].reservationFor;
+    const event = order.acceptedOffers[0].itemOffered.reservationFor;
 
     // 東京タワートップデッキツアーチケット購入完了のお知らせ
     mail.push(res.__('EmailTitle'));
@@ -411,15 +417,15 @@ function getMailText(
     mail.push(`${res.__('TicketType')} ${res.__('TicketCount')}`);
 
     // 券種ごとに合計枚数算出
-    const ticketInfos = editTicketInfos(res, getTicketInfos(reservations));
+    const ticketInfos = editTicketInfos(res, getTicketInfos(order));
     Object.keys(ticketInfos).forEach((key: string) => {
         mail.push(ticketInfos[key].info);
     });
     mail.push('-------------------------------------');
     // 合計枚数
-    mail.push(res.__('EmailTotalTicketCount{{n}}', { n: reservations.length.toString() }));
+    mail.push(res.__('EmailTotalTicketCount{{n}}', { n: order.acceptedOffers.length.toString() }));
     // 合計金額
-    mail.push(`${res.__('TotalPrice')} ${res.__('{{price}} yen', { price: numeral(totalCharge).format('0,0') })}`);
+    mail.push(`${res.__('TotalPrice')} ${res.__('{{price}} yen', { price: numeral(order.price).format('0,0') })}`);
     mail.push('-------------------------------------');
     // ※ご入場の際はQRコードが入場チケットとなります。下記のチケット照会より、QRコードを画面撮影もしくは印刷の上、ご持参ください。
     mail.push(res.__('EmailAboutQR'));
@@ -471,16 +477,28 @@ function getMailText(
 /**
  * 券種ごとに合計枚数算出
  */
-function getTicketInfos(reservations: tttsapi.factory.order.IItemOffered[]): any {
-    // 券種ごとに合計枚数算出
+function getTicketInfos(order: tttsapi.factory.order.IOrder): any {
+    // 予約ごとに合計枚数算出
     const ticketInfos: {} = {};
-    for (const reservation of reservations) {
-        // チケットタイプセット
-        const ticketType = reservation.reservedTicket.ticketType;
-        let price = 0;
-        if (ticketType.priceSpecification !== undefined) {
-            price = ticketType.priceSpecification.price;
+
+    const acceptedOffers = order.acceptedOffers;
+
+    // チケットコード順にソート
+    acceptedOffers.sort((a, b) => {
+        if (a.itemOffered.reservedTicket.ticketType.identifier < b.itemOffered.reservedTicket.ticketType.identifier) {
+            return -1;
         }
+        if (a.itemOffered.reservedTicket.ticketType.identifier > b.itemOffered.reservedTicket.ticketType.identifier) {
+            return 1;
+        }
+
+        return 0;
+    });
+
+    for (const acceptedOffer of acceptedOffers) {
+        const reservation = acceptedOffer.itemOffered;
+        const ticketType = reservation.reservedTicket.ticketType;
+        const price = getUnitPriceByAcceptedOffer(acceptedOffer);
 
         const dataValue = ticketType.identifier;
         // チケットタイプごとにチケット情報セット
