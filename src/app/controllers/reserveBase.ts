@@ -2,6 +2,7 @@
 /**
  * 予約ベースコントローラー
  */
+import * as cinerinoapi from '@cinerino/api-nodejs-client';
 import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as conf from 'config';
 import * as createDebug from 'debug';
@@ -24,8 +25,12 @@ const authClient = new tttsapi.auth.ClientCredentials({
     state: ''
 });
 
-const placeOrderTransactionService = new tttsapi.service.transaction.PlaceOrder({
-    endpoint: <string>process.env.API_ENDPOINT,
+// const placeOrderTransactionService = new tttsapi.service.transaction.PlaceOrder({
+//     endpoint: <string>process.env.API_ENDPOINT,
+//     auth: authClient
+// });
+const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOrder4ttts({
+    endpoint: <string>process.env.CINERINO_API_ENDPOINT,
     auth: authClient
 });
 
@@ -48,7 +53,6 @@ export async function processStart(req: Request): Promise<ReserveSessionModel> {
     const transaction = await placeOrderTransactionService.start({
         expires: expires,
         sellerIdentifier: sellerIdentifier, // 電波塔さんの組織識別子(現時点で固定)
-        purchaserGroup: tttsapi.factory.person.Group.Customer,
         passportToken: req.query.passportToken
     });
     debug('transaction started.', transaction.id);
@@ -61,7 +65,7 @@ export async function processStart(req: Request): Promise<ReserveSessionModel> {
         sellerId: transaction.seller.id,
         category: (req.query.wc === '1') ? 'wheelchair' : 'general',
         expires: expires.toISOString(),
-        paymentMethodChoices: [tttsapi.factory.paymentMethodType.CreditCard],
+        paymentMethodChoices: [cinerinoapi.factory.paymentMethodType.CreditCard],
         ticketTypes: [],
         purchaser: {
             lastName: '',
@@ -72,8 +76,8 @@ export async function processStart(req: Request): Promise<ReserveSessionModel> {
             address: '',
             gender: '0'
         },
-        paymentMethod: tttsapi.factory.paymentMethodType.CreditCard,
-        purchaserGroup: transaction.object.purchaser_group,
+        paymentMethod: cinerinoapi.factory.paymentMethodType.CreditCard,
+        purchaserGroup: 'Customer',
         transactionGMO: {
             amount: 0,
             count: 0
@@ -256,11 +260,11 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
     reservationModel.transactionInProgress.purchaser = contact;
 
     // 決済方法はクレジットカード一択
-    reservationModel.transactionInProgress.paymentMethod = tttsapi.factory.paymentMethodType.CreditCard;
+    reservationModel.transactionInProgress.paymentMethod = cinerinoapi.factory.paymentMethodType.CreditCard;
 
     const customerContact = await placeOrderTransactionService.setCustomerContact({
         transactionId: reservationModel.transactionInProgress.id,
-        contact: {
+        contact: <any>{
             last_name: contact.lastName,
             first_name: contact.firstName,
             email: contact.email,
@@ -301,6 +305,10 @@ export async function processFixPerformance(
         throw new Error(req.__('Message.OutOfTerm'));
     }
 
+    if (performance.ticket_type_group === undefined || performance.ticket_type_group === null) {
+        throw new Error('Ticket type group undefined');
+    }
+
     // 券種セット
     reservationModel.transactionInProgress.ticketTypes = performance.ticket_type_group.ticket_types.map((t) => {
         return { ...t, ...{ count: 0 }, id: t.identifier };
@@ -314,9 +322,9 @@ export async function processFixPerformance(
  * 予約完了メールを作成する
  */
 export async function createEmailAttributes(
-    order: tttsapi.factory.order.IOrder,
+    order: cinerinoapi.factory.order.IOrder,
     res: Response
-): Promise<tttsapi.factory.creativeWork.message.email.IAttributes> {
+): Promise<cinerinoapi.factory.creativeWork.message.email.IAttributes> {
     const to = (order !== undefined && order.customer.email !== undefined)
         ? order.customer.email
         : '';
@@ -331,9 +339,9 @@ export async function createEmailAttributes(
     const text: string = getMailText(order, res);
 
     // メール情報セット
-    return new Promise<tttsapi.factory.creativeWork.message.email.IAttributes>((resolve) => {
+    return new Promise<cinerinoapi.factory.creativeWork.message.email.IAttributes>((resolve) => {
         resolve({
-            typeOf: tttsapi.factory.creativeWorkType.EmailMessage,
+            typeOf: cinerinoapi.factory.creativeWorkType.EmailMessage,
             sender: {
                 name: conf.get<string>('email.fromname'),
                 email: conf.get<string>('email.from')
@@ -350,16 +358,16 @@ export async function createEmailAttributes(
     });
 }
 
-export type ICompoundPriceSpecification = tttsapi.factory.chevre.compoundPriceSpecification.IPriceSpecification<any>;
+export type ICompoundPriceSpecification = cinerinoapi.factory.chevre.compoundPriceSpecification.IPriceSpecification<any>;
 
-export function getUnitPriceByAcceptedOffer(offer: tttsapi.factory.order.IAcceptedOffer<any>) {
+export function getUnitPriceByAcceptedOffer(offer: cinerinoapi.factory.order.IAcceptedOffer<any>) {
     let unitPrice: number = 0;
 
     if (offer.priceSpecification !== undefined) {
         const priceSpecification = <ICompoundPriceSpecification>offer.priceSpecification;
         if (Array.isArray(priceSpecification.priceComponent)) {
             const unitPriceSpec = priceSpecification.priceComponent.find(
-                (c) => c.typeOf === tttsapi.factory.chevre.priceSpecificationType.UnitPriceSpecification
+                (c) => c.typeOf === cinerinoapi.factory.chevre.priceSpecificationType.UnitPriceSpecification
             );
             if (unitPriceSpec !== undefined && unitPriceSpec.price !== undefined && Number.isInteger(unitPriceSpec.price)) {
                 unitPrice = unitPriceSpec.price;
@@ -374,13 +382,13 @@ export function getUnitPriceByAcceptedOffer(offer: tttsapi.factory.order.IAccept
  * メール本文取得
  */
 function getMailText(
-    order: tttsapi.factory.order.IOrder,
+    order: cinerinoapi.factory.order.IOrder,
     res: Response
 ): string {
     const mail: string[] = [];
     const locale: string = res.locale;
 
-    const event = order.acceptedOffers[0].itemOffered.reservationFor;
+    const event = (<cinerinoapi.factory.order.IReservation>order.acceptedOffers[0].itemOffered).reservationFor;
 
     // 東京タワートップデッキツアーチケット購入完了のお知らせ
     mail.push(res.__('EmailTitle'));
@@ -477,7 +485,7 @@ function getMailText(
 /**
  * 券種ごとに合計枚数算出
  */
-function getTicketInfos(order: tttsapi.factory.order.IOrder): any {
+function getTicketInfos(order: cinerinoapi.factory.order.IOrder): any {
     // 予約ごとに合計枚数算出
     const ticketInfos: {} = {};
 
@@ -485,10 +493,12 @@ function getTicketInfos(order: tttsapi.factory.order.IOrder): any {
 
     // チケットコード順にソート
     acceptedOffers.sort((a, b) => {
-        if (a.itemOffered.reservedTicket.ticketType.identifier < b.itemOffered.reservedTicket.ticketType.identifier) {
+        if ((<cinerinoapi.factory.order.IReservation>a.itemOffered).reservedTicket.ticketType.identifier
+            < (<cinerinoapi.factory.order.IReservation>b.itemOffered).reservedTicket.ticketType.identifier) {
             return -1;
         }
-        if (a.itemOffered.reservedTicket.ticketType.identifier > b.itemOffered.reservedTicket.ticketType.identifier) {
+        if ((<cinerinoapi.factory.order.IReservation>a.itemOffered).reservedTicket.ticketType.identifier
+            > (<cinerinoapi.factory.order.IReservation>b.itemOffered).reservedTicket.ticketType.identifier) {
             return 1;
         }
 
@@ -496,7 +506,7 @@ function getTicketInfos(order: tttsapi.factory.order.IOrder): any {
     });
 
     for (const acceptedOffer of acceptedOffers) {
-        const reservation = acceptedOffer.itemOffered;
+        const reservation = <cinerinoapi.factory.order.IReservation>acceptedOffer.itemOffered;
         const ticketType = reservation.reservedTicket.ticketType;
         const price = getUnitPriceByAcceptedOffer(acceptedOffer);
 
