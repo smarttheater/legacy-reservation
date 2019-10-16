@@ -11,6 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 予約ベースコントローラー
  */
+const cinerinoapi = require("@cinerino/api-nodejs-client");
 const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const conf = require("config");
 const createDebug = require("debug");
@@ -28,12 +29,16 @@ const authClient = new tttsapi.auth.ClientCredentials({
     scopes: [],
     state: ''
 });
-const placeOrderTransactionService = new tttsapi.service.transaction.PlaceOrder({
-    endpoint: process.env.API_ENDPOINT,
+// const placeOrderTransactionService = new tttsapi.service.transaction.PlaceOrder({
+//     endpoint: <string>process.env.API_ENDPOINT,
+//     auth: authClient
+// });
+const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOrder4ttts({
+    endpoint: process.env.CINERINO_API_ENDPOINT,
     auth: authClient
 });
-const organizationService = new tttsapi.service.Organization({
-    endpoint: process.env.API_ENDPOINT,
+const sellerService = new cinerinoapi.service.Seller({
+    endpoint: process.env.CINERINO_API_ENDPOINT,
     auth: authClient
 });
 /**
@@ -44,12 +49,17 @@ function processStart(req) {
         // 言語も指定
         req.session.locale = (!_.isEmpty(req.query.locale)) ? req.query.locale : 'ja';
         const sellerIdentifier = 'TokyoTower';
-        const seller = yield organizationService.findCorporationByIdentifier({ identifier: sellerIdentifier });
+        const searchSellersResult = yield sellerService.search({
+            limit: 1
+        });
+        const seller = searchSellersResult.data.shift();
+        if (seller === undefined) {
+            throw new Error('Seller not found');
+        }
         const expires = moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').toDate();
         const transaction = yield placeOrderTransactionService.start({
             expires: expires,
             sellerIdentifier: sellerIdentifier,
-            purchaserGroup: tttsapi.factory.person.Group.Customer,
             passportToken: req.query.passportToken
         });
         debug('transaction started.', transaction.id);
@@ -61,7 +71,7 @@ function processStart(req) {
             sellerId: transaction.seller.id,
             category: (req.query.wc === '1') ? 'wheelchair' : 'general',
             expires: expires.toISOString(),
-            paymentMethodChoices: [tttsapi.factory.paymentMethodType.CreditCard],
+            paymentMethodChoices: [cinerinoapi.factory.paymentMethodType.CreditCard],
             ticketTypes: [],
             purchaser: {
                 lastName: '',
@@ -72,8 +82,8 @@ function processStart(req) {
                 address: '',
                 gender: '0'
             },
-            paymentMethod: tttsapi.factory.paymentMethodType.CreditCard,
-            purchaserGroup: transaction.object.purchaser_group,
+            paymentMethod: cinerinoapi.factory.paymentMethodType.CreditCard,
+            purchaserGroup: 'Customer',
             transactionGMO: {
                 amount: 0,
                 count: 0
@@ -221,7 +231,7 @@ function processFixProfile(reservationModel, req) {
         };
         reservationModel.transactionInProgress.purchaser = contact;
         // 決済方法はクレジットカード一択
-        reservationModel.transactionInProgress.paymentMethod = tttsapi.factory.paymentMethodType.CreditCard;
+        reservationModel.transactionInProgress.paymentMethod = cinerinoapi.factory.paymentMethodType.CreditCard;
         const customerContact = yield placeOrderTransactionService.setCustomerContact({
             transactionId: reservationModel.transactionInProgress.id,
             contact: {
@@ -261,6 +271,9 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         if (parseInt(moment(performance.startDate).format('YYYYMMDD'), 10) < parseInt(moment().format('YYYYMMDD'), 10)) {
             throw new Error(req.__('Message.OutOfTerm'));
         }
+        if (performance.ticket_type_group === undefined || performance.ticket_type_group === null) {
+            throw new Error('Ticket type group undefined');
+        }
         // 券種セット
         reservationModel.transactionInProgress.ticketTypes = performance.ticket_type_group.ticket_types.map((t) => {
             return Object.assign({}, t, { count: 0 }, { id: t.identifier });
@@ -288,7 +301,7 @@ function createEmailAttributes(order, res) {
         // メール情報セット
         return new Promise((resolve) => {
             resolve({
-                typeOf: tttsapi.factory.creativeWorkType.EmailMessage,
+                typeOf: cinerinoapi.factory.creativeWorkType.EmailMessage,
                 sender: {
                     name: conf.get('email.fromname'),
                     email: conf.get('email.from')
@@ -311,7 +324,7 @@ function getUnitPriceByAcceptedOffer(offer) {
     if (offer.priceSpecification !== undefined) {
         const priceSpecification = offer.priceSpecification;
         if (Array.isArray(priceSpecification.priceComponent)) {
-            const unitPriceSpec = priceSpecification.priceComponent.find((c) => c.typeOf === tttsapi.factory.chevre.priceSpecificationType.UnitPriceSpecification);
+            const unitPriceSpec = priceSpecification.priceComponent.find((c) => c.typeOf === cinerinoapi.factory.chevre.priceSpecificationType.UnitPriceSpecification);
             if (unitPriceSpec !== undefined && unitPriceSpec.price !== undefined && Number.isInteger(unitPriceSpec.price)) {
                 unitPrice = unitPriceSpec.price;
             }
@@ -412,10 +425,12 @@ function getTicketInfos(order) {
     const acceptedOffers = order.acceptedOffers;
     // チケットコード順にソート
     acceptedOffers.sort((a, b) => {
-        if (a.itemOffered.reservedTicket.ticketType.identifier < b.itemOffered.reservedTicket.ticketType.identifier) {
+        if (a.itemOffered.reservedTicket.ticketType.identifier
+            < b.itemOffered.reservedTicket.ticketType.identifier) {
             return -1;
         }
-        if (a.itemOffered.reservedTicket.ticketType.identifier > b.itemOffered.reservedTicket.ticketType.identifier) {
+        if (a.itemOffered.reservedTicket.ticketType.identifier
+            > b.itemOffered.reservedTicket.ticketType.identifier) {
             return 1;
         }
         return 0;

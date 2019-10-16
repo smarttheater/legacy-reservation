@@ -11,7 +11,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 予約コントローラー
  */
-const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
+const cinerinoapi = require("@cinerino/api-nodejs-client");
+// import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 const conf = require("config");
 const createDebug = require("debug");
 const http_status_1 = require("http-status");
@@ -24,15 +25,19 @@ const reserveBaseController = require("../reserveBase");
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 const reserveMaxDateInfo = conf.get('reserve_max_date');
 const reservableEventStartFrom = moment(process.env.RESERVABLE_EVENT_START_FROM).toDate();
-const authClient = new tttsapi.auth.ClientCredentials({
+const authClient = new cinerinoapi.auth.ClientCredentials({
     domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
     clientId: process.env.API_CLIENT_ID,
     clientSecret: process.env.API_CLIENT_SECRET,
     scopes: [],
     state: ''
 });
-const placeOrderTransactionService = new tttsapi.service.transaction.PlaceOrder({
-    endpoint: process.env.API_ENDPOINT,
+// const placeOrderTransactionService = new tttsapi.service.transaction.PlaceOrder({
+//     endpoint: <string>process.env.API_ENDPOINT,
+//     auth: authClient
+// });
+const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOrder4ttts({
+    endpoint: process.env.CINERINO_API_ENDPOINT,
     auth: authClient
 });
 /**
@@ -116,7 +121,7 @@ function performances(req, res, next) {
             // クライアントサイドで、パフォーマンス検索にapiのトークンを使用するので
             yield authClient.refreshAccessToken();
             const token = authClient.credentials;
-            debug('tttsapi access token published.');
+            debug('api access token published.');
             const maxDate = moment();
             Object.keys(reserveMaxDateInfo).forEach((key) => {
                 maxDate.add(reserveMaxDateInfo[key], key);
@@ -162,7 +167,7 @@ function tickets(req, res, next) {
             if (reservationModel.transactionInProgress.performance === undefined) {
                 throw new Error(req.__('UnexpectedError'));
             }
-            reservationModel.transactionInProgress.paymentMethod = tttsapi.factory.paymentMethodType.CreditCard;
+            reservationModel.transactionInProgress.paymentMethod = cinerinoapi.factory.paymentMethodType.CreditCard;
             res.locals.message = '';
             if (req.method === 'POST') {
                 // 仮予約あればキャンセルする
@@ -301,13 +306,13 @@ function profile(req, res, next) {
                 res.locals.paymentMethod =
                     (!_.isEmpty(reservationModel.transactionInProgress.paymentMethod))
                         ? reservationModel.transactionInProgress.paymentMethod
-                        : tttsapi.factory.paymentMethodType.CreditCard;
+                        : cinerinoapi.factory.paymentMethodType.CreditCard;
             }
             let gmoShopId = '';
             // 販売者情報からクレジットカード情報を取り出す
             const paymentAccepted = reservationModel.transactionInProgress.seller.paymentAccepted;
             if (paymentAccepted !== undefined) {
-                const creditCardPaymentAccepted = paymentAccepted.find((p) => p.paymentMethodType === tttsapi.factory.paymentMethodType.CreditCard);
+                const creditCardPaymentAccepted = paymentAccepted.find((p) => p.paymentMethodType === cinerinoapi.factory.paymentMethodType.CreditCard);
                 if (creditCardPaymentAccepted !== undefined) {
                     gmoShopId = creditCardPaymentAccepted.gmoInfo.shopId;
                 }
@@ -342,7 +347,9 @@ function confirm(req, res, next) {
                     // 予約確定
                     const transactionResult = yield placeOrderTransactionService.confirm({
                         transactionId: reservationModel.transactionInProgress.id,
-                        paymentMethod: reservationModel.transactionInProgress.paymentMethod
+                        paymentMethod: reservationModel.transactionInProgress.paymentMethod,
+                        informOrderUrl: `${process.env.API_ENDPOINT}/webhooks/onPlaceOrder`,
+                        informReservationUrl: `${process.env.API_ENDPOINT}/webhooks/onReservationConfirmed`
                     });
                     debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
                     // 購入結果セッション作成
@@ -432,7 +439,7 @@ function processFixGMO(reservationModel, req) {
         reservationModel.transactionInProgress.transactionGMO.count += 1;
         reservationModel.save(req);
         switch (reservationModel.transactionInProgress.paymentMethod) {
-            case tttsapi.factory.paymentMethodType.CreditCard:
+            case cinerinoapi.factory.paymentMethodType.CreditCard:
                 reservePaymentCreditForm_1.default(req);
                 const validationResult = yield req.getValidationResult();
                 if (!validationResult.isEmpty()) {
@@ -468,7 +475,6 @@ function processFixGMO(reservationModel, req) {
         }
     });
 }
-// type IReservation = tttsapi.factory.action.authorize.seatReservation.ITmpReservation | tttsapi.factory.order.IItemOffered;
 /**
  * チケットを券種コードでソートする
  */
