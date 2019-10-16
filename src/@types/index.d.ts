@@ -38,8 +38,7 @@ declare global {
             /**
              * 販売者ID
              */
-            // tslint:disable-next-line:max-line-length
-            seller: cinerinoapi.factory.seller.IOrganization<cinerinoapi.factory.seller.IAttributes<cinerinoapi.factory.organizationType.Corporation>>;
+            seller: cinerinoapi.factory.seller.IOrganization<cinerinoapi.factory.seller.IAttributes<cinerinoapi.factory.organizationType>>;
             /**
              * 販売者ID
              */

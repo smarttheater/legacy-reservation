@@ -33,9 +33,8 @@ const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOr
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
     auth: authClient
 });
-
-const organizationService = new tttsapi.service.Organization({
-    endpoint: <string>process.env.API_ENDPOINT,
+const sellerService = new cinerinoapi.service.Seller({
+    endpoint: <string>process.env.CINERINO_API_ENDPOINT,
     auth: authClient
 });
 
@@ -47,7 +46,13 @@ export async function processStart(req: Request): Promise<ReserveSessionModel> {
     (<Express.Session>req.session).locale = (!_.isEmpty(req.query.locale)) ? req.query.locale : 'ja';
 
     const sellerIdentifier = 'TokyoTower';
-    const seller = await organizationService.findCorporationByIdentifier({ identifier: sellerIdentifier });
+    const searchSellersResult = await sellerService.search({
+        limit: 1
+    });
+    const seller = searchSellersResult.data.shift();
+    if (seller === undefined) {
+        throw new Error('Seller not found');
+    }
 
     const expires = moment().add(conf.get<number>('temporary_reservation_valid_period_seconds'), 'seconds').toDate();
     const transaction = await placeOrderTransactionService.start({
