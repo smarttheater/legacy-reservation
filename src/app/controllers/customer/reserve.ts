@@ -28,11 +28,11 @@ const authClient = new cinerinoapi.auth.ClientCredentials({
     state: ''
 });
 
-// const placeOrderTransactionService = new tttsapi.service.transaction.PlaceOrder({
-//     endpoint: <string>process.env.API_ENDPOINT,
-//     auth: authClient
-// });
 const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOrder4ttts({
+    endpoint: <string>process.env.CINERINO_API_ENDPOINT,
+    auth: authClient
+});
+const paymentService = new cinerinoapi.service.Payment({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
     auth: authClient
 });
@@ -482,9 +482,15 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
                 debug('canceling credit card authorization...', reservationModel.transactionInProgress.creditCardAuthorizeActionId);
                 const actionId = reservationModel.transactionInProgress.creditCardAuthorizeActionId;
                 delete reservationModel.transactionInProgress.creditCardAuthorizeActionId;
-                await placeOrderTransactionService.cancelCreditCardAuthorization({
-                    transactionId: reservationModel.transactionInProgress.id,
-                    actionId: actionId
+                await paymentService.voidTransaction({
+                    id: actionId,
+                    object: {
+                        typeOf: cinerinoapi.factory.paymentMethodType.CreditCard
+                    },
+                    purpose: {
+                        typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
+                        id: reservationModel.transactionInProgress.id
+                    }
                 });
                 debug('credit card authorization canceled.');
             }
@@ -494,12 +500,18 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
 
             // クレジットカードオーソリ取得
             debug('creating credit card authorizeAction...');
-            const action = await placeOrderTransactionService.createCreditCardAuthorization({
-                transactionId: reservationModel.transactionInProgress.id,
-                amount: amount,
-                // tslint:disable-next-line:no-suspicious-comment
-                method: '1', // TODO 定数化
-                creditCard: gmoTokenObject
+            const action = await paymentService.authorizeCreditCard({
+                object: {
+                    typeOf: cinerinoapi.factory.paymentMethodType.CreditCard,
+                    amount: amount,
+                    // tslint:disable-next-line:no-suspicious-comment
+                    method: <any>'1', // TODO 定数化
+                    creditCard: gmoTokenObject
+                },
+                purpose: {
+                    typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
+                    id: reservationModel.transactionInProgress.id
+                }
             });
             debug('credit card authorizeAction created.', action.id);
             reservationModel.transactionInProgress.creditCardAuthorizeActionId = action.id;
