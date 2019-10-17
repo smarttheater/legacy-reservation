@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- クレジットカード決済承認に決済サービスを使用
-
 ### Deprecated
 
 ### Removed
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v8.0.0 - 2019-10-17
+
+### Changed
+
+- クレジットカード決済承認に決済サービスを使用
 
 ## v7.6.0 - 2019-10-16
 
