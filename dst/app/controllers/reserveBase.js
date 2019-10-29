@@ -235,15 +235,12 @@ function processFixProfile(reservationModel, req) {
         reservationModel.transactionInProgress.paymentMethod = cinerinoapi.factory.paymentMethodType.CreditCard;
         const customerContact = yield placeOrderTransactionService.setCustomerContact({
             transactionId: reservationModel.transactionInProgress.id,
-            contact: {
+            contact: Object.assign({ age: contact.age, address: contact.address, email: contact.email, gender: contact.gender, givenName: contact.firstName, familyName: contact.lastName, telephone: contact.tel }, {
+                telephoneRegion: contact.address,
                 last_name: contact.lastName,
                 first_name: contact.firstName,
-                email: contact.email,
-                tel: contact.tel,
-                age: contact.age,
-                address: contact.address,
-                gender: contact.gender
-            }
+                tel: contact.tel
+            })
         });
         debug('customerContact set.', customerContact);
         // セッションに購入者情報格納
