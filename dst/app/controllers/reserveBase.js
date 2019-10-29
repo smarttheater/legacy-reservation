@@ -57,11 +57,12 @@ function processStart(req) {
             throw new Error('Seller not found');
         }
         const expires = moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').toDate();
-        const transaction = yield placeOrderTransactionService.start({
-            expires: expires,
-            sellerIdentifier: sellerIdentifier,
-            passportToken: req.query.passportToken
-        });
+        const transaction = yield placeOrderTransactionService.start(Object.assign({ expires: expires, sellerIdentifier: sellerIdentifier, passportToken: req.query.passportToken }, {
+            seller: {
+                typeOf: seller.typeOf,
+                id: seller.id
+            }
+        }));
         debug('transaction started.', transaction.id);
         // 取引セッションを初期化
         const transactionInProgress = {
