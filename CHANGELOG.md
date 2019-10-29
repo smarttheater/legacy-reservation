@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.1.1 - 2019-10-29
+
+### Changed
+
+- 注文取引開始時の販売者をIDで指定するように調整
+
 ## v8.1.0 - 2019-10-25
 
 ### Changed
