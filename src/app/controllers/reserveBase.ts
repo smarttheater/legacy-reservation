@@ -275,14 +275,20 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
 
     const customerContact = await placeOrderTransactionService.setCustomerContact({
         transactionId: reservationModel.transactionInProgress.id,
-        contact: <any>{
-            last_name: contact.lastName,
-            first_name: contact.firstName,
-            email: contact.email,
-            tel: contact.tel,
+        contact: {
             age: contact.age,
             address: contact.address,
-            gender: contact.gender
+            email: contact.email,
+            gender: contact.gender,
+            givenName: contact.firstName,
+            familyName: contact.lastName,
+            telephone: contact.tel,
+            ...{
+                telephoneRegion: contact.address,
+                last_name: contact.lastName,
+                first_name: contact.firstName,
+                tel: contact.tel
+            }
         }
     });
     debug('customerContact set.', customerContact);
