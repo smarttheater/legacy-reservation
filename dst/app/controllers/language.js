@@ -1,9 +1,4 @@
 "use strict";
-/**
- * 言語コントローラー
- *
- * @namespace controller/language
- */
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("underscore");
 /**

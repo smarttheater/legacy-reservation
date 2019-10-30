@@ -1,9 +1,6 @@
 /**
  * 静的ページコントローラー
- *
- * @namespace controller/other
  */
-
 import { Request, Response } from 'express';
 
 export function policy(req: Request, res: Response): void {
