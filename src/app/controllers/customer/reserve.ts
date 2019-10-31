@@ -2,7 +2,6 @@
  * 予約コントローラー
  */
 import * as cinerinoapi from '@cinerino/api-nodejs-client';
-// import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as conf from 'config';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
@@ -365,10 +364,9 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
             try {
                 // 予約確定
                 const transactionResult = await placeOrderTransactionService.confirm({
-                    transactionId: reservationModel.transactionInProgress.id,
+                    id: reservationModel.transactionInProgress.id,
                     paymentMethod: <any>reservationModel.transactionInProgress.paymentMethod,
-                    informOrderUrl: `${<string>process.env.API_ENDPOINT}/webhooks/onPlaceOrder`,
-                    informReservationUrl: `${<string>process.env.API_ENDPOINT}/webhooks/onReservationConfirmed`
+                    informOrderUrl: `${<string>process.env.API_ENDPOINT}/webhooks/onPlaceOrder`
                 });
                 debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
 

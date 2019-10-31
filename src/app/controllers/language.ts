@@ -1,9 +1,6 @@
 /**
  * 言語コントローラー
- *
- * @namespace controller/language
  */
-
 import { Request, Response } from 'express';
 import * as _ from 'underscore';
 

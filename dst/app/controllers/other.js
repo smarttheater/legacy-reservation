@@ -1,9 +1,4 @@
 "use strict";
-/**
- * 静的ページコントローラー
- *
- * @namespace controller/other
- */
 Object.defineProperty(exports, "__esModule", { value: true });
 function policy(req, res) {
     res.render(`other/policy_${req.getLocale()}`);

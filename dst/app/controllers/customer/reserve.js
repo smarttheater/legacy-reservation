@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * 予約コントローラー
  */
 const cinerinoapi = require("@cinerino/api-nodejs-client");
-// import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 const conf = require("config");
 const createDebug = require("debug");
 const http_status_1 = require("http-status");
@@ -346,10 +345,9 @@ function confirm(req, res, next) {
                 try {
                     // 予約確定
                     const transactionResult = yield placeOrderTransactionService.confirm({
-                        transactionId: reservationModel.transactionInProgress.id,
+                        id: reservationModel.transactionInProgress.id,
                         paymentMethod: reservationModel.transactionInProgress.paymentMethod,
-                        informOrderUrl: `${process.env.API_ENDPOINT}/webhooks/onPlaceOrder`,
-                        informReservationUrl: `${process.env.API_ENDPOINT}/webhooks/onReservationConfirmed`
+                        informOrderUrl: `${process.env.API_ENDPOINT}/webhooks/onPlaceOrder`
                     });
                     debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
                     // 購入結果セッション作成

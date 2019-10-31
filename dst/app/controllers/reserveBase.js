@@ -29,10 +29,6 @@ const authClient = new tttsapi.auth.ClientCredentials({
     scopes: [],
     state: ''
 });
-// const placeOrderTransactionService = new tttsapi.service.transaction.PlaceOrder({
-//     endpoint: <string>process.env.API_ENDPOINT,
-//     auth: authClient
-// });
 const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOrder4ttts({
     endpoint: process.env.CINERINO_API_ENDPOINT,
     auth: authClient
@@ -48,7 +44,6 @@ function processStart(req) {
     return __awaiter(this, void 0, void 0, function* () {
         // 言語も指定
         req.session.locale = (!_.isEmpty(req.query.locale)) ? req.query.locale : 'ja';
-        const sellerIdentifier = 'TokyoTower';
         const searchSellersResult = yield sellerService.search({
             limit: 1
         });
@@ -57,13 +52,13 @@ function processStart(req) {
             throw new Error('Seller not found');
         }
         const expires = moment().add(conf.get('temporary_reservation_valid_period_seconds'), 'seconds').toDate();
-        const transaction = yield placeOrderTransactionService.start(Object.assign({ expires: expires, sellerIdentifier: sellerIdentifier, passportToken: req.query.passportToken }, {
-            seller: {
-                typeOf: seller.typeOf,
-                id: seller.id
-            }
-        }));
-        debug('transaction started.', transaction.id);
+        const transaction = yield placeOrderTransactionService.start({
+            expires: expires,
+            object: {
+                passport: { token: req.query.passportToken }
+            },
+            seller: { typeOf: seller.typeOf, id: seller.id }
+        });
         // 取引セッションを初期化
         const transactionInProgress = {
             id: transaction.id,
@@ -84,7 +79,6 @@ function processStart(req) {
                 gender: '0'
             },
             paymentMethod: cinerinoapi.factory.paymentMethodType.CreditCard,
-            purchaserGroup: 'Customer',
             transactionGMO: {
                 amount: 0,
                 count: 0
@@ -233,16 +227,21 @@ function processFixProfile(reservationModel, req) {
         reservationModel.transactionInProgress.purchaser = contact;
         // 決済方法はクレジットカード一択
         reservationModel.transactionInProgress.paymentMethod = cinerinoapi.factory.paymentMethodType.CreditCard;
-        const customerContact = yield placeOrderTransactionService.setCustomerContact({
-            transactionId: reservationModel.transactionInProgress.id,
-            contact: Object.assign({ age: contact.age, address: contact.address, email: contact.email, gender: contact.gender, givenName: contact.firstName, familyName: contact.lastName, telephone: contact.tel }, {
-                telephoneRegion: contact.address,
-                last_name: contact.lastName,
-                first_name: contact.firstName,
-                tel: contact.tel
-            })
+        yield placeOrderTransactionService.setCustomerContact({
+            id: reservationModel.transactionInProgress.id,
+            object: {
+                customerContact: {
+                    age: contact.age,
+                    address: contact.address,
+                    email: contact.email,
+                    gender: contact.gender,
+                    givenName: contact.firstName,
+                    familyName: contact.lastName,
+                    telephone: contact.tel,
+                    telephoneRegion: contact.address
+                }
+            }
         });
-        debug('customerContact set.', customerContact);
         // セッションに購入者情報格納
         req.session.purchaser = contact;
     });
