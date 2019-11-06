@@ -130,7 +130,9 @@ declare global {
             /**
              * 成立した取引結果
              */
-            transactionResult?: cinerinoapi.factory.transaction.placeOrder.IResult;
+            transactionResult?: cinerinoapi.factory.transaction.placeOrder.IResult & {
+                printToken: string;
+            };
             /**
              * 成立した取引の予約印刷トークン
              */
