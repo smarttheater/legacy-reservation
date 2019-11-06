@@ -62,6 +62,7 @@ function processStart(req) {
         // 取引セッションを初期化
         const transactionInProgress = {
             id: transaction.id,
+            agent: transaction.agent,
             agentId: transaction.agent.id,
             seller: seller,
             sellerId: transaction.seller.id,
@@ -131,6 +132,7 @@ function processFixSeatsAndTickets(reservationModel, req) {
         });
         reservationModel.transactionInProgress.seatReservationAuthorizeActionId = action.id;
         // セッションに保管
+        reservationModel.transactionInProgress.authorizeSeatReservationResult = action.result;
         reservationModel.transactionInProgress.reservations = offers.map((o) => {
             const ticketType = reservationModel.transactionInProgress.ticketTypes.find((t) => t.id === o.ticket_type);
             if (ticketType === undefined) {
@@ -227,7 +229,7 @@ function processFixProfile(reservationModel, req) {
         reservationModel.transactionInProgress.purchaser = contact;
         // 決済方法はクレジットカード一択
         reservationModel.transactionInProgress.paymentMethod = cinerinoapi.factory.paymentMethodType.CreditCard;
-        yield placeOrderTransactionService.setCustomerContact({
+        reservationModel.transactionInProgress.profile = yield placeOrderTransactionService.setCustomerContact({
             id: reservationModel.transactionInProgress.id,
             object: {
                 customerContact: {
