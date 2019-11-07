@@ -10,10 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- 注文取引確定時の注文通知先指定をCinerino化
-- 注文取引確定時の予約連携指定をCinerino化
-- 注文取引確定時の印刷トークンをアプリケーション側で生成
-
 ### Deprecated
 
 ### Removed
@@ -21,6 +17,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v8.3.0 - 2019-11-07
+
+### Changed
+
+- 注文取引確定時の注文通知先指定をCinerino化
+- 注文取引確定時の予約連携指定をCinerino化
+- 注文取引確定時の印刷トークンをアプリケーション側で生成
 
 ## v8.2.0 - 2019-10-31
 
