@@ -331,9 +331,8 @@ function profile(req, res, next) {
 }
 exports.profile = profile;
 /**
- * 予約内容確認
+ * 注文確定
  */
-// tslint:disable-next-line:max-func-body-length
 function confirm(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -345,18 +344,7 @@ function confirm(req, res, next) {
             }
             if (req.method === 'POST') {
                 try {
-                    const event = reservationModel.transactionInProgress.performance;
-                    if (event === undefined) {
-                        throw new Error(req.__('UnexpectedError'));
-                    }
-                    const price = reservationModel.getTotalCharge();
-                    const ticketTypes = reservationModel.transactionInProgress.ticketTypes
-                        .filter((t) => Number(t.count) > 0);
-                    const { potentialActions, customerProfile, paymentNo } = createPotentialActions(reservationModel);
-                    // 完了メールキュー追加(あれば更新日時を更新するだけ)
-                    const emailAttributes = yield reserveBaseController.createEmailAttributes(
-                    // transactionResult.order,
-                    event, customerProfile, paymentNo, price, ticketTypes, res);
+                    const potentialActions = createPotentialActions(reservationModel, res);
                     // 予約確定
                     const transactionResult = yield placeOrderTransactionService.confirm({
                         id: reservationModel.transactionInProgress.id,
@@ -368,26 +356,6 @@ function confirm(req, res, next) {
                     const printToken = yield createPrintToken(reservationIds);
                     // 購入結果セッション作成
                     req.session.transactionResult = Object.assign({}, transactionResult, { printToken: printToken });
-                    try {
-                        // 完了メールキュー追加(あれば更新日時を更新するだけ)
-                        // const emailAttributes = await reserveBaseController.createEmailAttributes(
-                        //     // transactionResult.order,
-                        //     event,
-                        //     customerProfile,
-                        //     paymentNo,
-                        //     price,
-                        //     ticketTypes,
-                        //     res
-                        // );
-                        yield placeOrderTransactionService.sendEmailNotification({
-                            transactionId: reservationModel.transactionInProgress.id,
-                            emailMessageAttributes: emailAttributes
-                        });
-                        debug('email sent.');
-                    }
-                    catch (error) {
-                        // 失敗してもスルー
-                    }
                     // 購入フローセッションは削除
                     session_1.default.REMOVE(req);
                     res.redirect('/customer/reserve/complete');
@@ -438,7 +406,7 @@ function createPrintToken(object) {
     });
 }
 // tslint:disable-next-line:max-func-body-length
-function createPotentialActions(reservationModel) {
+function createPotentialActions(reservationModel, res) {
     // 予約連携パラメータ作成
     const authorizeSeatReservationResult = reservationModel.transactionInProgress.authorizeSeatReservationResult;
     if (authorizeSeatReservationResult === undefined) {
@@ -454,10 +422,6 @@ function createPotentialActions(reservationModel) {
     const chevreReservations = (Array.isArray(reserveTransaction.object.reservations))
         ? reserveTransaction.object.reservations
         : [];
-    const event = reserveTransaction.object.reservationFor;
-    if (event === undefined || event === null) {
-        throw new cinerinoapi.factory.errors.Argument('Transaction', 'Event required');
-    }
     let paymentNo;
     if (chevreReservations[0].underName !== undefined && Array.isArray(chevreReservations[0].underName.identifier)) {
         const paymentNoProperty = chevreReservations[0].underName.identifier.find((p) => p.name === 'paymentNo');
@@ -529,23 +493,31 @@ function createPotentialActions(reservationModel) {
             }
         }
     });
+    const event = reservationModel.transactionInProgress.performance;
+    if (event === undefined) {
+        throw new cinerinoapi.factory.errors.Argument('Transaction', 'Event required');
+    }
+    const price = reservationModel.getTotalCharge();
+    const ticketTypes = reservationModel.transactionInProgress.ticketTypes
+        .filter((t) => Number(t.count) > 0);
+    // 完了メール作成
+    const emailAttributes = reserveBaseController.createEmailAttributes(event, customerProfile, paymentNo, price, ticketTypes, res);
     return {
-        potentialActions: {
-            order: {
-                potentialActions: {
-                    sendOrder: {
-                        potentialActions: {
-                            confirmReservation: confirmReservationParams
-                        }
-                    },
-                    informOrder: [
-                        { recipient: { url: `${process.env.API_ENDPOINT}/webhooks/onPlaceOrder` } }
-                    ]
-                }
+        order: {
+            potentialActions: {
+                sendOrder: {
+                    potentialActions: {
+                        confirmReservation: confirmReservationParams,
+                        sendEmailMessage: [{
+                                object: emailAttributes
+                            }]
+                    }
+                },
+                informOrder: [
+                    { recipient: { url: `${process.env.API_ENDPOINT}/webhooks/onPlaceOrder` } }
+                ]
             }
-        },
-        customerProfile: customerProfile,
-        paymentNo: paymentNo
+        }
     };
 }
 /**
