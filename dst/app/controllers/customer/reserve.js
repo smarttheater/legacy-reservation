@@ -345,7 +345,18 @@ function confirm(req, res, next) {
             }
             if (req.method === 'POST') {
                 try {
-                    const potentialActions = createPotentialActions(reservationModel);
+                    const event = reservationModel.transactionInProgress.performance;
+                    if (event === undefined) {
+                        throw new Error(req.__('UnexpectedError'));
+                    }
+                    const price = reservationModel.getTotalCharge();
+                    const ticketTypes = reservationModel.transactionInProgress.ticketTypes
+                        .filter((t) => Number(t.count) > 0);
+                    const { potentialActions, customerProfile, paymentNo } = createPotentialActions(reservationModel);
+                    // 完了メールキュー追加(あれば更新日時を更新するだけ)
+                    const emailAttributes = yield reserveBaseController.createEmailAttributes(
+                    // transactionResult.order,
+                    event, customerProfile, paymentNo, price, ticketTypes, res);
                     // 予約確定
                     const transactionResult = yield placeOrderTransactionService.confirm({
                         id: reservationModel.transactionInProgress.id,
@@ -359,7 +370,15 @@ function confirm(req, res, next) {
                     req.session.transactionResult = Object.assign({}, transactionResult, { printToken: printToken });
                     try {
                         // 完了メールキュー追加(あれば更新日時を更新するだけ)
-                        const emailAttributes = yield reserveBaseController.createEmailAttributes(transactionResult.order, res);
+                        // const emailAttributes = await reserveBaseController.createEmailAttributes(
+                        //     // transactionResult.order,
+                        //     event,
+                        //     customerProfile,
+                        //     paymentNo,
+                        //     price,
+                        //     ticketTypes,
+                        //     res
+                        // );
                         yield placeOrderTransactionService.sendEmailNotification({
                             transactionId: reservationModel.transactionInProgress.id,
                             emailMessageAttributes: emailAttributes
@@ -446,6 +465,9 @@ function createPotentialActions(reservationModel) {
             paymentNo = paymentNoProperty.value;
         }
     }
+    if (paymentNo === undefined) {
+        throw new Error('Payment No Not Found');
+    }
     const transactionAgent = reservationModel.transactionInProgress.agent;
     if (transactionAgent === undefined) {
         throw new Error('No Transaction Agent');
@@ -508,18 +530,22 @@ function createPotentialActions(reservationModel) {
         }
     });
     return {
-        order: {
-            potentialActions: {
-                sendOrder: {
-                    potentialActions: {
-                        confirmReservation: confirmReservationParams
-                    }
-                },
-                informOrder: [
-                    { recipient: { url: `${process.env.API_ENDPOINT}/webhooks/onPlaceOrder` } }
-                ]
+        potentialActions: {
+            order: {
+                potentialActions: {
+                    sendOrder: {
+                        potentialActions: {
+                            confirmReservation: confirmReservationParams
+                        }
+                    },
+                    informOrder: [
+                        { recipient: { url: `${process.env.API_ENDPOINT}/webhooks/onPlaceOrder` } }
+                    ]
+                }
             }
-        }
+        },
+        customerProfile: customerProfile,
+        paymentNo: paymentNo
     };
 }
 /**
@@ -561,7 +587,8 @@ function complete(req, res, next) {
                 next(new Error(req.__('NotFound')));
                 return;
             }
-            const reservations = transactionResult.order.acceptedOffers.map((o) => {
+            const reservations = transactionResult.order.acceptedOffers
+                .map((o) => {
                 const unitPrice = reserveBaseController.getUnitPriceByAcceptedOffer(o);
                 return Object.assign({}, o.itemOffered, { unitPrice: unitPrice });
             });

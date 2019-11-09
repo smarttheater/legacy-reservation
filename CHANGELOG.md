@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- 注文取引確定前にメール送信内容を作成するように調整
+
 ### Deprecated
 
 ### Removed
