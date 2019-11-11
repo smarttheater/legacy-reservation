@@ -26,30 +26,22 @@ declare global {
             unitPrice: number;
         }
 
+        type IAuthorizeSeatReservationResult =
+            cinerinoapi.factory.action.authorize.offer.seatReservation.IResult<cinerinoapi.factory.service.webAPI.Identifier.Chevre>;
+
         interface ITransactionInProgress {
             /**
              * 取引ID
              */
             id: string;
+            expires: string;
             agent?: cinerinoapi.factory.transaction.placeOrder.IAgent;
-            /**
-             * 取引主体ID
-             */
-            agentId: string;
-            /**
-             * 販売者
-             */
             seller: cinerinoapi.factory.seller.IOrganization<cinerinoapi.factory.seller.IAttributes<cinerinoapi.factory.organizationType>>;
-            /**
-             * 販売者ID
-             */
-            sellerId: string;
             seatReservationAuthorizeActionId?: string;
             /**
              * 座席予約承認結果
              */
-            authorizeSeatReservationResult?:
-            cinerinoapi.factory.action.authorize.offer.seatReservation.IResult<cinerinoapi.factory.service.webAPI.Identifier.Chevre>;
+            authorizeSeatReservationResult?: IAuthorizeSeatReservationResult;
             creditCardAuthorizeActionId?: string;
             /**
              * 予約対象カテゴリ
@@ -59,10 +51,6 @@ declare global {
              * 購入管理番号
              */
             paymentNo?: string;
-            /**
-             * 座席仮予約有効期限ISO8601フォーマット
-             */
-            expires: string;
             /**
              * パフォーマンス
              */
@@ -133,10 +121,6 @@ declare global {
             transactionResult?: cinerinoapi.factory.transaction.placeOrder.IResult & {
                 printToken: string;
             };
-            /**
-             * 成立した取引の予約印刷トークン
-             */
-            printToken?: string;
         }
     }
 }
