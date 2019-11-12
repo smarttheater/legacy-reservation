@@ -7,7 +7,7 @@ import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import { BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS } from 'http-status';
 import * as jwt from 'jsonwebtoken';
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 import * as _ from 'underscore';
 
 import reservePaymentCreditForm from '../../forms/reserve/reservePaymentCreditForm';
@@ -363,12 +363,15 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
 
         if (req.method === 'POST') {
             try {
-                const potentialActions = createPotentialActions(reservationModel, res);
+                const { potentialActions, result } = createPotentialActions(reservationModel, res);
 
                 // 予約確定
                 const transactionResult = await placeOrderTransactionService.confirm({
                     id: reservationModel.transactionInProgress.id,
-                    potentialActions: potentialActions
+                    potentialActions: potentialActions,
+                    ...{
+                        result: result
+                    }
                 });
                 debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
 
@@ -439,8 +442,10 @@ async function createPrintToken(object: IPrintObject): Promise<IPrintToken> {
 }
 
 // tslint:disable-next-line:max-func-body-length
-function createPotentialActions(reservationModel: ReserveSessionModel, res: Response):
-    cinerinoapi.factory.transaction.placeOrder.IPotentialActionsParams {
+function createPotentialActions(reservationModel: ReserveSessionModel, res: Response): {
+    potentialActions: cinerinoapi.factory.transaction.placeOrder.IPotentialActionsParams;
+    result: any;
+} {
     // 予約連携パラメータ作成
     const authorizeSeatReservationResult = reservationModel.transactionInProgress.authorizeSeatReservationResult;
     if (authorizeSeatReservationResult === undefined) {
@@ -556,19 +561,38 @@ function createPotentialActions(reservationModel: ReserveSessionModel, res: Resp
         res
     );
 
+    const eventStartDateStr = moment(event.startDate)
+        .tz('Asia/Tokyo')
+        .format('YYYYMMDD');
+    const confirmationNumber = `${eventStartDateStr}${paymentNo}`;
+    const confirmationPass = (typeof customerProfile.telephone === 'string')
+        // tslint:disable-next-line:no-magic-numbers
+        ? customerProfile.telephone.slice(-4)
+        : '9999';
+
     return {
-        order: {
-            potentialActions: {
-                sendOrder: {
-                    potentialActions: {
-                        confirmReservation: confirmReservationParams,
-                        sendEmailMessage: [{
-                            object: emailAttributes
-                        }]
-                    }
-                },
-                informOrder: [
-                    { recipient: { url: `${<string>process.env.API_ENDPOINT}/webhooks/onPlaceOrder` } }
+        potentialActions: {
+            order: {
+                potentialActions: {
+                    sendOrder: {
+                        potentialActions: {
+                            confirmReservation: confirmReservationParams,
+                            sendEmailMessage: [{
+                                object: emailAttributes
+                            }]
+                        }
+                    },
+                    informOrder: [
+                        { recipient: { url: `${<string>process.env.API_ENDPOINT}/webhooks/onPlaceOrder` } }
+                    ]
+                }
+            }
+        },
+        result: {
+            order: {
+                identifier: [
+                    { name: 'confirmationNumber', value: confirmationNumber },
+                    { name: 'confirmationPass', value: confirmationPass }
                 ]
             }
         }

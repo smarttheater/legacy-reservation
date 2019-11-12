@@ -16,7 +16,7 @@ const conf = require("config");
 const createDebug = require("debug");
 const http_status_1 = require("http-status");
 const jwt = require("jsonwebtoken");
-const moment = require("moment");
+const moment = require("moment-timezone");
 const _ = require("underscore");
 const reservePaymentCreditForm_1 = require("../../forms/reserve/reservePaymentCreditForm");
 const reservePerformanceForm_1 = require("../../forms/reserve/reservePerformanceForm");
@@ -344,12 +344,11 @@ function confirm(req, res, next) {
             }
             if (req.method === 'POST') {
                 try {
-                    const potentialActions = createPotentialActions(reservationModel, res);
+                    const { potentialActions, result } = createPotentialActions(reservationModel, res);
                     // 予約確定
-                    const transactionResult = yield placeOrderTransactionService.confirm({
-                        id: reservationModel.transactionInProgress.id,
-                        potentialActions: potentialActions
-                    });
+                    const transactionResult = yield placeOrderTransactionService.confirm(Object.assign({ id: reservationModel.transactionInProgress.id, potentialActions: potentialActions }, {
+                        result: result
+                    }));
                     debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
                     // 印刷トークン生成
                     const reservationIds = transactionResult.order.acceptedOffers.map((o) => o.itemOffered.id);
@@ -502,19 +501,37 @@ function createPotentialActions(reservationModel, res) {
         .filter((t) => Number(t.count) > 0);
     // 完了メール作成
     const emailAttributes = reserveBaseController.createEmailAttributes(event, customerProfile, paymentNo, price, ticketTypes, res);
+    const eventStartDateStr = moment(event.startDate)
+        .tz('Asia/Tokyo')
+        .format('YYYYMMDD');
+    const confirmationNumber = `${eventStartDateStr}${paymentNo}`;
+    const confirmationPass = (typeof customerProfile.telephone === 'string')
+        // tslint:disable-next-line:no-magic-numbers
+        ? customerProfile.telephone.slice(-4)
+        : '9999';
     return {
-        order: {
-            potentialActions: {
-                sendOrder: {
-                    potentialActions: {
-                        confirmReservation: confirmReservationParams,
-                        sendEmailMessage: [{
-                                object: emailAttributes
-                            }]
-                    }
-                },
-                informOrder: [
-                    { recipient: { url: `${process.env.API_ENDPOINT}/webhooks/onPlaceOrder` } }
+        potentialActions: {
+            order: {
+                potentialActions: {
+                    sendOrder: {
+                        potentialActions: {
+                            confirmReservation: confirmReservationParams,
+                            sendEmailMessage: [{
+                                    object: emailAttributes
+                                }]
+                        }
+                    },
+                    informOrder: [
+                        { recipient: { url: `${process.env.API_ENDPOINT}/webhooks/onPlaceOrder` } }
+                    ]
+                }
+            }
+        },
+        result: {
+            order: {
+                identifier: [
+                    { name: 'confirmationNumber', value: confirmationNumber },
+                    { name: 'confirmationPass', value: confirmationPass }
                 ]
             }
         }
