@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * 予約コントローラー
  */
 const cinerinoapi = require("@cinerino/api-nodejs-client");
+const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const conf = require("config");
 const createDebug = require("debug");
 const http_status_1 = require("http-status");
@@ -38,6 +39,10 @@ const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOr
 });
 const paymentService = new cinerinoapi.service.Payment({
     endpoint: process.env.CINERINO_API_ENDPOINT,
+    auth: authClient
+});
+const reservationService = new tttsapi.service.Reservation({
+    endpoint: process.env.API_ENDPOINT,
     auth: authClient
 });
 /**
@@ -344,7 +349,12 @@ function confirm(req, res, next) {
             }
             if (req.method === 'POST') {
                 try {
-                    const { potentialActions, result } = createPotentialActions(reservationModel, res);
+                    // 購入番号発行
+                    if (reservationModel.transactionInProgress.performance === undefined) {
+                        throw new cinerinoapi.factory.errors.Argument('Transaction', 'Event required');
+                    }
+                    const { paymentNo } = yield reservationService.publishPaymentNo({ event: { id: reservationModel.transactionInProgress.performance.id } });
+                    const { potentialActions, result } = createPotentialActions(paymentNo, reservationModel, res);
                     // 予約確定
                     const transactionResult = yield placeOrderTransactionService.confirm(Object.assign({ id: reservationModel.transactionInProgress.id, potentialActions: potentialActions }, {
                         result: result
@@ -354,7 +364,7 @@ function confirm(req, res, next) {
                     const reservationIds = transactionResult.order.acceptedOffers.map((o) => o.itemOffered.id);
                     const printToken = yield createPrintToken(reservationIds);
                     // 購入結果セッション作成
-                    req.session.transactionResult = Object.assign({}, transactionResult, { printToken: printToken });
+                    req.session.transactionResult = Object.assign({}, transactionResult, { printToken, paymentNo });
                     // 購入フローセッションは削除
                     session_1.default.REMOVE(req);
                     res.redirect('/customer/reserve/complete');
@@ -405,7 +415,7 @@ function createPrintToken(object) {
     });
 }
 // tslint:disable-next-line:max-func-body-length
-function createPotentialActions(reservationModel, res) {
+function createPotentialActions(paymentNo, reservationModel, res) {
     // 予約連携パラメータ作成
     const authorizeSeatReservationResult = reservationModel.transactionInProgress.authorizeSeatReservationResult;
     if (authorizeSeatReservationResult === undefined) {
@@ -421,16 +431,6 @@ function createPotentialActions(reservationModel, res) {
     const chevreReservations = (Array.isArray(reserveTransaction.object.reservations))
         ? reserveTransaction.object.reservations
         : [];
-    let paymentNo;
-    if (chevreReservations[0].underName !== undefined && Array.isArray(chevreReservations[0].underName.identifier)) {
-        const paymentNoProperty = chevreReservations[0].underName.identifier.find((p) => p.name === 'paymentNo');
-        if (paymentNoProperty !== undefined) {
-            paymentNo = paymentNoProperty.value;
-        }
-    }
-    if (paymentNo === undefined) {
-        throw new Error('Payment No Not Found');
-    }
     const transactionAgent = reservationModel.transactionInProgress.agent;
     if (transactionAgent === undefined) {
         throw new Error('No Transaction Agent');
@@ -586,6 +586,7 @@ function complete(req, res, next) {
             res.render('customer/reserve/complete', {
                 order: transactionResult.order,
                 reservations: reservations,
+                paymentNo: transactionResult.paymentNo,
                 printToken: transactionResult.printToken
             });
         }
