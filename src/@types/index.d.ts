@@ -48,10 +48,6 @@ declare global {
              */
             category: ITransactionCategory;
             /**
-             * 購入管理番号
-             */
-            paymentNo?: string;
-            /**
              * パフォーマンス
              */
             performance?: tttsapi.factory.performance.IPerformanceWithDetails;
@@ -119,6 +115,7 @@ declare global {
              * 成立した取引結果
              */
             transactionResult?: cinerinoapi.factory.transaction.placeOrder.IResult & {
+                paymentNo: string;
                 printToken: string;
             };
         }
