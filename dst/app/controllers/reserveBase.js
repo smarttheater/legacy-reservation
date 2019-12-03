@@ -130,6 +130,8 @@ function processFixSeatsAndTickets(reservationModel, req) {
         // tslint:disable-next-line:max-line-length
         let action;
         try {
+            // 車椅子レート制限
+            yield processLockTicketTypeCategoryRateLimit(reservationModel);
             action = yield placeOrderTransactionService.createSeatReservationAuthorization({
                 transactionId: reservationModel.transactionInProgress.id,
                 performanceId: reservationModel.transactionInProgress.performance.id,
@@ -156,6 +158,38 @@ function processFixSeatsAndTickets(reservationModel, req) {
     });
 }
 exports.processFixSeatsAndTickets = processFixSeatsAndTickets;
+function processLockTicketTypeCategoryRateLimit(reservationModel) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // パフォーマンスは指定済みのはず
+        if (reservationModel.transactionInProgress.performance !== undefined) {
+            // 車椅子レート制限解放
+            const performanceStartDate = moment(reservationModel.transactionInProgress.performance.startDate)
+                .toDate();
+            yield Promise.all(reservationModel.transactionInProgress.ticketTypes.map((ticketType) => __awaiter(this, void 0, void 0, function* () {
+                if (ticketType.count > 0) {
+                    let ticketTypeCategory = tttsapi.factory.ticketTypeCategory.Normal;
+                    if (Array.isArray(ticketType.additionalProperty)) {
+                        const categoryProperty = ticketType.additionalProperty.find((p) => p.name === 'category');
+                        if (categoryProperty !== undefined) {
+                            ticketTypeCategory = categoryProperty.value;
+                        }
+                    }
+                    if (ticketTypeCategory === tttsapi.factory.ticketTypeCategory.Wheelchair) {
+                        const rateLimitKey = {
+                            performanceStartDate: performanceStartDate,
+                            ticketTypeCategory: ticketTypeCategory,
+                            holder: reservationModel.transactionInProgress.id
+                        };
+                        debug('locking ticket catefory rate limit...ticketTypeCategory:', rateLimitKey);
+                        yield tickeTypeCategoryRateLimitService.lock(rateLimitKey);
+                        debug('ticket catefory rate limit locked');
+                    }
+                }
+            })));
+        }
+    });
+}
+exports.processLockTicketTypeCategoryRateLimit = processLockTicketTypeCategoryRateLimit;
 function processUnlockTicketTypeCategoryRateLimit(reservationModel) {
     return __awaiter(this, void 0, void 0, function* () {
         // パフォーマンスは指定済みのはず
@@ -178,7 +212,7 @@ function processUnlockTicketTypeCategoryRateLimit(reservationModel) {
                             ticketTypeCategory: ticketTypeCategory,
                             holder: reservationModel.transactionInProgress.id
                         };
-                        debug('unlocking ticket catefory rate limit...ticketTypeCategory:', ticketTypeCategory);
+                        debug('unlocking ticket catefory rate limit...ticketTypeCategory:', rateLimitKey);
                         yield tickeTypeCategoryRateLimitService.unlock(rateLimitKey);
                         debug('ticket catefory rate limit unlocked');
                     }
