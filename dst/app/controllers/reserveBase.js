@@ -37,6 +37,10 @@ const sellerService = new cinerinoapi.service.Seller({
     endpoint: process.env.CINERINO_API_ENDPOINT,
     auth: authClient
 });
+const tickeTypeCategoryRateLimitService = new tttsapi.service.TicketTypeCategoryRateLimit({
+    endpoint: process.env.API_ENDPOINT,
+    auth: authClient
+});
 /**
  * 購入開始プロセス
  */
@@ -123,11 +127,19 @@ function processFixSeatsAndTickets(reservationModel, req) {
             };
         });
         debug(`creating seatReservation authorizeAction on ${offers.length} offers...`);
-        const action = yield placeOrderTransactionService.createSeatReservationAuthorization({
-            transactionId: reservationModel.transactionInProgress.id,
-            performanceId: reservationModel.transactionInProgress.performance.id,
-            offers: offers
-        });
+        // tslint:disable-next-line:max-line-length
+        let action;
+        try {
+            action = yield placeOrderTransactionService.createSeatReservationAuthorization({
+                transactionId: reservationModel.transactionInProgress.id,
+                performanceId: reservationModel.transactionInProgress.performance.id,
+                offers: offers
+            });
+        }
+        catch (error) {
+            yield processUnlockTicketTypeCategoryRateLimit(reservationModel);
+            throw error;
+        }
         reservationModel.transactionInProgress.seatReservationAuthorizeActionId = action.id;
         // セッションに保管
         reservationModel.transactionInProgress.authorizeSeatReservationResult = action.result;
@@ -144,6 +156,38 @@ function processFixSeatsAndTickets(reservationModel, req) {
     });
 }
 exports.processFixSeatsAndTickets = processFixSeatsAndTickets;
+function processUnlockTicketTypeCategoryRateLimit(reservationModel) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // パフォーマンスは指定済みのはず
+        if (reservationModel.transactionInProgress.performance !== undefined) {
+            // 車椅子レート制限解放
+            const performanceStartDate = moment(reservationModel.transactionInProgress.performance.startDate)
+                .toDate();
+            yield Promise.all(reservationModel.transactionInProgress.ticketTypes.map((ticketType) => __awaiter(this, void 0, void 0, function* () {
+                if (ticketType.count > 0) {
+                    let ticketTypeCategory = tttsapi.factory.ticketTypeCategory.Normal;
+                    if (Array.isArray(ticketType.additionalProperty)) {
+                        const categoryProperty = ticketType.additionalProperty.find((p) => p.name === 'category');
+                        if (categoryProperty !== undefined) {
+                            ticketTypeCategory = categoryProperty.value;
+                        }
+                    }
+                    if (ticketTypeCategory === tttsapi.factory.ticketTypeCategory.Wheelchair) {
+                        const rateLimitKey = {
+                            performanceStartDate: performanceStartDate,
+                            ticketTypeCategory: ticketTypeCategory,
+                            holder: reservationModel.transactionInProgress.id
+                        };
+                        debug('unlocking ticket catefory rate limit...ticketTypeCategory:', ticketTypeCategory);
+                        yield tickeTypeCategoryRateLimitService.unlock(rateLimitKey);
+                        debug('ticket catefory rate limit unlocked');
+                    }
+                }
+            })));
+        }
+    });
+}
+exports.processUnlockTicketTypeCategoryRateLimit = processUnlockTicketTypeCategoryRateLimit;
 /**
  * 座席・券種確定プロセス/検証処理
  */
