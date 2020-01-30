@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.10.1 - 2010-01-30
+
+### Changed
+
+- スケジュール選択の文言変更
+
 ## v8.10.0 - 2019-12-04
 
 ### Changed
