@@ -103,5 +103,5 @@
     "version": "git add -A",
     "postversion": "git push origin --tags"
   },
-  "version": "8.10.1"
+  "version": "8.11.0-alpha.0"
 }
