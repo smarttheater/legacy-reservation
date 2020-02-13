@@ -2,7 +2,7 @@
  * 予約コントローラー
  */
 import * as cinerinoapi from '@cinerino/api-nodejs-client';
-import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
+// import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as conf from 'config';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
@@ -37,10 +37,10 @@ const paymentService = new cinerinoapi.service.Payment({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
     auth: authClient
 });
-const reservationService = new tttsapi.service.Reservation({
-    endpoint: <string>process.env.API_ENDPOINT,
-    auth: authClient
-});
+// const reservationService = new tttsapi.service.Reservation({
+//     endpoint: <string>process.env.API_ENDPOINT,
+//     auth: authClient
+// });
 
 /**
  * 取引開始
@@ -374,21 +374,29 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 if (reservationModel.transactionInProgress.performance === undefined) {
                     throw new cinerinoapi.factory.errors.Argument('Transaction', 'Event required');
                 }
-                const { paymentNo } = await reservationService.publishPaymentNo(
-                    { event: { id: reservationModel.transactionInProgress.performance.id } }
-                );
+                // const { paymentNo } = await reservationService.publishPaymentNo(
+                //     { event: { id: reservationModel.transactionInProgress.performance.id } }
+                // );
 
-                const { potentialActions, result } = createPotentialActions(paymentNo, reservationModel, res);
+                // const { potentialActions, result } = createPotentialActions(paymentNo, reservationModel, res);
 
                 // 予約確定
                 const transactionResult = await placeOrderTransactionService.confirm({
-                    id: reservationModel.transactionInProgress.id,
-                    potentialActions: potentialActions,
-                    ...{
-                        result: result
-                    }
+                    id: reservationModel.transactionInProgress.id
+                    // potentialActions: potentialActions,
+                    // ...{
+                    //     result: result
+                    // }
                 });
                 debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
+
+                let paymentNo = '';
+                if (Array.isArray(transactionResult.order.identifier)) {
+                    const paymentNoProperty = transactionResult.order.identifier.find((p) => p.name === 'paymentNo');
+                    if (paymentNoProperty !== undefined) {
+                        paymentNo = paymentNoProperty.value;
+                    }
+                }
 
                 // 印刷トークン生成
                 const reservationIds =
@@ -457,7 +465,7 @@ async function createPrintToken(object: IPrintObject): Promise<IPrintToken> {
 }
 
 // tslint:disable-next-line:max-func-body-length
-function createPotentialActions(paymentNo: string, reservationModel: ReserveSessionModel, res: Response): {
+export function createPotentialActions(paymentNo: string, reservationModel: ReserveSessionModel, res: Response): {
     potentialActions: cinerinoapi.factory.transaction.placeOrder.IPotentialActionsParams;
     result: any;
 } {
