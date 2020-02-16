@@ -131,7 +131,7 @@ function processFixSeatsAndTickets(reservationModel, req) {
         let action;
         try {
             // 車椅子レート制限
-            yield processLockTicketTypeCategoryRateLimit(reservationModel);
+            // await processLockTicketTypeCategoryRateLimit(reservationModel);
             action = yield placeOrderTransactionService.createSeatReservationAuthorization({
                 transactionId: reservationModel.transactionInProgress.id,
                 performanceId: reservationModel.transactionInProgress.performance.id,
