@@ -138,16 +138,28 @@ function processFixSeatsAndTickets(reservationModel, req) {
         reservationModel.transactionInProgress.seatReservationAuthorizeActionId = action.id;
         // セッションに保管
         reservationModel.transactionInProgress.authorizeSeatReservationResult = action.result;
-        reservationModel.transactionInProgress.reservations = offers.map((o) => {
-            const ticketType = reservationModel.transactionInProgress.ticketTypes.find((t) => t.id === o.ticket_type);
-            if (ticketType === undefined) {
-                throw new Error(`Unknown Ticket Type ${o.ticket_type}`);
+        if (reservationModel.transactionInProgress.authorizeSeatReservationResult !== undefined) {
+            const tmpReservations = reservationModel.transactionInProgress.authorizeSeatReservationResult.responseBody.object.subReservation;
+            if (Array.isArray(tmpReservations)) {
+                reservationModel.transactionInProgress.reservations = tmpReservations.map((tmpReservation) => {
+                    const ticketType = tmpReservation.reservedTicket.ticketType;
+                    return {
+                        reservedTicket: { ticketType: tmpReservation.reservedTicket.ticketType },
+                        unitPrice: (ticketType.priceSpecification !== undefined) ? ticketType.priceSpecification.price : 0
+                    };
+                });
             }
-            return {
-                reservedTicket: { ticketType: ticketType },
-                unitPrice: (ticketType.priceSpecification !== undefined) ? ticketType.priceSpecification.price : 0
-            };
-        });
+        }
+        // reservationModel.transactionInProgress.reservations = offers.map((o) => {
+        //     const ticketType = reservationModel.transactionInProgress.ticketTypes.find((t) => t.id === o.ticket_type);
+        //     if (ticketType === undefined) {
+        //         throw new Error(`Unknown Ticket Type ${o.ticket_type}`);
+        //     }
+        //     return {
+        //         reservedTicket: { ticketType: ticketType },
+        //         unitPrice: (ticketType.priceSpecification !== undefined) ? ticketType.priceSpecification.price : 0
+        //     };
+        // });
     });
 }
 exports.processFixSeatsAndTickets = processFixSeatsAndTickets;
@@ -262,11 +274,15 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
     return __awaiter(this, void 0, void 0, function* () {
         debug('fixing performance...', perfomanceId);
         // パフォーマンス取得
-        const eventService = new tttsapi.service.Event({
+        const performanceService = new tttsapi.service.Event({
             endpoint: process.env.API_ENDPOINT,
             auth: authClient
         });
-        const performance = yield eventService.findPerofrmanceById({ id: perfomanceId });
+        const eventService = new cinerinoapi.service.Event({
+            endpoint: process.env.CINERINO_API_ENDPOINT,
+            auth: authClient
+        });
+        const performance = yield performanceService.findPerofrmanceById({ id: perfomanceId });
         if (performance === null) {
             throw new Error(req.__('NotFound'));
         }
@@ -278,10 +294,24 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         if (performance.ticket_type_group === undefined || performance.ticket_type_group === null) {
             throw new Error('Ticket type group undefined');
         }
-        // 券種セット
-        reservationModel.transactionInProgress.ticketTypes = performance.ticket_type_group.ticket_types.map((t) => {
+        // Cinerinoでオファー検索
+        const offers = yield eventService.searchTicketOffers({
+            event: { id: performance.id },
+            seller: {
+                typeOf: reservationModel.transactionInProgress.seller.typeOf,
+                id: reservationModel.transactionInProgress.seller.id
+            },
+            store: {
+                id: authClient.options.clientId
+            }
+        });
+        // idをidentifierに変換することに注意
+        reservationModel.transactionInProgress.ticketTypes = offers.map((t) => {
             return Object.assign({}, t, { count: 0 }, { id: t.identifier });
         });
+        // reservationModel.transactionInProgress.ticketTypes = performance.ticket_type_group.ticket_types.map((t) => {
+        //     return { ...t, ...{ count: 0 }, id: t.identifier };
+        // });
         // パフォーマンス情報を保管
         reservationModel.transactionInProgress.performance = performance;
     });

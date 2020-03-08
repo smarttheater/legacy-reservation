@@ -17,9 +17,9 @@
     }
   ],
   "dependencies": {
-    "@cinerino/api-nodejs-client": "2.0.0-alpha.43",
+    "@cinerino/api-nodejs-client": "2.0.0-alpha.72",
     "@motionpicture/express-middleware": "0.0.0",
-    "@motionpicture/ttts-api-nodejs-client": "^6.0.0",
+    "@motionpicture/ttts-api-nodejs-client": "^6.1.0",
     "basic-auth": "^1.1.0",
     "body-parser": "^1.18.2",
     "config": "^1.29.1",

@@ -82,8 +82,9 @@
                         const isWheelchairTicket = (ticketTypeCategory === 'Wheelchair');
 
                         let unitPrice = 0;
-                        if (ticketType.priceSpecification !== undefined) {
-                            unitPrice = ticketType.priceSpecification.price;
+                        const priceComponent = ticketType.priceSpecification.priceComponent;
+                        if (Array.isArray(priceComponent) && priceComponent.length > 0) {
+                            unitPrice = priceComponent[0].price;
                         }
                 %>
                 <tr data-ticket-code="<%- ticketType.id %>" data-ticket-charge="<%= unitPrice %>">
