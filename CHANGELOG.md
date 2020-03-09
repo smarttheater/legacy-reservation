@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- イベントオファーをCinerinoで検索するように変更
-
 ### Deprecated
 
 ### Removed
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v8.13.0 - 2020-03-09
+
+### Changed
+
+- イベントオファーをCinerinoで検索するように変更
 
 ## v8.12.0 - 2020-02-18
 
