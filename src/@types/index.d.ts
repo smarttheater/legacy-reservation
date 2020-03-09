@@ -79,7 +79,7 @@ declare global {
         /**
          * チケット情報インターフェース
          */
-        type ITicketType = cinerinoapi.factory.chevre.ticketType.ITicketType & {
+        type ITicketType = cinerinoapi.factory.chevre.event.screeningEvent.ITicketOffer & {
             count: number;
         };
 

@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.13.0 - 2020-03-09
+
+### Changed
+
+- イベントオファーをCinerinoで検索するように変更
+
 ## v8.12.0 - 2020-02-18
 
 ### Changed

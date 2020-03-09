@@ -55,17 +55,14 @@
                                 }
                             }
 
-                            if (ticketTypeCategory4b === 'Wheelchair') {
-                                if (ticketTypeCategory4a === ticketTypeCategory4b) {
-                                    return 0;
-                                }
+                            if (ticketTypeCategory4b === 'Wheelchair' && ticketTypeCategory4a !== ticketTypeCategory4b) {
                                 return 1;
-                            } else if (a.id > b.id) {
-                                return -1;
+                            } else {
+                                return 0;
                             }
-                            return 0;
                         });
                     }
+
                     tempReservationModel.ticketTypes.forEach(function(ticketType) {
                         let ticketTypeCategory = '';
                         if (Array.isArray(ticketType.additionalProperty)) {
@@ -82,8 +79,9 @@
                         const isWheelchairTicket = (ticketTypeCategory === 'Wheelchair');
 
                         let unitPrice = 0;
-                        if (ticketType.priceSpecification !== undefined) {
-                            unitPrice = ticketType.priceSpecification.price;
+                        const priceComponent = ticketType.priceSpecification.priceComponent;
+                        if (Array.isArray(priceComponent) && priceComponent.length > 0) {
+                            unitPrice = priceComponent[0].price;
                         }
                 %>
                 <tr data-ticket-code="<%- ticketType.id %>" data-ticket-charge="<%= unitPrice %>">
