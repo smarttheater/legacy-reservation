@@ -8,8 +8,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
-- 注文取引確定後のメール送信を追加
-
 ### Changed
 
 ### Deprecated
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v8.14.0 - 2020-03-31
+
+### Added
+
+- 注文取引確定後のメール送信を追加
 
 ## v8.13.0 - 2020-03-09
 
