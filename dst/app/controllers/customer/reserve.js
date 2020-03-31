@@ -40,6 +40,10 @@ const paymentService = new cinerinoapi.service.Payment({
     endpoint: process.env.CINERINO_API_ENDPOINT,
     auth: authClient
 });
+const taskService = new cinerinoapi.service.Task({
+    endpoint: process.env.CINERINO_API_ENDPOINT,
+    auth: authClient
+});
 /**
  * 取引開始
  * waiter許可証を持って遷移してくる
@@ -333,6 +337,7 @@ exports.profile = profile;
 /**
  * 注文確定
  */
+// tslint:disable-next-line:max-func-body-length
 function confirm(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -360,6 +365,32 @@ function confirm(req, res, next) {
                             paymentNo = paymentNoProperty.value;
                         }
                     }
+                    // メール送信
+                    const emailAttributes = createEmailAttributes(paymentNo, reservationModel, res);
+                    const taskAttributes = {
+                        name: cinerinoapi.factory.taskName.SendEmailMessage,
+                        project: transactionResult.order.project,
+                        status: cinerinoapi.factory.taskStatus.Ready,
+                        runsAt: new Date(),
+                        remainingNumberOfTries: 10,
+                        numberOfTried: 0,
+                        executionResults: [],
+                        data: {
+                            actionAttributes: {
+                                typeOf: cinerinoapi.factory.actionType.SendAction,
+                                agent: transactionResult.order.customer,
+                                object: Object.assign({}, emailAttributes, { identifier: '', name: '' }),
+                                project: transactionResult.order.project,
+                                purpose: transactionResult.order,
+                                recipient: {
+                                    id: transactionResult.order.customer.id,
+                                    name: emailAttributes.toRecipient.name,
+                                    typeOf: cinerinoapi.factory.personType.Person
+                                }
+                            }
+                        }
+                    };
+                    yield taskService.create(taskAttributes);
                     // 印刷トークン生成
                     const reservationIds = transactionResult.order.acceptedOffers.map((o) => o.itemOffered.id);
                     const printToken = yield createPrintToken(reservationIds);
@@ -394,6 +425,23 @@ function confirm(req, res, next) {
     });
 }
 exports.confirm = confirm;
+function createEmailAttributes(paymentNo, reservationModel, res) {
+    // 予約連携パラメータ作成
+    const customerProfile = reservationModel.transactionInProgress.profile;
+    if (customerProfile === undefined) {
+        throw new Error('No Customer Profile');
+    }
+    const event = reservationModel.transactionInProgress.performance;
+    if (event === undefined) {
+        throw new cinerinoapi.factory.errors.Argument('Transaction', 'Event required');
+    }
+    const price = reservationModel.getTotalCharge();
+    const ticketTypes = reservationModel.transactionInProgress.ticketTypes
+        .filter((t) => Number(t.count) > 0);
+    // 完了メール作成
+    return reserveBaseController.createEmailAttributes(event, customerProfile, paymentNo, price, ticketTypes, res);
+}
+exports.createEmailAttributes = createEmailAttributes;
 /**
  * 予約印刷トークンを発行する
  */
