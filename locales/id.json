@@ -7,7 +7,7 @@
 	"ContactUs": "Kontak",
 	"SelectPerformance": "Pilihan waktu Top Deck Tour",
 	"SelectPerformanceGuideText": "Silakan pilih waktu yang Anda inginkan.",
-	"LinkContainedPerformanceMessage": "*Anda dapat masuk ke Top Deck dari Main Deck dengan tiket Top Deck Tour. Perhatikan bahwa pelanggan Top Deck Tour tidak dapat masuk dari tangga menuju ke Main Deck. Mengenai cara masuk Top Deck Tour lebih lanjut, silakan periksa <a href='/aboutenter' target='_blank'>di sini</a>.",
+	"LinkContainedPerformanceMessage": "*Anda dapat masuk ke Top Deck dari Main Deck dengan tiket Top Deck Tour. Perhatikan bahwa pelanggan Top Deck Tour tidak dapat masuk dari tangga menuju ke Main Deck. Mengenai cara masuk Top Deck Tour lebih lanjut, silakan periksa <a href='/aboutenter' target='_blank'>di sini</a>.<br>*Bagi Anda yang akan masuk ke Top Deck Tour dengan kursi roda, silakan lakukan reservasi <a href='/customer/reserve/changeCategory/wheelchair'>di sini</a>.<br>*Hanya menerima pembayaran dengan kartu kredit. Bila Anda ingin membayar dengan uang tunai, silakan lakukan reservasi dan pembayaran di Tokyo Tower Foot Town 1F Ticket Counter.<br> *Barang bawaan yang besar, kereta bayi, dll. dapat dititipkan di Foot Town 1F Opetation Center(Pusat operasi).",
 	"PreferredDateSelect": "Pilih hari yang diinginkan",
 	"ReservableMaxDate{{ymd}}": "Reservasi dapat dilakukan sampai {{ymd}}. (sampai 60 hari kemudian)",
 	"PreferredTimeSelect": "Pilih waktu yang diinginkan",
