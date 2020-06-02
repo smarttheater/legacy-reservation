@@ -7,7 +7,7 @@
 	"ContactUs": "문의",
 	"SelectPerformance": "Top Deck Tour 일시 선택",
 	"SelectPerformanceGuideText": "원하시는 일시를 선택해 주십시오.",
-	"LinkContainedPerformanceMessage": "※Top Deck Tour 티켓으로 Main Deck, Top Deck에 입장하실 수 있습니다. 또한, Top Deck Tour 고객은 Main Deck행 계단을 통한 입장이 불가하므로 양해 바랍니다. 자세한 Top Deck Tour 입장 방법은 <a href='/aboutenter' target='_blank'>여기</a>를 참조.<br><span class='red'>※Top Deck Tour 시 휠체어로 입장하실 고객은 <a href='/customer/reserve/changeCategory/wheelchair'>여기</a>를 통해 예약해 주십시오.</span><br>※결제는 신용카드로만 가능합니다. 현금 결제를 원하시는 고객은 Tokyo Tower Foot Town 1F Ticket Counter에서 예약 및 구매해 주십시오. <br>※큰 짐이나 유모차 등은 Foot Town 1F Tour Office(서비스 카운터)에서 보관합니다. ",
+	"LinkContainedPerformanceMessage": "※Top Deck Tour 티켓으로 Main Deck, Top Deck에 입장하실 수 있습니다. 또한, Top Deck Tour 고객은 Main Deck행 계단을 통한 입장이 불가하므로 양해 바랍니다. 자세한 Top Deck Tour 입장 방법은 <a href='/aboutenter' target='_blank'>여기</a>를 참조.<br><span class='red'>※Top Deck Tour 시 휠체어로 입장하실 고객은 <a href='/customer/reserve/changeCategory/wheelchair'>여기</a>를 통해 예약해 주십시오.</span><br>※결제는 신용카드로만 가능합니다. 현금 결제를 원하시는 고객은 Tokyo Tower Foot Town 1F Ticket Counter에서 예약 및 구매해 주십시오. <br>※큰 짐이나 유모차 등은 Foot Town 1F Operation Center(오퍼레이션 센터)에서 보관합니다.  ",
 	"PreferredDateSelect": "희망일 선택",
 	"ReservableMaxDate{{ymd}}": "〇월 〇일까지 예약 가능합니다. (60일 후까지)",
 	"PreferredTimeSelect": "희망 시간 선택",
