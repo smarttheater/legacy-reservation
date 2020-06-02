@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- 配送完了メールテンプレートを注文取引確定時に指定するように調整
+
 ### Deprecated
 
 ### Removed
