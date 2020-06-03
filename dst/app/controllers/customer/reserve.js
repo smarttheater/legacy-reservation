@@ -1,13 +1,15 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.complete = exports.createEmail = exports.confirm = exports.profile = exports.tickets = exports.performances = exports.changeCategory = exports.start = void 0;
 /**
  * 予約コントローラー
  */
@@ -17,11 +19,11 @@ const createDebug = require("debug");
 const http_status_1 = require("http-status");
 const jwt = require("jsonwebtoken");
 const moment = require("moment-timezone");
-const _ = require("underscore");
 const reservePaymentCreditForm_1 = require("../../forms/reserve/reservePaymentCreditForm");
 const reservePerformanceForm_1 = require("../../forms/reserve/reservePerformanceForm");
 const session_1 = require("../../models/reserve/session");
 const reserveBaseController = require("../reserveBase");
+const reserve_1 = require("../../factory/reserve");
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 const reserveMaxDateInfo = conf.get('reserve_max_date');
 const reservableEventStartFrom = moment(process.env.RESERVABLE_EVENT_START_FROM).toDate();
@@ -51,7 +53,9 @@ const paymentService = new cinerinoapi.service.Payment({
 function start(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         // 必ずこれらのパラメータを持って遷移してくる
-        if (_.isEmpty(req.query.wc) || _.isEmpty(req.query.locale) || _.isEmpty(req.query.passportToken)) {
+        if (typeof req.query.wc !== 'string' || req.query.wc.length === 0
+            || typeof req.query.locale !== 'string' || req.query.locale.length === 0
+            || typeof req.query.passportToken !== 'string' || req.query.passportToken.length === 0) {
             res.status(http_status_1.BAD_REQUEST).end('Bad Request');
             return;
         }
@@ -304,11 +308,12 @@ function profile(req, res, next) {
                 res.locals.age = reservationModel.transactionInProgress.purchaser.age;
                 res.locals.address = reservationModel.transactionInProgress.purchaser.address;
                 res.locals.gender = reservationModel.transactionInProgress.purchaser.gender;
-                res.locals.email = (!_.isEmpty(email)) ? email : '';
-                res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
-                res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
+                res.locals.email = (typeof email === 'string') ? email : '';
+                res.locals.emailConfirm = (typeof email === 'string') ? email.substr(0, email.indexOf('@')) : '';
+                res.locals.emailConfirmDomain = (typeof email === 'string') ? email.substr(email.indexOf('@') + 1) : '';
                 res.locals.paymentMethod =
-                    (!_.isEmpty(reservationModel.transactionInProgress.paymentMethod))
+                    (typeof reservationModel.transactionInProgress.paymentMethod === 'string'
+                        && reservationModel.transactionInProgress.paymentMethod.length > 0)
                         ? reservationModel.transactionInProgress.paymentMethod
                         : cinerinoapi.factory.paymentMethodType.CreditCard;
             }
@@ -354,7 +359,7 @@ function confirm(req, res, next) {
                         throw new cinerinoapi.factory.errors.Argument('Transaction', 'Event required');
                     }
                     // メール作成
-                    const emailAttributes = createEmailAttributes(reservationModel, res);
+                    const emailAttributes = createEmail(reservationModel, res);
                     // 予約確定
                     const transactionResult = yield placeOrderTransactionService.confirm({
                         id: reservationModel.transactionInProgress.id,
@@ -425,7 +430,7 @@ function confirm(req, res, next) {
                     const reservationIds = transactionResult.order.acceptedOffers.map((o) => o.itemOffered.id);
                     const printToken = yield createPrintToken(reservationIds);
                     // 購入結果セッション作成
-                    req.session.transactionResult = Object.assign({}, transactionResult, { printToken, paymentNo });
+                    req.session.transactionResult = Object.assign(Object.assign({}, transactionResult), { printToken, paymentNo });
                     // 購入フローセッションは削除
                     session_1.default.REMOVE(req);
                     res.redirect('/customer/reserve/complete');
@@ -455,7 +460,7 @@ function confirm(req, res, next) {
     });
 }
 exports.confirm = confirm;
-function createEmailAttributes(
+function createEmail(
 // paymentNo: string,
 reservationModel, res) {
     // 予約連携パラメータ作成
@@ -471,11 +476,11 @@ reservationModel, res) {
     const ticketTypes = reservationModel.transactionInProgress.ticketTypes
         .filter((t) => Number(t.count) > 0);
     // 完了メール作成
-    return reserveBaseController.createEmailAttributes(event, customerProfile, 
+    return reserve_1.createEmailAttributes(event, customerProfile, 
     // paymentNo,
     price, ticketTypes, res);
 }
-exports.createEmailAttributes = createEmailAttributes;
+exports.createEmail = createEmail;
 /**
  * 予約印刷トークンを発行する
  */
@@ -512,7 +517,7 @@ function complete(req, res, next) {
             const reservations = transactionResult.order.acceptedOffers
                 .map((o) => {
                 const unitPrice = reserveBaseController.getUnitPriceByAcceptedOffer(o);
-                return Object.assign({}, o.itemOffered, { unitPrice: unitPrice });
+                return Object.assign(Object.assign({}, o.itemOffered), { unitPrice: unitPrice });
             });
             // チケットを券種コードでソート
             sortReservationstByTicketType(reservations);

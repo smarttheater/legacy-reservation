@@ -1,13 +1,15 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getUnitPriceByAcceptedOffer = exports.processFixPerformance = exports.processFixProfile = exports.isValidProfile = exports.processFixSeatsAndTickets = exports.processStart = void 0;
 /**
  * 予約ベースコントローラー
  */
@@ -16,11 +18,9 @@ const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const conf = require("config");
 const createDebug = require("debug");
 const moment = require("moment-timezone");
-const _ = require("underscore");
 const reserveProfileForm_1 = require("../forms/reserve/reserveProfileForm");
 const reserveTicketForm_1 = require("../forms/reserve/reserveTicketForm");
 const session_1 = require("../models/reserve/session");
-const reserve_1 = require("../factory/reserve");
 const debug = createDebug('ttts-frontend:controller:reserveBase');
 const authClient = new tttsapi.auth.ClientCredentials({
     domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
@@ -43,7 +43,7 @@ const sellerService = new cinerinoapi.service.Seller({
 function processStart(req) {
     return __awaiter(this, void 0, void 0, function* () {
         // 言語も指定
-        req.session.locale = (!_.isEmpty(req.query.locale)) ? req.query.locale : 'ja';
+        req.session.locale = (typeof req.query.locale === 'string' && req.query.locale.length > 0) ? req.query.locale : 'ja';
         const searchSellersResult = yield sellerService.search({
             limit: 1
         });
@@ -150,16 +150,6 @@ function processFixSeatsAndTickets(reservationModel, req) {
                 });
             }
         }
-        // reservationModel.transactionInProgress.reservations = offers.map((o) => {
-        //     const ticketType = reservationModel.transactionInProgress.ticketTypes.find((t) => t.id === o.ticket_type);
-        //     if (ticketType === undefined) {
-        //         throw new Error(`Unknown Ticket Type ${o.ticket_type}`);
-        //     }
-        //     return {
-        //         reservedTicket: { ticketType: ticketType },
-        //         unitPrice: (ticketType.priceSpecification !== undefined) ? ticketType.priceSpecification.price : 0
-        //     };
-        // });
     });
 }
 exports.processFixSeatsAndTickets = processFixSeatsAndTickets;
@@ -307,52 +297,13 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         });
         // idをidentifierに変換することに注意
         reservationModel.transactionInProgress.ticketTypes = offers.map((t) => {
-            return Object.assign({}, t, { count: 0 }, { id: t.identifier });
+            return Object.assign(Object.assign(Object.assign({}, t), { count: 0 }), { id: t.identifier });
         });
         // パフォーマンス情報を保管
         reservationModel.transactionInProgress.performance = performance;
     });
 }
 exports.processFixPerformance = processFixPerformance;
-/**
- * 予約完了メールを作成する
- */
-function createEmailAttributes(event, customerProfile, 
-// paymentNo: string,
-price, ticketTypes, res) {
-    const to = (typeof customerProfile.email === 'string')
-        ? customerProfile.email
-        : '';
-    if (to.length === 0) {
-        throw new Error('email to unknown');
-    }
-    const title = res.__('Title');
-    const titleEmail = res.__('EmailTitle');
-    // メール本文取得
-    // const text: string = getMailText(
-    //     event,
-    //     customerProfile,
-    //     paymentNo,
-    //     price,
-    //     ticketTypes,
-    //     res
-    // );
-    const text = reserve_1.getMailTemplate(event, customerProfile, price, ticketTypes, res);
-    return {
-        typeOf: cinerinoapi.factory.creativeWorkType.EmailMessage,
-        sender: {
-            name: conf.get('email.fromname'),
-            email: conf.get('email.from')
-        },
-        toRecipient: {
-            name: `${customerProfile.givenName} ${customerProfile.familyName}`,
-            email: to
-        },
-        about: `${title} ${titleEmail}`,
-        text: text
-    };
-}
-exports.createEmailAttributes = createEmailAttributes;
 function getUnitPriceByAcceptedOffer(offer) {
     let unitPrice = 0;
     if (offer.priceSpecification !== undefined) {

@@ -1,9 +1,47 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getMailTemplate = exports.createEmailAttributes = void 0;
 const cinerinoapi = require("@cinerino/api-nodejs-client");
 const conf = require("config");
 const moment = require("moment-timezone");
 const numeral = require("numeral");
+/**
+ * 予約完了メールを作成する
+ */
+function createEmailAttributes(event, customerProfile, 
+// paymentNo: string,
+price, ticketTypes, res) {
+    const to = (typeof customerProfile.email === 'string') ? customerProfile.email : '';
+    if (to.length === 0) {
+        throw new Error('email to unknown');
+    }
+    const title = res.__('Title');
+    const titleEmail = res.__('EmailTitle');
+    // メール本文取得
+    // const text: string = getMailText(
+    //     event,
+    //     customerProfile,
+    //     paymentNo,
+    //     price,
+    //     ticketTypes,
+    //     res
+    // );
+    const text = getMailTemplate(event, customerProfile, price, ticketTypes, res);
+    return {
+        typeOf: cinerinoapi.factory.creativeWorkType.EmailMessage,
+        sender: {
+            name: conf.get('email.fromname'),
+            email: conf.get('email.from')
+        },
+        toRecipient: {
+            name: `${customerProfile.givenName} ${customerProfile.familyName}`,
+            email: to
+        },
+        about: `${title} ${titleEmail}`,
+        text: text
+    };
+}
+exports.createEmailAttributes = createEmailAttributes;
 /**
  * メール本文取得
  */

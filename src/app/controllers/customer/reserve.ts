@@ -8,12 +8,13 @@ import { NextFunction, Request, Response } from 'express';
 import { BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS } from 'http-status';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment-timezone';
-import * as _ from 'underscore';
 
 import reservePaymentCreditForm from '../../forms/reserve/reservePaymentCreditForm';
 import reservePerformanceForm from '../../forms/reserve/reservePerformanceForm';
 import ReserveSessionModel from '../../models/reserve/session';
 import * as reserveBaseController from '../reserveBase';
+
+import { createEmailAttributes } from '../../factory/reserve';
 
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 
@@ -47,7 +48,10 @@ const paymentService = new cinerinoapi.service.Payment({
  */
 export async function start(req: Request, res: Response, next: NextFunction): Promise<void> {
     // 必ずこれらのパラメータを持って遷移してくる
-    if (_.isEmpty(req.query.wc) || _.isEmpty(req.query.locale) || _.isEmpty(req.query.passportToken)) {
+    if (typeof req.query.wc !== 'string' || req.query.wc.length === 0
+        || typeof req.query.locale !== 'string' || req.query.locale.length === 0
+        || typeof req.query.passportToken !== 'string' || req.query.passportToken.length === 0
+    ) {
         res.status(BAD_REQUEST).end('Bad Request');
 
         return;
@@ -322,11 +326,12 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
             res.locals.age = reservationModel.transactionInProgress.purchaser.age;
             res.locals.address = reservationModel.transactionInProgress.purchaser.address;
             res.locals.gender = reservationModel.transactionInProgress.purchaser.gender;
-            res.locals.email = (!_.isEmpty(email)) ? email : '';
-            res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
-            res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
+            res.locals.email = (typeof email === 'string') ? email : '';
+            res.locals.emailConfirm = (typeof email === 'string') ? email.substr(0, email.indexOf('@')) : '';
+            res.locals.emailConfirmDomain = (typeof email === 'string') ? email.substr(email.indexOf('@') + 1) : '';
             res.locals.paymentMethod =
-                (!_.isEmpty(reservationModel.transactionInProgress.paymentMethod))
+                (typeof reservationModel.transactionInProgress.paymentMethod === 'string'
+                    && reservationModel.transactionInProgress.paymentMethod.length > 0)
                     ? reservationModel.transactionInProgress.paymentMethod
                     : cinerinoapi.factory.paymentMethodType.CreditCard;
         }
@@ -375,7 +380,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 }
 
                 // メール作成
-                const emailAttributes = createEmailAttributes(reservationModel, res);
+                const emailAttributes = createEmail(reservationModel, res);
 
                 // 予約確定
                 const transactionResult = await placeOrderTransactionService.confirm({
@@ -484,7 +489,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
     }
 }
 
-export function createEmailAttributes(
+export function createEmail(
     // paymentNo: string,
     reservationModel: ReserveSessionModel, res: Response
 ): cinerinoapi.factory.creativeWork.message.email.IAttributes {
@@ -503,7 +508,7 @@ export function createEmailAttributes(
         .filter((t) => Number(t.count) > 0);
 
     // 完了メール作成
-    return reserveBaseController.createEmailAttributes(
+    return createEmailAttributes(
         event,
         customerProfile,
         // paymentNo,

@@ -6,6 +6,57 @@ import * as moment from 'moment-timezone';
 import * as numeral from 'numeral';
 
 /**
+ * 予約完了メールを作成する
+ */
+export function createEmailAttributes(
+    event: tttsapi.factory.performance.IPerformanceWithDetails,
+    customerProfile: cinerinoapi.factory.person.IProfile,
+    // paymentNo: string,
+    price: number,
+    ticketTypes: Express.ITicketType[],
+    res: Response
+): cinerinoapi.factory.creativeWork.message.email.IAttributes {
+    const to = (typeof customerProfile.email === 'string') ? customerProfile.email : '';
+    if (to.length === 0) {
+        throw new Error('email to unknown');
+    }
+
+    const title = res.__('Title');
+    const titleEmail = res.__('EmailTitle');
+
+    // メール本文取得
+    // const text: string = getMailText(
+    //     event,
+    //     customerProfile,
+    //     paymentNo,
+    //     price,
+    //     ticketTypes,
+    //     res
+    // );
+    const text: string = getMailTemplate(
+        event,
+        customerProfile,
+        price,
+        ticketTypes,
+        res
+    );
+
+    return {
+        typeOf: cinerinoapi.factory.creativeWorkType.EmailMessage,
+        sender: {
+            name: conf.get<string>('email.fromname'),
+            email: conf.get<string>('email.from')
+        },
+        toRecipient: {
+            name: `${customerProfile.givenName} ${customerProfile.familyName}`,
+            email: to
+        },
+        about: `${title} ${titleEmail}`,
+        text: text
+    };
+}
+
+/**
  * メール本文取得
  */
 // export function getMailText(

@@ -8,13 +8,10 @@ import * as conf from 'config';
 import * as createDebug from 'debug';
 import { Request, Response } from 'express';
 import * as moment from 'moment-timezone';
-import * as _ from 'underscore';
 
 import reserveProfileForm from '../forms/reserve/reserveProfileForm';
 import reserveTicketForm from '../forms/reserve/reserveTicketForm';
 import ReserveSessionModel from '../models/reserve/session';
-
-import { getMailTemplate } from '../factory/reserve';
 
 const debug = createDebug('ttts-frontend:controller:reserveBase');
 
@@ -40,7 +37,7 @@ const sellerService = new cinerinoapi.service.Seller({
  */
 export async function processStart(req: Request): Promise<ReserveSessionModel> {
     // 言語も指定
-    (<Express.Session>req.session).locale = (!_.isEmpty(req.query.locale)) ? req.query.locale : 'ja';
+    (<Express.Session>req.session).locale = (typeof req.query.locale === 'string' && req.query.locale.length > 0) ? req.query.locale : 'ja';
 
     const searchSellersResult = await sellerService.search({
         limit: 1
@@ -158,17 +155,6 @@ export async function processFixSeatsAndTickets(reservationModel: ReserveSession
             });
         }
     }
-    // reservationModel.transactionInProgress.reservations = offers.map((o) => {
-    //     const ticketType = reservationModel.transactionInProgress.ticketTypes.find((t) => t.id === o.ticket_type);
-    //     if (ticketType === undefined) {
-    //         throw new Error(`Unknown Ticket Type ${o.ticket_type}`);
-    //     }
-
-    //     return {
-    //         reservedTicket: { ticketType: ticketType },
-    //         unitPrice: (ticketType.priceSpecification !== undefined) ? ticketType.priceSpecification.price : 0
-    //     };
-    // });
 }
 
 export interface ICheckInfo {
@@ -359,59 +345,6 @@ export async function processFixPerformance(
 
     // パフォーマンス情報を保管
     reservationModel.transactionInProgress.performance = performance;
-}
-
-/**
- * 予約完了メールを作成する
- */
-export function createEmailAttributes(
-    event: tttsapi.factory.performance.IPerformanceWithDetails,
-    customerProfile: cinerinoapi.factory.person.IProfile,
-    // paymentNo: string,
-    price: number,
-    ticketTypes: Express.ITicketType[],
-    res: Response
-): cinerinoapi.factory.creativeWork.message.email.IAttributes {
-    const to = (typeof customerProfile.email === 'string')
-        ? customerProfile.email
-        : '';
-    if (to.length === 0) {
-        throw new Error('email to unknown');
-    }
-
-    const title = res.__('Title');
-    const titleEmail = res.__('EmailTitle');
-
-    // メール本文取得
-    // const text: string = getMailText(
-    //     event,
-    //     customerProfile,
-    //     paymentNo,
-    //     price,
-    //     ticketTypes,
-    //     res
-    // );
-    const text: string = getMailTemplate(
-        event,
-        customerProfile,
-        price,
-        ticketTypes,
-        res
-    );
-
-    return {
-        typeOf: cinerinoapi.factory.creativeWorkType.EmailMessage,
-        sender: {
-            name: conf.get<string>('email.fromname'),
-            email: conf.get<string>('email.from')
-        },
-        toRecipient: {
-            name: `${customerProfile.givenName} ${customerProfile.familyName}`,
-            email: to
-        },
-        about: `${title} ${titleEmail}`,
-        text: text
-    };
 }
 
 export type ICompoundPriceSpecification = cinerinoapi.factory.chevre.compoundPriceSpecification.IPriceSpecification<any>;
