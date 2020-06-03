@@ -37,10 +37,6 @@ const paymentService = new cinerinoapi.service.Payment({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
     auth: authClient
 });
-// const taskService = new cinerinoapi.service.Task({
-//     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
-//     auth: authClient
-// });
 
 /**
  * 取引開始
@@ -419,37 +415,6 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                         paymentNo = paymentNoProperty.value;
                     }
                 }
-
-                // メール送信
-                // const emailAttributes = createEmailAttributes(paymentNo, reservationModel, res);
-                // const taskAttributes: cinerinoapi.factory.task.IAttributes<cinerinoapi.factory.taskName.SendEmailMessage> = {
-                //     name: cinerinoapi.factory.taskName.SendEmailMessage,
-                //     project: transactionResult.order.project,
-                //     status: cinerinoapi.factory.taskStatus.Ready,
-                //     runsAt: new Date(), // なるはやで実行
-                //     remainingNumberOfTries: 10,
-                //     numberOfTried: 0,
-                //     executionResults: [],
-                //     data: {
-                //         actionAttributes: {
-                //             typeOf: cinerinoapi.factory.actionType.SendAction,
-                //             agent: transactionResult.order.customer,
-                //             object: {
-                //                 ...emailAttributes,
-                //                 identifier: '',
-                //                 name: ''
-                //             },
-                //             project: transactionResult.order.project,
-                //             purpose: transactionResult.order,
-                //             recipient: {
-                //                 id: transactionResult.order.customer.id,
-                //                 name: emailAttributes.toRecipient.name,
-                //                 typeOf: cinerinoapi.factory.personType.Person
-                //             }
-                //         }
-                //     }
-                // };
-                // await taskService.create(taskAttributes);
 
                 // 印刷トークン生成
                 const reservationIds =
