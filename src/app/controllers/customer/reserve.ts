@@ -8,12 +8,13 @@ import { NextFunction, Request, Response } from 'express';
 import { BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS } from 'http-status';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment-timezone';
-import * as _ from 'underscore';
 
 import reservePaymentCreditForm from '../../forms/reserve/reservePaymentCreditForm';
 import reservePerformanceForm from '../../forms/reserve/reservePerformanceForm';
 import ReserveSessionModel from '../../models/reserve/session';
 import * as reserveBaseController from '../reserveBase';
+
+import { createEmailAttributes } from '../../factory/reserve';
 
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 
@@ -36,10 +37,6 @@ const paymentService = new cinerinoapi.service.Payment({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
     auth: authClient
 });
-const taskService = new cinerinoapi.service.Task({
-    endpoint: <string>process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
-});
 
 /**
  * 取引開始
@@ -47,7 +44,10 @@ const taskService = new cinerinoapi.service.Task({
  */
 export async function start(req: Request, res: Response, next: NextFunction): Promise<void> {
     // 必ずこれらのパラメータを持って遷移してくる
-    if (_.isEmpty(req.query.wc) || _.isEmpty(req.query.locale) || _.isEmpty(req.query.passportToken)) {
+    if (typeof req.query.wc !== 'string' || req.query.wc.length === 0
+        || typeof req.query.locale !== 'string' || req.query.locale.length === 0
+        || typeof req.query.passportToken !== 'string' || req.query.passportToken.length === 0
+    ) {
         res.status(BAD_REQUEST).end('Bad Request');
 
         return;
@@ -322,11 +322,12 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
             res.locals.age = reservationModel.transactionInProgress.purchaser.age;
             res.locals.address = reservationModel.transactionInProgress.purchaser.address;
             res.locals.gender = reservationModel.transactionInProgress.purchaser.gender;
-            res.locals.email = (!_.isEmpty(email)) ? email : '';
-            res.locals.emailConfirm = (!_.isEmpty(email)) ? email.substr(0, email.indexOf('@')) : '';
-            res.locals.emailConfirmDomain = (!_.isEmpty(email)) ? email.substr(email.indexOf('@') + 1) : '';
+            res.locals.email = (typeof email === 'string') ? email : '';
+            res.locals.emailConfirm = (typeof email === 'string') ? email.substr(0, email.indexOf('@')) : '';
+            res.locals.emailConfirmDomain = (typeof email === 'string') ? email.substr(email.indexOf('@') + 1) : '';
             res.locals.paymentMethod =
-                (!_.isEmpty(reservationModel.transactionInProgress.paymentMethod))
+                (typeof reservationModel.transactionInProgress.paymentMethod === 'string'
+                    && reservationModel.transactionInProgress.paymentMethod.length > 0)
                     ? reservationModel.transactionInProgress.paymentMethod
                     : cinerinoapi.factory.paymentMethodType.CreditCard;
         }
@@ -374,9 +375,36 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                     throw new cinerinoapi.factory.errors.Argument('Transaction', 'Event required');
                 }
 
+                // メール作成
+                const emailAttributes = createEmail(reservationModel, res);
+
                 // 予約確定
                 const transactionResult = await placeOrderTransactionService.confirm({
-                    id: reservationModel.transactionInProgress.id
+                    id: reservationModel.transactionInProgress.id,
+                    potentialActions: {
+                        order: {
+                            potentialActions: {
+                                sendOrder: {
+                                    potentialActions: {
+                                        sendEmailMessage: [{
+                                            object: {
+                                                sender: {
+                                                    name: emailAttributes.sender.name,
+                                                    email: emailAttributes.sender.email
+                                                },
+                                                toRecipient: {
+                                                    name: emailAttributes.toRecipient.name,
+                                                    email: emailAttributes.toRecipient.email
+                                                },
+                                                about: emailAttributes.about,
+                                                template: emailAttributes.text
+                                            }
+                                        }]
+                                    }
+                                }
+                            }
+                        }
+                    }
                 });
                 debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
 
@@ -387,37 +415,6 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                         paymentNo = paymentNoProperty.value;
                     }
                 }
-
-                // メール送信
-                const emailAttributes = createEmailAttributes(paymentNo, reservationModel, res);
-                const taskAttributes: cinerinoapi.factory.task.IAttributes<cinerinoapi.factory.taskName.SendEmailMessage> = {
-                    name: cinerinoapi.factory.taskName.SendEmailMessage,
-                    project: transactionResult.order.project,
-                    status: cinerinoapi.factory.taskStatus.Ready,
-                    runsAt: new Date(), // なるはやで実行
-                    remainingNumberOfTries: 10,
-                    numberOfTried: 0,
-                    executionResults: [],
-                    data: {
-                        actionAttributes: {
-                            typeOf: cinerinoapi.factory.actionType.SendAction,
-                            agent: transactionResult.order.customer,
-                            object: {
-                                ...emailAttributes,
-                                identifier: '',
-                                name: ''
-                            },
-                            project: transactionResult.order.project,
-                            purpose: transactionResult.order,
-                            recipient: {
-                                id: transactionResult.order.customer.id,
-                                name: emailAttributes.toRecipient.name,
-                                typeOf: cinerinoapi.factory.personType.Person
-                            }
-                        }
-                    }
-                };
-                await taskService.create(taskAttributes);
 
                 // 印刷トークン生成
                 const reservationIds =
@@ -457,8 +454,8 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
     }
 }
 
-export function createEmailAttributes(
-    paymentNo: string,
+export function createEmail(
+    // paymentNo: string,
     reservationModel: ReserveSessionModel, res: Response
 ): cinerinoapi.factory.creativeWork.message.email.IAttributes {
     // 予約連携パラメータ作成
@@ -476,10 +473,10 @@ export function createEmailAttributes(
         .filter((t) => Number(t.count) > 0);
 
     // 完了メール作成
-    return reserveBaseController.createEmailAttributes(
+    return createEmailAttributes(
         event,
         customerProfile,
-        paymentNo,
+        // paymentNo,
         price,
         ticketTypes,
         res

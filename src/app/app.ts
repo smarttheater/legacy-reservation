@@ -12,7 +12,6 @@ import * as expressValidator from 'express-validator';
 import * as i18n from 'i18n';
 import * as multer from 'multer';
 import * as favicon from 'serve-favicon';
-import * as _ from 'underscore';
 
 import errorHandler from './middlewares/errorHandler';
 import notFoundHandler from './middlewares/notFoundHandler';
@@ -63,11 +62,11 @@ app.use(i18n.init);
 // セッションで言語管理
 // tslint:disable-next-line:variable-name
 app.use((req, _res, next) => {
-    if (!_.isEmpty((<any>req.session).locale)) {
+    if (typeof (<any>req.session).locale === 'string' && (<any>req.session).locale.length > 0) {
         req.setLocale((<any>req.session).locale);
     }
 
-    if (!_.isEmpty(req.query.locale)) {
+    if (typeof req.query.locale === 'string' && req.query.locale.length > 0) {
         req.setLocale(req.query.locale);
         (<any>req.session).locale = req.query.locale;
     }

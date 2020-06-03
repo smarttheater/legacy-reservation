@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.15.0 - 2020-06-03
+
+### Changed
+
+- 配送完了メールテンプレートを注文取引確定時に指定するように調整
+
 ## v8.14.1 - 2020-05-02
 
 ### Changed

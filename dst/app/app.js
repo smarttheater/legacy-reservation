@@ -13,7 +13,6 @@ const expressValidator = require("express-validator");
 const i18n = require("i18n");
 const multer = require("multer");
 const favicon = require("serve-favicon");
-const _ = require("underscore");
 const errorHandler_1 = require("./middlewares/errorHandler");
 const notFoundHandler_1 = require("./middlewares/notFoundHandler");
 const session_1 = require("./middlewares/session");
@@ -53,10 +52,10 @@ app.use(i18n.init);
 // セッションで言語管理
 // tslint:disable-next-line:variable-name
 app.use((req, _res, next) => {
-    if (!_.isEmpty(req.session.locale)) {
+    if (typeof req.session.locale === 'string' && req.session.locale.length > 0) {
         req.setLocale(req.session.locale);
     }
-    if (!_.isEmpty(req.query.locale)) {
+    if (typeof req.query.locale === 'string' && req.query.locale.length > 0) {
         req.setLocale(req.query.locale);
         req.session.locale = req.query.locale;
     }
