@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.15.1 - 2020-06-11
+
+### Changed
+
+- チケットサイトスケジュール選択画面の上部注意文言にて各言語で一部文言を削除
+
 ## v8.15.0 - 2020-06-03
 
 ### Changed
