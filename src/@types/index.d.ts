@@ -1,6 +1,5 @@
 import * as cinerinoapi from '@cinerino/api-nodejs-client';
 import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
-import * as express from 'express';
 
 declare global {
     namespace Express {
@@ -18,7 +17,7 @@ declare global {
                 /**
                  * 券種
                  */
-                ticketType: cinerinoapi.factory.chevre.ticketType.ITicketType;
+                ticketType: cinerinoapi.factory.chevre.offer.IOffer;
             };
             /**
              * 単価
