@@ -408,21 +408,17 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 });
                 debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
 
-                let paymentNo = '';
-                if (Array.isArray(transactionResult.order.identifier)) {
-                    const paymentNoProperty = transactionResult.order.identifier.find((p) => p.name === 'paymentNo');
-                    if (paymentNoProperty !== undefined) {
-                        paymentNo = paymentNoProperty.value;
-                    }
-                }
-
                 // 印刷トークン生成
                 const reservationIds =
                     transactionResult.order.acceptedOffers.map((o) => (<cinerinoapi.factory.order.IReservation>o.itemOffered).id);
                 const printToken = await createPrintToken(reservationIds);
 
                 // 購入結果セッション作成
-                (<Express.Session>req.session).transactionResult = { ...transactionResult, printToken, paymentNo };
+                (<Express.Session>req.session).transactionResult = {
+                    ...transactionResult,
+                    printToken,
+                    paymentNo: transactionResult.order.confirmationNumber
+                };
 
                 // 購入フローセッションは削除
                 ReserveSessionModel.REMOVE(req);
@@ -455,7 +451,6 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
 }
 
 export function createEmail(
-    // paymentNo: string,
     reservationModel: ReserveSessionModel, res: Response
 ): cinerinoapi.factory.creativeWork.message.email.IAttributes {
     // 予約連携パラメータ作成
@@ -476,7 +471,6 @@ export function createEmail(
     return createEmailAttributes(
         event,
         customerProfile,
-        // paymentNo,
         price,
         ticketTypes,
         res
@@ -624,10 +618,10 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
 function sortReservationstByTicketType(reservations: Express.ITmpReservation[]): void {
     reservations.sort((a, b) => {
         // 入塔日
-        if (a.reservedTicket.ticketType.identifier > b.reservedTicket.ticketType.identifier) {
+        if ((<string>a.reservedTicket.ticketType.identifier) > (<string>b.reservedTicket.ticketType.identifier)) {
             return 1;
         }
-        if (a.reservedTicket.ticketType.identifier < b.reservedTicket.ticketType.identifier) {
+        if ((<string>a.reservedTicket.ticketType.identifier) < (<string>b.reservedTicket.ticketType.identifier)) {
             return -1;
         }
 

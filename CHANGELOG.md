@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.15.2 - 2020-07-18
+
+### Changed
+
+- 購入番号として注文のconfirmationNumberを参照するように変更
+
 ## v8.15.1 - 2020-06-11
 
 ### Changed

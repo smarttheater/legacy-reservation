@@ -385,18 +385,11 @@ function confirm(req, res, next) {
                         }
                     });
                     debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
-                    let paymentNo = '';
-                    if (Array.isArray(transactionResult.order.identifier)) {
-                        const paymentNoProperty = transactionResult.order.identifier.find((p) => p.name === 'paymentNo');
-                        if (paymentNoProperty !== undefined) {
-                            paymentNo = paymentNoProperty.value;
-                        }
-                    }
                     // 印刷トークン生成
                     const reservationIds = transactionResult.order.acceptedOffers.map((o) => o.itemOffered.id);
                     const printToken = yield createPrintToken(reservationIds);
                     // 購入結果セッション作成
-                    req.session.transactionResult = Object.assign(Object.assign({}, transactionResult), { printToken, paymentNo });
+                    req.session.transactionResult = Object.assign(Object.assign({}, transactionResult), { printToken, paymentNo: transactionResult.order.confirmationNumber });
                     // 購入フローセッションは削除
                     session_1.default.REMOVE(req);
                     res.redirect('/customer/reserve/complete');
@@ -426,9 +419,7 @@ function confirm(req, res, next) {
     });
 }
 exports.confirm = confirm;
-function createEmail(
-// paymentNo: string,
-reservationModel, res) {
+function createEmail(reservationModel, res) {
     // 予約連携パラメータ作成
     const customerProfile = reservationModel.transactionInProgress.profile;
     if (customerProfile === undefined) {
@@ -442,9 +433,7 @@ reservationModel, res) {
     const ticketTypes = reservationModel.transactionInProgress.ticketTypes
         .filter((t) => Number(t.count) > 0);
     // 完了メール作成
-    return reserve_1.createEmailAttributes(event, customerProfile, 
-    // paymentNo,
-    price, ticketTypes, res);
+    return reserve_1.createEmailAttributes(event, customerProfile, price, ticketTypes, res);
 }
 exports.createEmail = createEmail;
 /**
