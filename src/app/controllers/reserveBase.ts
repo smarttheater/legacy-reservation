@@ -2,7 +2,7 @@
 /**
  * 予約ベースコントローラー
  */
-import * as cinerinoapi from '@cinerino/api-nodejs-client';
+import * as cinerinoapi from '@cinerino/sdk';
 import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as conf from 'config';
 import * as createDebug from 'debug';
@@ -53,7 +53,7 @@ export async function processStart(req: Request): Promise<ReserveSessionModel> {
         object: {
             passport: { token: req.query.passportToken }
         },
-        seller: { typeOf: seller.typeOf, id: seller.id }
+        seller: { typeOf: seller.typeOf, id: <string>seller.id }
     });
 
     // 取引セッションを初期化
@@ -270,21 +270,23 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
     // 決済方法はクレジットカード一択
     reservationModel.transactionInProgress.paymentMethod = cinerinoapi.factory.paymentMethodType.CreditCard;
 
-    reservationModel.transactionInProgress.profile = await placeOrderTransactionService.setCustomerContact({
+    const profile: cinerinoapi.factory.person.IProfile & {
+        telephoneRegion?: string;
+    } = {
+        age: contact.age,
+        address: contact.address,
+        email: contact.email,
+        gender: contact.gender,
+        givenName: contact.firstName,
+        familyName: contact.lastName,
+        telephone: contact.tel,
+        telephoneRegion: contact.address
+    };
+    await placeOrderTransactionService.setProfile({
         id: reservationModel.transactionInProgress.id,
-        object: {
-            customerContact: {
-                age: contact.age,
-                address: contact.address,
-                email: contact.email,
-                gender: contact.gender,
-                givenName: contact.firstName,
-                familyName: contact.lastName,
-                telephone: contact.tel,
-                telephoneRegion: contact.address
-            }
-        }
+        agent: profile
     });
+    reservationModel.transactionInProgress.profile = profile;
 
     // セッションに購入者情報格納
     (<Express.Session>req.session).purchaser = contact;
@@ -330,7 +332,7 @@ export async function processFixPerformance(
             event: { id: performance.id },
             seller: {
                 typeOf: reservationModel.transactionInProgress.seller.typeOf,
-                id: reservationModel.transactionInProgress.seller.id
+                id: <string>reservationModel.transactionInProgress.seller.id
             },
             store: {
                 id: authClient.options.clientId

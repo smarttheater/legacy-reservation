@@ -13,7 +13,7 @@ exports.getUnitPriceByAcceptedOffer = exports.processFixPerformance = exports.pr
 /**
  * 予約ベースコントローラー
  */
-const cinerinoapi = require("@cinerino/api-nodejs-client");
+const cinerinoapi = require("@cinerino/sdk");
 const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const conf = require("config");
 const createDebug = require("debug");
@@ -236,21 +236,21 @@ function processFixProfile(reservationModel, req) {
         reservationModel.transactionInProgress.purchaser = contact;
         // 決済方法はクレジットカード一択
         reservationModel.transactionInProgress.paymentMethod = cinerinoapi.factory.paymentMethodType.CreditCard;
-        reservationModel.transactionInProgress.profile = yield placeOrderTransactionService.setCustomerContact({
+        const profile = {
+            age: contact.age,
+            address: contact.address,
+            email: contact.email,
+            gender: contact.gender,
+            givenName: contact.firstName,
+            familyName: contact.lastName,
+            telephone: contact.tel,
+            telephoneRegion: contact.address
+        };
+        yield placeOrderTransactionService.setProfile({
             id: reservationModel.transactionInProgress.id,
-            object: {
-                customerContact: {
-                    age: contact.age,
-                    address: contact.address,
-                    email: contact.email,
-                    gender: contact.gender,
-                    givenName: contact.firstName,
-                    familyName: contact.lastName,
-                    telephone: contact.tel,
-                    telephoneRegion: contact.address
-                }
-            }
+            agent: profile
         });
+        reservationModel.transactionInProgress.profile = profile;
         // セッションに購入者情報格納
         req.session.purchaser = contact;
     });

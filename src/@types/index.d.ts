@@ -1,4 +1,4 @@
-import * as cinerinoapi from '@cinerino/api-nodejs-client';
+import * as cinerinoapi from '@cinerino/sdk';
 import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 
 declare global {
@@ -35,7 +35,7 @@ declare global {
             id: string;
             expires: string;
             agent?: cinerinoapi.factory.transaction.placeOrder.IAgent;
-            seller: cinerinoapi.factory.seller.IOrganization<cinerinoapi.factory.seller.IAttributes<cinerinoapi.factory.organizationType>>;
+            seller: cinerinoapi.factory.seller.ISeller;
             seatReservationAuthorizeActionId?: string;
             /**
              * 座席予約承認結果

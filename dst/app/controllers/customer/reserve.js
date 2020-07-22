@@ -13,7 +13,7 @@ exports.complete = exports.createEmail = exports.confirm = exports.profile = exp
 /**
  * 予約コントローラー
  */
-const cinerinoapi = require("@cinerino/api-nodejs-client");
+const cinerinoapi = require("@cinerino/sdk");
 const conf = require("config");
 const createDebug = require("debug");
 const http_status_1 = require("http-status");
