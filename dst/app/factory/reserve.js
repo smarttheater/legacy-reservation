@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMailTemplate = exports.createEmailAttributes = void 0;
-const cinerinoapi = require("@cinerino/api-nodejs-client");
+const cinerinoapi = require("@cinerino/sdk");
 const conf = require("config");
 const moment = require("moment-timezone");
 const numeral = require("numeral");
