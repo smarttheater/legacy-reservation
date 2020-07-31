@@ -153,7 +153,8 @@ $(function () {
             window.ttts.setSessionStorage('performance_ymd', dateStr);
             search({
                 page: 1,
-                day: dateStr.replace(/\-/g, '') // Y-m-dをYmdに整形
+                day: dateStr.replace(/\-/g, ''), // Y-m-dをYmdに整形
+                noTotalCount: '1'
             });
         }
     });
