@@ -49,7 +49,7 @@ declare global {
             /**
              * パフォーマンス
              */
-            performance?: tttsapi.factory.performance.IPerformanceWithDetails;
+            performance?: cinerinoapi.factory.event.IEvent<cinerinoapi.factory.chevre.eventType.ScreeningEvent>;
             /**
              * 決済方法選択肢
              */

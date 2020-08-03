@@ -1,8 +1,6 @@
 /* global moment, flatpickr */
 $(function () {
     'use strict';
-    if (!window.ttts.API_ENDPOINT) { return alert('API_ENDPOINT undefined'); }
-    if (!window.ttts.API_TOKEN.VALUE) { return alert('API_TOKEN undefined'); }
 
     // カレンダーを何月何日から表示するか
     var CALENDER_MINDATE = 'today';
@@ -44,31 +42,23 @@ $(function () {
         // 1hごとにまとめる (start_timeの最初2文字を時間とする)
         var hourArray = [];
         var performancesByHour = {};
-        var moment_now = moment();
+
         performanceArray.forEach(function (performance) {
             try {
-                var hour = performance.attributes.start_time.slice(0, 2);
-                // 時刻を見て無視 (一般: → 開始時刻 ／ 代理: 終了時刻)
-                if (moment_now.isAfter(moment(performance.attributes.day + '' + performance.attributes.start_time, 'YYYYMMDDHHmm'))) {
-                    return true;
-                }
+                var hour = performance.start_time.slice(0, 2);
+
                 if (hourArray.indexOf(hour) === -1) {
                     hourArray.push(hour);
                     performancesByHour[hour] = [];
                 }
-                performancesByHour[hour].push({
-                    id: performance.id,
-                    start_time: performance.attributes.start_time,
-                    end_time: performance.attributes.end_time,
-                    seat_status: performance.attributes.seat_status || 0,
-                    online_sales_status: performance.attributes.online_sales_status,
-                    wheelchair_available: performance.attributes.wheelchair_available
-                });
+
+                performancesByHour[hour].push(performance);
             } catch (e) {
-                console.log(e);
-                return true;
+                console.error(e);
             }
         });
+        console.log('performancesByHour:', performancesByHour);
+
         // 時間割を念のためソート
         hourArray.sort(function (a, b) {
             if (a < b) { return -1; }
@@ -111,16 +101,15 @@ $(function () {
         }
         $.ajax({
             dataType: 'json',
-            url: window.ttts.API_ENDPOINT + '/performances',
+            url: '/api/performances',
             type: 'GET',
             data: condition,
             beforeSend: function (xhr) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + window.ttts.API_TOKEN.VALUE);
                 $loading.modal();
             }
         }).done(function (body) {
-            if ($.isArray(body.data) && body.data.length > 0) {
-                showPerformances(body.data);
+            if ($.isArray(body)) {
+                showPerformances(body);
             } else {
                 dom_performances.innerHTML = '';
             }

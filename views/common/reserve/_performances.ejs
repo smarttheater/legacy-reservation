@@ -3,10 +3,6 @@
     const isWheelchair = (cate === 'wheelchair');
 %>
 <script>
-    window.ttts.API_TOKEN = {
-        VALUE: '<%= token.access_token %>',
-        EXPIRY_DATE: '<%= token.expiry_date %>'
-    };
     window.ttts.isWheelchairReservation = <%= isWheelchair %>;
     window.ttts.reservableMaxDate = '<%= reserveMaxDate %>';
     window.ttts.reservableEventStartFrom = '<%= reservableEventStartFrom %>';

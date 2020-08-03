@@ -14,7 +14,6 @@ exports.getUnitPriceByAcceptedOffer = exports.processFixPerformance = exports.pr
  * 予約ベースコントローラー
  */
 const cinerinoapi = require("@cinerino/sdk");
-const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const conf = require("config");
 const createDebug = require("debug");
 const moment = require("moment-timezone");
@@ -22,7 +21,7 @@ const reserveProfileForm_1 = require("../forms/reserve/reserveProfileForm");
 const reserveTicketForm_1 = require("../forms/reserve/reserveTicketForm");
 const session_1 = require("../models/reserve/session");
 const debug = createDebug('ttts-frontend:controller:reserveBase');
-const authClient = new tttsapi.auth.ClientCredentials({
+const authClient = new cinerinoapi.auth.ClientCredentials({
     domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
     clientId: process.env.API_CLIENT_ID,
     clientSecret: process.env.API_CLIENT_SECRET,
@@ -263,30 +262,19 @@ exports.processFixProfile = processFixProfile;
 function processFixPerformance(reservationModel, perfomanceId, req) {
     return __awaiter(this, void 0, void 0, function* () {
         debug('fixing performance...', perfomanceId);
-        // パフォーマンス取得
-        const performanceService = new tttsapi.service.Event({
-            endpoint: process.env.API_ENDPOINT,
-            auth: authClient
-        });
+        // イベント取得
         const eventService = new cinerinoapi.service.Event({
             endpoint: process.env.CINERINO_API_ENDPOINT,
             auth: authClient
         });
-        const performance = yield performanceService.findPerofrmanceById({ id: perfomanceId });
-        if (performance === null) {
-            throw new Error(req.__('NotFound'));
-        }
+        const event = yield eventService.findById({ id: perfomanceId });
         // 上映日当日まで購入可能
-        // tslint:disable-next-line:no-magic-numbers
-        if (parseInt(moment(performance.startDate).format('YYYYMMDD'), 10) < parseInt(moment().format('YYYYMMDD'), 10)) {
+        if (Number(moment(event.startDate).tz('Asia/Tokyo').format('YYYYMMDD')) < Number(moment().tz('Asia/Tokyo').format('YYYYMMDD'))) {
             throw new Error(req.__('Message.OutOfTerm'));
-        }
-        if (performance.ticket_type_group === undefined || performance.ticket_type_group === null) {
-            throw new Error('Ticket type group undefined');
         }
         // Cinerinoでオファー検索
         const offers = yield eventService.searchTicketOffers({
-            event: { id: performance.id },
+            event: { id: event.id },
             seller: {
                 typeOf: reservationModel.transactionInProgress.seller.typeOf,
                 id: reservationModel.transactionInProgress.seller.id
@@ -300,7 +288,7 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
             return Object.assign(Object.assign(Object.assign({}, t), { count: 0 }), { id: t.identifier });
         });
         // パフォーマンス情報を保管
-        reservationModel.transactionInProgress.performance = performance;
+        reservationModel.transactionInProgress.performance = event;
     });
 }
 exports.processFixPerformance = processFixPerformance;

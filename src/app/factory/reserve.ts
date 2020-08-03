@@ -1,5 +1,4 @@
 import * as cinerinoapi from '@cinerino/sdk';
-import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as conf from 'config';
 import { Response } from 'express';
 import * as moment from 'moment-timezone';
@@ -9,7 +8,7 @@ import * as numeral from 'numeral';
  * 予約完了メールを作成する
  */
 export function createEmailAttributes(
-    event: tttsapi.factory.performance.IPerformanceWithDetails,
+    event: cinerinoapi.factory.event.IEvent<cinerinoapi.factory.chevre.eventType.ScreeningEvent>,
     customerProfile: cinerinoapi.factory.person.IProfile,
     price: number,
     ticketTypes: Express.ITicketType[],
@@ -47,9 +46,8 @@ export function createEmailAttributes(
     };
 }
 
-// tslint:disable-next-line:max-func-body-length
 export function getMailTemplate(
-    event: tttsapi.factory.performance.IPerformanceWithDetails,
+    event: cinerinoapi.factory.event.IEvent<cinerinoapi.factory.chevre.eventType.ScreeningEvent>,
     customerProfile: cinerinoapi.factory.person.IProfile,
     price: number,
     ticketTypes: Express.ITicketType[],
@@ -79,7 +77,6 @@ export function getMailTemplate(
     mail.push('');
 
     // 購入番号
-    // mail.push(`${res.__('PaymentNo')} : #{order.identifier.find((i)=>i.name==='paymentNo').value}`);
     mail.push(`${res.__('PaymentNo')} : #{order.confirmationNumber}`);
 
     // ご来塔日時

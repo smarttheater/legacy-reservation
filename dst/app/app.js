@@ -17,6 +17,7 @@ const errorHandler_1 = require("./middlewares/errorHandler");
 const notFoundHandler_1 = require("./middlewares/notFoundHandler");
 const session_1 = require("./middlewares/session");
 const setLocals_1 = require("./middlewares/setLocals");
+const api_1 = require("./routes/api");
 const customer_1 = require("./routes/customer");
 const entrance_1 = require("./routes/entrance");
 const router_1 = require("./routes/router");
@@ -64,6 +65,7 @@ app.use((req, _res, next) => {
 app.use(expressValidator()); // バリデーション
 app.use(setLocals_1.default); // ローカル変数セット
 // ルーティング登録の順序に注意！
+app.use('/api', api_1.default);
 app.use('/customer', customer_1.default);
 app.use('/entrance', entrance_1.default);
 app.use('/', router_1.default);
