@@ -1,15 +1,11 @@
-# TTTSチケット予約ウェブアプリケーション
+# TTTS予約ウェブアプリケーション
 
-node.jsでGMOサービスを使うためのパッケージです。
-
+Node.jsアプリケーション
 
 ## Table of contents
 
 * [Usage](#usage)
-* [Example](#code-samples)
-* [Jsdoc](#jsdoc)
 * [License](#license)
-
 
 ## Usage
 npmでパッケージをインストールします。
@@ -47,33 +43,19 @@ npm run css
 
 ### Environment variables
 
-| Name                              | Required | Value                     | Purpose                                             |
-| --------------------------------- | -------- | ------------------------- | --------------------------------------------------- |
-| `DEBUG`                           | false    | ttts-frontend:*           | Debug                                               |
-| `NODE_ENV`                        | true     |                           | 環境名(development,test,productionなど)             |
-| `SENDGRID_API_KEY`                | true     |                           | GMOリンク決済からの戻り先エンドポイント             |
-| `API_ENDPOINT`                    | true     |                           | frontと連携するttts apiのエンドポイント             |
-| `API_CLIENT_ID`                   | true     |                           | APIクライアントID                                   |
-| `API_CLIENT_SECRET`               | true     |                           | APIクライアントシークレット                         |
-| `API_AUTHORIZE_SERVER_DOMAIN`     | true     |                           | API認可サーバードメイン                             |
-| `API_RESOURECE_SERVER_IDENTIFIER` | true     |                           | APIリソースサーバー識別子                           |
-| `REDIS_HOST`                      | true     |                           | redis host                                          |
-| `REDIS_PORT`                      | true     |                           | redis port                                          |
-| `REDIS_KEY`                       | true     |                           | redis key                                           |
-| `GMO_ENDPOINT`                    | true     |                           | GMO apiのエンドポイント                             |
-| `GMO_SITE_ID`                     | true     |                           | GMO サイトID                                        |
-| `RESERVATIONS_PRINT_URL`          | true     |                           | 予約印刷URL                                         |
-| `RESERVABLE_EVENT_START_FROM`     | true     | 2018-02-20T00:00:00+09:00 | 予約可能なイベント開始日時from(ISO8601フォーマット) |
-
-
-## Code Samples
-
-コードサンプルは [example](https://github.com/motionpicture/gmo-service/tree/master/example) にあります。
-
-
-## Jsdoc
-
-`npm run doc`でjsdocを作成できます。./docに出力されます。
+| Name                          | Required | Value           | Purpose                       |
+| ----------------------------- | -------- | --------------- | ----------------------------- |
+| `DEBUG`                       | false    | ttts-frontend:* | Debug                         |
+| `NODE_ENV`                    | true     |                 | (development,test,production) |
+| `CINERINO_API_ENDPOINT`       | true     |                 | Cinerino endpoint             |
+| `API_CLIENT_ID`               | true     |                 | API credentials               |
+| `API_CLIENT_SECRET`           | true     |                 | API credentials               |
+| `API_AUTHORIZE_SERVER_DOMAIN` | true     |                 | API credentials               |
+| `REDIS_HOST`                  | true     |                 | redis host                    |
+| `REDIS_PORT`                  | true     |                 | redis port                    |
+| `REDIS_KEY`                   | true     |                 | redis key                     |
+| `GMO_ENDPOINT`                | true     |                 | GMO API endpoint              |
+| `RESERVATIONS_PRINT_URL`      | true     |                 | 予約印刷URL                   |
 
 ## License
 

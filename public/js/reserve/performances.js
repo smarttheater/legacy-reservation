@@ -4,8 +4,7 @@ $(function () {
 
     // カレンダーを何月何日から表示するか
     var CALENDER_MINDATE = 'today';
-    // 一般購入の場合、予約可能なイベント開始日時と、現在日時の、大きい方
-    CALENDER_MINDATE = moment.max([moment(window.ttts.reservableEventStartFrom), moment()]).format('YYYY-MM-DD');
+    CALENDER_MINDATE = moment().format('YYYY-MM-DD');
 
     // カレンダーを何日先まで表示するか
     var CALENDER_MAXDATE = window.ttts.reservableMaxDate || '';

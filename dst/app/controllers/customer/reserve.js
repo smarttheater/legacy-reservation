@@ -26,7 +26,6 @@ const reserveBaseController = require("../reserveBase");
 const reserve_1 = require("../../factory/reserve");
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 const reserveMaxDateInfo = conf.get('reserve_max_date');
-const reservableEventStartFrom = moment(process.env.RESERVABLE_EVENT_START_FROM).toDate();
 const authClient = new cinerinoapi.auth.ClientCredentials({
     domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
     clientId: process.env.API_CLIENT_ID,
@@ -145,7 +144,6 @@ function performances(req, res, next) {
             res.render('customer/reserve/performances', {
                 token: token,
                 reserveMaxDate: reserveMaxDate,
-                reservableEventStartFrom: moment(reservableEventStartFrom).toISOString(),
                 category: reservationModel.transactionInProgress.category
             });
         }

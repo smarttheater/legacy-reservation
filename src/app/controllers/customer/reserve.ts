@@ -19,7 +19,6 @@ import { createEmailAttributes } from '../../factory/reserve';
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 
 const reserveMaxDateInfo = conf.get<{ [period: string]: number }>('reserve_max_date');
-const reservableEventStartFrom = moment(<string>process.env.RESERVABLE_EVENT_START_FROM).toDate();
 
 const authClient = new cinerinoapi.auth.ClientCredentials({
     domain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
@@ -151,7 +150,6 @@ export async function performances(req: Request, res: Response, next: NextFuncti
         res.render('customer/reserve/performances', {
             token: token,
             reserveMaxDate: reserveMaxDate,
-            reservableEventStartFrom: moment(reservableEventStartFrom).toISOString(),
             category: reservationModel.transactionInProgress.category
         });
     } catch (error) {
