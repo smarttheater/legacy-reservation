@@ -1,5 +1,4 @@
 import * as cinerinoapi from '@cinerino/sdk';
-import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 
 declare global {
     namespace Express {
