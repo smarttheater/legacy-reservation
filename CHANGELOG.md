@@ -10,9 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- イベント検索をCinerinoへ移行
-- 不要な環境変数を削除
-
 ### Deprecated
 
 ### Removed
@@ -20,6 +17,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v8.16.0 - 2020-08-05
+
+### Changed
+
+- イベント検索をCinerinoへ移行
+- 不要な環境変数を削除
 
 ## v8.15.4 - 2020-07-31
 
