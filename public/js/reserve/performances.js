@@ -13,7 +13,7 @@ $(function () {
     var STATUS_THRESHOLD = {
         CROWDED: 37,
         LAST: 9,
-        WHEELCHAIR_SOLDOUT: 6
+        WHEELCHAIR_SOLDOUT: 7 // 6+1
     };
 
     // performanceのstatusからCSSクラス名を得る
