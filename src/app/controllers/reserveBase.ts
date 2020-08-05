@@ -3,7 +3,6 @@
  * 予約ベースコントローラー
  */
 import * as cinerinoapi from '@cinerino/sdk';
-import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as conf from 'config';
 import * as createDebug from 'debug';
 import { Request, Response } from 'express';
@@ -15,7 +14,7 @@ import ReserveSessionModel from '../models/reserve/session';
 
 const debug = createDebug('ttts-frontend:controller:reserveBase');
 
-const authClient = new tttsapi.auth.ClientCredentials({
+const authClient = new cinerinoapi.auth.ClientCredentials({
     domain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
     clientId: <string>process.env.API_CLIENT_ID,
     clientSecret: <string>process.env.API_CLIENT_SECRET,
@@ -300,36 +299,23 @@ export async function processFixPerformance(
     reservationModel: ReserveSessionModel, perfomanceId: string, req: Request
 ): Promise<void> {
     debug('fixing performance...', perfomanceId);
-    // パフォーマンス取得
-
-    const performanceService = new tttsapi.service.Event({
-        endpoint: <string>process.env.API_ENDPOINT,
-        auth: authClient
-    });
+    // イベント取得
     const eventService = new cinerinoapi.service.Event({
         endpoint: <string>process.env.CINERINO_API_ENDPOINT,
         auth: authClient
     });
 
-    const performance = await performanceService.findPerofrmanceById({ id: perfomanceId });
-    if (performance === null) {
-        throw new Error(req.__('NotFound'));
-    }
+    const event = await eventService.findById<cinerinoapi.factory.chevre.eventType.ScreeningEvent>({ id: perfomanceId });
 
     // 上映日当日まで購入可能
-    // tslint:disable-next-line:no-magic-numbers
-    if (parseInt(moment(performance.startDate).format('YYYYMMDD'), 10) < parseInt(moment().format('YYYYMMDD'), 10)) {
+    if (Number(moment(event.startDate).tz('Asia/Tokyo').format('YYYYMMDD')) < Number(moment().tz('Asia/Tokyo').format('YYYYMMDD'))) {
         throw new Error(req.__('Message.OutOfTerm'));
-    }
-
-    if (performance.ticket_type_group === undefined || performance.ticket_type_group === null) {
-        throw new Error('Ticket type group undefined');
     }
 
     // Cinerinoでオファー検索
     const offers = await eventService.searchTicketOffers(
         {
-            event: { id: performance.id },
+            event: { id: event.id },
             seller: {
                 typeOf: reservationModel.transactionInProgress.seller.typeOf,
                 id: <string>reservationModel.transactionInProgress.seller.id
@@ -346,7 +332,7 @@ export async function processFixPerformance(
     });
 
     // パフォーマンス情報を保管
-    reservationModel.transactionInProgress.performance = performance;
+    reservationModel.transactionInProgress.performance = event;
 }
 
 export type ICompoundPriceSpecification = cinerinoapi.factory.chevre.compoundPriceSpecification.IPriceSpecification<any>;

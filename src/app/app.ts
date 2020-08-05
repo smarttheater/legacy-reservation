@@ -18,6 +18,7 @@ import notFoundHandler from './middlewares/notFoundHandler';
 import session from './middlewares/session';
 import setLocals from './middlewares/setLocals';
 
+import apiRouter from './routes/api';
 import customerRouter from './routes/customer';
 import entranceRouter from './routes/entrance';
 import router from './routes/router';
@@ -79,6 +80,7 @@ app.use(expressValidator()); // バリデーション
 app.use(setLocals); // ローカル変数セット
 
 // ルーティング登録の順序に注意！
+app.use('/api', apiRouter);
 app.use('/customer', customerRouter);
 app.use('/entrance', entranceRouter);
 app.use('/', router);

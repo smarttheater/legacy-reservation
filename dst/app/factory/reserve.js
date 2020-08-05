@@ -32,7 +32,6 @@ function createEmailAttributes(event, customerProfile, price, ticketTypes, res) 
     };
 }
 exports.createEmailAttributes = createEmailAttributes;
-// tslint:disable-next-line:max-func-body-length
 function getMailTemplate(event, customerProfile, price, ticketTypes, res) {
     const mail = [];
     const locale = res.locale;
@@ -52,7 +51,6 @@ function getMailTemplate(event, customerProfile, price, ticketTypes, res) {
     mail.push(res.__('EmailHead2'));
     mail.push('');
     // 購入番号
-    // mail.push(`${res.__('PaymentNo')} : #{order.identifier.find((i)=>i.name==='paymentNo').value}`);
     mail.push(`${res.__('PaymentNo')} : #{order.confirmationNumber}`);
     // ご来塔日時
     const day = moment(event.startDate).tz('Asia/Tokyo').format('YYYY/MM/DD');

@@ -14,7 +14,6 @@
 </footer>
 
 <script>
-    window.ttts.API_ENDPOINT = '<%= process.env.API_ENDPOINT %>';
     window.ttts.commonlocales = {
         Next: '<%= __('Next') %>',
         Sending: '<%= __('Processing') %>',
@@ -22,7 +21,7 @@
     };
     window.ttts.reservation_maxq = '<%- conf.get('reservation_maxq') %>';
     window.ttts.reservation_maxq_wheelchair = '<%- conf.get('reservation_maxq_wheelchair') %>';
-    $(document).on('click', '.update-locale', function(){
+    $(document).on('click', '.update-locale', function () {
         location.href = '/language/update/' + $(this).attr('data-locale') + '?cb=' + location.href;
     })
 </script>
