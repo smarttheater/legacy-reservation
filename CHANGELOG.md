@@ -17,6 +17,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+## v8.16.1 - 2020-09-01
+
+### Changed
+
+- 注意文言追加
 
 ## v8.16.0 - 2020-08-05
 
