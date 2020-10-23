@@ -32,7 +32,7 @@ export function createEmailAttributes(
     );
 
     return {
-        typeOf: cinerinoapi.factory.creativeWorkType.EmailMessage,
+        typeOf: cinerinoapi.factory.chevre.creativeWorkType.EmailMessage,
         sender: {
             name: conf.get<string>('email.fromname'),
             email: conf.get<string>('email.from')

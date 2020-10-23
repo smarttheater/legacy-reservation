@@ -229,6 +229,7 @@ exports.tickets = tickets;
  */
 // tslint:disable-next-line:max-func-body-length
 function profile(req, res, next) {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const reservationModel = session_1.default.FIND(req);
@@ -317,7 +318,7 @@ function profile(req, res, next) {
             if (paymentAccepted !== undefined) {
                 const creditCardPaymentAccepted = paymentAccepted.find((p) => p.paymentMethodType === cinerinoapi.factory.paymentMethodType.CreditCard);
                 if (creditCardPaymentAccepted !== undefined) {
-                    gmoShopId = creditCardPaymentAccepted.gmoInfo.shopId;
+                    gmoShopId = (_a = creditCardPaymentAccepted.gmoInfo) === null || _a === void 0 ? void 0 : _a.shopId;
                 }
             }
             res.render('customer/reserve/profile', {
@@ -526,12 +527,11 @@ function processFixGMO(reservationModel, req) {
                 const gmoTokenObject = JSON.parse(req.body.gmoTokenObject);
                 const amount = reservationModel.getTotalCharge();
                 // クレジットカードオーソリ取得
-                debug('creating credit card authorizeAction...');
                 const action = yield paymentService.authorizeCreditCard({
                     object: {
-                        typeOf: cinerinoapi.factory.paymentMethodType.CreditCard,
+                        typeOf: cinerinoapi.factory.action.authorize.paymentMethod.any.ResultType.Payment,
+                        paymentMethod: cinerinoapi.factory.chevre.paymentMethodType.CreditCard,
                         amount: amount,
-                        // tslint:disable-next-line:no-suspicious-comment
                         method: '1',
                         creditCard: gmoTokenObject
                     },

@@ -334,10 +334,10 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
         // 販売者情報からクレジットカード情報を取り出す
         const paymentAccepted = reservationModel.transactionInProgress.seller.paymentAccepted;
         if (paymentAccepted !== undefined) {
-            const creditCardPaymentAccepted = <cinerinoapi.factory.seller.ICreditCardPaymentAccepted>
+            const creditCardPaymentAccepted = <cinerinoapi.factory.seller.IPaymentAccepted>
                 paymentAccepted.find((p) => p.paymentMethodType === cinerinoapi.factory.paymentMethodType.CreditCard);
             if (creditCardPaymentAccepted !== undefined) {
-                gmoShopId = creditCardPaymentAccepted.gmoInfo.shopId;
+                gmoShopId = <string>creditCardPaymentAccepted.gmoInfo?.shopId;
             }
         }
 
@@ -585,13 +585,12 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
             const amount = reservationModel.getTotalCharge();
 
             // クレジットカードオーソリ取得
-            debug('creating credit card authorizeAction...');
             const action = await paymentService.authorizeCreditCard({
                 object: {
-                    typeOf: cinerinoapi.factory.paymentMethodType.CreditCard,
+                    typeOf: cinerinoapi.factory.action.authorize.paymentMethod.any.ResultType.Payment,
+                    paymentMethod: cinerinoapi.factory.chevre.paymentMethodType.CreditCard,
                     amount: amount,
-                    // tslint:disable-next-line:no-suspicious-comment
-                    method: <any>'1', // TODO 定数化
+                    method: '1',
                     creditCard: gmoTokenObject
                 },
                 purpose: {

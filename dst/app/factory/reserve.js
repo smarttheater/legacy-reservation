@@ -18,7 +18,7 @@ function createEmailAttributes(event, customerProfile, price, ticketTypes, res) 
     // メール本文取得
     const text = getMailTemplate(event, customerProfile, price, ticketTypes, res);
     return {
-        typeOf: cinerinoapi.factory.creativeWorkType.EmailMessage,
+        typeOf: cinerinoapi.factory.chevre.creativeWorkType.EmailMessage,
         sender: {
             name: conf.get('email.fromname'),
             email: conf.get('email.from')
