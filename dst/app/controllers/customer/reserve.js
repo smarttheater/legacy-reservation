@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.complete = exports.createEmail = exports.confirm = exports.profile = exports.tickets = exports.performances = exports.changeCategory = exports.start = void 0;
+exports.complete = exports.createEmail = exports.confirm = exports.profile = exports.tickets = exports.performances = exports.changeCategory = exports.start = exports.CODE_EXPIRES_IN_SECONDS = void 0;
 /**
  * 予約コントローラー
  */
@@ -24,6 +24,7 @@ const reservePerformanceForm_1 = require("../../forms/reserve/reservePerformance
 const session_1 = require("../../models/reserve/session");
 const reserveBaseController = require("../reserveBase");
 const reserve_1 = require("../../factory/reserve");
+exports.CODE_EXPIRES_IN_SECONDS = 8035200; // 93日
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 const reserveMaxDateInfo = conf.get('reserve_max_date');
 const authClient = new cinerinoapi.auth.ClientCredentials({
@@ -32,6 +33,10 @@ const authClient = new cinerinoapi.auth.ClientCredentials({
     clientSecret: process.env.API_CLIENT_SECRET,
     scopes: [],
     state: ''
+});
+const orderService = new cinerinoapi.service.Order({
+    endpoint: process.env.CINERINO_API_ENDPOINT,
+    auth: authClient
 });
 const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOrder4ttts({
     endpoint: process.env.CINERINO_API_ENDPOINT,
@@ -383,12 +388,32 @@ function confirm(req, res, next) {
                             }
                         }
                     });
+                    const order = transactionResult.order;
                     debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
+                    // 注文承認
+                    let code;
+                    try {
+                        const authorizeOrderResult = yield orderService.authorize({
+                            object: {
+                                orderNumber: order.orderNumber,
+                                customer: { telephone: order.customer.telephone }
+                            },
+                            result: {
+                                expiresInSeconds: exports.CODE_EXPIRES_IN_SECONDS
+                            }
+                        });
+                        code = authorizeOrderResult.code;
+                    }
+                    catch (error) {
+                        // tslint:disable-next-line:no-console
+                        console.error(error);
+                    }
                     // 印刷トークン生成
                     const reservationIds = transactionResult.order.acceptedOffers.map((o) => o.itemOffered.id);
                     const printToken = yield createPrintToken(reservationIds);
                     // 購入結果セッション作成
-                    req.session.transactionResult = Object.assign(Object.assign({}, transactionResult), { printToken, paymentNo: transactionResult.order.confirmationNumber });
+                    req.session.transactionResult = Object.assign(Object.assign({}, transactionResult), { code,
+                        printToken, paymentNo: transactionResult.order.confirmationNumber });
                     // 購入フローセッションは削除
                     session_1.default.REMOVE(req);
                     res.redirect('/customer/reserve/complete');

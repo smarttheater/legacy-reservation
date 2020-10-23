@@ -16,6 +16,8 @@ import * as reserveBaseController from '../reserveBase';
 
 import { createEmailAttributes } from '../../factory/reserve';
 
+export const CODE_EXPIRES_IN_SECONDS = 8035200; // 93日
+
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 
 const reserveMaxDateInfo = conf.get<{ [period: string]: number }>('reserve_max_date');
@@ -28,6 +30,10 @@ const authClient = new cinerinoapi.auth.ClientCredentials({
     state: ''
 });
 
+const orderService = new cinerinoapi.service.Order({
+    endpoint: <string>process.env.CINERINO_API_ENDPOINT,
+    auth: authClient
+});
 const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOrder4ttts({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
     auth: authClient
@@ -404,7 +410,26 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                         }
                     }
                 });
+                const order = transactionResult.order;
                 debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
+
+                // 注文承認
+                let code: string | undefined;
+                try {
+                    const authorizeOrderResult = await orderService.authorize({
+                        object: {
+                            orderNumber: order.orderNumber,
+                            customer: { telephone: order.customer.telephone }
+                        },
+                        result: {
+                            expiresInSeconds: CODE_EXPIRES_IN_SECONDS
+                        }
+                    });
+                    code = authorizeOrderResult.code;
+                } catch (error) {
+                    // tslint:disable-next-line:no-console
+                    console.error(error);
+                }
 
                 // 印刷トークン生成
                 const reservationIds =
@@ -414,6 +439,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 // 購入結果セッション作成
                 (<Express.Session>req.session).transactionResult = {
                     ...transactionResult,
+                    code,
                     printToken,
                     paymentNo: transactionResult.order.confirmationNumber
                 };
