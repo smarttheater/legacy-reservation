@@ -393,6 +393,11 @@ function confirm(req, res, next) {
                     // 注文承認
                     let code;
                     try {
+                        // まず注文作成(非同期処理が間に合わない可能性ありなので)
+                        yield orderService.placeOrder(Object.assign({ orderNumber: order.orderNumber }, {
+                            confirmationNumber: order.confirmationNumber
+                        }));
+                        debug('order placed', order.orderNumber);
                         const authorizeOrderResult = yield orderService.authorize({
                             object: {
                                 orderNumber: order.orderNumber,
@@ -403,6 +408,7 @@ function confirm(req, res, next) {
                             }
                         });
                         code = authorizeOrderResult.code;
+                        debug('order code published', code);
                     }
                     catch (error) {
                         // tslint:disable-next-line:no-console

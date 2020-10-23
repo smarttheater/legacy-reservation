@@ -416,6 +416,15 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 // 注文承認
                 let code: string | undefined;
                 try {
+                    // まず注文作成(非同期処理が間に合わない可能性ありなので)
+                    await orderService.placeOrder({
+                        orderNumber: order.orderNumber,
+                        ...{
+                            confirmationNumber: order.confirmationNumber
+                        }
+                    });
+                    debug('order placed', order.orderNumber);
+
                     const authorizeOrderResult = await orderService.authorize({
                         object: {
                             orderNumber: order.orderNumber,
@@ -426,6 +435,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                         }
                     });
                     code = authorizeOrderResult.code;
+                    debug('order code published', code);
                 } catch (error) {
                     // tslint:disable-next-line:no-console
                     console.error(error);
