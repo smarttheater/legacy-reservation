@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- 入場QRコードに注文コードを追加
+
 ### Deprecated
 
 ### Removed
