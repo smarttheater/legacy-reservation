@@ -6,7 +6,6 @@ import * as conf from 'config';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import { BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS } from 'http-status';
-import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment-timezone';
 
 import reservePaymentCreditForm from '../../forms/reserve/reservePaymentCreditForm';
@@ -15,6 +14,8 @@ import ReserveSessionModel from '../../models/reserve/session';
 import * as reserveBaseController from '../reserveBase';
 
 import { createEmailAttributes } from '../../factory/reserve';
+
+export const CODE_EXPIRES_IN_SECONDS = 8035200; // 93日
 
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 
@@ -28,6 +29,10 @@ const authClient = new cinerinoapi.auth.ClientCredentials({
     state: ''
 });
 
+const orderService = new cinerinoapi.service.Order({
+    endpoint: <string>process.env.CINERINO_API_ENDPOINT,
+    auth: authClient
+});
 const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOrder4ttts({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
     auth: authClient
@@ -56,7 +61,6 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
     try {
         // 購入結果セッション初期化
         delete (<Express.Session>req.session).transactionResult;
-        delete (<Express.Session>req.session).printToken;
 
         const reservationModel = await reserveBaseController.processStart(req);
 
@@ -334,10 +338,10 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
         // 販売者情報からクレジットカード情報を取り出す
         const paymentAccepted = reservationModel.transactionInProgress.seller.paymentAccepted;
         if (paymentAccepted !== undefined) {
-            const creditCardPaymentAccepted = <cinerinoapi.factory.seller.ICreditCardPaymentAccepted>
+            const creditCardPaymentAccepted = <cinerinoapi.factory.seller.IPaymentAccepted>
                 paymentAccepted.find((p) => p.paymentMethodType === cinerinoapi.factory.paymentMethodType.CreditCard);
             if (creditCardPaymentAccepted !== undefined) {
-                gmoShopId = creditCardPaymentAccepted.gmoInfo.shopId;
+                gmoShopId = <string>creditCardPaymentAccepted.gmoInfo?.shopId;
             }
         }
 
@@ -404,18 +408,42 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                         }
                     }
                 });
+                const order = transactionResult.order;
                 debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
 
-                // 印刷トークン生成
-                const reservationIds =
-                    transactionResult.order.acceptedOffers.map((o) => (<cinerinoapi.factory.order.IReservation>o.itemOffered).id);
-                const printToken = await createPrintToken(reservationIds);
+                // 注文承認
+                let code: string | undefined;
+                try {
+                    // まず注文作成(非同期処理が間に合わない可能性ありなので)
+                    await orderService.placeOrder({
+                        orderNumber: order.orderNumber,
+                        ...{
+                            confirmationNumber: order.confirmationNumber
+                        }
+                    });
+                    debug('order placed', order.orderNumber);
+
+                    const authorizeOrderResult = await orderService.authorize({
+                        object: {
+                            orderNumber: order.orderNumber,
+                            customer: { telephone: order.customer.telephone }
+                        },
+                        result: {
+                            expiresInSeconds: CODE_EXPIRES_IN_SECONDS
+                        }
+                    });
+                    code = authorizeOrderResult.code;
+                    debug('order code published', code);
+                } catch (error) {
+                    // tslint:disable-next-line:no-console
+                    console.error(error);
+                }
 
                 // 購入結果セッション作成
                 (<Express.Session>req.session).transactionResult = {
                     ...transactionResult,
-                    printToken,
-                    paymentNo: transactionResult.order.confirmationNumber
+                    paymentNo: transactionResult.order.confirmationNumber,
+                    ...(typeof code === 'string') ? { code } : undefined
                 };
 
                 // 購入フローセッションは削除
@@ -476,34 +504,6 @@ export function createEmail(
 }
 
 /**
- * 印刷トークンインターフェース
- */
-export type IPrintToken = string;
-/**
- * 印刷トークン対象(予約IDリスト)インターフェース
- */
-export type IPrintObject = string[];
-
-/**
- * 予約印刷トークンを発行する
- */
-async function createPrintToken(object: IPrintObject): Promise<IPrintToken> {
-    return new Promise<IPrintToken>((resolve, reject) => {
-        const payload = {
-            object: object
-        };
-
-        jwt.sign(payload, <string>process.env.TTTS_TOKEN_SECRET, (jwtErr, token) => {
-            if (jwtErr instanceof Error) {
-                reject(jwtErr);
-            } else {
-                resolve(token);
-            }
-        });
-    });
-}
-
-/**
  * 予約完了
  */
 export async function complete(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -535,7 +535,7 @@ export async function complete(req: Request, res: Response, next: NextFunction):
             order: transactionResult.order,
             reservations: reservations,
             paymentNo: transactionResult.paymentNo,
-            printToken: transactionResult.printToken
+            ...(typeof transactionResult.code === 'string') ? { code: transactionResult.code } : undefined
         });
     } catch (error) {
         next(new Error(req.__('UnexpectedError')));
@@ -585,13 +585,12 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
             const amount = reservationModel.getTotalCharge();
 
             // クレジットカードオーソリ取得
-            debug('creating credit card authorizeAction...');
             const action = await paymentService.authorizeCreditCard({
                 object: {
-                    typeOf: cinerinoapi.factory.paymentMethodType.CreditCard,
+                    typeOf: cinerinoapi.factory.action.authorize.paymentMethod.any.ResultType.Payment,
+                    paymentMethod: cinerinoapi.factory.chevre.paymentMethodType.CreditCard,
                     amount: amount,
-                    // tslint:disable-next-line:no-suspicious-comment
-                    method: <any>'1', // TODO 定数化
+                    method: '1',
                     creditCard: gmoTokenObject
                 },
                 purpose: {

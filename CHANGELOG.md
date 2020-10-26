@@ -17,6 +17,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v8.17.0 - 2020-10-26
+
+### Changed
+
+- update @cinerino/sdk
+- チケット印刷URLをprintByOrderNumberに変更
+- 購入完了ページ表示前に注文承認処理を追加
+- 印刷トークンを発行しないように調整
+- uninstall @types/jsonwebtoken
+
 ## v8.16.1 - 2020-09-01
 
 ### Changed

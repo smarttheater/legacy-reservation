@@ -113,8 +113,8 @@ declare global {
              * 成立した取引結果
              */
             transactionResult?: cinerinoapi.factory.transaction.placeOrder.IResult & {
+                code?: string;
                 paymentNo: string;
-                printToken: string;
             };
         }
     }
