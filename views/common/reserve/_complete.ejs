@@ -45,11 +45,18 @@ if (Array.isArray(performance.additionalProperty)) {
         <tr class="tr-qr">
             <th><%- __('QRCode') %></th>
             <td>
-                <% reservations.forEach((reservation, index) => { %>
+                <% reservations.forEach((reservation, index) => {
+                    let qrCode = reservation.id;
+
+                    // 注文コードが発行されていれば、QRコードに情報追加
+                    if (typeof code ==='string' && code.length > 0) {
+                        // qrCode += `@${code}`;
+                    }
+                %>
                 <div class="wrapper-qrcodes">
                     <div>
                         <p>
-                            <span class="codeimg-barcode" data-qrcode=<%= reservation.id %>></span>
+                            <span class="codeimg-barcode" data-qrcode="<%= qrCode %>"></span>
                         </p>
                         <p>
                             <%- reservation.reservedTicket.ticketType.name[locale] || reservation.reservedTicket.ticketType.name.en %>

@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.17.1 - 2020-10-26
+
+### Changed
+
+- 注文作成のパラメータを調整
+
 ## v8.17.0 - 2020-10-26
 
 ### Changed

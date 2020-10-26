@@ -372,15 +372,14 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
 
         if (req.method === 'POST') {
             try {
-                // 購入番号発行
                 if (reservationModel.transactionInProgress.performance === undefined) {
                     throw new cinerinoapi.factory.errors.Argument('Transaction', 'Event required');
                 }
 
-                // メール作成
+                // 注文完了メール作成
                 const emailAttributes = createEmail(reservationModel, res);
 
-                // 予約確定
+                // 取引確定
                 const transactionResult = await placeOrderTransactionService.confirm({
                     id: reservationModel.transactionInProgress.id,
                     potentialActions: {
@@ -419,6 +418,16 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                         orderNumber: order.orderNumber,
                         ...{
                             confirmationNumber: order.confirmationNumber
+                        },
+                        ...{
+                            object: {
+                                orderNumber: order.orderNumber,
+                                confirmationNumber: order.confirmationNumber
+                            },
+                            purpose: {
+                                typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
+                                id: reservationModel.transactionInProgress.id
+                            }
                         }
                     });
                     debug('order placed', order.orderNumber);

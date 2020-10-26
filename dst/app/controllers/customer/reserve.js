@@ -352,13 +352,12 @@ function confirm(req, res, next) {
             }
             if (req.method === 'POST') {
                 try {
-                    // 購入番号発行
                     if (reservationModel.transactionInProgress.performance === undefined) {
                         throw new cinerinoapi.factory.errors.Argument('Transaction', 'Event required');
                     }
-                    // メール作成
+                    // 注文完了メール作成
                     const emailAttributes = createEmail(reservationModel, res);
-                    // 予約確定
+                    // 取引確定
                     const transactionResult = yield placeOrderTransactionService.confirm({
                         id: reservationModel.transactionInProgress.id,
                         potentialActions: {
@@ -392,8 +391,17 @@ function confirm(req, res, next) {
                     let code;
                     try {
                         // まず注文作成(非同期処理が間に合わない可能性ありなので)
-                        yield orderService.placeOrder(Object.assign({ orderNumber: order.orderNumber }, {
+                        yield orderService.placeOrder(Object.assign(Object.assign({ orderNumber: order.orderNumber }, {
                             confirmationNumber: order.confirmationNumber
+                        }), {
+                            object: {
+                                orderNumber: order.orderNumber,
+                                confirmationNumber: order.confirmationNumber
+                            },
+                            purpose: {
+                                typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
+                                id: reservationModel.transactionInProgress.id
+                            }
                         }));
                         debug('order placed', order.orderNumber);
                         const authorizeOrderResult = yield orderService.authorize({
