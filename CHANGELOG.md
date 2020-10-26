@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - チケット印刷URLをprintByOrderNumberに変更
 - 購入完了ページ表示前に注文承認処理を追加
 - 印刷トークンを発行しないように調整
+- uninstall @types/jsonwebtoken
 
 ### Deprecated
 

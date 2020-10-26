@@ -17,7 +17,6 @@ const cinerinoapi = require("@cinerino/sdk");
 const conf = require("config");
 const createDebug = require("debug");
 const http_status_1 = require("http-status");
-// import * as jwt from 'jsonwebtoken';
 const moment = require("moment-timezone");
 const reservePaymentCreditForm_1 = require("../../forms/reserve/reservePaymentCreditForm");
 const reservePerformanceForm_1 = require("../../forms/reserve/reservePerformanceForm");
@@ -63,7 +62,6 @@ function start(req, res, next) {
         try {
             // 購入結果セッション初期化
             delete req.session.transactionResult;
-            delete req.session.printToken;
             const reservationModel = yield reserveBaseController.processStart(req);
             reservationModel.save(req);
             // パフォーマンス選択へ遷移
@@ -414,14 +412,8 @@ function confirm(req, res, next) {
                         // tslint:disable-next-line:no-console
                         console.error(error);
                     }
-                    // 印刷トークン生成
-                    // const reservationIds =
-                    //     transactionResult.order.acceptedOffers.map((o) => (<cinerinoapi.factory.order.IReservation>o.itemOffered).id);
-                    // const printToken = await createPrintToken(reservationIds);
                     // 購入結果セッション作成
-                    req.session.transactionResult = Object.assign(Object.assign({}, transactionResult), { code, 
-                        // printToken,
-                        paymentNo: transactionResult.order.confirmationNumber });
+                    req.session.transactionResult = Object.assign(Object.assign(Object.assign({}, transactionResult), { paymentNo: transactionResult.order.confirmationNumber }), (typeof code === 'string') ? { code } : undefined);
                     // 購入フローセッションは削除
                     session_1.default.REMOVE(req);
                     res.redirect('/customer/reserve/complete');
@@ -469,27 +461,6 @@ function createEmail(reservationModel, res) {
 }
 exports.createEmail = createEmail;
 /**
- * 印刷トークン対象(予約IDリスト)インターフェース
- */
-// export type IPrintObject = string[];
-/**
- * 予約印刷トークンを発行する
- */
-// async function createPrintToken(object: IPrintObject): Promise<IPrintToken> {
-//     return new Promise<IPrintToken>((resolve, reject) => {
-//         const payload = {
-//             object: object
-//         };
-//         jwt.sign(payload, <string>process.env.TTTS_TOKEN_SECRET, (jwtErr, token) => {
-//             if (jwtErr instanceof Error) {
-//                 reject(jwtErr);
-//             } else {
-//                 resolve(token);
-//             }
-//         });
-//     });
-// }
-/**
  * 予約完了
  */
 function complete(req, res, next) {
@@ -509,12 +480,7 @@ function complete(req, res, next) {
             });
             // チケットを券種コードでソート
             sortReservationstByTicketType(reservations);
-            res.render('customer/reserve/complete', {
-                order: transactionResult.order,
-                reservations: reservations,
-                paymentNo: transactionResult.paymentNo
-                // printToken: transactionResult.printToken
-            });
+            res.render('customer/reserve/complete', Object.assign({ order: transactionResult.order, reservations: reservations, paymentNo: transactionResult.paymentNo }, (typeof transactionResult.code === 'string') ? { code: transactionResult.code } : undefined));
         }
         catch (error) {
             next(new Error(req.__('UnexpectedError')));

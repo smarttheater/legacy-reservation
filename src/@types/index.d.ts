@@ -115,7 +115,6 @@ declare global {
             transactionResult?: cinerinoapi.factory.transaction.placeOrder.IResult & {
                 code?: string;
                 paymentNo: string;
-                // printToken: string;
             };
         }
     }

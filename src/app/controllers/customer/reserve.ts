@@ -6,7 +6,6 @@ import * as conf from 'config';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import { BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS } from 'http-status';
-// import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment-timezone';
 
 import reservePaymentCreditForm from '../../forms/reserve/reservePaymentCreditForm';
@@ -62,7 +61,6 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
     try {
         // 購入結果セッション初期化
         delete (<Express.Session>req.session).transactionResult;
-        delete (<Express.Session>req.session).printToken;
 
         const reservationModel = await reserveBaseController.processStart(req);
 
@@ -441,17 +439,11 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                     console.error(error);
                 }
 
-                // 印刷トークン生成
-                // const reservationIds =
-                //     transactionResult.order.acceptedOffers.map((o) => (<cinerinoapi.factory.order.IReservation>o.itemOffered).id);
-                // const printToken = await createPrintToken(reservationIds);
-
                 // 購入結果セッション作成
                 (<Express.Session>req.session).transactionResult = {
                     ...transactionResult,
-                    code,
-                    // printToken,
-                    paymentNo: transactionResult.order.confirmationNumber
+                    paymentNo: transactionResult.order.confirmationNumber,
+                    ...(typeof code === 'string') ? { code } : undefined
                 };
 
                 // 購入フローセッションは削除
@@ -512,34 +504,6 @@ export function createEmail(
 }
 
 /**
- * 印刷トークンインターフェース
- */
-export type IPrintToken = string;
-/**
- * 印刷トークン対象(予約IDリスト)インターフェース
- */
-// export type IPrintObject = string[];
-
-/**
- * 予約印刷トークンを発行する
- */
-// async function createPrintToken(object: IPrintObject): Promise<IPrintToken> {
-//     return new Promise<IPrintToken>((resolve, reject) => {
-//         const payload = {
-//             object: object
-//         };
-
-//         jwt.sign(payload, <string>process.env.TTTS_TOKEN_SECRET, (jwtErr, token) => {
-//             if (jwtErr instanceof Error) {
-//                 reject(jwtErr);
-//             } else {
-//                 resolve(token);
-//             }
-//         });
-//     });
-// }
-
-/**
  * 予約完了
  */
 export async function complete(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -570,8 +534,8 @@ export async function complete(req: Request, res: Response, next: NextFunction):
         res.render('customer/reserve/complete', {
             order: transactionResult.order,
             reservations: reservations,
-            paymentNo: transactionResult.paymentNo
-            // printToken: transactionResult.printToken
+            paymentNo: transactionResult.paymentNo,
+            ...(typeof transactionResult.code === 'string') ? { code: transactionResult.code } : undefined
         });
     } catch (error) {
         next(new Error(req.__('UnexpectedError')));
