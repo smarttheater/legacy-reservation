@@ -391,9 +391,7 @@ function confirm(req, res, next) {
                     let code;
                     try {
                         // まず注文作成(非同期処理が間に合わない可能性ありなので)
-                        yield orderService.placeOrder(Object.assign(Object.assign({ orderNumber: order.orderNumber }, {
-                            confirmationNumber: order.confirmationNumber
-                        }), {
+                        yield orderService.placeOrder({
                             object: {
                                 orderNumber: order.orderNumber,
                                 confirmationNumber: order.confirmationNumber
@@ -402,7 +400,7 @@ function confirm(req, res, next) {
                                 typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
                                 id: reservationModel.transactionInProgress.id
                             }
-                        }));
+                        });
                         debug('order placed', order.orderNumber);
                         const authorizeOrderResult = yield orderService.authorize({
                             object: {

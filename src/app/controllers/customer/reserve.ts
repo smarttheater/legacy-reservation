@@ -415,19 +415,13 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 try {
                     // まず注文作成(非同期処理が間に合わない可能性ありなので)
                     await orderService.placeOrder({
-                        orderNumber: order.orderNumber,
-                        ...{
+                        object: {
+                            orderNumber: order.orderNumber,
                             confirmationNumber: order.confirmationNumber
                         },
-                        ...{
-                            object: {
-                                orderNumber: order.orderNumber,
-                                confirmationNumber: order.confirmationNumber
-                            },
-                            purpose: {
-                                typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
-                                id: reservationModel.transactionInProgress.id
-                            }
+                        purpose: {
+                            typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
+                            id: reservationModel.transactionInProgress.id
                         }
                     });
                     debug('order placed', order.orderNumber);
