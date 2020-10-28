@@ -415,19 +415,13 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 try {
                     // まず注文作成(非同期処理が間に合わない可能性ありなので)
                     await orderService.placeOrder({
-                        orderNumber: order.orderNumber,
-                        ...{
+                        object: {
+                            orderNumber: order.orderNumber,
                             confirmationNumber: order.confirmationNumber
                         },
-                        ...{
-                            object: {
-                                orderNumber: order.orderNumber,
-                                confirmationNumber: order.confirmationNumber
-                            },
-                            purpose: {
-                                typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
-                                id: reservationModel.transactionInProgress.id
-                            }
+                        purpose: {
+                            typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
+                            id: reservationModel.transactionInProgress.id
                         }
                     });
                     debug('order placed', order.orderNumber);
@@ -451,7 +445,6 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 // 購入結果セッション作成
                 (<Express.Session>req.session).transactionResult = {
                     ...transactionResult,
-                    paymentNo: transactionResult.order.confirmationNumber,
                     ...(typeof code === 'string') ? { code } : undefined
                 };
 
@@ -543,7 +536,6 @@ export async function complete(req: Request, res: Response, next: NextFunction):
         res.render('customer/reserve/complete', {
             order: transactionResult.order,
             reservations: reservations,
-            paymentNo: transactionResult.paymentNo,
             ...(typeof transactionResult.code === 'string') ? { code: transactionResult.code } : undefined
         });
     } catch (error) {

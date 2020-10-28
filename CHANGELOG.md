@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.18.0 - 2020-10-28
+
+### Changed
+
+- 入場QRコードに注文コードを追加
+
 ## v8.17.1 - 2020-10-26
 
 ### Changed
