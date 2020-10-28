@@ -419,7 +419,7 @@ function confirm(req, res, next) {
                         console.error(error);
                     }
                     // 購入結果セッション作成
-                    req.session.transactionResult = Object.assign(Object.assign(Object.assign({}, transactionResult), { paymentNo: transactionResult.order.confirmationNumber }), (typeof code === 'string') ? { code } : undefined);
+                    req.session.transactionResult = Object.assign(Object.assign({}, transactionResult), (typeof code === 'string') ? { code } : undefined);
                     // 購入フローセッションは削除
                     session_1.default.REMOVE(req);
                     res.redirect('/customer/reserve/complete');
@@ -486,7 +486,7 @@ function complete(req, res, next) {
             });
             // チケットを券種コードでソート
             sortReservationstByTicketType(reservations);
-            res.render('customer/reserve/complete', Object.assign({ order: transactionResult.order, reservations: reservations, paymentNo: transactionResult.paymentNo }, (typeof transactionResult.code === 'string') ? { code: transactionResult.code } : undefined));
+            res.render('customer/reserve/complete', Object.assign({ order: transactionResult.order, reservations: reservations }, (typeof transactionResult.code === 'string') ? { code: transactionResult.code } : undefined));
         }
         catch (error) {
             next(new Error(req.__('UnexpectedError')));

@@ -445,7 +445,6 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 // 購入結果セッション作成
                 (<Express.Session>req.session).transactionResult = {
                     ...transactionResult,
-                    paymentNo: transactionResult.order.confirmationNumber,
                     ...(typeof code === 'string') ? { code } : undefined
                 };
 
@@ -537,7 +536,6 @@ export async function complete(req: Request, res: Response, next: NextFunction):
         res.render('customer/reserve/complete', {
             order: transactionResult.order,
             reservations: reservations,
-            paymentNo: transactionResult.paymentNo,
             ...(typeof transactionResult.code === 'string') ? { code: transactionResult.code } : undefined
         });
     } catch (error) {
