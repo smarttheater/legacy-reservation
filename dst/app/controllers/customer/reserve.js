@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.complete = exports.createEmail = exports.confirm = exports.profile = exports.tickets = exports.performances = exports.changeCategory = exports.start = exports.CODE_EXPIRES_IN_SECONDS = void 0;
+exports.print = exports.complete = exports.createEmail = exports.confirm = exports.profile = exports.tickets = exports.performances = exports.changeCategory = exports.start = exports.CODE_EXPIRES_IN_SECONDS = void 0;
 /**
  * 予約コントローラー
  */
@@ -494,6 +494,40 @@ function complete(req, res, next) {
     });
 }
 exports.complete = complete;
+/**
+ * 取引の確定した注文のチケット印刷
+ */
+function print(req, res, next) {
+    var _a, _b, _c;
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // セッションに取引結果があるはず
+            const order = (_b = (_a = req.session) === null || _a === void 0 ? void 0 : _a.transactionResult) === null || _b === void 0 ? void 0 : _b.order;
+            if (order === undefined) {
+                res.status(http_status_1.NOT_FOUND);
+                next(new Error(req.__('NotFound')));
+                return;
+            }
+            // POSTで印刷ページへ連携
+            res.render('customer/reserve/print', {
+                layout: false,
+                action: `${process.env.RESERVATIONS_PRINT_URL}?output=a4&locale=${(_c = req.session) === null || _c === void 0 ? void 0 : _c.locale}`,
+                output: 'a4',
+                orderNumber: order.orderNumber,
+                confirmationNumber: order.confirmationNumber
+            });
+            return;
+            // GETの場合こちら↓
+            // tslint:disable-next-line:max-line-length
+            // const redirect = `${process.env.RESERVATIONS_PRINT_URL}?output=a4&locale=${req.session?.locale}&orderNumber=${order.orderNumber}&confirmationNumber=${order.confirmationNumber}`;
+            // res.redirect(redirect);
+        }
+        catch (error) {
+            next(new Error(req.__('UnexpectedError')));
+        }
+    });
+}
+exports.print = print;
 /**
  * GMO決済FIXプロセス
  */
