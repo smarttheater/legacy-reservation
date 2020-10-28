@@ -544,6 +544,41 @@ export async function complete(req: Request, res: Response, next: NextFunction):
 }
 
 /**
+ * 取引の確定した注文のチケット印刷
+ */
+export async function print(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        // セッションに取引結果があるはず
+        const order = req.session?.transactionResult?.order;
+        if (order === undefined) {
+            res.status(NOT_FOUND);
+            next(new Error(req.__('NotFound')));
+
+            return;
+        }
+
+        // POSTで印刷ページへ連携
+        res.render('customer/reserve/print', {
+            layout: false,
+            action: `${process.env.RESERVATIONS_PRINT_URL}?output=a4&locale=${req.session?.locale}`,
+            output: 'a4',
+            orderNumber: order.orderNumber,
+            confirmationNumber: order.confirmationNumber
+        });
+
+        return;
+
+        // GETの場合こちら↓
+        // tslint:disable-next-line:max-line-length
+        // const redirect = `${process.env.RESERVATIONS_PRINT_URL}?output=a4&locale=${req.session?.locale}&orderNumber=${order.orderNumber}&confirmationNumber=${order.confirmationNumber}`;
+
+        // res.redirect(redirect);
+    } catch (error) {
+        next(new Error(req.__('UnexpectedError')));
+    }
+}
+
+/**
  * GMO決済FIXプロセス
  */
 async function processFixGMO(reservationModel: ReserveSessionModel, req: Request): Promise<void> {

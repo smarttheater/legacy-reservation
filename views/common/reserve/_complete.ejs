@@ -87,7 +87,7 @@ if (Array.isArray(performance.additionalProperty)) {
 
 
 <a class="btn btn-blue visible-pc" id="btn_print_a4" target="_blank"
-    href='<%- process.env.RESERVATIONS_PRINT_URL %>?output=a4&locale=<%- locale %>&orderNumber=<%= order.orderNumber %>&confirmationNumber=<%= order.confirmationNumber %>'><span><%- __('PrintTicket') %></span></a>
+    href='/customer/reserve/print'><span><%- __('PrintTicket') %></span></a>
 
 <p class="mailnotice"><%- __('CompleteNotesText') %></p>
 

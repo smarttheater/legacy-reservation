@@ -13,4 +13,5 @@ customerRouter.all('/reserve/tickets', customerReserveController.tickets);
 customerRouter.all('/reserve/profile', customerReserveController.profile);
 customerRouter.all('/reserve/confirm', customerReserveController.confirm);
 customerRouter.get('/reserve/complete', customerReserveController.complete);
+customerRouter.get('/reserve/print', customerReserveController.print);
 exports.default = customerRouter;
