@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- チケット印刷ページへの連携メソッドをPOSTへ変更
-
 ### Deprecated
 
 ### Removed
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v8.18.1 - 2020-10-28
+
+### Changed
+
+- チケット印刷ページへの連携メソッドをPOSTへ変更
 
 ## v8.18.0 - 2020-10-28
 
