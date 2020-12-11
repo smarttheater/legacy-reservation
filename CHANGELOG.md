@@ -18,6 +18,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.18.2 - 2020-12-11
+
+### Changed
+
+- @motionpicture/ttts-api-nodejs-clientへの依存を削除
+- update @cinerino/sdk
+
 ## v8.18.1 - 2020-10-28
 
 ### Changed
