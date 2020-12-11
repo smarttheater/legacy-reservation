@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- @motionpicture/ttts-api-nodejs-clientへの依存を削除
+- update @cinerino/sdk
+
 ### Deprecated
 
 ### Removed

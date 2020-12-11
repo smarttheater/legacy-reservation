@@ -101,7 +101,6 @@ $(function () {
         $.ajax({
             dataType: 'json',
             url: '/api/events',
-            // url: '/api/performances',
             type: 'GET',
             data: condition,
             beforeSend: function (xhr) {

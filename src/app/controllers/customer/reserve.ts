@@ -341,7 +341,7 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
             const creditCardPaymentAccepted = <cinerinoapi.factory.seller.IPaymentAccepted>
                 paymentAccepted.find((p) => p.paymentMethodType === cinerinoapi.factory.paymentMethodType.CreditCard);
             if (creditCardPaymentAccepted !== undefined) {
-                gmoShopId = <string>creditCardPaymentAccepted.gmoInfo?.shopId;
+                gmoShopId = <string>(<any>creditCardPaymentAccepted).gmoInfo?.shopId;
             }
         }
 

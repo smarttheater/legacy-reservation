@@ -17,9 +17,8 @@
     }
   ],
   "dependencies": {
-    "@cinerino/sdk": "1.16.0-alpha.3",
+    "@cinerino/sdk": "1.18.0",
     "@motionpicture/express-middleware": "0.0.0",
-    "@motionpicture/ttts-api-nodejs-client": "^6.1.0",
     "body-parser": "^1.18.2",
     "config": "^1.29.1",
     "connect-redis": "^3.3.3",
@@ -59,6 +58,8 @@
     "@types/numeral": "0.0.22",
     "@types/pug": "^2.0.4",
     "@types/redis": "^2.8.4",
+    "@types/request": "^2.48.5",
+    "@types/request-promise-native": "^1.0.17",
     "@types/serve-favicon": "^2.2.30",
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^3.1.1",
