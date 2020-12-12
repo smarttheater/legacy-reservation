@@ -42,17 +42,11 @@
                         tempReservationModel.ticketTypes.sort((a, b) => {
                             let ticketTypeCategory4a = '';
                             let ticketTypeCategory4b = '';
-                            if (Array.isArray(a.additionalProperty)) {
-                                const categoryProperty4a = a.additionalProperty.find((p) => p.name === 'category');
-                                if (categoryProperty4a !== undefined) {
-                                    ticketTypeCategory4a = categoryProperty4a.value;
-                                }
+                            if (a.category !== undefined && a.category !== null) {
+                                ticketTypeCategory4a = a.category.codeValue;
                             }
-                            if (Array.isArray(a.additionalProperty)) {
-                                const categoryProperty4b = b.additionalProperty.find((p) => p.name === 'category');
-                                if (categoryProperty4b !== undefined) {
-                                    ticketTypeCategory4b = categoryProperty4b.value;
-                                }
+                            if (b.category !== undefined && b.category !== null) {
+                                ticketTypeCategory4b = b.category.codeValue;
                             }
 
                             if (ticketTypeCategory4b === 'Wheelchair' && ticketTypeCategory4a !== ticketTypeCategory4b) {
@@ -65,11 +59,8 @@
 
                     tempReservationModel.ticketTypes.forEach(function(ticketType) {
                         let ticketTypeCategory = '';
-                        if (Array.isArray(ticketType.additionalProperty)) {
-                            const categoryProperty = ticketType.additionalProperty.find((p) => p.name === 'category');
-                            if (categoryProperty !== undefined) {
-                                ticketTypeCategory = categoryProperty.value;
-                            }
+                        if (ticketType.category !== undefined && ticketType.category !== null) {
+                            ticketTypeCategory = ticketType.category.codeValue;
                         }
 
                         // 一般予約(general)だったら一般券種以外を弾く

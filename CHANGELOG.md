@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.18.3 - 2020-12-12
+
+### Changed
+
+- オファーの追加特性参照をカテゴリー参照に変更
+
 ## v8.18.2 - 2020-12-11
 
 ### Changed
