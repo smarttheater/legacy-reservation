@@ -387,8 +387,6 @@ function confirm(req, res, next) {
                     });
                     const order = transactionResult.order;
                     debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
-                    // 注文承認
-                    let code;
                     try {
                         // まず注文作成(非同期処理が間に合わない可能性ありなので)
                         yield orderService.placeOrder({
@@ -402,6 +400,14 @@ function confirm(req, res, next) {
                             }
                         });
                         debug('order placed', order.orderNumber);
+                    }
+                    catch (error) {
+                        // tslint:disable-next-line:no-console
+                        console.error(error);
+                    }
+                    // 注文承認
+                    let code;
+                    try {
                         const authorizeOrderResult = yield orderService.authorize({
                             object: {
                                 orderNumber: order.orderNumber,

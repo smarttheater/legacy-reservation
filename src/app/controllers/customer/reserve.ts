@@ -410,8 +410,6 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 const order = transactionResult.order;
                 debug('transacion confirmed. orderNumber:', transactionResult.order.orderNumber);
 
-                // 注文承認
-                let code: string | undefined;
                 try {
                     // まず注文作成(非同期処理が間に合わない可能性ありなので)
                     await orderService.placeOrder({
@@ -425,7 +423,14 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                         }
                     });
                     debug('order placed', order.orderNumber);
+                } catch (error) {
+                    // tslint:disable-next-line:no-console
+                    console.error(error);
+                }
 
+                // 注文承認
+                let code: string | undefined;
+                try {
                     const authorizeOrderResult = await orderService.authorize({
                         object: {
                             orderNumber: order.orderNumber,
