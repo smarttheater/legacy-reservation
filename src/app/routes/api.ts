@@ -72,10 +72,15 @@ apiRouter.get(
                     let seatStatus: number | undefined;
                     let wheelchairAvailable: number | undefined;
 
+                    // オファー集計のcategoryで判断する(オファーコードでの判断を廃止)
                     // 一般座席の残席数
-                    seatStatus = event.aggregateOffer?.offers?.find((o) => o.identifier === '001')?.remainingAttendeeCapacity;
+                    // seatStatus = event.aggregateOffer?.offers?.find((o) => o.identifier === '001')?.remainingAttendeeCapacity;
+                    seatStatus =
+                        event.aggregateOffer?.offers?.find((o) => o.category?.codeValue !== 'Wheelchair')?.remainingAttendeeCapacity;
                     // 車椅子座席の残席数
-                    wheelchairAvailable = event.aggregateOffer?.offers?.find((o) => o.identifier === '004')?.remainingAttendeeCapacity;
+                    // wheelchairAvailable = event.aggregateOffer?.offers?.find((o) => o.identifier === '004')?.remainingAttendeeCapacity;
+                    wheelchairAvailable =
+                        event.aggregateOffer?.offers?.find((o) => o.category?.codeValue === 'Wheelchair')?.remainingAttendeeCapacity;
 
                     return {
                         id: event.id,
