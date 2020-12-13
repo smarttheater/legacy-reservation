@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- 車椅子オファーかどうかの判断をオファーカテゴリーで判断するように調整
-
 ### Deprecated
 
 ### Removed
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v8.18.4 - 2020-12-13
+
+### Changed
+
+- 車椅子オファーかどうかの判断をオファーカテゴリーで判断するように調整
 
 ## v8.18.3 - 2020-12-12
 
