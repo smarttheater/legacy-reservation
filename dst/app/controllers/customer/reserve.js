@@ -517,16 +517,12 @@ function print(req, res, next) {
             // POSTで印刷ページへ連携
             res.render('customer/reserve/print', {
                 layout: false,
-                action: `${process.env.RESERVATIONS_PRINT_URL}?output=a4&locale=${(_c = req.session) === null || _c === void 0 ? void 0 : _c.locale}`,
+                // action: `${process.env.RESERVATIONS_PRINT_URL}?output=a4&locale=${req.session?.locale}`,
+                action: `/reservations/printByOrderNumber?output=a4&locale=${(_c = req.session) === null || _c === void 0 ? void 0 : _c.locale}`,
                 output: 'a4',
                 orderNumber: order.orderNumber,
                 confirmationNumber: order.confirmationNumber
             });
-            return;
-            // GETの場合こちら↓
-            // tslint:disable-next-line:max-line-length
-            // const redirect = `${process.env.RESERVATIONS_PRINT_URL}?output=a4&locale=${req.session?.locale}&orderNumber=${order.orderNumber}&confirmationNumber=${order.confirmationNumber}`;
-            // res.redirect(redirect);
         }
         catch (error) {
             next(new Error(req.__('UnexpectedError')));

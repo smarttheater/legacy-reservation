@@ -1,0 +1,24 @@
+<%
+const locales = conf.get('locales');
+let routeName = '';
+if (req.hasOwnProperty('route')) {
+    routeName = req.route.path;
+}
+%>
+<header>
+    <div class="container">
+
+        <a href="javascript:void(0);" class="header-logo">
+            <img class="logo-tour" src="/images/common/logo_tour_black.svg" alt="Tokyo Tower Top Deck Tour">
+        </a>
+
+        <div class="header-menu">
+    
+        </div>
+
+        <div class="header-lang">
+            <p>Language</p>
+            <%- include('../../common/_select_locale.ejs') %>
+        </div>
+    </div>
+</header>

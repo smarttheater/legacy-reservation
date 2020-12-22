@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
+- 注文照会機能を追加
+- 印刷機能を追加
+
 ### Changed
 
 ### Deprecated

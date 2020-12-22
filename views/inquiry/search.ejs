@@ -1,0 +1,71 @@
+<h1 class="pagetitle"><%- __('TicketInquiry') %></h1>
+<p class="guidetext"><%- __('InquiryMessage') %></p>
+
+<div class="inquiry-searchform">
+    <form method="post">
+        <div class="menu-group">
+            <% if (message !== '') { %>
+            <p name='error_head' class="error-message error message text-danger panel-body bg-danger">
+            <%= message %>
+            <% } %>
+            </p>
+        </div>
+        <div class="form-group"> 
+            <label><%- __('PurchaseContentDay') %></label>
+            <input name="day" id="day" class="form-control flatpickr-input active" id="input_performancedate" type="text" value="">
+        </div>
+
+        <div class="form-group form-seachqueryinput">
+            <label for="input_paymentNo"><%- __('PaymentNo') %></label>
+            <input id="input_paymentNo" type="text" class="form-control input-required" name="paymentNo" value="<%= req.body.paymentNo %>" maxlength="6" data-pattern="^[0-9]+$" data-fieldname="<%- __('PaymentNo') %>" required>
+            <p class="errmsg errmsg-paymentNo"><%- (errors && errors.paymentNo ? errors.paymentNo.msg : '') %></p>
+        </div>
+
+        <div class="form-group form-seachqueryinput">
+            <label for="input_purchaserTel"><%- __('Tel') %></label><p class="guidetext"><%- __('Last4Digits') %></p>
+            <input id="input_purchaserTel" type="text" class="form-control input-required" name="purchaserTel" value="<%= req.body.purchaserTel %>" maxlength="4" data-pattern="^[0-9]+$" data-fieldname="<%- __('Tel') %>" required>
+            <p class="errmsg errmsg-purchaserTel"><%- (errors && errors.purchaserTel ? __('Last4Digits') : '') %></p>
+        </div>
+
+    </form>
+</div>
+
+<div class="navbtns">
+    <a class="btn btn-next btn-search search" href="javascript:void(0)">
+        <span>
+            <span class="hide-processing"><%- __('Inquiry') %></span>
+            <span class="show-processing"><%- __('Processing') %></span>
+        </span>
+    </a>
+    <a class="btn-back" href="https://tdt.tokyotower.co.jp/"><span><%- __('Back') %></span></a>
+</div>
+
+<div class="modal-calender">
+    <div class="modal-calender-content">
+        <div id="calendercontainer"></div>
+    </div>
+</div>
+
+<div class="modal fade loading" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="text-center"><%- __('Processing') %></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.ttts.errmsgLocales = {
+        empty: "<%-__('NoInput{{fieldName}}', { fieldName: '{{fieldName}}' }) %>",
+        invalid: "<%-__('Invalid{{fieldName}}', { fieldName: '{{fieldName}}' }) %>",
+        match: "<%-__('Match{{fieldName}}', { fieldName: '{{fieldName}}' }) %>",
+        maxLength: "<%-__('MaxLength{{fieldName}}{{max}}', { fieldName: '{{fieldName}}', max: '{{max}}' }) %>",
+    };
+    window.ttts.reservableMaxDate = '<%= reserveMaxDate %>';
+</script>
+<link href="/css/flatpickr.css" rel="stylesheet">
+<script src="/js/flatpickr/flatpickr.min.js"></script>
+<script src="/js/flatpickr/flatpickr.locale.<%= locale %>.js"></script>
+<script src="/js/inquiry/search.js"></script>

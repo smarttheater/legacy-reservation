@@ -24,5 +24,9 @@ exports.default = (req, res, next) => {
     res.locals.numeral = numeral;
     res.locals.conf = conf;
     res.locals.validation = null;
+    res.locals.officialWebsiteUrl = '';
+    res.locals.title = 'Order Details';
+    res.locals.pageId = '';
+    res.locals.pageClassName = '';
     next();
 };

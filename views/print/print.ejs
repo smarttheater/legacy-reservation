@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="<%- locale %>">
+<head>
+<meta charset="utf-8">
+<title>Tokyo Tower PRINT TICKET</title>
+<style>
+@page {
+    size: A4 portrait;
+    margin: 0;
+}
+html,
+body {
+    width: 210mm;
+    height: 297mm;
+}
+</style>
+<link href="/css/print.css" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="/js/lib/url.min.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/qr/qr.js"></script>
+<script src="/js/common/VanillaQR.js"></script>
+</head>
+<body class="page-<%- locale %>">
+
+<div class="noprint">
+    <%- include('../common/_select_locale.ejs') %>
+</div>
+
+<%
+let momentLocale = locale || 'en';
+if (momentLocale === 'zh-hans') {
+    momentLocale = 'zh-cn';
+} else if (momentLocale === 'zh-hant') {
+    momentLocale = 'zh-tw';
+}
+moment.locale(momentLocale);
+
+let paymentMethod = '';
+let paymentNo = '';
+
+// 注文情報があれば、決済方法名称を注文情報より取得
+if (order !== undefined && Array.isArray(order.paymentMethods) && order.paymentMethods.length > 0) {
+    paymentMethod = order.paymentMethods[0].name;
+    paymentNo = order.confirmationNumber;
+}
+
+for (let reservation of reservations) {
+    // ※決済手段が「無料招待」と「トップデッキのみ（手売り）」の予約はチケット価格が非表示
+    paymentMethod = reservation.paymentMethod;
+    if (reservation.underName !== undefined && Array.isArray(reservation.underName.identifier)) {
+        const paymentMethodProperty = reservation.underName.identifier.find(function (p) {
+            return p.name === 'paymentMethod';
+        });
+        if (paymentMethodProperty !== undefined) {
+            paymentMethod = paymentMethodProperty.value;
+        }            
+    }
+
+    let isNoCharge = /^(Invitation|OTC)$/.test(paymentMethod);
+
+    const performance = reservation.reservationFor;
+    let tourNumber = '';
+    if (Array.isArray(performance.additionalProperty)) {
+        const tourNumberProperty = performance.additionalProperty.find((p)=>p.name==='tourNumber');
+        if (tourNumberProperty !== undefined) {
+            tourNumber = tourNumberProperty.value;
+        }    
+    }
+
+    paymentNo = reservation.paymentNo;
+    if (reservation.underName !== undefined && Array.isArray(reservation.underName.identifier)) {
+        const paymentNoProperty = reservation.underName.identifier.find(function (p) {
+            return p.name === 'paymentNo';
+        });
+        if (paymentNoProperty !== undefined) {
+            paymentNo = paymentNoProperty.value;
+        }
+    }
+
+    let qrCode = reservation.id;
+
+    // 注文コードが発行されていれば、QRコードに情報追加
+    if (typeof reservation.code ==='string' && reservation.code.length > 0) {
+        qrCode += `@${reservation.code}`;
+    }
+%>
+<div class="printcontent">
+
+    <div class="pr-header">
+        <div class="logo-ttts">
+            <img style="width: 124px;" src="/images/common/logo.svg">
+        </div>
+        <div class="title">
+            <%- __('TicketAndReceipt') %>
+        </div>
+        <div class="logo-tour">
+            <img style="width: 60px;" src="/images/common/logo_tour_black.svg">
+        </div>
+
+    </div>
+
+    <div class="pr-thanks">
+        <%- __('TicketInfoMsg') %><br>
+    </div>
+
+    <div class="pr-qrcode pr-bg">
+        <img class="pr-bg-image" src="/images/print/bg_gray.png">
+        <div class="pr-bg-content inner">
+            <h2>
+                <%- __('SpanContainedTicketQRInfo') %>
+            </h2>
+            <div class="wrapper-qrimg pr-bg">
+                <!-- <img src="//chart.apis.google.com/chart?chs=150x150&cht=qr&chl=<%= reservation.id %>"> -->
+                <!-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&cht=qr&data=<%= reservation.id %>"> -->
+                <span class="codeimg-barcode" data-qrcode="<%= qrCode %>"></span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="pr-paddinglr">
+
+        <table class="pr-maintable">
+            <tbody>
+                <tr>
+                    <td class="main-info">
+                        <div class="pr-rsrvnum">
+                            <h3><%- __('PaymentNo') %></h3>
+                            <strong><%- paymentNo %></strong>
+                        </div>
+
+                        <div class="pr-day">
+                            <h3><%- __('PurchaseContentDay') %></h3>
+                            <strong><%- moment(reservation.reservationFor.startDate).tz('Asia/Tokyo').format('LL (ddd)') %></strong>
+                        </div>
+
+                        <div class="pr-time">
+                            <h3><%- __('PurchaseContentTime') %></h3>
+                            <strong><%- moment(reservation.reservationFor.startDate).tz('Asia/Tokyo').format('HH:mm') %> - <%- moment(reservation.reservationFor.endDate).tz('Asia/Tokyo').format('HH:mm') %> (JST)</strong>
+                        </div>
+
+                        <div class="pr-entrytime">
+                            <h3><%- __('PurchaseEntryTime') %></h3>
+                            <strong><%- moment(reservation.reservationFor.startDate).tz('Asia/Tokyo').format('HH:mm') %> - <%- moment(reservation.reservationFor.endDate).tz('Asia/Tokyo').add(5, 'minute').format('HH:mm') %> (JST)</strong>
+                        </div>
+
+                        <div class="pr-tournumber">
+                            <h3><%- __('TourNumber') %></h3>
+                            <strong><%- tourNumber %></strong>
+                        </div>
+
+                        <div class="pr-ticket">
+                            <h3><%- __('TicketType') %></h3>
+                            <strong><span class="ticketname"><%- reservation.reservedTicket.ticketType.name[locale] %></span> / <%- ((!isNoCharge) ? '<span class="is-ja">&yen;</span>' + reservation.reservedTicket.ticketType.priceSpecification.price + '<span class="is-not-ja"> JPY</span>&nbsp;' : '') %>(<%- reservation.reservedTicket.ticketedSeat.seatNumber %>)</strong>
+                        </div>
+
+                        <div class="pr-term">
+                            <h4><%- __('ImportantNotes') %></h4>
+                            <p>
+                                <%- __('TicketNotesContents') %>
+                            </p>
+                        </div>
+
+                        <div class="pr-contact">
+                            <h4><%- __('ContactUs') %></h4>
+                            <p><%- __('UrlContainedContactAvailableDay') %></p>
+                            <h4><%- __('UrlContainedOfficialSiteWithUrl') %></h4>
+                        </div>
+
+
+                    </td>
+
+                    <td class="main-map" rowspan="6">
+                        <p class="map">
+                            <img src="/images/print/map/<%- locale %>.svg">
+                        </p>
+
+                        <div class="accesstable">
+                            <h4><%- __('RailWay') %></h4>
+                            <table>
+                                <tbody>
+                                    <tr><td>
+                                        1. <%- __('Akabanebashi') %><br>
+                                        2. <%- __('Kamiyacho') %><br>
+                                        3. <%- __('Onarimon') %><br>
+                                    </td><td>
+                                        4. <%- __('Daimon') %><br>
+                                        5. <%- __('Hamamatsucho') %><br>
+                                    </td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <hr>
+
+                        <div class="stafftable">
+                            <h3><%- __('StaffPosition') %></h3>
+                            <h4><img class="mark" src="/images/print/staff_mark.svg"> : <%- __('QrCheckpoint') %></h4>
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <img src="/images/print/staff_map_1.svg">
+                                        </td>
+                                        <td>
+                                            <h4><%- __('FootTown') %></h4>
+                                            <p><%- __('FootTownInfo') %></p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <img src="/images/print/staff_map_2.svg">
+                                        </td>
+                                        <td>
+                                            <h4><%- __('TopDeckGate') %></h4>
+                                            <p><%- __('TopDeckGateInfo') %></p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+
+                </tr>
+
+
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="pr-footer">
+        <p>©2017 TOKYO TOWER. ALL RIGHTS RESERVED.</p>
+    </div>
+
+</div>
+<% } %>
+
+</body>
+</html>

@@ -18,9 +18,6 @@ import notFoundHandler from './middlewares/notFoundHandler';
 import session from './middlewares/session';
 import setLocals from './middlewares/setLocals';
 
-import apiRouter from './routes/api';
-import customerRouter from './routes/customer';
-import entranceRouter from './routes/entrance';
 import router from './routes/router';
 
 const app = express();
@@ -63,13 +60,19 @@ app.use(i18n.init);
 // セッションで言語管理
 // tslint:disable-next-line:variable-name
 app.use((req, _res, next) => {
-    if (typeof (<any>req.session).locale === 'string' && (<any>req.session).locale.length > 0) {
-        req.setLocale((<any>req.session).locale);
+    // セッションで言語管理
+    if (typeof req.session?.locale === 'string' && req.session.locale.length > 0) {
+        req.setLocale(req.session.locale);
     }
 
-    if (typeof req.query.locale === 'string' && req.query.locale.length > 0) {
+    if (typeof req.query?.locale === 'string' && req.query.locale.length > 0) {
         req.setLocale(req.query.locale);
         (<any>req.session).locale = req.query.locale;
+    }
+
+    // add 2017/06/20 set default locale
+    if (typeof req.session?.locale !== 'string' || req.session.locale.length === 0) {
+        (<any>req.session).locale = 'ja';
     }
 
     next();
@@ -79,10 +82,6 @@ app.use(expressValidator()); // バリデーション
 
 app.use(setLocals); // ローカル変数セット
 
-// ルーティング登録の順序に注意！
-app.use('/api', apiRouter);
-app.use('/customer', customerRouter);
-app.use('/entrance', entranceRouter);
 app.use('/', router);
 
 // 404
