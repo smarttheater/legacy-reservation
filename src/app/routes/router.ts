@@ -13,6 +13,8 @@ import entranceRouter from './entrance';
 import inquiryRouter from './inquiry';
 import reservationsRouter from './reservations';
 
+const NEW_ENDPOINT = process.env.NEW_ENDPOINT;
+
 // 本体サイトのトップページの言語別URL
 const topUrlByLocale = conf.get<any>('official_url_top_by_locale');
 
@@ -42,6 +44,16 @@ const getRedirectOfficialUrl = (req: Request, urlByLocale: any): string => {
 };
 
 const router = Router();
+
+router.use((req, res, next) => {
+    if (typeof NEW_ENDPOINT === 'string' && NEW_ENDPOINT.length > 0) {
+        res.redirect(`${NEW_ENDPOINT}${req.originalUrl}`);
+
+        return;
+    }
+
+    next();
+});
 
 // 言語
 router.get('/language/update/:locale', languageController.update);

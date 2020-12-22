@@ -12,6 +12,7 @@ const customer_1 = require("./customer");
 const entrance_1 = require("./entrance");
 const inquiry_1 = require("./inquiry");
 const reservations_1 = require("./reservations");
+const NEW_ENDPOINT = process.env.NEW_ENDPOINT;
 // 本体サイトのトップページの言語別URL
 const topUrlByLocale = conf.get('official_url_top_by_locale');
 // 本体サイトのFAQページの言語別URL
@@ -32,6 +33,13 @@ const getRedirectOfficialUrl = (req, urlByLocale) => {
     return (urlByLocale[locale] !== undefined) ? urlByLocale[locale] : urlByLocale.en;
 };
 const router = express_1.Router();
+router.use((req, res, next) => {
+    if (typeof NEW_ENDPOINT === 'string' && NEW_ENDPOINT.length > 0) {
+        res.redirect(`${NEW_ENDPOINT}${req.originalUrl}`);
+        return;
+    }
+    next();
+});
 // 言語
 router.get('/language/update/:locale', languageController.update);
 // ルーティング登録の順序に注意！
