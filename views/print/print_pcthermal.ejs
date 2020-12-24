@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Tokyo Tower PRINT TICKET</title>
+<link href="/css/print.css" rel="stylesheet">
+<style>
+@page {
+    size: 45mm auto;
+    margin: 0;
+}
+html,
+body {
+    width: 45mm;
+    margin: 0 auto;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="/js/lib/url.min.js"></script>
+<script src="/js/qr/qr.js"></script>
+<script src="/js/common/VanillaQR.js"></script>
+</head>
+<body>
+
+<%
+moment.locale('ja');
+
+let paymentMethod = '';
+let paymentNo = '';
+
+// 注文情報があれば、決済方法名称を注文情報より取得
+if (order !== undefined && Array.isArray(order.paymentMethods) && order.paymentMethods.length > 0) {
+    paymentMethod = order.paymentMethods[0].name;
+    paymentNo = order.confirmationNumber;
+}
+
+for (let reservation of reservations) {
+    // ※決済手段が「無料招待」と「トップデッキのみ（手売り）」の予約はチケット価格が非表示
+    if (reservation.underName !== undefined && Array.isArray(reservation.underName.identifier)) {
+        const paymentMethodProperty = reservation.underName.identifier.find(function (p) {
+            return p.name === 'paymentMethod';
+        });
+        if (paymentMethodProperty !== undefined) {
+            paymentMethod = paymentMethodProperty.value;
+        }    
+    }
+
+    let isNoCharge = /^(Invitation|OTC)$/.test(paymentMethod);
+
+    const performance = reservation.reservationFor;
+    let tourNumber = '';
+    if (Array.isArray(performance.additionalProperty)) {
+        const tourNumberProperty = performance.additionalProperty.find((p)=>p.name==='tourNumber');
+        if (tourNumberProperty !== undefined) {
+            tourNumber = tourNumberProperty.value;
+        }    
+    }
+
+    paymentNo = reservation.paymentNo;
+    if (reservation.underName !== undefined && Array.isArray(reservation.underName.identifier)) {
+        const paymentNoProperty = reservation.underName.identifier.find(function (p) {
+            return p.name === 'paymentNo';
+        });
+        if (paymentNoProperty !== undefined) {
+            paymentNo = paymentNoProperty.value;
+        }
+    }
+
+    let qrCode = reservation.id;
+
+    // 注文コードが発行されていれば、QRコードに情報追加
+    if (typeof reservation.code ==='string' && reservation.code.length > 0) {
+        qrCode += `@${reservation.code}`;
+    }
+%>
+<div class="pcthermarlprintcontent">
+
+    <p class="pr-header">
+        <img class="img-logo-ttts" src="/images/common/logo.svg"><br>
+        <img class="img-logo-tour" src="/images/common/logo_tour_black.svg"><br>        
+        チケット兼領収書<br>-TICKET &amp; RECEIPT-
+    </p>
+
+    <p class="pr-guide">QRコードを入場時にかざしてください</p>
+
+    <p class="pr-qrcode">
+        <!-- <img src="//chart.apis.google.com/chart?chs=150x150&cht=qr&chl=<%= reservation.id %>"> -->
+        <!-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&cht=qr&data=<%= reservation.id %>"> -->
+        <span class="codeimg-barcode" data-qrcode="<%= qrCode %>"></span>
+    </p>
+
+    <div class="pr-paymentno">
+        <h3>購入番号<br>-PAYMENT NUMBER-</h3>
+        <strong><%- paymentNo %></strong>
+    </div>
+
+    <div class="pr-date">
+        <h3>ツアー予約日時<br>-DATE-</h3>
+        <p>
+            <%- moment(reservation.reservationFor.startDate).tz('Asia/Tokyo').format('YYYY/MM/DD') %><br>
+            <%- moment(reservation.reservationFor.startDate).tz('Asia/Tokyo').format('HH:mm') + '-' + moment(reservation.reservationFor.endDate).tz('Asia/Tokyo').format('HH:mm') %>
+        </p>
+    </div>
+
+    <div class="pr-tournumber">
+        <h3>ツアーナンバー<br>-TOUR NUMBER-</h3>
+        <p>
+            <%- tourNumber %><br>
+        </p>
+    </div>
+
+    <div class="pr-ticket">
+        <h3>券種・金額<br>-TICKET-</h3>
+        <p>
+            <%- reservation.reservedTicket.ticketType.name.ja %><br>
+            <%- reservation.reservedTicket.ticketType.name.en %><br>
+            <%- ((!isNoCharge) ? ('￥' + reservation.reservedTicket.ticketType.priceSpecification.price + ' ') : '') + '(' + reservation.reservedTicket.ticketedSeat.seatNumber + ')' %>
+        </p>
+    </div>
+
+    <div class="pr-publish">
+        <p><%- moment().tz('Asia/Tokyo').format('YYYY/MM/DD HH:mm:ss') %></p>
+    </div>
+
+</div>
+<% } %>
+
+</body>
+</html>

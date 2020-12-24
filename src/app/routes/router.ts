@@ -3,7 +3,17 @@
  */
 import * as conf from 'config';
 import { Request, Response, Router } from 'express';
+
 import * as languageController from '../controllers/language';
+
+import apiRouter from './api';
+import checkinRouter from './checkin';
+import customerRouter from './customer';
+import entranceRouter from './entrance';
+import inquiryRouter from './inquiry';
+import reservationsRouter from './reservations';
+
+const NEW_ENDPOINT = process.env.NEW_ENDPOINT;
 
 // 本体サイトのトップページの言語別URL
 const topUrlByLocale = conf.get<any>('official_url_top_by_locale');
@@ -35,8 +45,29 @@ const getRedirectOfficialUrl = (req: Request, urlByLocale: any): string => {
 
 const router = Router();
 
+router.use((req, res, next) => {
+    if (typeof NEW_ENDPOINT === 'string' && NEW_ENDPOINT.length > 0) {
+        res.redirect(`${NEW_ENDPOINT}${req.originalUrl}`);
+
+        return;
+    }
+
+    next();
+});
+
 // 言語
 router.get('/language/update/:locale', languageController.update);
+
+// ルーティング登録の順序に注意！
+router.use('/api', apiRouter);
+router.use('/customer', customerRouter);
+router.use('/entrance', entranceRouter);
+
+// 入場
+router.use('/checkin', checkinRouter);
+// チケット照会
+router.use('/inquiry', inquiryRouter);
+router.use('/reservations', reservationsRouter);
 
 // 利用規約ページ
 router.get('/terms/', (req: Request, res: Response) => {

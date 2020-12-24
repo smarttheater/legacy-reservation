@@ -18,6 +18,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.19.0 - 2020-12-24
+
+### Added
+
+- 注文照会機能を追加
+- 印刷機能を追加
+
 ## v8.18.4 - 2020-12-13
 
 ### Changed

@@ -2,7 +2,6 @@
  * 予約コントローラー
  */
 import * as cinerinoapi from '@cinerino/sdk';
-import * as conf from 'config';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import { BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS } from 'http-status';
@@ -19,7 +18,7 @@ export const CODE_EXPIRES_IN_SECONDS = 8035200; // 93日
 
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 
-const reserveMaxDateInfo = conf.get<{ [period: string]: number }>('reserve_max_date');
+const reserveMaxDateInfo = { days: 60 };
 
 const authClient = new cinerinoapi.auth.ClientCredentials({
     domain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
@@ -134,7 +133,7 @@ export async function performances(req: Request, res: Response, next: NextFuncti
 
         const maxDate = moment();
         Object.keys(reserveMaxDateInfo).forEach((key) => {
-            maxDate.add(reserveMaxDateInfo[key], <moment.unitOfTime.DurationConstructor>key);
+            maxDate.add((<any>reserveMaxDateInfo)[key], <moment.unitOfTime.DurationConstructor>key);
         });
         const reserveMaxDate: string = maxDate.format('YYYY/MM/DD');
 
@@ -565,19 +564,12 @@ export async function print(req: Request, res: Response, next: NextFunction): Pr
         // POSTで印刷ページへ連携
         res.render('customer/reserve/print', {
             layout: false,
-            action: `${process.env.RESERVATIONS_PRINT_URL}?output=a4&locale=${req.session?.locale}`,
+            // action: `${process.env.RESERVATIONS_PRINT_URL}?output=a4&locale=${req.session?.locale}`,
+            action: `/reservations/printByOrderNumber?output=a4&locale=${req.session?.locale}`,
             output: 'a4',
             orderNumber: order.orderNumber,
             confirmationNumber: order.confirmationNumber
         });
-
-        return;
-
-        // GETの場合こちら↓
-        // tslint:disable-next-line:max-line-length
-        // const redirect = `${process.env.RESERVATIONS_PRINT_URL}?output=a4&locale=${req.session?.locale}&orderNumber=${order.orderNumber}&confirmationNumber=${order.confirmationNumber}`;
-
-        // res.redirect(redirect);
     } catch (error) {
         next(new Error(req.__('UnexpectedError')));
     }

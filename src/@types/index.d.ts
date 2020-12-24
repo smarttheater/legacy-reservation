@@ -115,6 +115,20 @@ declare global {
             transactionResult?: cinerinoapi.factory.transaction.placeOrder.IResult & {
                 code?: string;
             };
+            /**
+             * チケット照会結果
+             */
+            inquiryResult?: {
+                code?: string;
+                order: cinerinoapi.factory.order.IOrder;
+            };
+            /**
+             * 印刷結果
+             */
+            printResult?: {
+                order?: cinerinoapi.factory.order.IOrder;
+                reservations: cinerinoapi.factory.order.IReservation[];
+            };
         }
     }
 }
