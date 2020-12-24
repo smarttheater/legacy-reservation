@@ -2,7 +2,6 @@
  * 予約コントローラー
  */
 import * as cinerinoapi from '@cinerino/sdk';
-import * as conf from 'config';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import { BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS } from 'http-status';
@@ -19,7 +18,7 @@ export const CODE_EXPIRES_IN_SECONDS = 8035200; // 93日
 
 const debug = createDebug('ttts-frontend:controller:customerReserve');
 
-const reserveMaxDateInfo = conf.get<{ [period: string]: number }>('reserve_max_date');
+const reserveMaxDateInfo = { days: 60 };
 
 const authClient = new cinerinoapi.auth.ClientCredentials({
     domain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
@@ -134,7 +133,7 @@ export async function performances(req: Request, res: Response, next: NextFuncti
 
         const maxDate = moment();
         Object.keys(reserveMaxDateInfo).forEach((key) => {
-            maxDate.add(reserveMaxDateInfo[key], <moment.unitOfTime.DurationConstructor>key);
+            maxDate.add((<any>reserveMaxDateInfo)[key], <moment.unitOfTime.DurationConstructor>key);
         });
         const reserveMaxDate: string = maxDate.format('YYYY/MM/DD');
 

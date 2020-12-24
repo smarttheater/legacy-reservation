@@ -14,7 +14,6 @@ exports.print = exports.complete = exports.createEmail = exports.confirm = expor
  * 予約コントローラー
  */
 const cinerinoapi = require("@cinerino/sdk");
-const conf = require("config");
 const createDebug = require("debug");
 const http_status_1 = require("http-status");
 const moment = require("moment-timezone");
@@ -25,7 +24,7 @@ const reserveBaseController = require("../reserveBase");
 const reserve_1 = require("../../factory/reserve");
 exports.CODE_EXPIRES_IN_SECONDS = 8035200; // 93日
 const debug = createDebug('ttts-frontend:controller:customerReserve');
-const reserveMaxDateInfo = conf.get('reserve_max_date');
+const reserveMaxDateInfo = { days: 60 };
 const authClient = new cinerinoapi.auth.ClientCredentials({
     domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
     clientId: process.env.API_CLIENT_ID,
