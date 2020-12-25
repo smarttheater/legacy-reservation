@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.20.0 - 2020-12-25
+
+### Removed
+
+- 入場関連機能を削除
+
 ## v8.19.0 - 2020-12-24
 
 ### Added
