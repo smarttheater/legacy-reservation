@@ -7,7 +7,6 @@ const conf = require("config");
 const express_1 = require("express");
 const languageController = require("../controllers/language");
 const api_1 = require("./api");
-const checkin_1 = require("./checkin");
 const customer_1 = require("./customer");
 const entrance_1 = require("./entrance");
 const inquiry_1 = require("./inquiry");
@@ -46,10 +45,9 @@ router.get('/language/update/:locale', languageController.update);
 router.use('/api', api_1.default);
 router.use('/customer', customer_1.default);
 router.use('/entrance', entrance_1.default);
-// 入場
-router.use('/checkin', checkin_1.default);
 // チケット照会
 router.use('/inquiry', inquiry_1.default);
+// 印刷
 router.use('/reservations', reservations_1.default);
 // 利用規約ページ
 router.get('/terms/', (req, res) => {

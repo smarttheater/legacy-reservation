@@ -7,7 +7,6 @@ import { Request, Response, Router } from 'express';
 import * as languageController from '../controllers/language';
 
 import apiRouter from './api';
-import checkinRouter from './checkin';
 import customerRouter from './customer';
 import entranceRouter from './entrance';
 import inquiryRouter from './inquiry';
@@ -63,10 +62,10 @@ router.use('/api', apiRouter);
 router.use('/customer', customerRouter);
 router.use('/entrance', entranceRouter);
 
-// 入場
-router.use('/checkin', checkinRouter);
 // チケット照会
 router.use('/inquiry', inquiryRouter);
+
+// 印刷
 router.use('/reservations', reservationsRouter);
 
 // 利用規約ページ
