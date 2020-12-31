@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- 購入完了時にコードを発行できなかった場合に、再表示を促すように調整
-
 ### Deprecated
 
 ### Removed
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v8.20.1 - 2020-12-31
+
+### Changed
+
+- 購入完了時にコードを発行できなかった場合に、再表示を促すように調整
 
 ## v8.20.0 - 2020-12-25
 
