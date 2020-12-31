@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- 購入完了時にコードを発行できなかった場合に、再表示を促すように調整
+
 ### Deprecated
 
 ### Removed
