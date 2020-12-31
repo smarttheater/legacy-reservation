@@ -427,23 +427,31 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                     console.error(error);
                 }
 
-                // 注文承認
+                // 注文承認(リトライも)
                 let code: string | undefined;
-                try {
-                    const authorizeOrderResult = await orderService.authorize({
-                        object: {
-                            orderNumber: order.orderNumber,
-                            customer: { telephone: order.customer.telephone }
-                        },
-                        result: {
-                            expiresInSeconds: CODE_EXPIRES_IN_SECONDS
-                        }
-                    });
-                    code = authorizeOrderResult.code;
-                    debug('order code published', code);
-                } catch (error) {
-                    // tslint:disable-next-line:no-console
-                    console.error(error);
+                let tryCount = 0;
+                const MAX_TRY_COUNT = 3;
+                while (tryCount < MAX_TRY_COUNT) {
+                    try {
+                        tryCount += 1;
+
+                        debug('publishing order code...', tryCount);
+                        const authorizeOrderResult = await orderService.authorize({
+                            object: {
+                                orderNumber: order.orderNumber,
+                                customer: { telephone: order.customer.telephone }
+                            },
+                            result: {
+                                expiresInSeconds: CODE_EXPIRES_IN_SECONDS
+                            }
+                        });
+                        code = authorizeOrderResult.code;
+                        debug('order code published', code);
+                        break;
+                    } catch (error) {
+                        // tslint:disable-next-line:no-console
+                        console.error(error);
+                    }
                 }
 
                 // 購入結果セッション作成
