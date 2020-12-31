@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- 注文コード発行にリトライ処理を追加
-
 ### Deprecated
 
 ### Removed
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v8.20.2 - 2020-12-31
+
+### Changed
+
+- 注文コード発行にリトライ処理を追加
 
 ## v8.20.1 - 2020-12-31
 
