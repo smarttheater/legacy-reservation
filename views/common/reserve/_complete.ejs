@@ -56,7 +56,11 @@ if (Array.isArray(performance.additionalProperty)) {
                 <div class="wrapper-qrcodes">
                     <div>
                         <p>
+                            <% if (typeof code ==='string' && code.length > 0) { %>
                             <span class="codeimg-barcode" data-qrcode="<%= qrCode %>"></span>
+                            <% } else { %>
+                            <span style="font-size: small;">チケットを印刷するボタンを押してQRコードを再表示してください</span>
+                            <% } %>
                         </p>
                         <p>
                             <%- reservation.reservedTicket.ticketType.name[locale] || reservation.reservedTicket.ticketType.name.en %>
