@@ -17,7 +17,8 @@ const authClient = new cinerinoapi.auth.ClientCredentials({
 
 const eventService = new cinerinoapi.service.Event({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
 });
 
 interface ISearchPerformancesResult {

@@ -30,11 +30,13 @@ const authClient = new cinerinoapi.auth.ClientCredentials({
 });
 const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOrder4ttts({
     endpoint: process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
 });
 const sellerService = new cinerinoapi.service.Seller({
     endpoint: process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
 });
 /**
  * 購入開始プロセス
@@ -265,7 +267,8 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         // イベント取得
         const eventService = new cinerinoapi.service.Event({
             endpoint: process.env.CINERINO_API_ENDPOINT,
-            auth: authClient
+            auth: authClient,
+            project: { id: process.env.PROJECT_ID }
         });
         const event = yield eventService.findById({ id: perfomanceId });
         // 上映日当日まで購入可能

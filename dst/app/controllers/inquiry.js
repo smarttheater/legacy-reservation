@@ -29,11 +29,13 @@ const authClient = new cinerinoapi.auth.ClientCredentials({
 });
 const returnOrderTransactionService = new cinerinoapi.service.transaction.ReturnOrder({
     endpoint: process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
 });
 const orderService = new cinerinoapi.service.Order({
     endpoint: process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
 });
 // キャンセル料(1予約あたり1000円固定)
 const CANCEL_CHARGE = 1000;

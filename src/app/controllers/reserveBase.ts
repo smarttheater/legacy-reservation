@@ -24,11 +24,13 @@ const authClient = new cinerinoapi.auth.ClientCredentials({
 
 const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOrder4ttts({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
 });
 const sellerService = new cinerinoapi.service.Seller({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
 });
 
 /**
@@ -302,7 +304,8 @@ export async function processFixPerformance(
     // イベント取得
     const eventService = new cinerinoapi.service.Event({
         endpoint: <string>process.env.CINERINO_API_ENDPOINT,
-        auth: authClient
+        auth: authClient,
+        project: { id: process.env.PROJECT_ID }
     });
 
     const event = await eventService.findById<cinerinoapi.factory.chevre.eventType.ScreeningEvent>({ id: perfomanceId });
