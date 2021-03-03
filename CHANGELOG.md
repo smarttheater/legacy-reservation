@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- 全Cinerinoリクエストにプロジェクトを明示的に指定するように調整
-
 ### Deprecated
 
 ### Removed
@@ -19,6 +17,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v8.20.3 - 2021-03-03
+
+- 全Cinerinoリクエストにプロジェクトを明示的に指定するように調整
 
 ## v8.20.2 - 2020-12-31
 
