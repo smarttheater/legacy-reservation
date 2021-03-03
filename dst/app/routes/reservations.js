@@ -27,7 +27,8 @@ const authClient = new cinerinoapi.auth.ClientCredentials({
 });
 const orderService = new cinerinoapi.service.Order({
     endpoint: process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
 });
 reservationsRouter.post('/print', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {

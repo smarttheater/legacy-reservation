@@ -22,12 +22,14 @@ const authClient = new cinerinoapi.auth.ClientCredentials({
 
 const returnOrderTransactionService = new cinerinoapi.service.transaction.ReturnOrder({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
 });
 
 const orderService = new cinerinoapi.service.Order({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
 });
 
 // キャンセル料(1予約あたり1000円固定)

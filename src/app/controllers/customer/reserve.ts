@@ -30,15 +30,18 @@ const authClient = new cinerinoapi.auth.ClientCredentials({
 
 const orderService = new cinerinoapi.service.Order({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
 });
 const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOrder4ttts({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
 });
 const paymentService = new cinerinoapi.service.Payment({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
 });
 
 /**

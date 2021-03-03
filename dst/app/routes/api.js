@@ -26,7 +26,8 @@ const authClient = new cinerinoapi.auth.ClientCredentials({
 });
 const eventService = new cinerinoapi.service.Event({
     endpoint: process.env.CINERINO_API_ENDPOINT,
-    auth: authClient
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
 });
 const apiRouter = express_1.Router();
 apiRouter.get('/events', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
