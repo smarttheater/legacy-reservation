@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- クレジットカード返金後のアクション指定を削除
+
 ### Deprecated
 
 ### Removed

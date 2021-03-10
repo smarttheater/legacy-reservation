@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cancel = exports.result = exports.search = exports.CODE_EXPIRES_IN_SECONDS = void 0;
 /**
- * 予約照会コントローラー
+ * 注文照会コントローラー
  */
 const cinerinoapi = require("@cinerino/sdk");
 const conf = require("config");
@@ -37,7 +37,7 @@ const orderService = new cinerinoapi.service.Order({
     auth: authClient,
     project: { id: process.env.PROJECT_ID }
 });
-// キャンセル料(1予約あたり1000円固定)
+// キャンセル料(1注文あたり1000円固定)
 const CANCEL_CHARGE = 1000;
 // 予約可能日数定義
 const reserveMaxDateInfo = { days: 60 };
@@ -47,7 +47,6 @@ if (process.env.API_CLIENT_ID === undefined) {
 /**
  * 注文照会
  */
-// tslint:disable-next-line:max-func-body-length
 function search(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         let message = '';
@@ -55,7 +54,6 @@ function search(req, res) {
         // 照会結果セッション初期化
         delete req.session.inquiryResult;
         if (req.method === 'POST') {
-            // formバリデーション
             validate(req);
             const validatorResult = yield req.getValidationResult();
             errors = validatorResult.mapped();
@@ -66,11 +64,6 @@ function search(req, res) {
                 try {
                     const confirmationNumber = `${performanceDay}${req.body.paymentNo}`;
                     const confirmationPass = String(req.body.purchaserTel);
-                    // 注文照会
-                    // const order = await orderService.findByConfirmationNumber({
-                    //     confirmationNumber: Number(`${performanceDay}${req.body.paymentNo}`),
-                    //     customer: { telephone: req.body.purchaserTel }
-                    // });
                     // 識別子で注文検索
                     const searchOrdersResult = yield orderService.findByIdentifier({
                         limit: 1,
@@ -82,11 +75,8 @@ function search(req, res) {
                         }
                     });
                     const order = searchOrdersResult.data.shift();
-                    if (order === undefined) {
-                        throw new Error(req.__('MistakeInput'));
-                    }
                     // 返品済であれば入力ミス
-                    if (order.orderStatus === cinerinoapi.factory.orderStatus.OrderReturned) {
+                    if (order === undefined || order.orderStatus === cinerinoapi.factory.orderStatus.OrderReturned) {
                         throw new Error(req.__('MistakeInput'));
                     }
                     // 注文承認
@@ -97,9 +87,7 @@ function search(req, res) {
                                 orderNumber: order.orderNumber,
                                 customer: { telephone: order.customer.telephone }
                             },
-                            result: {
-                                expiresInSeconds: exports.CODE_EXPIRES_IN_SECONDS
-                            }
+                            result: { expiresInSeconds: exports.CODE_EXPIRES_IN_SECONDS }
                         });
                         code = authorizeOrderResult.code;
                     }
@@ -131,14 +119,11 @@ function search(req, res) {
             maxDate.add(reserveMaxDateInfo[key], key);
         });
         const reserveMaxDate = maxDate.format('YYYY/MM/DD');
-        // 予約照会画面描画
+        // 注文照会画面描画
         res.render('inquiry/search', {
             message: message,
             errors: errors,
-            event: {
-                start: moment(),
-                end: reserveMaxDate
-            },
+            // event: { start: moment(), end: reserveMaxDate },
             reserveMaxDate: reserveMaxDate,
             layout: 'layouts/inquiry/layout',
             pageId: 'page_inquiry_search',
@@ -148,7 +133,7 @@ function search(req, res) {
 }
 exports.search = search;
 /**
- * 予約照会結果画面(getのみ)
+ * 注文照会結果画面(getのみ)
  */
 function result(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -168,7 +153,7 @@ function result(req, res, next) {
                 .sort((a, b) => (a.reservedTicket.ticketType.identifier < b.reservedTicket.ticketType.identifier) ? 0 : 1);
             // 券種ごとに合計枚数算出
             const ticketInfos = ticket.editTicketInfos(req, ticket.getTicketInfos(inquiryResult.order));
-            // キャンセル料は1予約あたり1000円固定
+            // キャンセル料は1注文あたり1000円固定
             const cancellationFee = numeral(CANCEL_CHARGE).format('0,0');
             // 画面描画
             res.render('inquiry/result', {
@@ -191,9 +176,8 @@ function result(req, res, next) {
 }
 exports.result = result;
 /**
- * 予約キャンセル処理
+ * 注文返品処理
  */
-// tslint:disable-next-line:max-func-body-length
 function cancel(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         let order;
@@ -205,11 +189,8 @@ function cancel(req, res) {
             order = inquiryResult.order;
         }
         catch (err) {
-            res.status(http_status_1.INTERNAL_SERVER_ERROR).json({
-                errors: [{
-                        message: err.message
-                    }]
-            });
+            res.status(http_status_1.INTERNAL_SERVER_ERROR)
+                .json({ errors: [{ message: err.message }] });
             return;
         }
         // 返品メール作成
@@ -226,60 +207,23 @@ function cancel(req, res) {
             about: req.__('EmailTitleCan'),
             text: getCancelMail(req, order, CANCEL_CHARGE)
         };
-        const informOrderUrl = `${process.env.INFORM_ORDER_ENDPOINT}/webhooks/onReturnOrder`;
-        // クレジットカード返金アクション
-        const refundCreditCardActionsParams = yield Promise.all(order.paymentMethods
-            .filter((p) => p.typeOf === cinerinoapi.factory.paymentMethodType.CreditCard)
-            .map((p) => __awaiter(this, void 0, void 0, function* () {
-            return {
-                object: {
-                    object: [{
-                            paymentMethod: {
-                                paymentMethodId: p.paymentMethodId
-                            }
-                        }]
-                },
-                potentialActions: {
-                    sendEmailMessage: {
-                        object: {
-                            toRecipient: {
-                                // 返金メールは管理者へ
-                                email: process.env.DEVELOPER_EMAIL
-                            }
-                        }
-                    },
-                    // クレジットカード返金後に注文通知
-                    informOrder: [
-                        {
-                            recipient: {
-                                typeOf: 'WebAPI',
-                                name: '東京タワー返金イベント受信エンドポイント',
-                                url: informOrderUrl
-                            }
-                        }
-                    ]
-                }
-            };
-        })));
         let returnOrderTransaction;
         try {
             // 注文返品取引開始
             returnOrderTransaction = yield returnOrderTransactionService.start({
-                agent: {
-                    identifier: [
-                        // レポート側で使用
-                        { name: 'cancellationFee', value: CANCEL_CHARGE.toString() }
-                    ]
-                },
+                // agent: {
+                //     identifier: [
+                //         // レポート側で使用
+                //         { name: 'cancellationFee', value: CANCEL_CHARGE.toString() }
+                //     ]
+                // },
                 expires: moment()
                     .add(1, 'minute')
                     .toDate(),
                 object: {
                     order: {
                         orderNumber: order.orderNumber,
-                        customer: {
-                            telephone: order.customer.telephone
-                        }
+                        customer: { telephone: order.customer.telephone }
                     }
                 }
             });
@@ -287,33 +231,21 @@ function cancel(req, res) {
                 id: returnOrderTransaction.id,
                 potentialActions: {
                     returnOrder: {
-                        potentialActions: Object.assign({ 
-                            /**
-                             * クレジットカード返金アクションについてカスタマイズする場合に指定
-                             */
-                            refundCreditCard: refundCreditCardActionsParams }, {
-                            sendEmailMessage: [{
-                                    object: emailAttributes
-                                }]
-                        })
+                        potentialActions: {
+                            sendEmailMessage: [{ object: emailAttributes }]
+                        }
                     }
                 }
             });
         }
         catch (err) {
             if (err instanceof cinerinoapi.factory.errors.Argument) {
-                res.status(http_status_1.BAD_REQUEST).json({
-                    errors: [{
-                            message: err.message
-                        }]
-                });
+                res.status(http_status_1.BAD_REQUEST)
+                    .json({ errors: [{ message: err.message }] });
             }
             else {
-                res.status(http_status_1.INTERNAL_SERVER_ERROR).json({
-                    errors: [{
-                            message: err.message
-                        }]
-                });
+                res.status(http_status_1.INTERNAL_SERVER_ERROR)
+                    .json({ errors: [{ message: err.message }] });
             }
             return;
         }
@@ -325,26 +257,22 @@ function cancel(req, res) {
 }
 exports.cancel = cancel;
 /**
- * 予約照会画面検証
+ * 注文照会画面検証
  */
 function validate(req) {
     // 購入番号
     req.checkBody('paymentNo', req.__('NoInput{{fieldName}}', { fieldName: req.__('PaymentNo') })).notEmpty();
     req.checkBody('paymentNo', req.__('NoInput{{fieldName}}', { fieldName: req.__('PaymentNo') })).notEmpty();
     // 電話番号
-    //req.checkBody('purchaserTel', req.__('NoInput{{fieldName}}', { fieldName: req.__('Label.Tel') })).notEmpty();
-    //req.checkBody('purchaserTel', req.__('NoInput{{fieldName}}', { fieldName: req.__('Label.Tel') })).notEmpty();
     req.checkBody('purchaserTel', req.__('Message.minLength{{fieldName}}{{min}}', { fieldName: req.__('Label.Tel'), min: '4' })).len({ min: 4 });
 }
 /**
  * キャンセルメール本文取得
  */
-// tslint:disable-next-line:max-func-body-length
 function getCancelMail(req, order, fee) {
     const reservations = order.acceptedOffers.map((o) => o.itemOffered);
     const mail = [];
     const locale = req.session.locale;
-    const paymentNo = order.confirmationNumber;
     // 東京タワー TOP DECK チケットキャンセル完了のお知らせ
     mail.push(req.__('EmailTitleCan'));
     mail.push('');
@@ -363,8 +291,7 @@ function getCancelMail(req, order, fee) {
     mail.push(req.__('EmailHead2Can'));
     mail.push('');
     // 購入番号
-    // tslint:disable-next-line:no-magic-numbers
-    mail.push(`${req.__('PaymentNo')} : ${paymentNo}`);
+    mail.push(`${req.__('PaymentNo')} : ${order.confirmationNumber}`);
     // ご来塔日時
     const day = moment(reservations[0].reservationFor.startDate)
         .tz('Asia/Tokyo')
