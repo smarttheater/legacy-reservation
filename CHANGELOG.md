@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.21.0 - 2021-03-11
+
+### Changed
+
+- クレジットカード返金後のアクション指定を削除
+
 ## v8.20.3 - 2021-03-03
 
 - 全Cinerinoリクエストにプロジェクトを明示的に指定するように調整
