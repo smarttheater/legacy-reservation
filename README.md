@@ -1,4 +1,4 @@
-# TTTS予約ウェブアプリケーション
+# Legecy Reservation
 
 Node.jsアプリケーション
 
@@ -15,12 +15,6 @@ npmでパッケージをインストールします。
 npm install
 ```
 
-typescriptをコンパイルします。wオプションでファイル変更監視。
-
-```shell
-npm run build -- -w
-```
-
 npmでローカルサーバー起動。
 
 ```shell
@@ -28,18 +22,6 @@ npm start
 ```
 
 [注文入場ページ](http://localhost:8080/entrance/index.html?wc=0&locale=ja)にアクセスすると、ローカルでウェブアプリを確認できます。
-
-ビルドファイルクリーン
-
-```shell
-npm run clean
-```
-
-scssビルド
-
-```shell
-npm run css
-```
 
 ### Environment variables
 
@@ -55,7 +37,7 @@ npm run css
 | `REDIS_PORT`                  | true     |                 | redis port                    |
 | `REDIS_KEY`                   | true     |                 | redis key                     |
 | `GMO_ENDPOINT`                | true     |                 | GMO API endpoint              |
-| `RESERVATIONS_PRINT_URL`      | true     |                 | 予約印刷URL                   |
+| `PROJECT_ID`                  | true     |                 | Project ID                    |
 
 ## License
 
