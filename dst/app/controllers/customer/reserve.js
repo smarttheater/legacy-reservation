@@ -526,7 +526,6 @@ function print(req, res, next) {
             // POSTで印刷ページへ連携
             res.render('customer/reserve/print', {
                 layout: false,
-                // action: `${process.env.RESERVATIONS_PRINT_URL}?output=a4&locale=${req.session?.locale}`,
                 action: `/reservations/printByOrderNumber?output=a4&locale=${(_c = req.session) === null || _c === void 0 ? void 0 : _c.locale}`,
                 output: 'a4',
                 orderNumber: order.orderNumber,
@@ -544,60 +543,51 @@ exports.print = print;
  */
 function processFixGMO(reservationModel, req) {
     return __awaiter(this, void 0, void 0, function* () {
-        // パフォーマンスは指定済みのはず
-        if (reservationModel.transactionInProgress.performance === undefined) {
-            throw new Error(req.__('UnexpectedError'));
-        }
         // GMOリクエスト前にカウントアップ
-        reservationModel.transactionInProgress.transactionGMO.count += 1;
+        // reservationModel.transactionInProgress.transactionGMO.count += 1;
         reservationModel.save(req);
-        switch (reservationModel.transactionInProgress.paymentMethod) {
-            case cinerinoapi.factory.paymentMethodType.CreditCard:
-                reservePaymentCreditForm_1.default(req);
-                const validationResult = yield req.getValidationResult();
-                if (!validationResult.isEmpty()) {
-                    throw new Error(req.__('Invalid'));
-                }
-                // クレジットカードオーソリ取得済であれば取消
-                if (reservationModel.transactionInProgress.creditCardAuthorizeActionId !== undefined) {
-                    debug('canceling credit card authorization...', reservationModel.transactionInProgress.creditCardAuthorizeActionId);
-                    const actionId = reservationModel.transactionInProgress.creditCardAuthorizeActionId;
-                    delete reservationModel.transactionInProgress.creditCardAuthorizeActionId;
-                    yield paymentService.voidTransaction({
-                        id: actionId,
-                        object: {
-                            typeOf: cinerinoapi.factory.paymentMethodType.CreditCard
-                        },
-                        purpose: {
-                            typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
-                            id: reservationModel.transactionInProgress.id
-                        }
-                    });
-                    debug('credit card authorization canceled.');
-                }
-                const gmoTokenObject = JSON.parse(req.body.gmoTokenObject);
-                const amount = reservationModel.getTotalCharge();
-                // クレジットカードオーソリ取得
-                const action = yield paymentService.authorizeCreditCard({
-                    object: {
-                        typeOf: cinerinoapi.factory.action.authorize.paymentMethod.any.ResultType.Payment,
-                        paymentMethod: cinerinoapi.factory.chevre.paymentMethodType.CreditCard,
-                        amount: amount,
-                        method: '1',
-                        creditCard: gmoTokenObject
-                    },
-                    purpose: {
-                        typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
-                        id: reservationModel.transactionInProgress.id
-                    }
-                });
-                debug('credit card authorizeAction created.', action.id);
-                reservationModel.transactionInProgress.creditCardAuthorizeActionId = action.id;
-                reservationModel.transactionInProgress.paymentMethodId = action.object.paymentMethodId;
-                reservationModel.transactionInProgress.transactionGMO.amount = amount;
-                break;
-            default:
+        reservePaymentCreditForm_1.default(req);
+        const validationResult = yield req.getValidationResult();
+        if (!validationResult.isEmpty()) {
+            throw new Error(req.__('Invalid'));
         }
+        // クレジットカードオーソリ取得済であれば取消
+        if (reservationModel.transactionInProgress.creditCardAuthorizeActionId !== undefined) {
+            debug('canceling credit card authorization...', reservationModel.transactionInProgress.creditCardAuthorizeActionId);
+            const actionId = reservationModel.transactionInProgress.creditCardAuthorizeActionId;
+            delete reservationModel.transactionInProgress.creditCardAuthorizeActionId;
+            yield paymentService.voidTransaction({
+                id: actionId,
+                object: {
+                    typeOf: cinerinoapi.factory.paymentMethodType.CreditCard
+                },
+                purpose: {
+                    typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
+                    id: reservationModel.transactionInProgress.id
+                }
+            });
+            debug('credit card authorization canceled.');
+        }
+        const gmoTokenObject = JSON.parse(req.body.gmoTokenObject);
+        const amount = reservationModel.getTotalCharge();
+        // クレジットカードオーソリ取得
+        const action = yield paymentService.authorizeCreditCard({
+            object: {
+                typeOf: cinerinoapi.factory.action.authorize.paymentMethod.any.ResultType.Payment,
+                paymentMethod: cinerinoapi.factory.chevre.paymentMethodType.CreditCard,
+                amount: amount,
+                method: '1',
+                creditCard: gmoTokenObject
+            },
+            purpose: {
+                typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
+                id: reservationModel.transactionInProgress.id
+            }
+        });
+        debug('credit card authorizeAction created.', action.id);
+        reservationModel.transactionInProgress.creditCardAuthorizeActionId = action.id;
+        reservationModel.transactionInProgress.paymentMethodId = action.object.paymentMethodId;
+        // reservationModel.transactionInProgress.transactionGMO.amount = amount;
     });
 }
 /**

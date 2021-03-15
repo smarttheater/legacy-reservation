@@ -64,7 +64,7 @@ export async function processStart(req: Request): Promise<ReserveSessionModel> {
         seller: seller,
         category: (req.query.wc === '1') ? 'wheelchair' : 'general',
         expires: expires.toISOString(),
-        paymentMethodChoices: [cinerinoapi.factory.paymentMethodType.CreditCard],
+        // paymentMethodChoices: [cinerinoapi.factory.paymentMethodType.CreditCard],
         ticketTypes: [],
         purchaser: {
             lastName: '',
@@ -76,10 +76,10 @@ export async function processStart(req: Request): Promise<ReserveSessionModel> {
             gender: '0'
         },
         paymentMethod: cinerinoapi.factory.paymentMethodType.CreditCard,
-        transactionGMO: {
-            amount: 0,
-            count: 0
-        },
+        // transactionGMO: {
+        //     amount: 0,
+        //     count: 0
+        // },
         reservations: []
     };
 

@@ -227,12 +227,6 @@ export async function cancel(req: Request, res: Response): Promise<void> {
     try {
         // 注文返品取引開始
         returnOrderTransaction = await returnOrderTransactionService.start({
-            // agent: {
-            //     identifier: [
-            //         // レポート側で使用
-            //         { name: 'cancellationFee', value: CANCEL_CHARGE.toString() }
-            //     ]
-            // },
             expires: moment()
                 .add(1, 'minute')
                 .toDate(),

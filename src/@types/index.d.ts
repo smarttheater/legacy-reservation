@@ -52,7 +52,7 @@ declare global {
             /**
              * 決済方法選択肢
              */
-            paymentMethodChoices: string[];
+            // paymentMethodChoices: string[];
             /**
              * 券種リスト
              */
@@ -60,14 +60,14 @@ declare global {
             purchaser: IPurchaser;
             profile?: cinerinoapi.factory.person.IProfile;
             /**
-             * 決済方法
+             * 決済方法(クレジットカードで固定)
              */
-            paymentMethod: cinerinoapi.factory.paymentMethodType;
+            paymentMethod: cinerinoapi.factory.chevre.paymentMethodType.CreditCard;
             paymentMethodId?: string;
             /**
              * GMO取引
              */
-            transactionGMO: ITransactionGMO;
+            // transactionGMO: ITransactionGMO;
             /**
              * 仮予約リスト
              */
@@ -94,10 +94,10 @@ declare global {
             gender: string;
         }
 
-        interface ITransactionGMO {
-            amount: number;
-            count: number;
-        }
+        // interface ITransactionGMO {
+        //     amount: number;
+        //     count: number;
+        // }
 
         // tslint:disable-next-line:interface-name
         export interface Session {
