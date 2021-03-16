@@ -16,7 +16,75 @@
     */
 
     // 言語に合わせて国選択の表示順位を変更
-    let preferred_countries = conf.get('preferred_countries_by_locale') || {};
+    let preferred_countries = {
+        "ja": [
+            "jp"
+        ],
+        "en": [
+            "gb",
+            "us",
+            "ca",
+            "au",
+            "nz"
+        ],
+        "zh-hans": [
+            "cn",
+            "sg",
+            "my"
+        ],
+        "zh-hant": [
+            "tw",
+            "hk",
+            "mo"
+        ],
+        "ko": [
+            "kr",
+            "kp"
+        ],
+        "th": [
+            "th"
+        ],
+        "id": [
+            "id"
+        ],
+        "vi": [
+            "vn",
+            "kh",
+            "la"
+        ],
+        "fr": [
+            "fr",
+            "cd",
+            "ca",
+            "be",
+            "ch",
+            "mc"
+        ],
+        "de": [
+            "de",
+            "at",
+            "be",
+            "ch"
+        ],
+        "it": [
+            "it",
+            "ch"
+        ],
+        "es": [
+            "es",
+            "mx",
+            "co",
+            "ar",
+            "pe",
+            "ve",
+            "cl"
+        ],
+        "ru": [
+            "ru",
+            "kz",
+            "by"
+        ]
+    };
     preferred_countries = (preferred_countries[locale]) ? JSON.stringify(preferred_countries[locale]) : '';
     %>
     <script>

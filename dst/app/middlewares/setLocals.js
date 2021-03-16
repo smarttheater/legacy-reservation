@@ -1,13 +1,12 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * テンプレート変数をセットする
- *
- * @module middleware/setLocal
  */
-Object.defineProperty(exports, "__esModule", { value: true });
 const conf = require("config");
 const moment = require("moment-timezone");
 const numeral = require("numeral");
+const locales_1 = require("../factory/locales");
 exports.default = (req, res, next) => {
     let momentLocale = (typeof req.getLocale() === 'string') ? req.getLocale() : '';
     if (momentLocale === 'zh-hans') {
@@ -28,5 +27,6 @@ exports.default = (req, res, next) => {
     res.locals.title = 'Order Details';
     res.locals.pageId = '';
     res.locals.pageClassName = '';
+    res.locals.locales = locales_1.locales;
     next();
 };

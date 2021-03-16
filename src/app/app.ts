@@ -3,7 +3,6 @@
  */
 import * as middlewares from '@motionpicture/express-middleware';
 import * as bodyParser from 'body-parser';
-import * as conf from 'config';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 // tslint:disable-next-line:no-require-imports
@@ -12,6 +11,8 @@ import * as expressValidator from 'express-validator';
 import * as i18n from 'i18n';
 import * as multer from 'multer';
 import * as favicon from 'serve-favicon';
+
+import { locales } from './factory/locales';
 
 import errorHandler from './middlewares/errorHandler';
 import notFoundHandler from './middlewares/notFoundHandler';
@@ -48,7 +49,7 @@ app.use(express.static(`${__dirname}/../../public`));
 
 // i18n を利用する設定
 i18n.configure({
-    locales: Object.keys(conf.get<any>('locales')),
+    locales: Object.keys(locales),
     defaultLocale: 'ja',
     directory: `${__dirname}/../../locales`,
     objectNotation: true,

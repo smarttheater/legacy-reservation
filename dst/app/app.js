@@ -4,7 +4,6 @@
  */
 const middlewares = require("@motionpicture/express-middleware");
 const bodyParser = require("body-parser");
-const conf = require("config");
 const cookieParser = require("cookie-parser");
 const express = require("express");
 // tslint:disable-next-line:no-require-imports
@@ -13,6 +12,7 @@ const expressValidator = require("express-validator");
 const i18n = require("i18n");
 const multer = require("multer");
 const favicon = require("serve-favicon");
+const locales_1 = require("./factory/locales");
 const errorHandler_1 = require("./middlewares/errorHandler");
 const notFoundHandler_1 = require("./middlewares/notFoundHandler");
 const session_1 = require("./middlewares/session");
@@ -39,7 +39,7 @@ app.use(cookieParser());
 app.use(express.static(`${__dirname}/../../public`));
 // i18n を利用する設定
 i18n.configure({
-    locales: Object.keys(conf.get('locales')),
+    locales: Object.keys(locales_1.locales),
     defaultLocale: 'ja',
     directory: `${__dirname}/../../locales`,
     objectNotation: true,
