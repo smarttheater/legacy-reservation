@@ -193,25 +193,15 @@ $(function () {
     // 送信
     $('.btn-next').on('click', function () {
         if (window.ttts.profileformsubmitting) { return false; }
-        var paymentMethod = $('input[name=paymentMethod]:checked').val();
-        if (paymentMethod === '0') {
-            setCountry();
-            setExpiredate();
-            if (!validateCreditCardInputs()) {
-                return document.querySelector('.has-error').scrollIntoView();
-            }
-            setEmailConfirmSplitValues();
-            window.ttts.profileformsubmitting = true;
-            $('.btn-next').addClass('btn-disabled').find('span').text(window.ttts.commonlocales.Sending);
-            getToken();
-        } else {
-            // 電話番号は数字だけ保存する
-            window.ttts.dom_input_tel.value = (window.ttts.dom_input_tel.value || '').replace(/\-|\+/g, '');
-            window.ttts.dom_input_tel_otherregion.value = (window.ttts.dom_input_tel_otherregion.value || '').replace(/\-|\+/g, '');
-            window.ttts.profileformsubmitting = true;
-            $('.btn-next').addClass('btn-disabled').find('span').text(window.ttts.commonlocales.Sending);
-            $('form').submit();
+        setCountry();
+        setExpiredate();
+        if (!validateCreditCardInputs()) {
+            return document.querySelector('.has-error').scrollIntoView();
         }
+        setEmailConfirmSplitValues();
+        window.ttts.profileformsubmitting = true;
+        $('.btn-next').addClass('btn-disabled').find('span').text(window.ttts.commonlocales.Sending);
+        getToken();
     });
 });
 

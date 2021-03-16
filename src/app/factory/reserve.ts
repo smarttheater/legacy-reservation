@@ -34,8 +34,8 @@ export function createEmailAttributes(
     return {
         typeOf: cinerinoapi.factory.chevre.creativeWorkType.EmailMessage,
         sender: {
-            name: conf.get<string>('email.fromname'),
-            email: conf.get<string>('email.from')
+            name: <string>process.env.EMAIL_SENDER_NAME,
+            email: <string>process.env.EMAIL_SENDER
         },
         toRecipient: {
             name: `${customerProfile.givenName} ${customerProfile.familyName}`,

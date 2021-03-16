@@ -84,7 +84,7 @@
   "keywords": [],
   "license": "UNLICENSED",
   "main": "dst/index.js",
-  "name": "ttts-frontend",
+  "name": "@smarttheater/legacy-reservation",
   "private": true,
   "repository": {},
   "scripts": {

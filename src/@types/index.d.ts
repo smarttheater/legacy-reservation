@@ -60,15 +60,6 @@ declare global {
             purchaser: IPurchaser;
             profile?: cinerinoapi.factory.person.IProfile;
             /**
-             * 決済方法(クレジットカードで固定)
-             */
-            paymentMethod: cinerinoapi.factory.chevre.paymentMethodType.CreditCard;
-            paymentMethodId?: string;
-            /**
-             * GMO取引
-             */
-            // transactionGMO: ITransactionGMO;
-            /**
              * 仮予約リスト
              */
             reservations: ITmpReservation[];

@@ -9,8 +9,10 @@ import * as moment from 'moment-timezone';
 import * as numeral from 'numeral';
 
 import * as ticket from '../util/ticket';
+import { CODE_EXPIRES_IN_SECONDS, reserveMaxDateInfo } from './order';
 
-export const CODE_EXPIRES_IN_SECONDS = 8035200; // 93日
+// キャンセル料(1注文あたり1000円固定)
+const CANCEL_CHARGE: number = 1000;
 
 const authClient = new cinerinoapi.auth.ClientCredentials({
     domain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
@@ -31,16 +33,6 @@ const orderService = new cinerinoapi.service.Order({
     auth: authClient,
     project: { id: process.env.PROJECT_ID }
 });
-
-// キャンセル料(1注文あたり1000円固定)
-const CANCEL_CHARGE: number = 1000;
-
-// 予約可能日数定義
-const reserveMaxDateInfo = { days: 60 };
-
-if (process.env.API_CLIENT_ID === undefined) {
-    throw new Error('Please set an environment variable \'API_CLIENT_ID\'');
-}
 
 /**
  * 注文照会
@@ -128,7 +120,6 @@ export async function search(req: Request, res: Response): Promise<void> {
     res.render('inquiry/search', {
         message: message,
         errors: errors,
-        // event: { start: moment(), end: reserveMaxDate },
         reserveMaxDate: reserveMaxDate,
         layout: 'layouts/inquiry/layout',
         pageId: 'page_inquiry_search',
@@ -140,16 +131,10 @@ export async function search(req: Request, res: Response): Promise<void> {
  * 注文照会結果画面(getのみ)
  */
 export async function result(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const messageNotFound: string = req.__('NotFound');
-
     try {
-        if (req === null) {
-            next(new Error(messageNotFound));
-        }
-
         const inquiryResult = (<Express.Session>req.session).inquiryResult;
         if (inquiryResult === undefined) {
-            throw new Error(messageNotFound);
+            throw new Error(req.__('NotFound'));
         }
 
         const reservations = inquiryResult.order.acceptedOffers.map((o) => {
@@ -167,7 +152,8 @@ export async function result(req: Request, res: Response, next: NextFunction): P
         // 券種ごとに合計枚数算出
         const ticketInfos = ticket.editTicketInfos(req, ticket.getTicketInfos(inquiryResult.order));
         // キャンセル料は1注文あたり1000円固定
-        const cancellationFee: string = numeral(CANCEL_CHARGE).format('0,0');
+        const cancellationFee: string = numeral(CANCEL_CHARGE)
+            .format('0,0');
 
         // 画面描画
         res.render('inquiry/result', {
@@ -211,8 +197,8 @@ export async function cancel(req: Request, res: Response): Promise<void> {
     const emailAttributes: cinerinoapi.factory.creativeWork.message.email.IAttributes = {
         typeOf: cinerinoapi.factory.chevre.creativeWorkType.EmailMessage,
         sender: {
-            name: conf.get<string>('email.fromname'),
-            email: conf.get<string>('email.from')
+            name: <string>process.env.EMAIL_SENDER_NAME,
+            email: <string>process.env.EMAIL_SENDER
         },
         toRecipient: {
             name: <string>order.customer.name,

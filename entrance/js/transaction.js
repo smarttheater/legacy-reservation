@@ -87,7 +87,6 @@ function getToken() {
  * @returns {void}
  */
 function redirectToTransaction(args) {
-    // var endPoint = 'https://ttts-frontend-development.azurewebsites.net';
     var endPoint = window.location.origin;
     var uri = '/customer/reserve/start';
     var params = '?wc=' + args.wc + '&locale=' + args.locale + '&passportToken=' + args.passportToken;

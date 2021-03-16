@@ -20,8 +20,8 @@ function createEmailAttributes(event, customerProfile, price, ticketTypes, res) 
     return {
         typeOf: cinerinoapi.factory.chevre.creativeWorkType.EmailMessage,
         sender: {
-            name: conf.get('email.fromname'),
-            email: conf.get('email.from')
+            name: process.env.EMAIL_SENDER_NAME,
+            email: process.env.EMAIL_SENDER
         },
         toRecipient: {
             name: `${customerProfile.givenName} ${customerProfile.familyName}`,

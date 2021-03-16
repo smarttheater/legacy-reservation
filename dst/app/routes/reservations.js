@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const cinerinoapi = require("@cinerino/sdk");
 const express_1 = require("express");
 const jwt = require("jsonwebtoken");
-const inquiry_1 = require("../controllers/inquiry");
+const order_1 = require("../controllers/order");
 const reservation_1 = require("../util/reservation");
 const reservationsRouter = express_1.Router();
 const authClient = new cinerinoapi.auth.ClientCredentials({
@@ -146,7 +146,7 @@ function printByOrderNumber(req, res) {
                 customer: { telephone: order.customer.telephone }
             },
             result: {
-                expiresInSeconds: inquiry_1.CODE_EXPIRES_IN_SECONDS
+                expiresInSeconds: order_1.CODE_EXPIRES_IN_SECONDS
             }
         });
         reservations = order.acceptedOffers.map((offer) => {
@@ -187,7 +187,7 @@ function printByReservationIds(req, res) {
                     customer: { telephone: order.customer.telephone }
                 },
                 result: {
-                    expiresInSeconds: inquiry_1.CODE_EXPIRES_IN_SECONDS
+                    expiresInSeconds: order_1.CODE_EXPIRES_IN_SECONDS
                 }
             });
             return Object.assign(Object.assign({}, order), { code: code });

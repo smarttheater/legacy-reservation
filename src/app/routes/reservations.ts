@@ -5,7 +5,7 @@ import * as cinerinoapi from '@cinerino/sdk';
 import { Request, Response, Router } from 'express';
 import * as jwt from 'jsonwebtoken';
 
-import { CODE_EXPIRES_IN_SECONDS } from '../controllers/inquiry';
+import { CODE_EXPIRES_IN_SECONDS } from '../controllers/order';
 import { chevreReservation2ttts } from '../util/reservation';
 
 const reservationsRouter = Router();

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cancel = exports.result = exports.search = exports.CODE_EXPIRES_IN_SECONDS = void 0;
+exports.cancel = exports.result = exports.search = void 0;
 /**
  * 注文照会コントローラー
  */
@@ -19,7 +19,9 @@ const http_status_1 = require("http-status");
 const moment = require("moment-timezone");
 const numeral = require("numeral");
 const ticket = require("../util/ticket");
-exports.CODE_EXPIRES_IN_SECONDS = 8035200; // 93日
+const order_1 = require("./order");
+// キャンセル料(1注文あたり1000円固定)
+const CANCEL_CHARGE = 1000;
 const authClient = new cinerinoapi.auth.ClientCredentials({
     domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
     clientId: process.env.API_CLIENT_ID,
@@ -37,13 +39,6 @@ const orderService = new cinerinoapi.service.Order({
     auth: authClient,
     project: { id: process.env.PROJECT_ID }
 });
-// キャンセル料(1注文あたり1000円固定)
-const CANCEL_CHARGE = 1000;
-// 予約可能日数定義
-const reserveMaxDateInfo = { days: 60 };
-if (process.env.API_CLIENT_ID === undefined) {
-    throw new Error('Please set an environment variable \'API_CLIENT_ID\'');
-}
 /**
  * 注文照会
  */
@@ -87,7 +82,7 @@ function search(req, res) {
                                 orderNumber: order.orderNumber,
                                 customer: { telephone: order.customer.telephone }
                             },
-                            result: { expiresInSeconds: exports.CODE_EXPIRES_IN_SECONDS }
+                            result: { expiresInSeconds: order_1.CODE_EXPIRES_IN_SECONDS }
                         });
                         code = authorizeOrderResult.code;
                     }
@@ -115,15 +110,14 @@ function search(req, res) {
             }
         }
         const maxDate = moment();
-        Object.keys(reserveMaxDateInfo).forEach((key) => {
-            maxDate.add(reserveMaxDateInfo[key], key);
+        Object.keys(order_1.reserveMaxDateInfo).forEach((key) => {
+            maxDate.add(order_1.reserveMaxDateInfo[key], key);
         });
         const reserveMaxDate = maxDate.format('YYYY/MM/DD');
         // 注文照会画面描画
         res.render('inquiry/search', {
             message: message,
             errors: errors,
-            // event: { start: moment(), end: reserveMaxDate },
             reserveMaxDate: reserveMaxDate,
             layout: 'layouts/inquiry/layout',
             pageId: 'page_inquiry_search',
@@ -137,14 +131,10 @@ exports.search = search;
  */
 function result(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const messageNotFound = req.__('NotFound');
         try {
-            if (req === null) {
-                next(new Error(messageNotFound));
-            }
             const inquiryResult = req.session.inquiryResult;
             if (inquiryResult === undefined) {
-                throw new Error(messageNotFound);
+                throw new Error(req.__('NotFound'));
             }
             const reservations = inquiryResult.order.acceptedOffers.map((o) => {
                 const unitPrice = ticket.getUnitPriceByAcceptedOffer(o);
@@ -154,7 +144,8 @@ function result(req, res, next) {
             // 券種ごとに合計枚数算出
             const ticketInfos = ticket.editTicketInfos(req, ticket.getTicketInfos(inquiryResult.order));
             // キャンセル料は1注文あたり1000円固定
-            const cancellationFee = numeral(CANCEL_CHARGE).format('0,0');
+            const cancellationFee = numeral(CANCEL_CHARGE)
+                .format('0,0');
             // 画面描画
             res.render('inquiry/result', {
                 code: inquiryResult.code,
@@ -197,8 +188,8 @@ function cancel(req, res) {
         const emailAttributes = {
             typeOf: cinerinoapi.factory.chevre.creativeWorkType.EmailMessage,
             sender: {
-                name: conf.get('email.fromname'),
-                email: conf.get('email.from')
+                name: process.env.EMAIL_SENDER_NAME,
+                email: process.env.EMAIL_SENDER
             },
             toRecipient: {
                 name: order.customer.name,
