@@ -17,7 +17,7 @@ if (HOST === undefined || PORT === undefined || KEY === undefined) {
     throw new Error('Environment variables REDIS_HOST, REDIS_PORT, REDIS_KEY are required for managing session. Please set them.');
 }
 exports.default = session({
-    secret: 'TTTSFrontendSecret',
+    secret: 'LegacyReservation',
     resave: false,
     // Force a session identifier cookie to be set on every response.
     // The expiration is reset to the original maxAge, resetting the expiration countdown.

@@ -50,10 +50,6 @@ declare global {
              */
             performance?: cinerinoapi.factory.event.IEvent<cinerinoapi.factory.chevre.eventType.ScreeningEvent>;
             /**
-             * 決済方法選択肢
-             */
-            // paymentMethodChoices: string[];
-            /**
              * 券種リスト
              */
             ticketTypes: ITicketType[];
@@ -84,11 +80,6 @@ declare global {
             address: string;
             gender: string;
         }
-
-        // interface ITransactionGMO {
-        //     amount: number;
-        //     count: number;
-        // }
 
         // tslint:disable-next-line:interface-name
         export interface Session {

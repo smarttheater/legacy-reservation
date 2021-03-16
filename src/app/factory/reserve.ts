@@ -1,5 +1,4 @@
 import * as cinerinoapi from '@cinerino/sdk';
-import * as conf from 'config';
 import { Request, Response } from 'express';
 import * as moment from 'moment-timezone';
 import * as numeral from 'numeral';
@@ -48,6 +47,7 @@ export function createEmailAttributes(
     };
 }
 
+// tslint:disable-next-line:max-func-body-length
 export function getMailTemplate(
     event: cinerinoapi.factory.event.IEvent<cinerinoapi.factory.chevre.eventType.ScreeningEvent>,
     customerProfile: cinerinoapi.factory.person.IProfile,
@@ -58,7 +58,9 @@ export function getMailTemplate(
 ): string {
     const mail: string[] = [];
     const locale: string = res.locale;
-    const inquiryUrl = `https://${req.hostname}/inquiry/search/?locale=${locale}`;
+    const inquiryUrl = `https://${req.hostname}/inquiry/search?locale=${locale}`;
+    const faqUrl = `https://${req.hostname}/faq?locale=${locale}`;
+    const entranceUrl = `https://${req.hostname}/aboutenter?locale=${locale}`;
 
     // 東京タワートップデッキツアーチケット購入完了のお知らせ
     mail.push(res.__('EmailTitle'));
@@ -118,7 +120,7 @@ export function getMailTemplate(
 
     // ●ご入場方法はこちら
     mail.push(res.__('EmailEnterURL'));
-    mail.push((conf.get<any>('official_url_aboutentering_by_locale'))[locale]);
+    mail.push(entranceUrl);
     mail.push('');
 
     // [ご注意事項]
@@ -135,7 +137,7 @@ export function getMailTemplate(
 
     // ※よくあるご質問（ＦＡＱ）はこちら
     mail.push(res.__('EmailFAQURL'));
-    mail.push((conf.get<any>('official_url_faq_by_locale'))[locale]);
+    mail.push(faqUrl);
     mail.push('');
 
     // なお、このメールは、「東京タワー トップデッキツアー」の予約システムでチケットをご購入頂いた方にお送りしておりますが、チケット購入に覚えのない方に届いております場合は、下記お問い合わせ先までご連絡ください。

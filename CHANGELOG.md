@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 - update @cinerino/sdk
 - 購入完了メールの照会URLを動的に生成するように調整
-- configを最適化
+- configモジュールへの依存を削除
 
 ### Deprecated
 

@@ -18,7 +18,7 @@ if (HOST === undefined || PORT === undefined || KEY === undefined) {
 }
 
 export default session({
-    secret: 'TTTSFrontendSecret',
+    secret: 'LegacyReservation',
     resave: false,
     // Force a session identifier cookie to be set on every response.
     // The expiration is reset to the original maxAge, resetting the expiration countdown.

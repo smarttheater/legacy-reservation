@@ -14,7 +14,6 @@ exports.cancel = exports.result = exports.search = void 0;
  * 注文照会コントローラー
  */
 const cinerinoapi = require("@cinerino/sdk");
-const conf = require("config");
 const http_status_1 = require("http-status");
 const moment = require("moment-timezone");
 const numeral = require("numeral");
@@ -258,6 +257,7 @@ function getCancelMail(req, order, fee) {
     const reservations = order.acceptedOffers.map((o) => o.itemOffered);
     const mail = [];
     const locale = req.session.locale;
+    const faqUrl = `https://${req.hostname}/faq?locale=${locale}`;
     // 東京タワー TOP DECK チケットキャンセル完了のお知らせ
     mail.push(req.__('EmailTitleCan'));
     mail.push('');
@@ -314,7 +314,7 @@ function getCancelMail(req, order, fee) {
     mail.push('');
     // ※よくあるご質問（ＦＡＱ）はこちら
     mail.push(req.__('EmailFAQURL'));
-    mail.push((conf.get('official_url_faq_by_locale'))[locale]);
+    mail.push(faqUrl);
     mail.push('');
     // なお、このメールは、「東京タワー トップデッキツアー」の予約システムでチケットをキャンセル…
     mail.push(req.__('EmailFoot1Can'));

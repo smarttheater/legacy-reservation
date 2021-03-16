@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMailTemplate = exports.createEmailAttributes = void 0;
 const cinerinoapi = require("@cinerino/sdk");
-const conf = require("config");
 const moment = require("moment-timezone");
 const numeral = require("numeral");
 /**
@@ -32,10 +31,13 @@ function createEmailAttributes(event, customerProfile, price, ticketTypes, req, 
     };
 }
 exports.createEmailAttributes = createEmailAttributes;
+// tslint:disable-next-line:max-func-body-length
 function getMailTemplate(event, customerProfile, price, ticketTypes, req, res) {
     const mail = [];
     const locale = res.locale;
-    const inquiryUrl = `https://${req.hostname}/inquiry/search/?locale=${locale}`;
+    const inquiryUrl = `https://${req.hostname}/inquiry/search?locale=${locale}`;
+    const faqUrl = `https://${req.hostname}/faq?locale=${locale}`;
+    const entranceUrl = `https://${req.hostname}/aboutenter?locale=${locale}`;
     // 東京タワートップデッキツアーチケット購入完了のお知らせ
     mail.push(res.__('EmailTitle'));
     mail.push('');
@@ -84,7 +86,7 @@ function getMailTemplate(event, customerProfile, price, ticketTypes, req, res) {
     mail.push('');
     // ●ご入場方法はこちら
     mail.push(res.__('EmailEnterURL'));
-    mail.push((conf.get('official_url_aboutentering_by_locale'))[locale]);
+    mail.push(entranceUrl);
     mail.push('');
     // [ご注意事項]
     mail.push(res.__('EmailNotice1'));
@@ -99,7 +101,7 @@ function getMailTemplate(event, customerProfile, price, ticketTypes, req, res) {
     mail.push('');
     // ※よくあるご質問（ＦＡＱ）はこちら
     mail.push(res.__('EmailFAQURL'));
-    mail.push((conf.get('official_url_faq_by_locale'))[locale]);
+    mail.push(faqUrl);
     mail.push('');
     // なお、このメールは、「東京タワー トップデッキツアー」の予約システムでチケットをご購入頂いた方にお送りしておりますが、チケット購入に覚えのない方に届いております場合は、下記お問い合わせ先までご連絡ください。
     mail.push(res.__('EmailFoot1').replace('$theater_name$', event.superEvent.location.name[locale]));
