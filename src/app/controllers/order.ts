@@ -439,7 +439,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 }
 
                 // 注文完了メール作成
-                const emailAttributes = createEmail(reservationModel, res);
+                const emailAttributes = createEmail(reservationModel, req, res);
 
                 // 取引確定
                 const transactionResult = await placeOrderTransactionService.confirm({
@@ -554,7 +554,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
 }
 
 export function createEmail(
-    reservationModel: ReserveSessionModel, res: Response
+    reservationModel: ReserveSessionModel, req: Request, res: Response
 ): cinerinoapi.factory.creativeWork.message.email.IAttributes {
     // 予約連携パラメータ作成
     const customerProfile = reservationModel.transactionInProgress.profile;
@@ -576,6 +576,7 @@ export function createEmail(
         customerProfile,
         price,
         ticketTypes,
+        req,
         res
     );
 }

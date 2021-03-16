@@ -1,6 +1,6 @@
 import * as cinerinoapi from '@cinerino/sdk';
 import * as conf from 'config';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import * as moment from 'moment-timezone';
 import * as numeral from 'numeral';
 
@@ -12,6 +12,7 @@ export function createEmailAttributes(
     customerProfile: cinerinoapi.factory.person.IProfile,
     price: number,
     ticketTypes: Express.ITicketType[],
+    req: Request,
     res: Response
 ): cinerinoapi.factory.creativeWork.message.email.IAttributes {
     const to = (typeof customerProfile.email === 'string') ? customerProfile.email : '';
@@ -28,6 +29,7 @@ export function createEmailAttributes(
         customerProfile,
         price,
         ticketTypes,
+        req,
         res
     );
 
@@ -51,10 +53,12 @@ export function getMailTemplate(
     customerProfile: cinerinoapi.factory.person.IProfile,
     price: number,
     ticketTypes: Express.ITicketType[],
+    req: Request,
     res: Response
 ): string {
     const mail: string[] = [];
     const locale: string = res.locale;
+    const inquiryUrl = `https://${req.hostname}/inquiry/search/?locale=${locale}`;
 
     // 東京タワートップデッキツアーチケット購入完了のお知らせ
     mail.push(res.__('EmailTitle'));
@@ -109,7 +113,7 @@ export function getMailTemplate(
 
     // ●チケット照会はこちら
     mail.push(res.__('EmailInquiryUrl'));
-    mail.push((conf.get<any>('official_url_inquiry_by_locale'))[locale]);
+    mail.push(inquiryUrl);
     mail.push('');
 
     // ●ご入場方法はこちら

@@ -414,7 +414,7 @@ function confirm(req, res, next) {
                         throw new cinerinoapi.factory.errors.Argument('Transaction', 'Event required');
                     }
                     // 注文完了メール作成
-                    const emailAttributes = createEmail(reservationModel, res);
+                    const emailAttributes = createEmail(reservationModel, req, res);
                     // 取引確定
                     const transactionResult = yield placeOrderTransactionService.confirm({
                         id: reservationModel.transactionInProgress.id,
@@ -520,7 +520,7 @@ function confirm(req, res, next) {
     });
 }
 exports.confirm = confirm;
-function createEmail(reservationModel, res) {
+function createEmail(reservationModel, req, res) {
     // 予約連携パラメータ作成
     const customerProfile = reservationModel.transactionInProgress.profile;
     if (customerProfile === undefined) {
@@ -534,7 +534,7 @@ function createEmail(reservationModel, res) {
     const ticketTypes = reservationModel.transactionInProgress.ticketTypes
         .filter((t) => Number(t.count) > 0);
     // 完了メール作成
-    return reserve_1.createEmailAttributes(event, customerProfile, price, ticketTypes, res);
+    return reserve_1.createEmailAttributes(event, customerProfile, price, ticketTypes, req, res);
 }
 exports.createEmail = createEmail;
 /**

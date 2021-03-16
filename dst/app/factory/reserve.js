@@ -8,7 +8,7 @@ const numeral = require("numeral");
 /**
  * 予約完了メールを作成する
  */
-function createEmailAttributes(event, customerProfile, price, ticketTypes, res) {
+function createEmailAttributes(event, customerProfile, price, ticketTypes, req, res) {
     const to = (typeof customerProfile.email === 'string') ? customerProfile.email : '';
     if (to.length === 0) {
         throw new Error('email to unknown');
@@ -16,7 +16,7 @@ function createEmailAttributes(event, customerProfile, price, ticketTypes, res) 
     const title = res.__('Title');
     const titleEmail = res.__('EmailTitle');
     // メール本文取得
-    const text = getMailTemplate(event, customerProfile, price, ticketTypes, res);
+    const text = getMailTemplate(event, customerProfile, price, ticketTypes, req, res);
     return {
         typeOf: cinerinoapi.factory.chevre.creativeWorkType.EmailMessage,
         sender: {
@@ -32,9 +32,10 @@ function createEmailAttributes(event, customerProfile, price, ticketTypes, res) 
     };
 }
 exports.createEmailAttributes = createEmailAttributes;
-function getMailTemplate(event, customerProfile, price, ticketTypes, res) {
+function getMailTemplate(event, customerProfile, price, ticketTypes, req, res) {
     const mail = [];
     const locale = res.locale;
+    const inquiryUrl = `https://${req.hostname}/inquiry/search/?locale=${locale}`;
     // 東京タワートップデッキツアーチケット購入完了のお知らせ
     mail.push(res.__('EmailTitle'));
     mail.push('');
@@ -79,7 +80,7 @@ function getMailTemplate(event, customerProfile, price, ticketTypes, res) {
     mail.push('');
     // ●チケット照会はこちら
     mail.push(res.__('EmailInquiryUrl'));
-    mail.push((conf.get('official_url_inquiry_by_locale'))[locale]);
+    mail.push(inquiryUrl);
     mail.push('');
     // ●ご入場方法はこちら
     mail.push(res.__('EmailEnterURL'));
