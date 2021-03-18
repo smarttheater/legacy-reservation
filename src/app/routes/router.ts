@@ -43,6 +43,7 @@ router.use('/reservations', reservationsRouter);
 // 利用規約ページ
 router.get('/terms/', (req: Request, res: Response) => {
     res.locals.req = req;
+    // tslint:disable-next-line:no-null-keyword
     res.locals.validation = null;
     res.locals.title = 'Tokyo Tower';
     res.locals.description = 'Terms';
@@ -54,6 +55,7 @@ router.get('/terms/', (req: Request, res: Response) => {
 // 特定商取引法に基づく表示ページ
 router.get('/asct/', (req: Request, res: Response) => {
     res.locals.req = req;
+    // tslint:disable-next-line:no-null-keyword
     res.locals.validation = null;
     res.locals.title = 'Tokyo Tower';
     res.locals.description = 'Act on Specified Commercial Transactions';

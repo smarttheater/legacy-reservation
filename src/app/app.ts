@@ -42,7 +42,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // for parsing multipart/form-data
 const storage = multer.memoryStorage();
-app.use(multer({ storage: storage }).any());
+app.use(multer({ storage: storage })
+    .any());
 
 app.use(cookieParser());
 app.use(express.static(`${__dirname}/../../public`));

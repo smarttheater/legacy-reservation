@@ -28,11 +28,13 @@ function getTicketInfos(order) {
         const price = getUnitPriceByAcceptedOffer(acceptedOffer);
         // チケットタイプセット
         const dataValue = ticketType.identifier;
+        const charge = `\\${numeral(price)
+            .format('0,0')}`;
         // チケットタイプごとにチケット情報セット
         if (!ticketInfos.hasOwnProperty(dataValue)) {
             ticketInfos[dataValue] = {
                 ticket_type_name: ticketType.name,
-                charge: `\\${numeral(price).format('0,0')}`,
+                charge: charge,
                 count: 1,
                 info: ''
             };
@@ -47,7 +49,8 @@ exports.getTicketInfos = getTicketInfos;
 function editTicketInfos(req, ticketInfos) {
     const locale = req.session.locale;
     // 券種ごとの表示情報編集
-    Object.keys(ticketInfos).forEach((key) => {
+    Object.keys(ticketInfos)
+        .forEach((key) => {
         const ticketInfo = ticketInfos[key];
         const ticketCountEdit = req.__('{{n}}Leaf', { n: ticketInfo.count.toString() });
         ticketInfos[key].info = `${ticketInfo.ticket_type_name[locale]} ${ticketInfo.charge} × ${ticketCountEdit}`;

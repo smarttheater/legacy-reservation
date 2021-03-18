@@ -43,12 +43,14 @@ export function getTicketInfos(order: cinerinoapi.factory.order.IOrder): any {
 
         // チケットタイプセット
         const dataValue = ticketType.identifier;
+        const charge = `\\${numeral(price)
+            .format('0,0')}`;
 
         // チケットタイプごとにチケット情報セット
         if (!ticketInfos.hasOwnProperty(dataValue)) {
             ticketInfos[dataValue] = {
                 ticket_type_name: <cinerinoapi.factory.chevre.multilingualString>ticketType.name,
-                charge: `\\${numeral(price).format('0,0')}`,
+                charge: charge,
                 count: 1,
                 info: ''
             };
@@ -64,11 +66,12 @@ export function editTicketInfos(req: Request, ticketInfos: ITicketInfo): ITicket
     const locale: string = (<any>req.session).locale;
 
     // 券種ごとの表示情報編集
-    Object.keys(ticketInfos).forEach((key) => {
-        const ticketInfo = ticketInfos[key];
-        const ticketCountEdit = req.__('{{n}}Leaf', { n: ticketInfo.count.toString() });
-        ticketInfos[key].info = `${(<any>ticketInfo.ticket_type_name)[locale]} ${ticketInfo.charge} × ${ticketCountEdit}`;
-    });
+    Object.keys(ticketInfos)
+        .forEach((key) => {
+            const ticketInfo = ticketInfos[key];
+            const ticketCountEdit = req.__('{{n}}Leaf', { n: ticketInfo.count.toString() });
+            ticketInfos[key].info = `${(<any>ticketInfo.ticket_type_name)[locale]} ${ticketInfo.charge} × ${ticketCountEdit}`;
+        });
 
     return ticketInfos;
 }

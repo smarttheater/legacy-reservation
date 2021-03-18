@@ -8,8 +8,6 @@ import { NextFunction, Request, Response } from 'express';
 import { BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS } from 'http-status';
 import * as moment from 'moment-timezone';
 
-import reservePaymentCreditForm from '../forms/reserve/reservePaymentCreditForm';
-import reservePerformanceForm from '../forms/reserve/reservePerformanceForm';
 import reserveProfileForm from '../forms/reserve/reserveProfileForm';
 import reserveTicketForm from '../forms/reserve/reserveTicketForm';
 import ReserveSessionModel from '../models/reserve/session';
@@ -156,7 +154,9 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
 export async function changeCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
-        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+        if (reservationModel === undefined || moment(reservationModel.transactionInProgress.expires)
+            .toDate() <= moment()
+                .toDate()) {
             res.status(BAD_REQUEST);
             next(new Error(req.__('Expired')));
 
@@ -186,7 +186,10 @@ export async function changeCategory(req: Request, res: Response, next: NextFunc
 export async function performances(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
-        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+        if (reservationModel === undefined
+            || moment(reservationModel.transactionInProgress.expires)
+                .toDate() <= moment()
+                    .toDate()) {
             res.status(BAD_REQUEST);
             next(new Error(req.__('Expired')));
 
@@ -199,17 +202,16 @@ export async function performances(req: Request, res: Response, next: NextFuncti
         debug('api access token published.');
 
         const maxDate = moment();
-        Object.keys(reserveMaxDateInfo).forEach((key) => {
-            maxDate.add((<any>reserveMaxDateInfo)[key], <moment.unitOfTime.DurationConstructor>key);
-        });
+        Object.keys(reserveMaxDateInfo)
+            .forEach((key) => {
+                maxDate.add((<any>reserveMaxDateInfo)[key], <moment.unitOfTime.DurationConstructor>key);
+            });
         const reserveMaxDate: string = maxDate.format('YYYY/MM/DD');
 
         if (req.method === 'POST') {
-            reservePerformanceForm(req);
-            const validationResult = await req.getValidationResult();
-            if (validationResult.isEmpty()) {
+            if (typeof req.body.performanceId === 'string' && req.body.performanceId.length > 0) {
                 // パフォーマンスfixして券種選択へ遷移
-                await processFixPerformance(reservationModel, req.body.performanceId, req);
+                await processFixEvent(reservationModel, req.body.performanceId, req);
                 reservationModel.save(req);
                 res.redirect('/customer/reserve/tickets');
 
@@ -233,7 +235,10 @@ export async function performances(req: Request, res: Response, next: NextFuncti
 export async function tickets(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
-        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+        if (reservationModel === undefined
+            || moment(reservationModel.transactionInProgress.expires)
+                .toDate() <= moment()
+                    .toDate()) {
             res.status(BAD_REQUEST);
             next(new Error(req.__('Expired')));
 
@@ -274,7 +279,9 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
 
             try {
                 // 現在時刻が開始時刻を過ぎている時
-                if (moment(reservationModel.transactionInProgress.performance.startDate).toDate() < moment().toDate()) {
+                if (moment(reservationModel.transactionInProgress.performance.startDate)
+                    .toDate() < moment()
+                        .toDate()) {
                     //「ご希望の枚数が用意できないため予約できません。」
                     throw new Error(req.__('NoAvailableSeats'));
                 }
@@ -312,7 +319,10 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
 export async function setProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
-        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+        if (reservationModel === undefined
+            || moment(reservationModel.transactionInProgress.expires)
+                .toDate() <= moment()
+                    .toDate()) {
             res.status(BAD_REQUEST);
             next(new Error(req.__('Expired')));
 
@@ -322,7 +332,6 @@ export async function setProfile(req: Request, res: Response, next: NextFunction
         let gmoError: string = '';
 
         if (req.method === 'POST') {
-
             //Form入力値チェック
             const isValid = await isValidProfile(req, res);
 
@@ -425,7 +434,10 @@ export async function setProfile(req: Request, res: Response, next: NextFunction
 export async function confirm(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const reservationModel = ReserveSessionModel.FIND(req);
-        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+        if (reservationModel === undefined
+            || moment(reservationModel.transactionInProgress.expires)
+                .toDate() <= moment()
+                    .toDate()) {
             res.status(BAD_REQUEST);
             next(new Error(req.__('Expired')));
 
@@ -814,13 +826,10 @@ export async function processFixProfile(reservationModel: ReserveSessionModel, r
 }
 
 /**
- * パフォーマンスをFIXするプロセス
- * パフォーマンスIDから、パフォーマンスを検索し、その後プロセスに必要な情報をreservationModelに追加する
+ * イベントを決定するプロセス
  */
-export async function processFixPerformance(
-    reservationModel: ReserveSessionModel, perfomanceId: string, req: Request
-): Promise<void> {
-    debug('fixing performance...', perfomanceId);
+export async function processFixEvent(reservationModel: ReserveSessionModel, eventId: string, req: Request): Promise<void> {
+    debug('fixing event...', eventId);
     // イベント取得
     const eventService = new cinerinoapi.service.Event({
         endpoint: <string>process.env.CINERINO_API_ENDPOINT,
@@ -828,7 +837,7 @@ export async function processFixPerformance(
         project: { id: process.env.PROJECT_ID }
     });
 
-    const event = await eventService.findById<cinerinoapi.factory.chevre.eventType.ScreeningEvent>({ id: perfomanceId });
+    const event = await eventService.findById<cinerinoapi.factory.chevre.eventType.ScreeningEvent>({ id: eventId });
 
     // 上映日当日まで購入可能
     const eventStartDay = Number(moment(event.startDate)
@@ -890,12 +899,6 @@ export function getUnitPriceByAcceptedOffer(offer: cinerinoapi.factory.order.IAc
 async function processFixGMO(reservationModel: ReserveSessionModel, req: Request): Promise<void> {
     reservationModel.save(req);
 
-    reservePaymentCreditForm(req);
-    const validationResult = await req.getValidationResult();
-    if (!validationResult.isEmpty()) {
-        throw new Error(req.__('Invalid'));
-    }
-
     // クレジットカードオーソリ取得済であれば取消
     if (reservationModel.transactionInProgress.creditCardAuthorizeActionId !== undefined) {
         debug('canceling credit card authorization...', reservationModel.transactionInProgress.creditCardAuthorizeActionId);
@@ -914,7 +917,7 @@ async function processFixGMO(reservationModel: ReserveSessionModel, req: Request
         debug('credit card authorization canceled.');
     }
 
-    const gmoTokenObject = JSON.parse(req.body.gmoTokenObject);
+    const gmoTokenObject = JSON.parse(String(req.body.gmoTokenObject));
     const amount = reservationModel.getTotalCharge();
     debug('authorizing credit card payment...', gmoTokenObject, amount);
 

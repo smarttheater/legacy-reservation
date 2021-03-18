@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.print = exports.getUnitPriceByAcceptedOffer = exports.processFixPerformance = exports.processFixProfile = exports.isValidProfile = exports.processFixSeatsAndTickets = exports.complete = exports.createEmail = exports.confirm = exports.setProfile = exports.tickets = exports.performances = exports.changeCategory = exports.start = exports.processStart = exports.CODE_EXPIRES_IN_SECONDS = exports.reserveMaxDateInfo = void 0;
+exports.print = exports.getUnitPriceByAcceptedOffer = exports.processFixEvent = exports.processFixProfile = exports.isValidProfile = exports.processFixSeatsAndTickets = exports.complete = exports.createEmail = exports.confirm = exports.setProfile = exports.tickets = exports.performances = exports.changeCategory = exports.start = exports.processStart = exports.CODE_EXPIRES_IN_SECONDS = exports.reserveMaxDateInfo = void 0;
 /**
  * 予約ベースコントローラー
  */
@@ -17,8 +17,6 @@ const cinerinoapi = require("@cinerino/sdk");
 const createDebug = require("debug");
 const http_status_1 = require("http-status");
 const moment = require("moment-timezone");
-const reservePaymentCreditForm_1 = require("../forms/reserve/reservePaymentCreditForm");
-const reservePerformanceForm_1 = require("../forms/reserve/reservePerformanceForm");
 const reserveProfileForm_1 = require("../forms/reserve/reserveProfileForm");
 const reserveTicketForm_1 = require("../forms/reserve/reserveTicketForm");
 const session_1 = require("../models/reserve/session");
@@ -152,7 +150,9 @@ function changeCategory(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const reservationModel = session_1.default.FIND(req);
-            if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+            if (reservationModel === undefined || moment(reservationModel.transactionInProgress.expires)
+                .toDate() <= moment()
+                .toDate()) {
                 res.status(http_status_1.BAD_REQUEST);
                 next(new Error(req.__('Expired')));
                 return;
@@ -181,7 +181,10 @@ function performances(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const reservationModel = session_1.default.FIND(req);
-            if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+            if (reservationModel === undefined
+                || moment(reservationModel.transactionInProgress.expires)
+                    .toDate() <= moment()
+                    .toDate()) {
                 res.status(http_status_1.BAD_REQUEST);
                 next(new Error(req.__('Expired')));
                 return;
@@ -191,16 +194,15 @@ function performances(req, res, next) {
             const token = authClient.credentials;
             debug('api access token published.');
             const maxDate = moment();
-            Object.keys(exports.reserveMaxDateInfo).forEach((key) => {
+            Object.keys(exports.reserveMaxDateInfo)
+                .forEach((key) => {
                 maxDate.add(exports.reserveMaxDateInfo[key], key);
             });
             const reserveMaxDate = maxDate.format('YYYY/MM/DD');
             if (req.method === 'POST') {
-                reservePerformanceForm_1.default(req);
-                const validationResult = yield req.getValidationResult();
-                if (validationResult.isEmpty()) {
+                if (typeof req.body.performanceId === 'string' && req.body.performanceId.length > 0) {
                     // パフォーマンスfixして券種選択へ遷移
-                    yield processFixPerformance(reservationModel, req.body.performanceId, req);
+                    yield processFixEvent(reservationModel, req.body.performanceId, req);
                     reservationModel.save(req);
                     res.redirect('/customer/reserve/tickets');
                     return;
@@ -225,7 +227,10 @@ function tickets(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const reservationModel = session_1.default.FIND(req);
-            if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+            if (reservationModel === undefined
+                || moment(reservationModel.transactionInProgress.expires)
+                    .toDate() <= moment()
+                    .toDate()) {
                 res.status(http_status_1.BAD_REQUEST);
                 next(new Error(req.__('Expired')));
                 return;
@@ -259,7 +264,9 @@ function tickets(req, res, next) {
                 }
                 try {
                     // 現在時刻が開始時刻を過ぎている時
-                    if (moment(reservationModel.transactionInProgress.performance.startDate).toDate() < moment().toDate()) {
+                    if (moment(reservationModel.transactionInProgress.performance.startDate)
+                        .toDate() < moment()
+                        .toDate()) {
                         //「ご希望の枚数が用意できないため予約できません。」
                         throw new Error(req.__('NoAvailableSeats'));
                     }
@@ -298,7 +305,10 @@ function setProfile(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const reservationModel = session_1.default.FIND(req);
-            if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+            if (reservationModel === undefined
+                || moment(reservationModel.transactionInProgress.expires)
+                    .toDate() <= moment()
+                    .toDate()) {
                 res.status(http_status_1.BAD_REQUEST);
                 next(new Error(req.__('Expired')));
                 return;
@@ -403,7 +413,10 @@ function confirm(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const reservationModel = session_1.default.FIND(req);
-            if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
+            if (reservationModel === undefined
+                || moment(reservationModel.transactionInProgress.expires)
+                    .toDate() <= moment()
+                    .toDate()) {
                 res.status(http_status_1.BAD_REQUEST);
                 next(new Error(req.__('Expired')));
                 return;
@@ -726,19 +739,18 @@ function processFixProfile(reservationModel, req) {
 }
 exports.processFixProfile = processFixProfile;
 /**
- * パフォーマンスをFIXするプロセス
- * パフォーマンスIDから、パフォーマンスを検索し、その後プロセスに必要な情報をreservationModelに追加する
+ * イベントを決定するプロセス
  */
-function processFixPerformance(reservationModel, perfomanceId, req) {
+function processFixEvent(reservationModel, eventId, req) {
     return __awaiter(this, void 0, void 0, function* () {
-        debug('fixing performance...', perfomanceId);
+        debug('fixing event...', eventId);
         // イベント取得
         const eventService = new cinerinoapi.service.Event({
             endpoint: process.env.CINERINO_API_ENDPOINT,
             auth: authClient,
             project: { id: process.env.PROJECT_ID }
         });
-        const event = yield eventService.findById({ id: perfomanceId });
+        const event = yield eventService.findById({ id: eventId });
         // 上映日当日まで購入可能
         const eventStartDay = Number(moment(event.startDate)
             .tz('Asia/Tokyo')
@@ -768,7 +780,7 @@ function processFixPerformance(reservationModel, perfomanceId, req) {
         reservationModel.transactionInProgress.performance = event;
     });
 }
-exports.processFixPerformance = processFixPerformance;
+exports.processFixEvent = processFixEvent;
 function getUnitPriceByAcceptedOffer(offer) {
     var _a;
     let unitPrice = 0;
@@ -790,11 +802,6 @@ exports.getUnitPriceByAcceptedOffer = getUnitPriceByAcceptedOffer;
 function processFixGMO(reservationModel, req) {
     return __awaiter(this, void 0, void 0, function* () {
         reservationModel.save(req);
-        reservePaymentCreditForm_1.default(req);
-        const validationResult = yield req.getValidationResult();
-        if (!validationResult.isEmpty()) {
-            throw new Error(req.__('Invalid'));
-        }
         // クレジットカードオーソリ取得済であれば取消
         if (reservationModel.transactionInProgress.creditCardAuthorizeActionId !== undefined) {
             debug('canceling credit card authorization...', reservationModel.transactionInProgress.creditCardAuthorizeActionId);
@@ -812,7 +819,7 @@ function processFixGMO(reservationModel, req) {
             });
             debug('credit card authorization canceled.');
         }
-        const gmoTokenObject = JSON.parse(req.body.gmoTokenObject);
+        const gmoTokenObject = JSON.parse(String(req.body.gmoTokenObject));
         const amount = reservationModel.getTotalCharge();
         debug('authorizing credit card payment...', gmoTokenObject, amount);
         // クレジットカードオーソリ取得

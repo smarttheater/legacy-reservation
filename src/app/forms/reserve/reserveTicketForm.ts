@@ -4,5 +4,6 @@
 import { Request } from 'express';
 export default (req: Request): void => {
     // choices
-    req.checkBody('choices').notEmpty();
+    req.checkBody('choices')
+        .notEmpty();
 };

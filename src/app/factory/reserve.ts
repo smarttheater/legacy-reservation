@@ -75,9 +75,10 @@ export function getMailTemplate(
     mail.push('');
 
     // この度は、「東京タワー トップデッキツアー」のWEBチケット予約販売をご利用頂き、誠にありがとうございます。
-    mail.push(res.__('EmailHead1').replace(
-        '$theater_name$', (<any>event.superEvent.location.name)[locale]
-    ));
+    mail.push(res.__('EmailHead1')
+        .replace(
+            '$theater_name$', (<any>event.superEvent.location.name)[locale]
+        ));
     // お客様がご購入されましたチケットの情報は下記の通りです。
     mail.push(res.__('EmailHead2'));
     mail.push('');
@@ -86,8 +87,12 @@ export function getMailTemplate(
     mail.push(`${res.__('PaymentNo')} : #{order.confirmationNumber}`);
 
     // ご来塔日時
-    const day: string = moment(event.startDate).tz('Asia/Tokyo').format('YYYY/MM/DD');
-    const time: string = moment(event.startDate).tz('Asia/Tokyo').format('HH:mm');
+    const day: string = moment(event.startDate)
+        .tz('Asia/Tokyo')
+        .format('YYYY/MM/DD');
+    const time: string = moment(event.startDate)
+        .tz('Asia/Tokyo')
+        .format('HH:mm');
     mail.push(`${res.__('EmailReserveDate')} : ${day} ${time}`);
 
     // 券種、枚数
@@ -99,7 +104,9 @@ export function getMailTemplate(
             .find((p) => p.typeOf === cinerinoapi.factory.chevre.priceSpecificationType.UnitPriceSpecification);
         const unitPrice = (unitPriceSpec !== undefined) ? unitPriceSpec.price : 0;
         const ticketCountEdit = res.__('{{n}}Leaf', { n: ticketType.count.toString() });
-        const ticketInfoStr = `${(<any>ticketType.name)[locale]} ${`\\${numeral(unitPrice).format('0,0')}`} × ${ticketCountEdit}`;
+        const formattedPrice = numeral(unitPrice)
+            .format('0,0');
+        const ticketInfoStr = `${(<any>ticketType.name)[locale]} ${`\\${formattedPrice}`} × ${ticketCountEdit}`;
         mail.push(ticketInfoStr);
     });
     mail.push('-------------------------------------');
@@ -107,7 +114,10 @@ export function getMailTemplate(
     const numTickets = ticketTypes.reduce((a, b) => a + Number(b.count), 0);
     mail.push(res.__('EmailTotalTicketCount{{n}}', { n: numTickets.toString() }));
     // 合計金額
-    mail.push(`${res.__('TotalPrice')} ${res.__('{{price}} yen', { price: numeral(price).format('0,0') })}`);
+    mail.push(`${res.__('TotalPrice')} ${res.__('{{price}} yen', {
+        price: numeral(price)
+            .format('0,0')
+    })}`);
     mail.push('-------------------------------------');
     // ※ご入場の際はQRコードが入場チケットとなります。下記のチケット照会より、QRコードを画面撮影もしくは印刷の上、ご持参ください。
     mail.push(res.__('EmailAboutQR'));
@@ -141,7 +151,8 @@ export function getMailTemplate(
     mail.push('');
 
     // なお、このメールは、「東京タワー トップデッキツアー」の予約システムでチケットをご購入頂いた方にお送りしておりますが、チケット購入に覚えのない方に届いております場合は、下記お問い合わせ先までご連絡ください。
-    mail.push(res.__('EmailFoot1').replace('$theater_name$', (<any>event.superEvent.location.name)[locale]));
+    mail.push(res.__('EmailFoot1')
+        .replace('$theater_name$', (<any>event.superEvent.location.name)[locale]));
     // ※尚、このメールアドレスは送信専用となっておりますでので、ご返信頂けません。
     mail.push(res.__('EmailFoot2'));
     // ご不明な点がございましたら、下記番号までお問合わせください。

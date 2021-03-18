@@ -44,7 +44,7 @@ const orderService = new cinerinoapi.service.Order({
 function search(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         let message = '';
-        let errors = null;
+        let errors;
         // 照会結果セッション初期化
         delete req.session.inquiryResult;
         if (req.method === 'POST') {
@@ -53,7 +53,8 @@ function search(req, res) {
             errors = validatorResult.mapped();
             // 日付編集
             let performanceDay = req.body.day;
-            performanceDay = performanceDay.replace(/\-/g, '').replace(/\//g, '');
+            performanceDay = performanceDay.replace(/\-/g, '')
+                .replace(/\//g, '');
             if (validatorResult.isEmpty()) {
                 try {
                     const confirmationNumber = `${performanceDay}${req.body.paymentNo}`;
@@ -109,7 +110,8 @@ function search(req, res) {
             }
         }
         const maxDate = moment();
-        Object.keys(order_1.reserveMaxDateInfo).forEach((key) => {
+        Object.keys(order_1.reserveMaxDateInfo)
+            .forEach((key) => {
             maxDate.add(order_1.reserveMaxDateInfo[key], key);
         });
         const reserveMaxDate = maxDate.format('YYYY/MM/DD');
@@ -245,14 +247,18 @@ exports.cancel = cancel;
  */
 function validate(req) {
     // 購入番号
-    req.checkBody('paymentNo', req.__('NoInput{{fieldName}}', { fieldName: req.__('PaymentNo') })).notEmpty();
-    req.checkBody('paymentNo', req.__('NoInput{{fieldName}}', { fieldName: req.__('PaymentNo') })).notEmpty();
+    req.checkBody('paymentNo', req.__('NoInput{{fieldName}}', { fieldName: req.__('PaymentNo') }))
+        .notEmpty();
+    req.checkBody('paymentNo', req.__('NoInput{{fieldName}}', { fieldName: req.__('PaymentNo') }))
+        .notEmpty();
     // 電話番号
-    req.checkBody('purchaserTel', req.__('Message.minLength{{fieldName}}{{min}}', { fieldName: req.__('Label.Tel'), min: '4' })).len({ min: 4 });
+    req.checkBody('purchaserTel', req.__('Message.minLength{{fieldName}}{{min}}', { fieldName: req.__('Label.Tel'), min: '4' }))
+        .len({ min: 4 });
 }
 /**
  * キャンセルメール本文取得
  */
+// tslint:disable-next-line:max-func-body-length
 function getCancelMail(req, order, fee) {
     const reservations = order.acceptedOffers.map((o) => o.itemOffered);
     const mail = [];
@@ -269,7 +275,8 @@ function getCancelMail(req, order, fee) {
     mail.push(req.__('EmailDestinationName{{name}}', { name: purchaserName }));
     mail.push('');
     // この度は、「東京タワー TOP DECK」のオンライン先売りチケットサービスにてご購入頂き、誠にありがとうございます。
-    mail.push(req.__('EmailHead1').replace('$theater_name$', (locale === 'ja')
+    mail.push(req.__('EmailHead1')
+        .replace('$theater_name$', (locale === 'ja')
         ? String(reservations[0].reservationFor.superEvent.location.name.ja)
         : String(reservations[0].reservationFor.superEvent.location.name.en)));
     // お客様がキャンセルされましたチケットの情報は下記の通りです。
@@ -289,7 +296,8 @@ function getCancelMail(req, order, fee) {
     mail.push(`${req.__('TicketType')} ${req.__('TicketCount')}`);
     // 券種ごとに合計枚数算出
     const ticketInfos = ticket.editTicketInfos(req, ticket.getTicketInfos(order));
-    Object.keys(ticketInfos).forEach((key) => {
+    Object.keys(ticketInfos)
+        .forEach((key) => {
         mail.push(ticketInfos[key].info);
     });
     // 合計金額算出
@@ -298,9 +306,15 @@ function getCancelMail(req, order, fee) {
     // 合計枚数
     mail.push(req.__('EmailTotalTicketCount{{n}}', { n: order.acceptedOffers.length.toString() }));
     // 合計金額
-    mail.push(`${req.__('TotalPrice')} ${req.__('{{price}} yen', { price: numeral(price).format('0,0') })}`);
+    mail.push(`${req.__('TotalPrice')} ${req.__('{{price}} yen', {
+        price: numeral(price)
+            .format('0,0')
+    })}`);
     // キャンセル料
-    mail.push(`${req.__('CancellationFee')} ${req.__('{{price}} yen', { price: numeral(fee).format('0,0') })}`);
+    mail.push(`${req.__('CancellationFee')} ${req.__('{{price}} yen', {
+        price: numeral(fee)
+            .format('0,0')
+    })}`);
     mail.push('-------------------------------------');
     mail.push('');
     // ご注意事項

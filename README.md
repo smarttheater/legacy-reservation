@@ -38,7 +38,6 @@ npm start
 | `REDIS_KEY`                   | true     |                                   | redis key                     |
 | `GMO_ENDPOINT`                | true     |                                   | GMO API endpoint              |
 | `PROJECT_ID`                  | true     |                                   | Project ID                    |
-| `SELLER_ID`                   | true     |                                   | Seller ID                     |
 
 ## License
 

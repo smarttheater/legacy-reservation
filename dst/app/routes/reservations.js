@@ -16,7 +16,6 @@ const cinerinoapi = require("@cinerino/sdk");
 const express_1 = require("express");
 const jwt = require("jsonwebtoken");
 const order_1 = require("../controllers/order");
-const reservation_1 = require("../util/reservation");
 const reservationsRouter = express_1.Router();
 const authClient = new cinerinoapi.auth.ClientCredentials({
     domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
@@ -240,8 +239,7 @@ function renderPrintFormat(req, res) {
                 return 1;
             }
             return 0;
-        })
-            .map(reservation_1.chevreReservation2ttts);
+        });
         const output = req.query.output;
         switch (output) {
             // サーマル印刷 (72mm幅プレプリント厚紙)

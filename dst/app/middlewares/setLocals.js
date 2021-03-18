@@ -17,6 +17,7 @@ exports.default = (req, res, next) => {
     res.locals.req = req;
     res.locals.moment = moment;
     res.locals.numeral = numeral;
+    // tslint:disable-next-line:no-null-keyword
     res.locals.validation = null;
     res.locals.officialWebsiteUrl = '';
     res.locals.title = 'Order Details';
