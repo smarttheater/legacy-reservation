@@ -9,6 +9,7 @@ const api_1 = require("./api");
 const customer_1 = require("./customer");
 const entrance_1 = require("./entrance");
 const externalLinks_1 = require("./externalLinks");
+const health_1 = require("./health");
 const inquiry_1 = require("./inquiry");
 const reservations_1 = require("./reservations");
 const NEW_ENDPOINT = process.env.NEW_ENDPOINT;
@@ -20,6 +21,7 @@ router.use((req, res, next) => {
     }
     next();
 });
+router.use('/health', health_1.default);
 // 言語
 router.get('/language/update/:locale', languageController.update);
 // ルーティング登録の順序に注意！
