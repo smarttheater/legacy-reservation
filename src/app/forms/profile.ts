@@ -1,5 +1,5 @@
 /**
- * 座席予約購入者情報フォーム
+ * 注文プロフィールフォーム
  */
 import { Request } from 'express';
 

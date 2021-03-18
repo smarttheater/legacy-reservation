@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - 購入完了メールの照会URLを動的に生成するように調整
 - configモジュールへの依存を削除
 - update tslint
+- 注文処理最適化
 
 ### Deprecated
 
