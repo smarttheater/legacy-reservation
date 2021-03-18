@@ -9,6 +9,7 @@ import apiRouter from './api';
 import customerRouter from './customer';
 import entranceRouter from './entrance';
 import externalLinksRouter from './externalLinks';
+import healthRouter from './health';
 import inquiryRouter from './inquiry';
 import reservationsRouter from './reservations';
 
@@ -25,6 +26,8 @@ router.use((req, res, next) => {
 
     next();
 });
+
+router.use('/health', healthRouter);
 
 // 言語
 router.get('/language/update/:locale', languageController.update);

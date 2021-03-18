@@ -10,12 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- update @cinerino/sdk
-- 購入完了メールの照会URLを動的に生成するように調整
-- configモジュールへの依存を削除
-- update tslint
-- 注文処理最適化
-
 ### Deprecated
 
 ### Removed
@@ -23,6 +17,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v8.21.1 - 2021-03-18
+
+### Changed
+
+- update @cinerino/sdk
+- 購入完了メールの照会URLを動的に生成するように調整
+- configモジュールへの依存を削除
+- update tslint
+- 注文処理最適化
 
 ## v8.21.0 - 2021-03-11
 
