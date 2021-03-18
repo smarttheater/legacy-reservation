@@ -50,24 +50,11 @@ declare global {
              */
             performance?: cinerinoapi.factory.event.IEvent<cinerinoapi.factory.chevre.eventType.ScreeningEvent>;
             /**
-             * 決済方法選択肢
-             */
-            paymentMethodChoices: string[];
-            /**
              * 券種リスト
              */
             ticketTypes: ITicketType[];
             purchaser: IPurchaser;
             profile?: cinerinoapi.factory.person.IProfile;
-            /**
-             * 決済方法
-             */
-            paymentMethod: cinerinoapi.factory.paymentMethodType;
-            paymentMethodId?: string;
-            /**
-             * GMO取引
-             */
-            transactionGMO: ITransactionGMO;
             /**
              * 仮予約リスト
              */
@@ -92,11 +79,6 @@ declare global {
             age: string;
             address: string;
             gender: string;
-        }
-
-        interface ITransactionGMO {
-            amount: number;
-            count: number;
         }
 
         // tslint:disable-next-line:interface-name

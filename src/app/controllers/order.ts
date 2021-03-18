@@ -1,5 +1,6 @@
+
 /**
- * 予約コントローラー
+ * 注文取引コントローラー
  */
 import * as cinerinoapi from '@cinerino/sdk';
 import * as createDebug from 'debug';
@@ -7,18 +8,17 @@ import { NextFunction, Request, Response } from 'express';
 import { BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS } from 'http-status';
 import * as moment from 'moment-timezone';
 
-import reservePaymentCreditForm from '../../forms/reserve/reservePaymentCreditForm';
-import reservePerformanceForm from '../../forms/reserve/reservePerformanceForm';
-import ReserveSessionModel from '../../models/reserve/session';
-import * as reserveBaseController from '../reserveBase';
+import profileForm from '../forms/profile';
+import ReserveSessionModel from '../models/reserve/session';
 
-import { createEmailAttributes } from '../../factory/reserve';
+import { createEmailAttributes } from '../factory/reserve';
 
+// 予約可能日数定義
+export const reserveMaxDateInfo = { days: 60 };
+const TRANSACTION_EXPIRES_IN_SECONDS = 900;
 export const CODE_EXPIRES_IN_SECONDS = 8035200; // 93日
 
-const debug = createDebug('ttts-frontend:controller:customerReserve');
-
-const reserveMaxDateInfo = { days: 60 };
+const debug = createDebug('smarttheater-legacy-reservation:controller:order');
 
 const authClient = new cinerinoapi.auth.ClientCredentials({
     domain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
@@ -28,12 +28,17 @@ const authClient = new cinerinoapi.auth.ClientCredentials({
     state: ''
 });
 
-const orderService = new cinerinoapi.service.Order({
+const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOrder4ttts({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
     auth: authClient,
     project: { id: process.env.PROJECT_ID }
 });
-const placeOrderTransactionService = new cinerinoapi.service.transaction.PlaceOrder4ttts({
+const sellerService = new cinerinoapi.service.Seller({
+    endpoint: <string>process.env.CINERINO_API_ENDPOINT,
+    auth: authClient,
+    project: { id: process.env.PROJECT_ID }
+});
+const orderService = new cinerinoapi.service.Order({
     endpoint: <string>process.env.CINERINO_API_ENDPOINT,
     auth: authClient,
     project: { id: process.env.PROJECT_ID }
@@ -43,6 +48,82 @@ const paymentService = new cinerinoapi.service.Payment({
     auth: authClient,
     project: { id: process.env.PROJECT_ID }
 });
+
+function validateReservationModel(req: Request, res: Response, next: NextFunction) {
+    const reservationModel = ReserveSessionModel.FIND(req);
+    if (reservationModel === undefined) {
+        res.status(BAD_REQUEST);
+        next(new Error(req.__('Expired')));
+
+        return;
+    }
+
+    const now = moment()
+        .toDate();
+    const expires = moment(reservationModel.transactionInProgress.expires)
+        .toDate();
+    if (expires <= now) {
+        res.status(BAD_REQUEST);
+        next(new Error(req.__('Expired')));
+
+        return;
+    }
+
+    return reservationModel;
+}
+
+/**
+ * 購入開始プロセス
+ */
+export async function processStart(req: Request): Promise<ReserveSessionModel> {
+    // 言語も指定
+    (<Express.Session>req.session).locale = (typeof req.query.locale === 'string' && req.query.locale.length > 0) ? req.query.locale : 'ja';
+
+    const searchSellersResult = await sellerService.search({ limit: 1 });
+    const seller = searchSellersResult.data.shift();
+    if (seller === undefined) {
+        throw new Error('Seller not found');
+    }
+
+    const expires = moment()
+        .add(TRANSACTION_EXPIRES_IN_SECONDS, 'seconds')
+        .toDate();
+    const transaction = await placeOrderTransactionService.start({
+        expires: expires,
+        object: { passport: { token: req.query.passportToken } },
+        seller: { typeOf: seller.typeOf, id: <string>seller.id }
+    });
+
+    // 取引セッションを初期化
+    const transactionInProgress: Express.ITransactionInProgress = {
+        id: transaction.id,
+        agent: transaction.agent,
+        seller: seller,
+        category: (req.query.wc === '1') ? 'wheelchair' : 'general',
+        expires: expires.toISOString(),
+        ticketTypes: [],
+        purchaser: {
+            lastName: '',
+            firstName: '',
+            tel: '',
+            email: '',
+            age: '',
+            address: '',
+            gender: '0'
+        },
+        reservations: []
+    };
+
+    const reservationModel = new ReserveSessionModel(transactionInProgress);
+
+    // セッションに購入者情報があれば初期値セット
+    const purchaserFromSession = (<Express.Session>req.session).purchaser;
+    if (purchaserFromSession !== undefined) {
+        reservationModel.transactionInProgress.purchaser = purchaserFromSession;
+    }
+
+    return reservationModel;
+}
 
 /**
  * 取引開始
@@ -54,7 +135,8 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
         || typeof req.query.locale !== 'string' || req.query.locale.length === 0
         || typeof req.query.passportToken !== 'string' || req.query.passportToken.length === 0
     ) {
-        res.status(BAD_REQUEST).end('Bad Request');
+        res.status(BAD_REQUEST)
+            .end('Bad Request');
 
         return;
     }
@@ -64,7 +146,7 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
         // 購入結果セッション初期化
         delete (<Express.Session>req.session).transactionResult;
 
-        const reservationModel = await reserveBaseController.processStart(req);
+        const reservationModel = await processStart(req);
 
         reservationModel.save(req);
 
@@ -76,7 +158,8 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
             if (error.code >= INTERNAL_SERVER_ERROR) {
                 // no op
             } else if (error.code >= BAD_REQUEST) {
-                res.status(BAD_REQUEST).end('Bad Request');
+                res.status(BAD_REQUEST)
+                    .end('Bad Request');
 
                 return;
             }
@@ -91,11 +174,8 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
  */
 export async function changeCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const reservationModel = ReserveSessionModel.FIND(req);
-        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
-            res.status(BAD_REQUEST);
-            next(new Error(req.__('Expired')));
-
+        const reservationModel = validateReservationModel(req, res, next);
+        if (reservationModel === undefined) {
             return;
         }
 
@@ -121,11 +201,8 @@ export async function changeCategory(req: Request, res: Response, next: NextFunc
  */
 export async function performances(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const reservationModel = ReserveSessionModel.FIND(req);
-        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
-            res.status(BAD_REQUEST);
-            next(new Error(req.__('Expired')));
-
+        const reservationModel = validateReservationModel(req, res, next);
+        if (reservationModel === undefined) {
             return;
         }
 
@@ -135,17 +212,16 @@ export async function performances(req: Request, res: Response, next: NextFuncti
         debug('api access token published.');
 
         const maxDate = moment();
-        Object.keys(reserveMaxDateInfo).forEach((key) => {
-            maxDate.add((<any>reserveMaxDateInfo)[key], <moment.unitOfTime.DurationConstructor>key);
-        });
+        Object.keys(reserveMaxDateInfo)
+            .forEach((key) => {
+                maxDate.add((<any>reserveMaxDateInfo)[key], <moment.unitOfTime.DurationConstructor>key);
+            });
         const reserveMaxDate: string = maxDate.format('YYYY/MM/DD');
 
         if (req.method === 'POST') {
-            reservePerformanceForm(req);
-            const validationResult = await req.getValidationResult();
-            if (validationResult.isEmpty()) {
+            if (typeof req.body.performanceId === 'string' && req.body.performanceId.length > 0) {
                 // パフォーマンスfixして券種選択へ遷移
-                await reserveBaseController.processFixPerformance(reservationModel, req.body.performanceId, req);
+                await processFixEvent(reservationModel, req.body.performanceId, req);
                 reservationModel.save(req);
                 res.redirect('/customer/reserve/tickets');
 
@@ -168,11 +244,8 @@ export async function performances(req: Request, res: Response, next: NextFuncti
  */
 export async function tickets(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const reservationModel = ReserveSessionModel.FIND(req);
-        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
-            res.status(BAD_REQUEST);
-            next(new Error(req.__('Expired')));
-
+        const reservationModel = validateReservationModel(req, res, next);
+        if (reservationModel === undefined) {
             return;
         }
 
@@ -181,7 +254,7 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
             throw new Error(req.__('UnexpectedError'));
         }
 
-        reservationModel.transactionInProgress.paymentMethod = cinerinoapi.factory.paymentMethodType.CreditCard;
+        // reservationModel.transactionInProgress.paymentMethod = cinerinoapi.factory.paymentMethodType.CreditCard;
         res.locals.message = '';
 
         if (req.method === 'POST') {
@@ -210,13 +283,15 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
 
             try {
                 // 現在時刻が開始時刻を過ぎている時
-                if (moment(reservationModel.transactionInProgress.performance.startDate).toDate() < moment().toDate()) {
+                if (moment(reservationModel.transactionInProgress.performance.startDate)
+                    .toDate() < moment()
+                        .toDate()) {
                     //「ご希望の枚数が用意できないため予約できません。」
                     throw new Error(req.__('NoAvailableSeats'));
                 }
 
                 // 予約処理
-                await reserveBaseController.processFixSeatsAndTickets(reservationModel, req);
+                await processFixSeatsAndTickets(reservationModel, req);
                 reservationModel.save(req);
                 res.redirect('/customer/reserve/profile');
 
@@ -245,28 +320,24 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
  * 購入者情報
  */
 // tslint:disable-next-line:max-func-body-length
-export async function profile(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function setProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const reservationModel = ReserveSessionModel.FIND(req);
-        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
-            res.status(BAD_REQUEST);
-            next(new Error(req.__('Expired')));
-
+        const reservationModel = validateReservationModel(req, res, next);
+        if (reservationModel === undefined) {
             return;
         }
 
         let gmoError: string = '';
 
         if (req.method === 'POST') {
-
             //Form入力値チェック
-            const isValid = await reserveBaseController.isValidProfile(req, res);
+            const isValid = await isValidProfile(req, res);
 
             //GMO処理
             if (isValid) {
                 try {
                     // 購入者情報FIXプロセス
-                    await reserveBaseController.processFixProfile(reservationModel, req);
+                    await processFixProfile(reservationModel, req);
 
                     try {
                         // クレジットカード決済のオーソリ、あるいは、オーダーID発行
@@ -329,11 +400,7 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
             res.locals.email = (typeof email === 'string') ? email : '';
             res.locals.emailConfirm = (typeof email === 'string') ? email.substr(0, email.indexOf('@')) : '';
             res.locals.emailConfirmDomain = (typeof email === 'string') ? email.substr(email.indexOf('@') + 1) : '';
-            res.locals.paymentMethod =
-                (typeof reservationModel.transactionInProgress.paymentMethod === 'string'
-                    && reservationModel.transactionInProgress.paymentMethod.length > 0)
-                    ? reservationModel.transactionInProgress.paymentMethod
-                    : cinerinoapi.factory.paymentMethodType.CreditCard;
+            // res.locals.paymentMethod = cinerinoapi.factory.paymentMethodType.CreditCard;
         }
 
         let gmoShopId: string = '';
@@ -364,11 +431,8 @@ export async function profile(req: Request, res: Response, next: NextFunction): 
 // tslint:disable-next-line:max-func-body-length
 export async function confirm(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const reservationModel = ReserveSessionModel.FIND(req);
-        if (reservationModel === null || moment(reservationModel.transactionInProgress.expires).toDate() <= moment().toDate()) {
-            res.status(BAD_REQUEST);
-            next(new Error(req.__('Expired')));
-
+        const reservationModel = validateReservationModel(req, res, next);
+        if (reservationModel === undefined) {
             return;
         }
 
@@ -379,7 +443,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
                 }
 
                 // 注文完了メール作成
-                const emailAttributes = createEmail(reservationModel, res);
+                const emailAttributes = createEmail(reservationModel, req, res);
 
                 // 取引確定
                 const transactionResult = await placeOrderTransactionService.confirm({
@@ -494,7 +558,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
 }
 
 export function createEmail(
-    reservationModel: ReserveSessionModel, res: Response
+    reservationModel: ReserveSessionModel, req: Request, res: Response
 ): cinerinoapi.factory.creativeWork.message.email.IAttributes {
     // 予約連携パラメータ作成
     const customerProfile = reservationModel.transactionInProgress.profile;
@@ -516,6 +580,7 @@ export function createEmail(
         customerProfile,
         price,
         ticketTypes,
+        req,
         res
     );
 }
@@ -537,7 +602,7 @@ export async function complete(req: Request, res: Response, next: NextFunction):
         const reservations =
             (<cinerinoapi.factory.order.IAcceptedOffer<cinerinoapi.factory.order.IReservation>[]>transactionResult.order.acceptedOffers)
                 .map((o) => {
-                    const unitPrice = reserveBaseController.getUnitPriceByAcceptedOffer(o);
+                    const unitPrice = getUnitPriceByAcceptedOffer(o);
 
                     return {
                         ...o.itemOffered,
@@ -559,98 +624,312 @@ export async function complete(req: Request, res: Response, next: NextFunction):
 }
 
 /**
- * 取引の確定した注文のチケット印刷
+ * 座席・券種確定プロセス
  */
-export async function print(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function processFixSeatsAndTickets(reservationModel: ReserveSessionModel, req: Request): Promise<void> {
+    // パフォーマンスは指定済みのはず
+    if (reservationModel.transactionInProgress.performance === undefined) {
+        throw new Error(req.__('UnexpectedError'));
+    }
+
+    // 検証(券種が選択されていること)+チケット枚数合計計算
+    const checkInfo = await checkTicketsSelection(reservationModel.transactionInProgress.ticketTypes, req);
+    if (!checkInfo.status) {
+        throw new Error(checkInfo.message);
+    }
+
+    // チケット情報に枚数セット(画面で選択された枚数<画面再表示用)
+    reservationModel.transactionInProgress.ticketTypes.forEach((ticketType) => {
+        const choice = checkInfo.choices.find((c) => ticketType.id === c.ticket_type);
+        ticketType.count = (choice !== undefined) ? Number(choice.ticket_count) : 0;
+    });
+
+    // セッション中の予約リストを初期化
+    reservationModel.transactionInProgress.reservations = [];
+
+    // 座席承認アクション
+    const offers = checkInfo.choicesAll.map((choice) => {
+        return {
+            ticket_type: choice.ticket_type,
+            watcher_name: ''
+        };
+    });
+
+    debug(`creating seatReservation authorizeAction on ${offers.length} offers...`);
+    // tslint:disable-next-line:max-line-length
+    let action: cinerinoapi.factory.action.authorize.offer.seatReservation.IAction<cinerinoapi.factory.service.webAPI.Identifier.Chevre> | undefined;
     try {
-        // セッションに取引結果があるはず
-        const order = req.session?.transactionResult?.order;
-        if (order === undefined) {
-            res.status(NOT_FOUND);
-            next(new Error(req.__('NotFound')));
-
-            return;
-        }
-
-        // POSTで印刷ページへ連携
-        res.render('customer/reserve/print', {
-            layout: false,
-            // action: `${process.env.RESERVATIONS_PRINT_URL}?output=a4&locale=${req.session?.locale}`,
-            action: `/reservations/printByOrderNumber?output=a4&locale=${req.session?.locale}`,
-            output: 'a4',
-            orderNumber: order.orderNumber,
-            confirmationNumber: order.confirmationNumber
+        action = await placeOrderTransactionService.createSeatReservationAuthorization({
+            transactionId: reservationModel.transactionInProgress.id,
+            performanceId: reservationModel.transactionInProgress.performance.id,
+            offers: offers
         });
     } catch (error) {
-        next(new Error(req.__('UnexpectedError')));
+        throw error;
     }
+
+    reservationModel.transactionInProgress.seatReservationAuthorizeActionId = action.id;
+
+    // セッションに保管
+    reservationModel.transactionInProgress.authorizeSeatReservationResult = action.result;
+    const tmpReservations = reservationModel.transactionInProgress.authorizeSeatReservationResult?.responseBody.object.subReservation;
+    if (Array.isArray(tmpReservations)) {
+        reservationModel.transactionInProgress.reservations = tmpReservations.map((tmpReservation) => {
+            const ticketType = tmpReservation.reservedTicket.ticketType;
+
+            return {
+                reservedTicket: { ticketType: tmpReservation.reservedTicket.ticketType },
+                unitPrice: (typeof ticketType.priceSpecification?.price === 'number') ? ticketType.priceSpecification.price : 0
+            };
+        });
+    }
+}
+
+export interface ICheckInfo {
+    status: boolean;
+    choices: IChoice[];
+    choicesAll: IChoiceInfo[];
+    selectedCount: number;
+    extraCount: number;
+    message: string;
+}
+
+export interface IChoice {
+    ticket_count: string;
+    ticket_type: string;
+}
+
+export interface IChoiceInfo {
+    ticket_type: string;
+    ticketCount: number;
+    choicesExtra: {
+        ticket_type: string;
+        ticketCount: number;
+        updated: boolean;
+    }[];
+    updated: boolean;
+}
+
+/**
+ * オファー選択検証
+ */
+async function checkTicketsSelection(__: Express.ITicketType[], req: Request): Promise<ICheckInfo> {
+    const checkInfo: ICheckInfo = {
+        status: false,
+        choices: [],
+        choicesAll: [],
+        selectedCount: 0,
+        extraCount: 0,
+        message: ''
+    };
+
+    // 検証(券種が選択されていること)
+    const choicesStr = req.body.choices;
+    if (typeof choicesStr !== 'string' || choicesStr.length === 0) {
+        checkInfo.message = req.__('Invalid');
+
+        return checkInfo;
+    }
+
+    // 画面から座席選択情報が生成できなければエラー
+    const choices: IChoice[] = JSON.parse(choicesStr);
+    if (!Array.isArray(choices)) {
+        checkInfo.message = req.__('UnexpectedError');
+
+        return checkInfo;
+    }
+    checkInfo.choices = choices;
+
+    // チケット枚数合計計算
+    choices.forEach((choice) => {
+        // チケットセット(選択枚数分)
+        checkInfo.selectedCount += Number(choice.ticket_count);
+        for (let index = 0; index < Number(choice.ticket_count); index += 1) {
+            const choiceInfo: IChoiceInfo = {
+                ticket_type: choice.ticket_type,
+                ticketCount: 1,
+                choicesExtra: [],
+                updated: false
+            };
+            // 選択チケット本体分セット(選択枚数分)
+            checkInfo.choicesAll.push(choiceInfo);
+        }
+    });
+    checkInfo.status = true;
+
+    return checkInfo;
+}
+
+export async function isValidProfile(req: Request, res: Response): Promise<boolean> {
+    profileForm(req);
+
+    const validationResult = await req.getValidationResult();
+    res.locals.validation = validationResult.mapped();
+    res.locals.lastName = req.body.lastName;
+    res.locals.firstName = req.body.firstName;
+    res.locals.email = req.body.email;
+    res.locals.emailConfirm = req.body.emailConfirm;
+    res.locals.emailConfirmDomain = req.body.emailConfirmDomain;
+    res.locals.tel = req.body.tel;
+    res.locals.age = req.body.age;
+    res.locals.address = req.body.address;
+    res.locals.gender = req.body.gender;
+
+    return validationResult.isEmpty();
+}
+
+/**
+ * 購入者情報確定プロセス
+ */
+export async function processFixProfile(reservationModel: ReserveSessionModel, req: Request): Promise<void> {
+
+    // 購入者情報を保存して座席選択へ
+    const contact: Express.IPurchaser = {
+        lastName: (req.body.lastName !== undefined) ? req.body.lastName : '',
+        firstName: (req.body.firstName !== undefined) ? req.body.firstName : '',
+        tel: (req.body.tel !== undefined) ? req.body.tel : '',
+        email: (req.body.email !== undefined) ? req.body.email : '',
+        age: (req.body.age !== undefined) ? req.body.age : '',
+        address: (req.body.address !== undefined) ? req.body.address : '',
+        gender: (req.body.gender !== undefined) ? req.body.gender : ''
+    };
+    reservationModel.transactionInProgress.purchaser = contact;
+
+    const profile: cinerinoapi.factory.person.IProfile & {
+        telephoneRegion?: string;
+    } = {
+        age: contact.age,
+        address: contact.address,
+        email: contact.email,
+        gender: contact.gender,
+        givenName: contact.firstName,
+        familyName: contact.lastName,
+        telephone: contact.tel,
+        telephoneRegion: contact.address
+    };
+    await placeOrderTransactionService.setProfile({
+        id: reservationModel.transactionInProgress.id,
+        agent: profile
+    });
+    reservationModel.transactionInProgress.profile = profile;
+
+    // セッションに購入者情報格納
+    (<Express.Session>req.session).purchaser = contact;
+}
+
+/**
+ * イベントを決定するプロセス
+ */
+export async function processFixEvent(reservationModel: ReserveSessionModel, eventId: string, req: Request): Promise<void> {
+    debug('fixing event...', eventId);
+    // イベント取得
+    const eventService = new cinerinoapi.service.Event({
+        endpoint: <string>process.env.CINERINO_API_ENDPOINT,
+        auth: authClient,
+        project: { id: process.env.PROJECT_ID }
+    });
+
+    const event = await eventService.findById<cinerinoapi.factory.chevre.eventType.ScreeningEvent>({ id: eventId });
+
+    // 上映日当日まで購入可能
+    const eventStartDay = Number(moment(event.startDate)
+        .tz('Asia/Tokyo')
+        .format('YYYYMMDD'));
+    const now = Number(moment()
+        .tz('Asia/Tokyo')
+        .format('YYYYMMDD'));
+    if (eventStartDay < now) {
+        throw new Error(req.__('Message.OutOfTerm'));
+    }
+
+    // Cinerinoでオファー検索
+    const offers = await eventService.searchTicketOffers(
+        {
+            event: { id: event.id },
+            seller: {
+                typeOf: reservationModel.transactionInProgress.seller.typeOf,
+                id: <string>reservationModel.transactionInProgress.seller.id
+            },
+            store: {
+                id: authClient.options.clientId
+            }
+        }
+    );
+
+    // idをidentifierに変換することに注意
+    reservationModel.transactionInProgress.ticketTypes = offers.map((t) => {
+        return { ...t, count: 0, id: t.identifier };
+    });
+
+    // パフォーマンス情報を保管
+    reservationModel.transactionInProgress.performance = event;
+}
+
+export type ICompoundPriceSpecification = cinerinoapi.factory.chevre.compoundPriceSpecification.IPriceSpecification<any>;
+
+export function getUnitPriceByAcceptedOffer(offer: cinerinoapi.factory.order.IAcceptedOffer<cinerinoapi.factory.order.IReservation>) {
+    let unitPrice: number = 0;
+
+    if (offer.priceSpecification !== undefined) {
+        const priceSpecification = <ICompoundPriceSpecification>offer.priceSpecification;
+        if (Array.isArray(priceSpecification.priceComponent)) {
+            const unitPriceValue = priceSpecification.priceComponent.find(
+                (c) => c.typeOf === cinerinoapi.factory.chevre.priceSpecificationType.UnitPriceSpecification
+            )?.price;
+            if (typeof unitPriceValue === 'number') {
+                unitPrice = unitPriceValue;
+            }
+        }
+    }
+
+    return unitPrice;
 }
 
 /**
  * GMO決済FIXプロセス
  */
 async function processFixGMO(reservationModel: ReserveSessionModel, req: Request): Promise<void> {
-    // パフォーマンスは指定済みのはず
-    if (reservationModel.transactionInProgress.performance === undefined) {
-        throw new Error(req.__('UnexpectedError'));
-    }
-
-    // GMOリクエスト前にカウントアップ
-    reservationModel.transactionInProgress.transactionGMO.count += 1;
     reservationModel.save(req);
 
-    switch (reservationModel.transactionInProgress.paymentMethod) {
-        case cinerinoapi.factory.paymentMethodType.CreditCard:
-            reservePaymentCreditForm(req);
-            const validationResult = await req.getValidationResult();
-            if (!validationResult.isEmpty()) {
-                throw new Error(req.__('Invalid'));
+    // クレジットカードオーソリ取得済であれば取消
+    if (reservationModel.transactionInProgress.creditCardAuthorizeActionId !== undefined) {
+        debug('canceling credit card authorization...', reservationModel.transactionInProgress.creditCardAuthorizeActionId);
+        const actionId = reservationModel.transactionInProgress.creditCardAuthorizeActionId;
+        delete reservationModel.transactionInProgress.creditCardAuthorizeActionId;
+        await paymentService.voidTransaction({
+            id: actionId,
+            object: {
+                typeOf: cinerinoapi.factory.paymentMethodType.CreditCard
+            },
+            purpose: {
+                typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
+                id: reservationModel.transactionInProgress.id
             }
-
-            // クレジットカードオーソリ取得済であれば取消
-            if (reservationModel.transactionInProgress.creditCardAuthorizeActionId !== undefined) {
-                debug('canceling credit card authorization...', reservationModel.transactionInProgress.creditCardAuthorizeActionId);
-                const actionId = reservationModel.transactionInProgress.creditCardAuthorizeActionId;
-                delete reservationModel.transactionInProgress.creditCardAuthorizeActionId;
-                await paymentService.voidTransaction({
-                    id: actionId,
-                    object: {
-                        typeOf: cinerinoapi.factory.paymentMethodType.CreditCard
-                    },
-                    purpose: {
-                        typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
-                        id: reservationModel.transactionInProgress.id
-                    }
-                });
-                debug('credit card authorization canceled.');
-            }
-
-            const gmoTokenObject = JSON.parse(req.body.gmoTokenObject);
-            const amount = reservationModel.getTotalCharge();
-
-            // クレジットカードオーソリ取得
-            const action = await paymentService.authorizeCreditCard({
-                object: {
-                    typeOf: cinerinoapi.factory.action.authorize.paymentMethod.any.ResultType.Payment,
-                    paymentMethod: cinerinoapi.factory.chevre.paymentMethodType.CreditCard,
-                    amount: amount,
-                    method: '1',
-                    creditCard: gmoTokenObject
-                },
-                purpose: {
-                    typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
-                    id: reservationModel.transactionInProgress.id
-                }
-            });
-            debug('credit card authorizeAction created.', action.id);
-            reservationModel.transactionInProgress.creditCardAuthorizeActionId = action.id;
-            reservationModel.transactionInProgress.paymentMethodId = action.object.paymentMethodId;
-            reservationModel.transactionInProgress.transactionGMO.amount = amount;
-
-            break;
-
-        default:
+        });
+        debug('credit card authorization canceled.');
     }
+
+    const gmoTokenObject = JSON.parse(String(req.body.gmoTokenObject));
+    const amount = reservationModel.getTotalCharge();
+    debug('authorizing credit card payment...', gmoTokenObject, amount);
+
+    // クレジットカードオーソリ取得
+    const action = await paymentService.authorizeCreditCard({
+        object: {
+            typeOf: cinerinoapi.factory.action.authorize.paymentMethod.any.ResultType.Payment,
+            paymentMethod: cinerinoapi.factory.chevre.paymentMethodType.CreditCard,
+            amount: amount,
+            method: '1',
+            creditCard: gmoTokenObject
+        },
+        purpose: {
+            typeOf: cinerinoapi.factory.transactionType.PlaceOrder,
+            id: reservationModel.transactionInProgress.id
+        }
+    });
+    debug('credit card authorizeAction created.', action.id);
+    reservationModel.transactionInProgress.creditCardAuthorizeActionId = action.id;
+    // reservationModel.transactionInProgress.paymentMethodId = action.object.paymentMethodId;
 }
 
 /**
@@ -668,4 +947,31 @@ function sortReservationstByTicketType(reservations: Express.ITmpReservation[]):
 
         return 0;
     });
+}
+
+/**
+ * 取引の確定した注文のチケット印刷
+ */
+export async function print(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        // セッションに取引結果があるはず
+        const order = req.session?.transactionResult?.order;
+        if (order === undefined) {
+            res.status(NOT_FOUND);
+            next(new Error(req.__('NotFound')));
+
+            return;
+        }
+
+        // POSTで印刷ページへ連携
+        res.render('customer/reserve/print', {
+            layout: false,
+            action: `/reservations/printByOrderNumber?output=a4&locale=${req.session?.locale}`,
+            output: 'a4',
+            orderNumber: order.orderNumber,
+            confirmationNumber: order.confirmationNumber
+        });
+    } catch (error) {
+        next(new Error(req.__('UnexpectedError')));
+    }
 }

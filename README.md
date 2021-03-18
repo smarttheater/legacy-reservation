@@ -25,19 +25,19 @@ npm start
 
 ### Environment variables
 
-| Name                          | Required | Value           | Purpose                       |
-| ----------------------------- | -------- | --------------- | ----------------------------- |
-| `DEBUG`                       | false    | ttts-frontend:* | Debug                         |
-| `NODE_ENV`                    | true     |                 | (development,test,production) |
-| `CINERINO_API_ENDPOINT`       | true     |                 | Cinerino endpoint             |
-| `API_CLIENT_ID`               | true     |                 | API credentials               |
-| `API_CLIENT_SECRET`           | true     |                 | API credentials               |
-| `API_AUTHORIZE_SERVER_DOMAIN` | true     |                 | API credentials               |
-| `REDIS_HOST`                  | true     |                 | redis host                    |
-| `REDIS_PORT`                  | true     |                 | redis port                    |
-| `REDIS_KEY`                   | true     |                 | redis key                     |
-| `GMO_ENDPOINT`                | true     |                 | GMO API endpoint              |
-| `PROJECT_ID`                  | true     |                 | Project ID                    |
+| Name                          | Required | Value                             | Purpose                       |
+| ----------------------------- | -------- | --------------------------------- | ----------------------------- |
+| `DEBUG`                       | false    | smarttheater-legacy-reservation:* | Debug                         |
+| `NODE_ENV`                    | true     |                                   | (development,test,production) |
+| `CINERINO_API_ENDPOINT`       | true     |                                   | Cinerino endpoint             |
+| `API_CLIENT_ID`               | true     |                                   | API credentials               |
+| `API_CLIENT_SECRET`           | true     |                                   | API credentials               |
+| `API_AUTHORIZE_SERVER_DOMAIN` | true     |                                   | API credentials               |
+| `REDIS_HOST`                  | true     |                                   | redis host                    |
+| `REDIS_PORT`                  | true     |                                   | redis port                    |
+| `REDIS_KEY`                   | true     |                                   | redis key                     |
+| `GMO_ENDPOINT`                | true     |                                   | GMO API endpoint              |
+| `PROJECT_ID`                  | true     |                                   | Project ID                    |
 
 ## License
 

@@ -1,13 +1,11 @@
 /**
  * テンプレート変数をセットする
- *
- * @module middleware/setLocal
  */
-
-import * as conf from 'config';
 import { NextFunction, Request, Response } from 'express';
 import * as moment from 'moment-timezone';
 import * as numeral from 'numeral';
+
+import { locales } from '../factory/locales';
 
 export default (req: Request, res: Response, next: NextFunction) => {
     let momentLocale = (typeof req.getLocale() === 'string') ? req.getLocale() : '';
@@ -23,12 +21,13 @@ export default (req: Request, res: Response, next: NextFunction) => {
     res.locals.req = req;
     res.locals.moment = moment;
     res.locals.numeral = numeral;
-    res.locals.conf = conf;
+    // tslint:disable-next-line:no-null-keyword
     res.locals.validation = null;
     res.locals.officialWebsiteUrl = '';
     res.locals.title = 'Order Details';
     res.locals.pageId = '';
     res.locals.pageClassName = '';
+    res.locals.locales = locales;
 
     next();
 };

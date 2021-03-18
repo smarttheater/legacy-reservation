@@ -3,7 +3,7 @@
     const isWheelchair = (tempReservationModel.category === 'wheelchair');
     const tempReservationModel_reservations = tempReservationModel.reservations;
     const ticketCountMax = 10;
-    const ticketCountMax_wheelchair = conf.get('reservation_maxq_wheelchair');
+    const ticketCountMax_wheelchair = 1;
 %>
 <script>
     window.ttts.isWheelchair = <%= isWheelchair %>;
@@ -118,7 +118,7 @@
 </form>
 
 <p class="alert-ticket alert-ticket-overmax">
-    <%- __('SeatsLimit{{limit}}', { limit: conf.get('reservation_maxq') } ) %>
+    <%- __('SeatsLimit{{limit}}', { limit: 10 } ) %>
 </p>
 <p class="alert-ticket alert-ticket-overmax-wheelchair"><%- __('NoAvailableSeats') %></p>
 

@@ -15,10 +15,10 @@ export default class ReserveSessionModel {
     /**
      * プロセス中の購入情報をセッションから取得する
      */
-    public static FIND(req: Request): ReserveSessionModel | null {
+    public static FIND(req: Request): ReserveSessionModel | undefined {
         const transactionInProgress = (<Express.Session>req.session).transactionInProgress;
         if (transactionInProgress === undefined) {
-            return null;
+            return;
         }
 
         return new ReserveSessionModel(transactionInProgress);

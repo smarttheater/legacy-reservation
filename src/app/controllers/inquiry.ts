@@ -2,15 +2,16 @@
  * 注文照会コントローラー
  */
 import * as cinerinoapi from '@cinerino/sdk';
-import * as conf from 'config';
 import { NextFunction, Request, Response } from 'express';
 import { BAD_REQUEST, CREATED, INTERNAL_SERVER_ERROR } from 'http-status';
 import * as moment from 'moment-timezone';
 import * as numeral from 'numeral';
 
 import * as ticket from '../util/ticket';
+import { CODE_EXPIRES_IN_SECONDS, reserveMaxDateInfo } from './order';
 
-export const CODE_EXPIRES_IN_SECONDS = 8035200; // 93日
+// キャンセル料(1注文あたり1000円固定)
+const CANCEL_CHARGE: number = 1000;
 
 const authClient = new cinerinoapi.auth.ClientCredentials({
     domain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
@@ -32,22 +33,12 @@ const orderService = new cinerinoapi.service.Order({
     project: { id: process.env.PROJECT_ID }
 });
 
-// キャンセル料(1注文あたり1000円固定)
-const CANCEL_CHARGE: number = 1000;
-
-// 予約可能日数定義
-const reserveMaxDateInfo = { days: 60 };
-
-if (process.env.API_CLIENT_ID === undefined) {
-    throw new Error('Please set an environment variable \'API_CLIENT_ID\'');
-}
-
 /**
  * 注文照会
  */
 export async function search(req: Request, res: Response): Promise<void> {
     let message = '';
-    let errors: ExpressValidator.Dictionary<ExpressValidator.MappedError> | null = null;
+    let errors: ExpressValidator.Dictionary<ExpressValidator.MappedError> | undefined;
 
     // 照会結果セッション初期化
     delete (<Express.Session>req.session).inquiryResult;
@@ -59,7 +50,8 @@ export async function search(req: Request, res: Response): Promise<void> {
 
         // 日付編集
         let performanceDay = req.body.day;
-        performanceDay = performanceDay.replace(/\-/g, '').replace(/\//g, '');
+        performanceDay = performanceDay.replace(/\-/g, '')
+            .replace(/\//g, '');
 
         if (validatorResult.isEmpty()) {
             try {
@@ -119,16 +111,16 @@ export async function search(req: Request, res: Response): Promise<void> {
     }
 
     const maxDate = moment();
-    Object.keys(reserveMaxDateInfo).forEach((key) => {
-        maxDate.add((<any>reserveMaxDateInfo)[key], <moment.unitOfTime.DurationConstructor>key);
-    });
+    Object.keys(reserveMaxDateInfo)
+        .forEach((key) => {
+            maxDate.add((<any>reserveMaxDateInfo)[key], <moment.unitOfTime.DurationConstructor>key);
+        });
     const reserveMaxDate: string = maxDate.format('YYYY/MM/DD');
 
     // 注文照会画面描画
     res.render('inquiry/search', {
         message: message,
         errors: errors,
-        // event: { start: moment(), end: reserveMaxDate },
         reserveMaxDate: reserveMaxDate,
         layout: 'layouts/inquiry/layout',
         pageId: 'page_inquiry_search',
@@ -140,16 +132,10 @@ export async function search(req: Request, res: Response): Promise<void> {
  * 注文照会結果画面(getのみ)
  */
 export async function result(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const messageNotFound: string = req.__('NotFound');
-
     try {
-        if (req === null) {
-            next(new Error(messageNotFound));
-        }
-
         const inquiryResult = (<Express.Session>req.session).inquiryResult;
         if (inquiryResult === undefined) {
-            throw new Error(messageNotFound);
+            throw new Error(req.__('NotFound'));
         }
 
         const reservations = inquiryResult.order.acceptedOffers.map((o) => {
@@ -167,7 +153,8 @@ export async function result(req: Request, res: Response, next: NextFunction): P
         // 券種ごとに合計枚数算出
         const ticketInfos = ticket.editTicketInfos(req, ticket.getTicketInfos(inquiryResult.order));
         // キャンセル料は1注文あたり1000円固定
-        const cancellationFee: string = numeral(CANCEL_CHARGE).format('0,0');
+        const cancellationFee: string = numeral(CANCEL_CHARGE)
+            .format('0,0');
 
         // 画面描画
         res.render('inquiry/result', {
@@ -211,8 +198,8 @@ export async function cancel(req: Request, res: Response): Promise<void> {
     const emailAttributes: cinerinoapi.factory.creativeWork.message.email.IAttributes = {
         typeOf: cinerinoapi.factory.chevre.creativeWorkType.EmailMessage,
         sender: {
-            name: conf.get<string>('email.fromname'),
-            email: conf.get<string>('email.from')
+            name: <string>process.env.EMAIL_SENDER_NAME,
+            email: <string>process.env.EMAIL_SENDER
         },
         toRecipient: {
             name: <string>order.customer.name,
@@ -227,12 +214,6 @@ export async function cancel(req: Request, res: Response): Promise<void> {
     try {
         // 注文返品取引開始
         returnOrderTransaction = await returnOrderTransactionService.start({
-            // agent: {
-            //     identifier: [
-            //         // レポート側で使用
-            //         { name: 'cancellationFee', value: CANCEL_CHARGE.toString() }
-            //     ]
-            // },
             expires: moment()
                 .add(1, 'minute')
                 .toDate(),
@@ -278,22 +259,28 @@ export async function cancel(req: Request, res: Response): Promise<void> {
  */
 function validate(req: Request): void {
     // 購入番号
-    req.checkBody('paymentNo', req.__('NoInput{{fieldName}}', { fieldName: req.__('PaymentNo') })).notEmpty();
-    req.checkBody('paymentNo', req.__('NoInput{{fieldName}}', { fieldName: req.__('PaymentNo') })).notEmpty();
+    req.checkBody('paymentNo', req.__('NoInput{{fieldName}}', { fieldName: req.__('PaymentNo') }))
+        .notEmpty();
+    req.checkBody('paymentNo', req.__('NoInput{{fieldName}}', { fieldName: req.__('PaymentNo') }))
+        .notEmpty();
     // 電話番号
     req.checkBody(
         'purchaserTel',
         req.__('Message.minLength{{fieldName}}{{min}}', { fieldName: req.__('Label.Tel'), min: '4' })
-    ).len({ min: 4 });
+    )
+        .len({ min: 4 });
 }
 
 /**
  * キャンセルメール本文取得
  */
+// tslint:disable-next-line:max-func-body-length
 function getCancelMail(req: Request, order: cinerinoapi.factory.order.IOrder, fee: number): string {
     const reservations = order.acceptedOffers.map((o) => <cinerinoapi.factory.order.IReservation>o.itemOffered);
     const mail: string[] = [];
     const locale: string = (<Express.Session>req.session).locale;
+
+    const faqUrl = `https://${req.hostname}/faq?locale=${locale}`;
 
     // 東京タワー TOP DECK チケットキャンセル完了のお知らせ
     mail.push(req.__('EmailTitleCan'));
@@ -308,12 +295,13 @@ function getCancelMail(req: Request, order: cinerinoapi.factory.order.IOrder, fe
     mail.push('');
 
     // この度は、「東京タワー TOP DECK」のオンライン先売りチケットサービスにてご購入頂き、誠にありがとうございます。
-    mail.push(req.__('EmailHead1').replace(
-        '$theater_name$',
-        (locale === 'ja')
-            ? String((<cinerinoapi.factory.chevre.multilingualString>reservations[0].reservationFor.superEvent.location.name).ja)
-            : String((<cinerinoapi.factory.chevre.multilingualString>reservations[0].reservationFor.superEvent.location.name).en)
-    ));
+    mail.push(req.__('EmailHead1')
+        .replace(
+            '$theater_name$',
+            (locale === 'ja')
+                ? String((<cinerinoapi.factory.chevre.multilingualString>reservations[0].reservationFor.superEvent.location.name).ja)
+                : String((<cinerinoapi.factory.chevre.multilingualString>reservations[0].reservationFor.superEvent.location.name).en)
+        ));
 
     // お客様がキャンセルされましたチケットの情報は下記の通りです。
     mail.push(req.__('EmailHead2Can'));
@@ -335,9 +323,10 @@ function getCancelMail(req: Request, order: cinerinoapi.factory.order.IOrder, fe
 
     // 券種ごとに合計枚数算出
     const ticketInfos = ticket.editTicketInfos(req, ticket.getTicketInfos(order));
-    Object.keys(ticketInfos).forEach((key: string) => {
-        mail.push(ticketInfos[key].info);
-    });
+    Object.keys(ticketInfos)
+        .forEach((key: string) => {
+            mail.push(ticketInfos[key].info);
+        });
 
     // 合計金額算出
     const price = order.price;
@@ -346,9 +335,15 @@ function getCancelMail(req: Request, order: cinerinoapi.factory.order.IOrder, fe
     // 合計枚数
     mail.push(req.__('EmailTotalTicketCount{{n}}', { n: order.acceptedOffers.length.toString() }));
     // 合計金額
-    mail.push(`${req.__('TotalPrice')} ${req.__('{{price}} yen', { price: numeral(price).format('0,0') })}`);
+    mail.push(`${req.__('TotalPrice')} ${req.__('{{price}} yen', {
+        price: numeral(price)
+            .format('0,0')
+    })}`);
     // キャンセル料
-    mail.push(`${req.__('CancellationFee')} ${req.__('{{price}} yen', { price: numeral(fee).format('0,0') })}`);
+    mail.push(`${req.__('CancellationFee')} ${req.__('{{price}} yen', {
+        price: numeral(fee)
+            .format('0,0')
+    })}`);
     mail.push('-------------------------------------');
     mail.push('');
 
@@ -364,7 +359,7 @@ function getCancelMail(req: Request, order: cinerinoapi.factory.order.IOrder, fe
 
     // ※よくあるご質問（ＦＡＱ）はこちら
     mail.push(req.__('EmailFAQURL'));
-    mail.push((conf.get<any>('official_url_faq_by_locale'))[locale]);
+    mail.push(faqUrl);
     mail.push('');
 
     // なお、このメールは、「東京タワー トップデッキツアー」の予約システムでチケットをキャンセル…

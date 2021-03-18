@@ -15,7 +15,7 @@ class ReserveSessionModel {
     static FIND(req) {
         const transactionInProgress = req.session.transactionInProgress;
         if (transactionInProgress === undefined) {
-            return null;
+            return;
         }
         return new ReserveSessionModel(transactionInProgress);
     }

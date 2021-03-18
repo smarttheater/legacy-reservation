@@ -11,12 +11,80 @@
     /* 一般予約
     CHEVREの仕様 = submit時にコントローラがバリデーションを行い、エラーがあったら翻訳済みエラーメッセージが validation に入って返ってくる
     (ここでのサーバ側のバリデーターは app/forms/reserve/reserveProfileForm )
-    TTTSの仕様としてそれとは別に画面側でもバリデーションを行う。
+    それとは別に画面側でもバリデーションを行う。
     →翻訳がサーバーでしかできない仕様なので置換用の文字列を埋め込んでおいて使いまわす。
     */
 
     // 言語に合わせて国選択の表示順位を変更
-    let preferred_countries = conf.get('preferred_countries_by_locale') || {};
+    let preferred_countries = {
+        "ja": [
+            "jp"
+        ],
+        "en": [
+            "gb",
+            "us",
+            "ca",
+            "au",
+            "nz"
+        ],
+        "zh-hans": [
+            "cn",
+            "sg",
+            "my"
+        ],
+        "zh-hant": [
+            "tw",
+            "hk",
+            "mo"
+        ],
+        "ko": [
+            "kr",
+            "kp"
+        ],
+        "th": [
+            "th"
+        ],
+        "id": [
+            "id"
+        ],
+        "vi": [
+            "vn",
+            "kh",
+            "la"
+        ],
+        "fr": [
+            "fr",
+            "cd",
+            "ca",
+            "be",
+            "ch",
+            "mc"
+        ],
+        "de": [
+            "de",
+            "at",
+            "be",
+            "ch"
+        ],
+        "it": [
+            "it",
+            "ch"
+        ],
+        "es": [
+            "es",
+            "mx",
+            "co",
+            "ar",
+            "pe",
+            "ve",
+            "cl"
+        ],
+        "ru": [
+            "ru",
+            "kz",
+            "by"
+        ]
+    };
     preferred_countries = (preferred_countries[locale]) ? JSON.stringify(preferred_countries[locale]) : '';
     %>
     <script>
@@ -255,7 +323,6 @@
 
     </table>
     <input type="hidden" name="gmoTokenObject" value="">
-    <input style="display:none;" type="radio" name="paymentMethod" value="0" checked="checked">
     <div class="modal fade" id="modal_cardsecurirycode" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">

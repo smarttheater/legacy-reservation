@@ -15,8 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const cinerinoapi = require("@cinerino/sdk");
 const express_1 = require("express");
 const jwt = require("jsonwebtoken");
-const inquiry_1 = require("../controllers/inquiry");
-const reservation_1 = require("../util/reservation");
+const order_1 = require("../controllers/order");
 const reservationsRouter = express_1.Router();
 const authClient = new cinerinoapi.auth.ClientCredentials({
     domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
@@ -146,7 +145,7 @@ function printByOrderNumber(req, res) {
                 customer: { telephone: order.customer.telephone }
             },
             result: {
-                expiresInSeconds: inquiry_1.CODE_EXPIRES_IN_SECONDS
+                expiresInSeconds: order_1.CODE_EXPIRES_IN_SECONDS
             }
         });
         reservations = order.acceptedOffers.map((offer) => {
@@ -187,7 +186,7 @@ function printByReservationIds(req, res) {
                     customer: { telephone: order.customer.telephone }
                 },
                 result: {
-                    expiresInSeconds: inquiry_1.CODE_EXPIRES_IN_SECONDS
+                    expiresInSeconds: order_1.CODE_EXPIRES_IN_SECONDS
                 }
             });
             return Object.assign(Object.assign({}, order), { code: code });
@@ -240,8 +239,7 @@ function renderPrintFormat(req, res) {
                 return 1;
             }
             return 0;
-        })
-            .map(reservation_1.chevreReservation2ttts);
+        });
         const output = req.query.output;
         switch (output) {
             // サーマル印刷 (72mm幅プレプリント厚紙)

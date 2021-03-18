@@ -19,8 +19,8 @@
         Sending: '<%= __('Processing') %>',
         UnexpectedError: '<%= __('UnexpectedError') %>'
     };
-    window.ttts.reservation_maxq = '<%- conf.get('reservation_maxq') %>';
-    window.ttts.reservation_maxq_wheelchair = '<%- conf.get('reservation_maxq_wheelchair') %>';
+    window.ttts.reservation_maxq = '10';
+    window.ttts.reservation_maxq_wheelchair = '1';
     $(document).on('click', '.update-locale', function () {
         location.href = '/language/update/' + $(this).attr('data-locale') + '?cb=' + location.href;
     })

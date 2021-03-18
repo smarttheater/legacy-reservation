@@ -5,8 +5,7 @@ import * as cinerinoapi from '@cinerino/sdk';
 import { Request, Response, Router } from 'express';
 import * as jwt from 'jsonwebtoken';
 
-import { CODE_EXPIRES_IN_SECONDS } from '../controllers/inquiry';
-import { chevreReservation2ttts } from '../util/reservation';
+import { CODE_EXPIRES_IN_SECONDS } from '../controllers/order';
 
 const reservationsRouter = Router();
 
@@ -317,8 +316,7 @@ function renderPrintFormat(req: Request, res: Response) {
             }
 
             return 0;
-        })
-            .map(chevreReservation2ttts);
+        });
 
         const output = req.query.output;
         switch (output) {
