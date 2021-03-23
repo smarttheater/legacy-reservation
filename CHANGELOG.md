@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- Waiter許可証なしでも注文取引を開始できるように調整
-
 ### Deprecated
 
 ### Removed
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v8.21.2 - 2021-03-23
+
+### Changed
+
+- Waiter許可証なしでも注文取引を開始できるように調整
 
 ## v8.21.1 - 2021-03-18
 
