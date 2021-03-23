@@ -133,7 +133,6 @@ export async function start(req: Request, res: Response, next: NextFunction): Pr
     // 必ずこれらのパラメータを持って遷移してくる
     if (typeof req.query.wc !== 'string' || req.query.wc.length === 0
         || typeof req.query.locale !== 'string' || req.query.locale.length === 0
-        || typeof req.query.passportToken !== 'string' || req.query.passportToken.length === 0
     ) {
         res.status(BAD_REQUEST)
             .end('Bad Request');
@@ -207,9 +206,9 @@ export async function performances(req: Request, res: Response, next: NextFuncti
         }
 
         // クライアントサイドで、パフォーマンス検索にapiのトークンを使用するので
-        await authClient.refreshAccessToken();
-        const token = authClient.credentials;
-        debug('api access token published.');
+        // await authClient.refreshAccessToken();
+        // const token = authClient.credentials;
+        // debug('api access token published.');
 
         const maxDate = moment();
         Object.keys(reserveMaxDateInfo)
@@ -229,8 +228,8 @@ export async function performances(req: Request, res: Response, next: NextFuncti
             }
         }
 
-        res.render('customer/reserve/performances', {
-            token: token,
+        res.render('reserve/performances', {
+            // token: token,
             reserveMaxDate: reserveMaxDate,
             category: reservationModel.transactionInProgress.category
         });
@@ -308,7 +307,7 @@ export async function tickets(req: Request, res: Response, next: NextFunction): 
         }
 
         // 券種選択画面へ遷移
-        res.render('customer/reserve/tickets', {
+        res.render('reserve/tickets', {
             reservationModel: reservationModel
         });
     } catch (error) {
@@ -414,7 +413,7 @@ export async function setProfile(req: Request, res: Response, next: NextFunction
             }
         }
 
-        res.render('customer/reserve/profile', {
+        res.render('reserve/profile', {
             reservationModel: reservationModel,
             GMO_ENDPOINT: process.env.GMO_ENDPOINT,
             GMO_SHOP_ID: gmoShopId,
@@ -549,7 +548,7 @@ export async function confirm(req: Request, res: Response, next: NextFunction): 
 
         // チケットを券種コードでソート
         sortReservationstByTicketType(reservationModel.transactionInProgress.reservations);
-        res.render('customer/reserve/confirm', {
+        res.render('reserve/confirm', {
             reservationModel: reservationModel
         });
     } catch (error) {
@@ -613,7 +612,7 @@ export async function complete(req: Request, res: Response, next: NextFunction):
         // チケットを券種コードでソート
         sortReservationstByTicketType(reservations);
 
-        res.render('customer/reserve/complete', {
+        res.render('reserve/complete', {
             order: transactionResult.order,
             reservations: reservations,
             ...(typeof transactionResult.code === 'string') ? { code: transactionResult.code } : undefined
@@ -964,7 +963,7 @@ export async function print(req: Request, res: Response, next: NextFunction): Pr
         }
 
         // POSTで印刷ページへ連携
-        res.render('customer/reserve/print', {
+        res.render('reserve/print', {
             layout: false,
             action: `/reservations/printByOrderNumber?output=a4&locale=${req.session?.locale}`,
             output: 'a4',

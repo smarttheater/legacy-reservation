@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- Waiter許可証なしでも注文取引を開始できるように調整
+
 ### Deprecated
 
 ### Removed
