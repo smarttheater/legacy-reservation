@@ -127,8 +127,7 @@ function start(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         // 必ずこれらのパラメータを持って遷移してくる
         if (typeof req.query.wc !== 'string' || req.query.wc.length === 0
-            || typeof req.query.locale !== 'string' || req.query.locale.length === 0
-            || typeof req.query.passportToken !== 'string' || req.query.passportToken.length === 0) {
+            || typeof req.query.locale !== 'string' || req.query.locale.length === 0) {
             res.status(http_status_1.BAD_REQUEST)
                 .end('Bad Request');
             return;
@@ -197,9 +196,9 @@ function performances(req, res, next) {
                 return;
             }
             // クライアントサイドで、パフォーマンス検索にapiのトークンを使用するので
-            yield authClient.refreshAccessToken();
-            const token = authClient.credentials;
-            debug('api access token published.');
+            // await authClient.refreshAccessToken();
+            // const token = authClient.credentials;
+            // debug('api access token published.');
             const maxDate = moment();
             Object.keys(exports.reserveMaxDateInfo)
                 .forEach((key) => {
@@ -215,8 +214,8 @@ function performances(req, res, next) {
                     return;
                 }
             }
-            res.render('customer/reserve/performances', {
-                token: token,
+            res.render('reserve/performances', {
+                // token: token,
                 reserveMaxDate: reserveMaxDate,
                 category: reservationModel.transactionInProgress.category
             });
@@ -288,7 +287,7 @@ function tickets(req, res, next) {
                 }
             }
             // 券種選択画面へ遷移
-            res.render('customer/reserve/tickets', {
+            res.render('reserve/tickets', {
                 reservationModel: reservationModel
             });
         }
@@ -389,7 +388,7 @@ function setProfile(req, res, next) {
                     gmoShopId = (_a = creditCardPaymentAccepted.gmoInfo) === null || _a === void 0 ? void 0 : _a.shopId;
                 }
             }
-            res.render('customer/reserve/profile', {
+            res.render('reserve/profile', {
                 reservationModel: reservationModel,
                 GMO_ENDPOINT: process.env.GMO_ENDPOINT,
                 GMO_SHOP_ID: gmoShopId,
@@ -515,7 +514,7 @@ function confirm(req, res, next) {
             }
             // チケットを券種コードでソート
             sortReservationstByTicketType(reservationModel.transactionInProgress.reservations);
-            res.render('customer/reserve/confirm', {
+            res.render('reserve/confirm', {
                 reservationModel: reservationModel
             });
         }
@@ -562,7 +561,7 @@ function complete(req, res, next) {
             });
             // チケットを券種コードでソート
             sortReservationstByTicketType(reservations);
-            res.render('customer/reserve/complete', Object.assign({ order: transactionResult.order, reservations: reservations }, (typeof transactionResult.code === 'string') ? { code: transactionResult.code } : undefined));
+            res.render('reserve/complete', Object.assign({ order: transactionResult.order, reservations: reservations }, (typeof transactionResult.code === 'string') ? { code: transactionResult.code } : undefined));
         }
         catch (error) {
             next(new Error(req.__('UnexpectedError')));
@@ -861,7 +860,7 @@ function print(req, res, next) {
                 return;
             }
             // POSTで印刷ページへ連携
-            res.render('customer/reserve/print', {
+            res.render('reserve/print', {
                 layout: false,
                 action: `/reservations/printByOrderNumber?output=a4&locale=${(_c = req.session) === null || _c === void 0 ? void 0 : _c.locale}`,
                 output: 'a4',

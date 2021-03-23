@@ -1,7 +1,6 @@
 /* global Url */
 'use strict';
 window.ttts = {};
-window.ttts.mode = 'customer';
 window.ttts.currentLocale = 'ja';
 window.ttts.str_thousandsSeparator = ',';
 

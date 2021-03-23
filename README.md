@@ -21,7 +21,7 @@ npmでローカルサーバー起動。
 npm start
 ```
 
-[注文入場ページ](http://localhost:8080/entrance/index.html?wc=0&locale=ja)にアクセスすると、ローカルでウェブアプリを確認できます。
+[注文入場ページ](http://localhost:8080/customer/reserve/start?wc=0&locale=ja)にアクセスすると、ローカルでウェブアプリを確認できます。
 
 ### Environment variables
 

@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.21.2 - 2021-03-23
+
+### Changed
+
+- Waiter許可証なしでも注文取引を開始できるように調整
+
 ## v8.21.1 - 2021-03-18
 
 ### Changed
