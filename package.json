@@ -8,16 +8,12 @@
       "email": "hataguchi@motionpicture.jp"
     },
     {
-      "name": "Mariko Kusunose",
-      "email": "kusunose@motionpicture.jp"
-    },
-    {
       "name": "Tetsu Yamazaki",
       "email": "yamazaki@motionpicture.jp"
     }
   ],
   "dependencies": {
-    "@cinerino/sdk": "1.21.1",
+    "@cinerino/sdk": "3.1.0",
     "@motionpicture/express-middleware": "0.0.0",
     "body-parser": "^1.18.2",
     "connect-redis": "^3.3.3",
