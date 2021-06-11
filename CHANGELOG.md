@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.21.4 - 2021-06-11
+
+### Changed
+
+- GCP Redisに対応
+
 ## v8.21.3 - 2021-06-04
 
 ### Changed
