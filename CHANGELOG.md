@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- 予約の価格をprice.priceComponentから算出するように調整
+
 ### Deprecated
 
 ### Removed

@@ -617,11 +617,14 @@ function processFixSeatsAndTickets(reservationModel, req) {
         const tmpReservations = (_a = reservationModel.transactionInProgress.authorizeSeatReservationResult) === null || _a === void 0 ? void 0 : _a.responseBody.object.subReservation;
         if (Array.isArray(tmpReservations)) {
             reservationModel.transactionInProgress.reservations = tmpReservations.map((tmpReservation) => {
-                var _a;
-                const ticketType = tmpReservation.reservedTicket.ticketType;
+                // const ticketType = tmpReservation.reservedTicket.ticketType;
+                const priceSpec = tmpReservation.price.priceComponent.shift();
+                // tmpReservation.reservedTicket.ticketType.priceSpecificationは削除されたので補完
                 return {
-                    reservedTicket: { ticketType: tmpReservation.reservedTicket.ticketType },
-                    unitPrice: (typeof ((_a = ticketType.priceSpecification) === null || _a === void 0 ? void 0 : _a.price) === 'number') ? ticketType.priceSpecification.price : 0
+                    reservedTicket: {
+                        ticketType: Object.assign(Object.assign({}, tmpReservation.reservedTicket.ticketType), { priceSpecification: priceSpec })
+                    },
+                    unitPrice: (typeof (priceSpec === null || priceSpec === void 0 ? void 0 : priceSpec.price) === 'number') ? priceSpec.price : 0
                 };
             });
         }
