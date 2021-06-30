@@ -674,11 +674,18 @@ export async function processFixSeatsAndTickets(reservationModel: ReserveSession
     const tmpReservations = reservationModel.transactionInProgress.authorizeSeatReservationResult?.responseBody.object.subReservation;
     if (Array.isArray(tmpReservations)) {
         reservationModel.transactionInProgress.reservations = tmpReservations.map((tmpReservation) => {
-            const ticketType = tmpReservation.reservedTicket.ticketType;
+            // const ticketType = tmpReservation.reservedTicket.ticketType;
+            const priceSpec = (<ICompoundPriceSpecification>tmpReservation.price).priceComponent.shift();
 
+            // tmpReservation.reservedTicket.ticketType.priceSpecificationは削除されたので補完
             return {
-                reservedTicket: { ticketType: tmpReservation.reservedTicket.ticketType },
-                unitPrice: (typeof ticketType.priceSpecification?.price === 'number') ? ticketType.priceSpecification.price : 0
+                reservedTicket: {
+                    ticketType: {
+                        ...tmpReservation.reservedTicket.ticketType,
+                        priceSpecification: priceSpec
+                    }
+                },
+                unitPrice: (typeof priceSpec?.price === 'number') ? priceSpec.price : 0
             };
         });
     }
