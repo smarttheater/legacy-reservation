@@ -49,7 +49,8 @@
                                 ticketTypeCategory4b = b.category.codeValue;
                             }
 
-                            if (ticketTypeCategory4b === 'Wheelchair' && ticketTypeCategory4a !== ticketTypeCategory4b) {
+                            if ((ticketTypeCategory4b === 'Wheelchair' || ticketTypeCategory4b === 'WheelchairOffer')
+                            && ticketTypeCategory4a !== ticketTypeCategory4b) {
                                 return 1;
                             } else {
                                 return 0;
@@ -67,7 +68,7 @@
                         if (tempReservationModel.category === 'general' && ticketTypeCategory !== 'Normal') {
                             return true;
                         }
-                        const isWheelchairTicket = (ticketTypeCategory === 'Wheelchair');
+                        const isWheelchairTicket = (ticketTypeCategory === 'Wheelchair' || ticketTypeCategory === 'WheelchairOffer');
 
                         let unitPrice = 0;
                         const priceComponent = ticketType.priceSpecification.priceComponent;

@@ -62,9 +62,13 @@ apiRouter.get('/events', (req, res) => __awaiter(void 0, void 0, void 0, functio
             let wheelchairAvailable;
             // オファー集計のcategoryで判断する(オファーコードでの判断を廃止)
             // 一般座席の残席数
-            seatStatus = (_c = (_b = (_a = event.aggregateOffer) === null || _a === void 0 ? void 0 : _a.offers) === null || _b === void 0 ? void 0 : _b.find((o) => { var _a; return ((_a = o.category) === null || _a === void 0 ? void 0 : _a.codeValue) !== 'Wheelchair'; })) === null || _c === void 0 ? void 0 : _c.remainingAttendeeCapacity;
+            seatStatus = (_c = (_b = (_a = event.aggregateOffer) === null || _a === void 0 ? void 0 : _a.offers) === null || _b === void 0 ? void 0 : _b.find(
+            // 互換性維持としてWheelchairにも対応
+            (o) => { var _a, _b; return ((_a = o.category) === null || _a === void 0 ? void 0 : _a.codeValue) !== 'Wheelchair' && ((_b = o.category) === null || _b === void 0 ? void 0 : _b.codeValue) !== 'WheelchairOffer'; })) === null || _c === void 0 ? void 0 : _c.remainingAttendeeCapacity;
             // 車椅子座席の残席数
-            wheelchairAvailable = (_f = (_e = (_d = event.aggregateOffer) === null || _d === void 0 ? void 0 : _d.offers) === null || _e === void 0 ? void 0 : _e.find((o) => { var _a; return ((_a = o.category) === null || _a === void 0 ? void 0 : _a.codeValue) === 'Wheelchair'; })) === null || _f === void 0 ? void 0 : _f.remainingAttendeeCapacity;
+            wheelchairAvailable = (_f = (_e = (_d = event.aggregateOffer) === null || _d === void 0 ? void 0 : _d.offers) === null || _e === void 0 ? void 0 : _e.find(
+            // 互換性維持としてWheelchairにも対応
+            (o) => { var _a, _b; return ((_a = o.category) === null || _a === void 0 ? void 0 : _a.codeValue) === 'Wheelchair' || ((_b = o.category) === null || _b === void 0 ? void 0 : _b.codeValue) === 'WheelchairOffer'; })) === null || _f === void 0 ? void 0 : _f.remainingAttendeeCapacity;
             return {
                 id: event.id,
                 start_time: startTime,

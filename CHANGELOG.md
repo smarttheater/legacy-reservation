@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- update @cinerino/sdk
+- 車椅子オファーカテゴリーをWheelchairとWheelchairOfferの両方に対応
+
 ### Deprecated
 
 ### Removed
