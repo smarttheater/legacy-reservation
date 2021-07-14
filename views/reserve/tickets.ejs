@@ -65,7 +65,7 @@
                         }
 
                         // 一般予約(general)だったら一般券種以外を弾く
-                        if (tempReservationModel.category === 'general' && ticketTypeCategory !== 'Normal') {
+                        if (tempReservationModel.category === 'general' && ticketTypeCategory !== 'Normal' && ticketTypeCategory !== 'NormalOffer') {
                             return true;
                         }
                         const isWheelchairTicket = (ticketTypeCategory === 'Wheelchair' || ticketTypeCategory === 'WheelchairOffer');
